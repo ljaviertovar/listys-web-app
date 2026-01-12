@@ -1,8 +1,11 @@
+'use client'
+
 import { useState } from 'react'
-import { signIn } from 'next-auth/react'
+import { createClient } from '@/lib/supabase/client'
+import { HugeiconsIcon } from '@hugeicons/react'
+import { GoogleIcon, Loading03Icon } from '@hugeicons/core-free-icons'
 
 import { Button } from '@/components/ui/button'
-import { SpinnerIcon, GoogleIcon } from '@/components/icons'
 
 interface Props {
 	typeSubmit: 'signin' | 'signup'
@@ -11,24 +14,46 @@ interface Props {
 
 export default function GoogleButtonSignin({ typeSubmit, callbackUrl }: Props) {
 	const [isLoading, setIsLoading] = useState(false)
+	const supabase = createClient()
+
+	const handleGoogleSignIn = async () => {
+		setIsLoading(true)
+		try {
+			const { error } = await supabase.auth.signInWithOAuth({
+				provider: 'google',
+				options: {
+					redirectTo: `${window.location.origin}/auth/callback?next=${callbackUrl || '/dashboard'}`,
+				},
+			})
+			if (error) {
+				console.error('Error signing in with Google:', error.message)
+				setIsLoading(false)
+			}
+		} catch (error) {
+			console.error('Unexpected error:', error)
+			setIsLoading(false)
+		}
+	}
 
 	return (
 		<Button
 			variant='outline'
 			type='button'
 			disabled={isLoading}
-			className='flex items-center justify-center gap-2 '
-			onClick={() => {
-				setIsLoading(true)
-				signIn('google', { callbackUrl })
-			}}
+			className='flex items-center justify-center gap-2'
+			onClick={handleGoogleSignIn}
 		>
 			{isLoading ? (
-				<span className='animate-spin'>
-					<SpinnerIcon size={16} />
-				</span>
+				<HugeiconsIcon
+					icon={Loading03Icon}
+					strokeWidth={2}
+					className='animate-spin'
+				/>
 			) : (
-				<GoogleIcon size={16} />
+				<HugeiconsIcon
+					icon={GoogleIcon}
+					strokeWidth={2}
+				/>
 			)}{' '}
 			{typeSubmit === 'signup' ? 'Sign Up with Google' : 'Sign in with Google'}
 		</Button>

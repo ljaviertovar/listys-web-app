@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Separator } from '@/components/ui/separator'
+import GoogleButtonSignin from '@/components/features/auth/google-button-signin'
 
 export default function SignInPage() {
 	const [email, setEmail] = useState('')
@@ -60,6 +62,21 @@ export default function SignInPage() {
 						onSubmit={handleSignIn}
 					>
 						{error && <div className='rounded-lg bg-destructive/10 p-3 text-sm text-destructive'>{error}</div>}
+
+						<GoogleButtonSignin
+							typeSubmit='signin'
+							callbackUrl='/dashboard'
+						/>
+
+						<div className='relative'>
+							<div className='absolute inset-0 flex items-center'>
+								<Separator className='w-full' />
+							</div>
+							<div className='relative flex justify-center text-xs uppercase'>
+								<span className='bg-card px-2 text-muted-foreground'>Or continue with</span>
+							</div>
+						</div>
+
 						<div className='space-y-2'>
 							<Label htmlFor='email'>Email</Label>
 							<Input
