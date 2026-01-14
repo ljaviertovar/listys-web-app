@@ -29,7 +29,17 @@ export const updateShoppingRunItemSchema = z.object({
   sort_order: z.number().int().optional(),
 })
 
+export const createShoppingRunItemSchema = z.object({
+  shopping_run_id: z.string().uuid(),
+  name: z.string().min(1, 'Item name is required').max(200),
+  quantity: z.number().positive().optional(),
+  unit: z.string().max(20).optional(),
+  notes: z.string().max(500).optional(),
+  category: z.string().max(50).optional(),
+})
+
 export type CreateShoppingRunInput = z.infer<typeof createShoppingRunSchema>
 export type UpdateShoppingRunInput = z.infer<typeof updateShoppingRunSchema>
 export type CompleteShoppingRunInput = z.infer<typeof completeShoppingRunSchema>
 export type UpdateShoppingRunItemInput = z.infer<typeof updateShoppingRunItemSchema>
+export type CreateShoppingRunItemInput = z.infer<typeof createShoppingRunItemSchema>

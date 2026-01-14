@@ -141,7 +141,7 @@ export async function getBaseListsByGroup(groupId: string) {
 
   const { data: baseLists, error } = await supabase
     .from('base_lists')
-    .select('*')
+    .select('*, items:base_list_items(count)')
     .eq('group_id', groupId)
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })

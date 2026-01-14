@@ -6,6 +6,7 @@ import {
   updateShoppingRunSchema,
   completeShoppingRunSchema,
   updateShoppingRunItemSchema,
+  createShoppingRunItemSchema,
 } from '@/lib/validations/shopping-run'
 import { revalidatePath } from 'next/cache'
 
@@ -382,6 +383,50 @@ export async function updateShoppingRunItem(id: string, data: unknown) {
 
 export async function toggleShoppingRunItem(id: string, checked: boolean) {
   return updateShoppingRunItem(id, { checked })
+}
+
+export async function createShoppingRunItem(data: unknown) {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: 'Unauthorized' }
+  }
+
+  const validation = createShoppingRunItemSchema.safeParse(data)
+  if (!validation.success) {
+    return { error: validation.error.errors[0].message }
+  }
+
+  // Get the max sort_order for this shopping run
+  const { data: existingItems } = await supabase
+    .from('shopping_run_items')
+    .select('sort_order')
+    .eq('shopping_run_id', validation.data.shopping_run_id)
+    .order('sort_order', { ascending: false })
+    .limit(1)
+
+  const nextSortOrder = existingItems?.[0]?.sort_order ? existingItems[0].sort_order + 1 : 0
+
+  const { data: item, error } = await supabase
+    .from('shopping_run_items')
+    .insert({
+      ...validation.data,
+      sort_order: nextSortOrder,
+      checked: false,
+    })
+    .select()
+    .single()
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  revalidatePath(`/shopping/${validation.data.shopping_run_id}`)
+  return { data: item }
 }
 
 export async function deleteShoppingRunItem(id: string) {

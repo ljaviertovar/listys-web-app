@@ -11,3 +11,7 @@ export type UpdateBaseListItem = Database['public']['Tables']['base_list_items']
 export type BaseListWithItems = BaseList & {
   items: BaseListItem[]
 }
+
+export type BaseListWithCount = BaseList & {
+  items_count: number
+}
