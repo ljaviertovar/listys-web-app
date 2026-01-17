@@ -72,7 +72,7 @@ export default async function ShoppingRunPage({ params }: { params: Promise<{ ru
 							/>
 							Shopping List
 						</span>
-						<CompleteRunButton runId={runId} />
+						{runWithItems.status !== 'completed' && <CompleteRunButton runId={runId} />}
 					</CardTitle>
 					<CardDescription>Check off items as you shop</CardDescription>
 				</CardHeader>
@@ -85,6 +85,7 @@ export default async function ShoppingRunPage({ params }: { params: Promise<{ ru
 								<ShoppingRunItemRow
 									key={item.id}
 									item={item}
+									isCompleted={runWithItems.status === 'completed'}
 								/>
 							))}
 						</div>
@@ -92,12 +93,15 @@ export default async function ShoppingRunPage({ params }: { params: Promise<{ ru
 				</CardContent>
 			</Card>
 
-			<AddItemDialog runId={runId} />
-
-			<CompleteRunAlert
-				runId={runId}
-				progress={progress}
-			/>
+			{runWithItems.status !== 'completed' && (
+				<>
+					<AddItemDialog runId={runId} />
+					<CompleteRunAlert
+						runId={runId}
+						progress={progress}
+					/>
+				</>
+			)}
 		</div>
 	)
 }

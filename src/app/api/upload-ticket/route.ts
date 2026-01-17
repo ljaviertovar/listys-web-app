@@ -63,31 +63,48 @@ export async function POST(request: NextRequest) {
     }
 
     // Trigger OCR processing via Edge Function
-    const { data: publicUrlData } = supabase.storage
+    console.log('Creating signed URL for:', fileName)
+    const { data: signedUrlData, error: signedUrlError } = await supabase.storage
       .from('tickets')
-      .getPublicUrl(fileName)
+      .createSignedUrl(fileName, 60 * 60) // 1 hour
 
-    try {
-      const ocrResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/process-ticket-ocr`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
-          },
-          body: JSON.stringify({
-            ticketId: ticket.id,
-            imageUrl: publicUrlData.publicUrl,
-          }),
+    if (signedUrlError) {
+      console.error('Failed to create signed URL:', signedUrlError)
+    } else if (signedUrlData?.signedUrl) {
+      console.log('Signed URL created:', signedUrlData.signedUrl)
+      console.log('Calling Edge Function at:', `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/process-ticket-ocr`)
+      console.log('Ticket ID:', ticket.id)
+
+      try {
+        const ocrResponse = await fetch(
+          `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/process-ticket-ocr`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+            },
+            body: JSON.stringify({
+              ticketId: ticket.id,
+              imageUrl: signedUrlData.signedUrl,
+            }),
+          }
+        )
+
+        console.log('OCR Response status:', ocrResponse.status)
+
+        if (!ocrResponse.ok) {
+          const errorText = await ocrResponse.text()
+          console.error('OCR function error:', errorText)
+        } else {
+          const result = await ocrResponse.json()
+          console.log('OCR processing triggered successfully:', result)
         }
-      )
-
-      if (!ocrResponse.ok) {
-        console.error('OCR processing failed:', await ocrResponse.text())
+      } catch (error) {
+        console.error('Failed to trigger OCR:', error)
       }
-    } catch (error) {
-      console.error('Failed to trigger OCR:', error)
+    } else {
+      console.error('No signed URL returned')
     }
 
     return NextResponse.json({ data: ticket })

@@ -8,14 +8,17 @@ import type { ShoppingRunItem } from '@/features/shopping-runs/types'
 
 interface Props {
 	item: ShoppingRunItem
+	isCompleted?: boolean
 }
 
-export function ShoppingRunItemRow({ item }: Props) {
+export function ShoppingRunItemRow({ item, isCompleted = false }: Props) {
 	const [checked, setChecked] = useState(item.checked)
 	const [loading, setLoading] = useState(false)
 	const router = useRouter()
 
 	const handleToggle = async () => {
+		if (isCompleted) return // Don't allow toggling completed runs
+
 		const newChecked = !checked
 		setChecked(newChecked) // Optimistic update
 		setLoading(true)
@@ -44,7 +47,7 @@ export function ShoppingRunItemRow({ item }: Props) {
 				<Checkbox
 					checked={checked}
 					onCheckedChange={handleToggle}
-					disabled={loading}
+					disabled={loading || isCompleted}
 					className='mt-0.5 w-5 h-5'
 				/>
 

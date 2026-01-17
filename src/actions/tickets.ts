@@ -169,6 +169,83 @@ export async function mergeTicketItemsToBaseList(data: unknown) {
   return { success: true }
 }
 
+export async function createBaseListFromTicket(data: {
+  ticket_id: string
+  group_id: string
+  name: string
+  item_ids: string[]
+}) {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: 'Unauthorized' }
+  }
+
+  const { ticket_id, group_id, name, item_ids } = data
+
+  // Get ticket items
+  const { data: ticketItems, error: ticketError } = await supabase
+    .from('ticket_items')
+    .select('*')
+    .eq('ticket_id', ticket_id)
+    .in('id', item_ids)
+
+  if (ticketError) {
+    return { error: ticketError.message }
+  }
+
+  if (!ticketItems || ticketItems.length === 0) {
+    return { error: 'No items to add' }
+  }
+
+  // Create new base list
+  const { data: baseList, error: createError } = await supabase
+    .from('base_lists')
+    .insert({
+      user_id: user.id,
+      group_id,
+      name,
+    })
+    .select()
+    .single()
+
+  if (createError) {
+    return { error: createError.message }
+  }
+
+  // Insert items to base list
+  const itemsToInsert = ticketItems.map((item, index) => ({
+    base_list_id: baseList.id,
+    name: item.name,
+    quantity: item.quantity || 1,
+    unit: item.unit,
+    category: item.category,
+    sort_order: index,
+  }))
+
+  const { error: insertError } = await supabase
+    .from('base_list_items')
+    .insert(itemsToInsert)
+
+  if (insertError) {
+    return { error: insertError.message }
+  }
+
+  // Update ticket to mark it as merged
+  await supabase
+    .from('tickets')
+    .update({ base_list_id: baseList.id })
+    .eq('id', ticket_id)
+
+  revalidatePath(`/groups/${group_id}`)
+  revalidatePath('/tickets')
+  return { data: baseList }
+}
+
 export async function deleteTicket(id: string) {
   const supabase = await createClient()
 

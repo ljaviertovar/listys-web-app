@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Calendar03Icon, DollarCircleIcon, ShoppingCart02Icon } from '@hugeicons/core-free-icons'
 import Link from 'next/link'
-import { formatDate } from '@/utils/format-date'
+import { formatDate, formatTime } from '@/utils/format-date'
 
 interface Run {
 	id: string
@@ -50,7 +50,7 @@ export function HistoryRunCard({ run }: Props) {
 								strokeWidth={2}
 								className='h-4 w-4'
 							/>
-							{completedDate ? formatDate(completedDate) : 'Date unknown'}
+							{completedDate ? `${formatDate(completedDate)} - ${formatTime(completedDate)}` : 'Date unknown'}
 						</div>
 						{run.total_amount && (
 							<div className='flex items-center gap-2 text-sm font-medium'>

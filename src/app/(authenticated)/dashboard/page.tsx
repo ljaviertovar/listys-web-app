@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import { getActiveShoppingRun } from '@/actions/shopping-runs'
+import { getActiveShoppingRun, getShoppingHistory } from '@/actions/shopping-runs'
 import { getGroups } from '@/actions/groups'
 import Link from 'next/link'
 
@@ -11,9 +11,11 @@ export default async function DashboardPage() {
 
 	const activeRunResult = await getActiveShoppingRun()
 	const groupsResult = await getGroups()
+	const historyResult = await getShoppingHistory()
 
 	const activeRun = activeRunResult.data
 	const groups = groupsResult.data || []
+	const historyCount = historyResult.data?.length || 0
 
 	const handleSignOut = async () => {
 		'use server'
@@ -60,6 +62,14 @@ export default async function DashboardPage() {
 				{/* Quick Actions */}
 				<div className='grid grid-cols-1 md:grid-cols-3 gap-6 mb-8'>
 					<Link
+						href='/tickets'
+						className='rounded-lg bg-white p-6 shadow-sm hover:shadow-md transition-shadow'
+					>
+						<div className='text-3xl mb-3'>📸</div> <h3 className='text-lg font-semibold text-gray-900'>Tickets</h3>
+						<p className='text-sm text-gray-600 mt-2'>Upload and manage receipts</p>
+					</Link>
+
+					<Link
 						href='/groups'
 						className='rounded-lg bg-white p-6 shadow-sm hover:shadow-md transition-shadow'
 					>
@@ -76,48 +86,9 @@ export default async function DashboardPage() {
 						<div className='text-3xl mb-3'>📊</div>
 						<h3 className='text-lg font-semibold text-gray-900'>History</h3>
 						<p className='text-sm text-gray-600 mt-2'>View past shopping runs</p>
-					</Link>
-
-					<Link
-						href='/tickets'
-						className='rounded-lg bg-white p-6 shadow-sm hover:shadow-md transition-shadow'
-					>
-						<div className='text-3xl mb-3'>📸</div>
-						<h3 className='text-lg font-semibold text-gray-900'>Tickets</h3>
-						<p className='text-sm text-gray-600 mt-2'>Upload and manage receipts</p>
+						<p className='text-2xl font-bold text-primary mt-4'>{historyCount}</p>{' '}
 					</Link>
 				</div>
-
-				{/* Recent Groups */}
-				{groups.length === 0 ? (
-					<div className='rounded-lg border-2 border-dashed border-gray-300 bg-white p-12 text-center'>
-						<div className='text-5xl mb-4'>🛒</div>
-						<h3 className='text-lg font-semibold text-gray-900'>No groups yet</h3>
-						<p className='text-sm text-gray-600 mt-2 mb-6'>Get started by creating your first shopping list group</p>
-						<Link
-							href='/groups'
-							className='inline-flex rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90'
-						>
-							Create Group
-						</Link>
-					</div>
-				) : (
-					<div>
-						<h2 className='text-xl font-semibold text-gray-900 mb-4'>Your Groups</h2>
-						<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
-							{groups.slice(0, 6).map(group => (
-								<Link
-									key={group.id}
-									href={`/groups/${group.id}`}
-									className='rounded-lg bg-white p-4 shadow-sm hover:shadow-md transition-shadow'
-								>
-									<h3 className='font-semibold text-gray-900'>{group.name}</h3>
-									{group.description && <p className='text-sm text-gray-600 mt-1 line-clamp-2'>{group.description}</p>}
-								</Link>
-							))}
-						</div>
-					</div>
-				)}
 			</div>
 		</div>
 	)

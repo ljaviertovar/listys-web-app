@@ -128,6 +128,30 @@ export async function getBaseList(id: string) {
   return { data: baseList }
 }
 
+export async function getBaseLists() {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: 'Unauthorized' }
+  }
+
+  const { data: baseLists, error } = await supabase
+    .from('base_lists')
+    .select('id, name, group_id')
+    .eq('user_id', user.id)
+    .order('name', { ascending: true })
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  return { data: baseLists }
+}
+
 export async function getBaseListsByGroup(groupId: string) {
   const supabase = await createClient()
 

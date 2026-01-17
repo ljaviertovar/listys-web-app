@@ -336,7 +336,14 @@ export async function getShoppingHistory() {
     .from('shopping_runs')
     .select(`
       *,
-      base_list:base_lists(name)
+      base_list:base_lists(
+        name,
+        group:groups(
+          id,
+          name,
+          description
+        )
+      )
     `)
     .eq('user_id', user.id)
     .eq('status', 'completed')
