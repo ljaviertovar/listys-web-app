@@ -34,7 +34,7 @@ export default async function DashboardPage() {
 				{/* Active Shopping Run */}
 				{activeRun && (
 					<div className='mb-8 rounded-lg border-2 border-green-500 bg-green-50 p-6'>
-						<div className='flex items-center justify-between'>
+						<div className='flex items-center justify-between mb-3'>
 							<div>
 								<h2 className='text-lg font-semibold text-green-900'>Active Shopping Run</h2>
 								<p className='text-sm text-green-700 mt-1'>{activeRun.name}</p>
@@ -45,6 +45,12 @@ export default async function DashboardPage() {
 							>
 								Continue Shopping
 							</Link>
+						</div>
+						<div className='rounded-md bg-green-100 border border-green-200 p-3'>
+							<p className='text-xs text-green-800'>
+								💡 <strong>Note:</strong> You can only have one active shopping run at a time. Complete or cancel this
+								run before starting a new one.
+							</p>
 						</div>
 					</div>
 				)}

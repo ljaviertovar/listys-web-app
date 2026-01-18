@@ -26,6 +26,21 @@ export async function createShoppingRun(data: unknown) {
     return { error: validation.error.errors[0].message }
   }
 
+  // Check if user already has an active shopping run
+  const { data: existingRun, error: checkError } = await supabase
+    .from('shopping_runs')
+    .select('id')
+    .eq('user_id', user.id)
+    .eq('status', 'active')
+    .maybeSingle()
+
+  if (existingRun) {
+    return {
+      error: 'You already have an active shopping run. Please complete or cancel it before starting a new one.',
+      activeRunId: existingRun.id
+    }
+  }
+
   // Get base list items to copy
   const { data: baseList, error: baseListError } = await supabase
     .from('base_lists')

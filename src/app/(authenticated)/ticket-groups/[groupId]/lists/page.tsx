@@ -35,6 +35,14 @@ export default async function BaseListsPage({ params }: { params: Promise<{ grou
 	// Get group name
 	const { data: group } = await supabase.from('groups').select('name').eq('id', groupId).single()
 
+	// Check if there's an active shopping run
+	const { data: activeRun } = await supabase
+		.from('shopping_runs')
+		.select('id')
+		.eq('user_id', user.id)
+		.eq('status', 'active')
+		.maybeSingle()
+
 	return (
 		<main className='flex-1 overflow-y-auto'>
 			<PageHeader
@@ -81,6 +89,7 @@ export default async function BaseListsPage({ params }: { params: Promise<{ grou
 							<BaseListCard
 								key={baseList.id}
 								baseList={baseList}
+								hasActiveRun={!!activeRun}
 							/>
 						))}
 					</div>

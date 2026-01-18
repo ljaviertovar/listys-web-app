@@ -15,9 +15,10 @@ import type { BaseListWithCount } from '@/features/base-lists/types'
 
 interface Props {
 	baseList: BaseListWithCount
+	hasActiveRun?: boolean
 }
 
-export function BaseListCard({ baseList }: Props) {
+export function BaseListCard({ baseList, hasActiveRun = false }: Props) {
 	const [loading, setLoading] = useState(false)
 	const [startingRun, setStartingRun] = useState(false)
 	const router = useRouter()
@@ -41,15 +42,24 @@ export function BaseListCard({ baseList }: Props) {
 		setStartingRun(true)
 		try {
 			const runName = `${baseList.name} - ${formatDate(new Date())}`
-			const { data, error } = await createShoppingRun({
+			const result = await createShoppingRun({
 				base_list_id: baseList.id,
 				name: runName,
 			})
 
-			if (error) throw new Error(error)
-			if (!data) throw new Error('Failed to create shopping run')
+			// If there's an active run, redirect to it
+			if (result.error) {
+				const resultWithId = result as { error: string; activeRunId?: string }
+				if (resultWithId.activeRunId) {
+					router.push(`/shopping/${resultWithId.activeRunId}`)
+					return
+				}
+				throw new Error(result.error)
+			}
 
-			router.push(`/shopping/${data.id}`)
+			if (!result.data) throw new Error('Failed to create shopping run')
+
+			router.push(`/shopping/${result.data.id}`)
 		} catch (err) {
 			console.error('Failed to start shopping run:', err)
 			alert('Failed to start shopping run. Please try again.')
@@ -101,11 +111,11 @@ export function BaseListCard({ baseList }: Props) {
 					</CardDescription>
 				)}
 			</CardHeader>
-			<CardContent>
+			<CardContent className='space-y-2'>
 				<Button
 					className='w-full'
 					onClick={handleStartRun}
-					disabled={startingRun || loading}
+					disabled={startingRun || loading || hasActiveRun}
 				>
 					<HugeiconsIcon
 						icon={ShoppingCart02Icon}
@@ -114,6 +124,9 @@ export function BaseListCard({ baseList }: Props) {
 					/>
 					{startingRun ? 'Starting...' : 'Start Shopping Run'}
 				</Button>
+				{hasActiveRun && (
+					<p className='text-xs text-center text-muted-foreground'>Complete your current shopping run first</p>
+				)}
 			</CardContent>
 		</Card>
 	)

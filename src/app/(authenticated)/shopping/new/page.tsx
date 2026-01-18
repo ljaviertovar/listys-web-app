@@ -29,6 +29,19 @@ export default async function NewShoppingRunPage({ searchParams }: { searchParam
 		redirect('/ticket-groups')
 	}
 
+	// Check if there's already an active shopping run
+	const { data: activeRun, error: runError } = await supabase
+		.from('shopping_runs')
+		.select('id')
+		.eq('user_id', user.id)
+		.eq('status', 'active')
+		.single()
+
+	// If there's an active run, redirect to it
+	if (activeRun && !runError) {
+		redirect(`/shopping/${activeRun.id}`)
+	}
+
 	return (
 		<main className='flex-1 overflow-y-auto'>
 			<PageHeader
