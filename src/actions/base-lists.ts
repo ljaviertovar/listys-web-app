@@ -38,8 +38,8 @@ export async function createBaseList(data: unknown) {
     return { error: error.message }
   }
 
-  revalidatePath('/groups')
-  revalidatePath(`/groups/${validation.data.group_id}`)
+  revalidatePath('/ticket-groups')
+  revalidatePath(`/ticket-groups/${validation.data.group_id}`)
   return { data: baseList }
 }
 
@@ -96,7 +96,7 @@ export async function deleteBaseList(id: string) {
     return { error: error.message }
   }
 
-  revalidatePath('/groups')
+  revalidatePath('/ticket-groups')
   return { success: true }
 }
 

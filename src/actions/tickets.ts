@@ -241,7 +241,7 @@ export async function createBaseListFromTicket(data: {
     .update({ base_list_id: baseList.id })
     .eq('id', ticket_id)
 
-  revalidatePath(`/groups/${group_id}`)
+  revalidatePath(`/ticket-groups/${group_id}`)
   revalidatePath('/tickets')
   return { data: baseList }
 }
@@ -280,5 +280,86 @@ export async function deleteTicket(id: string) {
   }
 
   revalidatePath('/tickets')
+  return { success: true }
+}
+
+export async function retryTicketOCR(id: string) {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: 'Unauthorized' }
+  }
+
+  // Get ticket
+  const { data: ticket, error: ticketError } = await supabase
+    .from('tickets')
+    .select('*')
+    .eq('id', id)
+    .eq('user_id', user.id)
+    .single()
+
+  if (ticketError || !ticket) {
+    return { error: 'Ticket not found' }
+  }
+
+  // Delete existing ticket items
+  await supabase
+    .from('ticket_items')
+    .delete()
+    .eq('ticket_id', id)
+
+  // Reset status to pending
+  const { error: updateError } = await supabase
+    .from('tickets')
+    .update({
+      ocr_status: 'pending',
+      total_items: 0,
+      processed_at: null,
+    })
+    .eq('id', id)
+
+  if (updateError) {
+    return { error: updateError.message }
+  }
+
+  // Generate signed URL for the image
+  const { data: signedUrlData, error: signedUrlError } = await supabase.storage
+    .from('tickets')
+    .createSignedUrl(ticket.image_path, 3600) // 1 hour expiry
+
+  if (signedUrlError || !signedUrlData?.signedUrl) {
+    return { error: 'Failed to generate image URL' }
+  }
+
+  // Call edge function to process
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/process-ticket-ocr`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+        },
+        body: JSON.stringify({
+          ticketId: id,
+          imageUrl: signedUrlData.signedUrl,
+        }),
+      }
+    )
+
+    if (!response.ok) {
+      console.error('OCR retry error:', await response.text())
+    }
+  } catch (err) {
+    console.error('Failed to trigger OCR:', err)
+  }
+
+  revalidatePath('/tickets')
+  revalidatePath(`/tickets/${id}`)
   return { success: true }
 }

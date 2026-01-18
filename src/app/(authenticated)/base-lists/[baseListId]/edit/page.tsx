@@ -9,6 +9,7 @@ import Link from 'next/link'
 import { AddItemForm } from '@/components/features/base-lists/add-item-form'
 import { BaseListItemRow } from '@/components/features/base-lists/base-list-item-row'
 import type { BaseListWithItems } from '@/features/base-lists/types'
+import PageHeader from '@/components/app/page-header'
 
 export default async function EditBaseListPage({ params }: { params: Promise<{ baseListId: string }> }) {
 	const { baseListId } = await params
@@ -39,11 +40,15 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 	const { data: group } = await supabase.from('groups').select('id, name').eq('id', baseListWithItems.group_id).single()
 
 	return (
-		<div className='container mx-auto max-w-4xl space-y-6 p-6'>
-			<div className='flex items-center justify-between'>
-				<div>
+		<main className='flex-1 overflow-y-auto'>
+			<PageHeader
+				title={baseListWithItems.name}
+				desc='Manage items in this base list'
+			/>
+			<div className='container mx-auto max-w-4xl space-y-6 p-6'>
+				<div className='flex items-center justify-between'>
 					<Link
-						href={`/groups/${baseListWithItems.group_id}/lists`}
+						href={`/ticket-groups/${baseListWithItems.group_id}/lists`}
 						className='flex items-center gap-1 text-sm text-muted-foreground hover:underline'
 					>
 						<HugeiconsIcon
@@ -53,46 +58,44 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 						/>
 						Back to {group?.name || 'Group'}
 					</Link>
-					<h1 className='text-3xl font-bold'>{baseListWithItems.name}</h1>
-					<p className='text-muted-foreground'>Manage items in this base list</p>
+					<Button asChild>
+						<Link href={`/shopping/new?baseListId=${baseListId}`}>
+							<HugeiconsIcon
+								icon={ShoppingBasket01Icon}
+								strokeWidth={2}
+								data-icon='inline-start'
+							/>
+							Start Shopping Run
+						</Link>
+					</Button>
 				</div>
-				<Button asChild>
-					<Link href={`/shopping/new?baseListId=${baseListId}`}>
-						<HugeiconsIcon
-							icon={ShoppingBasket01Icon}
-							strokeWidth={2}
-							data-icon='inline-start'
-						/>
-						Start Shopping Run
-					</Link>
-				</Button>
+
+				<Card>
+					<CardHeader>
+						<CardTitle>Items</CardTitle>
+					</CardHeader>
+					<CardContent className='space-y-4'>
+						<AddItemForm baseListId={baseListId} />
+
+						{!baseListWithItems.items || baseListWithItems.items.length === 0 ? (
+							<div className='flex flex-col items-center justify-center py-12 text-center'>
+								<p className='text-sm text-muted-foreground'>No items yet. Add your first item above.</p>
+							</div>
+						) : (
+							<div className='space-y-2'>
+								{baseListWithItems.items
+									.sort((a, b) => a.sort_order - b.sort_order)
+									.map(item => (
+										<BaseListItemRow
+											key={item.id}
+											item={item}
+										/>
+									))}
+							</div>
+						)}
+					</CardContent>
+				</Card>
 			</div>
-
-			<Card>
-				<CardHeader>
-					<CardTitle>Items</CardTitle>
-				</CardHeader>
-				<CardContent className='space-y-4'>
-					<AddItemForm baseListId={baseListId} />
-
-					{!baseListWithItems.items || baseListWithItems.items.length === 0 ? (
-						<div className='flex flex-col items-center justify-center py-12 text-center'>
-							<p className='text-sm text-muted-foreground'>No items yet. Add your first item above.</p>
-						</div>
-					) : (
-						<div className='space-y-2'>
-							{baseListWithItems.items
-								.sort((a, b) => a.sort_order - b.sort_order)
-								.map(item => (
-									<BaseListItemRow
-										key={item.id}
-										item={item}
-									/>
-								))}
-						</div>
-					)}
-				</CardContent>
-			</Card>
-		</div>
+		</main>
 	)
 }

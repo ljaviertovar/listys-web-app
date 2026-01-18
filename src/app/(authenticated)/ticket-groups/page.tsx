@@ -2,12 +2,15 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getGroups } from '@/actions/ticket-groups'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { ArrowLeft02Icon, ShoppingBasket01Icon, FolderIcon } from '@hugeicons/core-free-icons'
+import { PlusSignIcon, FolderIcon, ArrowLeft02Icon } from '@hugeicons/core-free-icons'
 import Link from 'next/link'
+import { CreateGroupDialog } from '@/components/features/ticket-groups/create-group-dialog'
+import { GroupCard } from '@/components/features/ticket-groups/group-card'
 import PageHeader from '@/components/app/page-header'
 
-export default async function HistoryPage() {
+export default async function GroupsPage() {
 	const supabase = await createClient()
 	const {
 		data: { user },
@@ -22,9 +25,11 @@ export default async function HistoryPage() {
 	return (
 		<main className='flex-1 overflow-y-auto'>
 			<PageHeader
-				title='Shopping History'
-				desc='View your past shopping runs by group'
-			/>
+				title='Groups'
+				desc='Organize your shopping lists into groups'
+			>
+				<CreateGroupDialog />
+			</PageHeader>
 			<div className='container mx-auto max-w-7xl space-y-6 p-6'>
 				{error && (
 					<div className='rounded-lg bg-destructive/10 p-4 text-sm text-destructive'>Error loading groups: {error}</div>
@@ -34,36 +39,24 @@ export default async function HistoryPage() {
 					<Card className='flex min-h-[400px] flex-col items-center justify-center'>
 						<CardContent className='flex flex-col items-center space-y-4 pt-6'>
 							<HugeiconsIcon
-								icon={ShoppingBasket01Icon}
+								icon={FolderIcon}
 								strokeWidth={1.5}
 								className='h-16 w-16 text-muted-foreground'
 							/>
 							<div className='text-center'>
 								<h3 className='text-lg font-semibold'>No groups yet</h3>
-								<p className='text-sm text-muted-foreground'>Create groups and complete shopping runs to see history</p>
+								<p className='text-sm text-muted-foreground'>Create your first group to get started</p>
 							</div>
+							<CreateGroupDialog />
 						</CardContent>
 					</Card>
 				) : (
 					<div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3'>
 						{groups.map(group => (
-							<Link
+							<GroupCard
 								key={group.id}
-								href={`/history/${group.id}`}
-							>
-								<Card className='transition-colors hover:bg-muted/50'>
-									<CardHeader>
-										<CardTitle className='flex items-center gap-2'>
-											<HugeiconsIcon
-												icon={FolderIcon}
-												strokeWidth={2}
-											/>
-											{group.name}
-										</CardTitle>
-										{group.description && <CardDescription>{group.description}</CardDescription>}
-									</CardHeader>
-								</Card>
-							</Link>
+								group={group}
+							/>
 						))}
 					</div>
 				)}

@@ -9,6 +9,8 @@ import Link from 'next/link'
 import { formatDate, formatTime } from '@/utils/format-date'
 import { TicketItemsSelector } from '@/components/features/tickets/ticket-items-selector'
 import { TicketImage } from '@/components/features/tickets/ticket-image'
+import { TicketActions } from '@/components/features/tickets/ticket-actions'
+import PageHeader from '@/components/app/page-header'
 
 export default async function TicketDetailPage({ params }: { params: Promise<{ ticketId: string }> }) {
 	const { ticketId } = await params
@@ -38,69 +40,72 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 	const statusColor = statusColors[ticket.ocr_status || 'pending']
 
 	return (
-		<div className='container mx-auto max-w-7xl space-y-6 p-6'>
-			<div>
-				<Link
-					href='/tickets'
-					className='flex items-center gap-1 text-sm text-muted-foreground hover:underline'
-				>
-					<HugeiconsIcon
-						icon={ArrowLeft02Icon}
-						strokeWidth={2}
-						className='h-4 w-4'
-					/>
-					Back to Tickets
-				</Link>
-				<div className='flex items-center gap-3'>
-					<h1 className='text-3xl font-bold'>{ticket.store_name || 'Receipt'}</h1>
-					<Badge className={statusColor}>{ticket.ocr_status}</Badge>
-				</div>
-				<p className='text-muted-foreground'>
-					{formatDate(createdAt)} - {formatTime(createdAt)}
-				</p>
-			</div>
-
-			<div className='grid gap-6 lg:grid-cols-2'>
-				{/* Ticket Image */}
-				<Card>
-					<CardHeader>
-						<CardTitle className='flex items-center gap-2'>
-							<HugeiconsIcon
-								icon={Invoice01Icon}
-								strokeWidth={2}
-							/>
-							Receipt Image
-						</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<TicketImage imagePath={ticket.image_path} />
-					</CardContent>
-				</Card>
-
-				{/* Extracted Items */}
-				<Card>
-					<CardHeader>
-						<CardTitle>Extracted Items</CardTitle>
-						<CardDescription>
-							{ticket.ocr_status === 'completed'
-								? `${ticket.items?.length || 0} items found`
-								: ticket.ocr_status === 'processing'
-								? 'Processing receipt...'
-								: ticket.ocr_status === 'failed'
-								? 'Failed to process receipt'
-								: 'Waiting to process...'}
-						</CardDescription>
-					</CardHeader>
-					<CardContent>
-						<TicketItemsSelector
-							ticketId={ticketId}
-							items={ticket.items || []}
-							status={ticket.ocr_status || 'pending'}
-							isMerged={!!ticket.base_list_id}
+		<main className='flex-1 overflow-y-auto'>
+			<PageHeader
+				title={ticket.store_name || 'Receipt'}
+				desc={`Uploaded on ${formatDate(createdAt)} at ${formatTime(createdAt)}`}
+			/>
+			<div className='container mx-auto max-w-7xl space-y-6 p-6'>
+				<div className='flex items-start justify-between'>
+					<Link
+						href='/tickets'
+						className='flex items-center gap-1 text-sm text-muted-foreground hover:underline'
+					>
+						<HugeiconsIcon
+							icon={ArrowLeft02Icon}
+							strokeWidth={2}
+							className='h-4 w-4'
 						/>
-					</CardContent>
-				</Card>
+						Back to Tickets
+					</Link>
+					<div className='flex items-center gap-2'>
+						<Badge className={statusColor}>{ticket.ocr_status}</Badge>
+						<TicketActions ticket={ticket} />
+					</div>
+				</div>
+
+				<div className='grid gap-6 lg:grid-cols-2'>
+					{/* Ticket Image */}
+					<Card>
+						<CardHeader>
+							<CardTitle className='flex items-center gap-2'>
+								<HugeiconsIcon
+									icon={Invoice01Icon}
+									strokeWidth={2}
+								/>
+								Receipt Image
+							</CardTitle>
+						</CardHeader>
+						<CardContent>
+							<TicketImage imagePath={ticket.image_path} />
+						</CardContent>
+					</Card>
+
+					{/* Extracted Items */}
+					<Card>
+						<CardHeader>
+							<CardTitle>Extracted Items</CardTitle>
+							<CardDescription>
+								{ticket.ocr_status === 'completed'
+									? `${ticket.items?.length || 0} items found`
+									: ticket.ocr_status === 'processing'
+									? 'Processing receipt...'
+									: ticket.ocr_status === 'failed'
+									? 'Failed to process receipt'
+									: 'Waiting to process...'}
+							</CardDescription>
+						</CardHeader>
+						<CardContent>
+							<TicketItemsSelector
+								ticketId={ticketId}
+								items={ticket.items || []}
+								status={ticket.ocr_status || 'pending'}
+								isMerged={!!ticket.base_list_id}
+							/>
+						</CardContent>
+					</Card>
+				</div>
 			</div>
-		</div>
+		</main>
 	)
 }

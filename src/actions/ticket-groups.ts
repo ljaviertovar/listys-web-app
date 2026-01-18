@@ -33,7 +33,7 @@ export async function createGroup(data: unknown) {
     return { error: error.message }
   }
 
-  revalidatePath('/groups')
+  revalidatePath('/ticket-groups')
   return { data: group }
 }
 
@@ -65,8 +65,8 @@ export async function updateGroup(id: string, data: unknown) {
     return { error: error.message }
   }
 
-  revalidatePath('/groups')
-  revalidatePath(`/groups/${id}`)
+  revalidatePath('/ticket-groups')
+  revalidatePath(`/ticket-groups/${id}`)
   return { data: group }
 }
 
@@ -91,7 +91,7 @@ export async function deleteGroup(id: string) {
     return { error: error.message }
   }
 
-  revalidatePath('/groups')
+  revalidatePath('/ticket-groups')
   return { success: true }
 }
 

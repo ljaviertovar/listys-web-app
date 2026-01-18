@@ -1,13 +1,14 @@
-import { createClient } from '@/lib/supabase/server'
-import { getActiveShoppingRun, getShoppingHistory } from '@/actions/shopping-runs'
-import { getGroups } from '@/actions/groups'
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase/server'
+
+import { getActiveShoppingRun, getShoppingHistory } from '@/actions/shopping-runs'
+import { getGroups } from '@/actions/ticket-groups'
+import PageHeader from '@/components/app/page-header'
 
 export default async function DashboardPage() {
 	const supabase = await createClient()
-	const {
-		data: { user },
-	} = await supabase.auth.getUser()
+	const { data } = await supabase.auth.getClaims()
+	const user = data?.claims
 
 	const activeRunResult = await getActiveShoppingRun()
 	const groupsResult = await getGroups()
@@ -24,23 +25,12 @@ export default async function DashboardPage() {
 	}
 
 	return (
-		<div className='min-h-screen bg-gray-50'>
-			<div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8'>
-				<div className='flex items-center justify-between mb-8'>
-					<div>
-						<h1 className='text-3xl font-bold text-gray-900'>Dashboard</h1>
-						<p className='text-gray-600 mt-1'>{user?.email}</p>
-					</div>
-					<form action={handleSignOut}>
-						<button
-							type='submit'
-							className='rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-50'
-						>
-							Sign Out
-						</button>
-					</form>
-				</div>
-
+		<main className='flex-1 overflow-y-auto'>
+			<PageHeader
+				title='Dashboard'
+				desc='Overview of your shopping activity'
+			/>
+			<div className='container mx-auto max-w-7xl space-y-6 p-6'>
 				{/* Active Shopping Run */}
 				{activeRun && (
 					<div className='mb-8 rounded-lg border-2 border-green-500 bg-green-50 p-6'>
@@ -70,7 +60,7 @@ export default async function DashboardPage() {
 					</Link>
 
 					<Link
-						href='/groups'
+						href='/ticket-groups'
 						className='rounded-lg bg-white p-6 shadow-sm hover:shadow-md transition-shadow'
 					>
 						<div className='text-3xl mb-3'>📋</div>
@@ -90,6 +80,6 @@ export default async function DashboardPage() {
 					</Link>
 				</div>
 			</div>
-		</div>
+		</main>
 	)
 }

@@ -1,12 +1,13 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getShoppingHistory } from '@/actions/shopping-runs'
-import { getGroup } from '@/actions/groups'
+import { getGroup } from '@/actions/ticket-groups'
 import { Card, CardContent } from '@/components/ui/card'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ArrowLeft02Icon, ShoppingBasket01Icon } from '@hugeicons/core-free-icons'
 import Link from 'next/link'
 import { HistoryRunCard } from '@/components/features/shopping-runs/history-run-card'
+import PageHeader from '@/components/app/page-header'
 
 export default async function GroupHistoryPage({ params }: { params: Promise<{ groupId: string }> }) {
 	const { groupId } = await params
@@ -30,8 +31,12 @@ export default async function GroupHistoryPage({ params }: { params: Promise<{ g
 	const runs = allRuns?.filter(run => run.base_list?.group?.id === groupId) || []
 
 	return (
-		<div className='container mx-auto max-w-4xl space-y-6 p-6'>
-			<div>
+		<main className='flex-1 overflow-y-auto'>
+			<PageHeader
+				title={group.name}
+				desc={group.description || 'Shopping history for this group'}
+			/>
+			<div className='container mx-auto max-w-4xl space-y-6 p-6'>
 				<Link
 					href='/history'
 					className='flex items-center gap-1 text-sm text-muted-foreground hover:underline'
@@ -43,42 +48,40 @@ export default async function GroupHistoryPage({ params }: { params: Promise<{ g
 					/>
 					Back to History
 				</Link>
-				<h1 className='text-3xl font-bold'>{group.name}</h1>
-				<p className='text-muted-foreground'>{group.description || 'Shopping history for this group'}</p>
+
+				{runsError && (
+					<div className='rounded-lg bg-destructive/10 p-4 text-sm text-destructive'>
+						Error loading history: {runsError}
+					</div>
+				)}
+
+				{runs.length === 0 ? (
+					<Card className='flex min-h-[400px] flex-col items-center justify-center'>
+						<CardContent className='flex flex-col items-center space-y-4 pt-6'>
+							<HugeiconsIcon
+								icon={ShoppingBasket01Icon}
+								strokeWidth={1.5}
+								className='h-16 w-16 text-muted-foreground'
+							/>
+							<div className='text-center'>
+								<h3 className='text-lg font-semibold'>No shopping history yet</h3>
+								<p className='text-sm text-muted-foreground'>
+									Complete shopping runs from this group's lists to see them here
+								</p>
+							</div>
+						</CardContent>
+					</Card>
+				) : (
+					<div className='grid gap-4'>
+						{runs.map(run => (
+							<HistoryRunCard
+								key={run.id}
+								run={run}
+							/>
+						))}
+					</div>
+				)}
 			</div>
-
-			{runsError && (
-				<div className='rounded-lg bg-destructive/10 p-4 text-sm text-destructive'>
-					Error loading history: {runsError}
-				</div>
-			)}
-
-			{runs.length === 0 ? (
-				<Card className='flex min-h-[400px] flex-col items-center justify-center'>
-					<CardContent className='flex flex-col items-center space-y-4 pt-6'>
-						<HugeiconsIcon
-							icon={ShoppingBasket01Icon}
-							strokeWidth={1.5}
-							className='h-16 w-16 text-muted-foreground'
-						/>
-						<div className='text-center'>
-							<h3 className='text-lg font-semibold'>No shopping history yet</h3>
-							<p className='text-sm text-muted-foreground'>
-								Complete shopping runs from this group's lists to see them here
-							</p>
-						</div>
-					</CardContent>
-				</Card>
-			) : (
-				<div className='grid gap-4'>
-					{runs.map(run => (
-						<HistoryRunCard
-							key={run.id}
-							run={run}
-						/>
-					))}
-				</div>
-			)}
-		</div>
+		</main>
 	)
 }

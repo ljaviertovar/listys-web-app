@@ -458,3 +458,30 @@ export async function deleteShoppingRunItem(id: string) {
 
   return { success: true }
 }
+
+export async function cancelShoppingRun(id: string) {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: 'Unauthorized' }
+  }
+
+  // Delete shopping run (items will be deleted via CASCADE)
+  const { error } = await supabase
+    .from('shopping_runs')
+    .delete()
+    .eq('id', id)
+    .eq('user_id', user.id)
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  revalidatePath('/dashboard')
+  revalidatePath('/history')
+  return { success: true }
+}

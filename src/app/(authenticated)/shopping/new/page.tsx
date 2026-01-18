@@ -6,6 +6,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { ArrowLeft02Icon, ShoppingCart02Icon } from '@hugeicons/core-free-icons'
 import Link from 'next/link'
 import { CreateShoppingRunForm } from '@/components/features/shopping-runs/create-shopping-run-form'
+import PageHeader from '@/components/app/page-header'
 
 export default async function NewShoppingRunPage({ searchParams }: { searchParams: Promise<{ baseListId?: string }> }) {
 	const { baseListId } = await searchParams
@@ -19,20 +20,24 @@ export default async function NewShoppingRunPage({ searchParams }: { searchParam
 	}
 
 	if (!baseListId) {
-		redirect('/groups')
+		redirect('/ticket-groups')
 	}
 
 	const { data: baseList, error } = await getBaseList(baseListId)
 
 	if (error || !baseList) {
-		redirect('/groups')
+		redirect('/ticket-groups')
 	}
 
 	return (
-		<div className='container mx-auto max-w-2xl space-y-6 p-6'>
-			<div>
+		<main className='flex-1 overflow-y-auto'>
+			<PageHeader
+				title='Start Shopping Run'
+				desc={`Create a new shopping run from "${baseList.name}"`}
+			/>
+			<div className='container mx-auto max-w-2xl space-y-6 p-6'>
 				<Link
-					href={`/groups/${baseList.group_id}/lists`}
+					href={`/ticket-groups/${baseList.group_id}/lists`}
 					className='flex items-center gap-1 text-sm text-muted-foreground hover:underline'
 				>
 					<HugeiconsIcon
@@ -42,28 +47,26 @@ export default async function NewShoppingRunPage({ searchParams }: { searchParam
 					/>
 					Back to Lists
 				</Link>
-				<h1 className='text-3xl font-bold'>Start Shopping Run</h1>
-				<p className='text-muted-foreground'>Create a new shopping run from "{baseList.name}"</p>
-			</div>
 
-			<Card>
-				<CardHeader>
-					<CardTitle className='flex items-center gap-2'>
-						<HugeiconsIcon
-							icon={ShoppingCart02Icon}
-							strokeWidth={2}
+				<Card>
+					<CardHeader>
+						<CardTitle className='flex items-center gap-2'>
+							<HugeiconsIcon
+								icon={ShoppingCart02Icon}
+								strokeWidth={2}
+							/>
+							New Shopping Run
+						</CardTitle>
+						<CardDescription>This will copy all items from your base list to a new active shopping run</CardDescription>
+					</CardHeader>
+					<CardContent>
+						<CreateShoppingRunForm
+							baseListId={baseListId}
+							defaultName={baseList.name}
 						/>
-						New Shopping Run
-					</CardTitle>
-					<CardDescription>This will copy all items from your base list to a new active shopping run</CardDescription>
-				</CardHeader>
-				<CardContent>
-					<CreateShoppingRunForm
-						baseListId={baseListId}
-						defaultName={baseList.name}
-					/>
-				</CardContent>
-			</Card>
-		</div>
+					</CardContent>
+				</Card>
+			</div>
+		</main>
 	)
 }

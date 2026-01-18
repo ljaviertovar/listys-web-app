@@ -1,11 +1,18 @@
 import { NavItem, SidebarData } from '@/types'
-import { LayoutDashboard, Settings, Sparkle, Wrench, UserCog, Boxes } from 'lucide-react'
+import {
+	DashboardSquare02Icon,
+	FolderLibraryIcon,
+	TimeQuarterPassIcon,
+	Invoice01Icon,
+	UserSettings01Icon,
+	Settings02Icon,
+} from '@hugeicons/core-free-icons'
 
 export const NAV_ITEMS: any[] = [
 	{
-		title: 'Featured Tools',
-		href: '#featured-tools',
-		icon: Sparkle,
+		title: 'Dashboard',
+		href: '/dashboard',
+		icon: DashboardSquare02Icon,
 		submenu: false,
 		subMenuItems: [],
 	},
@@ -14,38 +21,47 @@ export const NAV_ITEMS: any[] = [
 export const SIDEBAR_DATA: SidebarData = {
 	navGroups: [
 		{
-			title: 'General',
+			title: 'Shopping',
 			items: [
 				{
 					title: 'Dashboard',
 					url: '/dashboard',
-					icon: LayoutDashboard,
+					icon: DashboardSquare02Icon,
 				},
 				{
-					title: 'Tools',
-					url: '/tools',
-					icon: Boxes,
+					title: 'Ticket Groups',
+					url: '/ticket-groups',
+					icon: FolderLibraryIcon,
+				},
+				{
+					title: 'History',
+					url: '/history',
+					icon: TimeQuarterPassIcon,
 				},
 			],
 		},
 		{
-			title: 'Other',
+			title: 'Management',
 			items: [
 				{
-					title: 'Settings',
-					icon: Settings,
-					items: [
-						{
-							title: 'Profile',
-							url: '/settings/profile',
-							icon: UserCog,
-						},
-						{
-							title: 'Account',
-							url: '/settings/account',
-							icon: Wrench,
-						},
-					],
+					title: 'Tickets',
+					url: '/tickets',
+					icon: Invoice01Icon,
+				},
+			],
+		},
+		{
+			title: 'Settings',
+			items: [
+				{
+					title: 'Profile',
+					url: '/settings/profile',
+					icon: UserSettings01Icon,
+				},
+				{
+					title: 'Account',
+					url: '/settings/account',
+					icon: Settings02Icon,
 				},
 			],
 		},
@@ -54,11 +70,15 @@ export const SIDEBAR_DATA: SidebarData = {
 
 export const USER_NAV_ITEMS: NavItem[] = [
 	{
-		title: 'Profile',
-		url: '/settings/profile',
-	},
-	{
 		title: 'Dashboard',
 		url: '/dashboard',
+	},
+	{
+		title: 'Groups',
+		url: '/ticket-groups',
+	},
+	{
+		title: 'History',
+		url: '/history',
 	},
 ]
