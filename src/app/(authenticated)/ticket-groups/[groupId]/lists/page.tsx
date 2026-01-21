@@ -4,12 +4,13 @@ import { getBaseListsByGroup } from '@/actions/base-lists'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { PlusSignIcon, AddToListIcon, ShoppingBasket01Icon, ArrowLeft02Icon } from '@hugeicons/core-free-icons'
+import { PlusSignIcon, AddToListIcon, ShoppingBasket01Icon } from '@hugeicons/core-free-icons'
 import Link from 'next/link'
 import { CreateBaseListDialog } from '@/components/features/base-lists/create-base-list-dialog'
 import { BaseListCard } from '@/components/features/base-lists/base-list-card'
 import type { BaseListWithCount } from '@/features/base-lists/types'
 import PageHeader from '@/components/app/page-header'
+import BackLink from '@/components/app/back-link'
 
 export default async function BaseListsPage({ params }: { params: Promise<{ groupId: string }> }) {
 	const { groupId } = await params
@@ -29,7 +30,7 @@ export default async function BaseListsPage({ params }: { params: Promise<{ grou
 		? baseLists.map(list => ({
 				...list,
 				items_count: Array.isArray(list.items) ? list.items[0]?.count || 0 : 0,
-		  }))
+			}))
 		: []
 
 	// Get group name
@@ -38,7 +39,7 @@ export default async function BaseListsPage({ params }: { params: Promise<{ grou
 	// Check if there's an active shopping run
 	const { data: activeRun } = await supabase
 		.from('shopping_runs')
-		.select('id')
+		.select('id, base_list_id')
 		.eq('user_id', user.id)
 		.eq('status', 'active')
 		.maybeSingle()
@@ -52,24 +53,26 @@ export default async function BaseListsPage({ params }: { params: Promise<{ grou
 				<CreateBaseListDialog groupId={groupId} />
 			</PageHeader>
 			<div className='container mx-auto max-w-7xl space-y-6 p-6'>
-				<Link
+				<BackLink
 					href='/ticket-groups'
-					className='flex items-center gap-1 text-sm text-muted-foreground hover:underline'
-				>
-					<HugeiconsIcon
-						icon={ArrowLeft02Icon}
-						strokeWidth={2}
-						className='h-4 w-4'
-					/>
-					Back to Groups
-				</Link>
+					label='Back to Tickets Groups'
+				/>
 
 				{error && (
 					<div className='rounded-lg bg-destructive/10 p-4 text-sm text-destructive'>Error loading lists: {error}</div>
 				)}
 
+				{activeRun && (
+					<div className='rounded-lg border border-amber-200 bg-amber-50 p-4'>
+						<p className='text-sm text-amber-900'>
+							<span className='font-semibold'>Active shopping run in progress.</span> Complete your current shopping run
+							before starting a new one.
+						</p>
+					</div>
+				)}
+
 				{!baseLists || baseLists.length === 0 ? (
-					<Card className='flex min-h-[400px] flex-col items-center justify-center'>
+					<Card className='flex min-h-100 flex-col items-center justify-center'>
 						<CardContent className='flex flex-col items-center space-y-4 pt-6'>
 							<HugeiconsIcon
 								icon={AddToListIcon}
@@ -85,13 +88,24 @@ export default async function BaseListsPage({ params }: { params: Promise<{ grou
 					</Card>
 				) : (
 					<div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3'>
-						{baseListsWithCount.map(baseList => (
-							<BaseListCard
-								key={baseList.id}
-								baseList={baseList}
-								hasActiveRun={!!activeRun}
-							/>
-						))}
+						{baseListsWithCount
+							.sort((a, b) => {
+								// Active run first
+								const aIsActive = activeRun?.base_list_id === a.id
+								const bIsActive = activeRun?.base_list_id === b.id
+								if (aIsActive && !bIsActive) return -1
+								if (!aIsActive && bIsActive) return 1
+								return 0
+							})
+							.map(baseList => (
+								<BaseListCard
+									key={baseList.id}
+									baseList={baseList}
+									hasActiveRun={!!activeRun}
+									isActiveRun={activeRun?.base_list_id === baseList.id}
+									activeRunId={activeRun?.id}
+								/>
+							))}
 					</div>
 				)}
 			</div>

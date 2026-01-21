@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 
 import { motion, useCycle } from 'framer-motion'
+import { HugeiconsIcon } from '@hugeicons/react'
 
 import AuthButtons from '../features/auth/auth-buttons'
 import Logo from '../commons/logo'
@@ -81,7 +82,13 @@ export default function HeaderMobile() {
 											}`}
 										>
 											<div className='flex items-center gap-2'>
-												{item.icon && <item.icon className='h-6 w-6' />}
+												{item.icon && (
+													<HugeiconsIcon
+														icon={item.icon}
+														className='h-6 w-6'
+														strokeWidth={2}
+													/>
+												)}
 
 												{item.title}
 											</div>

@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import {
 	AlertDialog,
@@ -16,7 +16,7 @@ import {
 	AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { FolderIcon, Edit02Icon, Delete02Icon } from '@hugeicons/core-free-icons'
+import { FolderIcon, Edit02Icon, Delete02Icon, ArrowRight01Icon } from '@hugeicons/core-free-icons'
 import { deleteGroup } from '@/actions/ticket-groups'
 import { EditGroupDialog } from './edit-group-dialog'
 
@@ -52,19 +52,16 @@ export function GroupCard({ group }: Props) {
 
 	return (
 		<>
-			<Card className='transition-colors hover:bg-muted/50'>
+			<Card className='transition-colors hover:border-primary/50'>
 				<CardHeader>
 					<CardTitle className='flex items-center justify-between'>
-						<Link
-							href={`/ticket-groups/${group.id}/lists`}
-							className='flex flex-1 items-center gap-2'
-						>
+						<span className='flex items-center gap-2'>
 							<HugeiconsIcon
 								icon={FolderIcon}
 								strokeWidth={2}
 							/>
 							{group.name}
-						</Link>
+						</span>
 						<div className='flex gap-1'>
 							<Button
 								variant='ghost'
@@ -95,12 +92,17 @@ export function GroupCard({ group }: Props) {
 							</Button>
 						</div>
 					</CardTitle>
-					{group.description && (
-						<Link href={`/ticket-groups/${group.id}/lists`}>
-							<CardDescription>{group.description}</CardDescription>
-						</Link>
-					)}
+					{group.description && <CardDescription>{group.description}</CardDescription>}
 				</CardHeader>
+				<CardContent>
+					<Button
+						variant='outline'
+						className='w-full'
+						asChild
+					>
+						<Link href={`/ticket-groups/${group.id}/lists`}>View Lists</Link>
+					</Button>
+				</CardContent>
 			</Card>
 
 			<EditGroupDialog

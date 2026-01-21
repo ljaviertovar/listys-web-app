@@ -12,9 +12,10 @@ import type { BaseListItem } from '@/features/base-lists/types'
 
 interface Props {
 	item: BaseListItem
+	isLocked?: boolean
 }
 
-export function BaseListItemRow({ item }: Props) {
+export function BaseListItemRow({ item, isLocked = false }: Props) {
 	const [editing, setEditing] = useState(false)
 	const [name, setName] = useState(item.name)
 	const [quantity, setQuantity] = useState(item.quantity?.toString() || '1')
@@ -119,7 +120,7 @@ export function BaseListItemRow({ item }: Props) {
 					size='icon'
 					variant='ghost'
 					onClick={() => setEditing(true)}
-					disabled={loading}
+					disabled={loading || isLocked}
 				>
 					<HugeiconsIcon
 						icon={Edit02Icon}
@@ -130,7 +131,7 @@ export function BaseListItemRow({ item }: Props) {
 					size='icon'
 					variant='ghost'
 					onClick={handleDelete}
-					disabled={loading}
+					disabled={loading || isLocked}
 				>
 					<HugeiconsIcon
 						icon={Delete02Icon}

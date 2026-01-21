@@ -3,8 +3,9 @@ import { createClient } from '@/lib/supabase/server'
 import { getTickets } from '@/actions/tickets'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { ArrowLeft02Icon, Invoice01Icon, CloudUploadIcon } from '@hugeicons/core-free-icons'
+import { Invoice01Icon } from '@hugeicons/core-free-icons'
 import Link from 'next/link'
 import { UploadTicketDialog } from '@/components/features/tickets/upload-ticket-dialog'
 import { formatDate, formatTime } from '@/utils/format-date'
@@ -66,44 +67,49 @@ export default async function TicketsPage() {
 							const isMerged = !!ticket.base_list_id
 
 							return (
-								<Link
+								<Card
 									key={ticket.id}
-									href={`/tickets/${ticket.id}`}
+									className='transition-colors hover:border-primary/50'
 								>
-									<Card className='transition-colors hover:bg-muted/50'>
-										<CardHeader>
-											<CardTitle className='flex items-center justify-between'>
-												<span className='flex items-center gap-2'>
-													<HugeiconsIcon
-														icon={Invoice01Icon}
-														strokeWidth={2}
-													/>
-													{ticket.store_name || 'Unknown Store'}
-												</span>
-												<div className='flex items-center gap-2'>
-													{isMerged && (
-														<Badge
-															variant='outline'
-															className='border-blue-500 text-blue-600'
-														>
-															Merged
-														</Badge>
-													)}
-													<Badge className={statusColor}>{ticket.ocr_status}</Badge>
-												</div>
-											</CardTitle>
-											<CardDescription>
-												{formatDate(createdAt)} - {formatTime(createdAt)}
-											</CardDescription>
-										</CardHeader>
-										<CardContent>
-											<div className='flex items-center justify-between text-sm'>
-												<span className='text-muted-foreground'>{ticket.group?.name || 'No group'}</span>
-												{ticket.total_items > 0 && <span className='font-medium'>{ticket.total_items} items</span>}
+									<CardHeader>
+										<CardTitle className='flex items-center justify-between'>
+											<span className='flex items-center gap-2'>
+												<HugeiconsIcon
+													icon={Invoice01Icon}
+													strokeWidth={2}
+												/>
+												{ticket.store_name || 'Unknown Store'}
+											</span>
+											<div className='flex items-center gap-2'>
+												{isMerged && (
+													<Badge
+														variant='outline'
+														className='border-blue-500 text-blue-600'
+													>
+														Merged
+													</Badge>
+												)}
+												<Badge className={statusColor}>{ticket.ocr_status}</Badge>
 											</div>
-										</CardContent>
-									</Card>
-								</Link>
+										</CardTitle>
+										<CardDescription>
+											{formatDate(createdAt)} - {formatTime(createdAt)}
+										</CardDescription>
+									</CardHeader>
+									<CardContent className='space-y-3'>
+										<div className='flex items-center justify-between text-sm'>
+											<span className='text-muted-foreground'>{ticket.group?.name || 'No group'}</span>
+											{ticket.total_items > 0 && <span className='font-medium'>{ticket.total_items} items</span>}
+										</div>
+										<Button
+											variant='outline'
+											className='w-full'
+											asChild
+										>
+											<Link href={`/tickets/${ticket.id}`}>View Details</Link>
+										</Button>
+									</CardContent>
+								</Card>
 							)
 						})}
 					</div>

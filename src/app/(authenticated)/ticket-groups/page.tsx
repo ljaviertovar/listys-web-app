@@ -25,7 +25,7 @@ export default async function GroupsPage() {
 	return (
 		<main className='flex-1 overflow-y-auto'>
 			<PageHeader
-				title='Groups'
+				title='Ticket Groups'
 				desc='Organize your shopping lists into groups'
 			>
 				<CreateGroupDialog />
@@ -36,7 +36,7 @@ export default async function GroupsPage() {
 				)}
 
 				{!groups || groups.length === 0 ? (
-					<Card className='flex min-h-[400px] flex-col items-center justify-center'>
+					<Card className='flex min-h-100 flex-col items-center justify-center'>
 						<CardContent className='flex flex-col items-center space-y-4 pt-6'>
 							<HugeiconsIcon
 								icon={FolderIcon}

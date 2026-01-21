@@ -96,7 +96,7 @@ const SidebarMenuLink = ({ item, href }: { item: NavLink; href: string }) => {
 							strokeWidth={2}
 						/>
 					)}
-					<span>{item.title}</span>
+					<span className='text-lg'>{item.title}</span>
 					{item.badge && <NavBadge>{item.badge}</NavBadge>}
 				</Link>
 			</SidebarMenuButton>

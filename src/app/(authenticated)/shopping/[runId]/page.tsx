@@ -4,7 +4,7 @@ import { getShoppingRun } from '@/actions/shopping-runs'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { ArrowLeft02Icon, ShoppingCart02Icon } from '@hugeicons/core-free-icons'
+import { ShoppingCart02Icon } from '@hugeicons/core-free-icons'
 import Link from 'next/link'
 import { ShoppingRunItemRow } from '@/components/features/shopping-runs/shopping-run-item-row'
 import { CompleteRunButton } from '@/components/features/shopping-runs/complete-run-button'
@@ -13,6 +13,7 @@ import { AddItemDialog } from '@/components/features/shopping-runs/add-item-dial
 import { CancelRunButton } from '@/components/features/shopping-runs/cancel-run-button'
 import type { ShoppingRunWithItems } from '@/features/shopping-runs/types'
 import PageHeader from '@/components/app/page-header'
+import BackLink from '@/components/app/back-link'
 
 export default async function ShoppingRunPage({ params }: { params: Promise<{ runId: string }> }) {
 	const { runId } = await params
@@ -51,17 +52,10 @@ export default async function ShoppingRunPage({ params }: { params: Promise<{ ru
 				desc={`${checkedCount} of ${totalCount} items (${progress}%)`}
 			/>
 			<div className='container mx-auto max-w-4xl space-y-6 p-6'>
-				<Link
+				<BackLink
 					href='/dashboard'
-					className='flex items-center gap-1 text-sm text-muted-foreground hover:underline'
-				>
-					<HugeiconsIcon
-						icon={ArrowLeft02Icon}
-						strokeWidth={2}
-						className='h-4 w-4'
-					/>
-					Back to Dashboard
-				</Link>
+					label='Back to Dashboard'
+				/>
 
 				<Card>
 					<CardHeader>

@@ -3,10 +3,11 @@ import { createClient } from '@/lib/supabase/server'
 import { getBaseList } from '@/actions/base-lists'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { ArrowLeft02Icon, ShoppingCart02Icon } from '@hugeicons/core-free-icons'
+import { ShoppingCart02Icon } from '@hugeicons/core-free-icons'
 import Link from 'next/link'
 import { CreateShoppingRunForm } from '@/components/features/shopping-runs/create-shopping-run-form'
 import PageHeader from '@/components/app/page-header'
+import BackLink from '@/components/app/back-link'
 
 export default async function NewShoppingRunPage({ searchParams }: { searchParams: Promise<{ baseListId?: string }> }) {
 	const { baseListId } = await searchParams
@@ -49,17 +50,10 @@ export default async function NewShoppingRunPage({ searchParams }: { searchParam
 				desc={`Create a new shopping run from "${baseList.name}"`}
 			/>
 			<div className='container mx-auto max-w-2xl space-y-6 p-6'>
-				<Link
+				<BackLink
 					href={`/ticket-groups/${baseList.group_id}/lists`}
-					className='flex items-center gap-1 text-sm text-muted-foreground hover:underline'
-				>
-					<HugeiconsIcon
-						icon={ArrowLeft02Icon}
-						strokeWidth={2}
-						className='h-4 w-4'
-					/>
-					Back to Lists
-				</Link>
+					label='Back to Lists'
+				/>
 
 				<Card>
 					<CardHeader>

@@ -4,13 +4,14 @@ import { getTicket } from '@/actions/tickets'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { ArrowLeft02Icon, Invoice01Icon } from '@hugeicons/core-free-icons'
+import { Invoice01Icon } from '@hugeicons/core-free-icons'
 import Link from 'next/link'
 import { formatDate, formatTime } from '@/utils/format-date'
 import { TicketItemsSelector } from '@/components/features/tickets/ticket-items-selector'
 import { TicketImage } from '@/components/features/tickets/ticket-image'
 import { TicketActions } from '@/components/features/tickets/ticket-actions'
 import PageHeader from '@/components/app/page-header'
+import BackLink from '@/components/app/back-link'
 
 export default async function TicketDetailPage({ params }: { params: Promise<{ ticketId: string }> }) {
 	const { ticketId } = await params
@@ -47,17 +48,10 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 			/>
 			<div className='container mx-auto max-w-7xl space-y-6 p-6'>
 				<div className='flex items-start justify-between'>
-					<Link
+					<BackLink
 						href='/tickets'
-						className='flex items-center gap-1 text-sm text-muted-foreground hover:underline'
-					>
-						<HugeiconsIcon
-							icon={ArrowLeft02Icon}
-							strokeWidth={2}
-							className='h-4 w-4'
-						/>
-						Back to Tickets
-					</Link>
+						label='Back to Tickets'
+					/>
 					<div className='flex items-center gap-2'>
 						<Badge className={statusColor}>{ticket.ocr_status}</Badge>
 						<TicketActions ticket={ticket} />
@@ -89,10 +83,10 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 								{ticket.ocr_status === 'completed'
 									? `${ticket.items?.length || 0} items found`
 									: ticket.ocr_status === 'processing'
-									? 'Processing receipt...'
-									: ticket.ocr_status === 'failed'
-									? 'Failed to process receipt'
-									: 'Waiting to process...'}
+										? 'Processing receipt...'
+										: ticket.ocr_status === 'failed'
+											? 'Failed to process receipt'
+											: 'Waiting to process...'}
 							</CardDescription>
 						</CardHeader>
 						<CardContent>

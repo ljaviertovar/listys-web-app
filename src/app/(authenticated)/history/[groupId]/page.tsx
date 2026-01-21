@@ -4,10 +4,11 @@ import { getShoppingHistory } from '@/actions/shopping-runs'
 import { getGroup } from '@/actions/ticket-groups'
 import { Card, CardContent } from '@/components/ui/card'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { ArrowLeft02Icon, ShoppingBasket01Icon } from '@hugeicons/core-free-icons'
+import { ShoppingBasket01Icon } from '@hugeicons/core-free-icons'
 import Link from 'next/link'
 import { HistoryRunCard } from '@/components/features/shopping-runs/history-run-card'
 import PageHeader from '@/components/app/page-header'
+import BackLink from '@/components/app/back-link'
 
 export default async function GroupHistoryPage({ params }: { params: Promise<{ groupId: string }> }) {
 	const { groupId } = await params
@@ -37,17 +38,10 @@ export default async function GroupHistoryPage({ params }: { params: Promise<{ g
 				desc={group.description || 'Shopping history for this group'}
 			/>
 			<div className='container mx-auto max-w-4xl space-y-6 p-6'>
-				<Link
+				<BackLink
 					href='/history'
-					className='flex items-center gap-1 text-sm text-muted-foreground hover:underline'
-				>
-					<HugeiconsIcon
-						icon={ArrowLeft02Icon}
-						strokeWidth={2}
-						className='h-4 w-4'
-					/>
-					Back to History
-				</Link>
+					label='Back to History'
+				/>
 
 				{runsError && (
 					<div className='rounded-lg bg-destructive/10 p-4 text-sm text-destructive'>

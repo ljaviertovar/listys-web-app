@@ -16,9 +16,11 @@ import type { BaseListWithCount } from '@/features/base-lists/types'
 interface Props {
 	baseList: BaseListWithCount
 	hasActiveRun?: boolean
+	isActiveRun?: boolean
+	activeRunId?: string
 }
 
-export function BaseListCard({ baseList, hasActiveRun = false }: Props) {
+export function BaseListCard({ baseList, hasActiveRun = false, isActiveRun = false, activeRunId }: Props) {
 	const [loading, setLoading] = useState(false)
 	const [startingRun, setStartingRun] = useState(false)
 	const router = useRouter()
@@ -69,63 +71,85 @@ export function BaseListCard({ baseList, hasActiveRun = false }: Props) {
 	}
 
 	return (
-		<Card>
-			<CardHeader>
-				<CardTitle className='flex items-center justify-between'>
-					<span className='flex items-center gap-2'>
+		<Card className={`flex flex-col overflow-hidden bg-green-50/50`}>
+			<CardHeader className='space-y-2 block'>
+				<div className='flex items-start justify-between gap-2'>
+					<div className='flex items-center gap-2 min-w-0 flex-1'>
 						<HugeiconsIcon
 							icon={File01Icon}
 							strokeWidth={2}
+							className={`shrink-0`}
 						/>
-						{baseList.name}
-					</span>
-					<div className='flex gap-1'>
-						<Button
-							variant='ghost'
-							size='icon'
-							asChild
+						<h3
+							className='text-base font-semibold leading-tight truncate min-w-0'
+							title={baseList.name}
 						>
-							<Link href={`/base-lists/${baseList.id}/edit`}>
+							{baseList.name}
+						</h3>
+					</div>
+					{!isActiveRun && (
+						<div className='flex gap-1 shrink-0'>
+							<Button
+								variant='ghost'
+								size='icon'
+								asChild
+							>
+								<Link href={`/base-lists/${baseList.id}/edit`}>
+									<HugeiconsIcon
+										icon={Edit02Icon}
+										strokeWidth={2}
+									/>
+								</Link>
+							</Button>
+							<Button
+								variant='ghost'
+								size='icon'
+								onClick={handleDelete}
+								disabled={loading}
+							>
 								<HugeiconsIcon
-									icon={Edit02Icon}
+									icon={Delete02Icon}
 									strokeWidth={2}
 								/>
-							</Link>
-						</Button>
-						<Button
-							variant='ghost'
-							size='icon'
-							onClick={handleDelete}
-							disabled={loading}
-						>
-							<HugeiconsIcon
-								icon={Delete02Icon}
-								strokeWidth={2}
-							/>
-						</Button>
-					</div>
-				</CardTitle>
-				{baseList.items_count > 0 && (
-					<CardDescription>
-						<Badge variant='secondary'>{baseList.items_count} items</Badge>
-					</CardDescription>
-				)}
+							</Button>
+						</div>
+					)}
+				</div>
+				<CardDescription className='space-x-2'>
+					<Badge variant='secondary'>{baseList.items_count} items</Badge>
+					{isActiveRun && <Badge className='bg-green-600 hover:bg-green-700'>Active Shopping</Badge>}
+				</CardDescription>
 			</CardHeader>
-			<CardContent className='space-y-2'>
-				<Button
-					className='w-full'
-					onClick={handleStartRun}
-					disabled={startingRun || loading || hasActiveRun}
-				>
-					<HugeiconsIcon
-						icon={ShoppingCart02Icon}
-						strokeWidth={2}
-						data-icon='inline-start'
-					/>
-					{startingRun ? 'Starting...' : 'Start Shopping Run'}
-				</Button>
-				{hasActiveRun && (
-					<p className='text-xs text-center text-muted-foreground'>Complete your current shopping run first</p>
+			<CardContent className='mt-auto space-y-2'>
+				{isActiveRun ? (
+					<Button
+						className='w-full'
+						variant={'secondary'}
+						asChild
+					>
+						<Link href={`/shopping/${activeRunId}`}>
+							<HugeiconsIcon
+								icon={ShoppingCart02Icon}
+								strokeWidth={2}
+								data-icon='inline-start'
+							/>
+							Continue Shopping
+						</Link>
+					</Button>
+				) : (
+					<Button
+						className='w-full'
+						variant={'secondary'}
+						onClick={handleStartRun}
+						disabled={startingRun || loading || hasActiveRun}
+					>
+						<HugeiconsIcon
+							icon={ShoppingCart02Icon}
+							strokeWidth={2}
+							data-icon='inline-start'
+						/>
+						{startingRun ? 'Starting...' : 'Start Shopping'}
+					</Button>
 				)}
 			</CardContent>
 		</Card>

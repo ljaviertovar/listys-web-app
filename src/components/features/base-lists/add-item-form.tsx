@@ -12,9 +12,10 @@ import { CATEGORIES, UNITS } from '@/data/constants'
 
 interface Props {
 	baseListId: string
+	isLocked?: boolean
 }
 
-export function AddItemForm({ baseListId }: Props) {
+export function AddItemForm({ baseListId, isLocked = false }: Props) {
 	const [name, setName] = useState('')
 	const [quantity, setQuantity] = useState('1')
 	const [unit, setUnit] = useState('')
@@ -60,6 +61,11 @@ export function AddItemForm({ baseListId }: Props) {
 			onSubmit={handleSubmit}
 			className='space-y-4 rounded-lg border p-4'
 		>
+			{isLocked && (
+				<div className='rounded-md bg-muted p-3 text-sm text-muted-foreground'>
+					This list is locked because it's being used in an active shopping run.
+				</div>
+			)}
 			{error && <div className='rounded-lg bg-destructive/10 p-3 text-sm text-destructive'>{error}</div>}
 
 			<div className='grid gap-4 sm:grid-cols-2'>
@@ -69,6 +75,7 @@ export function AddItemForm({ baseListId }: Props) {
 						value={name}
 						onChange={e => setName(e.target.value)}
 						required
+						disabled={loading || isLocked}
 					/>
 				</div>
 				<div className='flex gap-2'>
@@ -79,10 +86,12 @@ export function AddItemForm({ baseListId }: Props) {
 						value={quantity}
 						onChange={e => setQuantity(e.target.value)}
 						className='w-20'
+						disabled={loading || isLocked}
 					/>
 					<Select
 						value={unit}
 						onValueChange={setUnit}
+						disabled={loading || isLocked}
 					>
 						<SelectTrigger className='w-32'>
 							<SelectValue placeholder='Unit' />
@@ -105,6 +114,7 @@ export function AddItemForm({ baseListId }: Props) {
 				<Select
 					value={category}
 					onValueChange={setCategory}
+					disabled={loading || isLocked}
 				>
 					<SelectTrigger>
 						<SelectValue placeholder='Category (optional)' />
@@ -124,12 +134,13 @@ export function AddItemForm({ baseListId }: Props) {
 					placeholder='Notes (optional)'
 					value={notes}
 					onChange={e => setNotes(e.target.value)}
+					disabled={loading || isLocked}
 				/>
 			</div>
 
 			<Button
 				type='submit'
-				disabled={loading}
+				disabled={loading || isLocked}
 				className='w-full'
 			>
 				<HugeiconsIcon
