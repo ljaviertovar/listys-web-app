@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { PlusSignIcon } from '@hugeicons/core-free-icons'
+import { PlusSignIcon, Loading03Icon } from '@hugeicons/core-free-icons'
 import { CATEGORIES, UNITS } from '@/data/constants'
 
 interface Props {
@@ -143,12 +143,25 @@ export function AddItemForm({ baseListId, isLocked = false }: Props) {
 				disabled={loading || isLocked}
 				className='w-full'
 			>
-				<HugeiconsIcon
-					icon={PlusSignIcon}
-					strokeWidth={2}
-					data-icon='inline-start'
-				/>
-				{loading ? 'Adding...' : 'Add Item'}
+				{loading ? (
+					<>
+						<HugeiconsIcon
+							icon={Loading03Icon}
+							strokeWidth={2}
+							className='mr-2 h-4 w-4 animate-spin'
+						/>
+						Adding...
+					</>
+				) : (
+					<>
+						<HugeiconsIcon
+							icon={PlusSignIcon}
+							strokeWidth={2}
+							data-icon='inline-start'
+						/>
+						Add Item
+					</>
+				)}
 			</Button>
 		</form>
 	)

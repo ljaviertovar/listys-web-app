@@ -17,7 +17,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { PlusSignIcon } from '@hugeicons/core-free-icons'
+import { PlusSignIcon, Loading03Icon } from '@hugeicons/core-free-icons'
 
 export function CreateGroupDialog() {
 	const [open, setOpen] = useState(false)
@@ -51,7 +51,7 @@ export function CreateGroupDialog() {
 	return (
 		<Dialog
 			open={open}
-			onOpenChange={setOpen}
+			onOpenChange={isOpen => !loading && setOpen(isOpen)}
 		>
 			<DialogTrigger asChild>
 				<Button>

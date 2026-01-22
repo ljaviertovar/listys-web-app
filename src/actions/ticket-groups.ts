@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { createGroupSchema, updateGroupSchema } from '@/lib/validations/group'
+import { MAX_GROUPS_PER_USER } from '@/lib/config/limits'
 import { revalidatePath } from 'next/cache'
 
 export async function createGroup(data: unknown) {
@@ -18,6 +19,34 @@ export async function createGroup(data: unknown) {
   const validation = createGroupSchema.safeParse(data)
   if (!validation.success) {
     return { error: validation.error.errors[0].message }
+  }
+
+  // Check if user has reached the maximum number of groups
+  const { count, error: countError } = await supabase
+    .from('groups')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', user.id)
+
+  if (countError) {
+    return { error: countError.message }
+  }
+
+  if (count !== null && count >= MAX_GROUPS_PER_USER) {
+    return {
+      error: `You have reached the maximum limit of ${MAX_GROUPS_PER_USER} groups. Please delete a group before creating a new one.`
+    }
+  }
+
+  // Check for duplicate group name
+  const { data: existingGroup } = await supabase
+    .from('groups')
+    .select('id')
+    .eq('user_id', user.id)
+    .ilike('name', validation.data.name)
+    .maybeSingle()
+
+  if (existingGroup) {
+    return { error: 'A group with this name already exists. Please choose a different name.' }
   }
 
   const { data: group, error } = await supabase
@@ -51,6 +80,21 @@ export async function updateGroup(id: string, data: unknown) {
   const validation = updateGroupSchema.safeParse(data)
   if (!validation.success) {
     return { error: validation.error.errors[0].message }
+  }
+
+  // Check for duplicate group name (excluding current group)
+  if (validation.data.name) {
+    const { data: existingGroup } = await supabase
+      .from('groups')
+      .select('id')
+      .eq('user_id', user.id)
+      .ilike('name', validation.data.name)
+      .neq('id', id)
+      .maybeSingle()
+
+    if (existingGroup) {
+      return { error: 'A group with this name already exists. Please choose a different name.' }
+    }
   }
 
   const { data: group, error } = await supabase

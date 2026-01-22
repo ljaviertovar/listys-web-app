@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { PlusSignIcon } from '@hugeicons/core-free-icons'
+import { PlusSignIcon, Loading03Icon } from '@hugeicons/core-free-icons'
 
 interface Props {
 	groupId: string
@@ -52,7 +52,7 @@ export function CreateBaseListDialog({ groupId }: Props) {
 	return (
 		<Dialog
 			open={open}
-			onOpenChange={setOpen}
+			onOpenChange={isOpen => !loading && setOpen(isOpen)}
 		>
 			<DialogTrigger asChild>
 				<Button>
@@ -96,7 +96,18 @@ export function CreateBaseListDialog({ groupId }: Props) {
 							type='submit'
 							disabled={loading}
 						>
-							{loading ? 'Creating...' : 'Create List'}
+							{loading ? (
+								<>
+									<HugeiconsIcon
+										icon={Loading03Icon}
+										strokeWidth={2}
+										className='mr-2 h-4 w-4 animate-spin'
+									/>
+									Creating...
+								</>
+							) : (
+								'Create List'
+							)}
 						</Button>
 					</DialogFooter>
 				</form>

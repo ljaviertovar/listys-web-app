@@ -8,6 +8,7 @@ import {
   updateShoppingRunItemSchema,
   createShoppingRunItemSchema,
 } from '@/lib/validations/shopping-run'
+import { MAX_ITEMS_PER_BASE_LIST } from '@/lib/config/limits'
 import { revalidatePath } from 'next/cache'
 
 export async function createShoppingRun(data: unknown) {
@@ -206,6 +207,12 @@ async function syncRunToBaseList(
   baseListId: string,
   runItems: any[]
 ) {
+  // Safety check: Prevent DoS from excessive items
+  const MAX_SYNC_ITEMS = 500
+  if (runItems.length > MAX_SYNC_ITEMS) {
+    return { error: `Cannot sync more than ${MAX_SYNC_ITEMS} items. Please reduce the number of items.` }
+  }
+
   // Get current base list items
   const { data: baseItems, error: baseError } = await supabase
     .from('base_list_items')
@@ -269,6 +276,16 @@ async function syncRunToBaseList(
 
   // Execute inserts
   if (itemsToInsert.length > 0) {
+    // Check if adding new items would exceed the limit
+    const currentItemCount = baseItems?.length || 0
+    const newItemsCount = itemsToInsert.length
+
+    if (currentItemCount + newItemsCount > MAX_ITEMS_PER_BASE_LIST) {
+      return {
+        error: `Cannot sync items. This would exceed the maximum limit of ${MAX_ITEMS_PER_BASE_LIST} items per list (current: ${currentItemCount}, trying to add: ${newItemsCount}).`
+      }
+    }
+
     const { error } = await supabase
       .from('base_list_items')
       .insert(itemsToInsert)

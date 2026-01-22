@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { PlusSignIcon } from '@hugeicons/core-free-icons'
+import { PlusSignIcon, Loading03Icon } from '@hugeicons/core-free-icons'
 import { createShoppingRunItem } from '@/actions/shopping-runs'
 import { CATEGORIES, UNITS } from '@/data/constants'
 
@@ -156,12 +156,25 @@ export function AddItemForm({ runId, onSuccess }: Props) {
 				disabled={loading || !name.trim()}
 				className='w-full'
 			>
-				<HugeiconsIcon
-					icon={PlusSignIcon}
-					strokeWidth={2}
-					data-icon='inline-start'
-				/>
-				{loading ? 'Adding...' : 'Add Item'}
+				{loading ? (
+					<>
+						<HugeiconsIcon
+							icon={Loading03Icon}
+							strokeWidth={2}
+							className='mr-2 h-4 w-4 animate-spin'
+						/>
+						Adding...
+					</>
+				) : (
+					<>
+						<HugeiconsIcon
+							icon={PlusSignIcon}
+							strokeWidth={2}
+							data-icon='inline-start'
+						/>
+						Add Item
+					</>
+				)}
 			</Button>
 		</form>
 	)

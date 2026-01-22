@@ -1,7 +1,8 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { mergeTicketItemsSchema } from '@/lib/validations/ticket'
+import { mergeTicketItemsSchema, createBaseListFromTicketSchema } from '@/lib/validations/ticket'
+import { MAX_ITEMS_PER_BASE_LIST } from '@/lib/config/limits'
 import { revalidatePath } from 'next/cache'
 
 export async function getTickets() {
@@ -148,6 +149,16 @@ export async function mergeTicketItemsToBaseList(data: unknown) {
     }
   })
 
+  // Check if adding new items would exceed the limit
+  const currentItemCount = baseItems?.length || 0
+  const newItemsCount = itemsToInsert.length
+
+  if (currentItemCount + newItemsCount > MAX_ITEMS_PER_BASE_LIST) {
+    return {
+      error: `Cannot merge items. This would exceed the maximum limit of ${MAX_ITEMS_PER_BASE_LIST} items per list (current: ${currentItemCount}, trying to add: ${newItemsCount}).`
+    }
+  }
+
   // Execute updates
   for (const item of itemsToUpdate) {
     const { error } = await supabase
@@ -186,12 +197,7 @@ export async function mergeTicketItemsToBaseList(data: unknown) {
   return { success: true }
 }
 
-export async function createBaseListFromTicket(data: {
-  ticket_id: string
-  group_id: string
-  name: string
-  item_ids: string[]
-}) {
+export async function createBaseListFromTicket(data: unknown) {
   const supabase = await createClient()
 
   const {
@@ -202,7 +208,12 @@ export async function createBaseListFromTicket(data: {
     return { error: 'Unauthorized' }
   }
 
-  const { ticket_id, group_id, name, item_ids } = data
+  const validation = createBaseListFromTicketSchema.safeParse(data)
+  if (!validation.success) {
+    return { error: validation.error.errors[0].message }
+  }
+
+  const { ticket_id, group_id, name, item_ids } = validation.data
 
   // Get ticket items
   const { data: ticketItems, error: ticketError } = await supabase
@@ -217,6 +228,13 @@ export async function createBaseListFromTicket(data: {
 
   if (!ticketItems || ticketItems.length === 0) {
     return { error: 'No items to add' }
+  }
+
+  // Check if items exceed the limit
+  if (ticketItems.length > MAX_ITEMS_PER_BASE_LIST) {
+    return {
+      error: `Cannot create list with ${ticketItems.length} items. Maximum allowed is ${MAX_ITEMS_PER_BASE_LIST} items per list.`
+    }
   }
 
   // Create new base list
@@ -489,4 +507,44 @@ export async function assignTicketToGroup(ticketId: string, groupId: string) {
   revalidatePath('/tickets')
   revalidatePath(`/tickets/${ticketId}`)
   return { success: true }
+}
+
+export async function getOrphanedStorageImages() {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: 'Unauthorized' }
+  }
+
+  const { data, error } = await supabase.rpc('get_orphaned_storage_images')
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  return { data }
+}
+
+export async function cleanupOrphanedStorageImages() {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: 'Unauthorized' }
+  }
+
+  const { data, error } = await supabase.rpc('cleanup_orphaned_storage_images')
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  return { data }
 }

@@ -15,6 +15,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Loading03Icon } from '@hugeicons/core-free-icons'
 
 interface Group {
 	id: string
@@ -69,7 +71,7 @@ export function EditGroupDialog({ group, open, onOpenChange }: Props) {
 	return (
 		<Dialog
 			open={open}
-			onOpenChange={onOpenChange}
+			onOpenChange={isOpen => !loading && onOpenChange(isOpen)}
 		>
 			<DialogContent>
 				<DialogHeader>
@@ -105,6 +107,7 @@ export function EditGroupDialog({ group, open, onOpenChange }: Props) {
 							type='button'
 							variant='outline'
 							onClick={() => onOpenChange(false)}
+							disabled={loading}
 						>
 							Cancel
 						</Button>
@@ -112,7 +115,18 @@ export function EditGroupDialog({ group, open, onOpenChange }: Props) {
 							type='submit'
 							disabled={loading || !name.trim()}
 						>
-							{loading ? 'Saving...' : 'Save Changes'}
+							{loading ? (
+								<>
+									<HugeiconsIcon
+										icon={Loading03Icon}
+										strokeWidth={2}
+										className='mr-2 h-4 w-4 animate-spin'
+									/>
+									Saving...
+								</>
+							) : (
+								'Save Changes'
+							)}
 						</Button>
 					</DialogFooter>
 				</form>

@@ -7,6 +7,7 @@ import {
   createBaseListItemSchema,
   updateBaseListItemSchema,
 } from '@/lib/validations/base-list'
+import { MAX_ITEMS_PER_BASE_LIST } from '@/lib/config/limits'
 import { revalidatePath } from 'next/cache'
 
 export async function createBaseList(data: unknown) {
@@ -23,6 +24,19 @@ export async function createBaseList(data: unknown) {
   const validation = createBaseListSchema.safeParse(data)
   if (!validation.success) {
     return { error: validation.error.errors[0].message }
+  }
+
+  // Check for duplicate base list name within the same group
+  const { data: existingList } = await supabase
+    .from('base_lists')
+    .select('id')
+    .eq('user_id', user.id)
+    .eq('group_id', validation.data.group_id)
+    .ilike('name', validation.data.name)
+    .maybeSingle()
+
+  if (existingList) {
+    return { error: 'A list with this name already exists in this group. Please choose a different name.' }
   }
 
   const { data: baseList, error } = await supabase
@@ -57,6 +71,32 @@ export async function updateBaseList(id: string, data: unknown) {
   const validation = updateBaseListSchema.safeParse(data)
   if (!validation.success) {
     return { error: validation.error.errors[0].message }
+  }
+
+  // Check for duplicate base list name within the same group (excluding current list)
+  if (validation.data.name) {
+    // First get the current list to know its group_id
+    const { data: currentList } = await supabase
+      .from('base_lists')
+      .select('group_id')
+      .eq('id', id)
+      .eq('user_id', user.id)
+      .single()
+
+    if (currentList) {
+      const { data: existingList } = await supabase
+        .from('base_lists')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('group_id', currentList.group_id)
+        .ilike('name', validation.data.name)
+        .neq('id', id)
+        .maybeSingle()
+
+      if (existingList) {
+        return { error: 'A list with this name already exists in this group. Please choose a different name.' }
+      }
+    }
   }
 
   const { data: baseList, error } = await supabase
@@ -192,6 +232,22 @@ export async function createBaseListItem(data: unknown) {
   const validation = createBaseListItemSchema.safeParse(data)
   if (!validation.success) {
     return { error: validation.error.errors[0].message }
+  }
+
+  // Check if base list has reached the maximum number of items
+  const { count, error: countError } = await supabase
+    .from('base_list_items')
+    .select('*', { count: 'exact', head: true })
+    .eq('base_list_id', validation.data.base_list_id)
+
+  if (countError) {
+    return { error: countError.message }
+  }
+
+  if (count !== null && count >= MAX_ITEMS_PER_BASE_LIST) {
+    return {
+      error: `This list has reached the maximum limit of ${MAX_ITEMS_PER_BASE_LIST} items. Please remove some items before adding more.`
+    }
   }
 
   const { data: item, error } = await supabase
