@@ -384,7 +384,7 @@ See [.env.example](.env.example) for required environment variables.
 
 ## Project Structure
 
-```
+```bash
 src/
 ├── actions/          # Server Actions (mutations)
 ├── app/              # Next.js App Router pages
@@ -468,8 +468,6 @@ MAX_SYNC_ITEMS = 250 // Maximum items to sync (matches base list limit)
   MAX_TICKET_ITEMS_MERGE = 200 // Maximum items to merge from ticket
   MAX_SYNC_ITEMS = 500 // Maximum items to sync (backstop)
 
-````
-
 ### Validation Rules
 
 - **Groups**:
@@ -515,6 +513,7 @@ MAX_SYNC_ITEMS = 250 // Maximum items to sync (matches base list limit)
 ### Row Level Security (RLS)
 
 All tables have RLS policies ensuring:
+
 - Users can only access their own data
 - All queries filtered by `user_id`
 - No cross-user data leakage
@@ -560,7 +559,7 @@ pnpm test
 
 # Run E2E tests
 pnpm test:e2e
-````
+```
 
 ## Deployment
 

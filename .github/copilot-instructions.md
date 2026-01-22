@@ -110,7 +110,7 @@ Violating these rules requires explicit user justification.
 
 Use this structure unless explicitly instructed otherwise:
 
-```
+```bash
 ├── .github
 │   └── copilot-instructions.md
 ├── public
@@ -247,7 +247,7 @@ export async function createItem(data: unknown) {
 
 ### Migration Naming
 
-```
+```bash
 YYYYMMDDHHMMSS_descriptive_name.sql
 ```
 
@@ -489,7 +489,7 @@ When generating commit messages, follow these rules strictly:
 
 ### Required Format
 
-```
+```bash
 <type>(optional scope): short description
 
 [optional body explaining WHY the change was needed]
@@ -510,7 +510,7 @@ When generating commit messages, follow these rules strictly:
 
 ✅ **Good:**
 
-```
+```bash
 feat(users): add email verification with magic link
 fix(posts): prevent duplicate titles with case-insensitive check
 refactor(limits): centralize configurable limits in single file
@@ -519,7 +519,7 @@ docs(readme): add Mermaid diagrams for system architecture
 
 ❌ **Bad:**
 
-```
+```bash
 update stuff
 fixed bug
 changes
