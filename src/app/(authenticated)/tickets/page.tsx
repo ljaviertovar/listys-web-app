@@ -98,7 +98,7 @@ export default async function TicketsPage() {
 									</CardHeader>
 									<CardContent className='space-y-3'>
 										<div className='flex items-center justify-between text-sm'>
-											<span className='text-muted-foreground'>{ticket.group?.name || 'No group'}</span>
+											<span className='text-muted-foreground'>{ticket.group?.name || 'No group assigned'}</span>
 											{ticket.total_items > 0 && <span className='font-medium'>{ticket.total_items} items</span>}
 										</div>
 										<Button

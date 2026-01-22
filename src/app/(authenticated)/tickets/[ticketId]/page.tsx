@@ -31,6 +31,12 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 		redirect('/tickets')
 	}
 
+	// Fetch base list if ticket is merged
+	let baseListName = null
+	if (ticket.base_list_id && ticket.base_list) {
+		baseListName = ticket.base_list.name
+	}
+
 	const createdAt = new Date(ticket.created_at)
 	const statusColors: Record<string, string> = {
 		pending: 'bg-yellow-100 text-yellow-800',
@@ -57,6 +63,25 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 						<TicketActions ticket={ticket} />
 					</div>
 				</div>
+
+				{ticket.base_list_id && baseListName && (
+					<div className='rounded-lg border border-blue-200 bg-blue-50 p-4'>
+						<div className='flex items-start gap-3'>
+							<div className='flex-1'>
+								<h3 className='font-semibold text-blue-900'>Merged to Base List</h3>
+								<p className='mt-1 text-sm text-blue-700'>
+									This ticket has been added to the base list:{' '}
+									<Link
+										href={`/base-lists/${ticket.base_list_id}/edit`}
+										className='font-medium underline hover:no-underline'
+									>
+										{baseListName}
+									</Link>
+								</p>
+							</div>
+						</div>
+					</div>
+				)}
 
 				<div className='grid gap-6 lg:grid-cols-2'>
 					{/* Ticket Image */}

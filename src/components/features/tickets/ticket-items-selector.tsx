@@ -96,11 +96,12 @@ export function TicketItemsSelector({ ticketId, items, status, isMerged }: Props
 	const totalAmount = items.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 1), 0)
 	const allSelected = selectedItems.size === items.length
 	const someSelected = selectedItems.size > 0
+	const canMerge = status === 'completed' && !isMerged
 
 	return (
 		<div className='space-y-4'>
 			{/* Selection controls */}
-			{!isMerged && (
+			{canMerge && (
 				<div className='flex items-center justify-between border-b pb-3'>
 					<div className='flex items-center gap-3'>
 						<Checkbox
@@ -139,7 +140,7 @@ export function TicketItemsSelector({ ticketId, items, status, isMerged }: Props
 							selectedItems.has(item.id) ? 'border-primary bg-primary/5' : ''
 						}`}
 					>
-						{!isMerged && (
+						{canMerge && (
 							<Checkbox
 								checked={selectedItems.has(item.id)}
 								onCheckedChange={() => toggleItem(item.id)}

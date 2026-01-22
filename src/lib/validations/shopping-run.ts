@@ -21,7 +21,7 @@ export const completeShoppingRunSchema = z.object({
 
 export const updateShoppingRunItemSchema = z.object({
   name: z.string().min(1, 'Item name is required').max(200).optional(),
-  quantity: z.number().positive().optional(),
+  quantity: z.number().positive('Quantity must be greater than 0').optional(),
   unit: z.string().max(20).optional(),
   checked: z.boolean().optional(),
   notes: z.string().max(500).optional(),
@@ -32,7 +32,7 @@ export const updateShoppingRunItemSchema = z.object({
 export const createShoppingRunItemSchema = z.object({
   shopping_run_id: z.string().uuid(),
   name: z.string().min(1, 'Item name is required').max(200),
-  quantity: z.number().positive().optional(),
+  quantity: z.number().positive('Quantity must be greater than 0').default(1),
   unit: z.string().max(20).optional(),
   notes: z.string().max(500).optional(),
   category: z.string().max(50).optional(),

@@ -56,6 +56,11 @@ export async function createShoppingRun(data: unknown) {
     return { error: 'Base list not found' }
   }
 
+  // Validate base list has items
+  if (!baseList.items || baseList.items.length === 0) {
+    return { error: 'Cannot create shopping run from an empty base list. Please add items to your base list first.' }
+  }
+
   // Create shopping run
   const { data: shoppingRun, error: runError } = await supabase
     .from('shopping_runs')

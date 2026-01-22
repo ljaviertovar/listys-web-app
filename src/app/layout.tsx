@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { ThemeProvider } from '@/providers/theme-provider'
+import { Toaster } from 'sonner'
 
 import { Inter, Outfit } from 'next/font/google'
 
@@ -7,7 +8,7 @@ const inter = Inter({ subsets: ['latin'] })
 
 import './globals.css'
 
-const outfit = Outfit({subsets:['latin'],variable:'--font-sans'});
+const outfit = Outfit({ subsets: ['latin'], variable: '--font-sans' })
 
 export const metadata: Metadata = {
 	title: 'Listys - Smart Shopping List Manager',
@@ -22,7 +23,8 @@ export default function RootLayout({
 	return (
 		<html
 			lang='en'
-			suppressHydrationWarning className={outfit.variable}
+			suppressHydrationWarning
+			className={outfit.variable}
 		>
 			<body className={`${inter.className} relative scroll-smooth focus:scroll-auto`}>
 				<ThemeProvider
@@ -32,6 +34,7 @@ export default function RootLayout({
 					disableTransitionOnChange
 				>
 					{children}
+					<Toaster />
 				</ThemeProvider>
 			</body>
 		</html>

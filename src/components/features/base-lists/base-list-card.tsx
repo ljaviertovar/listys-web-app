@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge'
 import { deleteBaseList } from '@/actions/base-lists'
 import { createShoppingRun } from '@/actions/shopping-runs'
 import { formatDate } from '@/utils/format-date'
+import { toast } from 'sonner'
 import Link from 'next/link'
 import type { BaseListWithCount } from '@/features/base-lists/types'
 
@@ -56,7 +57,11 @@ export function BaseListCard({ baseList, hasActiveRun = false, isActiveRun = fal
 					router.push(`/shopping/${resultWithId.activeRunId}`)
 					return
 				}
-				throw new Error(result.error)
+				// Show error message to user
+				toast.error('Cannot start shopping run', {
+					description: result.error,
+				})
+				return
 			}
 
 			if (!result.data) throw new Error('Failed to create shopping run')
@@ -64,7 +69,9 @@ export function BaseListCard({ baseList, hasActiveRun = false, isActiveRun = fal
 			router.push(`/shopping/${result.data.id}`)
 		} catch (err) {
 			console.error('Failed to start shopping run:', err)
-			alert('Failed to start shopping run. Please try again.')
+			toast.error('Error', {
+				description: 'Failed to start shopping run. Please try again.',
+			})
 		} finally {
 			setStartingRun(false)
 		}

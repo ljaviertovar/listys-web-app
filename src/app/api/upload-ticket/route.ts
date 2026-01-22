@@ -96,12 +96,28 @@ export async function POST(request: NextRequest) {
         if (!ocrResponse.ok) {
           const errorText = await ocrResponse.text()
           console.error('OCR function error:', errorText)
+
+          // Mark ticket as failed instead of leaving it pending
+          await supabase
+            .from('tickets')
+            .update({ ocr_status: 'failed' })
+            .eq('id', ticket.id)
         } else {
           const result = await ocrResponse.json()
           console.log('OCR processing triggered successfully:', result)
         }
       } catch (error) {
         console.error('Failed to trigger OCR:', error)
+
+        // Mark ticket as failed on exception
+        try {
+          await supabase
+            .from('tickets')
+            .update({ ocr_status: 'failed' })
+            .eq('id', ticket.id)
+        } catch (updateError) {
+          console.error('Failed to update ticket status:', updateError)
+        }
       }
     } else {
       console.error('No signed URL returned')

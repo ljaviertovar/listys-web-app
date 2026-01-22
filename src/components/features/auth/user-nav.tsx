@@ -55,7 +55,7 @@ export function UserNav({ user }: Props) {
 			<DropdownMenuTrigger asChild>
 				<Button
 					variant='ghost'
-					className='relative h-8 w-8 rounded-full'
+					className='relative rounded-full px-2 py-4'
 				>
 					<Avatar className='h-8 w-8'>
 						<AvatarImage
@@ -64,6 +64,7 @@ export function UserNav({ user }: Props) {
 						/>
 						<AvatarFallback>{displayName.substring(0, 2).toUpperCase()}</AvatarFallback>
 					</Avatar>
+					User
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent

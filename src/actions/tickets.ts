@@ -46,7 +46,8 @@ export async function getTicket(id: string) {
     .from('tickets')
     .select(`
       *,
-      items:ticket_items(*)
+      items:ticket_items(*),
+      base_list:base_lists(id, name)
     `)
     .eq('id', id)
     .eq('user_id', user.id)
@@ -76,6 +77,18 @@ export async function mergeTicketItemsToBaseList(data: unknown) {
   }
 
   const { ticket_id, base_list_id, items: itemsToMerge } = validation.data
+
+  // Get base list with group_id
+  const { data: baseList, error: baseListError } = await supabase
+    .from('base_lists')
+    .select('id, group_id')
+    .eq('id', base_list_id)
+    .eq('user_id', user.id)
+    .single()
+
+  if (baseListError || !baseList) {
+    return { error: 'Base list not found' }
+  }
 
   // Get ticket items
   const { data: ticketItems, error: ticketError } = await supabase
@@ -158,14 +171,18 @@ export async function mergeTicketItemsToBaseList(data: unknown) {
     }
   }
 
-  // Update ticket to mark it as merged
+  // Update ticket to mark it as merged and inherit group_id from base list
   await supabase
     .from('tickets')
-    .update({ base_list_id })
+    .update({
+      base_list_id,
+      group_id: baseList.group_id
+    })
     .eq('id', ticket_id)
 
   revalidatePath(`/base-lists/${base_list_id}`)
   revalidatePath('/tickets')
+  revalidatePath(`/tickets/${ticket_id}`)
   return { success: true }
 }
 
@@ -235,14 +252,18 @@ export async function createBaseListFromTicket(data: {
     return { error: insertError.message }
   }
 
-  // Update ticket to mark it as merged
+  // Update ticket to mark it as merged and set group_id
   await supabase
     .from('tickets')
-    .update({ base_list_id: baseList.id })
+    .update({
+      base_list_id: baseList.id,
+      group_id
+    })
     .eq('id', ticket_id)
 
   revalidatePath(`/ticket-groups/${group_id}`)
   revalidatePath('/tickets')
+  revalidatePath(`/tickets/${ticket_id}`)
   return { data: baseList }
 }
 
@@ -306,6 +327,17 @@ export async function retryTicketOCR(id: string) {
     return { error: 'Ticket not found' }
   }
 
+  // Validate image exists in storage
+  const { data: fileExists, error: fileError } = await supabase.storage
+    .from('tickets')
+    .list(ticket.image_path.split('/')[0], {
+      search: ticket.image_path.split('/')[1],
+    })
+
+  if (fileError || !fileExists || fileExists.length === 0) {
+    return { error: 'Image file not found in storage. The image may have been deleted.' }
+  }
+
   // Delete existing ticket items
   await supabase
     .from('ticket_items')
@@ -332,6 +364,11 @@ export async function retryTicketOCR(id: string) {
     .createSignedUrl(ticket.image_path, 3600) // 1 hour expiry
 
   if (signedUrlError || !signedUrlData?.signedUrl) {
+    // Mark as failed if we can't generate URL
+    await supabase
+      .from('tickets')
+      .update({ ocr_status: 'failed' })
+      .eq('id', id)
     return { error: 'Failed to generate image URL' }
   }
 
@@ -353,13 +390,103 @@ export async function retryTicketOCR(id: string) {
     )
 
     if (!response.ok) {
-      console.error('OCR retry error:', await response.text())
+      const errorText = await response.text()
+      console.error('OCR retry error:', errorText)
+
+      // Mark as failed if Edge Function returns error
+      await supabase
+        .from('tickets')
+        .update({ ocr_status: 'failed' })
+        .eq('id', id)
+
+      return { error: 'OCR processing failed. Please try again.' }
     }
   } catch (err) {
     console.error('Failed to trigger OCR:', err)
+
+    // Mark as failed on exception
+    await supabase
+      .from('tickets')
+      .update({ ocr_status: 'failed' })
+      .eq('id', id)
+
+    return { error: 'Failed to connect to OCR service. Please try again.' }
   }
 
   revalidatePath('/tickets')
   revalidatePath(`/tickets/${id}`)
+  return { success: true }
+}
+
+export async function markStuckTicketsAsFailed() {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: 'Unauthorized' }
+  }
+
+  // Call the database function to mark stuck tickets as failed
+  const { error } = await supabase.rpc('mark_stuck_tickets_as_failed')
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  revalidatePath('/tickets')
+  return { success: true }
+}
+
+export async function assignTicketToGroup(ticketId: string, groupId: string) {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: 'Unauthorized' }
+  }
+
+  // Verify the ticket belongs to the user
+  const { data: ticket, error: ticketError } = await supabase
+    .from('tickets')
+    .select('id')
+    .eq('id', ticketId)
+    .eq('user_id', user.id)
+    .single()
+
+  if (ticketError || !ticket) {
+    return { error: 'Ticket not found' }
+  }
+
+  // Verify the group belongs to the user
+  const { data: group, error: groupError } = await supabase
+    .from('groups')
+    .select('id')
+    .eq('id', groupId)
+    .eq('user_id', user.id)
+    .single()
+
+  if (groupError || !group) {
+    return { error: 'Group not found' }
+  }
+
+  // Update the ticket with the new group
+  const { error: updateError } = await supabase
+    .from('tickets')
+    .update({ group_id: groupId })
+    .eq('id', ticketId)
+    .eq('user_id', user.id)
+
+  if (updateError) {
+    return { error: updateError.message }
+  }
+
+  revalidatePath('/tickets')
+  revalidatePath(`/tickets/${ticketId}`)
   return { success: true }
 }

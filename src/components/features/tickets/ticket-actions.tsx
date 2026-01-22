@@ -16,13 +16,14 @@ import {
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Delete02Icon, RefreshIcon, Loading03Icon } from '@hugeicons/core-free-icons'
 import { deleteTicket, retryTicketOCR } from '@/actions/tickets'
+import { toast } from 'sonner'
+import type { Ticket } from '@/features/tickets/types'
 
 interface Props {
-	ticketId: string
-	status: string
+	ticket: Ticket
 }
 
-export function TicketActions({ ticketId, status }: Props) {
+export function TicketActions({ ticket }: Props) {
 	const [showDeleteDialog, setShowDeleteDialog] = useState(false)
 	const [deleting, setDeleting] = useState(false)
 	const [retrying, setRetrying] = useState(false)
@@ -31,11 +32,21 @@ export function TicketActions({ ticketId, status }: Props) {
 	const handleDelete = async () => {
 		setDeleting(true)
 		try {
-			const { error } = await deleteTicket(ticketId)
-			if (error) throw new Error(error)
+			const { error } = await deleteTicket(ticket.id)
+			if (error) {
+				toast.error('Failed to delete ticket', {
+					description: error,
+				})
+				return
+			}
+			toast.success('Ticket deleted successfully')
 			router.push('/tickets')
 		} catch (err) {
 			console.error('Failed to delete ticket:', err)
+			toast.error('Failed to delete ticket', {
+				description: err instanceof Error ? err.message : 'An unexpected error occurred',
+			})
+		} finally {
 			setDeleting(false)
 			setShowDeleteDialog(false)
 		}
@@ -44,19 +55,31 @@ export function TicketActions({ ticketId, status }: Props) {
 	const handleRetry = async () => {
 		setRetrying(true)
 		try {
-			const { error } = await retryTicketOCR(ticketId)
-			if (error) throw new Error(error)
+			const { error } = await retryTicketOCR(ticket.id)
+			if (error) {
+				toast.error('Failed to retry OCR', {
+					description: error,
+				})
+				return
+			}
+			toast.success('OCR processing started', {
+				description: 'The ticket is being reprocessed. This may take a few moments.',
+			})
 			router.refresh()
 		} catch (err) {
 			console.error('Failed to retry OCR:', err)
+			toast.error('Failed to retry OCR', {
+				description: err instanceof Error ? err.message : 'An unexpected error occurred',
+			})
 		} finally {
 			setRetrying(false)
 		}
 	}
 
 	// Show retry/reprocess button for failed, stuck pending, or stuck processing tickets
-	const showRetryButton = status === 'failed' || status === 'pending' || status === 'processing'
-	const retryButtonLabel = status === 'failed' ? 'Retry OCR' : 'Reprocess'
+	const showRetryButton =
+		ticket.ocr_status === 'failed' || ticket.ocr_status === 'pending' || ticket.ocr_status === 'processing'
+	const retryButtonLabel = ticket.ocr_status === 'failed' ? 'Retry OCR' : 'Reprocess'
 
 	return (
 		<div className='flex items-center gap-2'>
