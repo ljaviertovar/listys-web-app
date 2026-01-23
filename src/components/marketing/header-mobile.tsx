@@ -24,7 +24,7 @@ const sidebar = {
 	open: (height = 1000) => ({
 		clipPath: `circle(${height * 2 + 200}px at 0 0)`,
 		transition: {
-			type: 'spring',
+			type: 'spring' as const,
 			stiffness: 20,
 			restDelta: 2,
 		},
@@ -32,7 +32,7 @@ const sidebar = {
 	closed: {
 		clipPath: 'circle(0px at 0 0)',
 		transition: {
-			type: 'spring',
+			type: 'spring' as const,
 			stiffness: 400,
 			damping: 40,
 		},
@@ -201,7 +201,7 @@ const MenuItemWithSubMenu: React.FC<MenuItemWithSubMenuProps> = ({ item, toggleO
 			<div className='mt-2 ml-2 flex flex-col space-y-2'>
 				{subMenuOpen && (
 					<>
-						{item.subMenuItems?.map((subItem, subIdx) => {
+						{(item as any).subMenuItems?.map((subItem: any, subIdx: number) => {
 							return (
 								<MenuItem key={subIdx}>
 									<Link

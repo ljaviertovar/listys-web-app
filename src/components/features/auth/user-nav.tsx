@@ -2,7 +2,6 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import type { User } from '@supabase/supabase-js'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -20,7 +19,7 @@ import { USER_NAV_ITEMS } from '@/data/constants/nav'
 import { createClient } from '@/lib/supabase/client'
 
 interface Props {
-	user: User
+	user: any
 }
 
 const UserNavItem = ({ title, url }: NavItem) => {

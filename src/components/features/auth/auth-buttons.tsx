@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import type { User } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase/client'
 
 import { Skeleton } from '@/components/ui/skeleton'
@@ -10,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { UserNav } from './user-nav'
 
 export default function AuthButtons() {
-	const [user, setUser] = useState<User | null>(null)
+	const [user, setUser] = useState<any>(null)
 	const [loading, setLoading] = useState(true)
 
 	useEffect(() => {

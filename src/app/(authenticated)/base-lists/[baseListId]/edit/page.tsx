@@ -120,7 +120,7 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 						) : (
 							<div className='space-y-2'>
 								{baseListWithItems.items
-									.sort((a, b) => a.sort_order - b.sort_order)
+									.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
 									.map(item => (
 										<BaseListItemRow
 											key={item.id}

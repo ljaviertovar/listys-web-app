@@ -74,7 +74,7 @@ export async function mergeTicketItemsToBaseList(data: unknown) {
 
   const validation = mergeTicketItemsSchema.safeParse(data)
   if (!validation.success) {
-    return { error: validation.error.errors[0].message }
+    return { error: validation.error.issues[0].message }
   }
 
   const { ticket_id, base_list_id, items: itemsToMerge } = validation.data
@@ -210,7 +210,7 @@ export async function createBaseListFromTicket(data: unknown) {
 
   const validation = createBaseListFromTicketSchema.safeParse(data)
   if (!validation.success) {
-    return { error: validation.error.errors[0].message }
+    return { error: validation.error.issues[0].message }
   }
 
   const { ticket_id, group_id, name, item_ids } = validation.data

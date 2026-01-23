@@ -1,4 +1,4 @@
-import { Database } from '@/features/database.types'
+import { Database } from '@/lib/supabase/database.types'
 
 export type BaseList = Database['public']['Tables']['base_lists']['Row']
 export type InsertBaseList = Database['public']['Tables']['base_lists']['Insert']

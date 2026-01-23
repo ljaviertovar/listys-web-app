@@ -24,7 +24,7 @@ export async function createShoppingRun(data: unknown) {
 
   const validation = createShoppingRunSchema.safeParse(data)
   if (!validation.success) {
-    return { error: validation.error.errors[0].message }
+    return { error: validation.error.issues[0].message }
   }
 
   // Check if user already has an active shopping run
@@ -117,7 +117,7 @@ export async function updateShoppingRun(id: string, data: unknown) {
 
   const validation = updateShoppingRunSchema.safeParse(data)
   if (!validation.success) {
-    return { error: validation.error.errors[0].message }
+    return { error: validation.error.issues[0].message }
   }
 
   const { data: shoppingRun, error } = await supabase
@@ -150,7 +150,7 @@ export async function completeShoppingRun(id: string, data: unknown) {
 
   const validation = completeShoppingRunSchema.safeParse(data)
   if (!validation.success) {
-    return { error: validation.error.errors[0].message }
+    return { error: validation.error.issues[0].message }
   }
 
   // Get shopping run with items
@@ -224,7 +224,7 @@ async function syncRunToBaseList(
   }
 
   // Create a map of existing items by name
-  const existingItems = new Map(
+  const existingItems = new Map<string, any>(
     baseItems?.map((item: any) => [item.name.toLowerCase(), item]) || []
   )
 
@@ -407,7 +407,7 @@ export async function updateShoppingRunItem(id: string, data: unknown) {
 
   const validation = updateShoppingRunItemSchema.safeParse(data)
   if (!validation.success) {
-    return { error: validation.error.errors[0].message }
+    return { error: validation.error.issues[0].message }
   }
 
   const { data: item, error } = await supabase
@@ -442,7 +442,7 @@ export async function createShoppingRunItem(data: unknown) {
 
   const validation = createShoppingRunItemSchema.safeParse(data)
   if (!validation.success) {
-    return { error: validation.error.errors[0].message }
+    return { error: validation.error.issues[0].message }
   }
 
   // Get the max sort_order for this shopping run

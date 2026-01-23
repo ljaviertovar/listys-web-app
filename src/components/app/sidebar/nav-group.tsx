@@ -193,7 +193,7 @@ const SidebarMenuCollapsedDropdown = ({ item, href }: { item: NavCollapsible; hr
 						>
 							<Link
 								href={sub.url}
-								className={`${checkIsActive(href, sub) ? 'bg-secondary' : ''} gap-2`}
+								className={`${checkIsActive(href, sub) ? 'bg-sidebar-active text-sidebar-active-foreground font-medium' : ''} gap-2`}
 							>
 								{sub.icon && (
 									<HugeiconsIcon

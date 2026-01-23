@@ -29,7 +29,7 @@ export function mergeItems(
       // Update quantity if item exists
       itemMap.set(key, {
         ...existing,
-        quantity: existing.quantity + ticketItem.quantity,
+        quantity: (existing.quantity ?? 0) + (ticketItem.quantity ?? 0),
       })
     } else {
       // Add new item

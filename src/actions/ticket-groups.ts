@@ -18,7 +18,7 @@ export async function createGroup(data: unknown) {
 
   const validation = createGroupSchema.safeParse(data)
   if (!validation.success) {
-    return { error: validation.error.errors[0].message }
+    return { error: validation.error.issues[0].message }
   }
 
   // Check if user has reached the maximum number of groups
@@ -79,7 +79,7 @@ export async function updateGroup(id: string, data: unknown) {
 
   const validation = updateGroupSchema.safeParse(data)
   if (!validation.success) {
-    return { error: validation.error.errors[0].message }
+    return { error: validation.error.issues[0].message }
   }
 
   // Check for duplicate group name (excluding current group)

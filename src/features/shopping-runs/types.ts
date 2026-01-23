@@ -1,4 +1,4 @@
-import { Database } from '@/features/database.types'
+import { Database } from '@/lib/supabase/database.types'
 
 export type ShoppingRun = Database['public']['Tables']['shopping_runs']['Row']
 export type InsertShoppingRun = Database['public']['Tables']['shopping_runs']['Insert']

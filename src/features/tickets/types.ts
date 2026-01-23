@@ -1,4 +1,4 @@
-import { Database } from '@/features/database.types'
+import { Database } from '@/lib/supabase/database.types'
 
 export type Ticket = Database['public']['Tables']['tickets']['Row']
 export type InsertTicket = Database['public']['Tables']['tickets']['Insert']

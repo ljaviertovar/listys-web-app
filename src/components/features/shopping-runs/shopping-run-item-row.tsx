@@ -45,7 +45,7 @@ export function ShoppingRunItemRow({ item, isCompleted = false }: Props) {
 		>
 			<div className='flex items-start gap-3'>
 				<Checkbox
-					checked={checked}
+					checked={checked ?? false}
 					onCheckedChange={handleToggle}
 					disabled={loading || isCompleted}
 					className='mt-0.5 w-5 h-5'

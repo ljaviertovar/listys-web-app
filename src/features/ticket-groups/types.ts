@@ -1,4 +1,4 @@
-import { Database } from '@/features/database.types'
+import { Database } from '@/lib/supabase/database.types'
 
 export type Group = Database['public']['Tables']['groups']['Row']
 export type InsertGroup = Database['public']['Tables']['groups']['Insert']

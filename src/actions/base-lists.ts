@@ -23,7 +23,7 @@ export async function createBaseList(data: unknown) {
 
   const validation = createBaseListSchema.safeParse(data)
   if (!validation.success) {
-    return { error: validation.error.errors[0].message }
+    return { error: validation.error.issues[0].message }
   }
 
   // Check for duplicate base list name within the same group
@@ -70,7 +70,7 @@ export async function updateBaseList(id: string, data: unknown) {
 
   const validation = updateBaseListSchema.safeParse(data)
   if (!validation.success) {
-    return { error: validation.error.errors[0].message }
+    return { error: validation.error.issues[0].message }
   }
 
   // Check for duplicate base list name within the same group (excluding current list)
@@ -231,7 +231,7 @@ export async function createBaseListItem(data: unknown) {
 
   const validation = createBaseListItemSchema.safeParse(data)
   if (!validation.success) {
-    return { error: validation.error.errors[0].message }
+    return { error: validation.error.issues[0].message }
   }
 
   // Check if base list has reached the maximum number of items
@@ -277,7 +277,7 @@ export async function updateBaseListItem(id: string, data: unknown) {
 
   const validation = updateBaseListItemSchema.safeParse(data)
   if (!validation.success) {
-    return { error: validation.error.errors[0].message }
+    return { error: validation.error.issues[0].message }
   }
 
   // First get the item to find the base_list_id for revalidation
