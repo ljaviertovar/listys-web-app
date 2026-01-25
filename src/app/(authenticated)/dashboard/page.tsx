@@ -1,9 +1,13 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Camera01Icon, FolderLibraryIcon, TimeQuarterPassIcon } from '@hugeicons/core-free-icons'
 
 import { getActiveShoppingRun, getShoppingHistory } from '@/actions/shopping-runs'
 import { getGroups } from '@/actions/ticket-groups'
 import PageHeader from '@/components/app/page-header'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 
 export default async function DashboardPage() {
 	const supabase = await createClient()
@@ -33,57 +37,73 @@ export default async function DashboardPage() {
 			<div className='container mx-auto max-w-7xl space-y-6 p-6'>
 				{/* Active Shopping Run */}
 				{activeRun && (
-					<div className='mb-8 rounded-lg border-2 border-green-500 bg-green-50 p-6'>
-						<div className='flex items-center justify-between mb-3'>
-							<div>
-								<h2 className='text-lg font-semibold text-green-900'>Active Shopping Run</h2>
-								<p className='text-sm text-green-700 mt-1'>{activeRun.name}</p>
+					<Card className='border-primary/50 bg-primary/5'>
+						<CardHeader>
+							<CardTitle className='text-primary'>Active Shopping Run</CardTitle>
+							<CardDescription>{activeRun.name}</CardDescription>
+						</CardHeader>
+						<CardContent className='space-y-3'>
+							<div className='rounded-lg border border-primary/20 bg-background p-3'>
+								<p className='text-xs text-muted-foreground'>
+									<strong>Note:</strong> You can only have one active shopping run at a time. Complete or cancel this
+									run before starting a new one.
+								</p>
 							</div>
-							<Link
-								href={`/shopping/${activeRun.id}`}
-								className='rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700'
+							<Button
+								asChild
+								className='w-full'
 							>
-								Continue Shopping
-							</Link>
-						</div>
-						<div className='rounded-md bg-green-100 border border-green-200 p-3'>
-							<p className='text-xs text-green-800'>
-								💡 <strong>Note:</strong> You can only have one active shopping run at a time. Complete or cancel this
-								run before starting a new one.
-							</p>
-						</div>
-					</div>
+								<Link href={`/shopping/${activeRun.id}`}>Continue Shopping</Link>
+							</Button>
+						</CardContent>
+					</Card>
 				)}
 
 				{/* Quick Actions */}
-				<div className='grid grid-cols-1 md:grid-cols-3 gap-6 mb-8'>
-					<Link
-						href='/tickets'
-						className='rounded-lg bg-white p-6 shadow-sm hover:shadow-md transition-shadow'
-					>
-						<div className='text-3xl mb-3'>📸</div> <h3 className='text-lg font-semibold text-gray-900'>Tickets</h3>
-						<p className='text-sm text-gray-600 mt-2'>Upload and manage receipts</p>
-					</Link>
+				<div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
+					<Card className='hover:border-primary/50 transition-colors cursor-pointer'>
+						<Link href='/tickets'>
+							<CardHeader>
+								<HugeiconsIcon
+									icon={Camera01Icon}
+									strokeWidth={1.5}
+									className='h-12 w-12 text-muted-foreground mb-2'
+								/>
+								<CardTitle>Tickets</CardTitle>
+								<CardDescription>Upload and manage receipts</CardDescription>
+							</CardHeader>
+						</Link>
+					</Card>
 
-					<Link
-						href='/ticket-groups'
-						className='rounded-lg bg-white p-6 shadow-sm hover:shadow-md transition-shadow'
-					>
-						<div className='text-3xl mb-3'>📋</div>
-						<h3 className='text-lg font-semibold text-gray-900'>My Groups</h3>
-						<p className='text-sm text-gray-600 mt-2'>Manage your shopping list groups</p>
-						<p className='text-2xl font-bold text-primary mt-4'>{groups.length}</p>
-					</Link>
+					<Card className='hover:border-primary/50 transition-colors cursor-pointer'>
+						<Link href='/ticket-groups'>
+							<CardHeader>
+								<HugeiconsIcon
+									icon={FolderLibraryIcon}
+									strokeWidth={1.5}
+									className='h-12 w-12 text-muted-foreground mb-2'
+								/>
+								<CardTitle>My Groups</CardTitle>
+								<CardDescription>Manage your shopping list groups</CardDescription>
+								<p className='text-2xl font-bold text-primary mt-2'>{groups.length}</p>
+							</CardHeader>
+						</Link>
+					</Card>
 
-					<Link
-						href='/history'
-						className='rounded-lg bg-white p-6 shadow-sm hover:shadow-md transition-shadow'
-					>
-						<div className='text-3xl mb-3'>📊</div>
-						<h3 className='text-lg font-semibold text-gray-900'>History</h3>
-						<p className='text-sm text-gray-600 mt-2'>View past shopping runs</p>
-						<p className='text-2xl font-bold text-primary mt-4'>{historyCount}</p>{' '}
-					</Link>
+					<Card className='hover:border-primary/50 transition-colors cursor-pointer'>
+						<Link href='/history'>
+							<CardHeader>
+								<HugeiconsIcon
+									icon={TimeQuarterPassIcon}
+									strokeWidth={1.5}
+									className='h-12 w-12 text-muted-foreground mb-2'
+								/>
+								<CardTitle>History</CardTitle>
+								<CardDescription>View past shopping runs</CardDescription>
+								<p className='text-2xl font-bold text-primary mt-2'>{historyCount}</p>
+							</CardHeader>
+						</Link>
+					</Card>
 				</div>
 			</div>
 		</main>

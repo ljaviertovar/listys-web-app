@@ -38,13 +38,6 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 	}
 
 	const createdAt = new Date(ticket.created_at)
-	const statusColors: Record<string, string> = {
-		pending: 'bg-yellow-100 text-yellow-800',
-		processing: 'bg-blue-100 text-blue-800',
-		completed: 'bg-green-100 text-green-800',
-		failed: 'bg-red-100 text-red-800',
-	}
-	const statusColor = statusColors[ticket.ocr_status || 'pending']
 
 	return (
 		<main className='flex-1 overflow-y-auto'>
@@ -59,21 +52,21 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 						label='Back to Tickets'
 					/>
 					<div className='flex items-center gap-2'>
-						<Badge className={statusColor}>{ticket.ocr_status}</Badge>
+						<Badge variant={ticket.ocr_status === 'completed' ? 'default' : 'outline'}>{ticket.ocr_status}</Badge>
 						<TicketActions ticket={ticket} />
 					</div>
 				</div>
 
 				{ticket.base_list_id && baseListName && (
-					<div className='rounded-lg border border-blue-200 bg-blue-50 p-4'>
+					<div className='rounded-lg border border-primary/20 bg-primary/5 p-4'>
 						<div className='flex items-start gap-3'>
 							<div className='flex-1'>
-								<h3 className='font-semibold text-blue-900'>Merged to Base List</h3>
-								<p className='mt-1 text-sm text-blue-700'>
+								<h3 className='font-semibold text-primary'>Merged to Base List</h3>
+								<p className='mt-1 text-sm text-muted-foreground'>
 									This ticket has been added to the base list:{' '}
 									<Link
 										href={`/base-lists/${ticket.base_list_id}/edit`}
-										className='font-medium underline hover:no-underline'
+										className='font-medium text-primary underline hover:no-underline'
 									>
 										{baseListName}
 									</Link>

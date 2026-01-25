@@ -57,13 +57,6 @@ export default async function TicketsPage() {
 					<div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3'>
 						{tickets.map(ticket => {
 							const createdAt = new Date(ticket.created_at)
-							const statusColors: Record<string, string> = {
-								pending: 'bg-yellow-100 text-yellow-800',
-								processing: 'bg-blue-100 text-blue-800',
-								completed: 'bg-green-100 text-green-800',
-								failed: 'bg-red-100 text-red-800',
-							}
-							const statusColor = statusColors[ticket.ocr_status || 'pending']
 							const isMerged = !!ticket.base_list_id
 
 							return (
@@ -82,14 +75,11 @@ export default async function TicketsPage() {
 											</span>
 											<div className='flex items-center gap-2'>
 												{isMerged && (
-													<Badge
-														variant='outline'
-														className='border-blue-500 text-blue-600'
-													>
-														Merged
-													</Badge>
+													<Badge variant='secondary'>Merged</Badge>
 												)}
-												<Badge className={statusColor}>{ticket.ocr_status}</Badge>
+												<Badge variant={ticket.ocr_status === 'completed' ? 'default' : 'outline'}>
+													{ticket.ocr_status}
+												</Badge>
 											</div>
 										</CardTitle>
 										<CardDescription>

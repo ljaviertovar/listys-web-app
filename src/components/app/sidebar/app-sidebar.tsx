@@ -16,7 +16,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			variant='sidebar'
 			{...props}
 		>
-			<SidebarHeader className='flex h-16 items-center gap-3 p-4 sm:gap-4 border-b-2'>
+			<SidebarHeader className='flex h-16 items-center gap-3 p-4 sm:gap-4 border-b border-sidebar-border'>
 				<div className='grid place-content-center h-full'>
 					<Logo isCollapsed={state === 'collapsed'} />
 				</div>
