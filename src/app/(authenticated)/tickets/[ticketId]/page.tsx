@@ -12,6 +12,7 @@ import { TicketImage } from '@/components/features/tickets/ticket-image'
 import { TicketActions } from '@/components/features/tickets/ticket-actions'
 import PageHeader from '@/components/app/page-header'
 import BackLink from '@/components/app/back-link'
+import PageContainer from '@/components/app/page-container'
 
 export default async function TicketDetailPage({ params }: { params: Promise<{ ticketId: string }> }) {
 	const { ticketId } = await params
@@ -40,12 +41,12 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 	const createdAt = new Date(ticket.created_at)
 
 	return (
-		<main className='flex-1 overflow-y-auto'>
+		<>
 			<PageHeader
 				title={ticket.store_name || 'Receipt'}
 				desc={`Uploaded on ${formatDate(createdAt)} at ${formatTime(createdAt)}`}
 			/>
-			<div className='container mx-auto max-w-7xl space-y-6 p-6'>
+			<PageContainer>
 				<div className='flex items-start justify-between'>
 					<BackLink
 						href='/tickets'
@@ -117,7 +118,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 						</CardContent>
 					</Card>
 				</div>
-			</div>
-		</main>
+			</PageContainer>
+		</>
 	)
 }

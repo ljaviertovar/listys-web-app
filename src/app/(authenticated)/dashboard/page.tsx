@@ -8,6 +8,7 @@ import { getGroups } from '@/actions/ticket-groups'
 import PageHeader from '@/components/app/page-header'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { PageContainer } from '@/components/app'
 
 export default async function DashboardPage() {
 	const activeRunResult = await getActiveShoppingRun()
@@ -24,7 +25,7 @@ export default async function DashboardPage() {
 				title='Dashboard'
 				desc='Overview of your shopping activity'
 			/>
-			<div className='container mx-auto max-w-7xl space-y-6 p-6'>
+			<PageContainer>
 				{/* Active Shopping Run */}
 				{activeRun && (
 					<Card className='border-primary/50 bg-primary/5'>
@@ -50,7 +51,10 @@ export default async function DashboardPage() {
 				)}
 
 				{/* Quick Actions */}
-
+				<div className='grid gap-6 md:grid-cols-3'>
+					<Card className='hover:border-primary/50 transition-colors cursor-pointer'>
+						<Link href='/tickets'>
+							<CardHeader>
 								<HugeiconsIcon
 									icon={Camera01Icon}
 									strokeWidth={1.5}
@@ -92,7 +96,7 @@ export default async function DashboardPage() {
 						</Link>
 					</Card>
 				</div>
-			</div>
+			</PageContainer>
 		</>
 	)
 }

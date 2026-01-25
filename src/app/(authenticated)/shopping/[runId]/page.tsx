@@ -16,6 +16,7 @@ import type { ShoppingRunWithItems } from '@/features/shopping-runs/types'
 import PageHeader from '@/components/app/page-header'
 import BackLink from '@/components/app/back-link'
 import { formatDate, formatTime } from '@/utils/format-date'
+import PageContainer from '@/components/app/page-container'
 
 export default async function ShoppingRunPage({ params }: { params: Promise<{ runId: string }> }) {
 	const { runId } = await params
@@ -49,7 +50,7 @@ export default async function ShoppingRunPage({ params }: { params: Promise<{ ru
 	const progress = totalCount > 0 ? Math.round((checkedCount / totalCount) * 100) : 0
 
 	return (
-		<main className='flex-1 overflow-y-auto'>
+		<>
 			<PageHeader
 				title={runWithItems.name}
 				desc={
@@ -58,7 +59,7 @@ export default async function ShoppingRunPage({ params }: { params: Promise<{ ru
 						: `${checkedCount} of ${totalCount} items (${progress}%)`
 				}
 			/>
-			<div className='container mx-auto max-w-4xl space-y-6 p-6'>
+			<PageContainer>
 				<BackLink
 					href={isCompleted ? '/history' : '/dashboard'}
 					label={isCompleted ? 'Back to History' : 'Back to Dashboard'}
@@ -130,7 +131,7 @@ export default async function ShoppingRunPage({ params }: { params: Promise<{ ru
 						/>
 					</>
 				)}
-			</div>
-		</main>
+			</PageContainer>
+		</>
 	)
 }

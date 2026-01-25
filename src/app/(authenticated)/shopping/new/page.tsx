@@ -8,6 +8,7 @@ import Link from 'next/link'
 import { CreateShoppingRunForm } from '@/components/features/shopping-runs/create-shopping-run-form'
 import PageHeader from '@/components/app/page-header'
 import BackLink from '@/components/app/back-link'
+import PageContainer from '@/components/app/page-container'
 
 export default async function NewShoppingRunPage({ searchParams }: { searchParams: Promise<{ baseListId?: string }> }) {
 	const { baseListId } = await searchParams
@@ -44,12 +45,12 @@ export default async function NewShoppingRunPage({ searchParams }: { searchParam
 	}
 
 	return (
-		<main className='flex-1 overflow-y-auto'>
+		<>
 			<PageHeader
 				title='Start Shopping Run'
 				desc={`Create a new shopping run from "${baseList.name}"`}
 			/>
-			<div className='container mx-auto max-w-2xl space-y-6 p-6'>
+			<PageContainer>
 				<BackLink
 					href={`/ticket-groups/${baseList.group_id}/lists`}
 					label='Back to Lists'
@@ -73,7 +74,7 @@ export default async function NewShoppingRunPage({ searchParams }: { searchParam
 						/>
 					</CardContent>
 				</Card>
-			</div>
-		</main>
+			</PageContainer>
+		</>
 	)
 }

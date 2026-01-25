@@ -9,6 +9,7 @@ import Link from 'next/link'
 import { CreateGroupDialog } from '@/components/features/ticket-groups/create-group-dialog'
 import { GroupCard } from '@/components/features/ticket-groups/group-card'
 import PageHeader from '@/components/app/page-header'
+import PageContainer from '@/components/app/page-container'
 
 export default async function GroupsPage() {
 	const supabase = await createClient()
@@ -23,14 +24,14 @@ export default async function GroupsPage() {
 	const { data: groups, error } = await getGroups()
 
 	return (
-		<main className='flex-1 overflow-y-auto'>
+		<>
 			<PageHeader
 				title='Ticket Groups'
 				desc='Organize your shopping lists into groups'
 			>
 				<CreateGroupDialog />
 			</PageHeader>
-			<div className='container mx-auto max-w-7xl space-y-6 p-6'>
+			<PageContainer>
 				{error && (
 					<div className='rounded-lg bg-destructive/10 p-4 text-sm text-destructive'>Error loading groups: {error}</div>
 				)}
@@ -60,7 +61,7 @@ export default async function GroupsPage() {
 						))}
 					</div>
 				)}
-			</div>
-		</main>
+			</PageContainer>
+		</>
 	)
 }

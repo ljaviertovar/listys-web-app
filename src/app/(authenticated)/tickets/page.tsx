@@ -10,6 +10,7 @@ import Link from 'next/link'
 import { UploadTicketDialog } from '@/components/features/tickets/upload-ticket-dialog'
 import { formatDate, formatTime } from '@/utils/format-date'
 import PageHeader from '@/components/app/page-header'
+import PageContainer from '@/components/app/page-container'
 
 export default async function TicketsPage() {
 	const supabase = await createClient()
@@ -24,14 +25,14 @@ export default async function TicketsPage() {
 	const { data: tickets, error } = await getTickets()
 
 	return (
-		<main className='flex-1 overflow-y-auto'>
+		<>
 			<PageHeader
 				title='Tickets'
 				desc='Upload and manage your shopping receipts'
 			>
 				<UploadTicketDialog />
 			</PageHeader>
-			<div className='container mx-auto max-w-7xl space-y-6 p-6'>
+			<PageContainer>
 				{error && (
 					<div className='rounded-lg bg-destructive/10 p-4 text-sm text-destructive'>
 						Error loading tickets: {error}
@@ -74,9 +75,7 @@ export default async function TicketsPage() {
 												{ticket.store_name || 'Unknown Store'}
 											</span>
 											<div className='flex items-center gap-2'>
-												{isMerged && (
-													<Badge variant='secondary'>Merged</Badge>
-												)}
+												{isMerged && <Badge variant='secondary'>Merged</Badge>}
 												<Badge variant={ticket.ocr_status === 'completed' ? 'default' : 'outline'}>
 													{ticket.ocr_status}
 												</Badge>
@@ -104,7 +103,7 @@ export default async function TicketsPage() {
 						})}
 					</div>
 				)}
-			</div>
-		</main>
+			</PageContainer>
+		</>
 	)
 }

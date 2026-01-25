@@ -6,6 +6,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { ArrowLeft02Icon, ShoppingBasket01Icon, FolderIcon } from '@hugeicons/core-free-icons'
 import Link from 'next/link'
 import PageHeader from '@/components/app/page-header'
+import PageContainer from '@/components/app/page-container'
 
 export default async function HistoryPage() {
 	const supabase = await createClient()
@@ -20,12 +21,12 @@ export default async function HistoryPage() {
 	const { data: groups, error } = await getGroups()
 
 	return (
-		<main className='flex-1 overflow-y-auto'>
+		<>
 			<PageHeader
 				title='Shopping History'
 				desc='View your past shopping runs by group'
 			/>
-			<div className='container mx-auto max-w-7xl space-y-6 p-6'>
+			<PageContainer>
 				{error && (
 					<div className='rounded-lg bg-destructive/10 p-4 text-sm text-destructive'>Error loading groups: {error}</div>
 				)}
@@ -67,7 +68,7 @@ export default async function HistoryPage() {
 						))}
 					</div>
 				)}
-			</div>
-		</main>
+			</PageContainer>
+		</>
 	)
 }

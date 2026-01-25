@@ -9,6 +9,7 @@ import Link from 'next/link'
 import { HistoryRunCard } from '@/components/features/shopping-runs/history-run-card'
 import PageHeader from '@/components/app/page-header'
 import BackLink from '@/components/app/back-link'
+import PageContainer from '@/components/app/page-container'
 
 export default async function GroupHistoryPage({ params }: { params: Promise<{ groupId: string }> }) {
 	const { groupId } = await params
@@ -32,12 +33,12 @@ export default async function GroupHistoryPage({ params }: { params: Promise<{ g
 	const runs = allRuns?.filter(run => run.base_list?.group?.id === groupId) || []
 
 	return (
-		<main className='flex-1 overflow-y-auto'>
+		<>
 			<PageHeader
 				title={group.name}
 				desc={group.description || 'Shopping history for this group'}
 			/>
-			<div className='container mx-auto max-w-4xl space-y-6 p-6'>
+			<PageContainer>
 				<BackLink
 					href='/history'
 					label='Back to History'
@@ -75,7 +76,7 @@ export default async function GroupHistoryPage({ params }: { params: Promise<{ g
 						))}
 					</div>
 				)}
-			</div>
-		</main>
+			</PageContainer>
+		</>
 	)
 }

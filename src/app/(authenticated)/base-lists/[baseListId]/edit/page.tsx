@@ -11,6 +11,7 @@ import { BaseListItemRow } from '@/components/features/base-lists/base-list-item
 import type { BaseListWithItems } from '@/features/base-lists/types'
 import PageHeader from '@/components/app/page-header'
 import BackLink from '@/components/app/back-link'
+import { PageContainer } from '@/components/app'
 
 export default async function EditBaseListPage({ params }: { params: Promise<{ baseListId: string }> }) {
 	const { baseListId } = await params
@@ -50,7 +51,7 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 		.maybeSingle()
 
 	return (
-		<main className='flex-1 overflow-y-auto'>
+		<>
 			<PageHeader
 				title={baseListWithItems.name}
 				desc='Manage items in this base list'
@@ -69,7 +70,7 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 					)
 				}
 			/>
-			<div className='container mx-auto max-w-4xl space-y-6 p-6'>
+			<PageContainer>
 				{activeRun && (
 					<div className='rounded-lg border-2 border-green-500 bg-green-50 p-4'>
 						<div className='flex items-center justify-between'>
@@ -132,7 +133,7 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 						)}
 					</CardContent>
 				</Card>
-			</div>
-		</main>
+			</PageContainer>
+		</>
 	)
 }

@@ -11,6 +11,7 @@ import { BaseListCard } from '@/components/features/base-lists/base-list-card'
 import type { BaseListWithCount } from '@/features/base-lists/types'
 import PageHeader from '@/components/app/page-header'
 import BackLink from '@/components/app/back-link'
+import PageContainer from '@/components/app/page-container'
 
 export default async function BaseListsPage({ params }: { params: Promise<{ groupId: string }> }) {
 	const { groupId } = await params
@@ -45,14 +46,14 @@ export default async function BaseListsPage({ params }: { params: Promise<{ grou
 		.maybeSingle()
 
 	return (
-		<main className='flex-1 overflow-y-auto'>
+		<>
 			<PageHeader
 				title={group?.name || 'Base Lists'}
 				desc='Manage your base shopping lists'
 			>
 				<CreateBaseListDialog groupId={groupId} />
 			</PageHeader>
-			<div className='container mx-auto max-w-7xl space-y-6 p-6'>
+			<PageContainer>
 				<BackLink
 					href='/ticket-groups'
 					label='Back to Tickets Groups'
@@ -108,7 +109,7 @@ export default async function BaseListsPage({ params }: { params: Promise<{ grou
 							))}
 					</div>
 				)}
-			</div>
-		</main>
+			</PageContainer>{' '}
+		</>
 	)
 }
