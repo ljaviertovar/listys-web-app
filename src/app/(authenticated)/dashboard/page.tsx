@@ -9,6 +9,7 @@ import PageHeader from '@/components/app/page-header'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { PageContainer } from '@/components/app'
+import ActiveShopping from '@/components/app/active-shopping'
 
 export default async function DashboardPage() {
 	const activeRunResult = await getActiveShoppingRun()
@@ -28,26 +29,10 @@ export default async function DashboardPage() {
 			<PageContainer>
 				{/* Active Shopping Run */}
 				{activeRun && (
-					<Card className='border-primary/50 bg-primary/5'>
-						<CardHeader>
-							<CardTitle className='text-primary'>Active Shopping</CardTitle>
-							<CardDescription>{activeRun.name}</CardDescription>
-						</CardHeader>
-						<CardContent className='space-y-3'>
-							<div className='rounded-lg border border-primary/20 bg-background p-3'>
-								<p className='text-xs text-muted-foreground'>
-									<strong>Note:</strong> You can only have one active shopping run at a time. Complete or cancel this
-									run before starting a new one.
-								</p>
-							</div>
-							<Button
-								asChild
-								className='w-full'
-							>
-								<Link href={`/shopping/${activeRun.id}`}>Continue Shopping</Link>
-							</Button>
-						</CardContent>
-					</Card>
+					<ActiveShopping
+						activeShopping={activeRun}
+						dashboard
+					/>
 				)}
 
 				{/* Quick Actions */}
