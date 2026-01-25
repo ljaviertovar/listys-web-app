@@ -9,8 +9,8 @@ interface Props {
 
 export default function PageHeader({ title, desc, children }: Props) {
 	return (
-		<header>
-			<div className='w-full max-w-7xl m-auto flex items-center justify-between align-center mb-4 gap-4 p-4 lg:p-6'>
+		<header className='w-full border-b  bg-card'>
+			<div className='w-full max-w-7xl m-auto } flex items-center justify-between align-center gap-4 p-4 lg:p-6'>
 				<div className='space-y-0.5'>
 					<h1 className='text-2xl font-bold tracking-tight md:text-3xl'>{title}</h1>
 					<p className='text-lg text-muted-foreground'>{desc}</p>

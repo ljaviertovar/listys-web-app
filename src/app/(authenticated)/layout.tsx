@@ -29,7 +29,6 @@ export default async function AuthenticatedLayout({ children }: { children: Reac
 				<div
 					id='content'
 					className={cn(
-						'bg-muted',
 						'ml-auto w-full max-w-full',
 						'peer-data-[state=collapsed]:w-[calc(100%-var(--sidebar-width-icon))]',
 						'peer-data-[state=expanded]:w-[calc(100%-var(--sidebar-width))]',
@@ -40,7 +39,7 @@ export default async function AuthenticatedLayout({ children }: { children: Reac
 					)}
 				>
 					<Header />
-					{children}
+					<main className='flex-1 overflow-y-auto'>{children}</main>
 				</div>
 			</SidebarProvider>
 		</>

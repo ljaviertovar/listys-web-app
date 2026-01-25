@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/server'
+
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Camera01Icon, FolderLibraryIcon, TimeQuarterPassIcon } from '@hugeicons/core-free-icons'
 
@@ -10,10 +10,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 
 export default async function DashboardPage() {
-	const supabase = await createClient()
-	const { data } = await supabase.auth.getClaims()
-	const user = data?.claims
-
 	const activeRunResult = await getActiveShoppingRun()
 	const groupsResult = await getGroups()
 	const historyResult = await getShoppingHistory()
@@ -22,14 +18,8 @@ export default async function DashboardPage() {
 	const groups = groupsResult.data || []
 	const historyCount = historyResult.data?.length || 0
 
-	const handleSignOut = async () => {
-		'use server'
-		const supabase = await createClient()
-		await supabase.auth.signOut()
-	}
-
 	return (
-		<main className='flex-1 overflow-y-auto'>
+		<>
 			<PageHeader
 				title='Dashboard'
 				desc='Overview of your shopping activity'
@@ -39,7 +29,7 @@ export default async function DashboardPage() {
 				{activeRun && (
 					<Card className='border-primary/50 bg-primary/5'>
 						<CardHeader>
-							<CardTitle className='text-primary'>Active Shopping Run</CardTitle>
+							<CardTitle className='text-primary'>Active Shopping</CardTitle>
 							<CardDescription>{activeRun.name}</CardDescription>
 						</CardHeader>
 						<CardContent className='space-y-3'>
@@ -60,10 +50,7 @@ export default async function DashboardPage() {
 				)}
 
 				{/* Quick Actions */}
-				<div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
-					<Card className='hover:border-primary/50 transition-colors cursor-pointer'>
-						<Link href='/tickets'>
-							<CardHeader>
+
 								<HugeiconsIcon
 									icon={Camera01Icon}
 									strokeWidth={1.5}
@@ -106,6 +93,6 @@ export default async function DashboardPage() {
 					</Card>
 				</div>
 			</div>
-		</main>
+		</>
 	)
 }
