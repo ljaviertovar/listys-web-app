@@ -1,24 +1,24 @@
-import Link from 'next/link'
-
-import { HugeiconsIcon } from '@hugeicons/react'
-import { Camera01Icon, FolderLibraryIcon, TimeQuarterPassIcon } from '@hugeicons/core-free-icons'
+import { FolderLibraryIcon, Invoice01Icon, TimeQuarterPassIcon } from '@hugeicons/core-free-icons'
 
 import { getActiveShoppingRun, getShoppingHistory } from '@/actions/shopping-runs'
 import { getGroups } from '@/actions/ticket-groups'
+import { getTickets } from '@/actions/tickets'
 import PageHeader from '@/components/app/page-header'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { PageContainer } from '@/components/app'
+import { DashboardCard, PageContainer } from '@/components/app'
 import ActiveShopping from '@/components/app/active-shopping'
 
 export default async function DashboardPage() {
 	const activeRunResult = await getActiveShoppingRun()
 	const groupsResult = await getGroups()
 	const historyResult = await getShoppingHistory()
+	const ticketsResult = await getTickets()
 
 	const activeRun = activeRunResult.data
 	const groups = groupsResult.data || []
 	const historyCount = historyResult.data?.length || 0
+	const ticketsCount = ticketsResult.data?.length || 0
+
+	console.log('Dashboard data:', { activeRun, groups, historyCount })
 
 	return (
 		<>
@@ -37,49 +37,29 @@ export default async function DashboardPage() {
 
 				{/* Quick Actions */}
 				<div className='grid gap-6 md:grid-cols-3'>
-					<Card className='hover:border-primary/50 transition-colors cursor-pointer'>
-						<Link href='/tickets'>
-							<CardHeader>
-								<HugeiconsIcon
-									icon={Camera01Icon}
-									strokeWidth={1.5}
-									className='h-12 w-12 text-muted-foreground mb-2'
-								/>
-								<CardTitle>Tickets</CardTitle>
-								<CardDescription>Upload and manage receipts</CardDescription>
-							</CardHeader>
-						</Link>
-					</Card>
+					<DashboardCard
+						href='/tickets'
+						icon={Invoice01Icon}
+						title='Tickets'
+						description='Upload and manage tickets'
+						count={ticketsCount}
+					/>
 
-					<Card className='hover:border-primary/50 transition-colors cursor-pointer'>
-						<Link href='/ticket-groups'>
-							<CardHeader>
-								<HugeiconsIcon
-									icon={FolderLibraryIcon}
-									strokeWidth={1.5}
-									className='h-12 w-12 text-muted-foreground mb-2'
-								/>
-								<CardTitle>My Groups</CardTitle>
-								<CardDescription>Manage your shopping list groups</CardDescription>
-								<p className='text-2xl font-bold text-primary mt-2'>{groups.length}</p>
-							</CardHeader>
-						</Link>
-					</Card>
+					<DashboardCard
+						href='/ticket-groups'
+						icon={FolderLibraryIcon}
+						title='Ticket Groups'
+						description='Manage your shopping list groups'
+						count={groups.length}
+					/>
 
-					<Card className='hover:border-primary/50 transition-colors cursor-pointer'>
-						<Link href='/history'>
-							<CardHeader>
-								<HugeiconsIcon
-									icon={TimeQuarterPassIcon}
-									strokeWidth={1.5}
-									className='h-12 w-12 text-muted-foreground mb-2'
-								/>
-								<CardTitle>History</CardTitle>
-								<CardDescription>View past shopping runs</CardDescription>
-								<p className='text-2xl font-bold text-primary mt-2'>{historyCount}</p>
-							</CardHeader>
-						</Link>
-					</Card>
+					<DashboardCard
+						href='/history'
+						icon={TimeQuarterPassIcon}
+						title='History'
+						description='View past shopping runs'
+						count={historyCount}
+					/>
 				</div>
 			</PageContainer>
 		</>

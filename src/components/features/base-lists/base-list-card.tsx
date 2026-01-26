@@ -44,10 +44,9 @@ export function BaseListCard({ baseList, hasActiveRun = false, isActiveRun = fal
 	const handleStartRun = async () => {
 		setStartingRun(true)
 		try {
-			const runName = `${baseList.name} - ${formatDate(new Date())}`
 			const result = await createShoppingRun({
 				base_list_id: baseList.id,
-				name: runName,
+				name: baseList.name,
 			})
 
 			// If there's an active run, redirect to it

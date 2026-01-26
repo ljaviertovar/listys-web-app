@@ -12,6 +12,7 @@ import type { BaseListWithCount } from '@/features/base-lists/types'
 import PageHeader from '@/components/app/page-header'
 import BackLink from '@/components/app/back-link'
 import PageContainer from '@/components/app/page-container'
+import ActiveShopping from '@/components/app/active-shopping'
 
 export default async function BaseListsPage({ params }: { params: Promise<{ groupId: string }> }) {
 	const { groupId } = await params
@@ -63,14 +64,7 @@ export default async function BaseListsPage({ params }: { params: Promise<{ grou
 					<div className='rounded-lg bg-destructive/10 p-4 text-sm text-destructive'>Error loading lists: {error}</div>
 				)}
 
-				{activeRun && (
-					<div className='rounded-lg border border-amber-200 bg-amber-50 p-4'>
-						<p className='text-sm text-amber-900'>
-							<span className='font-semibold'>Active shopping run in progress.</span> Complete your current shopping run
-							before starting a new one.
-						</p>
-					</div>
-				)}
+				{activeRun && <ActiveShopping />}
 
 				{!baseLists || baseLists.length === 0 ? (
 					<Card className='flex min-h-100 flex-col items-center justify-center'>
