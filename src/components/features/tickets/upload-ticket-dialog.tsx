@@ -39,7 +39,7 @@ export function UploadTicketDialog() {
 					Upload Ticket
 				</Button>
 			</DialogTrigger>
-			<DialogContent className='sm:max-w-[500px]'>
+			<DialogContent className='sm:max-w-125'>
 				<DialogHeader>
 					<DialogTitle>Upload Receipt</DialogTitle>
 					<DialogDescription>

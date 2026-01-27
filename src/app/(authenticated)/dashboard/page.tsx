@@ -1,11 +1,10 @@
 import { FolderLibraryIcon, Invoice01Icon, TimeQuarterPassIcon } from '@hugeicons/core-free-icons'
 
-import { getActiveShoppingRun, getShoppingHistory } from '@/actions/shopping-runs'
+import { DashboardCard, PageHeader, PageContainer, ActiveShopping } from '@/components/app'
+
 import { getGroups } from '@/actions/ticket-groups'
 import { getTickets } from '@/actions/tickets'
-import PageHeader from '@/components/app/page-header'
-import { DashboardCard, PageContainer } from '@/components/app'
-import ActiveShopping from '@/components/app/active-shopping'
+import { getActiveShoppingRun, getShoppingHistory } from '@/actions/shopping-runs'
 
 export default async function DashboardPage() {
 	const activeRunResult = await getActiveShoppingRun()

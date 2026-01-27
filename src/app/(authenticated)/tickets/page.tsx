@@ -1,16 +1,18 @@
-import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
-import { getTickets } from '@/actions/tickets'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { HugeiconsIcon } from '@hugeicons/react'
-import { ArrowRight01Icon, Invoice01Icon } from '@hugeicons/core-free-icons'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
+import { HugeiconsIcon } from '@hugeicons/react'
+
+import { PageHeader, PageContainer } from '@/components/app'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { UploadTicketDialog } from '@/components/features/tickets/upload-ticket-dialog'
+import { ArrowRight01Icon, Invoice01Icon } from '@hugeicons/core-free-icons'
+
+import { getTickets } from '@/actions/tickets'
+import { Badge } from '@/components/ui/badge'
+
+import { createClient } from '@/lib/supabase/server'
+
 import { formatDate, formatTime } from '@/utils/format-date'
-import PageHeader from '@/components/app/page-header'
-import PageContainer from '@/components/app/page-container'
 
 export default async function TicketsPage() {
 	const supabase = await createClient()

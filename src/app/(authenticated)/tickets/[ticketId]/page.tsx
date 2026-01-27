@@ -1,10 +1,11 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getTicket } from '@/actions/tickets'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Invoice01Icon } from '@hugeicons/core-free-icons'
+import { Invoice01Icon, InformationCircleIcon, ListViewIcon } from '@hugeicons/core-free-icons'
 import Link from 'next/link'
 import { formatDate, formatTime } from '@/utils/format-date'
 import { TicketItemsSelector } from '@/components/features/tickets/ticket-items-selector'
@@ -43,7 +44,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 	return (
 		<>
 			<PageHeader
-				title={ticket.store_name || 'Receipt'}
+				title={`Ticket: ${ticket.store_name || 'Unknown'}`}
 				desc={`Uploaded on ${formatDate(createdAt)} at ${formatTime(createdAt)}`}
 			/>
 			<PageContainer>
@@ -52,42 +53,37 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 						href='/tickets'
 						label='Back to Tickets'
 					/>
-					<div className='flex items-center gap-2'>
-						<Badge variant={ticket.ocr_status === 'completed' ? 'default' : 'outline'}>{ticket.ocr_status}</Badge>
-						<TicketActions ticket={ticket} />
-					</div>
 				</div>
 
 				{ticket.base_list_id && baseListName && (
-					<div className='rounded-lg border border-primary/20 bg-primary/5 p-4'>
-						<div className='flex items-start gap-3'>
-							<div className='flex-1'>
-								<h3 className='font-semibold text-primary'>Merged to Base List</h3>
-								<p className='mt-1 text-sm text-muted-foreground'>
-									This ticket has been added to the base list:{' '}
-									<Link
-										href={`/base-lists/${ticket.base_list_id}/edit`}
-										className='font-medium text-primary underline hover:no-underline'
-									>
-										{baseListName}
-									</Link>
-								</p>
-							</div>
-						</div>
-					</div>
+					<Alert variant='info'>
+						<HugeiconsIcon
+							icon={InformationCircleIcon}
+							strokeWidth={2}
+						/>
+						<AlertTitle>Merged to Base List</AlertTitle>
+						<AlertDescription>
+							<span className='text-foreground'>
+								This ticket has been added to the base list:{' '}
+								<Link href={`/base-lists/${ticket.base_list_id}/edit`}>{baseListName}</Link>
+							</span>
+						</AlertDescription>
+					</Alert>
 				)}
-
 				<div className='grid gap-6 lg:grid-cols-2'>
 					{/* Ticket Image */}
-					<Card>
+					<Card className='hover:border-primary/50 transition-colors'>
 						<CardHeader>
-							<CardTitle className='flex items-center gap-2'>
-								<HugeiconsIcon
-									icon={Invoice01Icon}
-									strokeWidth={2}
-								/>
-								Receipt Image
-							</CardTitle>
+							<div className='flex gap-2 items-center'>
+								<span className='h-10 w-10 bg-primary/10 flex justify-center items-center rounded-full'>
+									<HugeiconsIcon
+										icon={Invoice01Icon}
+										strokeWidth={2}
+										className='h-6 w-6 text-primary'
+									/>
+								</span>
+								<CardTitle className='text-lg'>Ticket Photo</CardTitle>
+							</div>
 						</CardHeader>
 						<CardContent>
 							<TicketImage imagePath={ticket.image_path} />
@@ -95,18 +91,44 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 					</Card>
 
 					{/* Extracted Items */}
-					<Card>
+					<Card className='hover:border-primary/50 transition-colors'>
 						<CardHeader>
-							<CardTitle>Extracted Items</CardTitle>
-							<CardDescription>
-								{ticket.ocr_status === 'completed'
-									? `${ticket.items?.length || 0} items found`
-									: ticket.ocr_status === 'processing'
-										? 'Processing receipt...'
-										: ticket.ocr_status === 'failed'
-											? 'Failed to process receipt'
-											: 'Waiting to process...'}
-							</CardDescription>
+							<div className='flex items-center justify-end gap-1'>
+								<Badge
+									variant={
+										ticket.ocr_status === 'processing'
+											? 'processing'
+											: ticket.ocr_status === 'completed'
+												? 'completed'
+												: ticket.ocr_status === 'failed'
+													? 'failed'
+													: 'pending'
+									}
+								>
+									{ticket.ocr_status.charAt(0).toUpperCase() + ticket.ocr_status.slice(1)}
+								</Badge>
+							</div>
+							<div className='flex gap-2 items-center'>
+								<span className='h-10 w-10 bg-primary/10 flex justify-center items-center rounded-full'>
+									<HugeiconsIcon
+										icon={ListViewIcon}
+										strokeWidth={2}
+										className='h-6 w-6 text-primary'
+									/>
+								</span>
+								<div className='flex flex-col'>
+									<CardTitle className='text-lg'>Extracted Items</CardTitle>
+									<CardDescription className='text-xs'>
+										{ticket.ocr_status === 'completed'
+											? `${ticket.items?.length || 0} items found`
+											: ticket.ocr_status === 'processing'
+												? 'Processing receipt...'
+												: ticket.ocr_status === 'failed'
+													? 'Failed to process receipt'
+													: 'Waiting to process...'}
+									</CardDescription>
+								</div>
+							</div>
 						</CardHeader>
 						<CardContent>
 							<TicketItemsSelector
@@ -116,6 +138,9 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 								isMerged={!!ticket.base_list_id}
 							/>
 						</CardContent>
+						<CardFooter className='justify-end'>
+							<TicketActions ticket={ticket} />
+						</CardFooter>
 					</Card>
 				</div>
 			</PageContainer>

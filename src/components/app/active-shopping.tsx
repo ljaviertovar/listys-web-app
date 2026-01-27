@@ -1,9 +1,9 @@
 import Link from 'next/link'
 
-import { HugeiconsIcon } from '@hugeicons/react'
-
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
+import { Card, CardContent, CardDescription, CardTitle } from '../ui/card'
 import { Button } from '../ui/button'
+
+import { HugeiconsIcon } from '@hugeicons/react'
 import { ShoppingCart02Icon } from '@hugeicons/core-free-icons'
 
 interface Props {

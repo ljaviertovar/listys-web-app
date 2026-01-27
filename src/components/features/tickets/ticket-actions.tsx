@@ -2,6 +2,9 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
+import { HugeiconsIcon } from '@hugeicons/react'
+
 import { Button } from '@/components/ui/button'
 import {
 	AlertDialog,
@@ -11,12 +14,14 @@ import {
 	AlertDialogDescription,
 	AlertDialogFooter,
 	AlertDialogHeader,
+	AlertDialogMedia,
 	AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { HugeiconsIcon } from '@hugeicons/react'
-import { Delete02Icon, RefreshIcon, Loading03Icon } from '@hugeicons/core-free-icons'
+
 import { deleteTicket, retryTicketOCR } from '@/actions/tickets'
-import { toast } from 'sonner'
+
+import { Delete02Icon, RefreshIcon, Loading03Icon } from '@hugeicons/core-free-icons'
+
 import type { Ticket } from '@/features/tickets/types'
 
 interface Props {
@@ -108,37 +113,43 @@ export function TicketActions({ ticket }: Props) {
 			)}
 
 			<Button
-				variant='outline'
+				variant='destructive'
 				size='sm'
 				onClick={() => setShowDeleteDialog(true)}
-				className='text-destructive hover:bg-destructive hover:text-destructive-foreground'
 			>
 				<HugeiconsIcon
 					icon={Delete02Icon}
 					strokeWidth={2}
-					className='mr-2 h-4 w-4'
+					className='h-4 w-4'
 				/>
-				Delete
+				Delete Ticket
 			</Button>
 
 			<AlertDialog
 				open={showDeleteDialog}
 				onOpenChange={setShowDeleteDialog}
 			>
-				<AlertDialogContent>
+				<AlertDialogContent size='sm'>
 					<AlertDialogHeader>
-						<AlertDialogTitle>Delete Ticket</AlertDialogTitle>
+						<AlertDialogMedia className='bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive'>
+							<HugeiconsIcon
+								icon={Delete02Icon}
+								strokeWidth={2}
+								className='h-4 w-4'
+							/>
+						</AlertDialogMedia>
+						<AlertDialogTitle>Delete Ticket?</AlertDialogTitle>
 						<AlertDialogDescription>
-							Are you sure you want to delete this ticket? This will remove the receipt image and all extracted items.
-							This action cannot be undone.
+							This will remove the ticket image and all extracted items. This action cannot be undone.
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
-						<AlertDialogCancel>Cancel</AlertDialogCancel>
+						<AlertDialogCancel variant={'secondary'}>Cancel</AlertDialogCancel>
 						<AlertDialogAction
 							onClick={handleDelete}
 							disabled={deleting}
-							className='bg-destructive text-destructive-foreground hover:bg-destructive/90'
+							variant={'destructive'}
+							className='flex-1'
 						>
 							{deleting ? 'Deleting...' : 'Delete'}
 						</AlertDialogAction>

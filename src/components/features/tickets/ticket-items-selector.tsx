@@ -2,12 +2,16 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { HugeiconsIcon } from '@hugeicons/react'
+
 import { Checkbox } from '@/components/ui/checkbox'
 import { Button } from '@/components/ui/button'
-import { HugeiconsIcon } from '@hugeicons/react'
+import { Badge } from '@/components/ui/badge'
 import { Loading03Icon, CheckmarkCircle02Icon, Add01Icon } from '@hugeicons/core-free-icons'
-import { formatCurrency } from '@/utils/format-currency'
 import { MergeToBaseListDialog } from './merge-to-base-list-dialog'
+
+import { formatCurrency } from '@/utils/format-currency'
+
 import type { TicketItem } from '@/features/tickets/types'
 
 interface Props {
@@ -148,52 +152,17 @@ export function TicketItemsSelector({ ticketId, items, status, isMerged }: Props
 							/>
 						)}
 						<div className='flex-1'>
-							<p className='font-medium'>{item.name}</p>
-							<div className='flex items-center gap-2 text-sm text-muted-foreground'>
-								<span>
-									{item.quantity || 1} {item.unit || 'pcs'}
-								</span>
-								{item.category && (
-									<>
-										<span>•</span>
-										<span>{item.category}</span>
-									</>
-								)}
+							<p className='font-bold mb-1'>{item.name}</p>
+							<div className='flex items-center gap-2'>
+								{item.category && <Badge variant='outline'>{item.category}</Badge>}
 							</div>
 						</div>
-						{item.price && <p className='font-medium'>{formatCurrency(item.price)}</p>}
+						<span>
+							{item.quantity || 1} {item.unit || 'pcs'}
+						</span>
 					</div>
 				))}
 			</div>
-
-			{/* Total */}
-			{totalAmount > 0 && (
-				<div className='flex items-center justify-between border-t pt-4'>
-					<span className='font-semibold'>Total</span>
-					<span className='text-lg font-bold'>{formatCurrency(totalAmount)}</span>
-				</div>
-			)}
-
-			{/* Status indicator */}
-			{isMerged ? (
-				<div className='flex items-center gap-2 rounded-lg bg-blue-50 p-3 text-blue-800 dark:bg-blue-950/20 dark:text-blue-400'>
-					<HugeiconsIcon
-						icon={CheckmarkCircle02Icon}
-						strokeWidth={2}
-						className='h-5 w-5'
-					/>
-					<span className='text-sm'>Items already added to a list</span>
-				</div>
-			) : (
-				<div className='flex items-center gap-2 rounded-lg bg-green-50 p-3 text-green-800 dark:bg-green-950/20 dark:text-green-400'>
-					<HugeiconsIcon
-						icon={CheckmarkCircle02Icon}
-						strokeWidth={2}
-						className='h-5 w-5'
-					/>
-					<span className='text-sm'>Items extracted successfully</span>
-				</div>
-			)}
 
 			{/* Merge Dialog */}
 			<MergeToBaseListDialog

@@ -1,7 +1,8 @@
 import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+
+import { ArrowRight01Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react'
-import { ArrowRight01Icon, ArrowRight02Icon } from '@hugeicons/core-free-icons'
 
 interface Props {
 	href: string
