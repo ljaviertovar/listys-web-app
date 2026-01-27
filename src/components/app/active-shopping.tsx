@@ -16,7 +16,7 @@ interface Props {
 
 export default function ActiveShopping({ activeShopping, dashboard }: Props) {
 	return (
-		<Card className='border-primary/50 bg-primary/5'>
+		<Card className='border-primary/50 bg-primary/10'>
 			<CardContent className='flex justify-between items-center gap-4'>
 				<div className='flex gap-4'>
 					<div className='flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20'>

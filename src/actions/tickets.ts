@@ -20,7 +20,8 @@ export async function getTickets() {
     .from('tickets')
     .select(`
       *,
-      group:groups(name)
+      group:groups(name),
+      base_list:base_lists(id, name)
     `)
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })

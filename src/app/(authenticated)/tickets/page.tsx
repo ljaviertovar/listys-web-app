@@ -1,11 +1,11 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getTickets } from '@/actions/tickets'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Invoice01Icon } from '@hugeicons/core-free-icons'
+import { ArrowRight01Icon, Invoice01Icon } from '@hugeicons/core-free-icons'
 import Link from 'next/link'
 import { UploadTicketDialog } from '@/components/features/tickets/upload-ticket-dialog'
 import { formatDate, formatTime } from '@/utils/format-date'
@@ -40,7 +40,7 @@ export default async function TicketsPage() {
 				)}
 
 				{!tickets || tickets.length === 0 ? (
-					<Card className='flex min-h-[400px] flex-col items-center justify-center'>
+					<Card className='flex min-h-100 flex-col items-center justify-center'>
 						<CardContent className='flex flex-col items-center space-y-4 pt-6'>
 							<HugeiconsIcon
 								icon={Invoice01Icon}
@@ -63,41 +63,68 @@ export default async function TicketsPage() {
 							return (
 								<Card
 									key={ticket.id}
-									className='transition-colors hover:border-primary/50'
+									className='hover:border-primary/50 transition-colors cursor-pointer group'
 								>
-									<CardHeader>
-										<CardTitle className='flex items-center justify-between'>
-											<span className='flex items-center gap-2'>
-												<HugeiconsIcon
-													icon={Invoice01Icon}
-													strokeWidth={2}
-												/>
-												{ticket.store_name || 'Unknown Store'}
-											</span>
-											<div className='flex items-center gap-2'>
-												{isMerged && <Badge variant='secondary'>Merged</Badge>}
-												<Badge variant={ticket.ocr_status === 'completed' ? 'default' : 'outline'}>
-													{ticket.ocr_status}
+									<Link href={`/tickets/${ticket.id}`}>
+										<CardHeader>
+											<div className='flex items-center justify-end gap-1'>
+												{isMerged && <Badge variant='merged'>Merged</Badge>}
+												<Badge
+													variant={
+														ticket.ocr_status === 'processing'
+															? 'processing'
+															: ticket.ocr_status === 'completed'
+																? 'completed'
+																: ticket.ocr_status === 'failed'
+																	? 'failed'
+																	: 'pending'
+													}
+												>
+													{ticket.ocr_status.charAt(0).toUpperCase() + ticket.ocr_status.slice(1)}
 												</Badge>
 											</div>
-										</CardTitle>
-										<CardDescription>
-											{formatDate(createdAt)} - {formatTime(createdAt)}
-										</CardDescription>
-									</CardHeader>
-									<CardContent className='space-y-3'>
-										<div className='flex items-center justify-between text-sm'>
-											<span className='text-muted-foreground'>{ticket.group?.name || 'No group assigned'}</span>
-											{(ticket.total_items ?? 0) > 0 && <span className='font-medium'>{ticket.total_items} items</span>}
-										</div>
-										<Button
-											variant='outline'
-											className='w-full'
-											asChild
-										>
-											<Link href={`/tickets/${ticket.id}`}>View Details</Link>
-										</Button>
-									</CardContent>
+											<div className='flex gap-2 items-center'>
+												<span className='h-10 w-10 bg-primary/10 flex justify-center items-center rounded-full'>
+													<HugeiconsIcon
+														icon={Invoice01Icon}
+														strokeWidth={2}
+														className='h-6 w-6 text-primary'
+													/>
+												</span>
+
+												<div className='flex flex-col'>
+													<CardTitle className='flex items-center justify-between text-lg'>
+														{ticket.store_name || 'Unknown Base List'}
+													</CardTitle>
+													<CardDescription className='text-xs'>
+														{formatDate(createdAt)} - {formatTime(createdAt)}
+													</CardDescription>
+												</div>
+											</div>
+										</CardHeader>
+										<CardContent className='py-4'>
+											<span className='text-muted-foreground'>
+												{isMerged && ticket.base_list?.name
+													? `Merged to: ${ticket.base_list.name}`
+													: ticket.base_list?.name || 'No base list assigned'}
+											</span>
+										</CardContent>
+										<CardFooter className='justify-between items-center'>
+											<span className='font-bold text-primary'>
+												{(ticket.total_items ?? 0) > 0 && (
+													<span className='text-primary font-medium'>{ticket.total_items} items</span>
+												)}
+											</span>
+											<div className='flex items-center text-sm group-hover:text-primary transition-colors'>
+												<span>View details</span>
+												<HugeiconsIcon
+													icon={ArrowRight01Icon}
+													strokeWidth={2}
+													className='h-4 w-4 transition-transform group-hover:translate-x-1'
+												/>
+											</div>
+										</CardFooter>
+									</Link>
 								</Card>
 							)
 						})}

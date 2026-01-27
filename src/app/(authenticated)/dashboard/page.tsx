@@ -57,7 +57,7 @@ export default async function DashboardPage() {
 						href='/history'
 						icon={TimeQuarterPassIcon}
 						title='History'
-						description='View past shopping runs'
+						description='View past shoppings'
 						count={historyCount}
 					/>
 				</div>
