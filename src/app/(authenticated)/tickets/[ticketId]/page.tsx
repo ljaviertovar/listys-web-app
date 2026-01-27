@@ -92,22 +92,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 
 					{/* Extracted Items */}
 					<Card className='hover:border-primary/50 transition-colors'>
-						<CardHeader>
-							<div className='flex items-center justify-end gap-1'>
-								<Badge
-									variant={
-										ticket.ocr_status === 'processing'
-											? 'processing'
-											: ticket.ocr_status === 'completed'
-												? 'completed'
-												: ticket.ocr_status === 'failed'
-													? 'failed'
-													: 'pending'
-									}
-								>
-									{ticket.ocr_status.charAt(0).toUpperCase() + ticket.ocr_status.slice(1)}
-								</Badge>
-							</div>
+						<CardHeader className='flex gap-2 items-start justify-between'>
 							<div className='flex gap-2 items-center'>
 								<span className='h-10 w-10 bg-primary/10 flex justify-center items-center rounded-full'>
 									<HugeiconsIcon
@@ -118,17 +103,24 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 								</span>
 								<div className='flex flex-col'>
 									<CardTitle className='text-lg'>Extracted Items</CardTitle>
-									<CardDescription className='text-xs'>
-										{ticket.ocr_status === 'completed'
-											? `${ticket.items?.length || 0} items found`
-											: ticket.ocr_status === 'processing'
-												? 'Processing receipt...'
-												: ticket.ocr_status === 'failed'
-													? 'Failed to process receipt'
-													: 'Waiting to process...'}
+									<CardDescription className='text-sm'>
+										{ticket.ocr_status === 'completed' ? `${ticket.items?.length || 0} items found` : null}
 									</CardDescription>
 								</div>
 							</div>
+							<Badge
+								variant={
+									ticket.ocr_status === 'processing'
+										? 'processing'
+										: ticket.ocr_status === 'completed'
+											? 'completed'
+											: ticket.ocr_status === 'failed'
+												? 'failed'
+												: 'pending'
+								}
+							>
+								{ticket.ocr_status.charAt(0).toUpperCase() + ticket.ocr_status.slice(1)}
+							</Badge>
 						</CardHeader>
 						<CardContent>
 							<TicketItemsSelector
