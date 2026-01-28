@@ -7,21 +7,21 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Loading03Icon, CheckmarkCircle02Icon, Add01Icon } from '@hugeicons/core-free-icons'
 import { MergeToBaseListDialog } from './merge-to-base-list-dialog'
-
-import { formatCurrency } from '@/utils/format-currency'
+import { TicketProcessingError } from './ticket-processing-error'
+import { Loading03Icon, Add01Icon } from '@hugeicons/core-free-icons'
 
 import type { TicketItem } from '@/features/tickets/types'
 
 interface Props {
 	ticketId: string
 	items: TicketItem[]
-	status: string
+	status: 'pending' | 'processing' | 'failed' | 'completed'
 	isMerged?: boolean
+	ocrError?: string | null
 }
 
-export function TicketItemsSelector({ ticketId, items, status, isMerged }: Props) {
+export function TicketItemsSelector({ ticketId, items, status, isMerged, ocrError }: Props) {
 	const router = useRouter()
 	const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
 	const [showMergeDialog, setShowMergeDialog] = useState(false)
@@ -79,14 +79,7 @@ export function TicketItemsSelector({ ticketId, items, status, isMerged }: Props
 	}
 
 	if (status === 'failed') {
-		return (
-			<div className='py-8 text-center'>
-				<p className='text-sm text-destructive'>Failed to extract items from this receipt.</p>
-				<p className='mt-2 text-sm text-muted-foreground'>
-					Try uploading a clearer image or contact support if the issue persists.
-				</p>
-			</div>
-		)
+		return <TicketProcessingError error={ocrError} />
 	}
 
 	if (items.length === 0) {

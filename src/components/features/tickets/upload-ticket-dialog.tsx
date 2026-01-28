@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { HugeiconsIcon } from '@hugeicons/react'
+
 import {
 	Dialog,
 	DialogContent,
@@ -11,9 +13,9 @@ import {
 	DialogTrigger,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { HugeiconsIcon } from '@hugeicons/react'
-import { CloudUploadIcon } from '@hugeicons/core-free-icons'
 import { UploadTicketForm } from './upload-ticket-form'
+
+import { Upload06Icon } from '@hugeicons/core-free-icons'
 
 export function UploadTicketDialog() {
 	const [open, setOpen] = useState(false)
@@ -32,18 +34,18 @@ export function UploadTicketDialog() {
 			<DialogTrigger asChild>
 				<Button>
 					<HugeiconsIcon
-						icon={CloudUploadIcon}
+						icon={Upload06Icon}
 						strokeWidth={2}
-						className='mr-2 h-4 w-4'
+						className='h-4 w-4'
 					/>
 					Upload Ticket
 				</Button>
 			</DialogTrigger>
 			<DialogContent className='sm:max-w-125'>
 				<DialogHeader>
-					<DialogTitle>Upload Receipt</DialogTitle>
+					<DialogTitle>Upload Ticket</DialogTitle>
 					<DialogDescription>
-						Upload a photo of your shopping receipt. We'll extract the items automatically.
+						Upload a photo of your shopping ticket. We'll extract the items automatically.
 					</DialogDescription>
 				</DialogHeader>
 				<UploadTicketForm onSuccess={handleSuccess} />

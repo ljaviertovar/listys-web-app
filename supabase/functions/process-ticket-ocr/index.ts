@@ -135,14 +135,23 @@ Rules:
   } catch (error: any) {
     console.error('OCR processing error:', error)
 
-    // Try to update ticket status to failed
+    // Try to update ticket status to failed with error details
     if (req.json) {
       try {
-        const { ticketId } = await req.json()
+        const bodyText = await req.text()
+        const body = JSON.parse(bodyText)
+        const { ticketId } = body
         const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+
+        // Store the error message
+        const errorMessage = error.message || 'OCR processing failed'
+
         await supabase
           .from('tickets')
-          .update({ ocr_status: 'failed' })
+          .update({
+            ocr_status: 'failed',
+            ocr_error: errorMessage
+          })
           .eq('id', ticketId)
       } catch (updateError) {
         console.error('Failed to update ticket status:', updateError)

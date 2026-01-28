@@ -1,19 +1,22 @@
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
-import { getTicket } from '@/actions/tickets'
+import { HugeiconsIcon } from '@hugeicons/react'
+
+import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
-import { HugeiconsIcon } from '@hugeicons/react'
-import { Invoice01Icon, InformationCircleIcon, ListViewIcon } from '@hugeicons/core-free-icons'
-import Link from 'next/link'
-import { formatDate, formatTime } from '@/utils/format-date'
+import { PageHeader, PageContainer } from '@/components/app'
 import { TicketItemsSelector } from '@/components/features/tickets/ticket-items-selector'
 import { TicketImage } from '@/components/features/tickets/ticket-image'
 import { TicketActions } from '@/components/features/tickets/ticket-actions'
-import PageHeader from '@/components/app/page-header'
 import BackLink from '@/components/app/back-link'
-import PageContainer from '@/components/app/page-container'
+import { Invoice01Icon, InformationCircleIcon, ListViewIcon } from '@hugeicons/core-free-icons'
+
+import { getTicket } from '@/actions/tickets'
+
+import { createClient } from '@/lib/supabase/server'
+
+import { formatDate, formatTime } from '@/utils/format-date'
 
 export default async function TicketDetailPage({ params }: { params: Promise<{ ticketId: string }> }) {
 	const { ticketId } = await params
@@ -70,6 +73,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 						</AlertDescription>
 					</Alert>
 				)}
+
 				<div className='grid gap-6 lg:grid-cols-2'>
 					{/* Ticket Image */}
 					<Card className='hover:border-primary/50 transition-colors'>
@@ -128,6 +132,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 								items={ticket.items || []}
 								status={ticket.ocr_status || 'pending'}
 								isMerged={!!ticket.base_list_id}
+								ocrError={(ticket as any).ocr_error}
 							/>
 						</CardContent>
 						<CardFooter className='justify-end'>

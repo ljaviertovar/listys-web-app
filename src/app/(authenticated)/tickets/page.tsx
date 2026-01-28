@@ -5,10 +5,10 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { PageHeader, PageContainer } from '@/components/app'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { UploadTicketDialog } from '@/components/features/tickets/upload-ticket-dialog'
+import { Badge } from '@/components/ui/badge'
 import { ArrowRight01Icon, Invoice01Icon } from '@hugeicons/core-free-icons'
 
 import { getTickets } from '@/actions/tickets'
-import { Badge } from '@/components/ui/badge'
 
 import { createClient } from '@/lib/supabase/server'
 

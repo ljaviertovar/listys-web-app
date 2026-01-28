@@ -17,10 +17,9 @@ import {
 	AlertDialogMedia,
 	AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import { Delete02Icon, Refresh04Icon, Loading03Icon } from '@hugeicons/core-free-icons'
 
 import { deleteTicket, retryTicketOCR } from '@/actions/tickets'
-
-import { Delete02Icon, RefreshIcon, Loading03Icon } from '@hugeicons/core-free-icons'
 
 import type { Ticket } from '@/features/tickets/types'
 
@@ -84,7 +83,7 @@ export function TicketActions({ ticket }: Props) {
 	// Show retry/reprocess button for failed, stuck pending, or stuck processing tickets
 	const showRetryButton =
 		ticket.ocr_status === 'failed' || ticket.ocr_status === 'pending' || ticket.ocr_status === 'processing'
-	const retryButtonLabel = ticket.ocr_status === 'failed' ? 'Retry OCR' : 'Reprocess'
+	const retryButtonLabel = ticket.ocr_status === 'failed' ? 'Retry' : 'Reprocess'
 
 	return (
 		<div className='flex items-center gap-2'>
@@ -103,7 +102,7 @@ export function TicketActions({ ticket }: Props) {
 						/>
 					) : (
 						<HugeiconsIcon
-							icon={RefreshIcon}
+							icon={Refresh04Icon}
 							strokeWidth={2}
 							className='mr-2 h-4 w-4'
 						/>
@@ -144,14 +143,25 @@ export function TicketActions({ ticket }: Props) {
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
-						<AlertDialogCancel variant={'secondary'}>Cancel</AlertDialogCancel>
+						<AlertDialogCancel variant={'outline'}>Cancel</AlertDialogCancel>
 						<AlertDialogAction
 							onClick={handleDelete}
 							disabled={deleting}
 							variant={'destructive'}
 							className='flex-1'
 						>
-							{deleting ? 'Deleting...' : 'Delete'}
+							{deleting ? (
+								<>
+									<HugeiconsIcon
+										icon={Loading03Icon}
+										strokeWidth={2}
+										className='h-4 w-4 animate-spin'
+									/>
+									Deleting...
+								</>
+							) : (
+								'Delete'
+							)}
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>

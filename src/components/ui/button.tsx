@@ -11,7 +11,7 @@ const buttonVariants = cva(
 			variant: {
 				default:
 					'bg-primary text-primary-foreground shadow hover:bg-primary/90 relative isolate overflow-hidden before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:rounded-md before:bg-gradient-to-b before:from-primary-foreground/20 before:opacity-80 before:transition-opacity before:duration-300 before:ease-[cubic-bezier(0.4,0.36,0,1)] after:pointer-events-none after:absolute after:inset-0 after:-z-10 after:rounded-md after:bg-gradient-to-b after:from-primary-foreground/10 after:to-transparent after:mix-blend-overlay',
-				outline: 'border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground',
+				outline: 'border-input bg-background shadow-sm hover:bg-background/50 hover:text-accent-foreground',
 				secondary: 'bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80',
 				ghost: 'hover:bg-accent hover:text-accent-foreground',
 				destructive: 'bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90',
