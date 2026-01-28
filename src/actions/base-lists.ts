@@ -52,8 +52,8 @@ export async function createBaseList(data: unknown) {
     return { error: error.message }
   }
 
-  revalidatePath('/ticket-groups')
-  revalidatePath(`/ticket-groups/${validation.data.group_id}`)
+  revalidatePath('/shopping-lists')
+  revalidatePath(`/shopping-lists/${validation.data.group_id}`)
   return { data: baseList }
 }
 
@@ -136,7 +136,7 @@ export async function deleteBaseList(id: string) {
     return { error: error.message }
   }
 
-  revalidatePath('/ticket-groups')
+  revalidatePath('/shopping-lists')
   return { success: true }
 }
 

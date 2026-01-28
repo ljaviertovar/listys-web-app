@@ -99,7 +99,7 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 
 				<div className='flex items-center justify-between'>
 					<BackLink
-						href={`/ticket-groups/${baseListWithItems.group_id}/lists`}
+						href={`/shopping-lists/${baseListWithItems.group_id}/lists`}
 						label={`Back to ${group?.name || 'Group'}`}
 					/>
 				</div>

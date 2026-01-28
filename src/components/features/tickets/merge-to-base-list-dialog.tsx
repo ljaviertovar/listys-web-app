@@ -10,7 +10,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Loading03Icon, FolderIcon, Add01Icon } from '@hugeicons/core-free-icons'
-import { getGroups } from '@/actions/ticket-groups'
+import { getGroups } from '@/actions/shopping-lists'
 import { getBaseLists } from '@/actions/base-lists'
 import { mergeTicketItemsToBaseList, createBaseListFromTicket } from '@/actions/tickets'
 

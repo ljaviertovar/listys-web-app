@@ -56,8 +56,8 @@ export default async function BaseListsPage({ params }: { params: Promise<{ grou
 			</PageHeader>
 			<PageContainer>
 				<BackLink
-					href='/ticket-groups'
-					label='Back to Tickets Groups'
+					href='/shopping-lists'
+					label='Back to Shopping Lists'
 				/>
 
 				{error && (

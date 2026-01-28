@@ -62,7 +62,7 @@ export async function createGroup(data: unknown) {
     return { error: error.message }
   }
 
-  revalidatePath('/ticket-groups')
+  revalidatePath('/shopping-lists')
   return { data: group }
 }
 
@@ -109,8 +109,8 @@ export async function updateGroup(id: string, data: unknown) {
     return { error: error.message }
   }
 
-  revalidatePath('/ticket-groups')
-  revalidatePath(`/ticket-groups/${id}`)
+  revalidatePath('/shopping-lists')
+  revalidatePath(`/shopping-lists/${id}`)
   return { data: group }
 }
 
@@ -135,7 +135,7 @@ export async function deleteGroup(id: string) {
     return { error: error.message }
   }
 
-  revalidatePath('/ticket-groups')
+  revalidatePath('/shopping-lists')
   return { success: true }
 }
 
@@ -152,7 +152,7 @@ export async function getGroups() {
 
   const { data: groups, error } = await supabase
     .from('groups')
-    .select('*')
+    .select('*, base_lists(count)')
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
 

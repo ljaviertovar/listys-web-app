@@ -280,7 +280,7 @@ export async function createBaseListFromTicket(data: unknown) {
     })
     .eq('id', ticket_id)
 
-  revalidatePath(`/ticket-groups/${group_id}`)
+  revalidatePath(`/shopping-lists/${group_id}`)
   revalidatePath('/tickets')
   revalidatePath(`/tickets/${ticket_id}`)
   return { data: baseList }

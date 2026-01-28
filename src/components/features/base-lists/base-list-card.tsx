@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { File01Icon, ShoppingCart02Icon, Edit02Icon, Delete02Icon } from '@hugeicons/core-free-icons'
@@ -77,60 +77,70 @@ export function BaseListCard({ baseList, hasActiveRun = false, isActiveRun = fal
 	}
 
 	return (
-		<Card className={`flex flex-col overflow-hidden bg-green-50/50`}>
-			<CardHeader className='space-y-2 block'>
-				<div className='flex items-start justify-between gap-2'>
-					<div className='flex items-center gap-2 min-w-0 flex-1'>
-						<HugeiconsIcon
-							icon={File01Icon}
-							strokeWidth={2}
-							className={`shrink-0`}
-						/>
-						<h3
-							className='text-base font-semibold leading-tight truncate min-w-0'
-							title={baseList.name}
-						>
-							{baseList.name}
-						</h3>
-					</div>
+		<Card className={`hover:border-primary/50 transition-colors`}>
+			<CardHeader className='gap-0'>
+				<div className='flex items-center justify-end gap-1'>
+					{isActiveRun && (
+						<div className='h-8 align-middle'>
+							<Badge className='bg-green-100 text-green-500 flex items-center gap-1.5'>
+								<span className='h-2 w-2 rounded-full bg-green-500' />
+								Shopping
+							</Badge>
+						</div>
+					)}
 					{!isActiveRun && (
-						<div className='flex gap-1 shrink-0'>
-							<Button
-								variant='ghost'
-								size='icon'
-								asChild
-							>
-								<Link href={`/base-lists/${baseList.id}/edit`}>
-									<HugeiconsIcon
-										icon={Edit02Icon}
-										strokeWidth={2}
-									/>
-								</Link>
-							</Button>
+						<>
 							<Button
 								variant='ghost'
 								size='icon'
 								onClick={handleDelete}
 								disabled={loading}
+								className='h-8 w-8'
 							>
 								<HugeiconsIcon
 									icon={Delete02Icon}
 									strokeWidth={2}
+									className='h-4 w-4'
 								/>
 							</Button>
-						</div>
+							<Button
+								variant='ghost'
+								size='icon'
+								asChild
+								className='h-8 w-8'
+							>
+								<Link href={`/base-lists/${baseList.id}/edit`}>
+									<HugeiconsIcon
+										icon={Edit02Icon}
+										strokeWidth={2}
+										className='h-4 w-4'
+									/>
+								</Link>
+							</Button>
+						</>
 					)}
 				</div>
-				<CardDescription className='space-x-2'>
-					<Badge variant='secondary'>{baseList.items_count} items</Badge>
-					{isActiveRun && <Badge className='bg-green-600 hover:bg-green-700'>Active Shopping</Badge>}
-				</CardDescription>
+				<div className='flex gap-2 items-center'>
+					<span className='h-10 w-10 bg-primary/10 flex justify-center items-center rounded-full'>
+						<HugeiconsIcon
+							icon={File01Icon}
+							strokeWidth={2}
+							className='h-6 w-6 text-primary'
+						/>
+					</span>
+					<div className='flex flex-col'>
+						<CardTitle className='text-lg'>{baseList.name}</CardTitle>
+					</div>
+				</div>
 			</CardHeader>
-			<CardContent className='mt-auto space-y-2'>
+			<CardFooter className='justify-between items-center'>
+				<span className='font-medium text-primary'>
+					{baseList.items_count} {baseList.items_count === 1 ? 'item' : 'items'}
+				</span>
 				{isActiveRun ? (
 					<Button
-						className='w-full'
-						variant={'secondary'}
+						variant={'outline'}
+						size={'sm'}
 						asChild
 					>
 						<Link href={`/shopping/${activeRunId}`}>
@@ -144,8 +154,8 @@ export function BaseListCard({ baseList, hasActiveRun = false, isActiveRun = fal
 					</Button>
 				) : (
 					<Button
-						className='w-full'
-						variant={'secondary'}
+						variant={'outline'}
+						size={'sm'}
 						onClick={handleStartRun}
 						disabled={startingRun || loading || hasActiveRun}
 					>
@@ -157,7 +167,7 @@ export function BaseListCard({ baseList, hasActiveRun = false, isActiveRun = fal
 						{startingRun ? 'Starting...' : 'Start Shopping'}
 					</Button>
 				)}
-			</CardContent>
+			</CardFooter>
 		</Card>
 	)
 }

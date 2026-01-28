@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { getGroups } from '@/actions/ticket-groups'
+import { getGroups } from '@/actions/shopping-lists'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ArrowLeft02Icon, ShoppingBasket01Icon, FolderIcon } from '@hugeicons/core-free-icons'

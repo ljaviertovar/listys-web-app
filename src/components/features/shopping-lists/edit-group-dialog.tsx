@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { createGroup } from '@/actions/ticket-groups'
+import { updateGroup } from '@/actions/shopping-lists'
 import {
 	Dialog,
 	DialogContent,
@@ -10,22 +10,41 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogTrigger,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { PlusSignIcon, Loading03Icon } from '@hugeicons/core-free-icons'
+import { Loading03Icon } from '@hugeicons/core-free-icons'
 
-export function CreateGroupDialog() {
-	const [open, setOpen] = useState(false)
-	const [name, setName] = useState('')
-	const [description, setDescription] = useState('')
+interface Group {
+	id: string
+	name: string
+	description?: string | null
+}
+
+interface Props {
+	group: Group
+	open: boolean
+	onOpenChange: (open: boolean) => void
+}
+
+export function EditGroupDialog({ group, open, onOpenChange }: Props) {
+	const [name, setName] = useState(group.name)
+	const [description, setDescription] = useState(group.description || '')
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState<string | null>(null)
 	const router = useRouter()
+
+	// Reset form when dialog opens
+	useEffect(() => {
+		if (open) {
+			setName(group.name)
+			setDescription(group.description || '')
+			setError(null)
+		}
+	}, [open, group])
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
@@ -33,16 +52,17 @@ export function CreateGroupDialog() {
 		setLoading(true)
 
 		try {
-			const { error } = await createGroup({ name, description: description || undefined })
+			const { error } = await updateGroup(group.id, {
+				name,
+				description: description || undefined,
+			})
 
 			if (error) throw new Error(error)
 
-			setOpen(false)
-			setName('')
-			setDescription('')
+			onOpenChange(false)
 			router.refresh()
 		} catch (err: any) {
-			setError(err.message || 'Failed to create group')
+			setError(err.message || 'Failed to update group')
 		} finally {
 			setLoading(false)
 		}
@@ -51,30 +71,20 @@ export function CreateGroupDialog() {
 	return (
 		<Dialog
 			open={open}
-			onOpenChange={isOpen => !loading && setOpen(isOpen)}
+			onOpenChange={isOpen => !loading && onOpenChange(isOpen)}
 		>
-			<DialogTrigger asChild>
-				<Button>
-					<HugeiconsIcon
-						icon={PlusSignIcon}
-						strokeWidth={2}
-						data-icon='inline-start'
-					/>
-					New Group
-				</Button>
-			</DialogTrigger>
 			<DialogContent>
 				<DialogHeader>
-					<DialogTitle>Create New Group</DialogTitle>
-					<DialogDescription>Add a new group to organize your shopping lists</DialogDescription>
+					<DialogTitle>Edit Group</DialogTitle>
+					<DialogDescription>Update your group details</DialogDescription>
 				</DialogHeader>
 				<form onSubmit={handleSubmit}>
 					<div className='space-y-4'>
 						{error && <div className='rounded-lg bg-destructive/10 p-3 text-sm text-destructive'>{error}</div>}
 						<div className='space-y-2'>
-							<Label htmlFor='name'>Name</Label>
+							<Label htmlFor='edit-name'>Name</Label>
 							<Input
-								id='name'
+								id='edit-name'
 								value={name}
 								onChange={e => setName(e.target.value)}
 								placeholder='e.g., Groceries, Household'
@@ -82,12 +92,12 @@ export function CreateGroupDialog() {
 							/>
 						</div>
 						<div className='space-y-2'>
-							<Label htmlFor='description'>Description (optional)</Label>
+							<Label htmlFor='edit-description'>Description (optional)</Label>
 							<Textarea
-								id='description'
+								id='edit-description'
 								value={description}
 								onChange={e => setDescription(e.target.value)}
-								placeholder='Add a description...'
+								placeholder='A brief description of this group'
 								rows={3}
 							/>
 						</div>
@@ -96,16 +106,27 @@ export function CreateGroupDialog() {
 						<Button
 							type='button'
 							variant='outline'
-							onClick={() => setOpen(false)}
+							onClick={() => onOpenChange(false)}
 							disabled={loading}
 						>
 							Cancel
 						</Button>
 						<Button
 							type='submit'
-							disabled={loading}
+							disabled={loading || !name.trim()}
 						>
-							{loading ? 'Creating...' : 'Create Group'}
+							{loading ? (
+								<>
+									<HugeiconsIcon
+										icon={Loading03Icon}
+										strokeWidth={2}
+										className='mr-2 h-4 w-4 animate-spin'
+									/>
+									Saving...
+								</>
+							) : (
+								'Save Changes'
+							)}
 						</Button>
 					</DialogFooter>
 				</form>

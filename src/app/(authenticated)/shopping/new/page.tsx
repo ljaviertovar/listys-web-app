@@ -22,13 +22,13 @@ export default async function NewShoppingRunPage({ searchParams }: { searchParam
 	}
 
 	if (!baseListId) {
-		redirect('/ticket-groups')
+		redirect('/shopping-lists')
 	}
 
 	const { data: baseList, error } = await getBaseList(baseListId)
 
 	if (error || !baseList) {
-		redirect('/ticket-groups')
+		redirect('/shopping-lists')
 	}
 
 	// Check if there's already an active shopping run
@@ -52,7 +52,7 @@ export default async function NewShoppingRunPage({ searchParams }: { searchParam
 			/>
 			<PageContainer>
 				<BackLink
-					href={`/ticket-groups/${baseList.group_id}/lists`}
+					href={`/shopping-lists/${baseList.group_id}/lists`}
 					label='Back to Lists'
 				/>
 

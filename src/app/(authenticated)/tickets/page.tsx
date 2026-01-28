@@ -68,7 +68,7 @@ export default async function TicketsPage() {
 									className='hover:border-primary/50 transition-colors cursor-pointer group'
 								>
 									<Link href={`/tickets/${ticket.id}`}>
-										<CardHeader>
+										<CardHeader className='gap-0'>
 											<div className='flex items-center justify-end gap-1'>
 												{isMerged && <Badge variant='merged'>Merged</Badge>}
 												<Badge

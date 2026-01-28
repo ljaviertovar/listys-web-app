@@ -29,8 +29,8 @@ export const SIDEBAR_DATA: SidebarData = {
 					icon: DashboardSquare02Icon,
 				},
 				{
-					title: 'Ticket Groups',
-					url: '/ticket-groups',
+					title: 'Shopping Lists',
+					url: '/shopping-lists',
 					icon: FolderLibraryIcon,
 				},
 				{
@@ -75,7 +75,7 @@ export const USER_NAV_ITEMS: NavItem[] = [
 	},
 	{
 		title: 'Groups',
-		url: '/ticket-groups',
+		url: '/shopping-lists',
 	},
 	{
 		title: 'History',

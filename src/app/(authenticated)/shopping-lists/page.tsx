@@ -1,15 +1,15 @@
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
-import { getGroups } from '@/actions/ticket-groups'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { PlusSignIcon, FolderIcon, ArrowLeft02Icon } from '@hugeicons/core-free-icons'
-import Link from 'next/link'
-import { CreateGroupDialog } from '@/components/features/ticket-groups/create-group-dialog'
-import { GroupCard } from '@/components/features/ticket-groups/group-card'
-import PageHeader from '@/components/app/page-header'
-import PageContainer from '@/components/app/page-container'
+
+import { Card, CardContent } from '@/components/ui/card'
+import { CreateGroupDialog } from '@/components/features/shopping-lists/create-group-dialog'
+import { PageHeader, PageContainer } from '@/components/app'
+import { GroupCard } from '@/components/features/shopping-lists/group-card'
+import { FolderIcon } from '@hugeicons/core-free-icons'
+
+import { createClient } from '@/lib/supabase/server'
+
+import { getGroups } from '@/actions/shopping-lists'
 
 export default async function GroupsPage() {
 	const supabase = await createClient()
@@ -26,7 +26,7 @@ export default async function GroupsPage() {
 	return (
 		<>
 			<PageHeader
-				title='Ticket Groups'
+				title='Shopping Lists'
 				desc='Organize your shopping lists into groups'
 			>
 				<CreateGroupDialog />
@@ -53,7 +53,7 @@ export default async function GroupsPage() {
 					</Card>
 				) : (
 					<div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3'>
-						{groups.map(group => (
+						{groups.map((group: any) => (
 							<GroupCard
 								key={group.id}
 								group={group}

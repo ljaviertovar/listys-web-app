@@ -2,7 +2,7 @@ import { FolderLibraryIcon, Invoice01Icon, TimeQuarterPassIcon } from '@hugeicon
 
 import { DashboardCard, PageHeader, PageContainer, ActiveShopping } from '@/components/app'
 
-import { getGroups } from '@/actions/ticket-groups'
+import { getGroups } from '@/actions/shopping-lists'
 import { getTickets } from '@/actions/tickets'
 import { getActiveShoppingRun, getShoppingHistory } from '@/actions/shopping-runs'
 
@@ -37,19 +37,19 @@ export default async function DashboardPage() {
 				{/* Quick Actions */}
 				<div className='grid gap-6 md:grid-cols-3'>
 					<DashboardCard
+						href='/shopping-lists'
+						icon={FolderLibraryIcon}
+						title='Shopping Lists'
+						description='Manage your shopping list groups'
+						count={groups.length}
+					/>
+
+					<DashboardCard
 						href='/tickets'
 						icon={Invoice01Icon}
 						title='Tickets'
 						description='Upload and manage tickets'
 						count={ticketsCount}
-					/>
-
-					<DashboardCard
-						href='/ticket-groups'
-						icon={FolderLibraryIcon}
-						title='Ticket Groups'
-						description='Manage your shopping list groups'
-						count={groups.length}
 					/>
 
 					<DashboardCard
