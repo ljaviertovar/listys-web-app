@@ -112,7 +112,7 @@ export function BaseListItemRow({ item, isLocked = false }: Props) {
 						</span>
 						{item.category && <Badge variant='secondary'>{item.category}</Badge>}
 					</div>
-					{item.notes && <p className='text-sm text-muted-foreground'>{item.notes}</p>}
+					{item.notes && <p className='text-sm text-muted-foreground'>:{item.notes}</p>}
 				</div>
 			</div>
 			<div className='flex gap-1'>

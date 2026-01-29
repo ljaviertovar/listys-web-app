@@ -9,6 +9,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { ShoppingCart02Icon, PlusSignIcon } from '@hugeicons/core-free-icons'
 import Link from 'next/link'
 import { AddItemForm } from '@/components/features/base-lists/add-item-form'
+import ScrollArea from '@/components/ui/scroll-area'
 import { BaseListItemRow } from '@/components/features/base-lists/base-list-item-row'
 import type { BaseListWithItems } from '@/features/base-lists/types'
 import PageHeader from '@/components/app/page-header'
@@ -88,38 +89,43 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 					/>
 				</div>
 
-				<Card className='w-full max-w-3xl m-auto'>
+				<Card
+					className='w-full max-w-3xl m-auto h-[60vh] flex flex-col'
+					size='sm'
+				>
 					<CardHeader>
 						<CardTitle>List Items</CardTitle>
 					</CardHeader>
-					<CardContent className='space-y-4'>
-						{!baseListWithItems.items || baseListWithItems.items.length === 0 ? (
-							<div className='flex flex-col items-center justify-center py-12 text-center'>
-								<HugeiconsIcon
-									icon={PlusSignIcon}
-									strokeWidth={1.5}
-									className='mb-4 h-10 w-10 text-muted-foreground'
-								/>
-								<h3 className='text-lg font-medium'>No items yet</h3>
-								<p className='mt-1 text-sm text-muted-foreground'>
-									Add your first item using the form below to start building this list.
-								</p>
-							</div>
-						) : (
-							<div className='space-y-2'>
-								{baseListWithItems.items
-									.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
-									.map(item => (
-										<BaseListItemRow
-											key={item.id}
-											item={item}
-											isLocked={!!activeRun}
-										/>
-									))}
-							</div>
-						)}
+					<CardContent className='p-0 flex-1 min-h-0'>
+						<ScrollArea className='h-full min-h-0 space-y-4 pr-2 pb-24'>
+							{!baseListWithItems.items || baseListWithItems.items.length === 0 ? (
+								<div className='flex flex-col items-center justify-center py-12 text-center'>
+									<HugeiconsIcon
+										icon={PlusSignIcon}
+										strokeWidth={1.5}
+										className='mb-4 h-10 w-10 text-muted-foreground'
+									/>
+									<h3 className='text-lg font-medium'>No items yet</h3>
+									<p className='mt-1 text-sm text-muted-foreground'>
+										Add your first item using the form below to start building this list.
+									</p>
+								</div>
+							) : (
+								<div className='space-y-2'>
+									{baseListWithItems.items
+										.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+										.map(item => (
+											<BaseListItemRow
+												key={item.id}
+												item={item}
+												isLocked={!!activeRun}
+											/>
+										))}
+								</div>
+							)}
+						</ScrollArea>
 					</CardContent>
-					<CardFooter>
+					<CardFooter className='sticky bottom-0 z-10 bg-card/80 backdrop-blur border-t'>
 						<AddItemForm
 							baseListId={baseListId}
 							isLocked={!!activeRun}
