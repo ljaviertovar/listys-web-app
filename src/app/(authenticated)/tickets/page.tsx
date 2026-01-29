@@ -95,7 +95,7 @@ export default async function TicketsPage() {
 												</span>
 
 												<div className='flex flex-col'>
-													<CardTitle className='flex items-center justify-between text-lg'>
+													<CardTitle className='flex items-center justify-between text-lg truncate w-full max-w-[20ch]'>
 														{ticket.store_name || 'Unknown Base List'}
 													</CardTitle>
 													<CardDescription className='text-xs'>

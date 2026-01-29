@@ -2,7 +2,9 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createBaseList } from '@/actions/base-lists'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { HugeiconsIcon } from '@hugeicons/react'
 import {
 	Dialog,
 	DialogContent,
@@ -15,8 +17,10 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { HugeiconsIcon } from '@hugeicons/react'
+import { createBaseList } from '@/actions/base-lists'
+import { createBaseListSchema, type CreateBaseListInput } from '@/lib/validations/base-list'
 import { PlusSignIcon, Loading03Icon } from '@hugeicons/core-free-icons'
+import { toast } from 'sonner'
 
 interface Props {
 	groupId: string
@@ -24,26 +28,36 @@ interface Props {
 
 export function CreateBaseListDialog({ groupId }: Props) {
 	const [open, setOpen] = useState(false)
-	const [name, setName] = useState('')
 	const [loading, setLoading] = useState(false)
-	const [error, setError] = useState<string | null>(null)
 	const router = useRouter()
 
-	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault()
-		setError(null)
+	const {
+		register,
+		handleSubmit,
+		formState: { errors },
+		reset,
+	} = useForm<CreateBaseListInput>({
+		resolver: zodResolver(createBaseListSchema),
+		defaultValues: {
+			group_id: groupId,
+		},
+	})
+
+	const onSubmit = async (data: CreateBaseListInput) => {
 		setLoading(true)
 
 		try {
-			const { error } = await createBaseList({ group_id: groupId, name })
+			const { error } = await createBaseList(data)
 
 			if (error) throw new Error(error)
 
+			toast.success('Base list created successfully')
 			setOpen(false)
-			setName('')
+			reset({ group_id: groupId })
 			router.refresh()
-		} catch (err: any) {
-			setError(err.message || 'Failed to create base list')
+		} catch (err) {
+			const message = err instanceof Error ? err.message : 'Failed to create base list'
+			toast.error(message)
 		} finally {
 			setLoading(false)
 		}
@@ -69,19 +83,23 @@ export function CreateBaseListDialog({ groupId }: Props) {
 					<DialogTitle>Create New Base List</DialogTitle>
 					<DialogDescription>Add a reusable shopping list template</DialogDescription>
 				</DialogHeader>
-				<form onSubmit={handleSubmit}>
+				<form onSubmit={handleSubmit(onSubmit)}>
 					<div className='space-y-4'>
-						{error && <div className='rounded-lg bg-destructive/10 p-3 text-sm text-destructive'>{error}</div>}
 						<div className='space-y-2'>
-							<Label htmlFor='name'>Name</Label>
+							<Label htmlFor='name'>
+								Name <span className='text-destructive'>*</span>
+							</Label>
 							<Input
 								id='name'
-								value={name}
-								onChange={e => setName(e.target.value)}
+								{...register('name')}
 								placeholder='e.g., Weekly Groceries, Monthly Supplies'
-								required
+								disabled={loading}
 							/>
+							{errors.name && <p className='text-sm text-destructive'>{errors.name.message}</p>}
 						</div>
+						<p className='text-xs text-muted-foreground'>
+							<span className='text-destructive'>*</span> Required fields
+						</p>
 					</div>
 					<DialogFooter className='mt-6'>
 						<Button
@@ -96,18 +114,15 @@ export function CreateBaseListDialog({ groupId }: Props) {
 							type='submit'
 							disabled={loading}
 						>
-							{loading ? (
-								<>
-									<HugeiconsIcon
-										icon={Loading03Icon}
-										strokeWidth={2}
-										className='mr-2 h-4 w-4 animate-spin'
-									/>
-									Creating...
-								</>
-							) : (
-								'Create List'
+							{loading && (
+								<HugeiconsIcon
+									icon={Loading03Icon}
+									strokeWidth={2}
+									className='h-4 w-4 animate-spin'
+									data-icon='inline-start'
+								/>
 							)}
+							{loading ? 'Creating...' : 'Create List'}
 						</Button>
 					</DialogFooter>
 				</form>

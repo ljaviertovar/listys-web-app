@@ -102,7 +102,7 @@ export function UploadTicketForm({ onSuccess }: Props) {
 		>
 			<div className='space-y-2'>
 				<Label htmlFor='store_name'>
-					Ticket/Store Name <span className='text-destructive'>*</span>
+					Name <span className='text-destructive'>*</span>
 				</Label>
 				<Input
 					id='store_name'
@@ -115,7 +115,7 @@ export function UploadTicketForm({ onSuccess }: Props) {
 
 			<div className='space-y-2'>
 				<Label>
-					Ticket Photo <span className='text-destructive'>*</span>
+					Photo <span className='text-destructive'>*</span>
 				</Label>
 				<div
 					onClick={() => fileInputRef.current?.click()}
@@ -158,7 +158,11 @@ export function UploadTicketForm({ onSuccess }: Props) {
 				{errors.file && <p className='text-sm text-destructive'>{errors.file.message}</p>}
 			</div>
 
-			<DialogFooter className='mt-8 mb-0'>
+			<p className='text-xs text-muted-foreground'>
+				<span className='text-destructive'>*</span> Required fields
+			</p>
+
+			<DialogFooter className='mt-6 mb-0'>
 				<DialogClose asChild>
 					<Button variant='outline'>Cancel</Button>
 				</DialogClose>

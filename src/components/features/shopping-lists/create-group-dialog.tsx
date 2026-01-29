@@ -2,7 +2,10 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { createGroup } from '@/actions/shopping-lists'
+import { createGroupSchema, type CreateGroupInput } from '@/lib/validations/group'
 import {
 	Dialog,
 	DialogContent,
@@ -18,31 +21,37 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { PlusSignIcon, Loading03Icon } from '@hugeicons/core-free-icons'
+import { toast } from 'sonner'
 
 export function CreateGroupDialog() {
 	const [open, setOpen] = useState(false)
-	const [name, setName] = useState('')
-	const [description, setDescription] = useState('')
 	const [loading, setLoading] = useState(false)
-	const [error, setError] = useState<string | null>(null)
 	const router = useRouter()
 
-	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault()
-		setError(null)
+	const {
+		register,
+		handleSubmit,
+		formState: { errors },
+		reset,
+	} = useForm<CreateGroupInput>({
+		resolver: zodResolver(createGroupSchema),
+	})
+
+	const onSubmit = async (data: CreateGroupInput) => {
 		setLoading(true)
 
 		try {
-			const { error } = await createGroup({ name, description: description || undefined })
+			const { error } = await createGroup(data)
 
 			if (error) throw new Error(error)
 
+			toast.success('Group created successfully')
 			setOpen(false)
-			setName('')
-			setDescription('')
+			reset()
 			router.refresh()
-		} catch (err: any) {
-			setError(err.message || 'Failed to create group')
+		} catch (err) {
+			const message = err instanceof Error ? err.message : 'Failed to create group'
+			toast.error(message)
 		} finally {
 			setLoading(false)
 		}
@@ -68,29 +77,34 @@ export function CreateGroupDialog() {
 					<DialogTitle>Create New Group</DialogTitle>
 					<DialogDescription>Add a new group to organize your shopping lists</DialogDescription>
 				</DialogHeader>
-				<form onSubmit={handleSubmit}>
+				<form onSubmit={handleSubmit(onSubmit)}>
 					<div className='space-y-4'>
-						{error && <div className='rounded-lg bg-destructive/10 p-3 text-sm text-destructive'>{error}</div>}
 						<div className='space-y-2'>
-							<Label htmlFor='name'>Name</Label>
+							<Label htmlFor='name'>
+								Name <span className='text-destructive'>*</span>
+							</Label>
 							<Input
 								id='name'
-								value={name}
-								onChange={e => setName(e.target.value)}
+								{...register('name')}
 								placeholder='e.g., Groceries, Household'
-								required
+								disabled={loading}
 							/>
+							{errors.name && <p className='text-xs text-destructive'>{errors.name.message}</p>}
 						</div>
 						<div className='space-y-2'>
-							<Label htmlFor='description'>Description (optional)</Label>
+							<Label htmlFor='description'>Description</Label>
 							<Textarea
 								id='description'
-								value={description}
-								onChange={e => setDescription(e.target.value)}
-								placeholder='Add a description...'
+								{...register('description')}
+								placeholder='Add a description for this group'
 								rows={3}
+								disabled={loading}
 							/>
+							{errors.description && <p className='text-xs text-destructive'>{errors.description.message}</p>}
 						</div>
+						<p className='text-xs text-muted-foreground'>
+							<span className='text-destructive'>*</span> Required fields
+						</p>
 					</div>
 					<DialogFooter className='mt-6'>
 						<Button
@@ -105,6 +119,14 @@ export function CreateGroupDialog() {
 							type='submit'
 							disabled={loading}
 						>
+							{loading && (
+								<HugeiconsIcon
+									icon={Loading03Icon}
+									strokeWidth={2}
+									className='h-4 w-4 animate-spin'
+									data-icon='inline-start'
+								/>
+							)}
 							{loading ? 'Creating...' : 'Create Group'}
 						</Button>
 					</DialogFooter>

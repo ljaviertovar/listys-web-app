@@ -30,13 +30,20 @@ export function AddItemForm({ runId, onSuccess }: Props) {
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
 		setError('')
+
+		const parsedQuantity = quantity ? parseFloat(quantity) : undefined
+		if (quantity && (!Number.isFinite(parsedQuantity) || parsedQuantity <= 0)) {
+			setError('Quantity must be greater than 0')
+			return
+		}
+
 		setLoading(true)
 
 		try {
 			const { error: createError } = await createShoppingRunItem({
 				shopping_run_id: runId,
 				name,
-				quantity: quantity ? parseFloat(quantity) : undefined,
+				quantity: parsedQuantity,
 				unit: unit || undefined,
 				category: category || undefined,
 				notes: notes || undefined,
@@ -85,8 +92,12 @@ export function AddItemForm({ runId, onSuccess }: Props) {
 						id='quantity'
 						type='number'
 						step='0.01'
+						min='0.01'
 						value={quantity}
-						onChange={e => setQuantity(e.target.value)}
+						onChange={e => {
+							if (e.target.value.startsWith('-')) return
+							setQuantity(e.target.value)
+						}}
 						placeholder='e.g., 2'
 						disabled={loading}
 					/>

@@ -104,7 +104,7 @@ export function GroupCard({ group }: Props) {
 								/>
 							</span>
 							<div className='flex flex-col'>
-								<CardTitle className='text-lg'>{group.name}</CardTitle>
+								<CardTitle className='text-lg truncate w-full max-w-[20ch]'>{group.name}</CardTitle>
 								{group.description && <CardDescription className='text-xs'>{group.description}</CardDescription>}
 							</div>
 						</div>
