@@ -41,6 +41,8 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 
 	const baseListWithItems = baseList as BaseListWithItems
 
+	const totalItems = baseListWithItems.items ? baseListWithItems.items.length : 0
+
 	// Get group info for breadcrumb
 	const { data: group } = await supabase.from('groups').select('id, name').eq('id', baseListWithItems.group_id).single()
 
@@ -90,14 +92,19 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 				</div>
 
 				<Card
-					className='w-full max-w-3xl m-auto h-[60vh] flex flex-col'
+					className='w-full max-w-3xl m-auto h-dvh md:h-[calc(100dvh-10rem)] flex flex-col'
 					size='sm'
 				>
 					<CardHeader>
-						<CardTitle>List Items</CardTitle>
+						<div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 w-full'>
+							<div className=' w-full flex justify-between items-center'>
+								<CardTitle>List Items</CardTitle>
+								<div className='text-sm text-primary font-medium mt-1 sm:mt-0'>{totalItems} items</div>
+							</div>
+						</div>
 					</CardHeader>
 					<CardContent className='p-0 flex-1 min-h-0'>
-						<ScrollArea className='h-full min-h-0 space-y-4 pr-2 pb-24'>
+						<ScrollArea className='h-full min-h-0 space-y-4 pr-2 pb-24 touch-pan-y overscroll-contain'>
 							{!baseListWithItems.items || baseListWithItems.items.length === 0 ? (
 								<div className='flex flex-col items-center justify-center py-12 text-center'>
 									<HugeiconsIcon
@@ -125,7 +132,7 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 							)}
 						</ScrollArea>
 					</CardContent>
-					<CardFooter className='sticky bottom-0 z-10 bg-card/80 backdrop-blur border-t'>
+					<CardFooter className='sticky bottom-0 z-10 bg-card/80 backdrop-blur border-t px-4 sm:px-6'>
 						<AddItemForm
 							baseListId={baseListId}
 							isLocked={!!activeRun}

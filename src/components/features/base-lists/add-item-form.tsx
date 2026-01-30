@@ -61,7 +61,7 @@ export function AddItemForm({ baseListId, isLocked = false }: Props) {
 			className='w-full space-y-4 rounded-lg border p-4 bg-muted/30'
 		>
 			{isLocked && (
-				<div className='rounded-md bg-muted p-3 text-sm text-muted-foreground'>
+				<div className='rounded-md bg-accent p-3 text-sm text-accent-foreground'>
 					This list is locked because it's being used in an active shopping run.
 				</div>
 			)}
@@ -78,7 +78,7 @@ export function AddItemForm({ baseListId, isLocked = false }: Props) {
 					/>
 					{errors.name && <p className='text-xs text-destructive'>{errors.name.message}</p>}
 				</div>
-				<div className='flex gap-2'>
+				<div className='flex gap-2 items-center'>
 					<Input
 						type='number'
 						step='0.1'
@@ -105,7 +105,7 @@ export function AddItemForm({ baseListId, isLocked = false }: Props) {
 							>
 								<SelectTrigger
 									className={
-										errors.unit ? 'w-32 border-destructive focus-visible:ring-destructive bg-card' : 'w-32 bg-card'
+										errors.unit ? 'w-28 border-destructive focus-visible:ring-destructive bg-card' : 'w-28 bg-card'
 									}
 								>
 									<SelectValue placeholder='Unit' />
@@ -137,7 +137,11 @@ export function AddItemForm({ baseListId, isLocked = false }: Props) {
 							disabled={loading || isLocked}
 						>
 							<SelectTrigger
-								className={errors.category ? 'border-destructive focus-visible:ring-destructive bg-card' : 'bg-card'}
+								className={
+									errors.category
+										? 'w-full border-destructive focus-visible:ring-destructive bg-card'
+										: 'w-full bg-card'
+								}
 							>
 								<SelectValue placeholder='Category (optional)' />
 							</SelectTrigger>
@@ -158,7 +162,7 @@ export function AddItemForm({ baseListId, isLocked = false }: Props) {
 					placeholder='Notes (optional)'
 					{...register('notes')}
 					disabled={loading || isLocked}
-					className='bg-card'
+					className='bg-card w-full'
 				/>
 			</div>
 
@@ -169,7 +173,7 @@ export function AddItemForm({ baseListId, isLocked = false }: Props) {
 			<Button
 				type='submit'
 				disabled={loading || isLocked}
-				className='w-full max-w-1/3 mx-auto flex justify-center items-center mt-8'
+				className='w-full sm:w-1/3 mx-auto flex justify-center items-center mt-4'
 			>
 				{loading ? (
 					<>
