@@ -87,7 +87,6 @@ export function AddItemForm({ baseListId, isLocked = false }: Props) {
 						max={99}
 						defaultValue={1}
 						{...register('quantity', { valueAsNumber: true })}
-						className='w-20 bg-card'
 						aria-invalid={!!errors.quantity}
 						{...(errors.quantity
 							? { className: 'w-20 border-destructive focus-visible:ring-destructive bg-card' }
