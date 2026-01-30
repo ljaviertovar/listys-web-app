@@ -31,10 +31,15 @@ export function AddItemForm({ runId, onSuccess }: Props) {
 		e.preventDefault()
 		setError('')
 
-		const parsedQuantity = quantity ? parseFloat(quantity) : undefined
-		if (quantity && (!Number.isFinite(parsedQuantity) || parsedQuantity <= 0)) {
-			setError('Quantity must be greater than 0')
-			return
+		let parsedQuantity: number | undefined
+		if (quantity) {
+			parsedQuantity = parseFloat(quantity)
+			if (!Number.isFinite(parsedQuantity) || parsedQuantity <= 0) {
+				setError('Quantity must be greater than 0')
+				return
+			}
+		} else {
+			parsedQuantity = undefined
 		}
 
 		setLoading(true)
