@@ -57,7 +57,10 @@ export function GroupCard({ group }: Props) {
 
 	return (
 		<>
-			<Card className='hover:border-primary/50 transition-colors cursor-pointer group'>
+			<Card
+				className='hover:border-primary/50 transition-colors cursor-pointer group'
+				size='sm'
+			>
 				<Link href={`/shopping-lists/${group.id}/lists`}>
 					<CardHeader className='gap-0'>
 						<div className='flex items-center justify-end gap-1'>
@@ -104,17 +107,17 @@ export function GroupCard({ group }: Props) {
 								/>
 							</span>
 							<div className='flex flex-col'>
-								<CardTitle className='text-lg truncate w-full max-w-[20ch]'>{group.name}</CardTitle>
+								<CardTitle className='text-base md:text-lg truncate w-full max-w-[20ch]'>{group.name}</CardTitle>
 								{group.description && <CardDescription className='text-xs'>{group.description}</CardDescription>}
 							</div>
 						</div>
 					</CardHeader>
 					<CardContent className='pt-4'>
 						<div className='flex items-center justify-between'>
-							<span className='text-primary font-medium'>
+							<span>
 								{group.base_lists?.[0]?.count ?? 0} {(group.base_lists?.[0]?.count ?? 0) === 1 ? 'list' : 'lists'}
 							</span>
-							<div className='flex items-center text-sm group-hover:text-primary transition-colors'>
+							<div className='flex items-center text-sm text-primary transition-colors'>
 								<span>View lists</span>
 								<HugeiconsIcon
 									icon={ArrowRight01Icon}

@@ -63,7 +63,7 @@ export function CreateGroupDialog() {
 			onOpenChange={isOpen => !loading && setOpen(isOpen)}
 		>
 			<DialogTrigger asChild>
-				<Button>
+				<Button size={'sm'}>
 					<HugeiconsIcon
 						icon={PlusSignIcon}
 						strokeWidth={2}
@@ -88,6 +88,7 @@ export function CreateGroupDialog() {
 								{...register('name')}
 								placeholder='e.g., Groceries, Household'
 								disabled={loading}
+								className='text-sm'
 							/>
 							{errors.name && <p className='text-xs text-destructive'>{errors.name.message}</p>}
 						</div>
@@ -99,6 +100,7 @@ export function CreateGroupDialog() {
 								placeholder='Add a description for this group'
 								rows={3}
 								disabled={loading}
+								className='text-sm'
 							/>
 							{errors.description && <p className='text-xs text-destructive'>{errors.description.message}</p>}
 						</div>
@@ -106,18 +108,22 @@ export function CreateGroupDialog() {
 							<span className='text-destructive'>*</span> Required fields
 						</p>
 					</div>
-					<DialogFooter className='mt-6'>
+					<DialogFooter className='mt-6 gap-4 flex-row'>
 						<Button
 							type='button'
 							variant='outline'
+							size={'sm'}
 							onClick={() => setOpen(false)}
 							disabled={loading}
+							className='flex-1'
 						>
 							Cancel
 						</Button>
 						<Button
 							type='submit'
+							size={'sm'}
 							disabled={loading}
+							className='flex-1'
 						>
 							{loading && (
 								<HugeiconsIcon

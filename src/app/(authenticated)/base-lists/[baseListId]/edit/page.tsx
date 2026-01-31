@@ -84,12 +84,10 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 				}
 			/>
 			<PageContainer>
-				<div className='flex items-center justify-between'>
-					<BackLink
-						href={`/shopping-lists/${baseListWithItems.group_id}/lists`}
-						label={`Back to ${group?.name || 'Shopping Lists'}`}
-					/>
-				</div>
+				<BackLink
+					href={`/shopping-lists/${baseListWithItems.group_id}/lists`}
+					label={`Back to ${group?.name || 'Shopping Lists'}`}
+				/>
 
 				<Card
 					className='w-full max-w-3xl m-auto h-dvh md:h-[calc(100dvh-10rem)] flex flex-col'
@@ -103,8 +101,8 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 							</div>
 						</div>
 					</CardHeader>
-					<CardContent className='p-0 flex-1 min-h-0'>
-						<ScrollArea className='h-full min-h-0 space-y-4 pr-2 pb-24 touch-pan-y overscroll-contain'>
+					<CardContent className='flex-1 min-h-0'>
+						<ScrollArea className='h-full min-h-0 space-y-4 touch-pan-y overscroll-contain'>
 							{!baseListWithItems.items || baseListWithItems.items.length === 0 ? (
 								<div className='flex flex-col items-center justify-center py-12 text-center'>
 									<HugeiconsIcon
@@ -132,7 +130,7 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 							)}
 						</ScrollArea>
 					</CardContent>
-					<CardFooter className='sticky bottom-0 z-10 bg-card/80 backdrop-blur border-t px-4 sm:px-6'>
+					<CardFooter className='sticky bottom-0 z-10 bg-card/80 backdrop-blur px-4 sm:px-6'>
 						<AddItemForm
 							baseListId={baseListId}
 							isLocked={!!activeRun}

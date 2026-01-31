@@ -112,18 +112,18 @@ export function BaseListItemRow({ item, isLocked = false }: Props) {
 	}
 
 	return (
-		<div className='flex items-center justify-between rounded-lg border p-3 hover:bg-muted/30'>
+		<div className='flex items-center justify-between rounded-sm border p-2 hover:bg-muted/30'>
 			<div className='flex flex-1 items-center gap-2 justify-start'>
 				<div className='flex-1'>
 					<p className='font-bold mb-1'>
 						{item.name}
 
-						<span className='m-4 text-muted-foreground'>
+						<span className='m-4 font-normal text-muted-foreground'>
 							{item.quantity} {item.unit}
 						</span>
 					</p>
 					<div className='flex gap-2 mb-1'>{item.category && <Badge variant={'category'}>{item.category}</Badge>}</div>
-					{item.notes && <p className='text-sm text-muted-foreground'>:{item.notes}</p>}
+					{item.notes && <p className='text-xs md:text-sm text-muted-foreground'>:{item.notes}</p>}
 				</div>
 			</div>
 			<div className='flex gap-1'>

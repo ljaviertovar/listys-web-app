@@ -69,7 +69,7 @@ export function CreateBaseListDialog({ groupId }: Props) {
 			onOpenChange={isOpen => !loading && setOpen(isOpen)}
 		>
 			<DialogTrigger asChild>
-				<Button>
+				<Button size={'sm'}>
 					<HugeiconsIcon
 						icon={PlusSignIcon}
 						strokeWidth={2}
@@ -94,6 +94,7 @@ export function CreateBaseListDialog({ groupId }: Props) {
 								{...register('name')}
 								placeholder='e.g., Weekly Groceries, Monthly Supplies'
 								disabled={loading}
+								className='text-sm'
 							/>
 							{errors.name && <p className='text-sm text-destructive'>{errors.name.message}</p>}
 						</div>
@@ -101,18 +102,20 @@ export function CreateBaseListDialog({ groupId }: Props) {
 							<span className='text-destructive'>*</span> Required fields
 						</p>
 					</div>
-					<DialogFooter className='mt-6'>
+					<DialogFooter className='flex-row gap-4 mt-6'>
 						<Button
 							type='button'
 							variant='outline'
 							onClick={() => setOpen(false)}
 							disabled={loading}
+							className='flex-1'
 						>
 							Cancel
 						</Button>
 						<Button
 							type='submit'
 							disabled={loading}
+							className='flex-1'
 						>
 							{loading && (
 								<HugeiconsIcon

@@ -76,7 +76,10 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 
 				<div className='grid gap-6 lg:grid-cols-2'>
 					{/* Ticket Image */}
-					<Card className='hover:border-primary/50 transition-colors'>
+					<Card
+						className='hover:border-primary/50 transition-colors'
+						size='sm'
+					>
 						<CardHeader>
 							<div className='flex gap-2 items-center'>
 								<span className='h-10 w-10 bg-primary/10 flex justify-center items-center rounded-full'>
@@ -95,14 +98,17 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 					</Card>
 
 					{/* Extracted Items */}
-					<Card className='hover:border-primary/50 transition-colors'>
+					<Card
+						className='hover:border-primary/50 transition-colors'
+						size='sm'
+					>
 						<CardHeader className='flex gap-2 items-start justify-between'>
 							<div className='flex gap-2 items-center'>
 								<span className='h-10 w-10 bg-primary/10 flex justify-center items-center rounded-full'>
 									<HugeiconsIcon
 										icon={ListViewIcon}
 										strokeWidth={2}
-										className='h-6 w-6 text-primary'
+										className='h-5 w-5 text-primary'
 									/>
 								</span>
 								<div className='flex flex-col'>

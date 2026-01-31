@@ -67,7 +67,10 @@ export default async function BaseListsPage({ params }: { params: Promise<{ grou
 				{activeRun && <ActiveShopping />}
 
 				{!baseLists || baseLists.length === 0 ? (
-					<Card className='flex min-h-100 flex-col items-center justify-center'>
+					<Card
+						className='flex min-h-100 flex-col items-center justify-center'
+						size='sm'
+					>
 						<CardContent className='flex flex-col items-center space-y-4 pt-6'>
 							<HugeiconsIcon
 								icon={AddToListIcon}

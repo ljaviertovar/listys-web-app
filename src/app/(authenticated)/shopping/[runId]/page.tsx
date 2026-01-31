@@ -83,7 +83,7 @@ export default async function ShoppingRunPage({ params }: { params: Promise<{ ru
 					</div>
 				)}
 
-				<Card>
+				<Card size='sm'>
 					<CardHeader>
 						<CardTitle className='flex items-center justify-between'>
 							<span className='flex items-center gap-2'>

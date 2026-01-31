@@ -90,7 +90,7 @@ export function AddItemForm({ baseListId, isLocked = false }: Props) {
 						aria-invalid={!!errors.quantity}
 						{...(errors.quantity
 							? { className: 'w-20 border-destructive focus-visible:ring-destructive bg-card' }
-							: {})}
+							: { className: 'bg-card' })}
 						disabled={loading || isLocked}
 					/>
 					<Controller

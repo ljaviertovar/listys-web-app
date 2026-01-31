@@ -9,7 +9,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { Card, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { File01Icon, ShoppingCart02Icon, Edit02Icon, Delete02Icon, Loading03Icon } from '@hugeicons/core-free-icons'
+import { ListViewIcon, ShoppingCart02Icon, Edit02Icon, Delete02Icon, Loading03Icon } from '@hugeicons/core-free-icons'
 
 import { deleteBaseList } from '@/actions/base-lists'
 import { createShoppingRun } from '@/actions/shopping-runs'
@@ -90,9 +90,14 @@ export function BaseListCard({ baseList, hasActiveRun = false, isActiveRun = fal
 		}
 	}
 
+	const isDisabled = hasActiveRun && !isActiveRun
+
 	return (
 		<>
-			<Card className={`hover:border-primary/50 transition-colors gap-2`}>
+			<Card
+				className={`hover:border-primary/50 transition-colors gap-2`}
+				size='sm'
+			>
 				<CardHeader className='gap-0'>
 					<div className='flex items-center justify-end gap-1'>
 						{isActiveRun && (
@@ -142,18 +147,20 @@ export function BaseListCard({ baseList, hasActiveRun = false, isActiveRun = fal
 					<div className='flex gap-2 items-center'>
 						<span className='h-10 w-10 bg-primary/10 flex justify-center items-center rounded-full'>
 							<HugeiconsIcon
-								icon={File01Icon}
+								icon={ListViewIcon}
 								strokeWidth={2}
-								className='h-6 w-6 text-primary'
+								className='h-5 w-5 text-primary'
 							/>
 						</span>
 						<div className='flex flex-col flex-1 min-w-0'>
-							<CardTitle className='text-lg truncate w-full max-w-[20ch]'>{baseList.name}</CardTitle>
+							<CardTitle className='text-base md:text-lg truncate w-full max-w-[25ch] md:max-w-[20ch]'>
+								{baseList.name}
+							</CardTitle>
 						</div>
 					</div>
 				</CardHeader>
 				<CardFooter className='justify-between items-center'>
-					<span className='font-medium text-primary'>
+					<span>
 						{baseList.items_count} {baseList.items_count === 1 ? 'item' : 'items'}
 					</span>
 					{isActiveRun ? (
@@ -171,12 +178,12 @@ export function BaseListCard({ baseList, hasActiveRun = false, isActiveRun = fal
 								Continue Shopping
 							</Link>
 						</Button>
-					) : !hasActiveRun ? (
+					) : (
 						<Button
 							variant={'outline'}
 							size={'sm'}
 							onClick={handleStartRun}
-							disabled={startingRun || loading}
+							disabled={isDisabled || startingRun || loading}
 						>
 							<HugeiconsIcon
 								icon={ShoppingCart02Icon}
@@ -185,7 +192,7 @@ export function BaseListCard({ baseList, hasActiveRun = false, isActiveRun = fal
 							/>
 							{startingRun ? 'Starting...' : 'Start Shopping'}
 						</Button>
-					) : null}
+					)}
 				</CardFooter>
 			</Card>
 
@@ -204,7 +211,7 @@ export function BaseListCard({ baseList, hasActiveRun = false, isActiveRun = fal
 						</AlertDialogMedia>
 						<AlertDialogTitle>Delete Base List?</AlertDialogTitle>
 						<AlertDialogDescription>
-							This will delete "{baseList.name}" and all its items. This action cannot be undone.
+							This will delete the Base List and all its items. This action cannot be undone.
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>

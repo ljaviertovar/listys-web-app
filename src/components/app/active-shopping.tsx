@@ -16,10 +16,13 @@ interface Props {
 
 export default function ActiveShopping({ activeShopping, dashboard }: Props) {
 	return (
-		<Card className='border-primary/50 bg-primary/10'>
-			<CardContent className='flex justify-between items-center gap-4'>
+		<Card
+			className='border-primary/50 bg-primary/10'
+			size='sm'
+		>
+			<CardContent className='flex justify-between items-center gap-4 flex-col md:flex-row'>
 				<div className='flex gap-4'>
-					<div className='flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20'>
+					<div className='flex h-12 w-12 min-w-12 items-center justify-center rounded-xl bg-primary/20'>
 						<div className='flex h-8 w-8 items-center justify-center rounded-lg bg-primary'>
 							<HugeiconsIcon
 								icon={ShoppingCart02Icon}
@@ -30,13 +33,16 @@ export default function ActiveShopping({ activeShopping, dashboard }: Props) {
 					</div>
 					<div>
 						<CardTitle className='text-primary font-medium'>Shopping in progress</CardTitle>
-						<CardDescription className='text-foreground '>
+						<CardDescription className='text-xs md:text-sm text-foreground '>
 							{dashboard ? activeShopping?.name : 'Complete your current shopping run before starting a new one.'}
 						</CardDescription>
 					</div>
 				</div>
 				{dashboard && (
-					<Button className='w-fit'>
+					<Button
+						className='w-fit'
+						size={'sm'}
+					>
 						<Link href={`/shopping/${activeShopping?.id}`}>Continue Shopping</Link>
 					</Button>
 				)}
