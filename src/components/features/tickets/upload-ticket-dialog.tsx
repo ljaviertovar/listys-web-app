@@ -32,10 +32,7 @@ export function UploadTicketDialog() {
 			onOpenChange={setOpen}
 		>
 			<DialogTrigger asChild>
-				<Button
-					size={'sm'}
-					className='w-full'
-				>
+				<Button className='w-full'>
 					<HugeiconsIcon
 						icon={Upload06Icon}
 						strokeWidth={2}

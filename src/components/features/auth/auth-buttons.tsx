@@ -46,22 +46,14 @@ export default function AuthButtons() {
 			{user ? (
 				<UserNav user={user} />
 			) : (
-				<>
-					<Button
-						size={'sm'}
-						variant={'secondary'}
-						asChild
-					>
-						<Link href='/auth/signin'>Sign In</Link>
-					</Button>
-					<Button
-						size={'sm'}
-						asChild
-						className='text-foreground'
-					>
-						<Link href='/auth/signup'>Sign Up</Link>
-					</Button>
-				</>
+				// Only show Sign Up when not authenticated
+				<Button
+					size={'sm'}
+					asChild
+					className='text-foreground'
+				>
+					<Link href='/auth/signup'>Sign Up</Link>
+				</Button>
 			)}
 		</div>
 	)

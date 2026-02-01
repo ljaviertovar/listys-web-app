@@ -69,7 +69,7 @@ export function CreateBaseListDialog({ groupId }: Props) {
 			onOpenChange={isOpen => !loading && setOpen(isOpen)}
 		>
 			<DialogTrigger asChild>
-				<Button size={'sm'}>
+				<Button>
 					<HugeiconsIcon
 						icon={PlusSignIcon}
 						strokeWidth={2}

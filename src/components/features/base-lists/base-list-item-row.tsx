@@ -70,14 +70,14 @@ export function BaseListItemRow({ item, isLocked = false }: Props) {
 		return (
 			<Card
 				size='sm'
-				className='hover:bg-primary/1 hover:border-primary/50 transition-colors cursor-pointer group'
+				className='hover:bg-primary/1 hover:border-primary/50 transition-colors cursor-pointer group text-base'
 			>
 				<CardContent className='flex flex-col gap-2'>
 					<div className='flex flex-col sm:flex-row gap-2 w-full'>
 						<Input
 							value={name}
 							onChange={e => setName(e.target.value)}
-							className='flex-1 w-full text-base bg-card'
+							className='flex-1 w-full bg-card text-base h-10 py-2'
 						/>
 						<Input
 							type='number'
@@ -85,31 +85,24 @@ export function BaseListItemRow({ item, isLocked = false }: Props) {
 							step='0.01'
 							value={quantity}
 							onChange={e => setQuantity(e.target.value)}
-							className='w-full sm:w-20 text-base bg-card'
+							className='w-full sm:w-20 bg-card text-base h-10 py-2'
 						/>
 					</div>
 					<div className='flex items-center justify-end gap-2'>
 						<Button
-							size='icon'
-							variant='ghost'
+							size='sm'
 							onClick={handleSave}
 							disabled={loading}
 						>
-							<HugeiconsIcon
-								icon={Tick02Icon}
-								strokeWidth={2}
-							/>
+							Save
 						</Button>
 						<Button
-							size='icon'
-							variant='ghost'
+							size='sm'
+							variant='outline'
 							onClick={handleCancel}
 							disabled={loading}
 						>
-							<HugeiconsIcon
-								icon={Cancel01Icon}
-								strokeWidth={2}
-							/>
+							Cancel
 						</Button>
 					</div>
 				</CardContent>

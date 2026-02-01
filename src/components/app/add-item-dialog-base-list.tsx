@@ -32,7 +32,6 @@ export function AddItemDialogBaseList(props: Props) {
 			<DialogTrigger asChild>
 				<Button
 					className='w-full'
-					size='sm'
 					disabled={!!isLocked}
 				>
 					<HugeiconsIcon

@@ -73,9 +73,16 @@ export const USER_NAV_ITEMS: NavItem[] = [
 		title: 'Dashboard',
 		url: '/dashboard',
 	},
+]
+
+export const NAV_APP_ITEMS: NavItem[] = [
 	{
-		title: 'Groups',
+		title: 'Shopping Lists',
 		url: '/shopping-lists',
+	},
+	{
+		title: 'Tickets',
+		url: '/tickets',
 	},
 	{
 		title: 'History',

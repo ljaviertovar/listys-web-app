@@ -6,3 +6,4 @@ export * from './sidebar';
 export { default as ActiveShopping } from './active-shopping';
 export { DashboardCard } from './dashboard-card';
 export { default as PageFooterAction } from './page-footer-action';
+export { default as MobileMenu } from './mobile-menu';
