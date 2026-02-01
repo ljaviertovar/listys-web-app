@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -22,12 +23,13 @@ interface Props {
 	user: any
 }
 
-const UserNavItem = ({ title, url }: NavItem) => {
+const UserNavItem = ({ title, url, onSelect }: NavItem & { onSelect: () => void }) => {
 	return (
-		<DropdownMenuItem>
+		<DropdownMenuItem asChild>
 			<Link
-				className='block w-full h-6 text-sm text-left'
+				className='block w-full h-10 text-sm text-left'
 				href={url}
+				onClick={onSelect}
 			>
 				{title}
 			</Link>
@@ -36,9 +38,11 @@ const UserNavItem = ({ title, url }: NavItem) => {
 }
 
 export function UserNav({ user }: Props) {
+	const [open, setOpen] = useState(false)
 	const router = useRouter()
 
 	const handleSignOut = async () => {
+		setOpen(false)
 		const supabase = createClient()
 		await supabase.auth.signOut()
 		router.push('/auth/signin')
@@ -50,7 +54,10 @@ export function UserNav({ user }: Props) {
 	const avatarUrl = userMetadata?.avatar_url || userMetadata?.picture
 
 	return (
-		<DropdownMenu>
+		<DropdownMenu
+			open={open}
+			onOpenChange={setOpen}
+		>
 			<DropdownMenuTrigger asChild>
 				<Button
 					variant='ghost'
@@ -85,6 +92,7 @@ export function UserNav({ user }: Props) {
 						key={item.url}
 						title={item.title}
 						url={item.url}
+						onSelect={() => setOpen(false)}
 					/>
 				))}
 

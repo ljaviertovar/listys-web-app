@@ -47,16 +47,14 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 	return (
 		<>
 			<PageHeader
-				title={`Ticket: ${ticket.store_name || 'Unknown'}`}
+				title={`${ticket.store_name || 'Unknown Ticket'}`}
 				desc={`Uploaded on ${formatDate(createdAt)} at ${formatTime(createdAt)}`}
 			/>
 			<PageContainer>
-				<div className='flex items-start justify-between'>
-					<BackLink
-						href='/tickets'
-						label='Back to Tickets'
-					/>
-				</div>
+				<BackLink
+					href='/tickets'
+					label='Back to Tickets'
+				/>
 
 				{ticket.base_list_id && baseListName && (
 					<Alert variant='info'>
@@ -75,28 +73,6 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 				)}
 
 				<div className='grid gap-6 lg:grid-cols-2'>
-					{/* Ticket Image */}
-					<Card
-						className='hover:border-primary/50 transition-colors'
-						size='sm'
-					>
-						<CardHeader>
-							<div className='flex gap-2 items-center'>
-								<span className='h-10 w-10 bg-primary/10 flex justify-center items-center rounded-full'>
-									<HugeiconsIcon
-										icon={Invoice01Icon}
-										strokeWidth={2}
-										className='h-6 w-6 text-primary'
-									/>
-								</span>
-								<CardTitle className='text-lg'>Ticket Photo</CardTitle>
-							</div>
-						</CardHeader>
-						<CardContent>
-							<TicketImage imagePath={ticket.image_path} />
-						</CardContent>
-					</Card>
-
 					{/* Extracted Items */}
 					<Card
 						className='hover:border-primary/50 transition-colors'
@@ -144,6 +120,28 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 						<CardFooter className='justify-end'>
 							<TicketActions ticket={ticket} />
 						</CardFooter>
+					</Card>
+
+					{/* Ticket Image */}
+					<Card
+						className='hover:border-primary/50 transition-colors'
+						size='sm'
+					>
+						<CardHeader>
+							<div className='flex gap-2 items-center'>
+								<span className='h-10 w-10 bg-primary/10 flex justify-center items-center rounded-full'>
+									<HugeiconsIcon
+										icon={Invoice01Icon}
+										strokeWidth={2}
+										className='h-6 w-6 text-primary'
+									/>
+								</span>
+								<CardTitle className='text-lg'>Ticket Photo</CardTitle>
+							</div>
+						</CardHeader>
+						<CardContent>
+							<TicketImage imagePath={ticket.image_path} />
+						</CardContent>
 					</Card>
 				</div>
 			</PageContainer>

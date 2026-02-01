@@ -88,7 +88,7 @@ export function CreateGroupDialog() {
 								{...register('name')}
 								placeholder='e.g., Groceries, Household'
 								disabled={loading}
-								className='text-sm'
+								className='text-base'
 							/>
 							{errors.name && <p className='text-xs text-destructive'>{errors.name.message}</p>}
 						</div>
@@ -100,7 +100,7 @@ export function CreateGroupDialog() {
 								placeholder='Add a description for this group'
 								rows={3}
 								disabled={loading}
-								className='text-sm'
+								className='text-base'
 							/>
 							{errors.description && <p className='text-xs text-destructive'>{errors.description.message}</p>}
 						</div>

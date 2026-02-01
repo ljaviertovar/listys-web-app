@@ -240,6 +240,7 @@ export function MergeToBaseListDialog({ open, onOpenChange, ticketId, selectedIt
 									value={newListName}
 									onChange={e => setNewListName(e.target.value)}
 									placeholder='e.g., Weekly Groceries'
+									className='text-base'
 								/>
 							</div>
 						)}

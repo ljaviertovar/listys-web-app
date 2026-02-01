@@ -99,6 +99,7 @@ export function EditGroupDialog({ group, open, onOpenChange }: Props) {
 								onChange={e => setDescription(e.target.value)}
 								placeholder='A brief description of this group'
 								rows={3}
+								className='text-base'
 							/>
 						</div>
 					</div>

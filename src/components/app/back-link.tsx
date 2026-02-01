@@ -12,7 +12,7 @@ export default function BackLink({ href, label }: Props) {
 	return (
 		<Link
 			href={href}
-			className='group mb-4 md:mb-6 flex items-center text-sm text-muted-foreground hover:text-primary transition-colors'
+			className='group mb-4 md:mb-6 flex items-center text-sm text-muted-foreground hover:text-primary transition-colors w-fit'
 		>
 			<HugeiconsIcon
 				icon={ArrowLeft01Icon}

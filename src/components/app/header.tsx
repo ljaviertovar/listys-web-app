@@ -12,7 +12,7 @@ export const Header = () => {
 	return (
 		<header
 			className={cn(
-				'sticky top-0 z-50 flex h-16 items-center gap-3 p-4 sm:gap-4 border-b-1',
+				'sticky top-0 z-50 flex h-16 items-center gap-3 p-4 sm:gap-4 border-b',
 				scrollPosition > 20 ? 'bg-background/40  bg-opacity-60 backdrop-blur-lg backdrop-filter border-b' : 'bg-white',
 			)}
 		>

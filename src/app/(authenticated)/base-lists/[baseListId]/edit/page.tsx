@@ -1,20 +1,18 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-
 import { getBaseList } from '@/actions/base-lists'
 import { Button } from '@/components/ui/button'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ShoppingCart02Icon, PlusSignIcon } from '@hugeicons/core-free-icons'
 import Link from 'next/link'
-import { AddItemForm } from '@/components/features/base-lists/add-item-form'
+import { AddItemDialogBaseList } from '@/components/app/add-item-dialog-base-list'
 import ScrollArea from '@/components/ui/scroll-area'
 import { BaseListItemRow } from '@/components/features/base-lists/base-list-item-row'
 import type { BaseListWithItems } from '@/features/base-lists/types'
 import PageHeader from '@/components/app/page-header'
 import BackLink from '@/components/app/back-link'
-import { PageContainer } from '@/components/app'
+import { PageContainer, PageFooterAction } from '@/components/app'
 
 export default async function EditBaseListPage({ params }: { params: Promise<{ baseListId: string }> }) {
 	const { baseListId } = await params
@@ -40,12 +38,9 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 	}
 
 	const baseListWithItems = baseList as BaseListWithItems
-
 	const totalItems = baseListWithItems.items ? baseListWithItems.items.length : 0
-
 	// Get group info for breadcrumb
 	const { data: group } = await supabase.from('groups').select('id, name').eq('id', baseListWithItems.group_id).single()
-
 	// Check if this base list is being used in an active shopping run
 	const { data: activeRun } = await supabase
 		.from('shopping_runs')
@@ -54,7 +49,6 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 		.eq('base_list_id', baseListId)
 		.eq('status', 'active')
 		.maybeSingle()
-
 	// Check if user has any active shopping run
 	const { data: anyActiveRun } = await supabase
 		.from('shopping_runs')
@@ -63,8 +57,10 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 		.eq('status', 'active')
 		.maybeSingle()
 
+	// --- FLEX LAYOUT FOR HEADER/FOOTER/SCROLLABLE CONTENT ---
 	return (
-		<>
+		<div className='flex flex-col h-dvh'>
+			{/* Header (fixed by layout) */}
 			<PageHeader
 				title={baseListWithItems.name}
 				desc='Manage items in this base list'
@@ -83,61 +79,54 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 					)
 				}
 			/>
-			<PageContainer>
-				<BackLink
-					href={`/shopping-lists/${baseListWithItems.group_id}/lists`}
-					label={`Back to ${group?.name || 'Shopping Lists'}`}
-				/>
-
-				<Card
-					className='w-full max-w-3xl m-auto h-dvh md:h-[calc(100dvh-10rem)] flex flex-col'
-					size='sm'
-				>
-					<CardHeader>
-						<div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 w-full'>
-							<div className=' w-full flex justify-between items-center'>
-								<CardTitle>List Items</CardTitle>
-								<div className='text-sm text-primary font-medium mt-1 sm:mt-0'>{totalItems} items</div>
-							</div>
-						</div>
-					</CardHeader>
-					<CardContent className='flex-1 min-h-0'>
-						<ScrollArea className='h-full min-h-0 space-y-4 touch-pan-y overscroll-contain'>
-							{!baseListWithItems.items || baseListWithItems.items.length === 0 ? (
-								<div className='flex flex-col items-center justify-center py-12 text-center'>
-									<HugeiconsIcon
-										icon={PlusSignIcon}
-										strokeWidth={1.5}
-										className='mb-4 h-10 w-10 text-muted-foreground'
-									/>
-									<h3 className='text-lg font-medium'>No items yet</h3>
-									<p className='mt-1 text-sm text-muted-foreground'>
-										Add your first item using the form below to start building this list.
-									</p>
-								</div>
-							) : (
-								<div className='space-y-2'>
-									{baseListWithItems.items
-										.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
-										.map(item => (
-											<BaseListItemRow
-												key={item.id}
-												item={item}
-												isLocked={!!activeRun}
-											/>
-										))}
-								</div>
-							)}
-						</ScrollArea>
-					</CardContent>
-					<CardFooter className='sticky bottom-0 z-10 bg-card/80 backdrop-blur px-4 sm:px-6'>
-						<AddItemForm
-							baseListId={baseListId}
-							isLocked={!!activeRun}
+			{/* Main scrollable area */}
+			<div className='flex-1 min-h-0 flex flex-col'>
+				<PageContainer>
+					<div className='w-full flex justify-between mb-0'>
+						<BackLink
+							href={`/shopping-lists/${baseListWithItems.group_id}/lists`}
+							label={`Back to ${group?.name || 'Shopping Lists'}`}
 						/>
-					</CardFooter>
-				</Card>
-			</PageContainer>
-		</>
+
+						<span className='text-primary font-medium'>{totalItems} Items</span>
+					</div>
+					<ScrollArea className='h-full min-h-0 sm:px-6 touch-pan-y overscroll-contain'>
+						{!baseListWithItems.items || baseListWithItems.items.length === 0 ? (
+							<div className='flex flex-col items-center justify-center py-12 text-center'>
+								<HugeiconsIcon
+									icon={PlusSignIcon}
+									strokeWidth={1.5}
+									className='mb-4 h-10 w-10 text-muted-foreground'
+								/>
+								<h3 className='text-lg font-medium'>No items yet</h3>
+								<p className='mt-1 text-sm text-muted-foreground'>
+									Add your first item using the form below to start building this list.
+								</p>
+							</div>
+						) : (
+							<div className='space-y-2'>
+								{baseListWithItems.items
+									.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+									.map(item => (
+										<BaseListItemRow
+											key={item.id}
+											item={item}
+											isLocked={!!activeRun}
+										/>
+									))}
+							</div>
+						)}
+					</ScrollArea>
+				</PageContainer>
+			</div>
+
+			<PageFooterAction>
+				<AddItemDialogBaseList
+					context='base-list'
+					baseListId={baseListId}
+					isLocked={!!activeRun}
+				/>
+			</PageFooterAction>
+		</div>
 	)
 }

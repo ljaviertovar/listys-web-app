@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { HugeiconsIcon } from '@hugeicons/react'
 
-import { PageHeader, PageContainer } from '@/components/app'
+import { PageHeader, PageContainer, PageFooterAction } from '@/components/app'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { UploadTicketDialog } from '@/components/features/tickets/upload-ticket-dialog'
 import { Badge } from '@/components/ui/badge'
@@ -31,9 +31,8 @@ export default async function TicketsPage() {
 			<PageHeader
 				title='Tickets'
 				desc='Upload and manage your shopping receipts'
-			>
-				<UploadTicketDialog />
-			</PageHeader>
+			/>
+
 			<PageContainer>
 				{error && (
 					<div className='rounded-lg bg-destructive/10 p-4 text-sm text-destructive'>
@@ -133,6 +132,10 @@ export default async function TicketsPage() {
 					</div>
 				)}
 			</PageContainer>
+
+			<PageFooterAction>
+				<UploadTicketDialog />
+			</PageFooterAction>
 		</>
 	)
 }

@@ -94,7 +94,7 @@ export function CreateBaseListDialog({ groupId }: Props) {
 								{...register('name')}
 								placeholder='e.g., Weekly Groceries, Monthly Supplies'
 								disabled={loading}
-								className='text-sm'
+								className='text-base'
 							/>
 							{errors.name && <p className='text-sm text-destructive'>{errors.name.message}</p>}
 						</div>

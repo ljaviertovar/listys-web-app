@@ -109,6 +109,7 @@ export function UploadTicketForm({ onSuccess }: Props) {
 					{...register('store_name')}
 					placeholder='e.g. Walmart, Grocery Store'
 					disabled={loading}
+					className='text-base'
 				/>
 				{errors.store_name && <p className='text-sm text-destructive'>{errors.store_name.message}</p>}
 			</div>

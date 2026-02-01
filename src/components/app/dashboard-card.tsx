@@ -16,7 +16,7 @@ export function DashboardCard({ href, icon, title, description, count }: Props) 
 	return (
 		<Card className='hover:border-primary/50 hover:shadow-lg relative overflow-hidden transition-all duration-300 cursor-pointer group'>
 			<Link href={href}>
-				<div className='absolute inset-0 bg-linear-to-r from-primary/5 to-transparent opacity-100 transition-opacity duration-300'></div>
+				<div className='absolute inset-0 bg-linear-to-r from-primary/10 to-transparent opacity-100 transition-opacity duration-300'></div>
 				<CardHeader>
 					<div className='flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10'>
 						<div className='flex h-8 w-8 items-center justify-center rounded-lg bg-primary'>

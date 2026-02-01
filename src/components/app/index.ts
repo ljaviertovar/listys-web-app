@@ -5,3 +5,4 @@ export { default as PageHeader } from './page-header';
 export * from './sidebar';
 export { default as ActiveShopping } from './active-shopping';
 export { DashboardCard } from './dashboard-card';
+export { default as PageFooterAction } from './page-footer-action';

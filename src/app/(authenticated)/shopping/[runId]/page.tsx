@@ -10,7 +10,7 @@ import Link from 'next/link'
 import { ShoppingRunItemRow } from '@/components/features/shopping-runs/shopping-run-item-row'
 import { CompleteRunButton } from '@/components/features/shopping-runs/complete-run-button'
 import { CompleteRunAlert } from '@/components/features/shopping-runs/complete-run-alert'
-import { AddItemDialog } from '@/components/features/shopping-runs/add-item-dialog'
+import { AddItemDialogBaseList } from '@/components/app/add-item-dialog-base-list'
 import { CancelRunButton } from '@/components/features/shopping-runs/cancel-run-button'
 import type { ShoppingRunWithItems } from '@/features/shopping-runs/types'
 import PageHeader from '@/components/app/page-header'
@@ -124,7 +124,10 @@ export default async function ShoppingRunPage({ params }: { params: Promise<{ ru
 
 				{!isCompleted && (
 					<>
-						<AddItemDialog runId={runId} />
+						<AddItemDialogBaseList
+							context='shopping-run'
+							runId={runId}
+						/>
 						<CompleteRunAlert
 							runId={runId}
 							progress={progress}

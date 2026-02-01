@@ -56,6 +56,7 @@ export function CreateShoppingRunForm({ baseListId, defaultName }: Props) {
 					placeholder='Enter shopping run name'
 					required
 					disabled={loading}
+					className='text-base'
 				/>
 			</div>
 
