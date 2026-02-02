@@ -4,20 +4,20 @@ import { DashboardCard, PageHeader, PageContainer, ActiveShopping } from '@/comp
 
 import { getGroups } from '@/actions/shopping-lists'
 import { getTickets } from '@/actions/tickets'
-import { getActiveShoppingRun, getShoppingHistory } from '@/actions/shopping-runs'
+import { getActiveShoppingSession, getShoppingHistory } from '@/actions/shopping-sessions'
 
 export default async function DashboardPage() {
-	const activeRunResult = await getActiveShoppingRun()
+	const activeSessionResult = await getActiveShoppingSession()
 	const groupsResult = await getGroups()
 	const historyResult = await getShoppingHistory()
 	const ticketsResult = await getTickets()
 
-	const activeRun = activeRunResult.data
+	const activeSession = activeSessionResult.data
 	const groups = groupsResult.data || []
 	const historyCount = historyResult.data?.length || 0
 	const ticketsCount = ticketsResult.data?.length || 0
 
-	console.log('Dashboard data:', { activeRun, groups, historyCount })
+	console.log('Dashboard data:', { activeSession, groups, historyCount })
 
 	return (
 		<>
@@ -26,10 +26,10 @@ export default async function DashboardPage() {
 				desc='Overview of your shopping activity'
 			/>
 			<PageContainer>
-				{/* Active Shopping Run */}
-				{activeRun && (
+				{/* Active Shopping Session */}
+				{activeSession && (
 					<ActiveShopping
-						activeShopping={activeRun}
+						activeShopping={activeSession}
 						dashboard
 					/>
 				)}

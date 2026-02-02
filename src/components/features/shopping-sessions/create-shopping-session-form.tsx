@@ -5,14 +5,14 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { createShoppingRun } from '@/actions/shopping-runs'
+import { createShoppingSession } from '@/actions/shopping-sessions'
 
 interface Props {
 	baseListId: string
 	defaultName: string
 }
 
-export function CreateShoppingRunForm({ baseListId, defaultName }: Props) {
+export function CreateShoppingSessionForm({ baseListId, defaultName }: Props) {
 	const [name, setName] = useState(defaultName)
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState('')
@@ -24,17 +24,17 @@ export function CreateShoppingRunForm({ baseListId, defaultName }: Props) {
 		setLoading(true)
 
 		try {
-			const { data, error: createError } = await createShoppingRun({
+			const { data, error: createError } = await createShoppingSession({
 				base_list_id: baseListId,
 				name,
 			})
 
 			if (createError) throw new Error(createError)
-			if (!data) throw new Error('Failed to create shopping run')
+			if (!data) throw new Error('Failed to create shopping session')
 
 			router.push(`/shopping/${data.id}`)
 		} catch (err) {
-			setError(err instanceof Error ? err.message : 'Failed to create shopping run')
+			setError(err instanceof Error ? err.message : 'Failed to create shopping session')
 		} finally {
 			setLoading(false)
 		}
@@ -48,12 +48,12 @@ export function CreateShoppingRunForm({ baseListId, defaultName }: Props) {
 			{error && <div className='rounded-lg bg-destructive/10 p-3 text-sm text-destructive'>{error}</div>}
 
 			<div className='space-y-2'>
-				<Label htmlFor='name'>Shopping Run Name</Label>
+				<Label htmlFor='name'>Shopping Session Name</Label>
 				<Input
 					id='name'
 					value={name}
 					onChange={e => setName(e.target.value)}
-					placeholder='Enter shopping run name'
+					placeholder='Enter shopping session name'
 					required
 					disabled={loading}
 					className='text-base'

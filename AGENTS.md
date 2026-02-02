@@ -661,7 +661,7 @@ docs(readme): add Mermaid diagrams for system architecture
 
 Use domain/feature names:
 
-- Feature domains: `tickets`, `lists`, `groups`, `shopping-runs`, `auth`
+- Feature domains: `tickets`, `lists`, `groups`, `shopping-sessions`, `auth`
 - Infrastructure: `storage`, `database`, `api`
 - Core systems: `validation`, `limits`, `config`
 - UI layers: `ui`, `components`, `layout`

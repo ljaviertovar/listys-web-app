@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge'
 import { ListViewIcon, ShoppingCart02Icon, Edit02Icon, Delete02Icon, Loading03Icon } from '@hugeicons/core-free-icons'
 
 import { deleteBaseList } from '@/actions/base-lists'
-import { createShoppingRun } from '@/actions/shopping-runs'
+import { createShoppingSession } from '@/actions/shopping-sessions'
 
 import type { BaseListWithCount } from '@/features/base-lists/types'
 
@@ -58,12 +58,12 @@ export function BaseListCard({ baseList, hasActiveRun = false, isActiveRun = fal
 	const handleStartRun = async () => {
 		setStartingRun(true)
 		try {
-			const result = await createShoppingRun({
+			const result = await createShoppingSession({
 				base_list_id: baseList.id,
 				name: baseList.name,
 			})
 
-			// If there's an active run, redirect to it
+			// If there's an active session, redirect to it
 			if (result.error) {
 				const resultWithId = result as { error: string; activeRunId?: string }
 				if (resultWithId.activeRunId) {
@@ -71,19 +71,19 @@ export function BaseListCard({ baseList, hasActiveRun = false, isActiveRun = fal
 					return
 				}
 				// Show error message to user
-				toast.error('Cannot start shopping run', {
+				toast.error('Cannot start shopping session', {
 					description: result.error,
 				})
 				return
 			}
 
-			if (!result.data) throw new Error('Failed to create shopping run')
+			if (!result.data) throw new Error('Failed to create shopping session')
 
 			router.push(`/shopping/${result.data.id}`)
 		} catch (err) {
-			console.error('Failed to start shopping run:', err)
+			console.error('Failed to start shopping session:', err)
 			toast.error('Error', {
-				description: 'Failed to start shopping run. Please try again.',
+				description: 'Failed to start shopping session. Please try again.',
 			})
 		} finally {
 			setStartingRun(false)

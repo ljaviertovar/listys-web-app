@@ -28,7 +28,7 @@ export default async function HistoryPage() {
 		<>
 			<PageHeader
 				title='Shopping History'
-				desc='View your past shopping runs by group'
+				desc='View your past shopping sessions by group'
 			/>
 
 			<PageContainer>

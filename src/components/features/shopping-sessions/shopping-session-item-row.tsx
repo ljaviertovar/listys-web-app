@@ -5,32 +5,36 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Card, CardContent } from '@/components/ui/card'
-import { toggleShoppingRunItem, updateShoppingRunItem, deleteShoppingRunItem } from '@/actions/shopping-runs'
-import type { ShoppingRunItem } from '@/features/shopping-runs/types'
+import {
+	toggleShoppingSessionItem,
+	updateShoppingSessionItem,
+	deleteShoppingSessionItem,
+} from '@/actions/shopping-sessions'
+import type { ShoppingSessionItem } from '@/features/shopping-sessions/types'
 import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
 import { ActionsItemFormBaseList } from '@/components/app/actions-item-form-base-list'
 
 interface Props {
-	item: ShoppingRunItem
+	item: ShoppingSessionItem
 	isCompleted?: boolean
 }
 
-export function ShoppingRunItemRow({ item, isCompleted = false }: Props) {
+export function ShoppingSessionItemRow({ item, isCompleted = false }: Props) {
 	const [checked, setChecked] = useState(item.checked)
 	const [loading, setLoading] = useState(false)
 	const [editing, setEditing] = useState(false)
 	const router = useRouter()
 
 	const handleToggle = async () => {
-		if (isCompleted) return // Don't allow toggling completed runs
+		if (isCompleted) return // Don't allow toggling completed sessions
 
 		const newChecked = !checked
 		setChecked(newChecked) // Optimistic update
 		setLoading(true)
 
 		try {
-			const { error } = await toggleShoppingRunItem(item.id, newChecked)
+			const { error } = await toggleShoppingSessionItem(item.id, newChecked)
 			if (error) throw new Error(error)
 			router.refresh()
 		} catch (err) {
@@ -42,11 +46,11 @@ export function ShoppingRunItemRow({ item, isCompleted = false }: Props) {
 	}
 
 	const handleUpdate = async (id: string, data: { name: string; quantity: number }) => {
-		return await updateShoppingRunItem(id, data)
+		return await updateShoppingSessionItem(id, data)
 	}
 
 	const handleDelete = async (id: string) => {
-		return await deleteShoppingRunItem(id)
+		return await deleteShoppingSessionItem(id)
 	}
 
 	const handleCardClick = () => {

@@ -1,14 +1,14 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { getShoppingRun } from '@/actions/shopping-runs'
+import { getShoppingSession } from '@/actions/shopping-sessions'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { CheckmarkCircle02Icon } from '@hugeicons/core-free-icons'
-import { ShoppingRunItemRow } from '@/components/features/shopping-runs/shopping-run-item-row'
-import { CompleteRunButton } from '@/components/features/shopping-runs/complete-run-button'
-import { CompleteRunAlert } from '@/components/features/shopping-runs/complete-run-alert'
+import { ShoppingSessionItemRow } from '@/components/features/shopping-sessions/shopping-session-item-row'
+import { CompleteSessionButton } from '@/components/features/shopping-sessions/complete-session-button'
+import { CompleteSessionAlert } from '@/components/features/shopping-sessions/complete-session-alert'
 import { AddItemDialogBaseList } from '@/components/app/add-item-dialog-base-list'
-import { CancelRunButton } from '@/components/features/shopping-runs/cancel-run-button'
-import type { ShoppingRunWithItems } from '@/features/shopping-runs/types'
+import { CancelSessionButton } from '@/components/features/shopping-sessions/cancel-session-button'
+import type { ShoppingSessionWithItems } from '@/features/shopping-sessions/types'
 import PageHeader from '@/components/app/page-header'
 import BackLink from '@/components/app/back-link'
 import { formatDate, formatTime } from '@/utils/format-date'
@@ -27,13 +27,13 @@ export default async function ShoppingRunPage({ params }: { params: Promise<{ ru
 		redirect('/auth/signin')
 	}
 
-	const { data: shoppingRun, error } = await getShoppingRun(runId)
+	const { data: shoppingSession, error } = await getShoppingSession(runId)
 
-	if (error || !shoppingRun) {
+	if (error || !shoppingSession) {
 		redirect('/dashboard')
 	}
 
-	const runWithItems = shoppingRun as ShoppingRunWithItems
+	const runWithItems = shoppingSession as ShoppingSessionWithItems
 	const isCompleted = runWithItems.status === 'completed'
 
 	// Sort items: unchecked first, then by category and sort_order
@@ -54,7 +54,7 @@ export default async function ShoppingRunPage({ params }: { params: Promise<{ ru
 				desc={
 					isCompleted
 						? `Completed on ${formatDate(new Date(runWithItems.completed_at!))} at ${formatTime(new Date(runWithItems.completed_at!))}`
-						: `${checkedCount} of ${totalCount} items (${progress}%)`
+						: `Shopping Session — ${checkedCount} of ${totalCount} items (${progress}%)`
 				}
 			/>
 
@@ -86,7 +86,7 @@ export default async function ShoppingRunPage({ params }: { params: Promise<{ ru
 				<ScrollArea className='h-full min-h-0 sm:px-6 touch-pan-y overscroll-contain'>
 					<div className='space-y-2'>
 						{sortedItems.map(item => (
-							<ShoppingRunItemRow
+							<ShoppingSessionItemRow
 								key={item.id}
 								item={item}
 								isCompleted={isCompleted}
@@ -100,9 +100,9 @@ export default async function ShoppingRunPage({ params }: { params: Promise<{ ru
 				<div className='w-full flex flex-col gap-2'>
 					{!isCompleted && (
 						<div className='w-full flex items-center gap-2'>
-							<CancelRunButton runId={runId} />
-							<CompleteRunButton
-								runId={runId}
+							<CancelSessionButton sessionId={runId} />
+							<CompleteSessionButton
+								sessionId={runId}
 								progress={progress}
 								items={runWithItems.items}
 							/>
@@ -112,13 +112,13 @@ export default async function ShoppingRunPage({ params }: { params: Promise<{ ru
 					{!isCompleted && (
 						<>
 							<AddItemDialogBaseList
-								context='shopping-run'
-								runId={runId}
+								context='shopping-session'
+								sessionId={runId}
 							/>
-							<CompleteRunAlert
+							<CompleteSessionAlert
 								title='🎉 All items checked!'
-								description='You have checked all items in your shopping list. Would you like to complete this shopping run?'
-								runId={runId}
+								description='You have checked all items in your shopping list. Would you like to complete this shopping session?'
+								sessionId={runId}
 								progress={progress}
 							/>
 						</>

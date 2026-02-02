@@ -17,13 +17,13 @@ import {
 } from '@/components/ui/alert-dialog'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Cancel01Icon, Delete02Icon, Loading03Icon } from '@hugeicons/core-free-icons'
-import { cancelShoppingRun } from '@/actions/shopping-runs'
+import { cancelShoppingSession } from '@/actions/shopping-sessions'
 
 interface Props {
-	runId: string
+	sessionId: string
 }
 
-export function CancelRunButton({ runId }: Props) {
+export function CancelSessionButton({ sessionId }: Props) {
 	const [loading, setLoading] = useState(false)
 	const [open, setOpen] = useState(false)
 	const router = useRouter()
@@ -31,11 +31,11 @@ export function CancelRunButton({ runId }: Props) {
 	const handleCancel = async () => {
 		setLoading(true)
 		try {
-			const { error } = await cancelShoppingRun(runId)
+			const { error } = await cancelShoppingSession(sessionId)
 			if (error) throw new Error(error)
 			router.push('/dashboard')
 		} catch (err) {
-			console.error('Failed to cancel run:', err)
+			console.error('Failed to cancel session:', err)
 			setLoading(false)
 			setOpen(false)
 		}

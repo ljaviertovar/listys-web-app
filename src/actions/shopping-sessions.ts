@@ -2,16 +2,16 @@
 
 import { createClient } from '@/lib/supabase/server'
 import {
-  createShoppingRunSchema,
-  updateShoppingRunSchema,
-  completeShoppingRunSchema,
-  updateShoppingRunItemSchema,
-  createShoppingRunItemSchema,
-} from '@/lib/validations/shopping-run'
+  createShoppingSessionSchema,
+  updateShoppingSessionSchema,
+  completeShoppingSessionSchema,
+  updateShoppingSessionItemSchema,
+  createShoppingSessionItemSchema,
+} from '@/lib/validations/shopping-session'
 import { MAX_ITEMS_PER_BASE_LIST } from '@/lib/config/limits'
 import { revalidatePath } from 'next/cache'
 
-export async function createShoppingRun(data: unknown) {
+export async function createShoppingSession(data: unknown) {
   const supabase = await createClient()
 
   const {
@@ -22,23 +22,23 @@ export async function createShoppingRun(data: unknown) {
     return { error: 'Unauthorized' }
   }
 
-  const validation = createShoppingRunSchema.safeParse(data)
+  const validation = createShoppingSessionSchema.safeParse(data)
   if (!validation.success) {
     return { error: validation.error.issues[0].message }
   }
 
-  // Check if user already has an active shopping run
-  const { data: existingRun, error: checkError } = await supabase
-    .from('shopping_runs')
+  // Check if user already has an active shopping session
+  const { data: existingSession, error: checkError } = await supabase
+    .from('shopping_sessions')
     .select('id')
     .eq('user_id', user.id)
     .eq('status', 'active')
     .maybeSingle()
 
-  if (existingRun) {
+  if (existingSession) {
     return {
       error: 'You already have an active shopping run. Please complete or cancel it before starting a new one.',
-      activeRunId: existingRun.id
+      activeSessionId: existingSession.id
     }
   }
 
@@ -62,9 +62,9 @@ export async function createShoppingRun(data: unknown) {
     return { error: 'Cannot create shopping run from an empty base list. Please add items to your base list first.' }
   }
 
-  // Create shopping run
-  const { data: shoppingRun, error: runError } = await supabase
-    .from('shopping_runs')
+  // Create shopping session
+  const { data: shoppingSession, error: sessionError } = await supabase
+    .from('shopping_sessions')
     .insert({
       user_id: user.id,
       ...validation.data,
@@ -73,14 +73,14 @@ export async function createShoppingRun(data: unknown) {
     .select()
     .single()
 
-  if (runError) {
-    return { error: runError.message }
+  if (sessionError) {
+    return { error: sessionError.message }
   }
 
   // Copy items from base list
   if (baseList.items && baseList.items.length > 0) {
     const items = baseList.items.map((item: any) => ({
-      shopping_run_id: shoppingRun.id,
+      shopping_session_id: shoppingSession.id,
       name: item.name,
       quantity: item.quantity,
       unit: item.unit,
@@ -91,7 +91,7 @@ export async function createShoppingRun(data: unknown) {
     }))
 
     const { error: itemsError } = await supabase
-      .from('shopping_run_items')
+      .from('shopping_session_items')
       .insert(items)
 
     if (itemsError) {
@@ -101,10 +101,10 @@ export async function createShoppingRun(data: unknown) {
 
   revalidatePath('/dashboard')
   revalidatePath('/shopping')
-  return { data: shoppingRun }
+  return { data: shoppingSession }
 }
 
-export async function updateShoppingRun(id: string, data: unknown) {
+export async function updateShoppingSession(id: string, data: unknown) {
   const supabase = await createClient()
 
   const {
@@ -115,13 +115,13 @@ export async function updateShoppingRun(id: string, data: unknown) {
     return { error: 'Unauthorized' }
   }
 
-  const validation = updateShoppingRunSchema.safeParse(data)
+  const validation = updateShoppingSessionSchema.safeParse(data)
   if (!validation.success) {
     return { error: validation.error.issues[0].message }
   }
 
-  const { data: shoppingRun, error } = await supabase
-    .from('shopping_runs')
+  const { data: shoppingSession, error } = await supabase
+    .from('shopping_sessions')
     .update(validation.data)
     .eq('id', id)
     .eq('user_id', user.id)
@@ -134,10 +134,10 @@ export async function updateShoppingRun(id: string, data: unknown) {
 
   revalidatePath(`/shopping/${id}`)
   revalidatePath('/dashboard')
-  return { data: shoppingRun }
+  return { data: shoppingSession }
 }
 
-export async function completeShoppingRun(id: string, data: unknown) {
+export async function completeShoppingSession(id: string, data: unknown) {
   const supabase = await createClient()
 
   const {
@@ -148,29 +148,29 @@ export async function completeShoppingRun(id: string, data: unknown) {
     return { error: 'Unauthorized' }
   }
 
-  const validation = completeShoppingRunSchema.safeParse(data)
+  const validation = completeShoppingSessionSchema.safeParse(data)
   if (!validation.success) {
     return { error: validation.error.issues[0].message }
   }
 
-  // Get shopping run with items
-  const { data: shoppingRun, error: runError } = await supabase
-    .from('shopping_runs')
+  // Get shopping session with items
+  const { data: shoppingSession, error: sessionError } = await supabase
+    .from('shopping_sessions')
     .select(`
       *,
-      items:shopping_run_items(*)
+      items:shopping_session_items(*)
     `)
     .eq('id', id)
     .eq('user_id', user.id)
     .single()
 
-  if (runError || !shoppingRun) {
+  if (sessionError || !shoppingSession) {
     return { error: 'Shopping run not found' }
   }
 
-  // Update shopping run status
+  // Update shopping session status
   const { error: updateError } = await supabase
-    .from('shopping_runs')
+    .from('shopping_sessions')
     .update({
       status: 'completed',
       completed_at: new Date().toISOString(),
@@ -184,11 +184,11 @@ export async function completeShoppingRun(id: string, data: unknown) {
   }
 
   // Sync to base list if requested
-  if (validation.data.sync_to_base && shoppingRun.items) {
-    const { error: syncError } = await syncRunToBaseList(
+  if (validation.data.sync_to_base && shoppingSession.items) {
+    const { error: syncError } = await syncSessionToBaseList(
       supabase,
-      shoppingRun.base_list_id,
-      shoppingRun.items
+      shoppingSession.base_list_id,
+      shoppingSession.items
     )
 
     if (syncError) {
@@ -202,14 +202,14 @@ export async function completeShoppingRun(id: string, data: unknown) {
   return { success: true }
 }
 
-async function syncRunToBaseList(
+async function syncSessionToBaseList(
   supabase: any,
   baseListId: string,
-  runItems: any[]
+  sessionItems: any[]
 ) {
   // Safety check: Prevent DoS from excessive items
   const MAX_SYNC_ITEMS = 500
-  if (runItems.length > MAX_SYNC_ITEMS) {
+  if (sessionItems.length > MAX_SYNC_ITEMS) {
     return { error: `Cannot sync more than ${MAX_SYNC_ITEMS} items. Please reduce the number of items.` }
   }
 
@@ -231,28 +231,28 @@ async function syncRunToBaseList(
   const itemsToUpdate: any[] = []
   const itemsToInsert: any[] = []
 
-  runItems.forEach((runItem) => {
-    const existing = existingItems.get(runItem.name.toLowerCase())
+  sessionItems.forEach((sessionItem) => {
+    const existing = existingItems.get(sessionItem.name.toLowerCase())
 
     if (existing) {
       // Update existing item
       itemsToUpdate.push({
         id: existing.id,
-        quantity: runItem.quantity,
-        unit: runItem.unit,
-        notes: runItem.notes,
-        category: runItem.category,
+        quantity: sessionItem.quantity,
+        unit: sessionItem.unit,
+        notes: sessionItem.notes,
+        category: sessionItem.category,
       })
     } else {
       // Insert new item
       itemsToInsert.push({
         base_list_id: baseListId,
-        name: runItem.name,
-        quantity: runItem.quantity,
-        unit: runItem.unit,
-        notes: runItem.notes,
-        category: runItem.category,
-        sort_order: runItem.sort_order,
+        name: sessionItem.name,
+        quantity: sessionItem.quantity,
+        unit: sessionItem.unit,
+        notes: sessionItem.notes,
+        category: sessionItem.category,
+        sort_order: sessionItem.sort_order,
       })
     }
   })
@@ -298,7 +298,7 @@ async function syncRunToBaseList(
   return { success: true }
 }
 
-export async function getActiveShoppingRun() {
+export async function getActiveShoppingSession() {
   const supabase = await createClient()
 
   const {
@@ -309,11 +309,11 @@ export async function getActiveShoppingRun() {
     return { error: 'Unauthorized' }
   }
 
-  const { data: shoppingRun, error } = await supabase
-    .from('shopping_runs')
+  const { data: shoppingSession, error } = await supabase
+    .from('shopping_sessions')
     .select(`
       *,
-      items:shopping_run_items(*),
+      items:shopping_session_items(*),
       base_list:base_lists(*)
     `)
     .eq('user_id', user.id)
@@ -326,10 +326,10 @@ export async function getActiveShoppingRun() {
     return { error: error.message }
   }
 
-  return { data: shoppingRun }
+  return { data: shoppingSession }
 }
 
-export async function getShoppingRun(id: string) {
+export async function getShoppingSession(id: string) {
   const supabase = await createClient()
 
   const {
@@ -340,11 +340,11 @@ export async function getShoppingRun(id: string) {
     return { error: 'Unauthorized' }
   }
 
-  const { data: shoppingRun, error } = await supabase
-    .from('shopping_runs')
+  const { data: shoppingSession, error } = await supabase
+    .from('shopping_sessions')
     .select(`
       *,
-      items:shopping_run_items(*),
+      items:shopping_session_items(*),
       base_list:base_lists(*)
     `)
     .eq('id', id)
@@ -355,7 +355,7 @@ export async function getShoppingRun(id: string) {
     return { error: error.message }
   }
 
-  return { data: shoppingRun }
+  return { data: shoppingSession }
 }
 
 export async function getShoppingHistory() {
@@ -369,8 +369,8 @@ export async function getShoppingHistory() {
     return { error: 'Unauthorized' }
   }
 
-  const { data: runs, error } = await supabase
-    .from('shopping_runs')
+  const { data: sessions, error } = await supabase
+    .from('shopping_sessions')
     .select(`
       *,
       base_list:base_lists(
@@ -390,11 +390,11 @@ export async function getShoppingHistory() {
     return { error: error.message }
   }
 
-  return { data: runs }
+  return { data: sessions }
 }
 
-// Shopping Run Items
-export async function updateShoppingRunItem(id: string, data: unknown) {
+// Shopping Session Items
+export async function updateShoppingSessionItem(id: string, data: unknown) {
   const supabase = await createClient()
 
   const {
@@ -405,13 +405,13 @@ export async function updateShoppingRunItem(id: string, data: unknown) {
     return { error: 'Unauthorized' }
   }
 
-  const validation = updateShoppingRunItemSchema.safeParse(data)
+  const validation = updateShoppingSessionItemSchema.safeParse(data)
   if (!validation.success) {
     return { error: validation.error.issues[0].message }
   }
 
   const { data: item, error } = await supabase
-    .from('shopping_run_items')
+    .from('shopping_session_items')
     .update(validation.data)
     .eq('id', id)
     .select()
@@ -425,11 +425,11 @@ export async function updateShoppingRunItem(id: string, data: unknown) {
   return { data: item }
 }
 
-export async function toggleShoppingRunItem(id: string, checked: boolean) {
-  return updateShoppingRunItem(id, { checked })
+export async function toggleShoppingSessionItem(id: string, checked: boolean) {
+  return updateShoppingSessionItem(id, { checked })
 }
 
-export async function createShoppingRunItem(data: unknown) {
+export async function createShoppingSessionItem(data: unknown) {
   const supabase = await createClient()
 
   const {
@@ -440,23 +440,23 @@ export async function createShoppingRunItem(data: unknown) {
     return { error: 'Unauthorized' }
   }
 
-  const validation = createShoppingRunItemSchema.safeParse(data)
+  const validation = createShoppingSessionItemSchema.safeParse(data)
   if (!validation.success) {
     return { error: validation.error.issues[0].message }
   }
 
-  // Get the max sort_order for this shopping run
+  // Get the max sort_order for this shopping session
   const { data: existingItems } = await supabase
-    .from('shopping_run_items')
+    .from('shopping_session_items')
     .select('sort_order')
-    .eq('shopping_run_id', validation.data.shopping_run_id)
+    .eq('shopping_session_id', validation.data.shopping_session_id)
     .order('sort_order', { ascending: false })
     .limit(1)
 
   const nextSortOrder = existingItems?.[0]?.sort_order ? existingItems[0].sort_order + 1 : 0
 
   const { data: item, error } = await supabase
-    .from('shopping_run_items')
+    .from('shopping_session_items')
     .insert({
       ...validation.data,
       sort_order: nextSortOrder,
@@ -469,11 +469,11 @@ export async function createShoppingRunItem(data: unknown) {
     return { error: error.message }
   }
 
-  revalidatePath(`/shopping/${validation.data.shopping_run_id}`)
+  revalidatePath(`/shopping/${validation.data.shopping_session_id}`)
   return { data: item }
 }
 
-export async function deleteShoppingRunItem(id: string) {
+export async function deleteShoppingSessionItem(id: string) {
   const supabase = await createClient()
 
   const {
@@ -485,7 +485,7 @@ export async function deleteShoppingRunItem(id: string) {
   }
 
   const { error } = await supabase
-    .from('shopping_run_items')
+    .from('shopping_session_items')
     .delete()
     .eq('id', id)
 
@@ -496,7 +496,7 @@ export async function deleteShoppingRunItem(id: string) {
   return { success: true }
 }
 
-export async function cancelShoppingRun(id: string) {
+export async function cancelShoppingSession(id: string) {
   const supabase = await createClient()
 
   const {
@@ -507,9 +507,9 @@ export async function cancelShoppingRun(id: string) {
     return { error: 'Unauthorized' }
   }
 
-  // Delete shopping run (items will be deleted via CASCADE)
+  // Delete shopping session (items will be deleted via CASCADE)
   const { error } = await supabase
-    .from('shopping_runs')
+    .from('shopping_sessions')
     .delete()
     .eq('id', id)
     .eq('user_id', user.id)

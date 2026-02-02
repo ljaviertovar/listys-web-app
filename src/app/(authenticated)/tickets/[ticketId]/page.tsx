@@ -42,7 +42,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 		baseListName = ticket.base_list.name
 	}
 
-	const createdAt = new Date(ticket.created_at)
+	const createdAt = ticket.created_at ? new Date(ticket.created_at) : new Date()
 
 	return (
 		<>
@@ -103,7 +103,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 												: 'pending'
 								}
 							>
-								{ticket.ocr_status.charAt(0).toUpperCase() + ticket.ocr_status.slice(1)}
+								{ticket.ocr_status ? ticket.ocr_status.charAt(0).toUpperCase() + ticket.ocr_status.slice(1) : 'Pending'}
 							</Badge>
 						</CardHeader>
 						<CardContent>

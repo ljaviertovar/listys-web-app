@@ -200,11 +200,10 @@ export async function getGroupsWithHistory() {
 
       if (baseListIds.length > 0) {
         const { count } = await supabase
-          .from('shopping_runs')
+          .from('shopping_sessions')
           .select('*', { count: 'exact', head: true })
           .in('base_list_id', baseListIds)
           .eq('status', 'completed')
-
         completedRunsCount = count ?? 0
       }
 

@@ -31,7 +31,7 @@ export default function ActiveShopping({ activeShopping, dashboard }: Props) {
 					<div>
 						<AlertTitle>Shopping in progress</AlertTitle>
 						<AlertDescription>
-							{dashboard ? activeShopping?.name : 'Complete your current shopping run before starting a new one.'}
+							{dashboard ? activeShopping?.name : 'Complete your current shopping session before starting a new one.'}
 						</AlertDescription>
 					</div>
 				</div>

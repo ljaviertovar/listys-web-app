@@ -14,16 +14,16 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
-import { completeShoppingRun } from '@/actions/shopping-runs'
+import { completeShoppingSession } from '@/actions/shopping-sessions'
 
 interface Props {
 	title: string
 	description: string
-	runId: string
+	sessionId: string
 	progress: number
 }
 
-export function CompleteRunAlert({ title, description, runId, progress }: Props) {
+export function CompleteSessionAlert({ title, description, sessionId, progress }: Props) {
 	const [open, setOpen] = useState(false)
 	const [loading, setLoading] = useState(false)
 	const [syncToBase, setSyncToBase] = useState(true)
@@ -38,14 +38,14 @@ export function CompleteRunAlert({ title, description, runId, progress }: Props)
 	const handleComplete = async () => {
 		setLoading(true)
 		try {
-			const { error } = await completeShoppingRun(runId, {
+			const { error } = await completeShoppingSession(sessionId, {
 				sync_to_base: syncToBase,
 			})
 			if (error) throw new Error(error)
 			router.push('/dashboard')
 			router.refresh()
 		} catch (err) {
-			console.error('Failed to complete run:', err)
+			console.error('Failed to complete session:', err)
 		} finally {
 			setLoading(false)
 		}
@@ -88,7 +88,7 @@ export function CompleteRunAlert({ title, description, runId, progress }: Props)
 						onClick={handleComplete}
 						disabled={loading}
 					>
-						{loading ? 'Completing...' : 'Complete Run'}
+						{loading ? 'Completing...' : 'Complete Session'}
 					</AlertDialogAction>
 				</AlertDialogFooter>
 			</AlertDialogContent>

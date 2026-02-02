@@ -1,12 +1,12 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { getShoppingHistory } from '@/actions/shopping-runs'
+import { getShoppingHistory } from '@/actions/shopping-sessions'
 import { getGroup } from '@/actions/shopping-lists'
 import { Card, CardContent } from '@/components/ui/card'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ShoppingBasket01Icon } from '@hugeicons/core-free-icons'
 import Link from 'next/link'
-import { HistoryRunCard } from '@/components/features/shopping-runs/history-run-card'
+import { HistorySessionCard } from '@/components/features/shopping-sessions/history-session-card'
 import PageHeader from '@/components/app/page-header'
 import BackLink from '@/components/app/back-link'
 import PageContainer from '@/components/app/page-container'
@@ -23,14 +23,14 @@ export default async function GroupHistoryPage({ params }: { params: Promise<{ g
 	}
 
 	const { data: group, error: groupError } = await getGroup(groupId)
-	const { data: allRuns, error: runsError } = await getShoppingHistory()
+	const { data: allSessions, error: sessionsError } = await getShoppingHistory()
 
 	if (groupError || !group) {
 		redirect('/history')
 	}
 
-	// Filter runs for this specific group
-	const runs = allRuns?.filter(run => run.base_list?.group?.id === groupId) || []
+	// Filter sessions for this specific group
+	const sessions = allSessions?.filter(session => session.base_list?.group?.id === groupId) || []
 
 	return (
 		<>
@@ -44,13 +44,13 @@ export default async function GroupHistoryPage({ params }: { params: Promise<{ g
 					label='Back to History'
 				/>
 
-				{runsError && (
+				{sessionsError && (
 					<div className='rounded-lg bg-destructive/10 p-4 text-sm text-destructive'>
-						Error loading history: {runsError}
+						Error loading history: {sessionsError}
 					</div>
 				)}
 
-				{runs.length === 0 ? (
+				{sessions.length === 0 ? (
 					<Card className='flex min-h-[400px] flex-col items-center justify-center'>
 						<CardContent className='flex flex-col items-center space-y-4 pt-6'>
 							<HugeiconsIcon
@@ -61,17 +61,17 @@ export default async function GroupHistoryPage({ params }: { params: Promise<{ g
 							<div className='text-center'>
 								<h3 className='text-lg font-semibold'>No shopping history yet</h3>
 								<p className='text-sm text-muted-foreground'>
-									Complete shopping runs from this group's lists to see them here
+									Complete shopping sessions from this group's lists to see them here
 								</p>
 							</div>
 						</CardContent>
 					</Card>
 				) : (
 					<div className='grid gap-4'>
-						{runs.map(run => (
-							<HistoryRunCard
-								key={run.id}
-								run={run}
+						{sessions.map(session => (
+							<HistorySessionCard
+								key={session.id}
+								session={session}
 							/>
 						))}
 					</div>

@@ -58,7 +58,7 @@ export default async function TicketsPage() {
 				) : (
 					<div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3'>
 						{tickets.map(ticket => {
-							const createdAt = new Date(ticket.created_at)
+							const createdAt = ticket.created_at ? new Date(ticket.created_at) : new Date()
 							const isMerged = !!ticket.base_list_id
 
 							return (
@@ -81,7 +81,9 @@ export default async function TicketsPage() {
 																	: 'pending'
 													}
 												>
-													{ticket.ocr_status.charAt(0).toUpperCase() + ticket.ocr_status.slice(1)}
+													{ticket.ocr_status
+														? ticket.ocr_status.charAt(0).toUpperCase() + ticket.ocr_status.slice(1)
+														: 'Pending'}
 												</Badge>
 											</div>
 											<div className='flex gap-2 items-center'>

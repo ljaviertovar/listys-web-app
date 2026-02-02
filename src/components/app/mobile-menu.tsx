@@ -32,7 +32,7 @@ export default function MobileMenu() {
 			if (!user) return
 
 			const { data: run } = await supabase
-				.from('shopping_runs')
+				.from('shopping_sessions')
 				.select('id, name')
 				.eq('user_id', user.id)
 				.eq('status', 'active')

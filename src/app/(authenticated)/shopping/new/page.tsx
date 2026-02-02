@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ShoppingCart02Icon } from '@hugeicons/core-free-icons'
 import Link from 'next/link'
-import { CreateShoppingRunForm } from '@/components/features/shopping-runs/create-shopping-run-form'
+import { CreateShoppingSessionForm } from '@/components/features/shopping-sessions/create-shopping-session-form'
 import PageHeader from '@/components/app/page-header'
 import BackLink from '@/components/app/back-link'
 import PageContainer from '@/components/app/page-container'
@@ -31,17 +31,17 @@ export default async function NewShoppingRunPage({ searchParams }: { searchParam
 		redirect('/shopping-lists')
 	}
 
-	// Check if there's already an active shopping run
-	const { data: activeRun, error: runError } = await supabase
-		.from('shopping_runs')
+	// Check if there's already an active shopping session
+	const { data: activeSession, error: sessionError } = await supabase
+		.from('shopping_sessions')
 		.select('id')
 		.eq('user_id', user.id)
 		.eq('status', 'active')
 		.single()
 
-	// If there's an active run, redirect to it
-	if (activeRun && !runError) {
-		redirect(`/shopping/${activeRun.id}`)
+	// If there's an active session, redirect to it
+	if (activeSession && !sessionError) {
+		redirect(`/shopping/${activeSession.id}`)
 	}
 
 	return (
@@ -65,10 +65,12 @@ export default async function NewShoppingRunPage({ searchParams }: { searchParam
 							/>
 							New Shopping Run
 						</CardTitle>
-						<CardDescription>This will copy all items from your base list to a new active shopping run</CardDescription>
+						<CardDescription>
+							This will copy all items from your base list to a new active shopping session
+						</CardDescription>
 					</CardHeader>
 					<CardContent>
-						<CreateShoppingRunForm
+						<CreateShoppingSessionForm
 							baseListId={baseListId}
 							defaultName={baseList.name}
 						/>

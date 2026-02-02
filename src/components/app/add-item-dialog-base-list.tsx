@@ -16,7 +16,7 @@ import { AddItemFormBaseList } from './add-item-form-base-list'
 
 type Props =
 	| { context: 'base-list'; baseListId: string; isLocked?: boolean }
-	| { context: 'shopping-run'; runId: string }
+	| { context: 'shopping-session'; sessionId: string }
 
 export function AddItemDialogBaseList(props: Props) {
 	const [open, setOpen] = useState(false)
@@ -58,8 +58,8 @@ export function AddItemDialogBaseList(props: Props) {
 					/>
 				) : (
 					<AddItemFormBaseList
-						context='shopping-run'
-						runId={props.runId}
+						context='shopping-session'
+						sessionId={props.sessionId}
 						onSuccess={() => setOpen(false)}
 					/>
 				)}

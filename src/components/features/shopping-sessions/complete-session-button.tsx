@@ -6,34 +6,34 @@ import { Button } from '@/components/ui/button'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Tick02Icon } from '@hugeicons/core-free-icons'
 
-import { completeShoppingRun, getShoppingRun } from '@/actions/shopping-runs'
-import type { ShoppingRunItem } from '@/features/shopping-runs/types'
-import { CompleteRunAlert } from './complete-run-alert'
+import { completeShoppingSession, getShoppingSession } from '@/actions/shopping-sessions'
+import type { ShoppingSessionItem } from '@/features/shopping-sessions/types'
+import { CompleteSessionAlert } from './complete-session-alert'
 
 interface Props {
-	runId: string
-	items?: ShoppingRunItem[]
+	sessionId: string
+	items?: ShoppingSessionItem[]
 	progress: number
 }
 
-export function CompleteRunButton({ runId, items: propItems, progress }: Props) {
+export function CompleteSessionButton({ sessionId, items: propItems, progress }: Props) {
 	const [loading, setLoading] = useState(false)
 	const [open, setOpen] = useState(false)
 	const [syncToBase, setSyncToBase] = useState(true)
-	const [items, setItems] = useState<ShoppingRunItem[]>(propItems || [])
+	const [items, setItems] = useState<ShoppingSessionItem[]>(propItems || [])
 	const router = useRouter()
 
 	useEffect(() => {
 		if (!propItems) {
 			const loadItems = async () => {
-				const { data } = await getShoppingRun(runId)
+				const { data } = await getShoppingSession(sessionId)
 				if (data?.items) {
 					setItems(data.items)
 				}
 			}
 			loadItems()
 		}
-	}, [runId, propItems])
+	}, [sessionId, propItems])
 
 	const handleButtonClick = () => {
 		setOpen(true)
@@ -42,7 +42,7 @@ export function CompleteRunButton({ runId, items: propItems, progress }: Props) 
 	const handleComplete = async () => {
 		setLoading(true)
 		try {
-			const { error } = await completeShoppingRun(runId, {
+			const { error } = await completeShoppingSession(sessionId, {
 				sync_to_base: syncToBase,
 			})
 			if (error) throw new Error(error)
@@ -50,7 +50,7 @@ export function CompleteRunButton({ runId, items: propItems, progress }: Props) 
 			router.push('/dashboard')
 			router.refresh()
 		} catch (err) {
-			console.error('Failed to complete run:', err)
+			console.error('Failed to complete session:', err)
 		} finally {
 			setLoading(false)
 		}
@@ -74,14 +74,14 @@ export function CompleteRunButton({ runId, items: propItems, progress }: Props) 
 			</Button>
 
 			{open && (
-				<CompleteRunAlert
-					title={progress === 100 ? '🎉 All items checked!' : 'Complete Shopping Run?!'}
+				<CompleteSessionAlert
+					title={progress === 100 ? '🎉 All items checked!' : 'Complete Shopping Session?'}
 					description={
 						progress === 100
-							? 'You have checked all items in your shopping list. Would you like to complete this shopping run?'
-							: 'You still have unchecked items. Are you sure you want to complete this shopping run?'
+							? 'You have checked all items in your shopping list. Would you like to complete this shopping session?'
+							: 'You still have unchecked items. Are you sure you want to complete this shopping session?'
 					}
-					runId={runId}
+					sessionId={sessionId}
 					progress={progress}
 				/>
 			)}

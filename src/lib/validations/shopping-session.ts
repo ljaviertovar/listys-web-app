@@ -1,11 +1,11 @@
 import { z } from 'zod'
 
-export const createShoppingRunSchema = z.object({
+export const createShoppingSessionSchema = z.object({
   base_list_id: z.string().uuid(),
   name: z.string().min(1, 'Name is required').max(100),
 })
 
-export const updateShoppingRunSchema = z.object({
+export const updateShoppingSessionSchema = z.object({
   name: z.string().min(1, 'Name is required').max(100).optional(),
   status: z.enum(['active', 'completed']).optional(),
   total_amount: z.number().positive().optional(),
@@ -13,13 +13,13 @@ export const updateShoppingRunSchema = z.object({
   general_notes: z.string().max(1000).optional(),
 })
 
-export const completeShoppingRunSchema = z.object({
+export const completeShoppingSessionSchema = z.object({
   total_amount: z.number().positive().optional(),
   sync_to_base: z.boolean().default(false),
   general_notes: z.string().max(1000).optional(),
 })
 
-export const updateShoppingRunItemSchema = z.object({
+export const updateShoppingSessionItemSchema = z.object({
   name: z.string().min(1, 'Item name is required').max(200).optional(),
   quantity: z
     .number()
@@ -34,8 +34,8 @@ export const updateShoppingRunItemSchema = z.object({
   sort_order: z.number().int().optional(),
 })
 
-export const createShoppingRunItemSchema = z.object({
-  shopping_run_id: z.string().uuid(),
+export const createShoppingSessionItemSchema = z.object({
+  shopping_session_id: z.string().uuid(),
   name: z.string().min(1, 'Item name is required').max(200),
   quantity: z
     .number()
@@ -48,8 +48,8 @@ export const createShoppingRunItemSchema = z.object({
   category: z.string().max(50).optional(),
 })
 
-export type CreateShoppingRunInput = z.infer<typeof createShoppingRunSchema>
-export type UpdateShoppingRunInput = z.infer<typeof updateShoppingRunSchema>
-export type CompleteShoppingRunInput = z.infer<typeof completeShoppingRunSchema>
-export type UpdateShoppingRunItemInput = z.infer<typeof updateShoppingRunItemSchema>
-export type CreateShoppingRunItemInput = z.infer<typeof createShoppingRunItemSchema>
+export type CreateShoppingSessionInput = z.infer<typeof createShoppingSessionSchema>
+export type UpdateShoppingSessionInput = z.infer<typeof updateShoppingSessionSchema>
+export type CompleteShoppingSessionInput = z.infer<typeof completeShoppingSessionSchema>
+export type UpdateShoppingSessionItemInput = z.infer<typeof updateShoppingSessionItemSchema>
+export type CreateShoppingSessionItemInput = z.infer<typeof createShoppingSessionItemSchema>

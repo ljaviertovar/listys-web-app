@@ -41,17 +41,17 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 	const totalItems = baseListWithItems.items ? baseListWithItems.items.length : 0
 	// Get group info for breadcrumb
 	const { data: group } = await supabase.from('groups').select('id, name').eq('id', baseListWithItems.group_id).single()
-	// Check if this base list is being used in an active shopping run
-	const { data: activeRun } = await supabase
-		.from('shopping_runs')
+	// Check if this base list is being used in an active shopping session
+	const { data: activeSession } = await supabase
+		.from('shopping_sessions')
 		.select('id, name')
 		.eq('user_id', user.id)
 		.eq('base_list_id', baseListId)
 		.eq('status', 'active')
 		.maybeSingle()
-	// Check if user has any active shopping run
-	const { data: anyActiveRun } = await supabase
-		.from('shopping_runs')
+	// Check if user has any active shopping session
+	const { data: anyActiveSession } = await supabase
+		.from('shopping_sessions')
 		.select('id, base_list_id')
 		.eq('user_id', user.id)
 		.eq('status', 'active')
@@ -65,7 +65,7 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 				title={baseListWithItems.name}
 				desc='Manage items in this base list'
 				children={
-					!anyActiveRun && (
+					!anyActiveSession && (
 						<Button asChild>
 							<Link href={`/shopping/new?baseListId=${baseListId}`}>
 								<HugeiconsIcon
@@ -111,7 +111,7 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 										<BaseListItemRow
 											key={item.id}
 											item={item}
-											isLocked={!!activeRun}
+											isLocked={!!activeSession}
 										/>
 									))}
 							</div>
@@ -124,7 +124,7 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 				<AddItemDialogBaseList
 					context='base-list'
 					baseListId={baseListId}
-					isLocked={!!activeRun}
+					isLocked={!!activeSession}
 				/>
 			</PageFooterAction>
 		</div>

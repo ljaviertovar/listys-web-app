@@ -40,11 +40,11 @@
 
 /\*\*
 
-- SHOPPING RUN OPERATIONS
-- - Max items to sync from run to base list: 60 items (enforced by base list limit)
+- SHOPPING SESSION OPERATIONS
+- - Max items to sync from session to base list: 60 items (enforced by base list limit)
 - - Max sync items overall: 500 items (configurable in limits.ts, safety backstop)
-- - Validation: Enforced in syncRunToBaseList function
-- - Natural bound: Shopping runs inherit items from base lists (bounded by base list limit)
+- - Validation: Enforced in syncSessionToBaseList function
+- - Natural bound: Shopping sessions inherit items from base lists (bounded by base list limit)
 - - Rationale: Typical shopping trips have 20-100 items
     \*/
 
@@ -53,7 +53,7 @@
 - STRING LENGTH LIMITS
 - - Group names: 100 characters
 - - Base list names: 100 characters
-- - Shopping run names: 100 characters
+- - Shopping session names: 100 characters
 - - Item names: 200 characters
 - - Descriptions: 500 characters
 - - Notes/General notes: 500-1000 characters

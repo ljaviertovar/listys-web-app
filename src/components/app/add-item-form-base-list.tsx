@@ -14,11 +14,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { PlusSignIcon, Loading03Icon } from '@hugeicons/core-free-icons'
 
 import { createBaseListItem } from '@/actions/base-lists'
-import { createShoppingRunItem } from '@/actions/shopping-runs'
+import { createShoppingSessionItem } from '@/actions/shopping-sessions'
 
 import { z } from 'zod'
 import { createBaseListItemSchema as baseListSchema } from '@/lib/validations/base-list'
-import { createShoppingRunItemSchema as shoppingRunSchema } from '@/lib/validations/shopping-run'
+import { createShoppingSessionItemSchema as shoppingSessionSchema } from '@/lib/validations/shopping-session'
 
 import { CATEGORIES, UNITS } from '@/data/constants'
 
@@ -37,8 +37,8 @@ const baseListFormSchema = z.object({
 	sort_order: z.number().int(),
 })
 
-const shoppingRunFormSchema = z.object({
-	shopping_run_id: z.string().uuid(),
+const shoppingSessionFormSchema = z.object({
+	shopping_session_id: z.string().uuid(),
 	name: z.string().min(1, 'Item name is required').max(200),
 	quantity: z
 		.number()
@@ -51,11 +51,11 @@ const shoppingRunFormSchema = z.object({
 })
 
 type BaseListFormData = z.infer<typeof baseListFormSchema>
-type ShoppingRunFormData = z.infer<typeof shoppingRunFormSchema>
+type ShoppingSessionFormData = z.infer<typeof shoppingSessionFormSchema>
 
 type Props =
 	| { context: 'base-list'; baseListId: string; isLocked?: boolean; onSuccess?: () => void }
-	| { context: 'shopping-run'; runId: string; onSuccess?: () => void }
+	| { context: 'shopping-session'; sessionId: string; onSuccess?: () => void }
 
 export function AddItemFormBaseList(props: Props) {
 	const [loading, setLoading] = useState(false)
@@ -75,17 +75,17 @@ export function AddItemFormBaseList(props: Props) {
 		},
 	})
 
-	const shoppingRunForm = useForm<ShoppingRunFormData>({
-		resolver: zodResolver(shoppingRunFormSchema),
+	const shoppingSessionForm = useForm<ShoppingSessionFormData>({
+		resolver: zodResolver(shoppingSessionFormSchema),
 		defaultValues: {
-			shopping_run_id: !isBaseList ? props.runId : '',
+			shopping_session_id: !isBaseList ? props.sessionId : '',
 			quantity: 1,
 			unit: 'pcs',
 			name: '',
 		},
 	})
 
-	const form = (isBaseList ? baseListForm : shoppingRunForm) as typeof baseListForm
+	const form = (isBaseList ? baseListForm : shoppingSessionForm) as typeof baseListForm
 	const {
 		register,
 		handleSubmit,
@@ -97,7 +97,7 @@ export function AddItemFormBaseList(props: Props) {
 		setError(null)
 		setLoading(true)
 		try {
-			const result = isBaseList ? await createBaseListItem(data) : await createShoppingRunItem(data)
+			const result = isBaseList ? await createBaseListItem(data) : await createShoppingSessionItem(data)
 
 			if (result.error) throw new Error(result.error)
 
@@ -113,8 +113,8 @@ export function AddItemFormBaseList(props: Props) {
 					sort_order: 0,
 				})
 			} else {
-				shoppingRunForm.reset({
-					shopping_run_id: props.runId,
+				shoppingSessionForm.reset({
+					shopping_session_id: props.sessionId,
 					quantity: 1,
 					name: '',
 					unit: 'pcs',

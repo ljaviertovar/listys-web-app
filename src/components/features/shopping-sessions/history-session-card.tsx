@@ -7,29 +7,29 @@ import { Calendar03Icon, DollarCircleIcon, ShoppingCart02Icon, ArrowRight01Icon 
 import Link from 'next/link'
 import { formatDate, formatTime } from '@/utils/format-date'
 
-interface Run {
+interface Session {
 	id: string
 	name: string
-	status: string
-	started_at: string
+	status: string | null
+	started_at: string | null
 	completed_at: string | null
 	total_amount: number | null
 	base_list: { name: string } | null
 }
 
 interface Props {
-	run: Run
+	session: Session
 }
 
-export function HistoryRunCard({ run }: Props) {
-	const completedDate = run.completed_at ? new Date(run.completed_at) : null
+export function HistorySessionCard({ session }: Props) {
+	const completedDate = session.completed_at ? new Date(session.completed_at) : null
 
 	return (
 		<Card
 			className='hover:border-primary/50 transition-colors cursor-pointer group'
 			size='sm'
 		>
-			<Link href={`/shopping/${run.id}`}>
+			<Link href={`/shopping/${session.id}`}>
 				<CardHeader className='gap-0'>
 					<div className='flex items-center justify-end'>
 						<Badge variant='completed'>Completed</Badge>
@@ -43,8 +43,10 @@ export function HistoryRunCard({ run }: Props) {
 							/>
 						</span>
 						<div className='flex flex-col'>
-							<CardTitle className='text-base md:text-lg truncate w-full max-w-[20ch]'>{run.name}</CardTitle>
-							{run.base_list && <CardDescription className='text-xs'>From: {run.base_list.name}</CardDescription>}
+							<CardTitle className='text-base md:text-lg truncate w-full max-w-[20ch]'>{session.name}</CardTitle>
+							{session.base_list && (
+								<CardDescription className='text-xs'>From: {session.base_list.name}</CardDescription>
+							)}
 						</div>
 					</div>
 				</CardHeader>
@@ -58,14 +60,14 @@ export function HistoryRunCard({ run }: Props) {
 							/>
 							{completedDate ? `${formatDate(completedDate)} - ${formatTime(completedDate)}` : 'Date unknown'}
 						</div>
-						{run.total_amount && (
+						{session.total_amount && (
 							<div className='flex items-center gap-2 text-sm font-medium'>
 								<HugeiconsIcon
 									icon={DollarCircleIcon}
 									strokeWidth={2}
 									className='h-4 w-4'
 								/>
-								${run.total_amount.toFixed(2)}
+								${session.total_amount.toFixed(2)}
 							</div>
 						)}
 					</div>

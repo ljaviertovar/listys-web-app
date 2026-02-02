@@ -39,9 +39,9 @@ export default async function BaseListsPage({ params }: { params: Promise<{ grou
 	// Get group name
 	const { data: group } = await supabase.from('groups').select('name').eq('id', groupId).single()
 
-	// Check if there's an active shopping run
-	const { data: activeRun } = await supabase
-		.from('shopping_runs')
+	// Check if there's an active shopping session
+	const { data: activeSession } = await supabase
+		.from('shopping_sessions')
 		.select('id, base_list_id')
 		.eq('user_id', user.id)
 		.eq('status', 'active')
@@ -64,7 +64,7 @@ export default async function BaseListsPage({ params }: { params: Promise<{ grou
 					<div className='rounded-lg bg-destructive/10 p-4 text-sm text-destructive'>Error loading lists: {error}</div>
 				)}
 
-				{activeRun && <ActiveShopping />}
+				{activeSession && <ActiveShopping />}
 
 				{!baseLists || baseLists.length === 0 ? (
 					<Card
@@ -88,9 +88,9 @@ export default async function BaseListsPage({ params }: { params: Promise<{ grou
 					<div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3'>
 						{baseListsWithCount
 							.sort((a, b) => {
-								// Active run first
-								const aIsActive = activeRun?.base_list_id === a.id
-								const bIsActive = activeRun?.base_list_id === b.id
+								// Active session first
+								const aIsActive = activeSession?.base_list_id === a.id
+								const bIsActive = activeSession?.base_list_id === b.id
 								if (aIsActive && !bIsActive) return -1
 								if (!aIsActive && bIsActive) return 1
 								return 0
@@ -99,9 +99,9 @@ export default async function BaseListsPage({ params }: { params: Promise<{ grou
 								<BaseListCard
 									key={baseList.id}
 									baseList={baseList}
-									hasActiveRun={!!activeRun}
-									isActiveRun={activeRun?.base_list_id === baseList.id}
-									activeRunId={activeRun?.id}
+									hasActiveRun={!!activeSession}
+									isActiveRun={activeSession?.base_list_id === baseList.id}
+									activeRunId={activeSession?.id}
 								/>
 							))}
 					</div>

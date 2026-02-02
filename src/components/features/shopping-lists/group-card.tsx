@@ -119,12 +119,12 @@ export function GroupCard({ group, history = false }: Props) {
 					<CardContent className='pt-4'>
 						<div className='flex items-center justify-between'>
 							<span>
-							{history
-								? `${group.completed_runs_count ?? 0} ${(group.completed_runs_count ?? 0) === 1 ? 'run' : 'runs'}`
-								: `${group.base_lists?.[0]?.count ?? 0} ${(group.base_lists?.[0]?.count ?? 0) === 1 ? 'list' : 'lists'}`}
-						</span>
-						<div className='flex items-center text-sm text-primary transition-colors'>
-							<span>{history ? 'View history' : 'View lists'}</span>
+								{history
+									? `${group.completed_runs_count ?? 0} ${(group.completed_runs_count ?? 0) === 1 ? 'run' : 'runs'}`
+									: `${group.base_lists?.[0]?.count ?? 0} ${(group.base_lists?.[0]?.count ?? 0) === 1 ? 'list' : 'lists'}`}
+							</span>
+							<div className='flex items-center text-sm text-primary transition-colors'>
+								<span>{history ? 'View history' : 'View lists'}</span>
 								<HugeiconsIcon
 									icon={ArrowRight01Icon}
 									strokeWidth={2}
@@ -157,7 +157,8 @@ export function GroupCard({ group, history = false }: Props) {
 						</AlertDialogMedia>
 						<AlertDialogTitle>Delete Group?</AlertDialogTitle>
 						<AlertDialogDescription>
-							This will delete "{group.name}" and all its base lists and shopping runs. This action cannot be undone.
+							This will delete "{group.name}" and all its base lists and shopping sessions. This action cannot be
+							undone.
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>

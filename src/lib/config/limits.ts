@@ -11,7 +11,7 @@
 export const MAX_GROUPS_PER_USER = 10 // Maximum number of shopping list groups a user can create
 
 /**
- * BASE LISTS & SHOPPING RUNS LIMITS
+ * BASE LISTS & SHOPPING SESSIONS LIMITS
  *
  * IMPORTANT: These limits are designed to maintain consistency across the entire app lifecycle:
  *
@@ -22,7 +22,7 @@ export const MAX_GROUPS_PER_USER = 10 // Maximum number of shopping list groups 
  *
  * 2. MAX_SYNC_ITEMS (250):
  *    - Matches MAX_ITEMS_PER_BASE_LIST to prevent inconsistent states
- *    - Allows syncing shopping runs back to base lists without exceeding limit
+ *    - Allows syncing shopping sessions back to base lists without exceeding limit
  *    - Prevents the scenario: list with 250 items → sync fails → user confusion
  *
  * 3. MAX_TICKET_ITEMS_MERGE (200):
@@ -38,7 +38,7 @@ export const MAX_GROUPS_PER_USER = 10 // Maximum number of shopping list groups 
  */
 export const MAX_ITEMS_PER_BASE_LIST = 250 // Maximum items in a base list (via any method)
 export const MAX_TICKET_ITEMS_MERGE = 200  // Maximum items to merge from a single OCR ticket
-export const MAX_SYNC_ITEMS = 250          // Maximum items to sync from shopping run to base list
+export const MAX_SYNC_ITEMS = 250          // Maximum items to sync from shopping session to base list
 
 /**
  * FUTURE ENHANCEMENT IDEAS:
@@ -54,18 +54,18 @@ export const MAX_SYNC_ITEMS = 250          // Maximum items to sync from shoppin
  * FREE_PLAN = {
  *   MAX_GROUPS: 5,
  *   MAX_ITEMS_PER_LIST: 30,
- *   MAX_ACTIVE_SHOPPING_RUNS: 1
+ *   MAX_ACTIVE_SHOPPING_SESSIONS: 1
  * }
  *
  * PRO_PLAN = {
  *   MAX_GROUPS: 20,
  *   MAX_ITEMS_PER_LIST: 100,
- *   MAX_ACTIVE_SHOPPING_RUNS: 5
+ *   MAX_ACTIVE_SHOPPING_SESSIONS: 5
  * }
  *
  * ENTERPRISE_PLAN = {
  *   MAX_GROUPS: unlimited,
  *   MAX_ITEMS_PER_LIST: 500,
- *   MAX_ACTIVE_SHOPPING_RUNS: unlimited
+ *   MAX_ACTIVE_SHOPPING_SESSIONS: unlimited
  * }
  */
