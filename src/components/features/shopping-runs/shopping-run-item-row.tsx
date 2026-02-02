@@ -5,9 +5,11 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Card, CardContent } from '@/components/ui/card'
-import { toggleShoppingRunItem } from '@/actions/shopping-runs'
+import { toggleShoppingRunItem, updateShoppingRunItem, deleteShoppingRunItem } from '@/actions/shopping-runs'
 import type { ShoppingRunItem } from '@/features/shopping-runs/types'
 import { Badge } from '@/components/ui/badge'
+import { toast } from 'sonner'
+import { ActionsItemFormBaseList } from '@/components/app/actions-item-form-base-list'
 
 interface Props {
 	item: ShoppingRunItem
@@ -17,6 +19,7 @@ interface Props {
 export function ShoppingRunItemRow({ item, isCompleted = false }: Props) {
 	const [checked, setChecked] = useState(item.checked)
 	const [loading, setLoading] = useState(false)
+	const [editing, setEditing] = useState(false)
 	const router = useRouter()
 
 	const handleToggle = async () => {
@@ -38,17 +41,43 @@ export function ShoppingRunItemRow({ item, isCompleted = false }: Props) {
 		}
 	}
 
+	const handleUpdate = async (id: string, data: { name: string; quantity: number }) => {
+		return await updateShoppingRunItem(id, data)
+	}
+
+	const handleDelete = async (id: string) => {
+		return await deleteShoppingRunItem(id)
+	}
+
 	const handleCardClick = () => {
-		if (loading || isCompleted) return
+		if (loading || isCompleted || editing) return
 		handleToggle()
 	}
 
 	const handleKeyDown = (e: React.KeyboardEvent) => {
-		if (loading || isCompleted) return
+		if (loading || isCompleted || editing) return
 		if (e.key === 'Enter' || e.key === ' ') {
 			e.preventDefault()
 			handleToggle()
 		}
+	}
+
+	if (editing) {
+		return (
+			<ActionsItemFormBaseList
+				item={item}
+				isDisabled={isCompleted}
+				maxNameLength={200}
+				onUpdate={handleUpdate}
+				onDelete={handleDelete}
+				successMessages={{
+					update: 'Item updated',
+					delete: 'Item deleted',
+				}}
+				isEditing={editing}
+				onEditingChange={setEditing}
+			/>
+		)
 	}
 
 	return (
@@ -58,34 +87,28 @@ export function ShoppingRunItemRow({ item, isCompleted = false }: Props) {
 			onKeyDown={handleKeyDown}
 			role='button'
 			tabIndex={0}
-			className={`transition-all cursor-pointer ${
-				checked ? 'bg-muted dark:border-green-900/40 dark:bg-green-950/10' : 'hover:bg-muted'
-			}`}
+			className={`transition-all cursor-pointer ${checked ? 'bg-muted' : 'hover:bg-muted'}`}
 		>
-			<CardContent className='p-0'>
-				<div className='flex items-start gap-3'>
-					<div onClick={e => e.stopPropagation()}>
-						<Checkbox
-							checked={checked ?? false}
-							onCheckedChange={handleToggle}
-							disabled={loading || isCompleted}
-							className='mt-0.5 w-5 h-5'
-						/>
-					</div>
+			<CardContent className='flex flex-row items-center'>
+				<div onClick={e => e.stopPropagation()}>
+					<Checkbox
+						checked={checked ?? false}
+						onCheckedChange={handleToggle}
+						disabled={loading || isCompleted}
+						className='mt-0.5 w-5 h-5'
+					/>
+				</div>
 
-					<div className='grid flex-1 gap-1.5 font-normal'>
-						<div className='flex items-baseline gap-2'>
-							<p className={`text-sm font-bold leading-none ${checked ? 'line-through text-muted-foreground' : ''}`}>
-								{item.name}
-							</p>
+				<div className='flex flex-1 items-center gap-2 justify-start ml-3'>
+					<div className='flex-1 space-y-1'>
+						<p className={`font-bold ${checked ? 'line-through text-muted-foreground' : ''}`}>
+							{item.name}
 							{item.quantity && (
-								<span className='text-sm text-muted-foreground'>
-									{item.quantity}
-									{item.unit && ` ${item.unit}`}
+								<span className='m-4 font-normal text-muted-foreground'>
+									{item.quantity} {item.unit}
 								</span>
 							)}
-						</div>
-
+						</p>
 						<div className='flex gap-2'>{item.category && <Badge variant={'category'}>{item.category}</Badge>}</div>
 						{item.notes && (
 							<p className='text-xs md:text-sm text-muted-foreground'>
@@ -93,6 +116,21 @@ export function ShoppingRunItemRow({ item, isCompleted = false }: Props) {
 							</p>
 						)}
 					</div>
+				</div>
+				<div onClick={e => e.stopPropagation()}>
+					<ActionsItemFormBaseList
+						item={item}
+						isDisabled={isCompleted}
+						maxNameLength={200}
+						onUpdate={handleUpdate}
+						onDelete={handleDelete}
+						successMessages={{
+							update: 'Item updated',
+							delete: 'Item deleted',
+						}}
+						isEditing={editing}
+						onEditingChange={setEditing}
+					/>
 				</div>
 			</CardContent>
 		</Card>

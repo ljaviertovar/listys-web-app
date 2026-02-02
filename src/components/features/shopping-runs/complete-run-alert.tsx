@@ -17,11 +17,13 @@ import { Label } from '@/components/ui/label'
 import { completeShoppingRun } from '@/actions/shopping-runs'
 
 interface Props {
+	title: string
+	description: string
 	runId: string
 	progress: number
 }
 
-export function CompleteRunAlert({ runId, progress }: Props) {
+export function CompleteRunAlert({ title, description, runId, progress }: Props) {
 	const [open, setOpen] = useState(false)
 	const [loading, setLoading] = useState(false)
 	const [syncToBase, setSyncToBase] = useState(true)
@@ -56,10 +58,8 @@ export function CompleteRunAlert({ runId, progress }: Props) {
 		>
 			<AlertDialogContent>
 				<AlertDialogHeader>
-					<AlertDialogTitle>🎉 All items checked!</AlertDialogTitle>
-					<AlertDialogDescription>
-						You've checked all items in your shopping list. Would you like to complete this shopping run?
-					</AlertDialogDescription>
+					<AlertDialogTitle>{title}</AlertDialogTitle>
+					<AlertDialogDescription>{description}</AlertDialogDescription>
 				</AlertDialogHeader>
 				<div className='py-4'>
 					<div className='flex items-start space-x-3 rounded-lg border p-4'>

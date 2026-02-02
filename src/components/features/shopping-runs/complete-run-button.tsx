@@ -1,32 +1,43 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Tick02Icon } from '@hugeicons/core-free-icons'
-import {
-	Dialog,
-	DialogContent,
-	DialogHeader,
-	DialogTitle,
-	DialogDescription,
-	DialogTrigger,
-	DialogFooter,
-} from '@/components/ui/dialog'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Label } from '@/components/ui/label'
-import { completeShoppingRun } from '@/actions/shopping-runs'
+
+import { completeShoppingRun, getShoppingRun } from '@/actions/shopping-runs'
+import type { ShoppingRunItem } from '@/features/shopping-runs/types'
+import { CompleteRunAlert } from './complete-run-alert'
 
 interface Props {
 	runId: string
+	items?: ShoppingRunItem[]
+	progress: number
 }
 
-export function CompleteRunButton({ runId }: Props) {
+export function CompleteRunButton({ runId, items: propItems, progress }: Props) {
 	const [loading, setLoading] = useState(false)
 	const [open, setOpen] = useState(false)
 	const [syncToBase, setSyncToBase] = useState(true)
+	const [items, setItems] = useState<ShoppingRunItem[]>(propItems || [])
 	const router = useRouter()
+
+	useEffect(() => {
+		if (!propItems) {
+			const loadItems = async () => {
+				const { data } = await getShoppingRun(runId)
+				if (data?.items) {
+					setItems(data.items)
+				}
+			}
+			loadItems()
+		}
+	}, [runId, propItems])
+
+	const handleButtonClick = () => {
+		setOpen(true)
+	}
 
 	const handleComplete = async () => {
 		setLoading(true)
@@ -46,72 +57,34 @@ export function CompleteRunButton({ runId }: Props) {
 	}
 
 	return (
-		<Dialog
-			open={open}
-			onOpenChange={setOpen}
-		>
-			<DialogTrigger asChild>
-				<Button
-					disabled={loading}
-					size='sm'
-					variant={'ghost'}
-					className='flex-1'
-				>
-					<HugeiconsIcon
-						icon={Tick02Icon}
-						strokeWidth={2}
-						className='h-4 w-4'
-					/>
-					Complete Shopping
-				</Button>
-			</DialogTrigger>
+		<>
+			<Button
+				onClick={handleButtonClick}
+				disabled={loading}
+				size='sm'
+				variant={'ghost'}
+				className='flex-1'
+			>
+				<HugeiconsIcon
+					icon={Tick02Icon}
+					strokeWidth={2}
+					className='h-4 w-4'
+				/>
+				Complete Shopping
+			</Button>
 
-			<DialogContent>
-				<DialogHeader>
-					<DialogTitle>Complete Shopping Run?</DialogTitle>
-					<DialogDescription>You've checked all items. Would you like to complete this shopping run?</DialogDescription>
-				</DialogHeader>
-
-				<div className='py-4'>
-					<div className='flex items-start space-x-3 rounded-lg border p-4'>
-						<Checkbox
-							id='sync-to-base'
-							checked={syncToBase}
-							onCheckedChange={val => setSyncToBase(val as boolean)}
-							disabled={loading}
-						/>
-						<div className='flex-1 space-y-1'>
-							<Label
-								htmlFor='sync-to-base'
-								className='text-sm font-medium leading-none cursor-pointer'
-							>
-								Sync changes back to base list
-							</Label>
-							<p className='text-xs text-muted-foreground'>
-								Updates quantities and adds new items you created during shopping to your original base list.
-							</p>
-						</div>
-					</div>
-				</div>
-
-				<DialogFooter className='w-full flex-row gap-4'>
-					<Button
-						variant='outline'
-						onClick={handleComplete}
-						disabled={loading}
-						className='flex-1'
-					>
-						{loading ? 'Completing...' : 'Complete Shopping'}
-					</Button>
-					<Button
-						onClick={() => setOpen(false)}
-						disabled={loading}
-						className='flex-1'
-					>
-						Keep Shopping
-					</Button>
-				</DialogFooter>
-			</DialogContent>
-		</Dialog>
+			{open && (
+				<CompleteRunAlert
+					title={progress === 100 ? '🎉 All items checked!' : 'Complete Shopping Run?!'}
+					description={
+						progress === 100
+							? 'You have checked all items in your shopping list. Would you like to complete this shopping run?'
+							: 'You still have unchecked items. Are you sure you want to complete this shopping run?'
+					}
+					runId={runId}
+					progress={progress}
+				/>
+			)}
+		</>
 	)
 }

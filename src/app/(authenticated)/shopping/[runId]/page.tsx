@@ -101,7 +101,11 @@ export default async function ShoppingRunPage({ params }: { params: Promise<{ ru
 					{!isCompleted && (
 						<div className='w-full flex items-center gap-2'>
 							<CancelRunButton runId={runId} />
-							<CompleteRunButton runId={runId} />
+							<CompleteRunButton
+								runId={runId}
+								progress={progress}
+								items={runWithItems.items}
+							/>
 						</div>
 					)}
 
@@ -112,6 +116,8 @@ export default async function ShoppingRunPage({ params }: { params: Promise<{ ru
 								runId={runId}
 							/>
 							<CompleteRunAlert
+								title='🎉 All items checked!'
+								description='You have checked all items in your shopping list. Would you like to complete this shopping run?'
 								runId={runId}
 								progress={progress}
 							/>
