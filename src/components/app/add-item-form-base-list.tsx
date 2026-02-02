@@ -18,7 +18,10 @@ import { createShoppingRunItem } from '@/actions/shopping-runs'
 
 import { z } from 'zod'
 import { createBaseListItemSchema as baseListSchema, type CreateBaseListItemInput } from '@/lib/validations/base-list'
-import { createShoppingRunItemSchema as shoppingRunSchema, type CreateShoppingRunItemInput } from '@/lib/validations/shopping-run'
+import {
+	createShoppingRunItemSchema as shoppingRunSchema,
+	type CreateShoppingRunItemInput,
+} from '@/lib/validations/shopping-run'
 
 import { CATEGORIES, UNITS } from '@/data/constants'
 
@@ -37,9 +40,7 @@ export function AddItemFormBaseList(props: Props) {
 	const requiredUnitSchema = <T extends z.ZodRawShape>(schema: z.ZodObject<T>) =>
 		schema.extend({ unit: z.string().min(1, 'Unit is required') })
 
-	const schema = isBaseList
-		? requiredUnitSchema(baseListSchema)
-		: requiredUnitSchema(shoppingRunSchema)
+	const schema = isBaseList ? requiredUnitSchema(baseListSchema) : requiredUnitSchema(shoppingRunSchema)
 
 	const {
 		register,
@@ -48,7 +49,7 @@ export function AddItemFormBaseList(props: Props) {
 		formState: { errors },
 		reset,
 	} = useForm<CreateBaseListItemInput | CreateShoppingRunItemInput>({
-		resolver: zodResolver(schema) as any,
+		resolver: zodResolver(schema),
 		defaultValues: isBaseList
 			? { base_list_id: props.baseListId, quantity: 1, unit: 'pcs' }
 			: { shopping_run_id: props.runId, quantity: 1, unit: 'pcs' },
@@ -180,7 +181,9 @@ export function AddItemFormBaseList(props: Props) {
 						>
 							<SelectTrigger
 								id='category'
-								className={errors.category ? 'border-destructive focus-visible:ring-destructive text-base' : 'text-base'}
+								className={
+									errors.category ? 'border-destructive focus-visible:ring-destructive text-base' : 'text-base'
+								}
 							>
 								<SelectValue placeholder='Select category' />
 							</SelectTrigger>

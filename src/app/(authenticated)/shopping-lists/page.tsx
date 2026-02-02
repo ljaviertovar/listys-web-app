@@ -3,7 +3,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 
 import { Card, CardContent } from '@/components/ui/card'
 import { CreateGroupDialog } from '@/components/features/shopping-lists/create-group-dialog'
-import { PageHeader, PageContainer } from '@/components/app'
+import { PageHeader, PageContainer, PageFooterAction } from '@/components/app'
 import { GroupCard } from '@/components/features/shopping-lists/group-card'
 import { FolderIcon } from '@hugeicons/core-free-icons'
 
@@ -28,9 +28,8 @@ export default async function GroupsPage() {
 			<PageHeader
 				title='Shopping Lists'
 				desc='Organize your shopping lists into groups'
-			>
-				<CreateGroupDialog />
-			</PageHeader>
+			/>
+
 			<PageContainer>
 				{error && (
 					<div className='rounded-lg bg-destructive/10 p-4 text-sm text-destructive'>Error loading groups: {error}</div>
@@ -65,6 +64,10 @@ export default async function GroupsPage() {
 					</div>
 				)}
 			</PageContainer>
+
+			<PageFooterAction>
+				<CreateGroupDialog />
+			</PageFooterAction>
 		</>
 	)
 }

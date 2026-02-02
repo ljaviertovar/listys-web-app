@@ -64,20 +64,20 @@ export default function MobileMenu() {
 				{/* Current active shopping run (initial section) */}
 				{activeRun ? (
 					<>
-						<DropdownMenuLabel className='font-bold'>Shopping</DropdownMenuLabel>
+						<DropdownMenuLabel className='font-medium'>Shopping</DropdownMenuLabel>
+						<DropdownMenuSeparator />
 						<DropdownMenuItem asChild>
 							<Link
 								href={`/shopping/${activeRun.id}`}
-								className='block w-full h-9 leading-9 text-primary'
+								className='block w-full h-9 leading-9 text-primary font-medium'
 							>
 								{activeRun.name ? `${activeRun.name}` : 'Unknown'}
 							</Link>
 						</DropdownMenuItem>
-						<DropdownMenuSeparator />
 					</>
 				) : null}
 
-				<DropdownMenuLabel className='font-bold'>Navigate</DropdownMenuLabel>
+				<DropdownMenuLabel className='font-medium'>Navigate</DropdownMenuLabel>
 				<DropdownMenuSeparator />
 				{NAV_APP_ITEMS.map(item => (
 					<DropdownMenuItem

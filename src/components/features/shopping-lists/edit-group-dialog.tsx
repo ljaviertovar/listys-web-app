@@ -1,8 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { updateGroup } from '@/actions/shopping-lists'
+import { updateGroupSchema, type UpdateGroupInput } from '@/lib/validations/group'
 import {
 	Dialog,
 	DialogContent,
@@ -31,30 +34,37 @@ interface Props {
 }
 
 export function EditGroupDialog({ group, open, onOpenChange }: Props) {
-	const [name, setName] = useState(group.name)
-	const [description, setDescription] = useState(group.description || '')
+	const router = useRouter()
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState<string | null>(null)
-	const router = useRouter()
 
-	// Reset form when dialog opens
+	const {
+		register,
+		handleSubmit,
+		reset,
+		watch,
+		formState: { errors },
+	} = useForm<UpdateGroupInput>({
+		resolver: zodResolver(updateGroupSchema),
+		defaultValues: { name: group.name, description: group.description || '' },
+	})
+
+	// Reset form when dialog opens or group changes
 	useEffect(() => {
 		if (open) {
-			setName(group.name)
-			setDescription(group.description || '')
+			reset({ name: group.name, description: group.description || '' })
 			setError(null)
 		}
-	}, [open, group])
+	}, [open, group, reset])
 
-	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault()
+	const submit = async (data: UpdateGroupInput) => {
 		setError(null)
 		setLoading(true)
 
 		try {
 			const { error } = await updateGroup(group.id, {
-				name,
-				description: description || undefined,
+				name: data.name,
+				description: data.description || undefined,
 			})
 
 			if (error) throw new Error(error)
@@ -68,6 +78,8 @@ export function EditGroupDialog({ group, open, onOpenChange }: Props) {
 		}
 	}
 
+	const watchedName = watch('name')
+
 	return (
 		<Dialog
 			open={open}
@@ -78,43 +90,57 @@ export function EditGroupDialog({ group, open, onOpenChange }: Props) {
 					<DialogTitle>Edit Group</DialogTitle>
 					<DialogDescription>Update your group details</DialogDescription>
 				</DialogHeader>
-				<form onSubmit={handleSubmit}>
+
+				<form onSubmit={handleSubmit(submit)}>
 					<div className='space-y-4'>
 						{error && <div className='rounded-lg bg-destructive/10 p-3 text-sm text-destructive'>{error}</div>}
+
 						<div className='space-y-2'>
-							<Label htmlFor='edit-name'>Name</Label>
+							<Label htmlFor='edit-name'>
+								Name <span className='text-destructive'>*</span>
+							</Label>
 							<Input
 								id='edit-name'
-								value={name}
-								onChange={e => setName(e.target.value)}
+								{...register('name')}
 								placeholder='e.g., Groceries, Household'
-								required
-							/>
-						</div>
-						<div className='space-y-2'>
-							<Label htmlFor='edit-description'>Description (optional)</Label>
-							<Textarea
-								id='edit-description'
-								value={description}
-								onChange={e => setDescription(e.target.value)}
-								placeholder='A brief description of this group'
-								rows={3}
+								disabled={loading}
 								className='text-base'
 							/>
+							{errors.name && <p className='text-xs text-destructive'>{errors.name.message}</p>}
 						</div>
+
+						<div className='space-y-2'>
+							<Label htmlFor='edit-description'>Description</Label>
+							<Textarea
+								id='edit-description'
+								{...register('description')}
+								placeholder='A brief description of this group'
+								rows={3}
+								disabled={loading}
+								className='text-base'
+							/>
+							{errors.description && <p className='text-xs text-destructive'>{errors.description.message}</p>}
+						</div>
+
+						<p className='text-xs text-muted-foreground'>
+							<span className='text-destructive'>*</span> Required fields
+						</p>
 					</div>
-					<DialogFooter className='mt-6'>
+
+					<DialogFooter className='mt-6 gap-4 flex-row'>
 						<Button
 							type='button'
 							variant='outline'
 							onClick={() => onOpenChange(false)}
 							disabled={loading}
+							className='flex-1'
 						>
 							Cancel
 						</Button>
 						<Button
 							type='submit'
-							disabled={loading || !name.trim()}
+							disabled={loading || !watchedName?.trim()}
+							className='flex-1'
 						>
 							{loading ? (
 								<>
@@ -126,7 +152,7 @@ export function EditGroupDialog({ group, open, onOpenChange }: Props) {
 									Saving...
 								</>
 							) : (
-								'Save Changes'
+								'Save'
 							)}
 						</Button>
 					</DialogFooter>

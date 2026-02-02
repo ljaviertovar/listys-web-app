@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-import { Card, CardContent, CardDescription, CardTitle } from '../ui/card'
+import { Alert, AlertDescription, AlertTitle } from '../ui/alert'
 import { Button } from '../ui/button'
 
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -16,14 +16,11 @@ interface Props {
 
 export default function ActiveShopping({ activeShopping, dashboard }: Props) {
 	return (
-		<Card
-			className='border-primary/50 bg-primary/10'
-			size='sm'
-		>
-			<CardContent className='flex justify-between items-center gap-4 flex-col md:flex-row'>
+		<Alert variant='info'>
+			<div className='flex justify-between items-center gap-4 flex-col md:flex-row'>
 				<div className='flex gap-4'>
-					<div className='flex h-12 w-12 min-w-12 items-center justify-center rounded-xl bg-primary/20'>
-						<div className='flex h-8 w-8 items-center justify-center rounded-lg bg-primary'>
+					<div className='flex h-12 w-12 min-w-12 items-center justify-center rounded-xl bg-blue-700/20'>
+						<div className='flex h-8 w-8 items-center justify-center rounded-lg bg-blue-700'>
 							<HugeiconsIcon
 								icon={ShoppingCart02Icon}
 								strokeWidth={2}
@@ -32,21 +29,19 @@ export default function ActiveShopping({ activeShopping, dashboard }: Props) {
 						</div>
 					</div>
 					<div>
-						<CardTitle className='text-primary font-medium'>Shopping in progress</CardTitle>
-						<CardDescription className='text-xs md:text-sm text-foreground '>
+						<AlertTitle>Shopping in progress</AlertTitle>
+						<AlertDescription>
 							{dashboard ? activeShopping?.name : 'Complete your current shopping run before starting a new one.'}
-						</CardDescription>
+						</AlertDescription>
 					</div>
 				</div>
-				{dashboard && (
-					<Button
-						className='w-fit'
-						size={'sm'}
-					>
-						<Link href={`/shopping/${activeShopping?.id}`}>Continue Shopping</Link>
-					</Button>
-				)}
-			</CardContent>
-		</Card>
+				<Button
+					className='w-fit'
+					size={'sm'}
+				>
+					<Link href={`/shopping/${activeShopping?.id}`}>Continue Shopping</Link>
+				</Button>
+			</div>
+		</Alert>
 	)
 }

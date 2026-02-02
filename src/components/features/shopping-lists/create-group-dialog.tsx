@@ -63,7 +63,7 @@ export function CreateGroupDialog() {
 			onOpenChange={isOpen => !loading && setOpen(isOpen)}
 		>
 			<DialogTrigger asChild>
-				<Button size={'sm'}>
+				<Button className='w-full'>
 					<HugeiconsIcon
 						icon={PlusSignIcon}
 						strokeWidth={2}
@@ -89,6 +89,7 @@ export function CreateGroupDialog() {
 								placeholder='e.g., Groceries, Household'
 								disabled={loading}
 								className='text-base'
+								required
 							/>
 							{errors.name && <p className='text-xs text-destructive'>{errors.name.message}</p>}
 						</div>
@@ -112,7 +113,6 @@ export function CreateGroupDialog() {
 						<Button
 							type='button'
 							variant='outline'
-							size={'sm'}
 							onClick={() => setOpen(false)}
 							disabled={loading}
 							className='flex-1'
@@ -121,7 +121,6 @@ export function CreateGroupDialog() {
 						</Button>
 						<Button
 							type='submit'
-							size={'sm'}
 							disabled={loading}
 							className='flex-1'
 						>
@@ -133,7 +132,7 @@ export function CreateGroupDialog() {
 									data-icon='inline-start'
 								/>
 							)}
-							{loading ? 'Creating...' : 'Create Group'}
+							{loading ? 'Creating...' : 'Create'}
 						</Button>
 					</DialogFooter>
 				</form>

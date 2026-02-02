@@ -11,9 +11,9 @@ const alertVariants = cva(
 				default: 'bg-card text-card-foreground',
 				destructive:
 					'text-destructive bg-card *:data-[slot=alert-description]:text-destructive/90 *:[svg]:text-current',
-				info: 'border-blue-500/50 bg-blue-500/5 text-blue-700 dark:text-blue-400 *:data-[slot=alert-description]:text-muted-foreground *:[svg]:text-blue-700 dark:*:[svg]:text-blue-400',
+				info: 'border-blue-500/60 bg-blue-500/10 text-blue-700 dark:text-blue-400 *:data-[slot=alert-description]:text-muted-foreground *:[svg]:text-blue-700 dark:*:[svg]:text-blue-400',
 				warning:
-					'border-amber-500/50 bg-amber-500/5 text-amber-700 dark:text-amber-400 *:data-[slot=alert-description]:text-muted-foreground *:[svg]:text-amber-700 dark:*:[svg]:text-amber-400',
+					'border-amber-500/60 bg-amber-500/10 text-amber-700 dark:text-amber-400 *:data-[slot=alert-description]:text-muted-foreground *:[svg]:text-amber-700 dark:*:[svg]:text-amber-400',
 			},
 		},
 		defaultVariants: {
@@ -38,7 +38,7 @@ function AlertTitle({ className, ...props }: React.ComponentProps<'div'>) {
 		<div
 			data-slot='alert-title'
 			className={cn(
-				'font-medium group-has-[>svg]/alert:col-start-2 [&_a]:hover:text-foreground [&_a]:underline [&_a]:underline-offset-3',
+				'font-semibold group-has-[>svg]/alert:col-start-2 [&_a]:hover:text-foreground [&_a]:underline [&_a]:underline-offset-3',
 				className,
 			)}
 			{...props}
@@ -51,7 +51,7 @@ function AlertDescription({ className, ...props }: React.ComponentProps<'div'>) 
 		<div
 			data-slot='alert-description'
 			className={cn(
-				'text-muted-foreground text-sm text-balance md:text-pretty [&_p:not(:last-child)]:mb-4 [&_a]:hover:text-foreground [&_a]:underline [&_a]:underline-offset-3',
+				'text-sm text-balance md:text-pretty [&_p:not(:last-child)]:mb-4 [&_a]:hover:text-foreground [&_a]:underline [&_a]:underline-offset-3',
 				className,
 			)}
 			{...props}

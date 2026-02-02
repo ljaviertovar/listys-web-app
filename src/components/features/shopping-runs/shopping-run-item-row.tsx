@@ -1,10 +1,13 @@
 'use client'
 
+import * as React from 'react'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Checkbox } from '@/components/ui/checkbox'
+import { Card, CardContent } from '@/components/ui/card'
 import { toggleShoppingRunItem } from '@/actions/shopping-runs'
 import type { ShoppingRunItem } from '@/features/shopping-runs/types'
+import { Badge } from '@/components/ui/badge'
 
 interface Props {
 	item: ShoppingRunItem
@@ -35,47 +38,63 @@ export function ShoppingRunItemRow({ item, isCompleted = false }: Props) {
 		}
 	}
 
+	const handleCardClick = () => {
+		if (loading || isCompleted) return
+		handleToggle()
+	}
+
+	const handleKeyDown = (e: React.KeyboardEvent) => {
+		if (loading || isCompleted) return
+		if (e.key === 'Enter' || e.key === ' ') {
+			e.preventDefault()
+			handleToggle()
+		}
+	}
+
 	return (
-		<div
-			className={`rounded-lg border p-4 transition-all ${
-				checked
-					? 'border-green-200/60 bg-green-50/50 dark:border-green-900/40 dark:bg-green-950/10'
-					: 'border-border bg-card hover:bg-accent/50'
+		<Card
+			size='sm'
+			onClick={handleCardClick}
+			onKeyDown={handleKeyDown}
+			role='button'
+			tabIndex={0}
+			className={`transition-all cursor-pointer ${
+				checked ? 'bg-muted dark:border-green-900/40 dark:bg-green-950/10' : 'hover:bg-muted'
 			}`}
 		>
-			<div className='flex items-start gap-3'>
-				<Checkbox
-					checked={checked ?? false}
-					onCheckedChange={handleToggle}
-					disabled={loading || isCompleted}
-					className='mt-0.5 w-5 h-5'
-				/>
-
-				<div className='grid flex-1 gap-1.5 font-normal'>
-					<div className='flex items-baseline gap-2'>
-						<p className={`text-sm font-medium leading-none ${checked ? 'line-through text-muted-foreground' : ''}`}>
-							{item.name}
-						</p>
-						{item.quantity && (
-							<span className='text-sm text-muted-foreground'>
-								{item.quantity}
-								{item.unit && ` ${item.unit}`}
-							</span>
-						)}
+			<CardContent className='p-0'>
+				<div className='flex items-start gap-3'>
+					<div onClick={e => e.stopPropagation()}>
+						<Checkbox
+							checked={checked ?? false}
+							onCheckedChange={handleToggle}
+							disabled={loading || isCompleted}
+							className='mt-0.5 w-5 h-5'
+						/>
 					</div>
 
-					{(item.category || item.notes) && (
-						<div className='space-y-1'>
-							{item.category && (
-								<p className='text-xs text-muted-foreground'>
-									<span className='rounded-md bg-secondary px-1.5 py-0.5'>{item.category}</span>
-								</p>
+					<div className='grid flex-1 gap-1.5 font-normal'>
+						<div className='flex items-baseline gap-2'>
+							<p className={`text-sm font-bold leading-none ${checked ? 'line-through text-muted-foreground' : ''}`}>
+								{item.name}
+							</p>
+							{item.quantity && (
+								<span className='text-sm text-muted-foreground'>
+									{item.quantity}
+									{item.unit && ` ${item.unit}`}
+								</span>
 							)}
-							{item.notes && <p className='text-sm text-muted-foreground'>{item.notes}</p>}
 						</div>
-					)}
+
+						<div className='flex gap-2'>{item.category && <Badge variant={'category'}>{item.category}</Badge>}</div>
+						{item.notes && (
+							<p className='text-xs md:text-sm text-muted-foreground'>
+								{'> '} {item.notes}
+							</p>
+						)}
+					</div>
 				</div>
-			</div>
-		</div>
+			</CardContent>
+		</Card>
 	)
 }

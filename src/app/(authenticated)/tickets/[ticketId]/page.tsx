@@ -64,10 +64,8 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 						/>
 						<AlertTitle>Merged to Base List</AlertTitle>
 						<AlertDescription>
-							<span className='text-foreground'>
-								This ticket has been added to the base list:{' '}
-								<Link href={`/base-lists/${ticket.base_list_id}/edit`}>{baseListName}</Link>
-							</span>
+							This ticket has been added to the base list:{' '}
+							<Link href={`/base-lists/${ticket.base_list_id}/edit`}>{baseListName}</Link>
 						</AlertDescription>
 					</Alert>
 				)}

@@ -39,7 +39,9 @@ export default async function AuthenticatedLayout({ children }: { children: Reac
 					)}
 				>
 					<Header />
-					<main className='flex-1 overflow-y-auto'>{children}</main>
+					<main className='flex-1 overflow-y-auto'>
+						<div className='flex flex-col h-dvh'>{children}</div>
+					</main>
 				</div>
 			</SidebarProvider>
 		</>

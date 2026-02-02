@@ -11,11 +11,12 @@ import {
 	AlertDialogDescription,
 	AlertDialogFooter,
 	AlertDialogHeader,
+	AlertDialogMedia,
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Cancel01Icon } from '@hugeicons/core-free-icons'
+import { Cancel01Icon, Delete02Icon, Loading03Icon } from '@hugeicons/core-free-icons'
 import { cancelShoppingRun } from '@/actions/shopping-runs'
 
 interface Props {
@@ -49,33 +50,51 @@ export function CancelRunButton({ runId }: Props) {
 				<Button
 					variant='ghost'
 					size='sm'
-					className='text-destructive hover:bg-destructive/10 hover:text-destructive'
+					className='flex-1'
 				>
 					<HugeiconsIcon
 						icon={Cancel01Icon}
 						strokeWidth={2}
-						className='mr-2 h-4 w-4'
+						className='h-4 w-4'
 					/>
-					Cancel Run
+					Cancel Shopping
 				</Button>
 			</AlertDialogTrigger>
-			<AlertDialogContent>
+			<AlertDialogContent size='sm'>
 				<AlertDialogHeader>
-					<AlertDialogTitle>Cancel Shopping Run?</AlertDialogTitle>
+					<AlertDialogMedia className='bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive'>
+						<HugeiconsIcon
+							icon={Delete02Icon}
+							strokeWidth={2}
+							className='h-4 w-4'
+						/>
+					</AlertDialogMedia>
+					<AlertDialogTitle>Cancel Shopping?</AlertDialogTitle>
 					<AlertDialogDescription>
-						This will discard this shopping run entirely. It will not be saved to your history. This action cannot be
-						undone.
+						This will discard this shopping entirely. It will not be saved to your history. This action cannot be undone
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>
-					<AlertDialogCancel>Keep Shopping</AlertDialogCancel>
 					<AlertDialogAction
 						onClick={handleCancel}
 						disabled={loading}
-						className='bg-destructive text-destructive-foreground hover:bg-destructive/90'
+						variant={'destructive'}
+						className='flex-1'
 					>
-						{loading ? 'Canceling...' : 'Discard Run'}
+						{loading ? (
+							<>
+								<HugeiconsIcon
+									icon={Loading03Icon}
+									strokeWidth={2}
+									className='h-4 w-4 animate-spin'
+								/>
+								Cancelling...
+							</>
+						) : (
+							'Cancel Shopping'
+						)}
 					</AlertDialogAction>
+					<AlertDialogCancel variant='outline'>Keep Shopping</AlertDialogCancel>
 				</AlertDialogFooter>
 			</AlertDialogContent>
 		</AlertDialog>

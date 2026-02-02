@@ -1,18 +1,19 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { getBaseListsByGroup } from '@/actions/base-lists'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { PlusSignIcon, AddToListIcon, ShoppingBasket01Icon } from '@hugeicons/core-free-icons'
-import Link from 'next/link'
+
+import { Card, CardContent } from '@/components/ui/card'
 import { CreateBaseListDialog } from '@/components/features/base-lists/create-base-list-dialog'
+import { AddToListIcon } from '@hugeicons/core-free-icons'
+
+import { PageHeader, PageContainer, PageFooterAction } from '@/components/app'
 import { BaseListCard } from '@/components/features/base-lists/base-list-card'
-import type { BaseListWithCount } from '@/features/base-lists/types'
-import PageHeader from '@/components/app/page-header'
 import BackLink from '@/components/app/back-link'
-import PageContainer from '@/components/app/page-container'
 import ActiveShopping from '@/components/app/active-shopping'
+
+import { getBaseListsByGroup } from '@/actions/base-lists'
+
+import type { BaseListWithCount } from '@/features/base-lists/types'
 
 export default async function BaseListsPage({ params }: { params: Promise<{ groupId: string }> }) {
 	const { groupId } = await params
@@ -51,9 +52,8 @@ export default async function BaseListsPage({ params }: { params: Promise<{ grou
 			<PageHeader
 				title={group?.name || 'Base Lists'}
 				desc='Manage your base shopping lists'
-			>
-				<CreateBaseListDialog groupId={groupId} />
-			</PageHeader>
+			/>
+
 			<PageContainer>
 				<BackLink
 					href='/shopping-lists'
@@ -106,7 +106,11 @@ export default async function BaseListsPage({ params }: { params: Promise<{ grou
 							))}
 					</div>
 				)}
-			</PageContainer>{' '}
+			</PageContainer>
+
+			<PageFooterAction>
+				<CreateBaseListDialog groupId={groupId} />
+			</PageFooterAction>
 		</>
 	)
 }
