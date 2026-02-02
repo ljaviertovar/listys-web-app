@@ -73,7 +73,7 @@ export default async function ShoppingRunPage({ params }: { params: Promise<{ ru
 								className='h-5 w-5 text-green-600 mt-0.5 shrink-0'
 							/>
 							<div className='flex-1'>
-								<p className='text-sm font-semibold text-green-900'>Shopping run completed</p>
+								<p className='text-sm font-semibold text-green-900'>Shopping completed</p>
 
 								<p className='text-xs text-green-700 mt-1'>
 									{isCompleted && `${checkedCount} of ${totalCount} items were purchased`}

@@ -117,21 +117,23 @@ export function ShoppingRunItemRow({ item, isCompleted = false }: Props) {
 						)}
 					</div>
 				</div>
-				<div onClick={e => e.stopPropagation()}>
-					<ActionsItemFormBaseList
-						item={item}
-						isDisabled={isCompleted}
-						maxNameLength={200}
-						onUpdate={handleUpdate}
-						onDelete={handleDelete}
-						successMessages={{
-							update: 'Item updated',
-							delete: 'Item deleted',
-						}}
-						isEditing={editing}
-						onEditingChange={setEditing}
-					/>
-				</div>
+				{!isCompleted && (
+					<div onClick={e => e.stopPropagation()}>
+						<ActionsItemFormBaseList
+							item={item}
+							isDisabled={isCompleted}
+							maxNameLength={200}
+							onUpdate={handleUpdate}
+							onDelete={handleDelete}
+							successMessages={{
+								update: 'Item updated',
+								delete: 'Item deleted',
+							}}
+							isEditing={editing}
+							onEditingChange={setEditing}
+						/>
+					</div>
+				)}
 			</CardContent>
 		</Card>
 	)

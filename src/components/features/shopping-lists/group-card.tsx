@@ -29,13 +29,15 @@ interface Group {
 	name: string
 	description?: string | null
 	base_lists?: Array<{ count: number }>
+	completed_runs_count?: number
 }
 
 interface Props {
 	group: Group
+	history?: boolean
 }
 
-export function GroupCard({ group }: Props) {
+export function GroupCard({ group, history = false }: Props) {
 	const [showEditDialog, setShowEditDialog] = useState(false)
 	const [showDeleteDialog, setShowDeleteDialog] = useState(false)
 	const [deleting, setDeleting] = useState(false)
@@ -61,43 +63,45 @@ export function GroupCard({ group }: Props) {
 				className='hover:border-primary/50 transition-colors cursor-pointer group'
 				size='sm'
 			>
-				<Link href={`/shopping-lists/${group.id}/lists`}>
+				<Link href={history ? `/history/${group.id}` : `/shopping-lists/${group.id}/lists`}>
 					<CardHeader className='gap-0'>
-						<div className='flex items-center justify-end gap-1'>
-							<Button
-								variant='ghost'
-								size='icon'
-								onClick={e => {
-									e.preventDefault()
-									e.stopPropagation()
-									setShowEditDialog(true)
-								}}
-								className='h-8 w-8'
-							>
-								<HugeiconsIcon
-									icon={Edit02Icon}
-									strokeWidth={2}
-									className='h-4 w-4'
-								/>
-							</Button>
-							<Button
-								variant='ghost'
-								size='icon'
-								onClick={e => {
-									e.preventDefault()
-									e.stopPropagation()
-									setShowDeleteDialog(true)
-								}}
-								disabled={deleting}
-								className='h-8 w-8'
-							>
-								<HugeiconsIcon
-									icon={Delete02Icon}
-									strokeWidth={2}
-									className='h-4 w-4'
-								/>
-							</Button>
-						</div>
+						{!history && (
+							<div className='flex items-center justify-end gap-1'>
+								<Button
+									variant='ghost'
+									size='icon'
+									onClick={e => {
+										e.preventDefault()
+										e.stopPropagation()
+										setShowEditDialog(true)
+									}}
+									className='h-8 w-8'
+								>
+									<HugeiconsIcon
+										icon={Edit02Icon}
+										strokeWidth={2}
+										className='h-4 w-4'
+									/>
+								</Button>
+								<Button
+									variant='ghost'
+									size='icon'
+									onClick={e => {
+										e.preventDefault()
+										e.stopPropagation()
+										setShowDeleteDialog(true)
+									}}
+									disabled={deleting}
+									className='h-8 w-8'
+								>
+									<HugeiconsIcon
+										icon={Delete02Icon}
+										strokeWidth={2}
+										className='h-4 w-4'
+									/>
+								</Button>
+							</div>
+						)}
 						<div className='flex gap-2 items-center'>
 							<span className='h-10 w-10 bg-primary/10 flex justify-center items-center rounded-full'>
 								<HugeiconsIcon
@@ -115,10 +119,12 @@ export function GroupCard({ group }: Props) {
 					<CardContent className='pt-4'>
 						<div className='flex items-center justify-between'>
 							<span>
-								{group.base_lists?.[0]?.count ?? 0} {(group.base_lists?.[0]?.count ?? 0) === 1 ? 'list' : 'lists'}
-							</span>
-							<div className='flex items-center text-sm text-primary transition-colors'>
-								<span>View lists</span>
+							{history
+								? `${group.completed_runs_count ?? 0} ${(group.completed_runs_count ?? 0) === 1 ? 'run' : 'runs'}`
+								: `${group.base_lists?.[0]?.count ?? 0} ${(group.base_lists?.[0]?.count ?? 0) === 1 ? 'list' : 'lists'}`}
+						</span>
+						<div className='flex items-center text-sm text-primary transition-colors'>
+							<span>{history ? 'View history' : 'View lists'}</span>
 								<HugeiconsIcon
 									icon={ArrowRight01Icon}
 									strokeWidth={2}

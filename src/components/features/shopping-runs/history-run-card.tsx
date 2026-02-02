@@ -1,11 +1,9 @@
 'use client'
 
-import { useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Calendar03Icon, DollarCircleIcon, ShoppingCart02Icon } from '@hugeicons/core-free-icons'
+import { Calendar03Icon, DollarCircleIcon, ShoppingCart02Icon, ArrowRight01Icon } from '@hugeicons/core-free-icons'
 import Link from 'next/link'
 import { formatDate, formatTime } from '@/utils/format-date'
 
@@ -27,23 +25,31 @@ export function HistoryRunCard({ run }: Props) {
 	const completedDate = run.completed_at ? new Date(run.completed_at) : null
 
 	return (
-		<Card>
-			<CardHeader>
-				<CardTitle className='flex items-center justify-between'>
-					<span className='flex items-center gap-2'>
-						<HugeiconsIcon
-							icon={ShoppingCart02Icon}
-							strokeWidth={2}
-						/>
-						{run.name}
-					</span>
-					<Badge variant='secondary'>Completed</Badge>
-				</CardTitle>
-				{run.base_list && <CardDescription>From: {run.base_list.name}</CardDescription>}
-			</CardHeader>
-			<CardContent>
-				<div className='flex items-center justify-between'>
-					<div className='space-y-2'>
+		<Card
+			className='hover:border-primary/50 transition-colors cursor-pointer group'
+			size='sm'
+		>
+			<Link href={`/shopping/${run.id}`}>
+				<CardHeader className='gap-0'>
+					<div className='flex items-center justify-end'>
+						<Badge variant='completed'>Completed</Badge>
+					</div>
+					<div className='flex gap-2 items-center'>
+						<span className='h-10 w-10 bg-primary/10 flex justify-center items-center rounded-full'>
+							<HugeiconsIcon
+								icon={ShoppingCart02Icon}
+								strokeWidth={2}
+								className='h-6 w-6 text-primary'
+							/>
+						</span>
+						<div className='flex flex-col'>
+							<CardTitle className='text-base md:text-lg truncate w-full max-w-[20ch]'>{run.name}</CardTitle>
+							{run.base_list && <CardDescription className='text-xs'>From: {run.base_list.name}</CardDescription>}
+						</div>
+					</div>
+				</CardHeader>
+				<CardContent className='pt-4'>
+					<div className='space-y-2 mb-4'>
 						<div className='flex items-center gap-2 text-sm text-muted-foreground'>
 							<HugeiconsIcon
 								icon={Calendar03Icon}
@@ -63,15 +69,18 @@ export function HistoryRunCard({ run }: Props) {
 							</div>
 						)}
 					</div>
-
-					<Button
-						asChild
-						variant='outline'
-					>
-						<Link href={`/shopping/${run.id}`}>View Details</Link>
-					</Button>
-				</div>
-			</CardContent>
+					<div className='flex items-center justify-end'>
+						<div className='flex items-center text-sm text-primary transition-colors'>
+							<span>View Details</span>
+							<HugeiconsIcon
+								icon={ArrowRight01Icon}
+								strokeWidth={2}
+								className='h-4 w-4 transition-transform group-hover:translate-x-1'
+							/>
+						</div>
+					</div>
+				</CardContent>
+			</Link>
 		</Card>
 	)
 }

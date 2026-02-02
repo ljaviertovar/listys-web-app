@@ -113,6 +113,20 @@ export function BaseListCard({ baseList, hasActiveRun = false, isActiveRun = fal
 								<Button
 									variant='ghost'
 									size='icon'
+									asChild
+									className='h-8 w-8'
+								>
+									<Link href={`/base-lists/${baseList.id}/edit`}>
+										<HugeiconsIcon
+											icon={Edit02Icon}
+											strokeWidth={2}
+											className='h-4 w-4'
+										/>
+									</Link>
+								</Button>
+								<Button
+									variant='ghost'
+									size='icon'
 									onClick={e => {
 										e.preventDefault()
 										e.stopPropagation()
@@ -126,20 +140,6 @@ export function BaseListCard({ baseList, hasActiveRun = false, isActiveRun = fal
 										strokeWidth={2}
 										className='h-4 w-4'
 									/>
-								</Button>
-								<Button
-									variant='ghost'
-									size='icon'
-									asChild
-									className='h-8 w-8'
-								>
-									<Link href={`/base-lists/${baseList.id}/edit`}>
-										<HugeiconsIcon
-											icon={Edit02Icon}
-											strokeWidth={2}
-											className='h-4 w-4'
-										/>
-									</Link>
 								</Button>
 							</>
 						)}
