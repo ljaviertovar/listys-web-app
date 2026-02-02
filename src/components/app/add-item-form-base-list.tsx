@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -17,13 +17,41 @@ import { createBaseListItem } from '@/actions/base-lists'
 import { createShoppingRunItem } from '@/actions/shopping-runs'
 
 import { z } from 'zod'
-import { createBaseListItemSchema as baseListSchema, type CreateBaseListItemInput } from '@/lib/validations/base-list'
-import {
-	createShoppingRunItemSchema as shoppingRunSchema,
-	type CreateShoppingRunItemInput,
-} from '@/lib/validations/shopping-run'
+import { createBaseListItemSchema as baseListSchema } from '@/lib/validations/base-list'
+import { createShoppingRunItemSchema as shoppingRunSchema } from '@/lib/validations/shopping-run'
 
 import { CATEGORIES, UNITS } from '@/data/constants'
+
+// Create form-specific schemas with required unit field
+const baseListFormSchema = z.object({
+	base_list_id: z.string().uuid(),
+	name: z.string().min(1, 'Item name is required').max(200),
+	quantity: z
+		.number()
+		.min(0.1, 'Quantity must be at least 0.1')
+		.max(99, 'Quantity cannot exceed 99')
+		.refine(n => Math.round(n * 10) === n * 10, 'Quantity must be in steps of 0.1'),
+	unit: z.string().min(1, 'Unit is required'),
+	notes: z.string().max(500).optional(),
+	category: z.string().max(50).optional(),
+	sort_order: z.number().int(),
+})
+
+const shoppingRunFormSchema = z.object({
+	shopping_run_id: z.string().uuid(),
+	name: z.string().min(1, 'Item name is required').max(200),
+	quantity: z
+		.number()
+		.min(0.1, 'Quantity must be at least 0.1')
+		.max(99, 'Quantity cannot exceed 99')
+		.refine(n => Math.round(n * 10) === n * 10, 'Quantity must be in steps of 0.1'),
+	unit: z.string().min(1, 'Unit is required'),
+	notes: z.string().max(500).optional(),
+	category: z.string().max(50).optional(),
+})
+
+type BaseListFormData = z.infer<typeof baseListFormSchema>
+type ShoppingRunFormData = z.infer<typeof shoppingRunFormSchema>
 
 type Props =
 	| { context: 'base-list'; baseListId: string; isLocked?: boolean; onSuccess?: () => void }
@@ -36,47 +64,63 @@ export function AddItemFormBaseList(props: Props) {
 	const isBaseList = props.context === 'base-list'
 	const isLocked = isBaseList ? props.isLocked : false
 
-	// Patch the schema to make 'unit' required
-	const requiredUnitSchema = <T extends z.ZodRawShape>(schema: z.ZodObject<T>) =>
-		schema.extend({ unit: z.string().min(1, 'Unit is required') })
+	const baseListForm = useForm<BaseListFormData>({
+		resolver: zodResolver(baseListFormSchema),
+		defaultValues: {
+			base_list_id: isBaseList ? props.baseListId : '',
+			quantity: 1,
+			unit: 'pcs',
+			sort_order: 0,
+			name: '',
+		},
+	})
 
-	const schema = isBaseList ? requiredUnitSchema(baseListSchema) : requiredUnitSchema(shoppingRunSchema)
+	const shoppingRunForm = useForm<ShoppingRunFormData>({
+		resolver: zodResolver(shoppingRunFormSchema),
+		defaultValues: {
+			shopping_run_id: !isBaseList ? props.runId : '',
+			quantity: 1,
+			unit: 'pcs',
+			name: '',
+		},
+	})
 
+	const form = (isBaseList ? baseListForm : shoppingRunForm) as typeof baseListForm
 	const {
 		register,
 		handleSubmit,
 		control,
 		formState: { errors },
-		reset,
-	} = useForm<CreateBaseListItemInput | CreateShoppingRunItemInput>({
-		resolver: zodResolver(schema),
-		defaultValues: isBaseList
-			? { base_list_id: props.baseListId, quantity: 1, unit: 'pcs' }
-			: { shopping_run_id: props.runId, quantity: 1, unit: 'pcs' },
-	})
+	} = form
 
-	const onSubmit = async (data: CreateBaseListItemInput | CreateShoppingRunItemInput) => {
+	const onSubmit = async (data: any) => {
 		setError(null)
 		setLoading(true)
 		try {
-			const result = isBaseList
-				? await createBaseListItem(data as CreateBaseListItemInput)
-				: await createShoppingRunItem(data as CreateShoppingRunItemInput)
+			const result = isBaseList ? await createBaseListItem(data) : await createShoppingRunItem(data)
 
 			if (result.error) throw new Error(result.error)
 
 			// Reset all fields including controlled selects to clear the form UI
 			if (isBaseList) {
-				reset({
+				baseListForm.reset({
 					base_list_id: props.baseListId,
 					quantity: 1,
 					name: '',
 					unit: 'pcs',
 					category: undefined,
 					notes: '',
+					sort_order: 0,
 				})
 			} else {
-				reset({ shopping_run_id: props.runId, quantity: 1, name: '', unit: 'pcs', category: undefined, notes: '' })
+				shoppingRunForm.reset({
+					shopping_run_id: props.runId,
+					quantity: 1,
+					name: '',
+					unit: 'pcs',
+					category: undefined,
+					notes: '',
+				})
 			}
 			toast.success('Item added')
 		} catch (err: any) {
