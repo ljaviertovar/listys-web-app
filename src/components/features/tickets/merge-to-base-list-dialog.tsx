@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Loading03Icon, FolderIcon, Add01Icon } from '@hugeicons/core-free-icons'
+import { Loading03Icon, FolderIcon, Add01Icon, ListViewIcon } from '@hugeicons/core-free-icons'
 import { getGroups } from '@/actions/shopping-lists'
 import { getBaseLists } from '@/actions/base-lists'
 import { mergeTicketItemsToBaseList, createBaseListFromTicket } from '@/actions/tickets'
@@ -175,7 +175,7 @@ export function MergeToBaseListDialog({ open, onOpenChange, ticketId, selectedIt
 
 						{/* Group selector (always shown) */}
 						<div className='space-y-2'>
-							<Label>Group</Label>
+							<Label>Shopping Lists Group</Label>
 							<Select
 								value={selectedGroupId}
 								onValueChange={value => {
@@ -208,7 +208,7 @@ export function MergeToBaseListDialog({ open, onOpenChange, ticketId, selectedIt
 
 						{mode === 'existing' ? (
 							<div className='space-y-2'>
-								<Label>Select List</Label>
+								<Label>Shopping List</Label>
 								{filteredBaseLists.length === 0 ? (
 									<p className='text-sm text-muted-foreground'>No lists in this group. Create a new one instead.</p>
 								) : (
@@ -217,7 +217,7 @@ export function MergeToBaseListDialog({ open, onOpenChange, ticketId, selectedIt
 										onValueChange={setSelectedBaseListId}
 									>
 										<SelectTrigger>
-											<SelectValue placeholder='Select a list' />
+											<SelectValue placeholder='Select a shopping list' />
 										</SelectTrigger>
 										<SelectContent>
 											{filteredBaseLists.map(list => (
@@ -225,7 +225,14 @@ export function MergeToBaseListDialog({ open, onOpenChange, ticketId, selectedIt
 													key={list.id}
 													value={list.id}
 												>
-													{list.name}
+													<div className='flex items-center gap-2'>
+														<HugeiconsIcon
+															icon={ListViewIcon}
+															strokeWidth={2}
+															className='h-4 w-4'
+														/>
+														{list.name}
+													</div>
 												</SelectItem>
 											))}
 										</SelectContent>
@@ -247,17 +254,19 @@ export function MergeToBaseListDialog({ open, onOpenChange, ticketId, selectedIt
 
 						{error && <p className='text-sm text-destructive'>{error}</p>}
 
-						<div className='flex justify-end gap-2 pt-2'>
+						<div className='w-full flex justify-between gap-4 pt-2'>
 							<Button
 								type='button'
 								variant='outline'
 								onClick={() => onOpenChange(false)}
+								className='flex-1'
 							>
 								Cancel
 							</Button>
 							<Button
 								type='submit'
 								disabled={loading}
+								className='flex-1'
 							>
 								{loading ? (
 									<>
@@ -269,14 +278,7 @@ export function MergeToBaseListDialog({ open, onOpenChange, ticketId, selectedIt
 										Adding...
 									</>
 								) : (
-									<>
-										<HugeiconsIcon
-											icon={Add01Icon}
-											strokeWidth={2}
-											className='mr-2 h-4 w-4'
-										/>
-										Add to List
-									</>
+									<>Add</>
 								)}
 							</Button>
 						</div>

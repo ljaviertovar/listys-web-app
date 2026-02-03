@@ -108,7 +108,7 @@ export function TicketItemsSelector({ ticketId, items, status, isMerged, ocrErro
 						/>
 						<span className='text-sm text-muted-foreground'>
 							{selectedItems.size === 0
-								? 'Select items to add to a list'
+								? 'Select all items to add to a list'
 								: `${selectedItems.size} of ${items.length} selected`}
 						</span>
 					</div>
@@ -120,7 +120,7 @@ export function TicketItemsSelector({ ticketId, items, status, isMerged, ocrErro
 							<HugeiconsIcon
 								icon={Add01Icon}
 								strokeWidth={2}
-								className='mr-2 h-4 w-4'
+								className='h-4 w-4'
 							/>
 							Add to List
 						</Button>
@@ -146,13 +146,13 @@ export function TicketItemsSelector({ ticketId, items, status, isMerged, ocrErro
 						)}
 						<div className='flex-1'>
 							<div className='w-full flex justify-between items-center gap-4 mb-1'>
-								<p className='font-bold'>{item.name}</p>
-								<span className='text-muted-foreground'>
+								<p className='tex-sm font-bold truncate w-full max-w-[10ch]'>{item.name}</p>
+								<span className='text-xs text-muted-foreground'>
 									{item.quantity || 1} {item.unit || 'pcs'}
 								</span>
 
 								{item.price !== null && (
-									<span className='text-sm text-muted-foreground'>${item.price.toFixed(2)} / unit</span>
+									<span className='text-xs text-muted-foreground'>${item.price.toFixed(2)} / unit</span>
 								)}
 							</div>
 							<div className='flex items-center gap-2'>

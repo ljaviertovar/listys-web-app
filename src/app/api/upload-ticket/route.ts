@@ -109,48 +109,49 @@ export async function POST(request: NextRequest) {
     // Trigger OCR processing via Edge Function with all images
     console.log('Calling Edge Function with', signedUrls.length, 'images')
 
+    // Trigger OCR processing via Edge Function with all images (fire-and-forget)
+    // Start the request but do not await it so frontend is not blocked waiting for OCR
     try {
-      const ocrResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/process-ticket-ocr`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
-          },
-          body: JSON.stringify({
-            ticketId: ticket.id,
-            imageUrls: signedUrls, // Array of URLs
-            imageUrl: signedUrls[0], // Backward compatibility
-          }),
-        }
-      )
-
-      console.log('OCR Response status:', ocrResponse.status)
-
-      if (!ocrResponse.ok) {
-        const errorText = await ocrResponse.text()
-        console.error('OCR function error:', errorText)
-
-        await supabase
-          .from('tickets')
-          .update({ ocr_status: 'failed' })
-          .eq('id', ticket.id)
-      } else {
-        const result = await ocrResponse.json()
-        console.log('OCR processing triggered successfully:', result)
-      }
-    } catch (error) {
-      console.error('Failed to trigger OCR:', error)
-
-      try {
-        await supabase
-          .from('tickets')
-          .update({ ocr_status: 'failed' })
-          .eq('id', ticket.id)
-      } catch (updateError) {
-        console.error('Failed to update ticket status:', updateError)
-      }
+      fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/process-ticket-ocr`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+        },
+        body: JSON.stringify({
+          ticketId: ticket.id,
+          imageUrls: signedUrls, // Array of URLs
+          imageUrl: signedUrls[0], // Backward compatibility
+        }),
+      })
+        .then(async (res) => {
+          if (!res.ok) {
+            const text = await res.text()
+            console.error('OCR function error:', text)
+            try {
+              await supabase.from('tickets').update({ ocr_status: 'failed' }).eq('id', ticket.id)
+            } catch (u) {
+              console.error('Failed to update ticket status after OCR error:', u)
+            }
+            return
+          }
+          try {
+            const result = await res.json()
+            console.log('OCR processing triggered successfully:', result)
+          } catch (e) {
+            console.log('OCR triggered but failed to parse response')
+          }
+        })
+        .catch(async (err) => {
+          console.error('Failed to trigger OCR:', err)
+          try {
+            await supabase.from('tickets').update({ ocr_status: 'failed' }).eq('id', ticket.id)
+          } catch (u) {
+            console.error('Failed to update ticket status after OCR failure:', u)
+          }
+        })
+    } catch (err) {
+      console.error('Failed to initiate OCR trigger:', err)
     }
 
     return NextResponse.json({ data: ticket })

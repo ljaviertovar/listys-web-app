@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -23,6 +24,7 @@ interface ImagePreview {
 }
 
 export function UploadTicketForm({ onSuccess }: Props) {
+	const router = useRouter()
 	const [previews, setPreviews] = useState<ImagePreview[]>([])
 	const [loading, setLoading] = useState(false)
 	const fileInputRef = useRef<HTMLInputElement>(null)
@@ -130,8 +132,13 @@ export function UploadTicketForm({ onSuccess }: Props) {
 				throw new Error(result.error || 'Upload failed')
 			}
 
-			toast.success('Ticket uploaded successfully!')
+			// Navigate immediately to the ticket page showing `pending` status
+			const ticketId = result?.data?.id || result?.id || null
+			toast.success('Ticket created — redirecting...')
 			onSuccess?.()
+			if (ticketId) {
+				router.push(`/tickets/${ticketId}`)
+			}
 		} catch (err) {
 			const message = err instanceof Error ? err.message : 'Failed to upload ticket'
 			toast.error(message)
