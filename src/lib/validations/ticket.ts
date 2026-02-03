@@ -1,11 +1,16 @@
 import { z } from 'zod'
-import { MAX_TICKET_ITEMS_MERGE } from '@/lib/config/limits'
+import { MAX_TICKET_ITEMS_MERGE, MAX_IMAGES_PER_TICKET } from '@/lib/config/limits'
 
 export const uploadTicketSchema = z.object({
   store_name: z.string().min(1, 'Store name is required').max(100, 'Store name is too long'),
-  file: z.instanceof(File, { message: 'Please select an image file' })
-    .refine((file) => file.size <= 10 * 1024 * 1024, 'File size must be less than 10MB')
-    .refine((file) => file.type.startsWith('image/'), 'Please select an image file'),
+  files: z
+    .array(
+      z.instanceof(File, { message: 'Please select image files' })
+        .refine((file) => file.size <= 10 * 1024 * 1024, 'Each file must be less than 10MB')
+        .refine((file) => file.type.startsWith('image/'), 'Please select image files only')
+    )
+    .min(1, 'Please select at least one image')
+    .max(MAX_IMAGES_PER_TICKET, `Maximum ${MAX_IMAGES_PER_TICKET} images per ticket`),
 })
 
 export const mergeTicketItemsSchema = z.object({
