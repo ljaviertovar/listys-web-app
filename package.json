@@ -4,6 +4,7 @@
 	"private": true,
 	"scripts": {
 		"dev": "next dev",
+		"gen:types": "node ./scripts/gen-supabase-types.js",
 		"build": "next build",
 		"start": "next start",
 		"lint": "eslint"

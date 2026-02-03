@@ -9,6 +9,7 @@ import { PageHeader, PageContainer } from '@/components/app'
 import { TicketItemsSelector } from '@/components/features/tickets/ticket-items-selector'
 import { TicketImage } from '@/components/features/tickets/ticket-image'
 import { TicketActions } from '@/components/features/tickets/ticket-actions'
+import { TicketStatusListener } from '@/components/features/tickets/ticket-status-listener'
 import BackLink from '@/components/app/back-link'
 import { Invoice01Icon, InformationCircleIcon, ListViewIcon } from '@hugeicons/core-free-icons'
 
@@ -71,6 +72,8 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 				)}
 
 				<div className='grid gap-6 lg:grid-cols-2'>
+					{/* Realtime status listener (client) */}
+					<TicketStatusListener ticketId={ticketId} />
 					{/* Extracted Items */}
 					<Card
 						className='hover:border-primary/50 transition-colors'
@@ -138,7 +141,15 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 							</div>
 						</CardHeader>
 						<CardContent>
-							<TicketImage imagePath={ticket.image_path} />
+								<TicketImage
+									imagePaths={
+										(ticket as any).image_paths && (ticket as any).image_paths.length > 0
+											? (ticket as any).image_paths
+											: ticket.image_path
+											? [ticket.image_path]
+											: []
+									}
+								/>
 						</CardContent>
 					</Card>
 				</div>

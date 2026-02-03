@@ -80,9 +80,8 @@ export function TicketActions({ ticket }: Props) {
 		}
 	}
 
-	// Show retry/reprocess button for failed, stuck pending, or stuck processing tickets
-	const showRetryButton =
-		ticket.ocr_status === 'failed' || ticket.ocr_status === 'pending' || ticket.ocr_status === 'processing'
+	// Show retry/reprocess button for failed or pending tickets (do NOT show while processing)
+	const showRetryButton = ticket.ocr_status === 'failed' || ticket.ocr_status === 'pending'
 	const retryButtonLabel = ticket.ocr_status === 'failed' ? 'Retry' : 'Reprocess'
 
 	return (
@@ -111,18 +110,21 @@ export function TicketActions({ ticket }: Props) {
 				</Button>
 			)}
 
-			<Button
-				variant='destructive'
-				size='sm'
-				onClick={() => setShowDeleteDialog(true)}
-			>
-				<HugeiconsIcon
-					icon={Delete02Icon}
-					strokeWidth={2}
-					className='h-4 w-4'
-				/>
-				Delete Ticket
-			</Button>
+			{/* Hide delete while processing to avoid accidental removal during OCR */}
+			{ticket.ocr_status !== 'processing' && (
+				<Button
+					variant='destructive'
+					size='sm'
+					onClick={() => setShowDeleteDialog(true)}
+				>
+					<HugeiconsIcon
+						icon={Delete02Icon}
+						strokeWidth={2}
+						className='h-4 w-4'
+					/>
+					Delete Ticket
+				</Button>
+			)}
 
 			<AlertDialog
 				open={showDeleteDialog}
