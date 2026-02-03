@@ -120,7 +120,7 @@ export function TicketItemsSelector({ ticketId, items, status, isMerged, ocrErro
 							<HugeiconsIcon
 								icon={Add01Icon}
 								strokeWidth={2}
-								className='mr-2 h-4 w-4'
+								className='h-4 w-4'
 							/>
 							Add to List
 						</Button>
