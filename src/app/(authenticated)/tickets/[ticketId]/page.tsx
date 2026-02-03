@@ -141,15 +141,15 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 							</div>
 						</CardHeader>
 						<CardContent>
-								<TicketImage
-									imagePaths={
-										(ticket as any).image_paths && (ticket as any).image_paths.length > 0
-											? (ticket as any).image_paths
-											: ticket.image_path
+							<TicketImage
+								imagePaths={
+									(ticket as any).image_paths && (ticket as any).image_paths.length > 0
+										? (ticket as any).image_paths
+										: ticket.image_path
 											? [ticket.image_path]
 											: []
-									}
-								/>
+								}
+							/>
 						</CardContent>
 					</Card>
 				</div>

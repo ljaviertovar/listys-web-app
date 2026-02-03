@@ -93,7 +93,11 @@ export function TicketImage({ imagePaths = [] }: Props) {
 							className={`rounded border ${i === mainIndex ? 'border-primary' : 'border-transparent'} p-0.5`}
 							aria-label={`Show image ${i + 1}`}
 						>
-							<img src={u} alt={`Thumbnail ${i + 1}`} className='h-16 w-24 object-cover' />
+							<img
+								src={u}
+								alt={`Thumbnail ${i + 1}`}
+								className='h-16 w-24 object-cover'
+							/>
 						</button>
 					))}
 				</div>
