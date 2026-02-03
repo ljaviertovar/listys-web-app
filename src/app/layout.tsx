@@ -7,6 +7,7 @@ import { Inter, Outfit } from 'next/font/google'
 const inter = Inter({ subsets: ['latin'] })
 
 import './globals.css'
+import ActiveSessionInit from '@/components/app/active-session-init'
 
 const outfit = Outfit({ subsets: ['latin'], variable: '--font-sans' })
 
@@ -33,6 +34,7 @@ export default function RootLayout({
 					enableSystem
 					disableTransitionOnChange
 				>
+					<ActiveSessionInit />
 					{children}
 					<Toaster />
 				</ThemeProvider>
