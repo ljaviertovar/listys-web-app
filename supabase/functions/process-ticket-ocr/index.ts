@@ -58,6 +58,8 @@ Return ONLY a valid JSON array with this exact structure, no markdown formatting
 Rules:
 - Normalize item names (capitalize properly, remove extra spaces)
 - Infer units if not explicitly shown
+- The "price" field must be the UNIT PRICE (price per single item), NOT the total line price
+- If the receipt shows a total for multiple items (e.g., "3 x $2.50 = $7.50"), extract price as 2.50, not 7.50
 - Ignore subtotals, taxes, payment info, and totals
 - Only return the JSON array, no additional text or markdown
 - If you can't extract items, return an empty array []

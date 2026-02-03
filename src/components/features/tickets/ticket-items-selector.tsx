@@ -145,14 +145,20 @@ export function TicketItemsSelector({ ticketId, items, status, isMerged, ocrErro
 							/>
 						)}
 						<div className='flex-1'>
-							<p className='font-bold mb-1'>{item.name}</p>
+							<div className='w-full flex justify-between items-center gap-4 mb-1'>
+								<p className='font-bold'>{item.name}</p>
+								<span className='text-muted-foreground'>
+									{item.quantity || 1} {item.unit || 'pcs'}
+								</span>
+
+								{item.price !== null && (
+									<span className='text-sm text-muted-foreground'>${item.price.toFixed(2)} / unit</span>
+								)}
+							</div>
 							<div className='flex items-center gap-2'>
-								{item.category && <Badge variant='outline'>{item.category}</Badge>}
+								{item.category && <Badge variant='category'>{item.category}</Badge>}
 							</div>
 						</div>
-						<span>
-							{item.quantity || 1} {item.unit || 'pcs'}
-						</span>
 					</div>
 				))}
 			</div>
