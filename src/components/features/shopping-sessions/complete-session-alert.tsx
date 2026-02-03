@@ -21,19 +21,21 @@ interface Props {
 	description: string
 	sessionId: string
 	progress: number
+	open: boolean
+	onOpenChange: (open: boolean) => void
 }
 
-export function CompleteSessionAlert({ title, description, sessionId, progress }: Props) {
-	const [open, setOpen] = useState(false)
+export function CompleteSessionAlert({ title, description, sessionId, progress, open, onOpenChange }: Props) {
 	const [loading, setLoading] = useState(false)
 	const [syncToBase, setSyncToBase] = useState(true)
 	const router = useRouter()
 
+	// Auto-open cuando progreso es 100%
 	useEffect(() => {
-		if (progress === 100) {
-			setOpen(true)
+		if (progress === 100 && !open) {
+			onOpenChange(true)
 		}
-	}, [progress])
+	}, [progress, open, onOpenChange])
 
 	const handleComplete = async () => {
 		setLoading(true)
@@ -42,6 +44,7 @@ export function CompleteSessionAlert({ title, description, sessionId, progress }
 				sync_to_base: syncToBase,
 			})
 			if (error) throw new Error(error)
+			onOpenChange(false)
 			router.push('/dashboard')
 			router.refresh()
 		} catch (err) {
@@ -54,7 +57,7 @@ export function CompleteSessionAlert({ title, description, sessionId, progress }
 	return (
 		<AlertDialog
 			open={open}
-			onOpenChange={setOpen}
+			onOpenChange={onOpenChange}
 		>
 			<AlertDialogContent>
 				<AlertDialogHeader>

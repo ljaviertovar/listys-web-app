@@ -4,10 +4,6 @@ import { getShoppingSession } from '@/actions/shopping-sessions'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { CheckmarkCircle02Icon } from '@hugeicons/core-free-icons'
 import { ShoppingSessionItemRow } from '@/components/features/shopping-sessions/shopping-session-item-row'
-import { CompleteSessionButton } from '@/components/features/shopping-sessions/complete-session-button'
-import { CompleteSessionAlert } from '@/components/features/shopping-sessions/complete-session-alert'
-import { AddItemDialogBaseList } from '@/components/app/add-item-dialog-base-list'
-import { CancelSessionButton } from '@/components/features/shopping-sessions/cancel-session-button'
 import type { ShoppingSessionWithItems } from '@/features/shopping-sessions/types'
 import PageHeader from '@/components/app/page-header'
 import BackLink from '@/components/app/back-link'
@@ -15,6 +11,8 @@ import { formatDate, formatTime } from '@/utils/format-date'
 import PageContainer from '@/components/app/page-container'
 import { PageFooterAction } from '@/components/app'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { ActiveShoppingBadge } from '@/components/app/active-shopping-badge'
+import { ShoppingSessionActions } from '@/components/features/shopping-sessions/shopping-session-actions'
 
 export default async function ShoppingRunPage({ params }: { params: Promise<{ runId: string }> }) {
 	const { runId } = await params
@@ -59,11 +57,13 @@ export default async function ShoppingRunPage({ params }: { params: Promise<{ ru
 			/>
 
 			<PageContainer>
-				<BackLink
-					href={isCompleted ? '/history' : '/dashboard'}
-					label={isCompleted ? 'Back to History' : 'Back to Dashboard'}
-				/>
-
+				<div className='flex items-start justify-between mb-0'>
+					<BackLink
+						href={isCompleted ? '/history' : '/dashboard'}
+						label={isCompleted ? 'Back to History' : 'Back to Dashboard'}
+					/>
+					{!isCompleted && <ActiveShoppingBadge />}
+				</div>
 				{isCompleted && (
 					<div className='rounded-lg border border-green-200 bg-green-50 p-4'>
 						<div className='flex items-start gap-3'>
@@ -99,29 +99,10 @@ export default async function ShoppingRunPage({ params }: { params: Promise<{ ru
 			<PageFooterAction>
 				<div className='w-full flex flex-col gap-2'>
 					{!isCompleted && (
-						<div className='w-full flex items-center gap-2'>
-							<CancelSessionButton sessionId={runId} />
-							<CompleteSessionButton
-								sessionId={runId}
-								progress={progress}
-								items={runWithItems.items}
-							/>
-						</div>
-					)}
-
-					{!isCompleted && (
-						<>
-							<AddItemDialogBaseList
-								context='shopping-session'
-								sessionId={runId}
-							/>
-							<CompleteSessionAlert
-								title='🎉 All items checked!'
-								description='You have checked all items in your shopping list. Would you like to complete this shopping session?'
-								sessionId={runId}
-								progress={progress}
-							/>
-						</>
+						<ShoppingSessionActions
+							sessionId={runId}
+							progress={progress}
+						/>
 					)}
 				</div>
 			</PageFooterAction>

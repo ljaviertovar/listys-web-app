@@ -75,6 +75,7 @@ export function CancelSessionButton({ sessionId }: Props) {
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>
+					<AlertDialogCancel variant='outline'>Keep Shopping</AlertDialogCancel>
 					<AlertDialogAction
 						onClick={handleCancel}
 						disabled={loading}
@@ -94,7 +95,6 @@ export function CancelSessionButton({ sessionId }: Props) {
 							'Cancel Shopping'
 						)}
 					</AlertDialogAction>
-					<AlertDialogCancel variant='outline'>Keep Shopping</AlertDialogCancel>
 				</AlertDialogFooter>
 			</AlertDialogContent>
 		</AlertDialog>

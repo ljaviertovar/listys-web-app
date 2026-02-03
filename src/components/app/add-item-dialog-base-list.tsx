@@ -42,7 +42,7 @@ export function AddItemDialogBaseList(props: Props) {
 					Add Item
 				</Button>
 			</DialogTrigger>
-			<DialogContent className='sm:max-w-125'>
+			<DialogContent className='w-11/12 sm:max-w-125'>
 				<DialogHeader>
 					<DialogTitle>Add New Item</DialogTitle>
 					<DialogDescription>

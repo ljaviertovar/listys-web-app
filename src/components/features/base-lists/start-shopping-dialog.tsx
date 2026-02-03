@@ -1,0 +1,132 @@
+'use client'
+
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { HugeiconsIcon } from '@hugeicons/react'
+import { ShoppingCart02Icon, Loading03Icon } from '@hugeicons/core-free-icons'
+import { createShoppingSession } from '@/actions/shopping-sessions'
+import { toast } from 'sonner'
+import { AlertDialogMedia } from '@/components/ui/alert-dialog'
+
+interface Props {
+	baseListId: string
+	baseListName?: string
+	disabled?: boolean
+	itemsCount?: number
+}
+
+export function StartShoppingDialog({ baseListId, baseListName, disabled, itemsCount }: Props) {
+	const [open, setOpen] = useState(false)
+	const [loading, setLoading] = useState(false)
+	const router = useRouter()
+
+	const handleConfirm = async () => {
+		setLoading(true)
+		try {
+			const { data, error, activeSessionId } = await createShoppingSession({
+				base_list_id: baseListId,
+				name: baseListName || '',
+			})
+			if (error) {
+				// If there's an active session, navigate to it
+				if ((error as string).includes('active shopping run') && activeSessionId) {
+					router.push(`/shopping/${activeSessionId}`)
+					return
+				}
+				throw new Error(error as string)
+			}
+
+			if (data?.id) {
+				router.push(`/shopping/${data.id}`)
+			} else {
+				router.refresh()
+			}
+		} catch (err) {
+			const message = err instanceof Error ? err.message : 'Failed to start shopping session'
+			toast.error(message)
+		} finally {
+			setLoading(false)
+			setOpen(false)
+		}
+	}
+
+	const isEmpty = itemsCount !== undefined ? itemsCount === 0 : false
+
+	return (
+		<Dialog
+			open={open}
+			onOpenChange={setOpen}
+		>
+			<DialogTrigger asChild>
+				<Button
+					asChild
+					disabled={disabled || isEmpty}
+					className='w-full'
+					variant={'outline'}
+				>
+					<span>
+						<HugeiconsIcon
+							icon={ShoppingCart02Icon}
+							strokeWidth={2}
+							data-icon='inline-start'
+						/>
+						Start Shopping
+					</span>
+				</Button>
+			</DialogTrigger>
+			<DialogContent className='w-11/12'>
+				<DialogHeader className='items-center gap-1.5'>
+					<AlertDialogMedia className='bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary'>
+						<HugeiconsIcon
+							icon={ShoppingCart02Icon}
+							strokeWidth={2}
+							className='h-4 w-4'
+						/>
+					</AlertDialogMedia>
+					<DialogTitle>Start Shopping Session</DialogTitle>
+					<DialogDescription>
+						{isEmpty ? (
+							"This base list has no items. Add items before starting a shopping session."
+						) : (
+							<>This will create a new shopping session using items from the base list{baseListName ? ` "${baseListName}"` : ''}. Are you sure you want to continue?</>
+						)}
+					</DialogDescription>
+				</DialogHeader>
+				<DialogFooter className='w-full flex-row justify-between gap-4'>
+					<Button
+						variant='outline'
+						onClick={() => setOpen(false)}
+						disabled={loading}
+						className='flex-1'
+					>
+						Cancel
+					</Button>
+					<Button
+						onClick={handleConfirm}
+						disabled={loading || isEmpty}
+						className='flex-1'
+					>
+						{loading ? (
+							<HugeiconsIcon
+								icon={Loading03Icon}
+								strokeWidth={2}
+								className='h-4 w-4 animate-spin'
+							/>
+						) : null}
+						{loading ? 'Starting...' : 'Start Shopping'}
+					</Button>
+				</DialogFooter>
+			</DialogContent>
+		</Dialog>
+	)
+}

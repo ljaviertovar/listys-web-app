@@ -27,6 +27,8 @@ import {
 	AlertDialogMedia,
 	AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import { ActiveShoppingBadge } from '@/components/app/active-shopping-badge'
+import { StartShoppingDialog } from '@/components/features/base-lists/start-shopping-dialog'
 
 interface Props {
 	baseList: BaseListWithCount
@@ -58,6 +60,12 @@ export function BaseListCard({ baseList, hasActiveRun = false, isActiveRun = fal
 	const handleStartRun = async () => {
 		setStartingRun(true)
 		try {
+			// Prevent starting from an empty base list
+			if (!baseList.items_count || baseList.items_count === 0) {
+				toast.error('Cannot start a shopping session from an empty base list. Add items first.')
+				setStartingRun(false)
+				return
+			}
 			const result = await createShoppingSession({
 				base_list_id: baseList.id,
 				name: baseList.name,
@@ -100,14 +108,7 @@ export function BaseListCard({ baseList, hasActiveRun = false, isActiveRun = fal
 			>
 				<CardHeader className='gap-0'>
 					<div className='flex items-center justify-end gap-1'>
-						{isActiveRun && (
-							<div className='h-8 align-middle'>
-								<Badge className='bg-green-100 text-green-500 flex items-center gap-1.5'>
-									<span className='h-2 w-2 rounded-full bg-green-500' />
-									Shopping
-								</Badge>
-							</div>
-						)}
+						{isActiveRun && <ActiveShoppingBadge />}
 						{!isActiveRun && (
 							<>
 								<Button
@@ -179,19 +180,14 @@ export function BaseListCard({ baseList, hasActiveRun = false, isActiveRun = fal
 							</Link>
 						</Button>
 					) : (
-						<Button
-							variant={'outline'}
-							size={'sm'}
-							onClick={handleStartRun}
-							disabled={isDisabled || startingRun || loading}
-						>
-							<HugeiconsIcon
-								icon={ShoppingCart02Icon}
-								strokeWidth={2}
-								data-icon='inline-start'
+						<div className='w-6/12'>
+							<StartShoppingDialog
+								baseListId={baseList.id}
+								baseListName={baseList.name}
+								disabled={isDisabled || startingRun || loading}
+								itemsCount={baseList.items_count}
 							/>
-							{startingRun ? 'Starting...' : 'Start Shopping'}
-						</Button>
+						</div>
 					)}
 				</CardFooter>
 			</Card>

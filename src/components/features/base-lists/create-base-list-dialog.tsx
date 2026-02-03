@@ -47,14 +47,20 @@ export function CreateBaseListDialog({ groupId }: Props) {
 		setLoading(true)
 
 		try {
-			const { error } = await createBaseList(data)
+			const { data: baseList, error } = await createBaseList(data)
 
 			if (error) throw new Error(error)
 
 			toast.success('Base list created successfully')
 			setOpen(false)
 			reset({ group_id: groupId })
-			router.refresh()
+
+			// Redirect to edit page to add items
+			if (baseList?.id) {
+				router.push(`/base-lists/${baseList.id}/edit`)
+			} else {
+				router.refresh()
+			}
 		} catch (err) {
 			const message = err instanceof Error ? err.message : 'Failed to create base list'
 			toast.error(message)
@@ -78,7 +84,7 @@ export function CreateBaseListDialog({ groupId }: Props) {
 					New Base List
 				</Button>
 			</DialogTrigger>
-			<DialogContent>
+			<DialogContent className='w-11/12'>
 				<DialogHeader>
 					<DialogTitle>Create New Base List</DialogTitle>
 					<DialogDescription>Add a reusable shopping list template</DialogDescription>

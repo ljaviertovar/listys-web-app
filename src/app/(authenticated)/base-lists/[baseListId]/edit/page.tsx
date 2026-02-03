@@ -1,18 +1,18 @@
 import { redirect } from 'next/navigation'
+import { HugeiconsIcon } from '@hugeicons/react'
+
 import { createClient } from '@/lib/supabase/server'
 
-import { getBaseList } from '@/actions/base-lists'
-import { Button } from '@/components/ui/button'
-import { HugeiconsIcon } from '@hugeicons/react'
-import { ShoppingCart02Icon, PlusSignIcon } from '@hugeicons/core-free-icons'
-import Link from 'next/link'
-import { AddItemDialogBaseList } from '@/components/app/add-item-dialog-base-list'
 import ScrollArea from '@/components/ui/scroll-area'
 import { BaseListItemRow } from '@/components/features/base-lists/base-list-item-row'
+import { AddItemDialogBaseList } from '@/components/app/add-item-dialog-base-list'
+import { StartShoppingDialog } from '@/components/features/base-lists/start-shopping-dialog'
 import type { BaseListWithItems } from '@/features/base-lists/types'
-import PageHeader from '@/components/app/page-header'
-import BackLink from '@/components/app/back-link'
-import { PageContainer, PageFooterAction } from '@/components/app'
+import { PageHeader, PageContainer, PageFooterAction, BackLink } from '@/components/app'
+
+import { getBaseList } from '@/actions/base-lists'
+
+import { PlusSignIcon } from '@hugeicons/core-free-icons'
 
 export default async function EditBaseListPage({ params }: { params: Promise<{ baseListId: string }> }) {
 	const { baseListId } = await params
@@ -64,20 +64,6 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 			<PageHeader
 				title={baseListWithItems.name}
 				desc='Manage items in this base list'
-				children={
-					!anyActiveSession && (
-						<Button asChild>
-							<Link href={`/shopping/new?baseListId=${baseListId}`}>
-								<HugeiconsIcon
-									icon={ShoppingCart02Icon}
-									strokeWidth={2}
-									data-icon='inline-start'
-								/>
-								Start Shopping
-							</Link>
-						</Button>
-					)
-				}
 			/>
 			{/* Main scrollable area */}
 			<div className='flex-1 min-h-0 flex flex-col'>
@@ -90,6 +76,14 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 
 						<span className='text-primary font-medium'>{totalItems} Items</span>
 					</div>
+					{!anyActiveSession && baseListWithItems.items.length > 0 && (
+						<StartShoppingDialog
+							baseListId={baseListId}
+							baseListName={baseListWithItems.name}
+							itemsCount={totalItems}
+							disabled={!baseListWithItems.items || baseListWithItems.items.length === 0}
+						/>
+					)}
 					<ScrollArea className='h-full min-h-0 sm:px-6 touch-pan-y overscroll-contain'>
 						{!baseListWithItems.items || baseListWithItems.items.length === 0 ? (
 							<div className='flex flex-col items-center justify-center py-12 text-center'>

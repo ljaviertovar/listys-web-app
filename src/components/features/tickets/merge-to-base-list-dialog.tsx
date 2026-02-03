@@ -131,7 +131,7 @@ export function MergeToBaseListDialog({ open, onOpenChange, ticketId, selectedIt
 			open={open}
 			onOpenChange={isOpen => !loading && onOpenChange(isOpen)}
 		>
-			<DialogContent className='sm:max-w-125'>
+			<DialogContent className='w-11/12 sm:max-w-125'>
 				<DialogHeader>
 					<DialogTitle>Add Items to List</DialogTitle>
 					<DialogDescription>

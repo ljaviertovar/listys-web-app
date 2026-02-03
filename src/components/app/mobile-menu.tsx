@@ -17,7 +17,7 @@ import { Menu02Icon } from '@hugeicons/core-free-icons'
 
 import { NAV_APP_ITEMS } from '@/data/constants/nav'
 import { createClient } from '@/lib/supabase/client'
-import { Badge } from '../ui/badge'
+import { ActiveShoppingBadge } from './active-shopping-badge'
 
 export default function MobileMenu() {
 	const [activeRun, setActiveRun] = useState<{ id: string; name?: string } | null>(null)
@@ -66,10 +66,7 @@ export default function MobileMenu() {
 				{activeRun ? (
 					<>
 						<DropdownMenuLabel className='font-medium'>
-							<Badge className='bg-green-100 text-green-500 flex items-center gap-1.5'>
-								<span className='h-2 w-2 rounded-full bg-green-500' />
-								Shopping
-							</Badge>
+							<ActiveShoppingBadge />
 						</DropdownMenuLabel>
 						<DropdownMenuItem asChild>
 							<Link
