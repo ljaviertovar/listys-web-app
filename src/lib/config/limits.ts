@@ -41,6 +41,17 @@ export const MAX_TICKET_ITEMS_MERGE = 200  // Maximum items to merge from a sing
 export const MAX_SYNC_ITEMS = 250          // Maximum items to sync from shopping session to base list
 
 /**
+ * TICKET UPLOAD LIMITS
+ *
+ * MAX_IMAGES_PER_TICKET (5):
+ *    - Allows capturing long receipts (50+ items) in multiple photos
+ *    - Each image processed sequentially by OpenAI Vision API
+ *    - Items merged automatically, removing duplicates at borders
+ *    - 5 images typically covers receipts up to 200+ items
+ */
+export const MAX_IMAGES_PER_TICKET = 5     // Maximum images per ticket upload
+
+/**
  * FUTURE ENHANCEMENT IDEAS:
  * - Make these limits configurable per user plan (free, pro, enterprise)
  * - Store in database or environment variables

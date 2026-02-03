@@ -45,7 +45,7 @@ export function UploadTicketDialog() {
 				<DialogHeader>
 					<DialogTitle>Upload Ticket</DialogTitle>
 					<DialogDescription>
-						Upload a photo of your shopping ticket. We'll extract the items automatically.
+						Upload photos of your shopping ticket. We'll extract the items automatically.
 					</DialogDescription>
 				</DialogHeader>
 				<UploadTicketForm onSuccess={handleSuccess} />
