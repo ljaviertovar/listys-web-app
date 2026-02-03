@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
 interface Props {
@@ -10,8 +10,11 @@ interface Props {
 export function TicketImage({ imagePaths = [] }: Props) {
 	const [urls, setUrls] = useState<string[]>([])
 	const [mainIndex, setMainIndex] = useState(0)
+	const [mainLoaded, setMainLoaded] = useState(false)
 	const [loading, setLoading] = useState(true)
 	const [error, setError] = useState<string | null>(null)
+	const touchStartX = useRef<number | null>(null)
+	const touchEndX = useRef<number | null>(null)
 
 	useEffect(() => {
 		if (!imagePaths || imagePaths.length === 0) {
@@ -76,11 +79,40 @@ export function TicketImage({ imagePaths = [] }: Props) {
 
 	return (
 		<div>
-			<div className='overflow-hidden rounded-lg mb-2'>
+			<div
+				className='relative overflow-hidden rounded-lg mb-2 touch-none'
+				onTouchStart={e => {
+					touchStartX.current = e.touches[0].clientX
+					touchEndX.current = null
+				}}
+				onTouchMove={e => {
+					touchEndX.current = e.touches[0].clientX
+				}}
+				onTouchEnd={() => {
+					if (touchStartX.current == null || touchEndX.current == null) return
+					const delta = touchStartX.current - touchEndX.current
+					const threshold = 50
+					if (Math.abs(delta) > threshold) {
+						if (delta > 0) {
+							setMainIndex(idx => Math.min(urls.length - 1, idx + 1))
+						} else {
+							setMainIndex(idx => Math.max(0, idx - 1))
+						}
+					}
+					touchStartX.current = null
+					touchEndX.current = null
+				}}
+			>
+				<div className='absolute right-2 top-2 z-10 rounded-full bg-black/50 text-white px-2 py-1 text-xs'>
+					{mainIndex + 1} / {urls.length}
+				</div>
+
 				<img
 					src={urls[mainIndex]}
 					alt={`Receipt ${mainIndex + 1}`}
-					className='w-full object-contain max-h-[60vh]'
+					className={`w-full object-contain max-h-[60vh] transition-all duration-200 ${mainLoaded ? 'opacity-100 blur-0' : 'opacity-0 blur-sm'}`}
+					onLoad={() => setMainLoaded(true)}
+					onError={() => setError('Failed to load image')}
 				/>
 			</div>
 
