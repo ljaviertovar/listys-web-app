@@ -113,12 +113,8 @@ export default async function TicketsPage() {
 											</span>
 										</CardContent>
 										<CardFooter className='justify-between items-center'>
-											<span className='font-bold text-primary'>
-												{(ticket.total_items ?? 0) > 0 && (
-													<span className='text-primary font-medium'>{ticket.total_items} items</span>
-												)}
-											</span>
-											<div className='flex items-center text-sm group-hover:text-primary transition-colors'>
+											{(ticket.total_items ?? 0) > 0 && <span>{ticket.total_items} items</span>}
+											<div className='flex items-center text-sm text-primary transition-colors'>
 												<span>View details</span>
 												<HugeiconsIcon
 													icon={ArrowRight01Icon}

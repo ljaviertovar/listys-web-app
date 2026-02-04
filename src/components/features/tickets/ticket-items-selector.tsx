@@ -146,7 +146,7 @@ export function TicketItemsSelector({ ticketId, items, status, isMerged, ocrErro
 						)}
 						<div className='flex-1'>
 							<div className='w-full flex justify-between items-center gap-4 mb-1'>
-								<p className='tex-sm font-bold truncate w-full max-w-[10ch]'>{item.name}</p>
+								<p className='tex-sm font-bold truncate w-full max-w-[16ch]'>{item.name}</p>
 								<span className='text-xs text-muted-foreground'>
 									{item.quantity || 1} {item.unit || 'pcs'}
 								</span>

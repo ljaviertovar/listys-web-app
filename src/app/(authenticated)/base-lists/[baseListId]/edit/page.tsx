@@ -76,14 +76,6 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 
 						<span className='text-primary font-medium'>{totalItems} Items</span>
 					</div>
-					{!anyActiveSession && baseListWithItems.items.length > 0 && (
-						<StartShoppingDialog
-							baseListId={baseListId}
-							baseListName={baseListWithItems.name}
-							itemsCount={totalItems}
-							disabled={!baseListWithItems.items || baseListWithItems.items.length === 0}
-						/>
-					)}
 					<ScrollArea className='h-full min-h-0 sm:px-6 touch-pan-y overscroll-contain'>
 						{!baseListWithItems.items || baseListWithItems.items.length === 0 ? (
 							<div className='flex flex-col items-center justify-center py-12 text-center'>
@@ -115,11 +107,21 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 			</div>
 
 			<PageFooterAction>
-				<AddItemDialogBaseList
-					context='base-list'
-					baseListId={baseListId}
-					isLocked={!!activeSession}
-				/>
+				<div className='w-full flex gap-4'>
+					<AddItemDialogBaseList
+						context='base-list'
+						baseListId={baseListId}
+						isLocked={!!activeSession}
+					/>
+					{!anyActiveSession && baseListWithItems.items.length > 0 && (
+						<StartShoppingDialog
+							baseListId={baseListId}
+							baseListName={baseListWithItems.name}
+							itemsCount={totalItems}
+							disabled={!baseListWithItems.items || baseListWithItems.items.length === 0}
+						/>
+					)}
+				</div>
 			</PageFooterAction>
 		</div>
 	)
