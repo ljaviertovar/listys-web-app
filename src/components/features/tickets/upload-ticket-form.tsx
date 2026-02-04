@@ -59,8 +59,22 @@ export function UploadTicketForm({ onSuccess }: Props) {
 			toast.warning(`Only ${availableSlots} more image(s) can be added`)
 		}
 
-		// Create previews for new files
-		filesToAdd.forEach(file => {
+		// Detect unsupported types (HEIC/HEIF) and skip them
+		const isHeic = (f: File) => {
+			const t = (f.type || '').toLowerCase()
+			const name = f.name.toLowerCase()
+			return t.includes('heic') || t.includes('heif') || /\.heic$/i.test(name) || /\.heif$/i.test(name)
+		}
+
+		const invalidFiles = filesToAdd.filter(isHeic)
+		const validFiles = filesToAdd.filter(f => !isHeic(f))
+
+		if (invalidFiles.length > 0) {
+			toast.error(`Some files are HEIC/HEIF and are not supported. Please convert them to JPG/PNG before uploading.`)
+		}
+
+		// Create previews for valid files only
+		validFiles.forEach(file => {
 			const reader = new FileReader()
 			reader.onloadend = () => {
 				setPreviews(prev => {
@@ -243,7 +257,7 @@ export function UploadTicketForm({ onSuccess }: Props) {
 								<p className='text-sm text-muted-foreground'>
 									{previews.length > 0
 										? `${MAX_IMAGES_PER_TICKET - previews.length} more allowed`
-										: `Up to ${MAX_IMAGES_PER_TICKET} photos • PNG, JPG up to 10MB each`}
+										: `Up to ${MAX_IMAGES_PER_TICKET} photos • PNG, JPG (no HEIC) up to 10MB each`}
 								</p>
 							</div>
 						</div>
@@ -253,7 +267,7 @@ export function UploadTicketForm({ onSuccess }: Props) {
 				<input
 					ref={fileInputRef}
 					type='file'
-					accept='image/*'
+					accept='image/png,image/jpeg'
 					multiple
 					onChange={handleFileChange}
 					className='hidden'
