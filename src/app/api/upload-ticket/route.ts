@@ -45,8 +45,26 @@ export async function POST(request: NextRequest) {
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i]
-      const fileExt = file.name.split('.').pop()
-      const fileName = `${user.id}/${timestamp}_${i + 1}.${fileExt}`
+
+      // Derive extension safely: prefer file.name, fallback to MIME type
+      let fileExt = ''
+      try {
+        const parts = (file.name || '').split('.')
+        fileExt = parts.length > 1 ? parts.pop() || '' : ''
+      } catch (e) {
+        fileExt = ''
+      }
+
+      if (!fileExt) {
+        // e.g. image/png -> png
+        const mime = file.type || ''
+        const mimeMatch = mime.split('/').pop() || ''
+        fileExt = mimeMatch || 'jpg'
+      }
+
+      // Build safe file name (no spaces or odd characters)
+      const rawName = `${user.id}/${timestamp}_${i + 1}.${fileExt}`
+      const fileName = rawName.replace(/[^a-zA-Z0-9-_.\\/]/g, '_')
 
       const { error: uploadError } = await supabase.storage
         .from('tickets')
