@@ -72,7 +72,10 @@ export function CreateGroupDialog() {
 					New Group
 				</Button>
 			</DialogTrigger>
-			<DialogContent className='w-11/12'>
+			<DialogContent
+				onOpenAutoFocus={e => e.preventDefault()}
+				className='w-11/12'
+			>
 				<DialogHeader>
 					<DialogTitle>Create New Group</DialogTitle>
 					<DialogDescription>Add a new group to organize your shopping lists</DialogDescription>

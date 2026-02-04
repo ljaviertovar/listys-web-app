@@ -41,7 +41,10 @@ export function UploadTicketDialog() {
 					Upload Ticket
 				</Button>
 			</DialogTrigger>
-			<DialogContent className='w-11/12 sm:max-w-125'>
+			<DialogContent
+				onOpenAutoFocus={e => e.preventDefault()}
+				className='w-11/12 sm:max-w-125'
+			>
 				<DialogHeader>
 					<DialogTitle>Upload Ticket</DialogTitle>
 					<DialogDescription>

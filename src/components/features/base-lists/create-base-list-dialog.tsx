@@ -84,7 +84,10 @@ export function CreateBaseListDialog({ groupId }: Props) {
 					New Base List
 				</Button>
 			</DialogTrigger>
-			<DialogContent className='w-11/12'>
+			<DialogContent
+				onOpenAutoFocus={e => e.preventDefault()}
+				className='w-11/12'
+			>
 				<DialogHeader>
 					<DialogTitle>Create New Base List</DialogTitle>
 					<DialogDescription>Add a reusable shopping list template</DialogDescription>

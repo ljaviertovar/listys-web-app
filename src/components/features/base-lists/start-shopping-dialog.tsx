@@ -84,7 +84,10 @@ export function StartShoppingDialog({ baseListId, baseListName, disabled, itemsC
 					</span>
 				</Button>
 			</DialogTrigger>
-			<DialogContent className='w-11/12'>
+			<DialogContent
+				onOpenAutoFocus={e => e.preventDefault()}
+				className='w-11/12'
+			>
 				<DialogHeader className='items-center gap-1.5'>
 					<AlertDialogMedia className='bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary'>
 						<HugeiconsIcon
@@ -96,9 +99,12 @@ export function StartShoppingDialog({ baseListId, baseListName, disabled, itemsC
 					<DialogTitle>Start Shopping Session</DialogTitle>
 					<DialogDescription>
 						{isEmpty ? (
-							"This base list has no items. Add items before starting a shopping session."
+							'This base list has no items. Add items before starting a shopping session.'
 						) : (
-							<>This will create a new shopping session using items from the base list{baseListName ? ` "${baseListName}"` : ''}. Are you sure you want to continue?</>
+							<>
+								This will create a new shopping session using items from the base list
+								{baseListName ? ` "${baseListName}"` : ''}. Are you sure you want to continue?
+							</>
 						)}
 					</DialogDescription>
 				</DialogHeader>
