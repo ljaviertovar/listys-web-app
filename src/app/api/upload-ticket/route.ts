@@ -46,39 +46,54 @@ export async function POST(request: NextRequest) {
     for (let i = 0; i < files.length; i++) {
       const file = files[i]
 
-      // Derive extension safely: prefer file.name, fallback to MIME type
-      let fileExt = ''
+      // Robust extension extraction and normalization
+      let ext = ''
       try {
-        const parts = (file.name || '').split('.')
-        fileExt = parts.length > 1 ? parts.pop() || '' : ''
+        const name = (file.name || '').toString()
+        const parts = name.split('.')
+        ext = parts.length > 1 ? parts.pop()!.toLowerCase() : ''
       } catch (e) {
-        fileExt = ''
+        ext = ''
       }
 
-      if (!fileExt) {
-        // e.g. image/png -> png
-        const mime = file.type || ''
-        const mimeMatch = mime.split('/').pop() || ''
-        fileExt = mimeMatch || 'jpg'
+      if (!ext) {
+        const mime = (file.type || '').toString()
+        ext = mime.split('/').pop() || ''
       }
 
-      // Build safe file name (no spaces or odd characters)
-      const rawName = `${user.id}/${timestamp}_${i + 1}.${fileExt}`
-      const fileName = rawName.replace(/[^a-zA-Z0-9-_.\\/]/g, '_')
+      // Ensure extension is safe (only letters/numbers)
+      ext = (ext || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '')
+      if (!ext) ext = 'jpg'
+
+      // Generate deterministic, safe key: userId/timestamp_index_random.ext
+      // Use short random suffix to avoid collisions
+      const rand = Math.random().toString(36).slice(2, 8)
+      let candidate = `${user.id}/${timestamp}_${i + 1}_${rand}.${ext}`
+
+      // Sanitize candidate to allowed set: a-zA-Z0-9-_. and /
+      candidate = candidate.replace(/[^a-zA-Z0-9-_.\\/]/g, '_')
+      // Collapse multiple underscores
+      candidate = candidate.replace(/_+/g, '_')
+      // Prevent leading/trailing dots or underscores in segments
+      candidate = candidate.split('/').map(seg => seg.replace(/^[_\.]+|[_\.]+$/g, '')).join('/')
+
+      // Log for debugging if uploads fail (can be removed later)
+      console.log('Uploading file:', { originalName: file.name, generatedKey: candidate })
 
       const { error: uploadError } = await supabase.storage
         .from('tickets')
-        .upload(fileName, file)
+        .upload(candidate, file)
 
       if (uploadError) {
         // Clean up already uploaded files
         if (uploadedPaths.length > 0) {
           await supabase.storage.from('tickets').remove(uploadedPaths)
         }
+        console.error('Upload error for', file.name, uploadError)
         return NextResponse.json({ error: uploadError.message }, { status: 500 })
       }
 
-      uploadedPaths.push(fileName)
+      uploadedPaths.push(candidate)
     }
 
     // Create ticket record with both image_path (primary) and image_paths (array)
