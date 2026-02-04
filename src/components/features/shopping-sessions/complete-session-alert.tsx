@@ -15,6 +15,7 @@ import {
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { completeShoppingSession } from '@/actions/shopping-sessions'
+import { useActiveSessionStore } from '@/stores/active-session'
 
 interface Props {
 	title: string
@@ -29,6 +30,7 @@ export function CompleteSessionAlert({ title, description, sessionId, progress, 
 	const [loading, setLoading] = useState(false)
 	const [syncToBase, setSyncToBase] = useState(true)
 	const router = useRouter()
+	const clearActiveSession = useActiveSessionStore(s => s.clearActiveSession)
 
 	// Auto-open cuando progreso es 100%
 	useEffect(() => {
@@ -44,6 +46,8 @@ export function CompleteSessionAlert({ title, description, sessionId, progress, 
 				sync_to_base: syncToBase,
 			})
 			if (error) throw new Error(error)
+			// Clear store optimistically
+			clearActiveSession()
 			onOpenChange(false)
 			router.push('/dashboard')
 			router.refresh()

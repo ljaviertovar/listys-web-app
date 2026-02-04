@@ -17,6 +17,7 @@ import { ShoppingCart02Icon, Loading03Icon } from '@hugeicons/core-free-icons'
 import { createShoppingSession } from '@/actions/shopping-sessions'
 import { toast } from 'sonner'
 import { AlertDialogMedia } from '@/components/ui/alert-dialog'
+import useActiveSessionStore from '@/stores/active-session'
 
 interface Props {
 	baseListId: string
@@ -29,6 +30,7 @@ export function StartShoppingDialog({ baseListId, baseListName, disabled, itemsC
 	const [open, setOpen] = useState(false)
 	const [loading, setLoading] = useState(false)
 	const router = useRouter()
+	const setActiveSession = useActiveSessionStore(s => s.setActiveSession)
 
 	const handleConfirm = async () => {
 		setLoading(true)
@@ -47,6 +49,8 @@ export function StartShoppingDialog({ baseListId, baseListName, disabled, itemsC
 			}
 
 			if (data?.id) {
+				// Update store optimistically
+				setActiveSession({ id: data.id, name: data.name })
 				router.push(`/shopping/${data.id}`)
 			} else {
 				router.refresh()
@@ -96,9 +100,12 @@ export function StartShoppingDialog({ baseListId, baseListName, disabled, itemsC
 					<DialogTitle>Start Shopping Session</DialogTitle>
 					<DialogDescription>
 						{isEmpty ? (
-							"This base list has no items. Add items before starting a shopping session."
+							'This base list has no items. Add items before starting a shopping session.'
 						) : (
-							<>This will create a new shopping session using items from the base list{baseListName ? ` "${baseListName}"` : ''}. Are you sure you want to continue?</>
+							<>
+								This will create a new shopping session using items from the base list
+								{baseListName ? ` "${baseListName}"` : ''}. Are you sure you want to continue?
+							</>
 						)}
 					</DialogDescription>
 				</DialogHeader>
