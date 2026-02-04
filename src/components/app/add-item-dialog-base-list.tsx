@@ -42,7 +42,10 @@ export function AddItemDialogBaseList(props: Props) {
 					Add Item
 				</Button>
 			</DialogTrigger>
-			<DialogContent className='w-11/12 sm:max-w-125'>
+			<DialogContent
+				className='w-11/12 sm:max-w-125'
+				onOpenAutoFocus={e => e.preventDefault()}
+			>
 				<DialogHeader>
 					<DialogTitle>Add New Item</DialogTitle>
 					<DialogDescription>

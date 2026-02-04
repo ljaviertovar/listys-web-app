@@ -85,7 +85,10 @@ export function EditGroupDialog({ group, open, onOpenChange }: Props) {
 			open={open}
 			onOpenChange={isOpen => !loading && onOpenChange(isOpen)}
 		>
-			<DialogContent className='w-11/12'>
+			<DialogContent
+				onOpenAutoFocus={e => e.preventDefault()}
+				className='w-11/12'
+			>
 				<DialogHeader>
 					<DialogTitle>Edit Group</DialogTitle>
 					<DialogDescription>Update your group details</DialogDescription>

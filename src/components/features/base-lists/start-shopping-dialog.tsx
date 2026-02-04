@@ -88,7 +88,10 @@ export function StartShoppingDialog({ baseListId, baseListName, disabled, itemsC
 					</span>
 				</Button>
 			</DialogTrigger>
-			<DialogContent className='w-11/12'>
+			<DialogContent
+				onOpenAutoFocus={e => e.preventDefault()}
+				className='w-11/12'
+			>
 				<DialogHeader className='items-center gap-1.5'>
 					<AlertDialogMedia className='bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary'>
 						<HugeiconsIcon
