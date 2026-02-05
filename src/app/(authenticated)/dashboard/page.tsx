@@ -47,8 +47,8 @@ export default async function DashboardPage() {
 					<DashboardCard
 						href='/tickets'
 						icon={Invoice01Icon}
-						title='Tickets'
-						description='Upload and manage tickets'
+						title='Receipts'
+						description='Upload and manage receipts'
 						count={ticketsCount}
 					/>
 
@@ -56,7 +56,7 @@ export default async function DashboardPage() {
 						href='/history'
 						icon={TimeQuarterPassIcon}
 						title='History'
-						description='View past shoppings'
+						description='View past shopping sessions'
 						count={historyCount}
 					/>
 				</div>

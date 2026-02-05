@@ -146,15 +146,15 @@ export function UploadTicketForm({ onSuccess }: Props) {
 				throw new Error(result.error || 'Upload failed')
 			}
 
-			// Navigate immediately to the ticket page showing `pending` status
+			// Navigate immediately to the receipt page showing `pending` status
 			const ticketId = result?.data?.id || result?.id || null
-			toast.success('Ticket created — redirecting...')
+			toast.success('Receipt uploaded — redirecting...')
 			onSuccess?.()
 			if (ticketId) {
 				router.push(`/tickets/${ticketId}`)
 			}
 		} catch (err) {
-			const message = err instanceof Error ? err.message : 'Failed to upload ticket'
+			const message = err instanceof Error ? err.message : 'Failed to upload receipt'
 			toast.error(message)
 		} finally {
 			setLoading(false)

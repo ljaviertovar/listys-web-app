@@ -29,7 +29,7 @@ export default async function TicketsPage() {
 	return (
 		<>
 			<PageHeader
-				title='Tickets'
+				title='Receipts'
 				desc='Upload and manage your shopping receipts'
 			/>
 
@@ -49,7 +49,7 @@ export default async function TicketsPage() {
 								className='h-16 w-16 text-muted-foreground'
 							/>
 							<div className='text-center'>
-								<h3 className='text-lg font-semibold'>No tickets yet</h3>
+								<h3 className='text-lg font-semibold'>No receipts yet</h3>
 								<p className='text-sm text-muted-foreground'>Upload your first receipt to get started</p>
 							</div>
 							<UploadTicketDialog />

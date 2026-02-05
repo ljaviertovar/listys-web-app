@@ -70,9 +70,9 @@ export function AssignTicketToGroupDialog({ ticketId, groups }: AssignTicketToGr
 			</AlertDialogTrigger>
 			<AlertDialogContent>
 				<AlertDialogHeader>
-					<AlertDialogTitle>Assign Ticket to Group</AlertDialogTitle>
+					<AlertDialogTitle>Assign Receipt to Group</AlertDialogTitle>
 					<AlertDialogDescription>
-						This ticket currently has no group assigned. Select a group to organize it properly.
+						This receipt currently has no group assigned. Select a group to organize it properly.
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 

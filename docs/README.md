@@ -392,6 +392,8 @@ erDiagram
 
 All configurable limits are centralized in [`lib/config/limits.ts`](../src/lib/config/limits.ts):
 
+> Note: The file `src/lib/validations/README.md` previously contained older limit values (e.g. 60 items). The authoritative values are in `src/lib/config/limits.ts`. Update docs or that README when limits change to avoid drift.
+
 | Limit                       | Value | Rationale                                                                                |
 | --------------------------- | ----- | ---------------------------------------------------------------------------------------- |
 | **MAX_GROUPS_PER_USER**     | 10    | Prevents database bloat, encourages focused organization                                 |

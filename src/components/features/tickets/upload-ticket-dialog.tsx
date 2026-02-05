@@ -38,7 +38,7 @@ export function UploadTicketDialog() {
 						strokeWidth={2}
 						className='h-4 w-4'
 					/>
-					Upload Ticket
+					Upload Receipt
 				</Button>
 			</DialogTrigger>
 			<DialogContent
@@ -46,9 +46,9 @@ export function UploadTicketDialog() {
 				className='w-11/12 sm:max-w-125'
 			>
 				<DialogHeader>
-					<DialogTitle>Upload Ticket</DialogTitle>
+					<DialogTitle>Upload Receipt</DialogTitle>
 					<DialogDescription>
-						Upload photos of your shopping ticket. We'll extract the items automatically.
+						Upload photos of your shopping receipt. We'll extract the items automatically.
 					</DialogDescription>
 				</DialogHeader>
 				<UploadTicketForm onSuccess={handleSuccess} />

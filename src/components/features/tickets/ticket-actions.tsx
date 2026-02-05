@@ -38,16 +38,16 @@ export function TicketActions({ ticket }: Props) {
 		try {
 			const { error } = await deleteTicket(ticket.id)
 			if (error) {
-				toast.error('Failed to delete ticket', {
+				toast.error('Failed to delete receipt', {
 					description: error,
 				})
 				return
 			}
-			toast.success('Ticket deleted successfully')
+			toast.success('Receipt deleted successfully')
 			router.push('/tickets')
 		} catch (err) {
 			console.error('Failed to delete ticket:', err)
-			toast.error('Failed to delete ticket', {
+			toast.error('Failed to delete receipt', {
 				description: err instanceof Error ? err.message : 'An unexpected error occurred',
 			})
 		} finally {
@@ -67,7 +67,7 @@ export function TicketActions({ ticket }: Props) {
 				return
 			}
 			toast.success('OCR processing started', {
-				description: 'The ticket is being reprocessed. This may take a few moments.',
+				description: 'The receipt is being reprocessed. This may take a few moments.',
 			})
 			router.refresh()
 		} catch (err) {
@@ -122,7 +122,7 @@ export function TicketActions({ ticket }: Props) {
 						strokeWidth={2}
 						className='h-4 w-4'
 					/>
-					Delete Ticket
+					Delete Receipt
 				</Button>
 			)}
 
@@ -139,9 +139,9 @@ export function TicketActions({ ticket }: Props) {
 								className='h-4 w-4'
 							/>
 						</AlertDialogMedia>
-						<AlertDialogTitle>Delete Ticket?</AlertDialogTitle>
+						<AlertDialogTitle>Delete Receipt?</AlertDialogTitle>
 						<AlertDialogDescription>
-							This will remove the ticket image and all extracted items. This action cannot be undone.
+							This will remove the receipt image and all extracted items. This action cannot be undone.
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>

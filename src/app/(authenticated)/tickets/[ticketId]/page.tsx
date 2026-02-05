@@ -48,13 +48,13 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 	return (
 		<>
 			<PageHeader
-				title={`${ticket.store_name || 'Unknown Ticket'}`}
+				title={`${ticket.store_name || 'Unknown Receipt'}`}
 				desc={`Uploaded on ${formatDate(createdAt)} at ${formatTime(createdAt)}`}
 			/>
 			<PageContainer>
 				<BackLink
 					href='/tickets'
-					label='Back to Tickets'
+					label='Back to Receipts'
 				/>
 
 				{ticket.base_list_id && baseListName && (
@@ -65,7 +65,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 						/>
 						<AlertTitle>Merged to Base List</AlertTitle>
 						<AlertDescription>
-							This ticket has been added to the base list:{' '}
+							This receipt has been added to the base list:{' '}
 							<Link href={`/base-lists/${ticket.base_list_id}/edit`}>{baseListName}</Link>
 						</AlertDescription>
 					</Alert>
@@ -137,7 +137,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 										className='h-6 w-6 text-primary'
 									/>
 								</span>
-								<CardTitle className='text-lg'>Ticket Photo</CardTitle>
+								<CardTitle className='text-lg'>Receipt Photo</CardTitle>
 							</div>
 						</CardHeader>
 						<CardContent>

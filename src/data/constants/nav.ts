@@ -44,7 +44,7 @@ export const SIDEBAR_DATA: SidebarData = {
 			title: 'Management',
 			items: [
 				{
-					title: 'Tickets',
+					title: 'Receipts',
 					url: '/tickets',
 					icon: Invoice01Icon,
 				},
@@ -81,7 +81,7 @@ export const NAV_APP_ITEMS: NavItem[] = [
 		url: '/shopping-lists',
 	},
 	{
-		title: 'Tickets',
+		title: 'Receipts',
 		url: '/tickets',
 	},
 	{
