@@ -5,7 +5,6 @@ import { getGroup } from '@/actions/shopping-lists'
 import { Card, CardContent } from '@/components/ui/card'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ShoppingBasket01Icon } from '@hugeicons/core-free-icons'
-import Link from 'next/link'
 import { HistorySessionCard } from '@/components/features/shopping-sessions/history-session-card'
 import PageHeader from '@/components/app/page-header'
 import BackLink from '@/components/app/back-link'
@@ -26,7 +25,7 @@ export default async function GroupHistoryPage({ params }: { params: Promise<{ g
 	const { data: allSessions, error: sessionsError } = await getShoppingHistory()
 
 	if (groupError || !group) {
-		redirect('/history')
+		redirect('/shopping-history')
 	}
 
 	// Filter sessions for this specific group
@@ -40,8 +39,8 @@ export default async function GroupHistoryPage({ params }: { params: Promise<{ g
 			/>
 			<PageContainer>
 				<BackLink
-					href='/history'
-					label='Back to History'
+					href='/shopping-history'
+					label='Back to Shopping History'
 				/>
 
 				{sessionsError && (
@@ -51,7 +50,7 @@ export default async function GroupHistoryPage({ params }: { params: Promise<{ g
 				)}
 
 				{sessions.length === 0 ? (
-					<Card className='flex min-h-[400px] flex-col items-center justify-center'>
+					<Card className='flex min-h-100 flex-col items-center justify-center'>
 						<CardContent className='flex flex-col items-center space-y-4 pt-6'>
 							<HugeiconsIcon
 								icon={ShoppingBasket01Icon}

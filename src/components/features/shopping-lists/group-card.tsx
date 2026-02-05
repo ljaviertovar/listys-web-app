@@ -4,9 +4,15 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { HugeiconsIcon } from '@hugeicons/react'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { toast } from 'sonner'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -18,11 +24,9 @@ import {
 	AlertDialogMedia,
 	AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { EditGroupDialog } from './edit-group-dialog'
-
 import { FolderIcon, Edit02Icon, Delete02Icon, ArrowRight01Icon, Loading03Icon } from '@hugeicons/core-free-icons'
 
-import { deleteGroup } from '@/actions/shopping-lists'
+import { deleteGroup, updateGroup } from '@/actions/shopping-lists'
 
 interface Group {
 	id: string
@@ -38,10 +42,53 @@ interface Props {
 }
 
 export function GroupCard({ group, history = false }: Props) {
-	const [showEditDialog, setShowEditDialog] = useState(false)
+	const [editing, setEditing] = useState(false)
 	const [showDeleteDialog, setShowDeleteDialog] = useState(false)
 	const [deleting, setDeleting] = useState(false)
+	const [loading, setLoading] = useState(false)
 	const router = useRouter()
+
+	const schema = z.object({
+		name: z.string().min(1, 'Name is required').max(100),
+		description: z.string().max(500).optional(),
+	})
+
+	type FormData = z.infer<typeof schema>
+
+	const {
+		register,
+		handleSubmit,
+		reset,
+		watch,
+		formState: { errors },
+	} = useForm<FormData>({
+		resolver: zodResolver(schema),
+		defaultValues: { name: group.name, description: group.description ?? '' },
+	})
+
+	const watchedName = watch('name')
+
+	const handleUpdate = async (data: FormData) => {
+		setLoading(true)
+		try {
+			const { error } = await updateGroup(group.id, data)
+			if (error) throw new Error(error)
+			setEditing(false)
+			router.refresh()
+			toast.success('Group updated')
+		} catch (err) {
+			console.error('Failed to update group:', err)
+			const msg = err instanceof Error ? err.message : 'Failed to update group'
+			toast.error(msg)
+		} finally {
+			setLoading(false)
+		}
+	}
+
+	const handleCancel = () => {
+		reset({ name: group.name, description: group.description ?? '' })
+		setEditing(false)
+	}
 
 	const handleDelete = async () => {
 		setDeleting(true)
@@ -49,12 +96,72 @@ export function GroupCard({ group, history = false }: Props) {
 			const { error } = await deleteGroup(group.id)
 			if (error) throw new Error(error)
 			router.refresh()
+			toast.success('Group deleted')
 		} catch (err) {
 			console.error('Failed to delete group:', err)
+			const msg = err instanceof Error ? err.message : 'Failed to delete group'
+			toast.error(msg)
 		} finally {
 			setDeleting(false)
 			setShowDeleteDialog(false)
 		}
+	}
+
+	if (editing) {
+		return (
+			<Card
+				size='sm'
+				className='transition-colors'
+			>
+				<CardContent className='flex flex-col gap-2 pt-6'>
+					<form
+						onSubmit={handleSubmit(handleUpdate)}
+						className='space-y-3'
+					>
+						<div>
+							<Input
+								{...register('name')}
+								placeholder='Group name'
+								className='bg-card text-base'
+								aria-invalid={!!errors.name}
+								disabled={loading}
+								required
+							/>
+							{errors.name && <p className='text-xs text-destructive mt-1'>{errors.name.message}</p>}
+						</div>
+
+						<div>
+							<Textarea
+								{...register('description')}
+								placeholder='Description (optional)'
+								className='bg-card h-20 resize-none'
+								disabled={loading}
+							/>
+							{errors.description && <p className='text-xs text-destructive mt-1'>{errors.description.message}</p>}
+						</div>
+
+						<div className='flex items-center justify-end gap-2'>
+							<Button
+								size='sm'
+								variant='outline'
+								onClick={handleCancel}
+								disabled={loading}
+								type='button'
+							>
+								Cancel
+							</Button>
+							<Button
+								size='sm'
+								type='submit'
+								disabled={loading || !watchedName?.trim()}
+							>
+								Save
+							</Button>
+						</div>
+					</form>
+				</CardContent>
+			</Card>
+		)
 	}
 
 	return (
@@ -63,7 +170,7 @@ export function GroupCard({ group, history = false }: Props) {
 				className='hover:border-primary/50 transition-colors cursor-pointer group'
 				size='sm'
 			>
-				<Link href={history ? `/history/${group.id}` : `/shopping-lists/${group.id}/lists`}>
+				<Link href={history ? `/shopping-history/${group.id}` : `/shopping-lists/${group.id}/lists`}>
 					<CardHeader className='gap-0'>
 						{!history && (
 							<div className='flex items-center justify-end gap-1'>
@@ -73,7 +180,8 @@ export function GroupCard({ group, history = false }: Props) {
 									onClick={e => {
 										e.preventDefault()
 										e.stopPropagation()
-										setShowEditDialog(true)
+										reset({ name: group.name, description: group.description ?? '' })
+										setEditing(true)
 									}}
 									className='h-8 w-8'
 								>
@@ -120,7 +228,7 @@ export function GroupCard({ group, history = false }: Props) {
 						<div className='flex items-center justify-between'>
 							<span>
 								{history
-									? `${group.completed_runs_count ?? 0} ${(group.completed_runs_count ?? 0) === 1 ? 'run' : 'runs'}`
+									? `${group.completed_runs_count ?? 0} ${(group.completed_runs_count ?? 0) === 1 ? 'Shopping ' : 'Shoppings'}`
 									: `${group.base_lists?.[0]?.count ?? 0} ${(group.base_lists?.[0]?.count ?? 0) === 1 ? 'list' : 'lists'}`}
 							</span>
 							<div className='flex items-center text-sm text-primary transition-colors'>
@@ -135,12 +243,6 @@ export function GroupCard({ group, history = false }: Props) {
 					</CardContent>
 				</Link>
 			</Card>
-
-			<EditGroupDialog
-				group={group}
-				open={showEditDialog}
-				onOpenChange={setShowEditDialog}
-			/>
 
 			<AlertDialog
 				open={showDeleteDialog}

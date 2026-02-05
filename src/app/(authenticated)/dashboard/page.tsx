@@ -53,9 +53,9 @@ export default async function DashboardPage() {
 					/>
 
 					<DashboardCard
-						href='/history'
+						href='/shopping-history'
 						icon={TimeQuarterPassIcon}
-						title='History'
+						title='Shopping History'
 						description='View past shopping sessions'
 						count={historyCount}
 					/>

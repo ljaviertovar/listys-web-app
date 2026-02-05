@@ -1,18 +1,21 @@
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
-import { getShoppingSession } from '@/actions/shopping-sessions'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { CheckmarkCircle02Icon } from '@hugeicons/core-free-icons'
-import { ShoppingSessionItemRow } from '@/components/features/shopping-sessions/shopping-session-item-row'
-import type { ShoppingSessionWithItems } from '@/features/shopping-sessions/types'
-import PageHeader from '@/components/app/page-header'
-import BackLink from '@/components/app/back-link'
-import { formatDate, formatTime } from '@/utils/format-date'
-import PageContainer from '@/components/app/page-container'
-import { PageFooterAction } from '@/components/app'
+
+import { Progress } from '@/components/ui/progress'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { ActiveShoppingBadge } from '@/components/app/active-shopping-badge'
+import { PageHeader, PageContainer, PageFooterAction, BackLink } from '@/components/app'
+import { ShoppingSessionItemRow } from '@/components/features/shopping-sessions/shopping-session-item-row'
 import { ShoppingSessionActions } from '@/components/features/shopping-sessions/shopping-session-actions'
+import { ActiveShoppingBadge } from '@/components/app/active-shopping-badge'
+
+import { CheckmarkCircle02Icon } from '@hugeicons/core-free-icons'
+
+import { getShoppingSession } from '@/actions/shopping-sessions'
+
+import { createClient } from '@/lib/supabase/server'
+import { formatDate, formatTime } from '@/utils/format-date'
+
+import type { ShoppingSessionWithItems } from '@/features/shopping-sessions/types'
 
 export default async function ShoppingRunPage({ params }: { params: Promise<{ runId: string }> }) {
 	const { runId } = await params
@@ -52,18 +55,28 @@ export default async function ShoppingRunPage({ params }: { params: Promise<{ ru
 				desc={
 					isCompleted
 						? `Completed on ${formatDate(new Date(runWithItems.completed_at!))} at ${formatTime(new Date(runWithItems.completed_at!))}`
-						: `Shopping Session — ${checkedCount} of ${totalCount} items (${progress}%)`
+						: `${checkedCount} of ${totalCount} items (${progress}%)`
 				}
-			/>
+			>
+				{totalCount > 0 && (
+					<div className='w-full px-3 pb-3 flex gap-3 items-center -mt-2'>
+						<Progress
+							value={progress}
+							className='h-2'
+						/>
+						{!isCompleted && <ActiveShoppingBadge />}
+					</div>
+				)}
+			</PageHeader>
 
 			<PageContainer>
-				<div className='flex items-start justify-between mb-0'>
+				{isCompleted && (
 					<BackLink
-						href={isCompleted ? '/history' : '/dashboard'}
-						label={isCompleted ? 'Back to History' : 'Back to Dashboard'}
+						href='/shopping-history'
+						label='Back to Shopping History'
 					/>
-					{!isCompleted && <ActiveShoppingBadge />}
-				</div>
+				)}
+
 				{isCompleted && (
 					<div className='rounded-lg border border-green-200 bg-green-50 p-4'>
 						<div className='flex items-start gap-3'>

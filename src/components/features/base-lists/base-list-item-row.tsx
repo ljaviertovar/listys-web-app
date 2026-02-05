@@ -18,7 +18,7 @@ interface Props {
 export function BaseListItemRow({ item, isLocked = false }: Props) {
 	const [editing, setEditing] = useState(false)
 
-	const handleUpdate = async (id: string, data: { name: string; quantity: number }) => {
+	const handleUpdate = async (id: string, data: { name?: string; quantity?: number; notes?: string }) => {
 		return await updateBaseListItem(id, data)
 	}
 

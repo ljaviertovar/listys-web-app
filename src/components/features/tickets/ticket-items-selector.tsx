@@ -6,9 +6,9 @@ import { HugeiconsIcon } from '@hugeicons/react'
 
 import { Checkbox } from '@/components/ui/checkbox'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { MergeToBaseListDialog } from './merge-to-base-list-dialog'
 import { TicketProcessingError } from './ticket-processing-error'
+import { TicketItemRow } from './ticket-item-row'
 import { Loading03Icon, Add01Icon } from '@hugeicons/core-free-icons'
 
 import type { TicketItem } from '@/features/tickets/types'
@@ -131,35 +131,13 @@ export function TicketItemsSelector({ ticketId, items, status, isMerged, ocrErro
 			{/* Items list */}
 			<div className='space-y-2'>
 				{items.map(item => (
-					<div
+					<TicketItemRow
 						key={item.id}
-						className={`flex items-center gap-3 rounded-lg border p-3 transition-colors ${
-							selectedItems.has(item.id) ? 'border-primary bg-primary/5' : ''
-						}`}
-					>
-						{canMerge && (
-							<Checkbox
-								checked={selectedItems.has(item.id)}
-								onCheckedChange={() => toggleItem(item.id)}
-								aria-label={`Select ${item.name}`}
-							/>
-						)}
-						<div className='flex-1'>
-							<div className='w-full flex justify-between items-center gap-4 mb-1'>
-								<p className='tex-sm font-bold truncate w-full max-w-[16ch]'>{item.name}</p>
-								<span className='text-xs text-muted-foreground'>
-									{item.quantity || 1} {item.unit || 'pcs'}
-								</span>
-
-								{item.price !== null && (
-									<span className='text-xs text-muted-foreground'>${item.price.toFixed(2)} / unit</span>
-								)}
-							</div>
-							<div className='flex items-center gap-2'>
-								{item.category && <Badge variant='category'>{item.category}</Badge>}
-							</div>
-						</div>
-					</div>
+						item={item}
+						canSelect={canMerge}
+						selected={selectedItems.has(item.id)}
+						onSelectToggle={() => toggleItem(item.id)}
+					/>
 				))}
 			</div>
 
