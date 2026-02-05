@@ -16,12 +16,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			variant='sidebar'
 			{...props}
 		>
-			<SidebarHeader className='flex h-16 items-center gap-3 p-4 sm:gap-4 border-b border-sidebar-border'>
+			<SidebarHeader className='bg-card flex h-16 items-center gap-3 p-4 sm:gap-4 border-b border-sidebar-border'>
 				<div className='grid place-content-center h-full'>
 					<Logo isCollapsed={state === 'collapsed'} />
 				</div>
 			</SidebarHeader>
-			<SidebarContent>
+			<SidebarContent className='bg-card'>
 				{SIDEBAR_DATA.navGroups.map(props => (
 					<NavGroup
 						key={props.title}
@@ -29,7 +29,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 					/>
 				))}
 			</SidebarContent>
-			<SidebarFooter>{state !== 'collapsed' && <AppSidebarFooter />}</SidebarFooter>
+			<SidebarFooter className='bg-card'>{state !== 'collapsed' && <AppSidebarFooter />}</SidebarFooter>
 			<SidebarRail />
 		</Sidebar>
 	)

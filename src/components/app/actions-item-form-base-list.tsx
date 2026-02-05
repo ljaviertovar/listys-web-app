@@ -9,6 +9,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import { Edit02Icon, Delete02Icon } from '@hugeicons/core-free-icons'
 import { Card, CardContent } from '@/components/ui/card'
 
@@ -16,6 +17,7 @@ interface BaseItem {
 	id: string
 	name: string
 	quantity?: number | null
+	notes?: string | null
 	unit?: string | null
 }
 
@@ -23,7 +25,7 @@ interface Props {
 	item: BaseItem
 	isDisabled?: boolean
 	maxNameLength?: number
-	onUpdate: (id: string, data: { name: string; quantity: number }) => Promise<{ error?: string }>
+	onUpdate: (id: string, data: { name?: string; quantity?: number; notes?: string }) => Promise<{ error?: string }>
 	onDelete: (id: string) => Promise<{ error?: string }>
 	successMessages?: {
 		update: string
@@ -60,6 +62,7 @@ export function ActionsItemFormBaseList({
 			.min(0.1, 'Quantity must be at least 0.1')
 			.max(99, 'Quantity cannot exceed 99')
 			.refine(n => Math.round(n * 10) === n * 10, 'Quantity must be in steps of 0.1'),
+		notes: z.string().max(500).optional(),
 	})
 
 	type FormData = z.infer<typeof schema>
@@ -72,7 +75,7 @@ export function ActionsItemFormBaseList({
 		formState: { errors },
 	} = useForm<FormData>({
 		resolver: zodResolver(schema),
-		defaultValues: { name: item.name, quantity: item.quantity ?? 1 },
+		defaultValues: { name: item.name, quantity: item.quantity ?? 1, notes: (item as any).notes ?? '' },
 	})
 
 	const watchedName = watch('name')
@@ -98,7 +101,7 @@ export function ActionsItemFormBaseList({
 	const handleSave = async (data: FormData) => {
 		setLoading(true)
 		try {
-			const { error } = await onUpdate(item.id, { name: data.name, quantity: data.quantity })
+			const { error } = await onUpdate(item.id, { name: data.name, quantity: data.quantity, notes: data.notes })
 			if (error) throw new Error(error)
 			setEditing(false)
 			router.refresh()
@@ -121,7 +124,7 @@ export function ActionsItemFormBaseList({
 		return (
 			<Card
 				size='sm'
-				className='hover:bg-primary/1 hover:border-primary/50 transition-colors group text-base'
+				className='transition-colors group text-base'
 			>
 				<CardContent className='flex flex-col gap-2'>
 					<form
@@ -152,6 +155,13 @@ export function ActionsItemFormBaseList({
 							/>
 						</div>
 
+						<Textarea
+							{...register('notes')}
+							className='bg-card h-20'
+							placeholder='Notes (optional)'
+							disabled={loading}
+						/>
+
 						<div>
 							{errors.name && <p className='text-xs text-destructive'>{errors.name.message}</p>}
 							{errors.quantity && <p className='text-xs text-destructive'>{errors.quantity.message}</p>}
@@ -160,18 +170,18 @@ export function ActionsItemFormBaseList({
 						<div className='flex items-center justify-end gap-2'>
 							<Button
 								size='sm'
-								type='submit'
-								disabled={loading || !watchedName?.trim()}
-							>
-								Save
-							</Button>
-							<Button
-								size='sm'
 								variant='outline'
 								onClick={handleCancel}
 								disabled={loading}
 							>
 								Cancel
+							</Button>
+							<Button
+								size='sm'
+								type='submit'
+								disabled={loading || !watchedName?.trim()}
+							>
+								Save
 							</Button>
 						</div>
 					</form>

@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { HugeiconsIcon } from '@hugeicons/react'
 
-import { PageHeader, PageContainer, PageFooterAction } from '@/components/app'
+import { PageHeader, PageContainer, PageFooterAction, BackLink } from '@/components/app'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { UploadTicketDialog } from '@/components/features/tickets/upload-ticket-dialog'
 import { Badge } from '@/components/ui/badge'
@@ -34,6 +34,11 @@ export default async function TicketsPage() {
 			/>
 
 			<PageContainer>
+				<BackLink
+					href='/dashboard'
+					label='Back to Dashboard'
+				/>
+
 				{error && (
 					<div className='rounded-lg bg-destructive/10 p-4 text-sm text-destructive'>
 						Error loading tickets: {error}

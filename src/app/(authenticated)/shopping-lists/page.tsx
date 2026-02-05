@@ -3,7 +3,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 
 import { Card, CardContent } from '@/components/ui/card'
 import { CreateGroupDialog } from '@/components/features/shopping-lists/create-group-dialog'
-import { PageHeader, PageContainer, PageFooterAction } from '@/components/app'
+import { PageHeader, PageContainer, PageFooterAction, BackLink } from '@/components/app'
 import { GroupCard } from '@/components/features/shopping-lists/group-card'
 import { FolderIcon } from '@hugeicons/core-free-icons'
 
@@ -34,6 +34,11 @@ export default async function GroupsPage() {
 				{error && (
 					<div className='rounded-lg bg-destructive/10 p-4 text-sm text-destructive'>Error loading groups: {error}</div>
 				)}
+
+				<BackLink
+					href='/dashboard'
+					label='Back to Dashboard'
+				/>
 
 				{!groups || groups.length === 0 ? (
 					<Card

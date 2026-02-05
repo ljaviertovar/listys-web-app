@@ -14,8 +14,8 @@ export default function PageHeader({ title, desc, children }: Props) {
 					<h1 className='text-lg font-bold tracking-tight md:text-2xl truncate w-full max-w-[25ch]'>{title}</h1>
 					<p className='text-sm text-muted-foreground md:text-md'>{desc}</p>
 				</div>
-				{children && <div className='flex items-center gap-2'>{children}</div>}
 			</div>
+			{children}
 		</header>
 	)
 }

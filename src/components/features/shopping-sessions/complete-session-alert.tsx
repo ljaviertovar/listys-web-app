@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import {
 	AlertDialog,
@@ -32,12 +32,15 @@ export function CompleteSessionAlert({ title, description, sessionId, progress, 
 	const router = useRouter()
 	const clearActiveSession = useActiveSessionStore(s => s.clearActiveSession)
 
-	// Auto-open cuando progreso es 100%
+	// Auto-open solo cuando el progreso pasa de <100 a 100 (evita reabrir al cerrar)
+	const prevProgressRef = useRef<number>(progress)
+
 	useEffect(() => {
-		if (progress === 100 && !open) {
+		if (progress === 100 && prevProgressRef.current < 100) {
 			onOpenChange(true)
 		}
-	}, [progress, open, onOpenChange])
+		prevProgressRef.current = progress
+	}, [progress, onOpenChange])
 
 	const handleComplete = async () => {
 		setLoading(true)

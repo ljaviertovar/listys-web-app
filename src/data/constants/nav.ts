@@ -34,8 +34,8 @@ export const SIDEBAR_DATA: SidebarData = {
 					icon: FolderLibraryIcon,
 				},
 				{
-					title: 'History',
-					url: '/history',
+					title: 'Shopping History',
+					url: '/shopping-history',
 					icon: TimeQuarterPassIcon,
 				},
 			],
@@ -85,7 +85,7 @@ export const NAV_APP_ITEMS: NavItem[] = [
 		url: '/tickets',
 	},
 	{
-		title: 'History',
-		url: '/history',
+		title: 'Shopping History',
+		url: '/shopping-history',
 	},
 ]

@@ -14,6 +14,7 @@ import type { ShoppingSessionItem } from '@/features/shopping-sessions/types'
 import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
 import { ActionsItemFormBaseList } from '@/components/app/actions-item-form-base-list'
+import { Separator } from '@/components/ui/separator'
 
 interface Props {
 	item: ShoppingSessionItem
@@ -45,7 +46,7 @@ export function ShoppingSessionItemRow({ item, isCompleted = false }: Props) {
 		}
 	}
 
-	const handleUpdate = async (id: string, data: { name: string; quantity: number }) => {
+	const handleUpdate = async (id: string, data: { name?: string; quantity?: number; notes?: string }) => {
 		return await updateShoppingSessionItem(id, data)
 	}
 
@@ -91,7 +92,7 @@ export function ShoppingSessionItemRow({ item, isCompleted = false }: Props) {
 			onKeyDown={handleKeyDown}
 			role='button'
 			tabIndex={0}
-			className={`transition-all cursor-pointer ${checked ? 'bg-muted' : 'hover:bg-muted'}`}
+			className={`transition-all cursor-pointer ${checked ? 'border-primary bg-primary/5' : 'hover:border-primary'}`}
 		>
 			<CardContent className='flex flex-row items-center'>
 				<div onClick={e => e.stopPropagation()}>
@@ -115,13 +116,17 @@ export function ShoppingSessionItemRow({ item, isCompleted = false }: Props) {
 						</p>
 						<div className='flex gap-2'>{item.category && <Badge variant={'category'}>{item.category}</Badge>}</div>
 						{item.notes && (
-							<p className='text-xs md:text-sm text-muted-foreground'>
-								{'> '} {item.notes}
-							</p>
+							<div className='flex items-center gap-1'>
+								<Separator
+									orientation='vertical'
+									className='border-primary/20 border'
+								/>
+								<p className='text-xs md:text-sm text-muted-foreground'>{item.notes}</p>
+							</div>
 						)}
 					</div>
 				</div>
-				{!isCompleted && (
+				{!isCompleted && !checked && (
 					<div onClick={e => e.stopPropagation()}>
 						<ActionsItemFormBaseList
 							item={item}
