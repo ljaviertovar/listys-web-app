@@ -10,8 +10,8 @@ interface Props {
 
 export function TicketProcessingError({ error }: Props) {
 	// Parse error message
-	let errorTitle = 'Failed to Process Ticket'
-	let errorMessage = 'Unable to extract items from this ticket.'
+	let errorTitle = 'Failed to Process Receipt'
+	let errorMessage = 'Unable to extract items from this receipt.'
 	let errorDetails: string | null = null
 
 	if (error) {
