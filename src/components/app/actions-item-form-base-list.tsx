@@ -10,7 +10,7 @@ import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { Edit02Icon, Delete02Icon } from '@hugeicons/core-free-icons'
+import { Edit02Icon, Delete02Icon, Loading03Icon } from '@hugeicons/core-free-icons'
 import { Card, CardContent } from '@/components/ui/card'
 
 interface BaseItem {
@@ -181,7 +181,15 @@ export function ActionsItemFormBaseList({
 								type='submit'
 								disabled={loading || !watchedName?.trim()}
 							>
-								Save
+								{loading && (
+									<HugeiconsIcon
+										icon={Loading03Icon}
+										strokeWidth={2}
+										className='h-4 w-4 animate-spin'
+										data-icon='inline-start'
+									/>
+								)}
+								{loading ? 'Saving...' : 'Save'}
 							</Button>
 						</div>
 					</form>
@@ -213,10 +221,18 @@ export function ActionsItemFormBaseList({
 				onClick={handleDelete}
 				disabled={loading || isDisabled}
 			>
-				<HugeiconsIcon
-					icon={Delete02Icon}
-					strokeWidth={2}
-				/>
+				{loading ? (
+					<HugeiconsIcon
+						icon={Loading03Icon}
+						strokeWidth={2}
+						className='h-4 w-4 animate-spin'
+					/>
+				) : (
+					<HugeiconsIcon
+						icon={Delete02Icon}
+						strokeWidth={2}
+					/>
+				)}
 			</Button>
 		</div>
 	)

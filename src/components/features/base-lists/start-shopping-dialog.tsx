@@ -89,7 +89,7 @@ export function StartShoppingDialog({ baseListId, baseListName, disabled, itemsC
 				className='w-11/12'
 			>
 				<DialogHeader className='items-center gap-1.5'>
-					<AlertDialogMedia className='bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary'>
+					<AlertDialogMedia className='rounded-lg bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary'>
 						<HugeiconsIcon
 							icon={ShoppingCart02Icon}
 							strokeWidth={2}

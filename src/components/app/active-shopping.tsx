@@ -19,8 +19,8 @@ export default function ActiveShopping({ activeShopping, dashboard }: Props) {
 		<Alert variant='info'>
 			<div className='flex justify-between items-center gap-4 flex-col md:flex-row'>
 				<div className='flex gap-4'>
-					<div className='flex h-12 w-12 min-w-12 items-center justify-center rounded-xl bg-blue-700/20'>
-						<div className='flex h-8 w-8 items-center justify-center rounded-lg bg-blue-700'>
+					<div className='flex h-12 w-12 min-w-12 items-center justify-center rounded-xl bg-blue-500/20'>
+						<div className='flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500'>
 							<HugeiconsIcon
 								icon={ShoppingCart02Icon}
 								strokeWidth={2}
@@ -35,10 +35,7 @@ export default function ActiveShopping({ activeShopping, dashboard }: Props) {
 						</AlertDescription>
 					</div>
 				</div>
-				<Button
-					className='w-fit'
-					size={'sm'}
-				>
+				<Button size={'xs'}>
 					<Link href={`/shopping/${activeShopping?.id}`}>Continue Shopping</Link>
 				</Button>
 			</div>

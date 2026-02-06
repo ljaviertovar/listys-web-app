@@ -147,11 +147,11 @@ export function AddItemFormBaseList(props: Props) {
 			<div className='grid gap-4 sm:grid-cols-2'>
 				<div className='space-y-2 sm:col-span-2'>
 					<Label htmlFor='name'>
-						Item Name <span className='text-destructive'>*</span>
+						Name <span className='text-destructive'>*</span>
 					</Label>
 					<Input
 						id='name'
-						placeholder='e.g., Milk'
+						placeholder='e.g. Orange Juice'
 						{...register('name')}
 						disabled={loading || isLocked}
 						aria-invalid={!!errors.name}

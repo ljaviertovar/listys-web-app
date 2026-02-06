@@ -81,7 +81,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 					>
 						<CardHeader className='flex gap-2 items-start justify-between'>
 							<div className='flex gap-2 items-center'>
-								<span className='h-10 w-10 bg-primary/10 flex justify-center items-center rounded-full'>
+								<span className='h-10 w-10 bg-primary/10 flex justify-center items-center rounded-lg'>
 									<HugeiconsIcon
 										icon={ListViewIcon}
 										strokeWidth={2}
@@ -130,7 +130,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 					>
 						<CardHeader>
 							<div className='flex gap-2 items-center'>
-								<span className='h-10 w-10 bg-primary/10 flex justify-center items-center rounded-full'>
+								<span className='h-10 w-10 bg-primary/10 flex justify-center items-center rounded-lg'>
 									<HugeiconsIcon
 										icon={Invoice01Icon}
 										strokeWidth={2}
