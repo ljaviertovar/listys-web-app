@@ -4,7 +4,6 @@ import * as React from 'react'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
 
 import type { TicketItem } from '@/features/tickets/types'
 
@@ -51,14 +50,14 @@ export function TicketItemRow({ item, canSelect = false, selected = false, onSel
 				) : null}
 
 				<div className='flex-1'>
-					<div className='w-full flex justify-between items-center gap-4 mb-1'>
-						<p className='tex-sm font-bold truncate w-full max-w-[16ch]'>{item.name}</p>
-						<span className='text-xs text-muted-foreground'>
+					<p className='text-sm font-bold truncate w-full max-w-[28ch]'>{item.name}</p>
+					<div className='w-full flex justify-between items-center gap-4 mb-2'>
+						<span className='text-sm text-muted-foreground'>
 							{item.quantity || 1} {item.unit || 'pcs'}
 						</span>
 
 						{item.price !== null && (
-							<span className='text-xs text-muted-foreground'>${item.price!.toFixed(2)} / unit</span>
+							<span className='text-sm text-muted-foreground'>${item.price!.toFixed(2)} / unit</span>
 						)}
 					</div>
 					<div className='flex items-center gap-2'>

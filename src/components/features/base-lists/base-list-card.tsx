@@ -139,14 +139,13 @@ export function BaseListCard({ baseList, hasActiveRun = false, isActiveRun = fal
 									<HugeiconsIcon
 										icon={Delete02Icon}
 										strokeWidth={2}
-										className='h-4 w-4'
 									/>
 								</Button>
 							</>
 						)}
 					</div>
 					<div className='flex gap-2 items-center'>
-						<span className='h-10 w-10 bg-primary/10 flex justify-center items-center rounded-full'>
+						<span className='h-10 w-10 bg-primary/10 flex justify-center items-center rounded-lg'>
 							<HugeiconsIcon
 								icon={ListViewIcon}
 								strokeWidth={2}
@@ -198,7 +197,7 @@ export function BaseListCard({ baseList, hasActiveRun = false, isActiveRun = fal
 			>
 				<AlertDialogContent size='sm'>
 					<AlertDialogHeader>
-						<AlertDialogMedia className='bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive'>
+						<AlertDialogMedia className='rounded-lg bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive'>
 							<HugeiconsIcon
 								icon={Delete02Icon}
 								strokeWidth={2}

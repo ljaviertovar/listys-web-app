@@ -92,7 +92,7 @@ export default async function TicketsPage() {
 												</Badge>
 											</div>
 											<div className='flex gap-2 items-center'>
-												<span className='h-10 w-10 bg-primary/10 flex justify-center items-center rounded-full'>
+												<span className='h-10 w-10 bg-primary/10 flex justify-center items-center rounded-lg'>
 													<HugeiconsIcon
 														icon={Invoice01Icon}
 														strokeWidth={2}

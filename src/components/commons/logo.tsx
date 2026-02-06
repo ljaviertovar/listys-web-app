@@ -1,3 +1,4 @@
+import { Receipt } from 'lucide-react'
 import Link from 'next/link'
 
 interface Props {
@@ -6,7 +7,7 @@ interface Props {
 
 export default function Logo({ isCollapsed }: Props) {
 	return (
-		<Link
+		/*<Link
 			href='/'
 			className='font-semibold flex flex-none items-center gap-2'
 		>
@@ -34,6 +35,16 @@ export default function Logo({ isCollapsed }: Props) {
 				/>
 			</svg>
 			{!isCollapsed && <span className='text-xl'>Listys</span>}
+		</Link>
+		*/
+		<Link
+			href='/'
+			className='flex items-center gap-2 font-bold text-xl'
+		>
+			<div className='w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center'>
+				<Receipt className='w-5 h-5 text-white' />
+			</div>
+			<span className='text-foreground'>Listys</span>
 		</Link>
 	)
 }

@@ -47,13 +47,19 @@ export default function AuthButtons() {
 				<UserNav user={user} />
 			) : (
 				// Only show Sign Up when not authenticated
-				<Button
-					size={'sm'}
-					asChild
-					className='text-foreground'
-				>
-					<Link href='/auth/signup'>Sign Up</Link>
-				</Button>
+				<div className='flex items-center gap-4'>
+					<Button
+						size={'sm'}
+						className='bg-primary text-primary-foreground hover:bg-primary/90'
+					>
+						<Link
+							href='/auth/signup'
+							className='flex items-center gap-2'
+						>
+							Get Started
+						</Link>
+					</Button>
+				</div>
 			)}
 		</div>
 	)

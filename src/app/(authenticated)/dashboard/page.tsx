@@ -17,8 +17,6 @@ export default async function DashboardPage() {
 	const historyCount = historyResult.data?.length || 0
 	const ticketsCount = ticketsResult.data?.length || 0
 
-	console.log('Dashboard data:', { activeSession, groups, historyCount })
-
 	return (
 		<>
 			<PageHeader
