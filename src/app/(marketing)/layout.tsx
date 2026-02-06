@@ -7,7 +7,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
 			<Header />
 			<HeaderMobile />
 
-			<main className='container m-auto w-full max-w-7xl pt-14 md:pt-0'>{children}</main>
+			<main className='pt-14 md:pt-0'>{children}</main>
 		</>
 	)
 }
