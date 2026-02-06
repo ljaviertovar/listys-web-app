@@ -53,37 +53,6 @@ const ProductShowcase = () => {
 export default function LandingPage() {
 	return (
 		<div className='w-full'>
-			{/* Navigation */}
-			<nav className='sticky top-0 z-50 w-full bg-white/95 backdrop-blur-sm border-b border-border'>
-				<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between'>
-					<Link
-						href='/'
-						className='flex items-center gap-2 font-bold text-xl'
-					>
-						<div className='w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center'>
-							<Receipt className='w-5 h-5 text-white' />
-						</div>
-						<span className='text-foreground'>Listys</span>
-					</Link>
-					<div className='flex items-center gap-4'>
-						<Button
-							variant='ghost'
-							asChild
-						>
-							<Link href='/auth/signin'>Sign In</Link>
-						</Button>
-						<Button className='bg-primary text-primary-foreground hover:bg-primary/90'>
-							<Link
-								href='/auth/signup'
-								className='flex items-center gap-2'
-							>
-								Get Started
-							</Link>
-						</Button>
-					</div>
-				</div>
-			</nav>
-
 			{/* Hero Section */}
 			<section className='w-full pt-20 pb-24 px-4 sm:px-6 lg:px-8'>
 				<div className='max-w-7xl mx-auto'>

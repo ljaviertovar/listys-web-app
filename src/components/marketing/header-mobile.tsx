@@ -101,7 +101,7 @@ export default function HeaderMobile() {
 				</motion.ul>
 
 				<div
-					className={`sticky top-0 z-50 transition-shadow w-full h-14 border-b
+					className={`flex items-center justify-between sticky top-0 z-50 transition-shadow w-full h-14 border-b
 ${
 	scrollPosition > 56
 		? 'bg-background/40 shadow bg-opacity-60 backdrop-blur-lg backdrop-filter border-b'
@@ -109,13 +109,13 @@ ${
 }
 `}
 				>
-					<div className='absolute left-2 top-[16px] z-30'>
+					<div className='-mt-6 ml-4 z-30'>
 						<MenuToggle toggle={toggleOpen} />
 					</div>
-					<div className='absolute w-full grid place-content-center mt-[14px]'>
+					<div className=' '>
 						<Logo />
 					</div>
-					<div className='absolute right-2 top-[12px] pointer-events-auto z-30'>
+					<div className=' pointer-events-auto z-30'>
 						<AuthButtons />
 					</div>
 				</div>
