@@ -7,7 +7,8 @@
 		"gen:types": "node ./scripts/gen-supabase-types.js",
 		"build": "next build",
 		"start": "next start",
-		"lint": "eslint"
+		"lint": "eslint",
+		"copy:skills": "powershell -Command \"Copy-Item -Path .agents/skills -Destination .github -Recurse -Force\""
 	},
 	"dependencies": {
 		"zustand": "^4.4.0",
