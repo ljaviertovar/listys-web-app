@@ -1,9 +1,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { encode as base64Encode } from 'https://deno.land/std@0.168.0/encoding/base64.ts'
 
-// const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY')!
-const GEMINI_API_KEY = Deno.env.get('OPENAI_API_KEY')!
+const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY')!
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 
@@ -20,19 +18,6 @@ interface ReceiptItem {
   price: number | null
   category: string | null
 }
-
-// 1. Función auxiliar para convertir URL a Base64
-async function getBase64FromUrl(url: string): Promise<{ base64: string; mimeType: string }> {
-  const response = await fetch(url);
-  const blob = await response.blob();
-  const buffer = await blob.arrayBuffer();
-  const base64 = base64Encode(new Uint8Array(buffer));
-  return {
-    base64,
-    mimeType: blob.type // Detecta automáticamente si es image/jpeg, image/png, etc.
-  };
-}
-
 
 // Process a single image with OpenAI Vision API
 async function processImage(
@@ -129,60 +114,49 @@ ${mergeInstructions}
 `
 
 
-
-  // 2. Proceso principal
-  const { base64, mimeType } = await getBase64FromUrl(imageUrl);
-  const ocrResponse = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [
-              { text: prompt },
-              {
-                inline_data: {
-                  mime_type: mimeType,
-                  data: base64,
-                },
-              },
-            ],
-          },
-        ],
-        generationConfig: {
-          temperature: 0,
-          topP: 1,
-          maxOutputTokens: 5000,
-          // Opcional: Forzar a Gemini a responder SOLO JSON puro
-          response_mime_type: "application/json"
+  const ocrResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${OPENAI_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: 'gpt-4.1-mini',
+      temperature: 0,
+      top_p: 1,
+      messages: [
+        {
+          role: 'user',
+          content: [
+            { type: 'text', text: prompt },
+            { type: 'image_url', image_url: { url: imageUrl, detail: 'high' } },
+          ],
         },
-      }),
-    }
-  );
+      ],
+      max_tokens: 5000,
+    }),
+  })
 
   if (!ocrResponse.ok) {
-    const error = await ocrResponse.text();
-    console.error(`Gemini API error for image ${imageIndex + 1}:`, error);
-    throw new Error(`Gemini API error: ${error}`);
+    const error = await ocrResponse.text()
+    console.error(`OpenAI API error for image ${imageIndex + 1}:`, error)
+    throw new Error(`OpenAI API error: ${error}`)
   }
 
-  const ocrData = await ocrResponse.json();
-
-  // En Gemini, el contenido está en: candidates[0].content.parts[0].text
-  const content = ocrData.candidates?.[0]?.content?.parts?.[0]?.text || '[]';
+  const ocrData = await ocrResponse.json()
+  const content = ocrData.choices[0]?.message?.content || '[]'
 
   try {
-    // Limpiamos posibles Markdown blocks (aunque con response_mime_type no deberían venir)
-    const cleanContent = content.replace(/```json\n?|\n?```/g, '').trim();
-    const parsed = JSON.parse(cleanContent);
+    const cleanContent = content.replace(/```json\n?|\n?```/g, '').trim()
+    const parsed = JSON.parse(cleanContent)
 
-    if (!Array.isArray(parsed)) return [];
+    // Defensive: ensure array
+    if (!Array.isArray(parsed)) return []
 
+    // Defensive cleanup: only keep expected fields
     return parsed
-      .filter((x) => x && typeof x === 'object')
-      .map((x) => ({
+      .filter((x: any) => x && typeof x === 'object')
+      .map((x: any) => ({
         name: typeof x.name === 'string' ? x.name : '',
         category: x.category ?? null,
         quantity:
@@ -193,10 +167,10 @@ ${mergeInstructions}
         price:
           typeof x.price === 'number' && Number.isFinite(x.price) ? x.price : null,
       }))
-      .filter((x) => x.name.trim().length > 0);
+      .filter((x: ReceiptItem) => x.name.trim().length > 0)
   } catch (parseError) {
-    console.error(`Failed to parse OCR response for image ${imageIndex + 1}:`, content);
-    throw new Error('Failed to parse OCR response');
+    console.error(`Failed to parse OCR response for image ${imageIndex + 1}:`, content)
+    throw new Error('Failed to parse OCR response')
   }
 }
 
