@@ -34,7 +34,13 @@ function toTitleCase(input: string | null): string | null {
   if (!input) return null;
   const cleaned = input.replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
   if (!cleaned) return null;
-  return cleaned.split(/\s+/).map(p => p.toLowerCase().charAt(0).toUpperCase() + p.slice(1)).join(' ');
+  return cleaned
+    .split(/\s+/)
+    .map((p) => {
+      const lower = p.toLowerCase();
+      return lower.charAt(0).toUpperCase() + lower.slice(1);
+    })
+    .join(' ');
 }
 
 /* --- PROCESAMIENTO DE IMAGEN CON GEMINI 3 FLASH --- */
