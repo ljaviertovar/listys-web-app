@@ -114,7 +114,6 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 								ticketId={ticketId}
 								items={ticket.items || []}
 								status={ticket.ocr_status || 'pending'}
-								isMerged={!!ticket.base_list_id}
 								ocrError={(ticket as any).ocr_error}
 							/>
 						</CardContent>
