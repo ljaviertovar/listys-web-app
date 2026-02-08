@@ -37,10 +37,9 @@ export default function GoogleButtonSignin({ typeSubmit, callbackUrl }: Props) {
 
 	return (
 		<Button
-			variant='outline'
 			type='button'
 			disabled={isLoading}
-			className='w-full flex items-center justify-center gap-2'
+			className='w-full h-11 text-base font-semibold transition-all hover:scale-[1.01] active:scale-[0.99] rounded-xl shadow-lg shadow-primary/20'
 			onClick={handleGoogleSignIn}
 		>
 			{isLoading ? (

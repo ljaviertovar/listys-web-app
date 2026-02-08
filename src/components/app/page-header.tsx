@@ -15,9 +15,7 @@ export default function PageHeader({ title, desc, children }: Props) {
 					<p className='text-sm text-muted-foreground md:text-md'>{desc}</p>
 				</div>
 			</div>
-			<div className='w-full max-w-7xl m-auto p-3 lg:p-4'>
-				{children}
-			</div>
+			<div className='w-full max-w-7xl m-auto md:p-3 lg:p-4'>{children}</div>
 		</header>
 	)
 }
