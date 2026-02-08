@@ -53,46 +53,44 @@ export default function SignUpPage() {
 	return (
 		<main className='relative min-h-screen w-full flex flex-col items-center justify-center p-4 overflow-hidden'>
 			{/* Modern gradient blobs */}
-			<div className='absolute inset-0 -z-20 bg-background' />
-			<div className='absolute inset-0 -z-10 overflow-hidden pointer-events-none'>
+			<div className='fixed inset-0 -z-10 overflow-hidden pointer-events-none bg-slate-50'>
 				<motion.div
 					animate={{
 						scale: [1, 1.2, 1],
-						x: [0, 100, 0],
-						y: [0, -50, 0],
+						x: [0, 50, 0],
+						y: [0, -30, 0],
 					}}
 					transition={{
-						duration: 20,
+						duration: 12,
 						repeat: Infinity,
 						ease: 'easeInOut',
 					}}
-					className='absolute -top-[10%] -left-[10%] w-[70%] h-[70%] rounded-full bg-primary/20 blur-[80px]'
+					className='absolute -top-[10%] -left-[10%] w-[60%] h-[60%] rounded-full bg-[#7C3AED]/20 blur-[100px]'
 				/>
 				<motion.div
 					animate={{
 						scale: [1, 1.1, 1],
-						x: [0, -100, 0],
+						x: [0, -40, 0],
 						y: [0, 50, 0],
 					}}
 					transition={{
-						duration: 25,
+						duration: 15,
 						repeat: Infinity,
 						ease: 'easeInOut',
 					}}
-					className='absolute top-[10%] -right-[20%] w-[60%] h-[60%] rounded-full bg-accent/25 blur-[60px]'
+					className='absolute top-[10%] -right-[10%] w-[50%] h-[50%] rounded-full bg-[#EC4899]/25 blur-[100px]'
 				/>
 				<motion.div
 					animate={{
 						scale: [1, 1.3, 1],
-						y: [0, 80, 0],
-						x: [0, 40, 0],
+						y: [0, 40, 0],
 					}}
 					transition={{
-						duration: 30,
+						duration: 18,
 						repeat: Infinity,
 						ease: 'easeInOut',
 					}}
-					className='absolute -bottom-[20%] left-[10%] w-[70%] h-[70%] rounded-full bg-primary/10 blur-[100px]'
+					className='absolute -bottom-[20%] left-[10%] w-[70%] h-[70%] rounded-full bg-[#6366F1]/15 blur-[120px]'
 				/>
 			</div>
 			<div className='absolute top-0 left-0 w-full h-full -z-10 opacity-[0.03] pointer-events-none bg-[url("https://www.transparenttextures.com/patterns/cubes.png")]' />

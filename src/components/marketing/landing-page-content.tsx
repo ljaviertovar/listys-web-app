@@ -38,7 +38,7 @@ export default function LandingPageContent() {
 						repeat: Infinity,
 						ease: 'easeInOut',
 					}}
-					className='absolute -top-[10%] -left-[10%] w-[60%] h-[60%] rounded-full bg-primary/15 blur-[100px]'
+					className='absolute -top-[10%] -left-[10%] w-[60%] h-[60%] rounded-full bg-primary/25 blur-[100px]'
 				/>
 				<motion.div
 					animate={{
@@ -51,7 +51,7 @@ export default function LandingPageContent() {
 						repeat: Infinity,
 						ease: 'easeInOut',
 					}}
-					className='absolute top-[15%] -right-[15%] w-[50%] h-[50%] rounded-full bg-accent/20 blur-[80px]'
+					className='absolute top-[15%] -right-[15%] w-[50%] h-[50%] rounded-full bg-accent/30 blur-[80px]'
 				/>
 				<motion.div
 					animate={{
@@ -64,7 +64,7 @@ export default function LandingPageContent() {
 						repeat: Infinity,
 						ease: 'easeInOut',
 					}}
-					className='absolute -bottom-[15%] left-[5%] w-[55%] h-[55%] rounded-full bg-primary/10 blur-[120px]'
+					className='absolute -bottom-[15%] left-[5%] w-[55%] h-[55%] rounded-full bg-primary/20 blur-[120px]'
 				/>
 			</div>
 			<div className='fixed top-0 left-0 w-full h-full -z-10 opacity-[0.03] pointer-events-none bg-[url("https://www.transparenttextures.com/patterns/cubes.png")]' />
@@ -79,7 +79,7 @@ export default function LandingPageContent() {
 							<div className='inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-semibold tracking-wide w-fit mx-auto md:mx-0'>
 								<HugeiconsIcon
 									icon={SparklesIcon}
-									className='w-4 h-4'
+									className='w-4 h-4 text-yellow-500'
 								/>
 								<span>AI-Powered Receipt Scanning</span>
 							</div>
