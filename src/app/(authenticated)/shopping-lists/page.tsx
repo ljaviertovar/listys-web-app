@@ -28,7 +28,13 @@ export default async function GroupsPage() {
 			<PageHeader
 				title='Shopping Lists'
 				desc='Organize your shopping lists into groups'
-			/>
+			>
+				<div className='justify-end hidden md:flex'>
+					<div className='w-fit'>
+						<CreateGroupDialog />
+					</div>
+				</div>
+			</PageHeader>
 
 			<PageContainer>
 				{error && (
@@ -71,7 +77,9 @@ export default async function GroupsPage() {
 			</PageContainer>
 
 			<PageFooterAction>
-				<CreateGroupDialog />
+				<div className='w-full md:hidden'>
+					<CreateGroupDialog />
+				</div>
 			</PageFooterAction>
 		</>
 	)

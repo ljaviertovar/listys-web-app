@@ -64,7 +64,25 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 			<PageHeader
 				title={baseListWithItems.name}
 				desc='Manage items in this base list'
-			/>
+			>
+				<div className='justify-end hidden md:flex'>
+					<div className='w-fit flex gap-4'>
+						<AddItemDialogBaseList
+							context='base-list'
+							baseListId={baseListId}
+							isLocked={!!activeSession}
+						/>
+						{!anyActiveSession && baseListWithItems.items.length > 0 && (
+							<StartShoppingDialog
+								baseListId={baseListId}
+								baseListName={baseListWithItems.name}
+								itemsCount={totalItems}
+								disabled={!baseListWithItems.items || baseListWithItems.items.length === 0}
+							/>
+						)}
+					</div>
+				</div>
+			</PageHeader>
 			{/* Main scrollable area */}
 			<div className='flex-1 min-h-0 flex flex-col'>
 				<PageContainer>
@@ -107,20 +125,22 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 			</div>
 
 			<PageFooterAction>
-				<div className='w-full flex gap-4'>
-					<AddItemDialogBaseList
-						context='base-list'
-						baseListId={baseListId}
-						isLocked={!!activeSession}
-					/>
-					{!anyActiveSession && baseListWithItems.items.length > 0 && (
-						<StartShoppingDialog
+				<div className='w-full md:hidden'>
+					<div className='w-full flex gap-4'>
+						<AddItemDialogBaseList
+							context='base-list'
 							baseListId={baseListId}
-							baseListName={baseListWithItems.name}
-							itemsCount={totalItems}
-							disabled={!baseListWithItems.items || baseListWithItems.items.length === 0}
+							isLocked={!!activeSession}
 						/>
-					)}
+						{!anyActiveSession && baseListWithItems.items.length > 0 && (
+							<StartShoppingDialog
+								baseListId={baseListId}
+								baseListName={baseListWithItems.name}
+								itemsCount={totalItems}
+								disabled={!baseListWithItems.items || baseListWithItems.items.length === 0}
+							/>
+						)}
+					</div>
 				</div>
 			</PageFooterAction>
 		</div>

@@ -32,7 +32,8 @@ interface Group {
 	id: string
 	name: string
 	description?: string | null
-	base_lists?: Array<{ count: number }>
+	base_lists?: Array<{ id?: string; count?: number }>
+	total_items?: number
 	completed_runs_count?: number
 }
 
@@ -227,9 +228,11 @@ export function GroupCard({ group, history = false }: Props) {
 					<CardContent className='pt-4'>
 						<div className='flex items-center justify-between'>
 							<span>
-								{history
-									? `${group.completed_runs_count ?? 0} ${(group.completed_runs_count ?? 0) === 1 ? 'Shopping ' : 'Shoppings'}`
-									: `${group.base_lists?.[0]?.count ?? 0} ${(group.base_lists?.[0]?.count ?? 0) === 1 ? 'list' : 'lists'}`}
+									{history ? (
+										`${group.completed_runs_count ?? 0} ${(group.completed_runs_count ?? 0) === 1 ? 'Shopping' : 'Shoppings'}`
+									) : (
+										`${group.base_lists?.[0]?.count ?? 0} ${(group.base_lists?.[0]?.count ?? 0) === 1 ? 'list' : 'lists'} • ${group.total_items ?? 0} ${(group.total_items ?? 0) === 1 ? 'item' : 'items'}`
+									)}
 							</span>
 							<div className='flex items-center text-sm text-primary transition-colors'>
 								<span>{history ? 'View history' : 'View lists'}</span>

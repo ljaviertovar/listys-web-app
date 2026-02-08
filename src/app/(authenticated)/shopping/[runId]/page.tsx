@@ -67,6 +67,16 @@ export default async function ShoppingRunPage({ params }: { params: Promise<{ ru
 						{!isCompleted && <ActiveShoppingBadge />}
 					</div>
 				)}
+				<div className='justify-end hidden md:flex'>
+					<div className='w-fit'>
+						{!isCompleted && (
+							<ShoppingSessionActions
+								sessionId={runId}
+								progress={progress}
+							/>
+						)}
+					</div>
+				</div>
 			</PageHeader>
 
 			<PageContainer>
@@ -110,13 +120,15 @@ export default async function ShoppingRunPage({ params }: { params: Promise<{ ru
 			</PageContainer>
 
 			<PageFooterAction>
-				<div className='w-full flex flex-col gap-2'>
-					{!isCompleted && (
-						<ShoppingSessionActions
-							sessionId={runId}
-							progress={progress}
-						/>
-					)}
+				<div className='w-full md:hidden'>
+					<div className='w-full flex flex-col gap-2'>
+						{!isCompleted && (
+							<ShoppingSessionActions
+								sessionId={runId}
+								progress={progress}
+							/>
+						)}
+					</div>
 				</div>
 			</PageFooterAction>
 		</>
