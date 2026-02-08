@@ -31,7 +31,13 @@ export default async function TicketsPage() {
 			<PageHeader
 				title='Receipts'
 				desc='Upload and manage your shopping receipts'
-			/>
+			>
+				<div className='justify-end hidden md:flex'>
+					<div className='w-fit'>
+						<UploadTicketDialog />
+					</div>
+				</div>
+			</PageHeader>
 
 			<PageContainer>
 				<BackLink
@@ -137,7 +143,9 @@ export default async function TicketsPage() {
 			</PageContainer>
 
 			<PageFooterAction>
-				<UploadTicketDialog />
+				<div className='w-full md:hidden'>
+					<UploadTicketDialog />
+				</div>
 			</PageFooterAction>
 		</>
 	)

@@ -15,7 +15,7 @@ export const Header = () => {
 				scrollPosition > 20 ? 'bg-opacity-100' : 'bg-opacity-60',
 			)}
 		>
-			<div className='flex items-center gap-2'>
+			<div className='flex items-center gap-2 md:hidden'>
 				<MobileMenu />
 			</div>
 

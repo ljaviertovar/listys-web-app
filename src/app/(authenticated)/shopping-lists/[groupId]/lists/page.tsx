@@ -52,7 +52,13 @@ export default async function BaseListsPage({ params }: { params: Promise<{ grou
 			<PageHeader
 				title={group?.name || 'Base Lists'}
 				desc='Manage your base shopping lists'
-			/>
+			>
+				<div className='justify-end hidden md:flex	'>
+					<div className='w-fit'>
+						<CreateBaseListDialog groupId={groupId} />
+					</div>
+				</div>
+			</PageHeader>
 
 			<PageContainer>
 				<BackLink
@@ -109,7 +115,9 @@ export default async function BaseListsPage({ params }: { params: Promise<{ grou
 			</PageContainer>
 
 			<PageFooterAction>
-				<CreateBaseListDialog groupId={groupId} />
+				<div className='w-full md:hidden'>
+					<CreateBaseListDialog groupId={groupId} />
+				</div>
 			</PageFooterAction>
 		</>
 	)
