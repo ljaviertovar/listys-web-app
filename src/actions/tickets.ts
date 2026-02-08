@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { mergeTicketItemsSchema, createBaseListFromTicketSchema } from '@/lib/validations/ticket'
 import { MAX_ITEMS_PER_BASE_LIST } from '@/lib/config/limits'
 import { revalidatePath } from 'next/cache'
+import { getOCRFunctionURL } from '@/lib/config/ocr'
 
 export async function getTickets() {
   const supabase = await createClient()
@@ -394,7 +395,7 @@ export async function retryTicketOCR(id: string) {
   // Call edge function to process
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/process-ticket-ocr`,
+      getOCRFunctionURL(),
       {
         method: 'POST',
         headers: {
