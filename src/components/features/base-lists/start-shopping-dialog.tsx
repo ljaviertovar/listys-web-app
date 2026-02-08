@@ -73,19 +73,17 @@ export function StartShoppingDialog({ baseListId, baseListName, disabled, itemsC
 		>
 			<DialogTrigger asChild>
 				<Button
-					asChild
 					disabled={disabled || isEmpty}
 					className='w-full'
 					variant={'outline'}
+					size={'sm'}
 				>
-					<span>
-						<HugeiconsIcon
-							icon={ShoppingCart02Icon}
-							strokeWidth={2}
-							data-icon='inline-start'
-						/>
-						Start Shopping
-					</span>
+					<HugeiconsIcon
+						icon={ShoppingCart02Icon}
+						strokeWidth={2}
+						data-icon='inline-start'
+					/>
+					Start Shopping
 				</Button>
 			</DialogTrigger>
 			<DialogContent

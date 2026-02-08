@@ -742,6 +742,61 @@ npx supabase functions deploy process-ticket-ocr
 
 ---
 
+## OCR Edge Function — Selección de proveedor
+
+La aplicación soporta dos proveedores de OCR para procesar tickets:
+
+- **`process-ticket-ocr-gemini`** — Usa Gemini 1.5 Flash (Google)
+- **`process-ticket-ocr-openai`** — Usa GPT-4.1 Mini (OpenAI)
+
+### **Configuración**
+
+El **backend (Next.js)** decide qué función Edge llamar basándose en la variable de entorno:
+
+**Variable:** `PROCESS_TICKET_OCR_PROVIDER`
+
+- Valores permitidos: `gemini` | `openai`
+- Valor por defecto: `gemini`
+
+**Ubicación de configuración:** `src/lib/config/ocr.ts`
+
+### **Despliegue de funciones**
+
+Ambas funciones Edge deben estar desplegadas:
+
+```bash
+npx supabase functions deploy process-ticket-ocr-gemini
+npx supabase functions deploy process-ticket-ocr-openai
+```
+
+### **Probar localmente**
+
+```bash
+# Servir función Gemini
+npx supabase functions serve process-ticket-ocr-gemini
+
+# Servir función OpenAI
+npx supabase functions serve process-ticket-ocr-openai
+```
+
+### **Variables de entorno requeridas**
+
+Añade a `.env.local`:
+
+```bash
+# Seleccionar proveedor OCR (gemini o openai)
+PROCESS_TICKET_OCR_PROVIDER=gemini
+
+# API Keys (usa la clave correspondiente según el proveedor)
+OPENAI_API_KEY=tu_api_key_aqui  # Para ambos proveedores
+```
+
+**Nota:** Ambas funciones usan `OPENAI_API_KEY` por ahora. Para Gemini, esta variable contiene la API key de Google AI Studio
+
+---
+
+---
+
 ## License
 
 MIT License - See [LICENSE](../LICENSE) for details

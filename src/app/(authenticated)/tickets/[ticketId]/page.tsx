@@ -1,17 +1,15 @@
-import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { HugeiconsIcon } from '@hugeicons/react'
 
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { PageHeader, PageContainer } from '@/components/app'
 import { TicketItemsSelector } from '@/components/features/tickets/ticket-items-selector'
 import { TicketImage } from '@/components/features/tickets/ticket-image'
 import { TicketActions } from '@/components/features/tickets/ticket-actions'
 import { TicketStatusListener } from '@/components/features/tickets/ticket-status-listener'
 import BackLink from '@/components/app/back-link'
-import { Invoice01Icon, InformationCircleIcon, ListViewIcon } from '@hugeicons/core-free-icons'
+import { Invoice01Icon, ListViewIcon } from '@hugeicons/core-free-icons'
 
 import { getTicket } from '@/actions/tickets'
 
@@ -37,12 +35,6 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 		redirect('/tickets')
 	}
 
-	// Fetch base list if ticket is merged
-	let baseListName = null
-	if (ticket.base_list_id && ticket.base_list) {
-		baseListName = ticket.base_list.name
-	}
-
 	const createdAt = ticket.created_at ? new Date(ticket.created_at) : new Date()
 
 	return (
@@ -56,20 +48,6 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 					href='/tickets'
 					label='Back to Receipts'
 				/>
-
-				{ticket.base_list_id && baseListName && (
-					<Alert variant='info'>
-						<HugeiconsIcon
-							icon={InformationCircleIcon}
-							strokeWidth={2}
-						/>
-						<AlertTitle>Merged to Base List</AlertTitle>
-						<AlertDescription>
-							This receipt has been added to the base list:{' '}
-							<Link href={`/base-lists/${ticket.base_list_id}/edit`}>{baseListName}</Link>
-						</AlertDescription>
-					</Alert>
-				)}
 
 				<div className='grid gap-6 lg:grid-cols-2'>
 					{/* Realtime status listener (client) */}
@@ -114,7 +92,6 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 								ticketId={ticketId}
 								items={ticket.items || []}
 								status={ticket.ocr_status || 'pending'}
-								isMerged={!!ticket.base_list_id}
 								ocrError={(ticket as any).ocr_error}
 							/>
 						</CardContent>

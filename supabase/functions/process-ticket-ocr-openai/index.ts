@@ -343,7 +343,7 @@ function toTitleCase(input: string | null): string | null {
   return transformed || null
 }
 
-serve(async (req) => {
+serve(async (req: Request) => {
   try {
     const { ticketId, imageUrl, imageUrls }: RequestBody = await req.json()
 
