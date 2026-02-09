@@ -6,8 +6,16 @@ import LandingPageContent from '@/components/marketing/landing-page-content'
 
 export const metadata: Metadata = {
 	title: 'Listys - Smart Shopping List Manager',
-	description: 'Manage your shopping lists with AI-powered receipt processing. Transform photos into organized lists instantly.',
-	keywords: ['shopping list', 'grocery app', 'AI receipt scanner', 'meal planning', 'expense tracker', 'smart shopping'],
+	description:
+		'Manage your shopping lists with AI-powered receipt processing. Transform photos into organized lists instantly.',
+	keywords: [
+		'shopping list',
+		'grocery app',
+		'AI receipt scanner',
+		'meal planning',
+		'expense tracker',
+		'smart shopping',
+	],
 	authors: [{ name: 'Listys Team' }],
 	openGraph: {
 		type: 'website',
@@ -40,8 +48,7 @@ export default async function Page() {
 	const { data } = await supabase.auth.getClaims()
 	const user = data?.claims
 
-	if (user) redirect('/dashboard')
+	//if (user) redirect('/dashboard')
 
 	return <LandingPageContent />
 }
-

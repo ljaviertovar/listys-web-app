@@ -1,5 +1,7 @@
 'use client'
 
+import { useState } from 'react'
+
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -22,6 +24,34 @@ import { Footer } from '@/components/marketing/footer'
 import { Faq } from '@/components/marketing/faq'
 
 export default function LandingPageContent() {
+	const [activeStep, setActiveStep] = useState(0)
+
+	const STEPS = [
+						{
+			title: 'Capture in a snap',
+			desc: 'Before typing, searching, or guessing — Listys helps you capture everything instantly from any receipt.',
+			icon: Camera01Icon,
+			image: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=600', // Receipt/Scanning
+		},
+		{
+			title: 'Understand your spending',
+			desc: 'Listys automatically categorizes your items so you can see exactly where your money goes.',
+			icon: AnalyticsUpIcon,
+			image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=600', // Analytics/Charts
+		},
+		{
+			title: 'Check in with your lists',
+			desc: 'Keep your shopping organized. Create, edit, and share lists with your family in seconds.',
+			icon: Layers01Icon,
+			image: 'https://images.unsplash.com/photo-1598971861752-5a2b3612dc37?auto=format&fit=crop&q=80&w=600', // Lists/Planning
+		},
+		{
+			title: 'Growth without pressure',
+			desc: 'Track your habits over time and save money at your own pace with smart insights.',
+			icon: SparklesIcon,
+			image: 'https://images.unsplash.com/photo-1499296844971-ce45f448c48a?auto=format&fit=crop&q=80&w=600', // Relax/Growth
+		},
+	]
 	return (
 		<div className='relative w-full overflow-hidden'>
 			{/* Modern background blobs layer */}
@@ -253,8 +283,229 @@ export default function LandingPageContent() {
 				</div>
 			</section>
 
-			{/* Stats Section */}
-			<section className='w-full py-16 border-y border-slate-100/50 bg-white/40 backdrop-blur-sm'>
+
+			{/* How It Works - Reference Layout */}
+			<section
+				id='how-it-works'
+				className='w-full py-32 relative overflow-hidden'
+			>
+				<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+					<div className='grid grid-cols-1 lg:grid-cols-2 gap-16 items-center'>
+						{/* Left Content - Steps */}
+						<div className='space-y-12 animate-in fade-in slide-in-from-left-8 duration-1000 fill-mode-forwards'>
+							<div>
+								<h2 className='text-4xl md:text-5xl font-bold text-slate-900 mb-6'>
+									How Listys supports you
+								</h2>
+								<p className='text-lg text-slate-600 max-w-md'>
+									Step by step — a gentle flow designed to organize your shopping without the
+									hassle.
+								</p>
+							</div>
+
+							<div className='space-y-4'>
+								{STEPS.map((step, index) => (
+									<div
+										key={index}
+										onClick={() => setActiveStep(index)}
+										className={`transition-all duration-300 cursor-pointer ${
+											activeStep === index
+												? 'p-8 rounded-[32px] bg-slate-50 border border-slate-100 shadow-sm'
+												: 'p-6 rounded-3xl hover:bg-slate-50/50 group'
+										}`}
+									>
+										<div className='flex justify-between items-center mb-2'>
+											<h3
+												className={`text-xl font-bold transition-colors ${
+													activeStep === index
+														? 'text-slate-900'
+														: 'text-slate-400 group-hover:text-slate-600'
+												}`}
+											>
+												{step.title}
+											</h3>
+											<div
+												className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
+													activeStep === index
+														? 'bg-slate-200/50 rotate-180'
+														: 'bg-transparent group-hover:bg-slate-100'
+												}`}
+											>
+												<HugeiconsIcon
+													icon={step.icon}
+													className={`w-4 h-4 transition-colors ${
+														activeStep === index
+															? 'text-slate-900'
+															: 'text-slate-400 group-hover:text-slate-600'
+													}`}
+												/>
+											</div>
+										</div>
+										<div
+											className={`grid transition-all duration-300 ease-in-out ${
+												activeStep === index
+													? 'grid-rows-[1fr] opacity-100 mt-2'
+													: 'grid-rows-[0fr] opacity-0'
+											}`}
+										>
+											<div className='overflow-hidden'>
+												<p className='text-slate-600 leading-relaxed'>{step.desc}</p>
+											</div>
+										</div>
+									</div>
+								))}
+							</div>
+						</div>
+
+						{/* Right Content - Phone Visual */}
+						<div className='relative flex justify-center lg:justify-end animate-in fade-in slide-in-from-right-8 duration-1000 delay-200 fill-mode-forwards'>
+							{/* Decorative Background Elements */}
+							<div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-gradient-to-tr from-purple-100/50 via-blue-100/30 to-yellow-100/40 rounded-full blur-3xl -z-10'></div>
+
+							{/* Phone Mockup */}
+							<div className='relative w-[280px] sm:w-[300px]'>
+								<div className='relative z-20 rounded-[45px] border-[8px] border-slate-900 bg-slate-900 shadow-2xl overflow-hidden h-[580px] sm:h-[620px] aspect-[9/19]'>
+									{/* Content inside phone */}
+									<div className='w-full h-full bg-white relative'>
+										<img
+											key={activeStep}
+											src={STEPS[activeStep].image}
+											alt={STEPS[activeStep].title}
+											className='w-full h-full object-cover object-center animate-in fade-in duration-500'
+										/>
+										
+										{/* Overlay Gradient at bottom */}
+										<div className='absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-slate-900/80 to-transparent pointer-events-none'></div>
+
+										{/* Floating Card inside Phone - Dynamic based on activeStep */}
+										<div className='absolute bottom-8 left-4 right-4 bg-white/95 backdrop-blur-md p-5 rounded-3xl shadow-lg border border-white/20 text-center transition-all duration-500'>
+											<h4 className='text-lg font-bold text-slate-900 mb-1'>
+												{STEPS[activeStep].title}
+											</h4>
+											<p className='text-xs text-slate-500 mb-4 line-clamp-2'>
+												{STEPS[activeStep].desc}
+											</p>
+											<Button
+												size='sm'
+												className='w-full rounded-xl bg-slate-900 text-white h-9'
+											>
+												Get Started
+											</Button>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			{/* Features Grid - Packed with Power - Bento Style */}
+			<section className='w-full py-24  relative overflow-hidden'>
+				{/* Decorative Background Elements */}
+				<div className='absolute top-20 left-10 w-32 h-32 bg-yellow-200/30 rounded-full blur-3xl'></div>
+				<div className='absolute bottom-20 right-10 w-40 h-40 bg-purple-200/30 rounded-full blur-3xl'></div>
+				<div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-blue-100/20 rounded-full blur-3xl'></div>
+
+				<div className='max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10'>
+					{/* Header */}
+					<div className='text-center mb-16 max-w-2xl mx-auto'>
+						<h2 className='text-4xl md:text-5xl font-bold text-slate-900 mb-4'>
+							A path to shopping better
+						</h2>
+						<p className='text-lg text-slate-600 leading-relaxed'>
+							Listys helps you understand what's going on beneath the surface, without judgment and
+							without pressure.
+						</p>
+					</div>
+
+					{/* Bento Grid Layout */}
+					<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12'>
+						{/* Card 1 - Track your lists (Tall Left) */}
+						<Card className='relative border border-slate-200/60 bg-white/80 backdrop-blur-sm hover:shadow-xl transition-all duration-300 p-8 overflow-hidden group md:row-span-2'>
+							{/* Decorative emoji */}
+							<div className='absolute top-6 right-6 text-7xl opacity-20 group-hover:opacity-30 transition-opacity group-hover:scale-110 duration-300'>
+								📋
+							</div>
+							<div className='relative z-10 h-full flex flex-col justify-end'>
+								<h3 className='text-2xl font-bold text-slate-900 mb-3'>Track your lists</h3>
+								<p className='text-slate-600 leading-relaxed'>
+									Capture how you shop throughout the day with quick, intuitive check-ins.
+								</p>
+							</div>
+						</Card>
+
+						{/* Card 2 - Spot the patterns (Top Right) */}
+						<Card className='relative border border-slate-200/60 bg-white/80 backdrop-blur-sm hover:shadow-xl transition-all duration-300 p-8 overflow-hidden group lg:col-span-2'>
+							{/* Decorative elements - circles pattern */}
+							<div className='absolute top-1/2 right-8 -translate-y-1/2 flex gap-3'>
+								<div className='w-12 h-12 rounded-full bg-yellow-200/40 group-hover:bg-yellow-300/50 transition-colors'></div>
+								<div className='w-10 h-10 rounded-full bg-yellow-300/40 group-hover:bg-yellow-400/50 transition-colors'></div>
+								<div className='w-8 h-8 rounded-full bg-yellow-200/30'></div>
+							</div>
+							<div className='absolute top-1/2 right-20 -translate-y-1/2 translate-x-8 flex gap-2'>
+								<div className='w-6 h-6 rounded-full bg-yellow-200/30'></div>
+								<div className='w-5 h-5 rounded-full bg-yellow-300/30'></div>
+							</div>
+							<div className='relative z-10 max-w-md'>
+								<h3 className='text-2xl font-bold text-slate-900 mb-3'>Spot the patterns</h3>
+								<p className='text-slate-600 leading-relaxed'>
+									See the cycles, triggers, and habits shaping your shopping world, presented clearly,
+									not clinically.
+								</p>
+							</div>
+						</Card>
+
+						{/* Card 3 - Get gentle guidance (Bottom Left of Right Section) */}
+						<Card className='relative border border-slate-200/60 bg-white/80 backdrop-blur-sm hover:shadow-xl transition-all duration-300 p-8 overflow-hidden group'>
+							{/* Decorative elements - purple circles */}
+							<div className='absolute bottom-6 left-6 flex gap-2'>
+								<div className='w-12 h-12 rounded-full bg-purple-200/40 group-hover:bg-purple-300/50 transition-colors'></div>
+								<div className='w-9 h-9 rounded-full bg-purple-300/40 group-hover:bg-purple-400/50 transition-colors'></div>
+								<div className='w-6 h-6 rounded-full bg-purple-200/30'></div>
+							</div>
+							<div className='relative z-10'>
+								<h3 className='text-xl font-bold text-slate-900 mb-3'>Get gentle guidance</h3>
+								<p className='text-slate-600 leading-relaxed'>
+									Dive into insights, reflections, and community answers tailored to what you're
+									experiencing.
+								</p>
+							</div>
+						</Card>
+
+						{/* Card 4 - Grow at your pace (Bottom Right) */}
+						<Card className='relative border border-slate-200/60 bg-white/80 backdrop-blur-sm hover:shadow-xl transition-all duration-300 p-8 overflow-hidden group'>
+							{/* Decorative elements - tags/badges */}
+							<div className='absolute top-6 right-6 flex flex-wrap gap-2 max-w-[160px] opacity-20 group-hover:opacity-30 transition-opacity'>
+								<span className='px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium'>
+									Anxious
+								</span>
+								<span className='px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium'>
+									Happy
+								</span>
+								<span className='px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-medium'>
+									Upset
+								</span>
+								<span className='px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-medium'>
+									Excited
+								</span>
+							</div>
+							<div className='relative z-10'>
+								<h3 className='text-xl font-bold text-slate-900 mb-3'>Grow at your pace</h3>
+								<p className='text-slate-600 leading-relaxed'>
+									Listys gives you tools, not timelines. You evolve when you're ready.
+								</p>
+							</div>
+						</Card>
+					</div>
+
+				</div>
+			</section>
+
+			<Faq />
+
+						{/* Stats Section */}
+			<section className='w-full py-16 '>
 				<div className='max-w-6xl mx-auto px-4 sm:px-6 lg:px-8'>
 					<div className='grid grid-cols-2 md:grid-cols-4 gap-8'>
 						{[
@@ -303,138 +554,9 @@ export default function LandingPageContent() {
 				</div>
 			</section>
 
-			{/* How It Works */}
-			<section
-				id='how-it-works'
-				className='w-full py-24 bg-slate-50/20 backdrop-blur-sm'
-			>
-				<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-					<div className='text-center mb-20 max-w-3xl mx-auto'>
-						<h2 className='text-primary font-semibold tracking-wide uppercase text-sm mb-3'>How it Works</h2>
-						<h3 className='text-3xl md:text-5xl font-bold text-slate-900 mb-6'>
-							From Receipt to List in Seconds
-						</h3>
-						<p className='text-lg text-slate-600'>
-							Our AI handles the boring part. You just snap a picture and get ready to shop.
-						</p>
-					</div>
-
-					<div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
-						{[
-							{
-								step: '01',
-								icon: Camera01Icon,
-								title: 'Snap a Photo',
-								desc: 'Take a picture of your paper receipt, or upload a digital one directly.',
-								gradient: 'from-blue-500 to-indigo-500',
-							},
-							{
-								step: '02',
-								icon: ArtificialIntelligence02Icon,
-								title: 'AI Analysis',
-								desc: 'We identify every item, price, and quantity with high precision.',
-								gradient: 'from-indigo-500 to-purple-500',
-							},
-							{
-								step: '03',
-								icon: ShoppingCart01Icon,
-								title: 'Shop Smart',
-								desc: 'Items are categorized automatically. Check them off as you shop.',
-								gradient: 'from-purple-500 to-pink-500',
-							},
-						].map((item, index) => (
-							<Card
-								key={index}
-								className='relative border border-slate-200 hover:border-slate-300 transition-all duration-300 p-8 bg-white hover:shadow-xl hover:-translate-y-1 group overflow-hidden'
-							>
-								{/* Gradient Line Top */}
-								<div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${item.gradient}`}></div>
-
-								<div className='space-y-6 relative z-10'>
-									<div className='flex items-center justify-between'>
-										<div
-											className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${item.gradient} text-white flex items-center justify-center shadow-lg transition-transform group-hover:scale-110 group-hover:rotate-3`}
-										>
-											<HugeiconsIcon
-												icon={item.icon}
-												className='w-8 h-8'
-											/>
-										</div>
-										<span className='text-6xl font-black text-slate-100 select-none absolute -right-4 -top-4 opacity-50 group-hover:opacity-80 transition-opacity'>
-											{item.step}
-										</span>
-									</div>
-									<div>
-										<h3 className='text-xl font-bold text-slate-900 mb-3'>{item.title}</h3>
-										<p className='text-slate-600 leading-relaxed text-sm'>{item.desc}</p>
-									</div>
-								</div>
-							</Card>
-						))}
-					</div>
-				</div>
-			</section>
-
-			{/* Features Grid */}
-			<section className='w-full py-24 bg-transparent'>
-				<div className='max-w-6xl mx-auto px-4 sm:px-6 lg:px-8'>
-					<div className='text-center mb-16'>
-						<h2 className='text-3xl md:text-5xl font-bold text-slate-900 mb-6'>Packed with Power</h2>
-						<p className='text-lg text-slate-600 max-w-2xl mx-auto'>
-							Everything modern shoppers need to stay organized and save money.
-						</p>
-					</div>
-
-					<div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-						{[
-							{
-								icon: Layers01Icon,
-								title: '10 Groups, Unlimited Lists',
-								description:
-									'Organize by store, meal plan, or season. Create base lists with up to 250 items each.',
-							},
-							{
-								icon: ArtificialIntelligence02Icon,
-								title: 'AI That Actually Works',
-								description: 'OpenAI Vision API recognizes items, prices, and quantities with 99% accuracy.',
-							},
-							{
-								icon: ShoppingCart01Icon,
-								title: 'Real-Time Shopping',
-								description: 'Create sessions from base lists. Check items, edit quantities, track totals live.',
-							},
-							{
-								icon: AnalyticsUpIcon,
-								title: 'Spending Analytics',
-								description: 'Track every purchase, visualize patterns, and make smarter shopping decisions.',
-							},
-						].map((feature, index) => (
-							<Card
-								key={index}
-								className='border border-slate-200 hover:border-primary/20 transition-all hover:shadow-lg p-8 bg-slate-50 group hover:bg-white'
-							>
-								<div className='flex gap-6 items-start'>
-									<div className='shrink-0 w-14 h-14 bg-white rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 group-hover:rotate-3 shadow-sm border border-slate-100'>
-										<HugeiconsIcon
-											icon={feature.icon}
-											className='w-7 h-7 text-primary'
-										/>
-									</div>
-									<div>
-										<h3 className='text-xl font-bold text-slate-900 mb-3'>{feature.title}</h3>
-										<p className='text-slate-600 leading-relaxed'>{feature.description}</p>
-									</div>
-								</div>
-							</Card>
-						))}
-					</div>
-				</div>
-			</section>
-
-			<Faq />
 
 			{/* CTA */}
-			<section className='w-full py-24 bg-gradient-to-b from-white/0 to-primary/5'>
+			<section className='w-full py-24 '>
 				<div className='max-w-4xl mx-auto text-center'>
 					<h2 className='text-4xl lg:text-6xl font-bold text-slate-900 mb-6 tracking-tight'>
 						Ready to shop smarter?
