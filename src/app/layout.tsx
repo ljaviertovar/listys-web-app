@@ -7,6 +7,7 @@ import { Inter } from 'next/font/google'
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' })
 
 import './globals.css'
+import ActiveSessionInit from '@/components/app/active-session-init'
 
 export const metadata: Metadata = {
 	title: 'Listys - Smart Shopping List Manager',
@@ -31,6 +32,7 @@ export default function RootLayout({
 					enableSystem
 					disableTransitionOnChange
 				>
+					<ActiveSessionInit />
 					{children}
 					<Toaster />
 				</ThemeProvider>

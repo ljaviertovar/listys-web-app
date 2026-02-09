@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { MAX_IMAGES_PER_TICKET } from '@/lib/config/limits'
+import { getOCRFunctionURL } from '@/lib/config/ocr'
 
 export async function POST(request: NextRequest) {
   try {
@@ -145,7 +146,7 @@ export async function POST(request: NextRequest) {
     // Trigger OCR processing via Edge Function with all images (fire-and-forget)
     // Start the request but do not await it so frontend is not blocked waiting for OCR
     try {
-      fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/process-ticket-ocr`, {
+      fetch(getOCRFunctionURL(), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

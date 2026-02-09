@@ -18,6 +18,7 @@ import {
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Cancel01Icon, Delete02Icon, Loading03Icon } from '@hugeicons/core-free-icons'
 import { cancelShoppingSession } from '@/actions/shopping-sessions'
+import { useActiveSessionStore } from '@/stores/active-session'
 
 interface Props {
 	sessionId: string
@@ -27,12 +28,15 @@ export function CancelSessionButton({ sessionId }: Props) {
 	const [loading, setLoading] = useState(false)
 	const [open, setOpen] = useState(false)
 	const router = useRouter()
+	const clearActiveSession = useActiveSessionStore(s => s.clearActiveSession)
 
 	const handleCancel = async () => {
 		setLoading(true)
 		try {
 			const { error } = await cancelShoppingSession(sessionId)
 			if (error) throw new Error(error)
+			// Clear store optimistically
+			clearActiveSession()
 			router.push('/dashboard')
 		} catch (err) {
 			console.error('Failed to cancel session:', err)

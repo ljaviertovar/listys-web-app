@@ -56,9 +56,7 @@ export function TicketItemRow({ item, canSelect = false, selected = false, onSel
 							{item.quantity || 1} {item.unit || 'pcs'}
 						</span>
 
-						{item.price !== null && (
-							<span className='text-sm text-muted-foreground'>${item.price!.toFixed(2)} / unit</span>
-						)}
+						{item.price !== null && <span className='text-sm text-muted-foreground'>${item.price!.toFixed(2)}</span>}
 					</div>
 					<div className='flex items-center gap-2'>
 						{item.category && <Badge variant='category'>{item.category}</Badge>}

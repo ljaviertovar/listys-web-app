@@ -178,7 +178,7 @@ export function MergeToBaseListDialog({ open, onOpenChange, ticketId, selectedIt
 
 						{/* Group selector (always shown) */}
 						<div className='space-y-2'>
-							<Label>Shopping Lists Group</Label>
+							<Label>Shopping List Group</Label>
 							<Select
 								value={selectedGroupId}
 								onValueChange={value => {

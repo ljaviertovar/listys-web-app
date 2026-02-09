@@ -11,6 +11,7 @@
 		"copy:skills": "powershell -Command \"Copy-Item -Path .agents/skills -Destination .github -Recurse -Force\""
 	},
 	"dependencies": {
+		"zustand": "^4.4.0",
 		"@base-ui/react": "^1.0.0",
 		"@hookform/resolvers": "^5.2.2",
 		"@hugeicons/core-free-icons": "^3.1.1",

@@ -17,6 +17,7 @@ import { ShoppingCart02Icon, Loading03Icon } from '@hugeicons/core-free-icons'
 import { createShoppingSession } from '@/actions/shopping-sessions'
 import { toast } from 'sonner'
 import { AlertDialogMedia } from '@/components/ui/alert-dialog'
+import useActiveSessionStore from '@/stores/active-session'
 
 interface Props {
 	baseListId: string
@@ -29,6 +30,7 @@ export function StartShoppingDialog({ baseListId, baseListName, disabled, itemsC
 	const [open, setOpen] = useState(false)
 	const [loading, setLoading] = useState(false)
 	const router = useRouter()
+	const setActiveSession = useActiveSessionStore(s => s.setActiveSession)
 
 	const handleConfirm = async () => {
 		setLoading(true)
@@ -47,6 +49,8 @@ export function StartShoppingDialog({ baseListId, baseListName, disabled, itemsC
 			}
 
 			if (data?.id) {
+				// Update store optimistically
+				setActiveSession({ id: data.id, name: data.name })
 				router.push(`/shopping/${data.id}`)
 			} else {
 				router.refresh()
@@ -69,19 +73,17 @@ export function StartShoppingDialog({ baseListId, baseListName, disabled, itemsC
 		>
 			<DialogTrigger asChild>
 				<Button
-					asChild
 					disabled={disabled || isEmpty}
 					className='w-full'
 					variant={'outline'}
+					size={'sm'}
 				>
-					<span>
-						<HugeiconsIcon
-							icon={ShoppingCart02Icon}
-							strokeWidth={2}
-							data-icon='inline-start'
-						/>
-						Start Shopping
-					</span>
+					<HugeiconsIcon
+						icon={ShoppingCart02Icon}
+						strokeWidth={2}
+						data-icon='inline-start'
+					/>
+					Start Shopping
 				</Button>
 			</DialogTrigger>
 			<DialogContent

@@ -17,11 +17,10 @@ interface Props {
 	ticketId: string
 	items: TicketItem[]
 	status: 'pending' | 'processing' | 'failed' | 'completed'
-	isMerged?: boolean
 	ocrError?: string | null
 }
 
-export function TicketItemsSelector({ ticketId, items, status, isMerged, ocrError }: Props) {
+export function TicketItemsSelector({ ticketId, items, status, ocrError }: Props) {
 	const router = useRouter()
 	const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
 	const [showMergeDialog, setShowMergeDialog] = useState(false)
@@ -93,7 +92,7 @@ export function TicketItemsSelector({ ticketId, items, status, isMerged, ocrErro
 	const totalAmount = items.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 1), 0)
 	const allSelected = selectedItems.size === items.length
 	const someSelected = selectedItems.size > 0
-	const canMerge = status === 'completed' && !isMerged
+	const canMerge = status === 'completed'
 
 	return (
 		<div className='space-y-4'>

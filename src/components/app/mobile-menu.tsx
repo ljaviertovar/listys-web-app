@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -16,35 +16,14 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { Menu02Icon } from '@hugeicons/core-free-icons'
 
 import { NAV_APP_ITEMS } from '@/data/constants/nav'
-import { createClient } from '@/lib/supabase/client'
+import useActiveSessionStore from '@/stores/active-session'
 import { ActiveShoppingBadge } from './active-shopping-badge'
 
 export default function MobileMenu() {
-	const [activeRun, setActiveRun] = useState<{ id: string; name?: string } | null>(null)
+	const activeRun = useActiveSessionStore(s => s.activeSession)
 
 	useEffect(() => {
-		let mounted = true
-		const supabase = createClient()
-
-		const load = async () => {
-			const { data: userData } = await supabase.auth.getUser()
-			const user = userData?.user
-			if (!user) return
-
-			const { data: run } = await supabase
-				.from('shopping_sessions')
-				.select('id, name')
-				.eq('user_id', user.id)
-				.eq('status', 'active')
-				.maybeSingle()
-
-			if (mounted && run) setActiveRun({ id: run.id, name: run.name })
-		}
-
-		load()
-		return () => {
-			mounted = false
-		}
+		// keep effect for potential side-effects in future; noop for now
 	}, [])
 
 	return (
