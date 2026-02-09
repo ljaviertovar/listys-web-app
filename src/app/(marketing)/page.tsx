@@ -1,8 +1,5 @@
 import { Metadata } from 'next'
-import { redirect } from 'next/navigation'
-
-import { createClient } from '@/lib/supabase/server'
-import LandingPageContent from '@/components/marketing/landing-page-content'
+import { LandingPageContent } from '@/components/marketing/landing-page-content'
 
 export const metadata: Metadata = {
 	title: 'Listys - Smart Shopping List Manager',
@@ -43,12 +40,6 @@ export const metadata: Metadata = {
 	metadataBase: new URL('https://listys.app'),
 }
 
-export default async function Page() {
-	const supabase = await createClient()
-	const { data } = await supabase.auth.getClaims()
-	const user = data?.claims
-
-	//if (user) redirect('/dashboard')
-
+export default function Page() {
 	return <LandingPageContent />
 }
