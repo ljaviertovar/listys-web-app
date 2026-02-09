@@ -8,7 +8,7 @@ export function Footer() {
 			<div className='max-w-6xl mx-auto'>
 				<div className='grid grid-cols-1 md:grid-cols-4 gap-8 mb-8'>
 					<div>
-						<div className='flex items-center gap-2 font-bold text-lg mb-3'>
+						<div className='flex items-center gap-2 font-bold text-lg mb-3 transition-transform hover:scale-105 w-fit cursor-pointer'>
 							<div className='w-8 h-8 bg-primary rounded-lg flex items-center justify-center'>
 								<HugeiconsIcon
 									icon={Invoice01Icon}
@@ -94,16 +94,16 @@ export function Footer() {
 				<div className='border-t border-slate-800 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-slate-400'>
 					<p>© {new Date().getFullYear()} Listys. All rights reserved.</p>
 					<div className='flex gap-6'>
-						<Link
-							href='#'
-							className='hover:text-white transition'
-						>
+								<Link
+									href='#'
+									className='hover:text-white transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1px] after:bg-white after:transition-all hover:after:w-full'
+								>
 							Twitter
 						</Link>
-						<Link
-							href='#'
-							className='hover:text-white transition'
-						>
+								<Link
+									href='#'
+									className='hover:text-white transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1px] after:bg-white after:transition-all hover:after:w-full'
+								>
 							GitHub
 						</Link>
 					</div>

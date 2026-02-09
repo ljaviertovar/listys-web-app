@@ -106,7 +106,7 @@ export function TicketActions({ ticket }: Props) {
 							className='mr-2 h-4 w-4'
 						/>
 					)}
-					{retrying ? 'Processing...' : retryButtonLabel}
+					{retrying ? 'Processing…' : retryButtonLabel}
 				</Button>
 			)}
 
@@ -159,7 +159,7 @@ export function TicketActions({ ticket }: Props) {
 										strokeWidth={2}
 										className='h-4 w-4 animate-spin'
 									/>
-									Deleting...
+									Deleting…
 								</>
 							) : (
 								'Delete'

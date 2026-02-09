@@ -174,5 +174,32 @@
 
   body {
     @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
+
+  /* Balanced text wrapping for headings */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    text-wrap: balance;
+  }
+
+  /* Eliminate 300ms tap delay on touch devices */
+  a,
+  button,
+  [role="button"],
+  input,
+  select,
+  textarea {
+    touch-action: manipulation;
+  }
+}
+
+/* Tabular numbers for counts/stats to prevent layout shift */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
 }

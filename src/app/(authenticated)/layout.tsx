@@ -19,8 +19,7 @@ export default async function AuthenticatedLayout({ children }: { children: Reac
 	}
 
 	const cookieStore = await cookies()
-	const sidebarCookie = cookieStore.get('sidebar_state')
-	const defaultOpen = true
+	const defaultOpen = cookieStore.get('sidebar_state')?.value !== 'false'
 
 	return (
 		<>

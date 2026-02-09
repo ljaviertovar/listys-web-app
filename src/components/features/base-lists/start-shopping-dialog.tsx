@@ -129,7 +129,7 @@ export function StartShoppingDialog({ baseListId, baseListName, disabled, itemsC
 								className='h-4 w-4 animate-spin'
 							/>
 						) : null}
-						{loading ? 'Starting...' : 'Start Shopping'}
+						{loading ? 'Starting…' : 'Start Shopping'}
 					</Button>
 				</DialogFooter>
 			</DialogContent>

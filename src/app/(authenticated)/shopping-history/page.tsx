@@ -3,11 +3,9 @@ import { HugeiconsIcon } from '@hugeicons/react'
 
 import { Card, CardContent } from '@/components/ui/card'
 
-import PageHeader from '@/components/app/page-header'
-import PageContainer from '@/components/app/page-container'
+import { PageHeader, PageContainer } from '@/components/app'
 import { ShoppingBasket01Icon } from '@hugeicons/core-free-icons'
-import { CreateGroupDialog } from '@/components/features/shopping-lists/create-group-dialog'
-import { GroupCard } from '@/components/features/shopping-lists/group-card'
+import { CreateGroupDialog, GroupCard } from '@/components/features/shopping-lists'
 
 import { getGroupsWithHistory } from '@/actions/shopping-lists'
 import { createClient } from '@/lib/supabase/server'

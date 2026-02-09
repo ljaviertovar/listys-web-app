@@ -1,3 +1,6 @@
+'use client'
+
+import { memo } from 'react'
 import Link from 'next/link'
 import { HugeiconsIcon } from '@hugeicons/react'
 
@@ -8,7 +11,7 @@ interface Props {
 	label: string
 }
 
-export default function BackLink({ href, label }: Props) {
+function BackLinkContent({ href, label }: Props) {
 	return (
 		<Link
 			href={href}
@@ -23,3 +26,5 @@ export default function BackLink({ href, label }: Props) {
 		</Link>
 	)
 }
+
+export default memo(BackLinkContent)

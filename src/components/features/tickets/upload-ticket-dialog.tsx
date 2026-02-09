@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import dynamic from 'next/dynamic'
 import { HugeiconsIcon } from '@hugeicons/react'
 
 import {
@@ -13,9 +14,17 @@ import {
 	DialogTrigger,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { UploadTicketForm } from './upload-ticket-form'
 
 import { Upload06Icon } from '@hugeicons/core-free-icons'
+
+// Lazy load UploadTicketForm since it contains heavy FileReader and image processing
+const UploadTicketForm = dynamic(
+	() => import('./upload-ticket-form').then(mod => ({ default: mod.UploadTicketForm })),
+	{
+		ssr: false,
+		loading: () => <div className='py-8 text-center text-sm text-muted-foreground'>Loading upload form...</div>,
+	},
+)
 
 export function UploadTicketDialog() {
 	const [open, setOpen] = useState(false)

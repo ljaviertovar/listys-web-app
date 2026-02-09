@@ -6,14 +6,13 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Mail, Lock, AlertCircle } from 'lucide-react'
-import { HugeiconsIcon } from '@hugeicons/react'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
-import GoogleButtonSignin from '@/components/features/auth/google-button-signin'
+import { GoogleButtonSignin } from '@/components/features/auth'
 import { BackLink } from '@/components/app'
 import Logo from '@/components/commons/logo'
 
@@ -53,7 +52,7 @@ export default function SignUpPage() {
 	return (
 		<main className='relative min-h-screen w-full flex flex-col items-center justify-center p-4 overflow-hidden'>
 			{/* Modern gradient blobs */}
-			<div className='fixed inset-0 -z-10 overflow-hidden pointer-events-none bg-slate-50'>
+			<div className='fixed inset-0 -z-10 overflow-hidden pointer-events-none bg-background'>
 				<motion.div
 					animate={{
 						scale: [1, 1.2, 1],
@@ -65,7 +64,8 @@ export default function SignUpPage() {
 						repeat: Infinity,
 						ease: 'easeInOut',
 					}}
-					className='absolute -top-[10%] -left-[10%] w-[60%] h-[60%] rounded-full bg-[#7C3AED]/20 blur-[100px]'
+					style={{ willChange: 'transform' }}
+					className='absolute -top-[10%] -left-[10%] w-[60%] h-[60%] rounded-full bg-[#7C3AED]/20 blur-[100px] motion-reduce:animate-none'
 				/>
 				<motion.div
 					animate={{
@@ -78,7 +78,8 @@ export default function SignUpPage() {
 						repeat: Infinity,
 						ease: 'easeInOut',
 					}}
-					className='absolute top-[10%] -right-[10%] w-[50%] h-[50%] rounded-full bg-[#EC4899]/25 blur-[100px]'
+					style={{ willChange: 'transform' }}
+					className='absolute top-[10%] -right-[10%] w-[50%] h-[50%] rounded-full bg-[#EC4899]/25 blur-[100px] motion-reduce:animate-none'
 				/>
 				<motion.div
 					animate={{
@@ -90,7 +91,8 @@ export default function SignUpPage() {
 						repeat: Infinity,
 						ease: 'easeInOut',
 					}}
-					className='absolute -bottom-[20%] left-[10%] w-[70%] h-[70%] rounded-full bg-[#6366F1]/15 blur-[120px]'
+					style={{ willChange: 'transform' }}
+					className='absolute -bottom-[20%] left-[10%] w-[70%] h-[70%] rounded-full bg-[#6366F1]/15 blur-[120px] motion-reduce:animate-none'
 				/>
 			</div>
 			<div className='absolute top-0 left-0 w-full h-full -z-10 opacity-[0.03] pointer-events-none bg-[url("https://www.transparenttextures.com/patterns/cubes.png")]' />
@@ -158,9 +160,7 @@ export default function SignUpPage() {
 									<Separator className='w-full border-border/60' />
 								</div>
 								<div className='relative flex justify-center text-xs uppercase'>
-									<span className='bg-card px-3 text-muted-foreground font-medium'>
-										Or register with email
-									</span>
+									<span className='bg-card px-3 text-muted-foreground font-medium'>Or register with email</span>
 								</div>
 							</div>
 
@@ -185,7 +185,7 @@ export default function SignUpPage() {
 											value={email}
 											onChange={e => setEmail(e.target.value)}
 											placeholder='name@example.com'
-											className='pl-10 h-11 bg-background/50 border-border/50 focus:border-primary/50 transition-all rounded-xl shadow-xs'
+											className='pl-10 h-11 bg-background/50 border-border/50 focus:border-primary/50 transition-colors rounded-xl shadow-xs'
 										/>
 									</div>
 								</div>
@@ -210,12 +210,10 @@ export default function SignUpPage() {
 											value={password}
 											onChange={e => setPassword(e.target.value)}
 											placeholder='••••••••••••'
-											className='pl-10 h-11 bg-background/50 border-border/50 focus:border-primary/50 transition-all rounded-xl shadow-xs'
+											className='pl-10 h-11 bg-background/50 border-border/50 focus:border-primary/50 transition-colors rounded-xl shadow-xs'
 										/>
 									</div>
-									<p className='text-[10px] text-muted-foreground ml-1'>
-										Must be at least 6 characters long
-									</p>
+									<p className='text-[10px] text-muted-foreground ml-1'>Must be at least 6 characters long</p>
 								</div>
 							</div>
 
@@ -223,12 +221,12 @@ export default function SignUpPage() {
 								type='submit'
 								variant='outline'
 								disabled={loading}
-								className='w-full h-11 text-base font-semibold transition-all hover:scale-[1.01] active:scale-[0.99] rounded-xl'
+								className='w-full h-11 text-base font-semibold transition-transform hover:scale-[1.01] active:scale-[0.99] rounded-xl'
 							>
 								{loading ? (
 									<div className='flex items-center gap-2'>
 										<span className='h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent' />
-										Creating account...
+										Creating account…
 									</div>
 								) : (
 									'Create account with email'

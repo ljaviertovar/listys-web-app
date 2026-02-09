@@ -4,11 +4,9 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { createClient } from '@/lib/supabase/server'
 
 import ScrollArea from '@/components/ui/scroll-area'
-import { BaseListItemRow } from '@/components/features/base-lists/base-list-item-row'
-import { AddItemDialogBaseList } from '@/components/app/add-item-dialog-base-list'
-import { StartShoppingDialog } from '@/components/features/base-lists/start-shopping-dialog'
+import { BaseListItemRow, StartShoppingDialog } from '@/components/features/base-lists'
+import { AddItemDialogBaseList, PageHeader, PageContainer, PageFooterAction, BackLink } from '@/components/app'
 import type { BaseListWithItems } from '@/features/base-lists/types'
-import { PageHeader, PageContainer, PageFooterAction, BackLink } from '@/components/app'
 
 import { getBaseList } from '@/actions/base-lists'
 
@@ -39,23 +37,28 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 
 	const baseListWithItems = baseList as BaseListWithItems
 	const totalItems = baseListWithItems.items ? baseListWithItems.items.length : 0
-	// Get group info for breadcrumb
-	const { data: group } = await supabase.from('groups').select('id, name').eq('id', baseListWithItems.group_id).single()
-	// Check if this base list is being used in an active shopping session
-	const { data: activeSession } = await supabase
-		.from('shopping_sessions')
-		.select('id, name')
-		.eq('user_id', user.id)
-		.eq('base_list_id', baseListId)
-		.eq('status', 'active')
-		.maybeSingle()
-	// Check if user has any active shopping session
-	const { data: anyActiveSession } = await supabase
-		.from('shopping_sessions')
-		.select('id, base_list_id')
-		.eq('user_id', user.id)
-		.eq('status', 'active')
-		.maybeSingle()
+
+	// Parallelize group info and session queries
+	const [groupResult, activeSessionResult, anyActiveSessionResult] = await Promise.all([
+		supabase.from('groups').select('id, name').eq('id', baseListWithItems.group_id).single(),
+		supabase
+			.from('shopping_sessions')
+			.select('id, name')
+			.eq('user_id', user.id)
+			.eq('base_list_id', baseListId)
+			.eq('status', 'active')
+			.maybeSingle(),
+		supabase
+			.from('shopping_sessions')
+			.select('id, base_list_id')
+			.eq('user_id', user.id)
+			.eq('status', 'active')
+			.maybeSingle(),
+	])
+
+	const { data: group } = groupResult
+	const { data: activeSession } = activeSessionResult
+	const { data: anyActiveSession } = anyActiveSessionResult
 
 	// --- FLEX LAYOUT FOR HEADER/FOOTER/SCROLLABLE CONTENT ---
 	return (

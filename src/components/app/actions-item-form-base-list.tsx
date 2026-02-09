@@ -189,7 +189,7 @@ export function ActionsItemFormBaseList({
 										data-icon='inline-start'
 									/>
 								)}
-								{loading ? 'Saving...' : 'Save'}
+								{loading ? 'Saving…' : 'Save'}
 							</Button>
 						</div>
 					</form>
@@ -209,6 +209,7 @@ export function ActionsItemFormBaseList({
 					setEditing(true)
 				}}
 				disabled={loading || isDisabled}
+				aria-label='Edit item'
 			>
 				<HugeiconsIcon
 					icon={Edit02Icon}
@@ -220,6 +221,7 @@ export function ActionsItemFormBaseList({
 				variant='ghost'
 				onClick={handleDelete}
 				disabled={loading || isDisabled}
+				aria-label='Delete item'
 			>
 				{loading ? (
 					<HugeiconsIcon

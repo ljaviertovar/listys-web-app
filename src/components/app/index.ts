@@ -1,9 +1,13 @@
-export { default as BackLink } from './back-link';
-export * from './header';
-export { default as PageContainer } from './page-container';
-export { default as PageHeader } from './page-header';
-export * from './sidebar';
-export { default as ActiveShopping } from './active-shopping';
-export { DashboardCard } from './dashboard-card';
-export { default as PageFooterAction } from './page-footer-action';
-export { default as MobileMenu } from './mobile-menu';
+// Barrel exports for cleaner imports
+export { default as BackLink } from './back-link'
+export { default as PageHeader } from './page-header'
+export { default as PageContainer } from './page-container'
+export { default as PageFooterAction } from './page-footer-action'
+export { default as ActiveShopping } from './active-shopping'
+export { DashboardCard } from './dashboard-card'
+export { Header } from './header'
+export { default as MobileMenu } from './mobile-menu'
+export { ActionsItemFormBaseList } from './actions-item-form-base-list'
+export { ActiveShoppingBadge } from './active-shopping-badge'
+export { AddItemDialogBaseList } from './add-item-dialog-base-list'
+export { AddItemFormBaseList } from './add-item-form-base-list'

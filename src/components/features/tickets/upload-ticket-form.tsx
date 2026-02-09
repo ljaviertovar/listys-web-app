@@ -308,7 +308,7 @@ export function UploadTicketForm({ onSuccess }: Props) {
 								strokeWidth={2}
 								className='h-4 w-4 animate-spin'
 							/>
-							Uploading...
+							Uploading…
 						</>
 					) : (
 						'Upload'

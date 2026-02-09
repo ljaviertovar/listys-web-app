@@ -135,7 +135,7 @@ export function CreateGroupDialog() {
 									data-icon='inline-start'
 								/>
 							)}
-							{loading ? 'Creating...' : 'Create'}
+							{loading ? 'Creating…' : 'Create'}
 						</Button>
 					</DialogFooter>
 				</form>

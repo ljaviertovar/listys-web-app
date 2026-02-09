@@ -278,7 +278,7 @@ export function MergeToBaseListDialog({ open, onOpenChange, ticketId, selectedIt
 											strokeWidth={2}
 											className='mr-2 h-4 w-4 animate-spin'
 										/>
-										Adding...
+										Adding…
 									</>
 								) : (
 									<>Add</>

@@ -5,10 +5,8 @@ import { getGroup } from '@/actions/shopping-lists'
 import { Card, CardContent } from '@/components/ui/card'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ShoppingBasket01Icon } from '@hugeicons/core-free-icons'
-import { HistorySessionCard } from '@/components/features/shopping-sessions/history-session-card'
-import PageHeader from '@/components/app/page-header'
-import BackLink from '@/components/app/back-link'
-import PageContainer from '@/components/app/page-container'
+import { HistorySessionCard } from '@/components/features/shopping-sessions'
+import { PageHeader, BackLink, PageContainer } from '@/components/app'
 
 export default async function GroupHistoryPage({ params }: { params: Promise<{ groupId: string }> }) {
 	const { groupId } = await params
@@ -21,8 +19,10 @@ export default async function GroupHistoryPage({ params }: { params: Promise<{ g
 		redirect('/auth/signin')
 	}
 
-	const { data: group, error: groupError } = await getGroup(groupId)
-	const { data: allSessions, error: sessionsError } = await getShoppingHistory()
+	const [groupResult, sessionsResult] = await Promise.all([getGroup(groupId), getShoppingHistory()])
+
+	const { data: group, error: groupError } = groupResult
+	const { data: allSessions, error: sessionsError } = sessionsResult
 
 	if (groupError || !group) {
 		redirect('/shopping-history')

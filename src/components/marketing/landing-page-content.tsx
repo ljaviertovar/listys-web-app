@@ -3,6 +3,7 @@
 import { useState } from 'react'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
@@ -68,7 +69,7 @@ export default function LandingPageContent() {
 						repeat: Infinity,
 						ease: 'easeInOut',
 					}}
-					className='absolute -top-[10%] -left-[10%] w-[60%] h-[60%] rounded-full bg-primary/25 blur-[100px]'
+					className='absolute -top-[10%] -left-[10%] w-[60%] h-[60%] rounded-full bg-primary/20 blur-[100px]'
 				/>
 				<motion.div
 					animate={{
@@ -94,7 +95,7 @@ export default function LandingPageContent() {
 						repeat: Infinity,
 						ease: 'easeInOut',
 					}}
-					className='absolute -bottom-[15%] left-[5%] w-[55%] h-[55%] rounded-full bg-primary/20 blur-[120px]'
+					className='absolute -bottom-[15%] left-[5%] w-[55%] h-[55%] rounded-full bg-primary/15 blur-[120px]'
 				/>
 			</div>
 			<div className='fixed top-0 left-0 w-full h-full -z-10 opacity-[0.03] pointer-events-none bg-[url("https://www.transparenttextures.com/patterns/cubes.png")]' />
@@ -109,14 +110,14 @@ export default function LandingPageContent() {
 							<div className='inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-semibold tracking-wide w-fit mx-auto md:mx-0'>
 								<HugeiconsIcon
 									icon={SparklesIcon}
-									className='w-4 h-4 text-yellow-500'
+									className='w-4 h-4 text-amber-400 animate-pulse'
 								/>
 								<span>AI-Powered Receipt Scanning</span>
 							</div>
 
-							<h1 className='text-5xl lg:text-7xl font-bold tracking-tight text-slate-900 leading-tight'>
+							<h1 className='text-5xl lg:text-7xl font-bold tracking-tight text-slate-900 leading-tight text-balance'>
 								Turn Receipts into <br />
-								<span className='text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-600 relative'>
+								<span className='text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-600 relative drop-shadow-sm'>
 									Smart Shopping Lists
 								</span>
 							</h1>
@@ -129,7 +130,7 @@ export default function LandingPageContent() {
 							<div className='flex flex-col sm:flex-row gap-4 pt-4 justify-center md:justify-start'>
 								<Button
 									size='lg'
-									className='bg-primary hover:bg-primary/90 text-white h-14 px-8 rounded-xl shadow-lg shadow-primary/25 transition-all hover:-translate-y-1 hover:shadow-primary/40 text-lg'
+									className='bg-primary hover:bg-primary/90 text-white h-14 px-8 rounded-xl shadow-lg shadow-primary/25 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/40 hover:brightness-110 active:scale-95 text-lg group'
 									asChild
 								>
 									<Link
@@ -139,14 +140,14 @@ export default function LandingPageContent() {
 										Start for Free
 										<HugeiconsIcon
 											icon={ArrowRight01Icon}
-											className='w-5 h-5'
+											className='w-5 h-5 transition-transform group-hover:translate-x-1'
 										/>
 									</Link>
 								</Button>
 								<Button
 									size='lg'
 									variant='outline'
-									className='h-14 px-8 rounded-xl border-slate-200 hover:bg-slate-50 text-slate-700 text-lg'
+									className='h-14 px-8 rounded-xl border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-slate-700 text-lg transition-all duration-300 hover:-translate-y-0.5 active:scale-95'
 									asChild
 								>
 									<Link href='#how-it-works'>How it Works</Link>
@@ -174,9 +175,9 @@ export default function LandingPageContent() {
 						{/* Right Content (Visual) */}
 						<div className='flex-1 relative w-full max-w-lg lg:max-w-xl animate-in fade-in slide-in-from-right-8 duration-1000 delay-200 fill-mode-forwards'>
 							{/* Background blobs for Hero */}
-							<div className='absolute -top-20 -right-20 w-72 h-72 bg-purple-200/50 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob'></div>
-							<div className='absolute -bottom-20 -left-20 w-72 h-72 bg-blue-200/50 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000'></div>
-							<div className='absolute top-20 left-20 w-72 h-72 bg-indigo-200/50 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-4000'></div>
+							<div className='absolute -top-20 -right-20 w-72 h-72 bg-primary/20 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob'></div>
+							<div className='absolute -bottom-20 -left-20 w-72 h-72 bg-accent/30 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000'></div>
+							<div className='absolute top-20 left-20 w-72 h-72 bg-primary/15 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-4000'></div>
 
 							<div className='relative transform hover:scale-[1.02] transition-transform duration-500'>
 								{/* Glassmorphism Card */}
@@ -215,10 +216,11 @@ export default function LandingPageContent() {
 											].map((item, i) => (
 												<div
 													key={i}
-													className='group flex items-center justify-between p-3 bg-white rounded-lg border border-slate-200 hover:border-primary/40 hover:shadow-md transition-all duration-300'
+													className='group flex items-center justify-between p-3 bg-white rounded-lg border border-slate-200 hover:border-primary/40 hover:shadow-md transition-all duration-300 animate-in fade-in slide-in-from-bottom-2'
+													style={{ animationDelay: `${600 + i * 150}ms`, animationFillMode: 'backwards' }}
 												>
 													<div className='flex items-center gap-4'>
-														<span className='text-2xl bg-slate-50 w-10 h-10 flex items-center justify-center rounded-full'>
+														<span className='text-2xl bg-slate-50 w-10 h-10 flex items-center justify-center rounded-full transition-transform group-hover:scale-110'>
 															{item.emoji}
 														</span>
 														<div>
@@ -294,7 +296,7 @@ export default function LandingPageContent() {
 						{/* Left Content - Steps */}
 						<div className='space-y-12 animate-in fade-in slide-in-from-left-8 duration-1000 fill-mode-forwards'>
 							<div>
-								<h2 className='text-4xl md:text-5xl font-bold text-slate-900 mb-6'>
+								<h2 className='text-4xl md:text-5xl font-bold text-slate-900 mb-6 text-balance'>
 									How Listys supports you
 								</h2>
 								<p className='text-lg text-slate-600 max-w-md'>
@@ -308,22 +310,29 @@ export default function LandingPageContent() {
 									<div
 										key={index}
 										onClick={() => setActiveStep(index)}
-										className={`transition-all duration-300 cursor-pointer ${
+										className={`transition-all duration-300 cursor-pointer active:scale-[0.98] ${
 											activeStep === index
 												? 'p-8 rounded-[32px] bg-slate-50 border border-slate-100 shadow-sm'
 												: 'p-6 rounded-3xl hover:bg-slate-50/50 group'
 										}`}
 									>
 										<div className='flex justify-between items-center mb-2'>
-											<h3
-												className={`text-xl font-bold transition-colors ${
-													activeStep === index
-														? 'text-slate-900'
-														: 'text-slate-400 group-hover:text-slate-600'
-												}`}
-											>
-												{step.title}
-											</h3>
+											<div className='flex items-center gap-3'>
+												<span className={`text-sm font-bold tabular-nums transition-colors ${
+													activeStep === index ? 'text-primary' : 'text-slate-300 group-hover:text-slate-400'
+												}`}>
+													{String(index + 1).padStart(2, '0')}
+												</span>
+												<h3
+													className={`text-xl font-bold transition-colors ${
+														activeStep === index
+															? 'text-slate-900'
+															: 'text-slate-400 group-hover:text-slate-600'
+													}`}
+												>
+													{step.title}
+												</h3>
+											</div>
 											<div
 												className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
 													activeStep === index
@@ -360,19 +369,27 @@ export default function LandingPageContent() {
 						{/* Right Content - Phone Visual */}
 						<div className='relative flex justify-center lg:justify-end animate-in fade-in slide-in-from-right-8 duration-1000 delay-200 fill-mode-forwards'>
 							{/* Decorative Background Elements */}
-							<div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-gradient-to-tr from-purple-100/50 via-blue-100/30 to-yellow-100/40 rounded-full blur-3xl -z-10'></div>
+							<div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-gradient-to-tr from-primary/15 via-accent/20 to-amber-100/30 rounded-full blur-3xl -z-10'></div>
 
 							{/* Phone Mockup */}
 							<div className='relative w-[280px] sm:w-[300px]'>
 								<div className='relative z-20 rounded-[45px] border-[8px] border-slate-900 bg-slate-900 shadow-2xl overflow-hidden h-[580px] sm:h-[620px] aspect-[9/19]'>
+									{/* Dynamic Island / Notch */}
+									<div className='absolute top-3 left-1/2 -translate-x-1/2 w-24 h-7 bg-slate-900 rounded-full z-30'></div>
+									
 									{/* Content inside phone */}
 									<div className='w-full h-full bg-white relative'>
-										<img
-											key={activeStep}
-											src={STEPS[activeStep].image}
-											alt={STEPS[activeStep].title}
-											className='w-full h-full object-cover object-center animate-in fade-in duration-500'
-										/>
+										<div className='absolute inset-0 w-full h-full'>
+											<Image
+												key={activeStep}
+												src={STEPS[activeStep].image}
+												alt={STEPS[activeStep].title}
+												fill
+												className='object-cover object-center animate-in fade-in zoom-in-95 duration-500'
+												sizes='(max-width: 640px) 100vw, 300px'
+												priority
+											/>
+										</div>
 										
 										{/* Overlay Gradient at bottom */}
 										<div className='absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-slate-900/80 to-transparent pointer-events-none'></div>
@@ -403,11 +420,11 @@ export default function LandingPageContent() {
 			{/* Features Grid - Packed with Power - Bento Style */}
 			<section className='w-full py-24  relative overflow-hidden'>
 				{/* Decorative Background Elements */}
-				<div className='absolute top-20 left-10 w-32 h-32 bg-yellow-200/30 rounded-full blur-3xl'></div>
-				<div className='absolute bottom-20 right-10 w-40 h-40 bg-purple-200/30 rounded-full blur-3xl'></div>
-				<div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-blue-100/20 rounded-full blur-3xl'></div>
+				<div className='absolute top-20 left-10 w-32 h-32 bg-amber-200/20 rounded-full blur-3xl'></div>
+				<div className='absolute bottom-20 right-10 w-40 h-40 bg-primary/15 rounded-full blur-3xl'></div>
+				<div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-accent/20 rounded-full blur-3xl'></div>
 
-				<div className='max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10'>
+				<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10'>
 					{/* Header */}
 					<div className='text-center mb-16 max-w-2xl mx-auto'>
 						<h2 className='text-4xl md:text-5xl font-bold text-slate-900 mb-4'>
@@ -422,9 +439,9 @@ export default function LandingPageContent() {
 					{/* Bento Grid Layout */}
 					<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12'>
 						{/* Card 1 - Track your lists (Tall Left) */}
-						<Card className='relative border border-slate-200/60 bg-white/80 backdrop-blur-sm hover:shadow-xl transition-all duration-300 p-8 overflow-hidden group md:row-span-2'>
+						<Card className='relative border border-slate-200/60 bg-white/80 backdrop-blur-sm hover:shadow-xl hover:border-primary/30 transition-all duration-300 p-8 overflow-hidden group md:row-span-2 active:scale-[0.99]'>
 							{/* Decorative emoji */}
-							<div className='absolute top-6 right-6 text-7xl opacity-20 group-hover:opacity-30 transition-opacity group-hover:scale-110 duration-300'>
+							<div className='absolute top-6 right-6 text-7xl opacity-30 group-hover:opacity-40 transition-all group-hover:scale-110 group-hover:-rotate-6 duration-500'>
 								📋
 							</div>
 							<div className='relative z-10 h-full flex flex-col justify-end'>
@@ -436,16 +453,16 @@ export default function LandingPageContent() {
 						</Card>
 
 						{/* Card 2 - Spot the patterns (Top Right) */}
-						<Card className='relative border border-slate-200/60 bg-white/80 backdrop-blur-sm hover:shadow-xl transition-all duration-300 p-8 overflow-hidden group lg:col-span-2'>
+						<Card className='relative border border-slate-200/60 bg-white/80 backdrop-blur-sm hover:shadow-xl hover:border-amber-300/50 transition-all duration-300 p-8 overflow-hidden group lg:col-span-2 active:scale-[0.99]'>
 							{/* Decorative elements - circles pattern */}
-							<div className='absolute top-1/2 right-8 -translate-y-1/2 flex gap-3'>
-								<div className='w-12 h-12 rounded-full bg-yellow-200/40 group-hover:bg-yellow-300/50 transition-colors'></div>
-								<div className='w-10 h-10 rounded-full bg-yellow-300/40 group-hover:bg-yellow-400/50 transition-colors'></div>
-								<div className='w-8 h-8 rounded-full bg-yellow-200/30'></div>
+							<div className='absolute top-1/2 right-8 -translate-y-1/2 flex gap-3 transition-transform group-hover:translate-x-1'>
+								<div className='w-12 h-12 rounded-full bg-amber-200/50 group-hover:bg-amber-300/60 transition-colors'></div>
+								<div className='w-10 h-10 rounded-full bg-amber-300/50 group-hover:bg-amber-400/60 transition-colors'></div>
+								<div className='w-8 h-8 rounded-full bg-amber-200/40'></div>
 							</div>
-							<div className='absolute top-1/2 right-20 -translate-y-1/2 translate-x-8 flex gap-2'>
-								<div className='w-6 h-6 rounded-full bg-yellow-200/30'></div>
-								<div className='w-5 h-5 rounded-full bg-yellow-300/30'></div>
+							<div className='absolute top-1/2 right-20 -translate-y-1/2 translate-x-8 flex gap-2 transition-transform group-hover:-translate-x-1'>
+								<div className='w-6 h-6 rounded-full bg-amber-200/40'></div>
+								<div className='w-5 h-5 rounded-full bg-amber-300/40'></div>
 							</div>
 							<div className='relative z-10 max-w-md'>
 								<h3 className='text-2xl font-bold text-slate-900 mb-3'>Spot the patterns</h3>
@@ -457,12 +474,12 @@ export default function LandingPageContent() {
 						</Card>
 
 						{/* Card 3 - Get gentle guidance (Bottom Left of Right Section) */}
-						<Card className='relative border border-slate-200/60 bg-white/80 backdrop-blur-sm hover:shadow-xl transition-all duration-300 p-8 overflow-hidden group'>
+						<Card className='relative border border-slate-200/60 bg-white/80 backdrop-blur-sm hover:shadow-xl hover:border-primary/30 transition-all duration-300 p-8 overflow-hidden group active:scale-[0.99]'>
 							{/* Decorative elements - purple circles */}
-							<div className='absolute bottom-6 left-6 flex gap-2'>
-								<div className='w-12 h-12 rounded-full bg-purple-200/40 group-hover:bg-purple-300/50 transition-colors'></div>
-								<div className='w-9 h-9 rounded-full bg-purple-300/40 group-hover:bg-purple-400/50 transition-colors'></div>
-								<div className='w-6 h-6 rounded-full bg-purple-200/30'></div>
+							<div className='absolute bottom-6 left-6 flex gap-2 transition-transform group-hover:translate-y-1'>
+								<div className='w-12 h-12 rounded-full bg-primary/10 group-hover:bg-primary/20 transition-colors'></div>
+								<div className='w-9 h-9 rounded-full bg-primary/20 group-hover:bg-primary/30 transition-colors'></div>
+								<div className='w-6 h-6 rounded-full bg-primary/10'></div>
 							</div>
 							<div className='relative z-10'>
 								<h3 className='text-xl font-bold text-slate-900 mb-3'>Get gentle guidance</h3>
@@ -474,9 +491,9 @@ export default function LandingPageContent() {
 						</Card>
 
 						{/* Card 4 - Grow at your pace (Bottom Right) */}
-						<Card className='relative border border-slate-200/60 bg-white/80 backdrop-blur-sm hover:shadow-xl transition-all duration-300 p-8 overflow-hidden group'>
+						<Card className='relative border border-slate-200/60 bg-white/80 backdrop-blur-sm hover:shadow-xl hover:border-amber-300/50 transition-all duration-300 p-8 overflow-hidden group active:scale-[0.99]'>
 							{/* Decorative elements - tags/badges */}
-							<div className='absolute top-6 right-6 flex flex-wrap gap-2 max-w-[160px] opacity-20 group-hover:opacity-30 transition-opacity'>
+							<div className='absolute top-6 right-6 flex flex-wrap gap-2 max-w-[160px] opacity-30 group-hover:opacity-50 transition-all group-hover:-translate-y-1'>
 								<span className='px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium'>
 									Anxious
 								</span>
@@ -506,26 +523,26 @@ export default function LandingPageContent() {
 
 						{/* Stats Section */}
 			<section className='w-full py-16 '>
-				<div className='max-w-6xl mx-auto px-4 sm:px-6 lg:px-8'>
+				<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
 					<div className='grid grid-cols-2 md:grid-cols-4 gap-8'>
 						{[
 							{
 								stat: '99%',
 								label: 'OCR Accuracy',
 								icon: ViewIcon,
-								color: 'bg-emerald-100 text-emerald-600',
+								color: 'bg-teal-100 text-teal-600',
 							},
 							{
 								stat: '10',
 								label: 'Groups per User',
 								icon: Layers01Icon,
-								color: 'bg-rose-100 text-rose-600',
+								color: 'bg-primary/10 text-primary',
 							},
 							{
 								stat: '250',
 								label: 'Items per List',
 								icon: ShoppingCart01Icon,
-								color: 'bg-sky-100 text-sky-600',
+								color: 'bg-cyan-100 text-cyan-600',
 							},
 							{
 								stat: '4.9★',
@@ -539,14 +556,14 @@ export default function LandingPageContent() {
 								className='text-center group'
 							>
 								<div
-									className={`w-14 h-14 ${item.color} rounded-2xl flex items-center justify-center mx-auto mb-4 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3 shadow-sm`}
+									className={`w-14 h-14 ${item.color} rounded-2xl flex items-center justify-center mx-auto mb-4 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3 shadow-md`}
 								>
 									<HugeiconsIcon
 										icon={item.icon}
 										className='w-7 h-7'
 									/>
 								</div>
-								<div className='text-3xl font-bold text-slate-900 mb-1'>{item.stat}</div>
+								<div className='text-3xl font-bold text-slate-900 mb-1 tabular-nums'>{item.stat}</div>
 								<p className='text-slate-500 text-sm font-medium'>{item.label}</p>
 							</div>
 						))}
@@ -556,8 +573,10 @@ export default function LandingPageContent() {
 
 
 			{/* CTA */}
-			<section className='w-full py-24 '>
-				<div className='max-w-4xl mx-auto text-center'>
+			<section className='w-full py-24 bg-gradient-to-b from-transparent via-primary/5 to-primary/10 relative'>
+				{/* Decorative background pattern */}
+				<div className='absolute inset-0 opacity-[0.02] pointer-events-none bg-[url("https://www.transparenttextures.com/patterns/cubes.png")]' />
+				<div className='max-w-4xl mx-auto text-center relative z-10'>
 					<h2 className='text-4xl lg:text-6xl font-bold text-slate-900 mb-6 tracking-tight'>
 						Ready to shop smarter?
 					</h2>
@@ -565,7 +584,7 @@ export default function LandingPageContent() {
 					<div className='flex flex-col sm:flex-row gap-4 justify-center'>
 						<Button
 							size='lg'
-							className='bg-primary hover:bg-primary/90 text-white h-14 px-10 rounded-xl text-lg shadow-xl shadow-primary/20 transition-all hover:-translate-y-1'
+							className='bg-primary hover:bg-primary/90 text-white h-14 px-10 rounded-xl text-lg shadow-xl shadow-primary/20 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-primary/30 active:scale-95 group'
 							asChild
 						>
 							<Link
@@ -573,6 +592,10 @@ export default function LandingPageContent() {
 								className='flex items-center gap-2'
 							>
 								Get Started Now
+								<HugeiconsIcon
+									icon={ArrowRight01Icon}
+									className='w-5 h-5 transition-transform group-hover:translate-x-1'
+								/>
 							</Link>
 						</Button>
 					</div>

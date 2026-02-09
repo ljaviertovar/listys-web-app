@@ -1,3 +1,6 @@
+'use client'
+
+import { memo } from 'react'
 import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
@@ -12,7 +15,7 @@ interface Props {
 	count: number
 }
 
-export function DashboardCard({ href, icon, title, description, count }: Props) {
+function DashboardCardContent({ href, icon, title, description, count }: Props) {
 	return (
 		<Card className='hover:border-primary/50 hover:shadow-lg relative overflow-hidden transition-all duration-300 cursor-pointer group'>
 			<Link href={href}>
@@ -36,7 +39,7 @@ export function DashboardCard({ href, icon, title, description, count }: Props) 
 
 				<CardContent>
 					<div className='flex items-center justify-between mt-4'>
-						<span className='text-3xl font-bold text-primary'>{count}</span>
+						<span className='text-3xl font-bold text-primary tabular-nums'>{count}</span>
 						<div className='flex items-center text-sm text-primary font-medium group-hover:text-primary transition-colors'>
 							<span>View more </span>
 							<HugeiconsIcon
@@ -51,3 +54,5 @@ export function DashboardCard({ href, icon, title, description, count }: Props) 
 		</Card>
 	)
 }
+
+export const DashboardCard = memo(DashboardCardContent)

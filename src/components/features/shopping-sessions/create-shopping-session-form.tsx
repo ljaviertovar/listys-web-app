@@ -66,7 +66,7 @@ export function CreateShoppingSessionForm({ baseListId, defaultName }: Props) {
 					disabled={loading || !name.trim()}
 					className='flex-1'
 				>
-					{loading ? 'Creating...' : 'Start Shopping Run'}
+					{loading ? 'Creating…' : 'Start Shopping Run'}
 				</Button>
 				<Button
 					type='button'

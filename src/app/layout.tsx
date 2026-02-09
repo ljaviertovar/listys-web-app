@@ -2,13 +2,11 @@ import type { Metadata } from 'next'
 import { ThemeProvider } from '@/providers/theme-provider'
 import { Toaster } from 'sonner'
 
-import { Inter, Outfit } from 'next/font/google'
+import { Inter } from 'next/font/google'
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ['latin'], variable: '--font-sans' })
 
 import './globals.css'
-
-const outfit = Outfit({ subsets: ['latin'], variable: '--font-sans' })
 
 export const metadata: Metadata = {
 	title: 'Listys - Smart Shopping List Manager',
@@ -24,7 +22,7 @@ export default function RootLayout({
 		<html
 			lang='en'
 			suppressHydrationWarning
-			className={outfit.variable}
+			className={inter.variable}
 		>
 			<body className={`${inter.className} relative scroll-smooth focus:scroll-auto`}>
 				<ThemeProvider

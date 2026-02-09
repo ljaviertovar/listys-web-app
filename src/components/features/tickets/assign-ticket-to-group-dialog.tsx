@@ -83,7 +83,7 @@ export function AssignTicketToGroupDialog({ ticketId, groups }: AssignTicketToGr
 						onValueChange={setSelectedGroupId}
 					>
 						<SelectTrigger id='group-select'>
-							<SelectValue placeholder='Choose a group...' />
+							<SelectValue placeholder='Choose a group…' />
 						</SelectTrigger>
 						<SelectContent>
 							{groups.map(group => (
@@ -104,7 +104,7 @@ export function AssignTicketToGroupDialog({ ticketId, groups }: AssignTicketToGr
 						onClick={handleAssign}
 						disabled={isLoading || !selectedGroupId}
 					>
-						{isLoading ? 'Assigning...' : 'Assign Group'}
+						{isLoading ? 'Assigning…' : 'Assign Group'}
 					</AlertDialogAction>
 				</AlertDialogFooter>
 			</AlertDialogContent>
