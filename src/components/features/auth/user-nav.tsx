@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { HugeiconsIcon } from '@hugeicons/react'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -23,14 +24,21 @@ interface Props {
 	user: any
 }
 
-const UserNavItem = ({ title, url, onSelect }: NavItem & { onSelect: () => void }) => {
+const UserNavItem = ({ title, url, icon, onSelect }: NavItem & { onSelect: () => void }) => {
 	return (
 		<DropdownMenuItem asChild>
 			<Link
-				className='block w-full h-10 text-sm text-left'
+				className='flex h-10 w-full items-center gap-2 text-left text-sm'
 				href={url}
 				onClick={onSelect}
 			>
+				{icon && (
+					<HugeiconsIcon
+						icon={icon}
+						strokeWidth={2}
+						className='h-4 w-4'
+					/>
+				)}
 				{title}
 			</Link>
 		</DropdownMenuItem>
@@ -92,6 +100,7 @@ export function UserNav({ user }: Props) {
 						key={item.url}
 						title={item.title}
 						url={item.url}
+						icon={item.icon}
 						onSelect={() => setOpen(false)}
 					/>
 				))}
