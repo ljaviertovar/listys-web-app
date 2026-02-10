@@ -72,6 +72,7 @@ export const USER_NAV_ITEMS: NavItem[] = [
 	{
 		title: 'Dashboard',
 		url: '/dashboard',
+		icon: DashboardSquare02Icon,
 	},
 ]
 
@@ -79,13 +80,16 @@ export const NAV_APP_ITEMS: NavItem[] = [
 	{
 		title: 'Shopping List Groups',
 		url: '/shopping-lists',
+		icon: FolderLibraryIcon,
 	},
 	{
 		title: 'Receipts',
 		url: '/tickets',
+		icon: Invoice01Icon,
 	},
 	{
 		title: 'Shopping History',
 		url: '/shopping-history',
+		icon: TimeQuarterPassIcon,
 	},
 ]

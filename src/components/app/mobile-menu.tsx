@@ -67,8 +67,15 @@ export default function MobileMenu() {
 					>
 						<Link
 							href={item.url}
-							className='block w-full h-9 leading-9'
+							className='flex h-9 w-full items-center gap-2'
 						>
+							{item.icon && (
+								<HugeiconsIcon
+									icon={item.icon}
+									strokeWidth={2}
+									className='h-4 w-4'
+								/>
+							)}
 							{item.title}
 						</Link>
 					</DropdownMenuItem>
