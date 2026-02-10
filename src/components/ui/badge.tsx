@@ -21,7 +21,7 @@ const badgeVariants = cva(
 				failed: 'bg-red-500/10 text-red-700 dark:text-red-400',
 				pending: 'bg-amber-500/10 text-amber-700 dark:text-amber-400',
 				merged: 'bg-primary/10 text-primary',
-				category: 'bg-primary/20 text-primary',
+				category: 'bg-primary/10 text-primary',
 			},
 		},
 		defaultVariants: {

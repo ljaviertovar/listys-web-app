@@ -38,6 +38,7 @@ export default function ActiveShopping({ activeShopping, dashboard }: Props) {
 				<Button
 					size={'xs'}
 					asChild
+					variant='outline'
 				>
 					<Link href={`/shopping/${activeShopping?.id}`}>Continue Shopping</Link>
 				</Button>

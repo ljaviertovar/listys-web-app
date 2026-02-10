@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { ActionsItemFormBaseList } from '@/components/app/actions-item-form-base-list'
+import { getCategoryWithEmoji } from '@/data/constants'
 
 import { deleteBaseListItem, updateBaseListItem } from '@/actions/base-lists'
 
@@ -59,7 +60,9 @@ export function BaseListItemRow({ item, isLocked = false }: Props) {
 								{item.quantity ?? 1} {item.unit}
 							</span>
 						</p>
-						<div className='flex gap-2'>{item.category && <Badge variant={'category'}>{item.category}</Badge>}</div>
+						<div className='flex gap-2'>
+							{item.category && <Badge variant={'category'}>{getCategoryWithEmoji(item.category)}</Badge>}
+						</div>
 						{item.notes && (
 							<p className='text-xs md:text-sm text-muted-foreground'>
 								{'> '} {item.notes}
