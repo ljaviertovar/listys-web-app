@@ -6,6 +6,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { HugeiconsIcon } from '@hugeicons/react'
+import { motion } from 'framer-motion'
 import {
 	ArrowRight01Icon,
 	ArtificialIntelligence02Icon,
@@ -14,6 +15,7 @@ import {
 	CheckmarkBadge01Icon,
 	CheckmarkCircle02Icon,
 	Layers01Icon,
+	SparklesIcon,
 	ShoppingCart01Icon,
 	ViewIcon,
 } from '@hugeicons/core-free-icons'
@@ -132,6 +134,29 @@ const FEATURE_ACCENTS = [
 		icon: 'bg-chart-4/10 text-chart-4 ring-chart-4/15 group-hover:bg-chart-4 group-hover:text-white',
 	},
 ]
+const REVEAL_VIEWPORT = { once: true, amount: 0.18 }
+const STAGGER_REVEAL = {
+	hidden: {},
+	show: {
+		transition: { staggerChildren: 0.08 },
+	},
+} as const
+const FADE_UP = {
+	hidden: { opacity: 0, y: 18 },
+	show: {
+		opacity: 1,
+		y: 0,
+		transition: { duration: 0.48, ease: 'easeOut' as const },
+	},
+} as const
+const HERO_MEDIA_REVEAL = {
+	hidden: { opacity: 0, y: 36 },
+	show: {
+		opacity: 1,
+		y: 0,
+		transition: { duration: 0.62, delay: 0.42, ease: 'easeOut' as const },
+	},
+} as const
 
 // =============================================
 // COMPONENT
@@ -148,20 +173,27 @@ export function LandingPageContent() {
 			<section className='hero-mesh relative overflow-hidden pb-20 pt-24 sm:pb-24 sm:pt-28 md:pt-32'>
 				<div className='pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-slate-300/70 to-transparent' />
 				<div className='pointer-events-none absolute inset-x-0 bottom-px h-px bg-gradient-to-r from-transparent via-white/70 to-transparent' />
-				<div className='relative z-10 mx-auto w-full max-w-7xl px-4 text-center sm:px-6 lg:px-8'>
-					<div className='mx-auto mb-12 max-w-3xl'>
-						<h1 className='text-balance text-4xl font-extrabold leading-[1.08] tracking-tight text-slate-900 drop-shadow-sm sm:text-5xl md:text-7xl'>
+				<motion.div className='relative z-10 mx-auto w-full max-w-7xl px-4 text-center sm:px-6 lg:px-8' initial='hidden' animate='show' variants={STAGGER_REVEAL}>
+					<motion.div className='mx-auto mb-12 max-w-3xl' variants={STAGGER_REVEAL}>
+						<motion.div className='mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary' variants={FADE_UP}>
+							<HugeiconsIcon
+								icon={SparklesIcon}
+								className='h-4 w-4 text-amber-400'
+							/>
+							<span>AI-Powered Receipts - Smart Lists</span>
+						</motion.div>
+						<motion.h1 className='text-balance text-4xl font-extrabold leading-[1.08] tracking-tight text-slate-900 drop-shadow-sm sm:text-5xl md:text-7xl' variants={FADE_UP}>
 							Turn Receipts into <br />
 							<span className='bg-gradient-to-r from-primary via-blue-600 to-violet-700 bg-clip-text text-transparent'>
 								Smart Shopping Lists
 							</span>
-						</h1>
-						<p className='mx-auto mt-8 max-w-2xl text-balance text-lg font-medium leading-relaxed text-slate-600 md:text-xl'>
+						</motion.h1>
+						<motion.p className='mx-auto mt-8 max-w-2xl text-balance text-lg font-medium leading-relaxed text-slate-600 md:text-xl' variants={FADE_UP}>
 							Snap any grocery receipt and instantly turn it into an organized shopping list with real-time spend
 							tracking.
-						</p>
+						</motion.p>
 
-						<div className='mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row'>
+						<motion.div className='mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row' variants={FADE_UP}>
 							<Button
 								size='lg'
 								className='group h-14 w-full rounded-xl border border-white/10 px-10 text-lg font-bold shadow-xl shadow-indigo-600/30 ring-2 ring-indigo-500/20 transition-all hover:-translate-y-1 hover:opacity-95 sm:w-auto'
@@ -178,18 +210,21 @@ export function LandingPageContent() {
 									/>
 								</Link>
 							</Button>
-						</div>
-					</div>
+						</motion.div>
+					</motion.div>
 
-					<div className='relative mx-auto mt-20 flex max-w-6xl flex-col items-center justify-center gap-8 md:flex-row lg:gap-20'>
+					<motion.div
+						className='relative mx-auto mt-20 flex max-w-6xl flex-col items-center justify-center gap-8 md:flex-row lg:gap-20'
+						variants={HERO_MEDIA_REVEAL}
+					>
 						<div className='absolute -left-6 top-[24%] z-20 hidden items-center gap-2 rounded-full border border-primary/20 bg-white/90 px-3 py-2 text-xs font-semibold text-slate-700 shadow-[0_15px_35px_-22px_rgba(37,99,235,0.45)] backdrop-blur md:flex lg:-left-10'>
 							<span className='flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-primary'>
 								<HugeiconsIcon
-									icon={ViewIcon}
+									icon={CheckmarkCircle02Icon}
 									className='h-3.5 w-3.5'
 								/>
 							</span>
-							OCR 99% accuracy
+							No more manual entry
 						</div>
 						<div className='absolute -right-6 top-[64%] z-20 hidden items-center gap-2 rounded-full border border-chart-2/25 bg-white/90 px-3 py-2 text-xs font-semibold text-slate-700 shadow-[0_15px_35px_-22px_rgba(14,116,144,0.35)] backdrop-blur md:flex lg:-right-8'>
 							<span className='flex h-6 w-6 items-center justify-center rounded-full bg-chart-2/10 text-chart-2'>
@@ -253,6 +288,13 @@ export function LandingPageContent() {
 									</div>
 								</div>
 							</div>
+						</div>
+
+						<div className='text-primary/50 md:hidden'>
+							<HugeiconsIcon
+								icon={ArrowRight01Icon}
+								className='h-10 w-10 rotate-90 animate-pulse drop-shadow-sm'
+							/>
 						</div>
 
 						<div className='hidden text-primary/40 md:block'>
@@ -352,49 +394,52 @@ export function LandingPageContent() {
 								</div>
 							</div>
 						</div>
-					</div>
-				</div>
+					</motion.div>
+				</motion.div>
 			</section>
 
 			{/* =============================================
 			    TRUST STATS SECTION
 			    ============================================= */}
-			<section className='section-soft-surface relative overflow-hidden py-14'>
+			<motion.section className='section-soft-surface relative overflow-hidden py-14' initial='hidden' whileInView='show' viewport={REVEAL_VIEWPORT} variants={STAGGER_REVEAL}>
 				<div className='pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-slate-300/70 to-transparent' />
 				<div className='pointer-events-none absolute inset-x-0 top-px h-px bg-gradient-to-r from-transparent via-white/70 to-transparent' />
 				<div className='pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-slate-300/65 to-transparent' />
 				<div className='mx-auto grid w-full max-w-7xl grid-cols-2 gap-4 px-4 sm:px-6 lg:grid-cols-4 lg:px-8'>
 					{TRUST_STATS.map((item, index) => (
-						<Card
-							key={item.label}
-							className='premium-card rounded-2xl border-slate-200/70 bg-white/90 p-6 text-center transition-all duration-300 hover:-translate-y-0.5'
-						>
-							<div
-								className={`mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-xl ring-1 ${STAT_ACCENTS[index].icon}`}
-							>
-								<HugeiconsIcon
-									icon={item.icon}
-									className='h-5 w-5'
-								/>
-							</div>
-							<p className={`tabular-nums text-2xl font-extrabold ${STAT_ACCENTS[index].stat}`}>{item.stat}</p>
-							<p className={`mt-2 text-[11px] font-semibold uppercase `}>{item.label}</p>
-						</Card>
+						<motion.div key={item.label} variants={FADE_UP}>
+							<Card className='premium-card rounded-2xl border-slate-200/70 bg-white/90 p-6 text-center transition-all duration-300 hover:-translate-y-0.5'>
+								<div
+									className={`mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-xl ring-1 ${STAT_ACCENTS[index].icon}`}
+								>
+									<HugeiconsIcon
+										icon={item.icon}
+										className='h-5 w-5'
+									/>
+								</div>
+								<p className={`tabular-nums text-2xl font-extrabold ${STAT_ACCENTS[index].stat}`}>{item.stat}</p>
+								<p className={`mt-2 text-[11px] font-semibold uppercase `}>{item.label}</p>
+							</Card>
+						</motion.div>
 					))}
 				</div>
-			</section>
+			</motion.section>
 
 			{/* =============================================
 			    HOW IT WORKS SECTION
 			    ============================================= */}
-			<section
+			<motion.section
 				id='how-it-works'
 				className='section-neutral-surface relative overflow-hidden py-20 sm:py-24'
+				initial='hidden'
+				whileInView='show'
+				viewport={REVEAL_VIEWPORT}
+				variants={STAGGER_REVEAL}
 			>
 				<div className='pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border/85 to-transparent' />
 				<div className='pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-border/85 to-transparent' />
 				<div className='mx-auto grid w-full max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-[1fr_1fr] lg:items-center lg:px-8'>
-					<div>
+					<motion.div variants={FADE_UP}>
 						<p className='mb-3 text-xs font-bold uppercase tracking-[0.2em] text-primary/80'>How it works</p>
 						<h2 className='font-serif text-3xl font-extrabold leading-[1.15] tracking-[-0.015em] text-slate-900 sm:text-4xl'>
 							One clear process from scan to checkout
@@ -407,28 +452,29 @@ export function LandingPageContent() {
 							{PROCESS_STEPS.map((step, index) => {
 								const isActive = activeStep === index
 								return (
-									<button
-										key={step.title}
-										onClick={() => setActiveStep(index)}
-										className={`group flex w-full items-start gap-4 rounded-2xl border p-4 text-left transition ${
-											isActive
-												? 'border-primary/30 bg-gradient-to-br from-primary/8 to-accent/30 shadow-[0_14px_40px_-24px_rgba(37,99,235,0.55)]'
-												: 'border-slate-200/80 bg-white hover:border-accent/45 hover:bg-gradient-to-br hover:from-white hover:to-accent/20'
-										}`}
-									>
-										<div
-											className={`flex h-11 w-11 items-center justify-center rounded-xl transition-colors ${
+										<button
+											key={step.title}
+											onClick={() => setActiveStep(index)}
+											className={`group grid w-full grid-cols-[auto_1fr] items-start gap-3.5 rounded-2xl border p-4 text-left transition ${
 												isActive
-													? 'bg-primary text-white'
-													: 'bg-slate-100 text-slate-500 group-hover:bg-accent group-hover:text-primary'
+													? 'border-primary/30 bg-gradient-to-br from-primary/8 to-accent/30 shadow-[0_14px_40px_-24px_rgba(37,99,235,0.55)]'
+													: 'border-slate-200/80 bg-white hover:border-accent/45 hover:bg-gradient-to-br hover:from-white hover:to-accent/20'
 											}`}
 										>
-											<HugeiconsIcon
-												icon={step.icon}
-												className='h-5 w-5'
-											/>
-										</div>
-										<div>
+											<div
+												className={`mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition-colors ${
+													isActive
+														? 'border-primary bg-primary text-white'
+														: 'border-slate-200 bg-slate-50 text-slate-600 group-hover:border-primary/20 group-hover:bg-accent group-hover:text-primary'
+												}`}
+											>
+												<HugeiconsIcon
+													icon={step.icon}
+													className='h-4.5 w-4.5'
+													strokeWidth={2}
+												/>
+											</div>
+											<div>
 											<p className='text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500'>{step.badge}</p>
 											<h3 className='mt-1 text-lg font-bold text-slate-900'>{step.title}</h3>
 											<p className='mt-1.5 text-sm leading-[1.65] text-slate-600'>{step.desc}</p>
@@ -437,9 +483,9 @@ export function LandingPageContent() {
 								)
 							})}
 						</div>
-					</div>
+					</motion.div>
 
-					<div className='relative'>
+					<motion.div className='relative' variants={FADE_UP}>
 						<div className='absolute -inset-6 rounded-[2rem] bg-gradient-to-br from-primary/10 via-accent/30 to-chart-2/20 blur-2xl' />
 						<Card className='premium-card relative rounded-3xl border-slate-200/70 bg-white/95 p-7'>
 							<div className='mb-5 flex items-center justify-between'>
@@ -482,18 +528,18 @@ export function LandingPageContent() {
 								<p className='text-sm font-semibold text-emerald-900'>Estimated savings this month: $184.70</p>
 							</div>
 						</Card>
-					</div>
+					</motion.div>
 				</div>
-			</section>
+			</motion.section>
 
 			{/* =============================================
 			    FEATURES SECTION
 			    ============================================= */}
-			<section className='feature-premium-surface relative overflow-hidden py-20 sm:py-24'>
+			<motion.section className='feature-premium-surface relative overflow-hidden py-20 sm:py-24' initial='hidden' whileInView='show' viewport={REVEAL_VIEWPORT} variants={STAGGER_REVEAL}>
 				<div className='pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border/80 to-transparent' />
 				<div className='pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-border/80 to-transparent' />
 				<div className='relative mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8'>
-					<div className='mx-auto max-w-2xl text-center'>
+					<motion.div className='mx-auto max-w-2xl text-center' variants={FADE_UP}>
 						<p className='text-xs font-bold uppercase tracking-[0.2em] text-primary/80'>Why households choose Listys</p>
 						<h2 className='mt-3 font-serif text-3xl font-extrabold tracking-[-0.015em] text-slate-900 sm:text-4xl'>
 							Designed for everyday grocery shopping
@@ -501,29 +547,28 @@ export function LandingPageContent() {
 						<p className='mt-5 text-base text-slate-600 sm:text-lg'>
 							Everything stays connected, clean, and easy to act on across the entire shopping cycle.
 						</p>
-					</div>
+					</motion.div>
 
 					<div className='mt-14 grid gap-5 md:grid-cols-2 xl:grid-cols-4'>
 						{FEATURE_CARDS.map((feature, index) => (
-							<Card
-								key={feature.title}
-								className='premium-card group rounded-2xl border-slate-200/70 bg-white/95 p-6 transition duration-300 hover:-translate-y-0.5'
-							>
-								<div
-									className={`mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl ring-1 transition-colors ${FEATURE_ACCENTS[index].icon}`}
-								>
-									<HugeiconsIcon
-										icon={feature.icon}
-										className='h-6 w-6'
-									/>
-								</div>
-								<h3 className={`text-lg font-bold  ${STAT_ACCENTS[index].label}`}>{feature.title}</h3>
-								<p className='mt-2.5 text-sm leading-relaxed text-slate-600'>{feature.desc}</p>
-							</Card>
+							<motion.div key={feature.title} variants={FADE_UP}>
+								<Card className='premium-card group rounded-2xl border-slate-200/70 bg-white/95 p-6 transition duration-300 hover:-translate-y-0.5'>
+									<div
+										className={`mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl ring-1 transition-colors ${FEATURE_ACCENTS[index].icon}`}
+									>
+										<HugeiconsIcon
+											icon={feature.icon}
+											className='h-6 w-6'
+										/>
+									</div>
+									<h3 className={`text-lg font-bold  ${STAT_ACCENTS[index].label}`}>{feature.title}</h3>
+									<p className='mt-2.5 text-sm leading-relaxed text-slate-600'>{feature.desc}</p>
+								</Card>
+							</motion.div>
 						))}
 					</div>
 				</div>
-			</section>
+			</motion.section>
 
 			{/* =============================================
 			    FAQ SECTION
@@ -533,20 +578,20 @@ export function LandingPageContent() {
 			{/* =============================================
 			    CTA FINAL SECTION
 			    ============================================= */}
-			<section className='section-soft-surface relative overflow-hidden pb-12 pt-20 sm:pt-24'>
+			<motion.section className='section-soft-surface relative overflow-hidden pb-12 pt-20 sm:pt-24' initial='hidden' whileInView='show' viewport={REVEAL_VIEWPORT} variants={STAGGER_REVEAL}>
 				<div className='pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border/90 to-transparent' />
 				<div className='pointer-events-none absolute inset-x-0 top-px h-px bg-gradient-to-r from-transparent via-white/65 to-transparent' />
 				<div className='pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-border/90 to-transparent' />
 				<div className='pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_8%,rgba(59,130,246,0.08),transparent_34%),radial-gradient(circle_at_84%_18%,rgba(14,165,233,0.06),transparent_34%)]' />
 				<div className='relative mx-auto grid w-full max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-[1fr_auto] lg:items-center lg:px-8'>
-					<div className='text-center lg:text-left'>
-						<p className='mb-3 text-xs font-bold uppercase tracking-[0.2em] text-primary/85'>Get started</p>
+					<motion.div className='text-center lg:text-left' variants={FADE_UP}>
+							<p className='mb-3 text-xs font-bold uppercase tracking-[0.2em] text-primary/85'>Get started</p>
 						<h2 className='font-serif text-4xl font-extrabold leading-[1.12] tracking-[-0.015em] text-foreground sm:text-5xl'>
 							Build a smarter shopping habit with Listys
 						</h2>
-						<p className='text-muted-foreground mt-4 max-w-2xl text-base leading-relaxed sm:text-lg'>
-							Start free today and organize your next grocery run in minutes with smarter lists and clearer spending.
-						</p>
+							<p className='mt-4 max-w-2xl text-base leading-relaxed text-slate-600 sm:text-lg'>
+								Start free today and organize your next grocery run in minutes with smarter lists and clearer spending.
+							</p>
 						<div className='mt-10 flex flex-col gap-4 sm:flex-row lg:justify-start'>
 							<Button
 								size='lg'
@@ -565,14 +610,15 @@ export function LandingPageContent() {
 								</Link>
 							</Button>
 						</div>
-					</div>
-					<Card className='w-full max-w-sm rounded-2xl border-border/70 bg-card/90 p-6 text-card-foreground shadow-[0_18px_38px_-28px_rgba(15,23,42,0.22)] backdrop-blur-sm'>
-						<p className='text-muted-foreground text-[11px] font-bold uppercase tracking-[0.15em]'>Outcome snapshot</p>
+					</motion.div>
+					<motion.div variants={FADE_UP}>
+						<Card className='w-full max-w-sm rounded-2xl border-border/70 bg-card/90 p-6 text-card-foreground shadow-[0_18px_38px_-28px_rgba(15,23,42,0.22)] backdrop-blur-sm'>
+							<p className='text-[11px] font-bold uppercase tracking-[0.15em] text-slate-500'>Outcome snapshot</p>
 						<div className='mt-4 space-y-4'>
 							<div className='border-border/70 flex items-center justify-between border-b pb-4'>
 								<div>
 									<p className='text-5xl font-extrabold leading-none'>50k+</p>
-									<p className='text-muted-foreground mt-1 text-xs font-bold uppercase tracking-wide'>Users</p>
+										<p className='mt-1 text-xs font-bold uppercase tracking-wide text-slate-500'>Users</p>
 								</div>
 								<div className='flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600'>
 									<HugeiconsIcon
@@ -584,9 +630,9 @@ export function LandingPageContent() {
 							<div className='flex items-center justify-between'>
 								<div>
 									<p className='text-5xl font-extrabold leading-none'>1M+</p>
-									<p className='text-muted-foreground mt-1 text-xs font-bold uppercase tracking-wide'>
-										Receipts processed
-									</p>
+										<p className='mt-1 text-xs font-bold uppercase tracking-wide text-slate-500'>
+											Receipts processed
+										</p>
 								</div>
 								<div className='flex h-9 w-9 items-center justify-center rounded-lg bg-blue-100 text-primary'>
 									<HugeiconsIcon
@@ -596,9 +642,10 @@ export function LandingPageContent() {
 								</div>
 							</div>
 						</div>
-					</Card>
+						</Card>
+					</motion.div>
 				</div>
-			</section>
+			</motion.section>
 
 			{/* =============================================
 			    FOOTER
