@@ -8,6 +8,7 @@ Listys es una aplicación SaaS para organizar compras: permite crear listas base
 - Supabase (Auth, Postgres + RLS, Storage, Edge Functions)
 - Tailwind CSS + shadcn/ui
 - React Hook Form + Zod
+- zustand
 
 ## Requisitos
 
