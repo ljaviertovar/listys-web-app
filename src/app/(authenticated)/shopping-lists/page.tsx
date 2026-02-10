@@ -2,9 +2,8 @@ import { redirect } from 'next/navigation'
 import { HugeiconsIcon } from '@hugeicons/react'
 
 import { Card, CardContent } from '@/components/ui/card'
-import { CreateGroupDialog } from '@/components/features/shopping-lists/create-group-dialog'
+import { CreateGroupDialog, GroupCard } from '@/components/features/shopping-lists'
 import { PageHeader, PageContainer, PageFooterAction, BackLink } from '@/components/app'
-import { GroupCard } from '@/components/features/shopping-lists/group-card'
 import { FolderIcon } from '@hugeicons/core-free-icons'
 
 import { createClient } from '@/lib/supabase/server'

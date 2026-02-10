@@ -134,7 +134,7 @@ export function CreateBaseListDialog({ groupId }: Props) {
 									data-icon='inline-start'
 								/>
 							)}
-							{loading ? 'Creating...' : 'Create List'}
+							{loading ? 'Creating…' : 'Create List'}
 						</Button>
 					</DialogFooter>
 				</form>

@@ -3,10 +3,8 @@ import { HugeiconsIcon } from '@hugeicons/react'
 
 import { Progress } from '@/components/ui/progress'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { PageHeader, PageContainer, PageFooterAction, BackLink } from '@/components/app'
-import { ShoppingSessionItemRow } from '@/components/features/shopping-sessions/shopping-session-item-row'
-import { ShoppingSessionActions } from '@/components/features/shopping-sessions/shopping-session-actions'
-import { ActiveShoppingBadge } from '@/components/app/active-shopping-badge'
+import { PageHeader, PageContainer, PageFooterAction, BackLink, ActiveShoppingBadge } from '@/components/app'
+import { ShoppingSessionItemRow, ShoppingSessionActions } from '@/components/features/shopping-sessions'
 
 import { CheckmarkCircle02Icon } from '@hugeicons/core-free-icons'
 

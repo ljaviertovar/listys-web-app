@@ -1,462 +1,655 @@
 'use client'
 
+// =============================================
+// IMPORTS
+// =============================================
+import { useState } from 'react'
 import Link from 'next/link'
-import { motion } from 'framer-motion'
 import { HugeiconsIcon } from '@hugeicons/react'
+import { motion } from 'framer-motion'
 import {
 	ArrowRight01Icon,
-	Invoice01Icon,
 	ArtificialIntelligence02Icon,
-	ShoppingCart01Icon,
-	CheckmarkCircle02Icon,
-	Camera01Icon,
 	AnalyticsUpIcon,
+	Camera01Icon,
+	CheckmarkBadge01Icon,
+	CheckmarkCircle02Icon,
 	Layers01Icon,
-	ViewIcon,
 	SparklesIcon,
+	ShoppingCart01Icon,
+	ViewIcon,
 } from '@hugeicons/core-free-icons'
-
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
 import { Footer } from '@/components/marketing/footer'
 import { Faq } from '@/components/marketing/faq'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 
-export default function LandingPageContent() {
+// =============================================
+// CONSTANTS
+// =============================================
+
+const TRUST_STATS = [
+	{ stat: '99%', label: 'OCR accuracy', icon: ViewIcon },
+	{ stat: '10+', label: 'List groups', icon: Layers01Icon },
+	{ stat: '250', label: 'Items per list', icon: ShoppingCart01Icon },
+	{ stat: '4.9/5', label: 'App store rating', icon: CheckmarkBadge01Icon },
+]
+
+const PROCESS_STEPS = [
+	{
+		title: 'Scan receipt in seconds',
+		desc: 'Take a photo and Listys extracts every product, price, and quantity automatically.',
+		icon: Camera01Icon,
+		badge: 'Capture',
+	},
+	{
+		title: 'Review and organize instantly',
+		desc: 'Listys classifies items by category so your next shopping trip is already structured.',
+		icon: ArtificialIntelligence02Icon,
+		badge: 'Organize',
+	},
+	{
+		title: 'Shop with a focused list',
+		desc: 'Track completed items live and keep your spending visible while you shop.',
+		icon: AnalyticsUpIcon,
+		badge: 'Execute',
+	},
+]
+
+const PREVIEW_BY_STEP = [
+	[
+		{ name: 'Organic Strawberries', detail: 'Produce - $5.99', checked: true },
+		{ name: 'Almond Milk', detail: 'Dairy - $4.50', checked: true },
+		{ name: 'Sourdough Bread', detail: 'Bakery - $5.25', checked: false },
+	],
+	[
+		{ name: 'Avocados (3)', detail: 'Produce - $4.99', checked: true },
+		{ name: 'Greek Yogurt', detail: 'Dairy - $6.50', checked: false },
+		{ name: 'Sparkling Water', detail: 'Beverages - $4.80', checked: false },
+	],
+	[
+		{ name: 'Chicken Breast', detail: 'Protein - $12.30', checked: true },
+		{ name: 'Cherry Tomatoes', detail: 'Produce - $3.75', checked: true },
+		{ name: 'Parmesan', detail: 'Dairy - $6.20', checked: false },
+	],
+]
+
+const FEATURE_CARDS = [
+	{
+		title: 'AI receipt extraction',
+		desc: 'Advanced OCR turns unstructured receipts into clean, editable shopping data.',
+		icon: ArtificialIntelligence02Icon,
+	},
+	{
+		title: 'Shared household lists',
+		desc: 'Coordinate with family members in one shared space, without duplicated purchases.',
+		icon: Layers01Icon,
+	},
+	{
+		title: 'Real-time progress',
+		desc: 'Mark products as completed and always know what is left in your current run.',
+		icon: ShoppingCart01Icon,
+	},
+	{
+		title: 'Spending visibility',
+		desc: 'Understand how much you spend by category and make better decisions every week.',
+		icon: AnalyticsUpIcon,
+	},
+]
+
+const STAT_ACCENTS = [
+	{
+		icon: 'bg-primary/10 text-primary ring-primary/15',
+		stat: 'text-primary',
+		label: 'text-primary/80',
+	},
+	{
+		icon: 'bg-chart-2/10 text-chart-2 ring-chart-2/20',
+		stat: 'text-chart-2',
+		label: 'text-chart-2/80',
+	},
+	{
+		icon: 'bg-chart-3/10 text-chart-3 ring-chart-3/20',
+		stat: 'text-chart-3',
+		label: 'text-chart-3/80',
+	},
+	{
+		icon: 'bg-chart-4/10 text-chart-4 ring-chart-4/20',
+		stat: 'text-chart-4',
+		label: 'text-chart-4/80',
+	},
+]
+
+const FEATURE_ACCENTS = [
+	{
+		icon: 'bg-primary/10 text-primary ring-primary/15 group-hover:bg-primary group-hover:text-white',
+	},
+	{
+		icon: 'bg-chart-2/10 text-chart-2 ring-chart-2/15 group-hover:bg-chart-2 group-hover:text-white',
+	},
+	{
+		icon: 'bg-chart-3/10 text-chart-3 ring-chart-3/15 group-hover:bg-chart-3 group-hover:text-white',
+	},
+	{
+		icon: 'bg-chart-4/10 text-chart-4 ring-chart-4/15 group-hover:bg-chart-4 group-hover:text-white',
+	},
+]
+const REVEAL_VIEWPORT = { once: true, amount: 0.18 }
+const STAGGER_REVEAL = {
+	hidden: {},
+	show: {
+		transition: { staggerChildren: 0.08 },
+	},
+} as const
+const FADE_UP = {
+	hidden: { opacity: 0, y: 18 },
+	show: {
+		opacity: 1,
+		y: 0,
+		transition: { duration: 0.48, ease: 'easeOut' as const },
+	},
+} as const
+const HERO_MEDIA_REVEAL = {
+	hidden: { opacity: 0, y: 36 },
+	show: {
+		opacity: 1,
+		y: 0,
+		transition: { duration: 0.62, delay: 0.42, ease: 'easeOut' as const },
+	},
+} as const
+
+// =============================================
+// COMPONENT
+// =============================================
+
+export function LandingPageContent() {
+	const [activeStep, setActiveStep] = useState(0)
+
 	return (
-		<div className='relative w-full overflow-hidden'>
-			{/* Modern background blobs layer */}
-			<div className='fixed inset-0 -z-20 bg-background' />
-			<div className='fixed inset-0 -z-10 overflow-hidden pointer-events-none'>
-				<motion.div
-					animate={{
-						scale: [1, 1.2, 1],
-						x: [0, 80, 0],
-						y: [0, -40, 0],
-					}}
-					transition={{
-						duration: 20,
-						repeat: Infinity,
-						ease: 'easeInOut',
-					}}
-					className='absolute -top-[10%] -left-[10%] w-[60%] h-[60%] rounded-full bg-primary/15 blur-[100px]'
-				/>
-				<motion.div
-					animate={{
-						scale: [1, 1.1, 1],
-						x: [0, -70, 0],
-						y: [0, 60, 0],
-					}}
-					transition={{
-						duration: 25,
-						repeat: Infinity,
-						ease: 'easeInOut',
-					}}
-					className='absolute top-[15%] -right-[15%] w-[50%] h-[50%] rounded-full bg-accent/20 blur-[80px]'
-				/>
-				<motion.div
-					animate={{
-						scale: [1, 1.3, 1],
-						y: [0, 50, 0],
-						x: [0, 30, 0],
-					}}
-					transition={{
-						duration: 30,
-						repeat: Infinity,
-						ease: 'easeInOut',
-					}}
-					className='absolute -bottom-[15%] left-[5%] w-[55%] h-[55%] rounded-full bg-primary/10 blur-[120px]'
-				/>
-			</div>
-			<div className='fixed top-0 left-0 w-full h-full -z-10 opacity-[0.03] pointer-events-none bg-[url("https://www.transparenttextures.com/patterns/cubes.png")]' />
+		<div className='relative w-full overflow-hidden bg-slate-50 text-slate-900'>
+			{/* =============================================
+			    HERO SECTION
+			    ============================================= */}
+			<section className='hero-mesh relative overflow-hidden pb-20 pt-24 sm:pb-24 sm:pt-28 md:pt-32'>
+				<div className='pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-slate-300/70 to-transparent' />
+				<div className='pointer-events-none absolute inset-x-0 bottom-px h-px bg-gradient-to-r from-transparent via-white/70 to-transparent' />
+				<motion.div className='relative z-10 mx-auto w-full max-w-7xl px-4 text-center sm:px-6 lg:px-8' initial='hidden' animate='show' variants={STAGGER_REVEAL}>
+					<motion.div className='mx-auto mb-12 max-w-3xl' variants={STAGGER_REVEAL}>
+						<motion.div className='mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary' variants={FADE_UP}>
+							<HugeiconsIcon
+								icon={SparklesIcon}
+								className='h-4 w-4 text-amber-400'
+							/>
+							<span>AI-Powered Receipts - Smart Lists</span>
+						</motion.div>
+						<motion.h1 className='text-balance text-4xl font-extrabold leading-[1.08] tracking-tight text-slate-900 drop-shadow-sm sm:text-5xl md:text-7xl' variants={FADE_UP}>
+							Turn Receipts into <br />
+							<span className='bg-gradient-to-r from-primary via-blue-600 to-violet-700 bg-clip-text text-transparent'>
+								Smart Shopping Lists
+							</span>
+						</motion.h1>
+						<motion.p className='mx-auto mt-8 max-w-2xl text-balance text-lg font-medium leading-relaxed text-slate-600 md:text-xl' variants={FADE_UP}>
+							Snap any grocery receipt and instantly turn it into an organized shopping list with real-time spend
+							tracking.
+						</motion.p>
 
-			{/* Hero Section */}
-			<section className='relative w-full pt-20 pb-24 lg:pt-32 overflow-hidden'>
-				<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10'>
-					<div className='flex flex-col md:flex-row items-center gap-12 lg:gap-20'>
-						{/* Left Content (Text) */}
-						<div className='flex-1 text-center md:text-left space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-1000 fill-mode-forwards'>
-							{/* Badge */}
-							<div className='inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-semibold tracking-wide w-fit mx-auto md:mx-0'>
+						<motion.div className='mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row' variants={FADE_UP}>
+							<Button
+								size='lg'
+								className='group h-14 w-full rounded-xl border border-white/10 px-10 text-lg font-bold shadow-xl shadow-indigo-600/30 ring-2 ring-indigo-500/20 transition-all hover:-translate-y-1 hover:opacity-95 sm:w-auto'
+								asChild
+							>
+								<Link
+									href='/auth/signup'
+									className='flex items-center gap-2'
+								>
+									Create Free Account
+									<HugeiconsIcon
+										icon={ArrowRight01Icon}
+										className='h-5 w-5 transition-transform group-hover:translate-x-1'
+									/>
+								</Link>
+							</Button>
+						</motion.div>
+					</motion.div>
+
+					<motion.div
+						className='relative mx-auto mt-20 flex max-w-6xl flex-col items-center justify-center gap-8 md:flex-row lg:gap-20'
+						variants={HERO_MEDIA_REVEAL}
+					>
+						<div className='absolute -left-6 top-[24%] z-20 hidden items-center gap-2 rounded-full border border-primary/20 bg-white/90 px-3 py-2 text-xs font-semibold text-slate-700 shadow-[0_15px_35px_-22px_rgba(37,99,235,0.45)] backdrop-blur md:flex lg:-left-10'>
+							<span className='flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-primary'>
 								<HugeiconsIcon
-									icon={SparklesIcon}
-									className='w-4 h-4'
+									icon={CheckmarkCircle02Icon}
+									className='h-3.5 w-3.5'
 								/>
-								<span>AI-Powered Receipt Scanning</span>
-							</div>
+							</span>
+							No more manual entry
+						</div>
+						<div className='absolute -right-6 top-[64%] z-20 hidden items-center gap-2 rounded-full border border-chart-2/25 bg-white/90 px-3 py-2 text-xs font-semibold text-slate-700 shadow-[0_15px_35px_-22px_rgba(14,116,144,0.35)] backdrop-blur md:flex lg:-right-8'>
+							<span className='flex h-6 w-6 items-center justify-center rounded-full bg-chart-2/10 text-chart-2'>
+								<HugeiconsIcon
+									icon={Layers01Icon}
+									className='h-3.5 w-3.5'
+								/>
+							</span>
+							Auto-categorized
+						</div>
 
-							<h1 className='text-5xl lg:text-7xl font-bold tracking-tight text-slate-900 leading-tight'>
-								Turn Receipts into <br />
-								<span className='text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-600 relative'>
-									Smart Shopping Lists
-								</span>
-							</h1>
-
-							<p className='text-xl text-slate-600 leading-relaxed max-w-lg mx-auto md:mx-0'>
-								Stop manually typing items. Just snap a photo of any receipt, and Listys instantly organizes
-								everything for your next trip.
-							</p>
-
-							<div className='flex flex-col sm:flex-row gap-4 pt-4 justify-center md:justify-start'>
-								<Button
-									size='lg'
-									className='bg-primary hover:bg-primary/90 text-white h-14 px-8 rounded-xl shadow-lg shadow-primary/25 transition-all hover:-translate-y-1 hover:shadow-primary/40 text-lg'
-									asChild
-								>
-									<Link
-										href='/auth/signup'
-										className='flex items-center gap-2'
-									>
-										Start for Free
-										<HugeiconsIcon
-											icon={ArrowRight01Icon}
-											className='w-5 h-5'
-										/>
-									</Link>
-								</Button>
-								<Button
-									size='lg'
-									variant='outline'
-									className='h-14 px-8 rounded-xl border-slate-200 hover:bg-slate-50 text-slate-700 text-lg'
-									asChild
-								>
-									<Link href='#how-it-works'>How it Works</Link>
-								</Button>
-							</div>
-
-							<div className='flex items-center gap-6 pt-4 justify-center md:justify-start text-sm font-medium text-slate-500'>
-								<div className='flex items-center gap-2'>
-									<HugeiconsIcon
-										icon={CheckmarkCircle02Icon}
-										className='w-5 h-5 text-emerald-500'
-									/>
-									<span>No credit card needed</span>
-								</div>
-								<div className='flex items-center gap-2'>
-									<HugeiconsIcon
-										icon={CheckmarkCircle02Icon}
-										className='w-5 h-5 text-emerald-500'
-									/>
-									<span>99% Accuracy</span>
+						<div className='relative z-10 w-full max-w-[300px] -rotate-2 transform transition duration-500 hover:rotate-0'>
+							<div className='relative overflow-hidden rounded-xl border border-slate-100 bg-white p-6 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.15)] ring-1 ring-slate-200/50'>
+								<div className='scan-line' />
+								<div className='relative space-y-4 font-mono text-sm'>
+									<div className='mb-6 flex items-start justify-between'>
+										<div className='flex flex-col'>
+											<span className='text-lg font-bold text-slate-800'>MARKET FRESH</span>
+											<span className='text-[10px] text-slate-400'>123 Green Avenue, CA</span>
+										</div>
+										<div className='text-right text-[10px] text-slate-400'>
+											05/24/2024
+											<br />
+											14:22:01
+										</div>
+									</div>
+									<div className='flex justify-between border-b border-slate-100 pb-2 text-[10px] uppercase tracking-widest text-slate-400'>
+										<span>Item Description</span>
+										<span>Price</span>
+									</div>
+									<div className='space-y-2 text-slate-700'>
+										<div className='flex justify-between'>
+											<span>ORGANIC STRAWBERRIES</span>
+											<span>$5.99</span>
+										</div>
+										<div className='flex justify-between'>
+											<span>ALMOND MILK</span>
+											<span>$4.50</span>
+										</div>
+										<div className='flex justify-between'>
+											<span>SOURDOUGH BREAD</span>
+											<span>$5.25</span>
+										</div>
+										<div className='flex justify-between'>
+											<span>AVOCADOS (3)</span>
+											<span>$4.99</span>
+										</div>
+										<div className='flex justify-between'>
+											<span>GREEK YOGURT</span>
+											<span>$6.50</span>
+										</div>
+									</div>
+									<div className='my-4 border-t border-dashed border-slate-300 pt-4' />
+									<div className='flex justify-between text-lg font-bold text-slate-900'>
+										<span>TOTAL</span>
+										<span>$27.23</span>
+									</div>
+									<div className='mt-8 flex flex-col items-center gap-2 opacity-50'>
+										<div className='h-8 w-24 rounded-sm border-2 border-slate-500 [background-image:repeating-linear-gradient(90deg,transparent_0,transparent_2px,#334155_2px,#334155_4px)]' />
+										<span className='text-[10px]'>THANK YOU FOR SHOPPING</span>
+									</div>
 								</div>
 							</div>
 						</div>
 
-						{/* Right Content (Visual) */}
-						<div className='flex-1 relative w-full max-w-lg lg:max-w-xl animate-in fade-in slide-in-from-right-8 duration-1000 delay-200 fill-mode-forwards'>
-							{/* Background blobs for Hero */}
-							<div className='absolute -top-20 -right-20 w-72 h-72 bg-purple-200/50 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob'></div>
-							<div className='absolute -bottom-20 -left-20 w-72 h-72 bg-blue-200/50 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000'></div>
-							<div className='absolute top-20 left-20 w-72 h-72 bg-indigo-200/50 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-4000'></div>
+						<div className='text-primary/50 md:hidden'>
+							<HugeiconsIcon
+								icon={ArrowRight01Icon}
+								className='h-10 w-10 rotate-90 animate-pulse drop-shadow-sm'
+							/>
+						</div>
 
-							<div className='relative transform hover:scale-[1.02] transition-transform duration-500'>
-								{/* Glassmorphism Card */}
-								<Card className='relative border border-slate-200/60 bg-white/80 backdrop-blur-xl rounded-2xl p-6 shadow-2xl shadow-slate-200/50'>
-									<div className='space-y-6'>
-										<div className='flex items-start justify-between border-b border-slate-100 pb-4'>
-											<div>
-												<p className='text-xs font-bold text-primary uppercase tracking-wider flex items-center gap-1.5 mb-1'>
-													<HugeiconsIcon
-														icon={Invoice01Icon}
-														className='w-3.5 h-3.5'
-													/>
-													Scanned Just Now
-												</p>
-												<h3 className='text-2xl font-bold text-slate-900'>Whole Foods Market</h3>
-												<p className='text-sm text-slate-500'>Sep 24, 2026 • 2:45 PM</p>
-											</div>
-											<div className='flex flex-col items-end gap-1'>
-												<span className='text-sm font-bold text-white bg-slate-900 px-3 py-1 rounded-full shadow-sm'>
-													6 items
-												</span>
-											</div>
+						<div className='hidden text-primary/40 md:block'>
+							<HugeiconsIcon
+								icon={ArrowRight01Icon}
+								className='h-14 w-14 animate-pulse drop-shadow-sm'
+							/>
+						</div>
+
+						<div className='relative z-10 w-full max-w-[320px]'>
+							<div className='relative rounded-[2.5rem] border-[6px] border-slate-800 bg-slate-900 p-3 shadow-[0_50px_100px_-20px_rgba(66,71,200,0.5)] ring-1 ring-white/10'>
+								<div className='absolute left-1/2 top-0 z-30 h-7 w-32 -translate-x-1/2 transform rounded-b-2xl bg-black' />
+								<div className='relative flex h-[600px] flex-col overflow-hidden rounded-[2rem] bg-white'>
+									<div className='flex h-12 items-center justify-between px-8 pb-1 pt-3'>
+										<span className='ml-2 text-[12px] font-bold text-slate-900'>9:41</span>
+										<div className='mr-2 flex items-center gap-1.5 text-[10px] font-semibold text-slate-700'>
+											<span>5G</span>
+											<span>WiFi</span>
+											<span>100%</span>
 										</div>
+									</div>
 
-										{/* Items List */}
-										<div className='space-y-3'>
-											{[
-												{ emoji: '🥬', name: 'Organic Romaine Hearts', price: '$4.99', qty: '1' },
-												{
-													emoji: '🍗',
-													name: 'Boneless Chicken Breast',
-													price: '$12.45',
-													qty: '1.5 lb',
-												},
-												{ emoji: '🥛', name: 'Whole Milk - Gallon', price: '$5.29', qty: '1' },
-											].map((item, i) => (
-												<div
-													key={i}
-													className='group flex items-center justify-between p-3 bg-white rounded-lg border border-slate-200 hover:border-primary/40 hover:shadow-md transition-all duration-300'
-												>
-													<div className='flex items-center gap-4'>
-														<span className='text-2xl bg-slate-50 w-10 h-10 flex items-center justify-center rounded-full'>
-															{item.emoji}
-														</span>
-														<div>
-															<p className='font-semibold text-slate-800 text-sm'>{item.name}</p>
-															<p className='text-xs text-slate-500'>Qty: {item.qty}</p>
-														</div>
+									<div className='sticky top-0 z-20 flex items-center justify-between border-b border-slate-50 bg-white/80 px-6 py-4 backdrop-blur'>
+										<h4 className='text-2xl font-extrabold text-slate-900'>Groceries</h4>
+										<button
+											type='button'
+											className='flex h-8 w-8 items-center justify-center rounded-full bg-primary text-white shadow-lg shadow-blue-500/30 transition-transform hover:scale-105'
+										>
+											+
+										</button>
+									</div>
+
+									<div className='flex-1 space-y-4 overflow-y-auto px-5 py-2 pb-20'>
+										{[
+											{ name: 'Organic Strawberries', detail: 'Produce - $5.99', checked: true },
+											{ name: 'Almond Milk', detail: 'Dairy - $4.50', checked: true },
+											{ name: 'Sourdough Bread', detail: 'Bakery - $5.25', checked: false },
+											{ name: 'Avocados (3)', detail: 'Produce - $4.99', checked: false },
+											{ name: 'Greek Yogurt', detail: 'Dairy - $6.50', checked: false },
+										].map(item => (
+											<div
+												key={item.name}
+												className='cursor-pointer rounded-xl border border-slate-100 bg-white p-3 shadow-sm transition hover:border-blue-100 hover:shadow-md'
+											>
+												<div className='flex items-center gap-4'>
+													<div
+														className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md ${
+															item.checked ? 'bg-primary text-white' : 'border-2 border-slate-200'
+														}`}
+													>
+														{item.checked && (
+															<HugeiconsIcon
+																icon={CheckmarkCircle02Icon}
+																className='h-4 w-4'
+															/>
+														)}
 													</div>
-													<span className='font-bold text-slate-900'>{item.price}</span>
+													<div className='flex-1'>
+														<p className='text-sm font-bold text-slate-800'>{item.name}</p>
+														<p className='text-[11px] font-medium text-slate-500'>{item.detail}</p>
+													</div>
 												</div>
-											))}
-										</div>
-
-										{/* Total */}
-										<div className='mt-2 pt-4 border-t border-slate-100 flex justify-between items-end'>
-											<span className='text-sm font-semibold text-slate-500'>Total Amount</span>
-											<span className='text-3xl font-extrabold text-primary'>$22.73</span>
-										</div>
+											</div>
+										))}
 									</div>
-								</Card>
 
-								{/* Floating Stats Card */}
-								<div className='absolute -bottom-6 -left-6 bg-white p-4 rounded-xl shadow-xl border border-slate-100 animate-in fade-in zoom-in duration-700 delay-500 fill-mode-forwards hidden sm:block'>
-									<div className='flex items-center gap-3'>
-										<div className='w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center'>
+									<div className='absolute bottom-0 z-20 flex h-20 w-full items-center justify-around border-t border-slate-100 bg-white px-6 pb-4 shadow-[0_-10px_40px_rgba(0,0,0,0.03)]'>
+										<div className='flex flex-col items-center gap-1 text-primary'>
 											<HugeiconsIcon
-												icon={CheckmarkCircle02Icon}
-												className='w-5 h-5 text-emerald-600'
+												icon={ShoppingCart01Icon}
+												className='h-5 w-5'
 											/>
+											<span className='text-[10px] font-bold'>Lists</span>
 										</div>
-										<div>
-											<p className='text-xs text-slate-500 font-medium uppercase'>Scan Success</p>
-											<p className='text-lg font-bold text-slate-900'>100% Match</p>
+										<div className='flex cursor-pointer flex-col items-center gap-1 text-slate-400 transition-colors hover:text-slate-600'>
+											<HugeiconsIcon
+												icon={Camera01Icon}
+												className='h-5 w-5'
+											/>
+											<span className='text-[10px] font-medium'>Scan</span>
+										</div>
+										<div className='flex cursor-pointer flex-col items-center gap-1 text-slate-400 transition-colors hover:text-slate-600'>
+											<HugeiconsIcon
+												icon={AnalyticsUpIcon}
+												className='h-5 w-5'
+											/>
+											<span className='text-[10px] font-medium'>Stats</span>
+										</div>
+										<div className='flex cursor-pointer flex-col items-center gap-1 text-slate-400 transition-colors hover:text-slate-600'>
+											<HugeiconsIcon
+												icon={Layers01Icon}
+												className='h-5 w-5'
+											/>
+											<span className='text-[10px] font-medium'>Settings</span>
 										</div>
 									</div>
 								</div>
-
-								{/* Decorative Floating Elements */}
-								<motion.div
-									animate={{ y: [0, -15, 0] }}
-									transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-									className='absolute -top-12 -right-8 bg-white/90 backdrop-blur-md p-3 rounded-2xl shadow-xl border border-slate-100 hidden lg:block'
-								>
-									<span className='text-3xl'>🛒</span>
-								</motion.div>
-								<motion.div
-									animate={{ y: [0, 12, 0] }}
-									transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
-									className='absolute top-1/2 -left-16 bg-white/90 backdrop-blur-md p-3 rounded-2xl shadow-xl border border-slate-100 hidden xl:block'
-								>
-									<span className='text-3xl'>🍎</span>
-								</motion.div>
-								<motion.div
-									animate={{ y: [0, -10, 0] }}
-									transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-									className='absolute bottom-1/4 -right-12 bg-white/90 backdrop-blur-md p-3 rounded-2xl shadow-xl border border-slate-100 hidden lg:block'
-								>
-									<span className='text-3xl'>🧴</span>
-								</motion.div>
 							</div>
 						</div>
-					</div>
-				</div>
+					</motion.div>
+				</motion.div>
 			</section>
 
-			{/* Stats Section */}
-			<section className='w-full py-16 border-y border-slate-100/50 bg-white/40 backdrop-blur-sm'>
-				<div className='max-w-6xl mx-auto px-4 sm:px-6 lg:px-8'>
-					<div className='grid grid-cols-2 md:grid-cols-4 gap-8'>
-						{[
-							{
-								stat: '99%',
-								label: 'OCR Accuracy',
-								icon: ViewIcon,
-								color: 'bg-emerald-100 text-emerald-600',
-							},
-							{
-								stat: '10',
-								label: 'Groups per User',
-								icon: Layers01Icon,
-								color: 'bg-rose-100 text-rose-600',
-							},
-							{
-								stat: '250',
-								label: 'Items per List',
-								icon: ShoppingCart01Icon,
-								color: 'bg-sky-100 text-sky-600',
-							},
-							{
-								stat: '4.9★',
-								label: 'User Rating',
-								icon: CheckmarkCircle02Icon,
-								color: 'bg-amber-100 text-amber-600',
-							},
-						].map((item, i) => (
-							<div
-								key={i}
-								className='text-center group'
-							>
+			{/* =============================================
+			    TRUST STATS SECTION
+			    ============================================= */}
+			<motion.section className='section-soft-surface relative overflow-hidden py-14' initial='hidden' whileInView='show' viewport={REVEAL_VIEWPORT} variants={STAGGER_REVEAL}>
+				<div className='pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-slate-300/70 to-transparent' />
+				<div className='pointer-events-none absolute inset-x-0 top-px h-px bg-gradient-to-r from-transparent via-white/70 to-transparent' />
+				<div className='pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-slate-300/65 to-transparent' />
+				<div className='mx-auto grid w-full max-w-7xl grid-cols-2 gap-4 px-4 sm:px-6 lg:grid-cols-4 lg:px-8'>
+					{TRUST_STATS.map((item, index) => (
+						<motion.div key={item.label} variants={FADE_UP}>
+							<Card className='premium-card rounded-2xl border-slate-200/70 bg-white/90 p-6 text-center transition-all duration-300 hover:-translate-y-0.5'>
 								<div
-									className={`w-14 h-14 ${item.color} rounded-2xl flex items-center justify-center mx-auto mb-4 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3 shadow-sm`}
+									className={`mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-xl ring-1 ${STAT_ACCENTS[index].icon}`}
 								>
 									<HugeiconsIcon
 										icon={item.icon}
-										className='w-7 h-7'
+										className='h-5 w-5'
 									/>
 								</div>
-								<div className='text-3xl font-bold text-slate-900 mb-1'>{item.stat}</div>
-								<p className='text-slate-500 text-sm font-medium'>{item.label}</p>
-							</div>
-						))}
-					</div>
-				</div>
-			</section>
-
-			{/* How It Works */}
-			<section
-				id='how-it-works'
-				className='w-full py-24 bg-slate-50/20 backdrop-blur-sm'
-			>
-				<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-					<div className='text-center mb-20 max-w-3xl mx-auto'>
-						<h2 className='text-primary font-semibold tracking-wide uppercase text-sm mb-3'>How it Works</h2>
-						<h3 className='text-3xl md:text-5xl font-bold text-slate-900 mb-6'>
-							From Receipt to List in Seconds
-						</h3>
-						<p className='text-lg text-slate-600'>
-							Our AI handles the boring part. You just snap a picture and get ready to shop.
-						</p>
-					</div>
-
-					<div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
-						{[
-							{
-								step: '01',
-								icon: Camera01Icon,
-								title: 'Snap a Photo',
-								desc: 'Take a picture of your paper receipt, or upload a digital one directly.',
-								gradient: 'from-blue-500 to-indigo-500',
-							},
-							{
-								step: '02',
-								icon: ArtificialIntelligence02Icon,
-								title: 'AI Analysis',
-								desc: 'We identify every item, price, and quantity with high precision.',
-								gradient: 'from-indigo-500 to-purple-500',
-							},
-							{
-								step: '03',
-								icon: ShoppingCart01Icon,
-								title: 'Shop Smart',
-								desc: 'Items are categorized automatically. Check them off as you shop.',
-								gradient: 'from-purple-500 to-pink-500',
-							},
-						].map((item, index) => (
-							<Card
-								key={index}
-								className='relative border border-slate-200 hover:border-slate-300 transition-all duration-300 p-8 bg-white hover:shadow-xl hover:-translate-y-1 group overflow-hidden'
-							>
-								{/* Gradient Line Top */}
-								<div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${item.gradient}`}></div>
-
-								<div className='space-y-6 relative z-10'>
-									<div className='flex items-center justify-between'>
-										<div
-											className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${item.gradient} text-white flex items-center justify-center shadow-lg transition-transform group-hover:scale-110 group-hover:rotate-3`}
-										>
-											<HugeiconsIcon
-												icon={item.icon}
-												className='w-8 h-8'
-											/>
-										</div>
-										<span className='text-6xl font-black text-slate-100 select-none absolute -right-4 -top-4 opacity-50 group-hover:opacity-80 transition-opacity'>
-											{item.step}
-										</span>
-									</div>
-									<div>
-										<h3 className='text-xl font-bold text-slate-900 mb-3'>{item.title}</h3>
-										<p className='text-slate-600 leading-relaxed text-sm'>{item.desc}</p>
-									</div>
-								</div>
+								<p className={`tabular-nums text-2xl font-extrabold ${STAT_ACCENTS[index].stat}`}>{item.stat}</p>
+								<p className={`mt-2 text-[11px] font-semibold uppercase `}>{item.label}</p>
 							</Card>
-						))}
-					</div>
+						</motion.div>
+					))}
 				</div>
-			</section>
+			</motion.section>
 
-			{/* Features Grid */}
-			<section className='w-full py-24 bg-transparent'>
-				<div className='max-w-6xl mx-auto px-4 sm:px-6 lg:px-8'>
-					<div className='text-center mb-16'>
-						<h2 className='text-3xl md:text-5xl font-bold text-slate-900 mb-6'>Packed with Power</h2>
-						<p className='text-lg text-slate-600 max-w-2xl mx-auto'>
-							Everything modern shoppers need to stay organized and save money.
+			{/* =============================================
+			    HOW IT WORKS SECTION
+			    ============================================= */}
+			<motion.section
+				id='how-it-works'
+				className='section-neutral-surface relative overflow-hidden py-20 sm:py-24'
+				initial='hidden'
+				whileInView='show'
+				viewport={REVEAL_VIEWPORT}
+				variants={STAGGER_REVEAL}
+			>
+				<div className='pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border/85 to-transparent' />
+				<div className='pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-border/85 to-transparent' />
+				<div className='mx-auto grid w-full max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-[1fr_1fr] lg:items-center lg:px-8'>
+					<motion.div variants={FADE_UP}>
+						<p className='mb-3 text-xs font-bold uppercase tracking-[0.2em] text-primary/80'>How it works</p>
+						<h2 className='font-serif text-3xl font-extrabold leading-[1.15] tracking-[-0.015em] text-slate-900 sm:text-4xl'>
+							One clear process from scan to checkout
+						</h2>
+						<p className='mt-5 max-w-xl text-base leading-relaxed text-slate-600'>
+							Each step is designed to keep momentum. Capture fast, organize automatically, then shop with confidence.
 						</p>
-					</div>
 
-					<div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-						{[
-							{
-								icon: Layers01Icon,
-								title: '10 Groups, Unlimited Lists',
-								description:
-									'Organize by store, meal plan, or season. Create base lists with up to 250 items each.',
-							},
-							{
-								icon: ArtificialIntelligence02Icon,
-								title: 'AI That Actually Works',
-								description: 'OpenAI Vision API recognizes items, prices, and quantities with 99% accuracy.',
-							},
-							{
-								icon: ShoppingCart01Icon,
-								title: 'Real-Time Shopping',
-								description: 'Create sessions from base lists. Check items, edit quantities, track totals live.',
-							},
-							{
-								icon: AnalyticsUpIcon,
-								title: 'Spending Analytics',
-								description: 'Track every purchase, visualize patterns, and make smarter shopping decisions.',
-							},
-						].map((feature, index) => (
-							<Card
-								key={index}
-								className='border border-slate-200 hover:border-primary/20 transition-all hover:shadow-lg p-8 bg-slate-50 group hover:bg-white'
-							>
-								<div className='flex gap-6 items-start'>
-									<div className='shrink-0 w-14 h-14 bg-white rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 group-hover:rotate-3 shadow-sm border border-slate-100'>
+						<div className='mt-10 space-y-5'>
+							{PROCESS_STEPS.map((step, index) => {
+								const isActive = activeStep === index
+								return (
+										<button
+											key={step.title}
+											onClick={() => setActiveStep(index)}
+											className={`group grid w-full grid-cols-[auto_1fr] items-start gap-3.5 rounded-2xl border p-4 text-left transition ${
+												isActive
+													? 'border-primary/30 bg-gradient-to-br from-primary/8 to-accent/30 shadow-[0_14px_40px_-24px_rgba(37,99,235,0.55)]'
+													: 'border-slate-200/80 bg-white hover:border-accent/45 hover:bg-gradient-to-br hover:from-white hover:to-accent/20'
+											}`}
+										>
+											<div
+												className={`mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition-colors ${
+													isActive
+														? 'border-primary bg-primary text-white'
+														: 'border-slate-200 bg-slate-50 text-slate-600 group-hover:border-primary/20 group-hover:bg-accent group-hover:text-primary'
+												}`}
+											>
+												<HugeiconsIcon
+													icon={step.icon}
+													className='h-4.5 w-4.5'
+													strokeWidth={2}
+												/>
+											</div>
+											<div>
+											<p className='text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500'>{step.badge}</p>
+											<h3 className='mt-1 text-lg font-bold text-slate-900'>{step.title}</h3>
+											<p className='mt-1.5 text-sm leading-[1.65] text-slate-600'>{step.desc}</p>
+										</div>
+									</button>
+								)
+							})}
+						</div>
+					</motion.div>
+
+					<motion.div className='relative' variants={FADE_UP}>
+						<div className='absolute -inset-6 rounded-[2rem] bg-gradient-to-br from-primary/10 via-accent/30 to-chart-2/20 blur-2xl' />
+						<Card className='premium-card relative rounded-3xl border-slate-200/70 bg-white/95 p-7'>
+							<div className='mb-5 flex items-center justify-between'>
+								<div>
+									<p className='text-[11px] font-bold uppercase tracking-[0.15em] text-slate-500'>
+										Current shopping run
+									</p>
+									<p className='text-2xl font-extrabold text-slate-900'>Groceries</p>
+								</div>
+								<span className='rounded-full border border-chart-2/25 bg-chart-2/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.14em] text-chart-2'>
+									Step {activeStep + 1}
+								</span>
+							</div>
+							<div className='space-y-3.5'>
+								{PREVIEW_BY_STEP[activeStep].map(item => (
+									<div
+										key={item.name}
+										className='flex items-center justify-between rounded-xl border border-slate-200/80 bg-slate-50/75 px-4 py-3'
+									>
+										<div>
+											<p className='text-sm font-bold text-slate-900'>{item.name}</p>
+											<p className='text-xs text-slate-500'>{item.detail}</p>
+										</div>
+										<div
+											className={`h-7 w-7 rounded-full border-2 ${item.checked ? 'border-emerald-500 bg-emerald-500 text-white' : 'border-slate-300 bg-white'}`}
+										>
+											{item.checked && (
+												<div className='flex h-full items-center justify-center'>
+													<HugeiconsIcon
+														icon={CheckmarkCircle02Icon}
+														className='h-4 w-4'
+													/>
+												</div>
+											)}
+										</div>
+									</div>
+								))}
+							</div>
+							<div className='mt-7 rounded-xl border border-chart-5/20 bg-chart-5/10 px-4 py-3'>
+								<p className='text-sm font-semibold text-emerald-900'>Estimated savings this month: $184.70</p>
+							</div>
+						</Card>
+					</motion.div>
+				</div>
+			</motion.section>
+
+			{/* =============================================
+			    FEATURES SECTION
+			    ============================================= */}
+			<motion.section className='feature-premium-surface relative overflow-hidden py-20 sm:py-24' initial='hidden' whileInView='show' viewport={REVEAL_VIEWPORT} variants={STAGGER_REVEAL}>
+				<div className='pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border/80 to-transparent' />
+				<div className='pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-border/80 to-transparent' />
+				<div className='relative mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8'>
+					<motion.div className='mx-auto max-w-2xl text-center' variants={FADE_UP}>
+						<p className='text-xs font-bold uppercase tracking-[0.2em] text-primary/80'>Why households choose Listys</p>
+						<h2 className='mt-3 font-serif text-3xl font-extrabold tracking-[-0.015em] text-slate-900 sm:text-4xl'>
+							Designed for everyday grocery shopping
+						</h2>
+						<p className='mt-5 text-base text-slate-600 sm:text-lg'>
+							Everything stays connected, clean, and easy to act on across the entire shopping cycle.
+						</p>
+					</motion.div>
+
+					<div className='mt-14 grid gap-5 md:grid-cols-2 xl:grid-cols-4'>
+						{FEATURE_CARDS.map((feature, index) => (
+							<motion.div key={feature.title} variants={FADE_UP}>
+								<Card className='premium-card group rounded-2xl border-slate-200/70 bg-white/95 p-6 transition duration-300 hover:-translate-y-0.5'>
+									<div
+										className={`mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl ring-1 transition-colors ${FEATURE_ACCENTS[index].icon}`}
+									>
 										<HugeiconsIcon
 											icon={feature.icon}
-											className='w-7 h-7 text-primary'
+											className='h-6 w-6'
 										/>
 									</div>
-									<div>
-										<h3 className='text-xl font-bold text-slate-900 mb-3'>{feature.title}</h3>
-										<p className='text-slate-600 leading-relaxed'>{feature.description}</p>
-									</div>
-								</div>
-							</Card>
+									<h3 className={`text-lg font-bold  ${STAT_ACCENTS[index].label}`}>{feature.title}</h3>
+									<p className='mt-2.5 text-sm leading-relaxed text-slate-600'>{feature.desc}</p>
+								</Card>
+							</motion.div>
 						))}
 					</div>
 				</div>
-			</section>
+			</motion.section>
 
+			{/* =============================================
+			    FAQ SECTION
+			    ============================================= */}
 			<Faq />
 
-			{/* CTA */}
-			<section className='w-full py-24 bg-gradient-to-b from-white/0 to-primary/5'>
-				<div className='max-w-4xl mx-auto text-center'>
-					<h2 className='text-4xl lg:text-6xl font-bold text-slate-900 mb-6 tracking-tight'>
-						Ready to shop smarter?
-					</h2>
-					<p className='text-xl text-slate-600 mb-10'>Join thousands of users saving time with Listys.</p>
-					<div className='flex flex-col sm:flex-row gap-4 justify-center'>
-						<Button
-							size='lg'
-							className='bg-primary hover:bg-primary/90 text-white h-14 px-10 rounded-xl text-lg shadow-xl shadow-primary/20 transition-all hover:-translate-y-1'
-							asChild
-						>
-							<Link
-								href='/auth/signup'
-								className='flex items-center gap-2'
+			{/* =============================================
+			    CTA FINAL SECTION
+			    ============================================= */}
+			<motion.section className='section-soft-surface relative overflow-hidden pb-12 pt-20 sm:pt-24' initial='hidden' whileInView='show' viewport={REVEAL_VIEWPORT} variants={STAGGER_REVEAL}>
+				<div className='pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border/90 to-transparent' />
+				<div className='pointer-events-none absolute inset-x-0 top-px h-px bg-gradient-to-r from-transparent via-white/65 to-transparent' />
+				<div className='pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-border/90 to-transparent' />
+				<div className='pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_8%,rgba(59,130,246,0.08),transparent_34%),radial-gradient(circle_at_84%_18%,rgba(14,165,233,0.06),transparent_34%)]' />
+				<div className='relative mx-auto grid w-full max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-[1fr_auto] lg:items-center lg:px-8'>
+					<motion.div className='text-center lg:text-left' variants={FADE_UP}>
+							<p className='mb-3 text-xs font-bold uppercase tracking-[0.2em] text-primary/85'>Get started</p>
+						<h2 className='font-serif text-4xl font-extrabold leading-[1.12] tracking-[-0.015em] text-foreground sm:text-5xl'>
+							Build a smarter shopping habit with Listys
+						</h2>
+							<p className='mt-4 max-w-2xl text-base leading-relaxed text-slate-600 sm:text-lg'>
+								Start free today and organize your next grocery run in minutes with smarter lists and clearer spending.
+							</p>
+						<div className='mt-10 flex flex-col gap-4 sm:flex-row lg:justify-start'>
+							<Button
+								size='lg'
+								className='h-13 rounded-xl bg-primary px-8 text-base font-bold text-primary-foreground shadow-[0_14px_28px_-18px_rgba(37,99,235,0.55)] transition-colors hover:bg-primary/90'
+								asChild
 							>
-								Get Started Now
-							</Link>
-						</Button>
-					</div>
+								<Link
+									href='/auth/signup'
+									className='flex items-center gap-2'
+								>
+									Create free account
+									<HugeiconsIcon
+										icon={ArrowRight01Icon}
+										className='h-5 w-5'
+									/>
+								</Link>
+							</Button>
+						</div>
+					</motion.div>
+					<motion.div variants={FADE_UP}>
+						<Card className='w-full max-w-sm rounded-2xl border-border/70 bg-card/90 p-6 text-card-foreground shadow-[0_18px_38px_-28px_rgba(15,23,42,0.22)] backdrop-blur-sm'>
+							<p className='text-[11px] font-bold uppercase tracking-[0.15em] text-slate-500'>Outcome snapshot</p>
+						<div className='mt-4 space-y-4'>
+							<div className='border-border/70 flex items-center justify-between border-b pb-4'>
+								<div>
+									<p className='text-5xl font-extrabold leading-none'>50k+</p>
+										<p className='mt-1 text-xs font-bold uppercase tracking-wide text-slate-500'>Users</p>
+								</div>
+								<div className='flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600'>
+									<HugeiconsIcon
+										icon={Layers01Icon}
+										className='h-4 w-4'
+									/>
+								</div>
+							</div>
+							<div className='flex items-center justify-between'>
+								<div>
+									<p className='text-5xl font-extrabold leading-none'>1M+</p>
+										<p className='mt-1 text-xs font-bold uppercase tracking-wide text-slate-500'>
+											Receipts processed
+										</p>
+								</div>
+								<div className='flex h-9 w-9 items-center justify-center rounded-lg bg-blue-100 text-primary'>
+									<HugeiconsIcon
+										icon={ViewIcon}
+										className='h-4 w-4'
+									/>
+								</div>
+							</div>
+						</div>
+						</Card>
+					</motion.div>
 				</div>
-			</section>
+			</motion.section>
 
+			{/* =============================================
+			    FOOTER
+			    ============================================= */}
 			<Footer />
 		</div>
 	)

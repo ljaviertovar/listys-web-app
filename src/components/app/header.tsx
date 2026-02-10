@@ -1,6 +1,6 @@
 'use client'
 
-import AuthButtons from '@/components/features/auth/auth-buttons'
+import { AuthButtons } from '@/components/features/auth'
 import { useScrollPosition } from '@/hooks/use-scroll-position'
 import { cn } from '@/lib/utils'
 import MobileMenu from './mobile-menu'

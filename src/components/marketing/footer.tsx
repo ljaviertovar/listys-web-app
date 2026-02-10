@@ -4,105 +4,84 @@ import { Invoice01Icon } from '@hugeicons/core-free-icons'
 
 export function Footer() {
 	return (
-		<footer className='w-full bg-slate-900 text-white py-12 px-4 sm:px-6 lg:px-8'>
-			<div className='max-w-6xl mx-auto'>
-				<div className='grid grid-cols-1 md:grid-cols-4 gap-8 mb-8'>
+		<footer className='relative bg-background/95 px-4 py-12 text-foreground sm:px-6 lg:px-8'>
+			<div className='pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border to-transparent' />
+			<div className='pointer-events-none absolute inset-x-0 top-px h-px bg-gradient-to-r from-transparent via-white/60 to-transparent' />
+			<div className='relative z-10 mx-auto max-w-6xl'>
+				<div className='relative mb-8 grid grid-cols-1 gap-8 md:grid-cols-4'>
 					<div>
-						<div className='flex items-center gap-2 font-bold text-lg mb-3'>
-							<div className='w-8 h-8 bg-primary rounded-lg flex items-center justify-center'>
-								<HugeiconsIcon
-									icon={Invoice01Icon}
-									className='w-5 h-5 text-white'
-								/>
+						<div className='mb-3 flex w-fit items-center gap-2 text-lg font-bold transition-transform hover:scale-105'>
+							<div className='flex h-8 w-8 items-center justify-center rounded-lg bg-primary'>
+								<HugeiconsIcon icon={Invoice01Icon} className='h-5 w-5 text-white' />
 							</div>
 							<span>Listys</span>
 						</div>
-						<p className='text-slate-400 text-sm leading-relaxed'>Transform receipts into smart shopping lists.</p>
+						<p className='text-muted-foreground text-sm leading-relaxed'>Transform receipts into smart shopping lists.</p>
 					</div>
 					<div>
-						<h4 className='font-semibold mb-3 text-white'>Product</h4>
-						<ul className='space-y-2 text-sm text-slate-400'>
+						<h4 className='mb-3 font-semibold text-foreground'>Product</h4>
+						<ul className='text-muted-foreground space-y-2 text-sm'>
 							<li>
-								<Link
-									href='#'
-									className='hover:text-white transition'
-								>
-									Features
+								<Link href='#how-it-works' className='transition hover:text-foreground'>
+									How it works
 								</Link>
 							</li>
 							<li>
-								<Link
-									href='#'
-									className='hover:text-white transition'
-								>
+								<Link href='#' className='transition hover:text-foreground'>
 									Pricing
 								</Link>
 							</li>
 							<li>
-								<Link
-									href='#'
-									className='hover:text-white transition'
-								>
+								<Link href='#faq' className='transition hover:text-foreground'>
 									FAQ
 								</Link>
 							</li>
 						</ul>
 					</div>
 					<div>
-						<h4 className='font-semibold mb-3 text-white'>Company</h4>
-						<ul className='space-y-2 text-sm text-slate-400'>
+						<h4 className='mb-3 font-semibold text-foreground'>Company</h4>
+						<ul className='text-muted-foreground space-y-2 text-sm'>
 							<li>
-								<Link
-									href='#'
-									className='hover:text-white transition'
-								>
+								<Link href='#' className='transition hover:text-foreground'>
 									About
 								</Link>
 							</li>
 							<li>
-								<Link
-									href='#'
-									className='hover:text-white transition'
-								>
+								<Link href='#' className='transition hover:text-foreground'>
 									Contact
 								</Link>
 							</li>
 						</ul>
 					</div>
 					<div>
-						<h4 className='font-semibold mb-3 text-white'>Legal</h4>
-						<ul className='space-y-2 text-sm text-slate-400'>
+						<h4 className='mb-3 font-semibold text-foreground'>Legal</h4>
+						<ul className='text-muted-foreground space-y-2 text-sm'>
 							<li>
-								<Link
-									href='#'
-									className='hover:text-white transition'
-								>
+								<Link href='#' className='transition hover:text-foreground'>
 									Privacy Policy
 								</Link>
 							</li>
 							<li>
-								<Link
-									href='#'
-									className='hover:text-white transition'
-								>
+								<Link href='#' className='transition hover:text-foreground'>
 									Terms of Service
 								</Link>
 							</li>
 						</ul>
 					</div>
 				</div>
-				<div className='border-t border-slate-800 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-slate-400'>
-					<p>© {new Date().getFullYear()} Listys. All rights reserved.</p>
+
+				<div className='text-muted-foreground border-border/60 relative flex flex-col items-center justify-between gap-4 border-t pt-6 text-sm sm:flex-row'>
+					<p>&copy; {new Date().getFullYear()} Listys. All rights reserved.</p>
 					<div className='flex gap-6'>
 						<Link
-							href='#'
-							className='hover:text-white transition'
+							href='https://x.com'
+							className='relative transition-colors hover:text-foreground after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 after:bg-foreground after:transition-all hover:after:w-full'
 						>
 							Twitter
 						</Link>
 						<Link
-							href='#'
-							className='hover:text-white transition'
+							href='https://github.com'
+							className='relative transition-colors hover:text-foreground after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 after:bg-foreground after:transition-all hover:after:w-full'
 						>
 							GitHub
 						</Link>

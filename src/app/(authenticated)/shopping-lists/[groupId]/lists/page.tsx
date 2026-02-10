@@ -3,13 +3,10 @@ import { createClient } from '@/lib/supabase/server'
 import { HugeiconsIcon } from '@hugeicons/react'
 
 import { Card, CardContent } from '@/components/ui/card'
-import { CreateBaseListDialog } from '@/components/features/base-lists/create-base-list-dialog'
+import { CreateBaseListDialog, BaseListCard } from '@/components/features/base-lists'
 import { AddToListIcon } from '@hugeicons/core-free-icons'
 
-import { PageHeader, PageContainer, PageFooterAction } from '@/components/app'
-import { BaseListCard } from '@/components/features/base-lists/base-list-card'
-import BackLink from '@/components/app/back-link'
-import ActiveShopping from '@/components/app/active-shopping'
+import { PageHeader, PageContainer, PageFooterAction, BackLink, ActiveShopping } from '@/components/app'
 
 import { getBaseListsByGroup } from '@/actions/base-lists'
 
@@ -26,7 +23,20 @@ export default async function BaseListsPage({ params }: { params: Promise<{ grou
 		redirect('/auth/signin')
 	}
 
-	const { data: baseLists, error } = await getBaseListsByGroup(groupId)
+	const [baseListsResult, groupResult, activeSessionResult] = await Promise.all([
+		getBaseListsByGroup(groupId),
+		supabase.from('groups').select('name').eq('id', groupId).single(),
+		supabase
+			.from('shopping_sessions')
+			.select('id, base_list_id')
+			.eq('user_id', user.id)
+			.eq('status', 'active')
+			.maybeSingle(),
+	])
+
+	const { data: baseLists, error } = baseListsResult
+	const { data: group } = groupResult
+	const { data: activeSession } = activeSessionResult
 
 	// Transform Supabase count result to our type
 	const baseListsWithCount: BaseListWithCount[] = baseLists
@@ -35,17 +45,6 @@ export default async function BaseListsPage({ params }: { params: Promise<{ grou
 				items_count: Array.isArray(list.items) ? list.items[0]?.count || 0 : 0,
 			}))
 		: []
-
-	// Get group name
-	const { data: group } = await supabase.from('groups').select('name').eq('id', groupId).single()
-
-	// Check if there's an active shopping session
-	const { data: activeSession } = await supabase
-		.from('shopping_sessions')
-		.select('id, base_list_id')
-		.eq('user_id', user.id)
-		.eq('status', 'active')
-		.maybeSingle()
 
 	return (
 		<>

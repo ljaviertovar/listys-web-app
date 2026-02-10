@@ -28,7 +28,7 @@ import {
 	AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { ActiveShoppingBadge } from '@/components/app/active-shopping-badge'
-import { StartShoppingDialog } from '@/components/features/base-lists/start-shopping-dialog'
+import { StartShoppingDialog } from '@/components/features/base-lists'
 
 interface Props {
 	baseList: BaseListWithCount
@@ -116,6 +116,7 @@ export function BaseListCard({ baseList, hasActiveRun = false, isActiveRun = fal
 									size='icon'
 									asChild
 									className='h-8 w-8'
+									aria-label='Edit list'
 								>
 									<Link href={`/base-lists/${baseList.id}/edit`}>
 										<HugeiconsIcon
@@ -135,6 +136,7 @@ export function BaseListCard({ baseList, hasActiveRun = false, isActiveRun = fal
 									}}
 									disabled={loading}
 									className='h-8 w-8'
+									aria-label='Delete list'
 								>
 									<HugeiconsIcon
 										icon={Delete02Icon}
@@ -230,7 +232,7 @@ export function BaseListCard({ baseList, hasActiveRun = false, isActiveRun = fal
 										strokeWidth={2}
 										className='h-4 w-4 animate-spin'
 									/>
-									Deleting...
+									Deleting…
 								</>
 							) : (
 								'Delete'

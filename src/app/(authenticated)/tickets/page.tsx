@@ -4,7 +4,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 
 import { PageHeader, PageContainer, PageFooterAction, BackLink } from '@/components/app'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { UploadTicketDialog } from '@/components/features/tickets/upload-ticket-dialog'
+import { UploadTicketDialog } from '@/components/features/tickets'
 import { Badge } from '@/components/ui/badge'
 import { ArrowRight01Icon, Invoice01Icon } from '@hugeicons/core-free-icons'
 
@@ -25,6 +25,13 @@ export default async function TicketsPage() {
 	}
 
 	const { data: tickets, error } = await getTickets()
+
+	// Format tickets on server side to avoid date serialization issues
+	const formattedTickets = (tickets || []).map(ticket => ({
+		...ticket,
+		formattedDate: ticket.created_at ? formatDate(new Date(ticket.created_at)) : 'Unknown',
+		formattedTime: ticket.created_at ? formatTime(new Date(ticket.created_at)) : '',
+	}))
 
 	return (
 		<>
@@ -68,8 +75,7 @@ export default async function TicketsPage() {
 					</Card>
 				) : (
 					<div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3'>
-						{tickets.map(ticket => {
-							const createdAt = ticket.created_at ? new Date(ticket.created_at) : new Date()
+						{formattedTickets.map(ticket => {
 							const isMerged = !!ticket.base_list_id
 
 							return (
@@ -111,7 +117,7 @@ export default async function TicketsPage() {
 														{ticket.store_name || 'Unknown Base List'}
 													</CardTitle>
 													<CardDescription className='text-xs'>
-														{formatDate(createdAt)} - {formatTime(createdAt)}
+														{ticket.formattedDate} - {ticket.formattedTime}
 													</CardDescription>
 												</div>
 											</div>

@@ -252,7 +252,7 @@ export function AddItemFormBaseList(props: Props) {
 				<Textarea
 					id='notes'
 					{...register('notes')}
-					placeholder='Add any notes...'
+					placeholder='Add any notes…'
 					rows={2}
 					disabled={loading || isLocked}
 					className={errors.notes ? 'border-destructive focus-visible:ring-destructive text-base' : 'text-base'}
@@ -276,7 +276,7 @@ export function AddItemFormBaseList(props: Props) {
 							strokeWidth={2}
 							className='mr-2 h-4 w-4 animate-spin'
 						/>
-						Adding...
+						Adding…
 					</>
 				) : (
 					<>

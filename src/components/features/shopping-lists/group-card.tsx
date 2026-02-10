@@ -185,6 +185,7 @@ export function GroupCard({ group, history = false }: Props) {
 										setEditing(true)
 									}}
 									className='h-8 w-8'
+									aria-label='Edit group'
 								>
 									<HugeiconsIcon
 										icon={Edit02Icon}
@@ -202,6 +203,7 @@ export function GroupCard({ group, history = false }: Props) {
 									}}
 									disabled={deleting}
 									className='h-8 w-8'
+									aria-label='Delete group'
 								>
 									<HugeiconsIcon
 										icon={Delete02Icon}
@@ -228,11 +230,9 @@ export function GroupCard({ group, history = false }: Props) {
 					<CardContent className='pt-4'>
 						<div className='flex items-center justify-between'>
 							<span>
-									{history ? (
-										`${group.completed_runs_count ?? 0} ${(group.completed_runs_count ?? 0) === 1 ? 'Shopping' : 'Shoppings'}`
-									) : (
-										`${group.base_lists?.[0]?.count ?? 0} ${(group.base_lists?.[0]?.count ?? 0) === 1 ? 'list' : 'lists'} • ${group.total_items ?? 0} ${(group.total_items ?? 0) === 1 ? 'item' : 'items'}`
-									)}
+								{history
+									? `${group.completed_runs_count ?? 0} ${(group.completed_runs_count ?? 0) === 1 ? 'Shopping' : 'Shoppings'}`
+									: `${group.base_lists?.[0]?.count ?? 0} ${(group.base_lists?.[0]?.count ?? 0) === 1 ? 'list' : 'lists'} • ${group.total_items ?? 0} ${(group.total_items ?? 0) === 1 ? 'item' : 'items'}`}
 							</span>
 							<div className='flex items-center text-sm text-primary transition-colors'>
 								<span>{history ? 'View history' : 'View lists'}</span>
@@ -281,7 +281,7 @@ export function GroupCard({ group, history = false }: Props) {
 										strokeWidth={2}
 										className='h-4 w-4 animate-spin'
 									/>
-									Deleting...
+									Deleting…
 								</>
 							) : (
 								'Delete'
