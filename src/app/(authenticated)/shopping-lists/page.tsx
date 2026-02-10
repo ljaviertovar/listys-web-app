@@ -1,10 +1,9 @@
 import { redirect } from 'next/navigation'
-import { HugeiconsIcon } from '@hugeicons/react'
+import { FolderSearch2 } from 'lucide-react'
 
 import { Card, CardContent } from '@/components/ui/card'
 import { CreateGroupDialog, GroupCard } from '@/components/features/shopping-lists'
 import { PageHeader, PageContainer, PageFooterAction, BackLink } from '@/components/app'
-import { FolderIcon } from '@hugeicons/core-free-icons'
 
 import { createClient } from '@/lib/supabase/server'
 
@@ -25,7 +24,7 @@ export default async function GroupsPage() {
 	return (
 		<>
 			<PageHeader
-				title='Shopping Lists'
+				title='Shopping List Groups'
 				desc='Organize your shopping lists into groups'
 			>
 				<div className='justify-end hidden md:flex'>
@@ -50,17 +49,19 @@ export default async function GroupsPage() {
 						className='flex min-h-100 flex-col items-center justify-center'
 						size='sm'
 					>
-						<CardContent className='flex flex-col items-center space-y-4 pt-6'>
-							<HugeiconsIcon
-								icon={FolderIcon}
-								strokeWidth={1.5}
-								className='h-16 w-16 text-muted-foreground'
-							/>
-							<div className='text-center'>
-								<h3 className='text-lg font-semibold'>No groups yet</h3>
-								<p className='text-sm text-muted-foreground'>Create your first group to get started</p>
+						<CardContent className='flex w-full max-w-md flex-col items-center pt-6 text-center'>
+							<div className='flex h-16 w-16 items-center justify-center text-primary'>
+								<FolderSearch2 className='h-12 w-12' />
 							</div>
-							<CreateGroupDialog />
+							<div className='mt-1'>
+								<h3 className='text-xl font-semibold tracking-tight'>No groups yet</h3>
+								<p className='mt-1 text-sm text-muted-foreground'>
+									Create your first group to organize your shopping lists faster.
+								</p>
+							</div>
+							<div className='mt-6 w-full max-w-[260px]'>
+								<CreateGroupDialog />
+							</div>
 						</CardContent>
 					</Card>
 				) : (

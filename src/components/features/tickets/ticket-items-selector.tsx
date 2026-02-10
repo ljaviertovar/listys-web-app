@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { HugeiconsIcon } from '@hugeicons/react'
+import { PackageSearch } from 'lucide-react'
 
 import { Checkbox } from '@/components/ui/checkbox'
 import { Button } from '@/components/ui/button'
@@ -83,8 +84,16 @@ export function TicketItemsSelector({ ticketId, items, status, ocrError }: Props
 
 	if (items.length === 0) {
 		return (
-			<div className='py-8 text-center'>
-				<p className='text-sm text-muted-foreground'>No items were found in this receipt.</p>
+			<div className='py-6'>
+				<div className='mx-auto flex max-w-md flex-col items-center rounded-2xl border-primary/30 bg-gradient-to-b from-primary/5 to-background px-6 py-8 text-center'>
+					<div className='flex h-14 w-14 items-center justify-center text-primary'>
+						<PackageSearch className='h-10 w-10' />
+					</div>
+					<p className='mt-1 text-base font-semibold text-foreground'>No items detected</p>
+					<p className='mt-1 text-sm text-muted-foreground'>
+						We could not find products in this receipt image. Try with a clearer photo and good lighting.
+					</p>
+				</div>
 			</div>
 		)
 	}
@@ -104,6 +113,7 @@ export function TicketItemsSelector({ ticketId, items, status, ocrError }: Props
 							checked={allSelected}
 							onCheckedChange={toggleAll}
 							aria-label='Select all items'
+							className='mt-0.5 w-5 h-5 rounded-lg'
 						/>
 						<span className='text-sm text-muted-foreground'>
 							{selectedItems.size === 0

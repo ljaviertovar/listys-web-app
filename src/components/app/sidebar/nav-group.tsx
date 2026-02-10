@@ -1,10 +1,8 @@
 'use client'
 
 import { usePathname, useSearchParams } from 'next/navigation'
-
 import { ChevronRight } from 'lucide-react'
 import { HugeiconsIcon } from '@hugeicons/react'
-
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import {
 	SidebarGroup,
@@ -29,6 +27,11 @@ import {
 import { NavCollapsible, NavItem, NavLink, type NavGroup } from '@/types'
 import Link from 'next/link'
 import { ReactNode } from 'react'
+
+const SIDEBAR_ITEM_STYLES =
+	'transition-all duration-200 hover:bg-primary/10 hover:text-primary hover:shadow-sm data-[active=true]:bg-primary data-[active=true]:text-primary-foreground data-[active=true]:shadow-sm data-[active=true]:font-semibold'
+const SIDEBAR_SUB_ITEM_STYLES =
+	'transition-all duration-200 hover:bg-primary/10 hover:text-primary data-[active=true]:bg-primary/15 data-[active=true]:text-primary data-[active=true]:font-semibold'
 
 export function NavGroup({ title, items }: NavGroup) {
 	const { state } = useSidebar()
@@ -85,6 +88,7 @@ const SidebarMenuLink = ({ item, href }: { item: NavLink; href: string }) => {
 				asChild
 				isActive={checkIsActive(href, item)}
 				tooltip={item.title}
+				className={SIDEBAR_ITEM_STYLES}
 			>
 				<Link
 					href={item.url}
@@ -114,7 +118,10 @@ const SidebarMenuCollapsible = ({ item, href }: { item: NavCollapsible; href: st
 		>
 			<SidebarMenuItem>
 				<CollapsibleTrigger asChild>
-					<SidebarMenuButton tooltip={item.title}>
+					<SidebarMenuButton
+						tooltip={item.title}
+						className={SIDEBAR_ITEM_STYLES}
+					>
 						{item.icon && (
 							<HugeiconsIcon
 								icon={item.icon}
@@ -133,6 +140,7 @@ const SidebarMenuCollapsible = ({ item, href }: { item: NavCollapsible; href: st
 								<SidebarMenuSubButton
 									asChild
 									isActive={checkIsActive(href, subItem)}
+									className={SIDEBAR_SUB_ITEM_STYLES}
 								>
 									<Link
 										href={subItem.url}
@@ -165,6 +173,7 @@ const SidebarMenuCollapsedDropdown = ({ item, href }: { item: NavCollapsible; hr
 					<SidebarMenuButton
 						tooltip={item.title}
 						isActive={checkIsActive(href, item)}
+						className={SIDEBAR_ITEM_STYLES}
 					>
 						{item.icon && (
 							<HugeiconsIcon
@@ -193,7 +202,7 @@ const SidebarMenuCollapsedDropdown = ({ item, href }: { item: NavCollapsible; hr
 						>
 							<Link
 								href={sub.url}
-								className={`${checkIsActive(href, sub) ? 'bg-sidebar-active text-sidebar-active-foreground font-medium' : ''} gap-2`}
+								className={`${checkIsActive(href, sub) ? 'bg-primary/15 text-primary font-semibold' : ''} gap-2 rounded-md transition-colors hover:bg-primary/10 hover:text-primary`}
 							>
 								{sub.icon && (
 									<HugeiconsIcon

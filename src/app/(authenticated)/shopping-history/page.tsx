@@ -1,14 +1,13 @@
 import { redirect } from 'next/navigation'
-import { HugeiconsIcon } from '@hugeicons/react'
 
 import { Card, CardContent } from '@/components/ui/card'
 
 import { PageHeader, PageContainer } from '@/components/app'
-import { ShoppingBasket01Icon } from '@hugeicons/core-free-icons'
 import { CreateGroupDialog, GroupCard } from '@/components/features/shopping-lists'
 
 import { getGroupsWithHistory } from '@/actions/shopping-lists'
 import { createClient } from '@/lib/supabase/server'
+import { FolderSearch2 } from 'lucide-react'
 
 export default async function HistoryPage() {
 	const supabase = await createClient()
@@ -39,17 +38,19 @@ export default async function HistoryPage() {
 						className='flex min-h-100 flex-col items-center justify-center'
 						size='sm'
 					>
-						<CardContent className='flex flex-col items-center space-y-4 pt-6'>
-							<HugeiconsIcon
-								icon={ShoppingBasket01Icon}
-								strokeWidth={1.5}
-								className='h-16 w-16 text-muted-foreground'
-							/>
-							<div className='text-center'>
-								<h3 className='text-lg font-semibold'>No groups yet</h3>
-								<p className='text-sm text-muted-foreground'>Create groups and complete shopping runs to see history</p>
+						<CardContent className='flex w-full max-w-md flex-col items-center pt-6 text-center'>
+							<div className='flex h-16 w-16 items-center justify-center text-primary'>
+								<FolderSearch2 className='h-12 w-12' />
 							</div>
-							<CreateGroupDialog />
+							<div className='mt-1'>
+								<h3 className='text-xl font-semibold tracking-tight'>No groups yet</h3>
+								<p className='mt-2 text-sm text-muted-foreground'>
+									Create groups and complete shopping runs to start building your history.
+								</p>
+							</div>
+							<div className='mt-6 w-full max-w-[260px]'>
+								<CreateGroupDialog />
+							</div>
 						</CardContent>
 					</Card>
 				) : (

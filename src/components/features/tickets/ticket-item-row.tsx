@@ -39,16 +39,6 @@ export function TicketItemRow({ item, canSelect = false, selected = false, onSel
 			className={`transition-all cursor-pointer ${selected ? 'border-primary bg-primary/5' : 'hover:border-primary'}`}
 		>
 			<CardContent className='flex items-center gap-3 p-3'>
-				{canSelect ? (
-					<div onClick={handleToggle}>
-						<Checkbox
-							checked={selected}
-							onCheckedChange={() => onSelectToggle?.(item.id)}
-							aria-label={item.name}
-						/>
-					</div>
-				) : null}
-
 				<div className='flex-1'>
 					<p className='text-sm font-bold truncate w-full max-w-[28ch]'>{item.name}</p>
 					<div className='w-full flex justify-between items-center gap-4 mb-2'>
@@ -62,6 +52,16 @@ export function TicketItemRow({ item, canSelect = false, selected = false, onSel
 						{item.category && <Badge variant='category'>{item.category}</Badge>}
 					</div>
 				</div>
+				{canSelect ? (
+					<div onClick={handleToggle}>
+						<Checkbox
+							checked={selected}
+							onCheckedChange={() => onSelectToggle?.(item.id)}
+							aria-label={item.name}
+							className='ml-6 mt-0.5 w-5 h-5 rounded-lg'
+						/>
+					</div>
+				) : null}
 			</CardContent>
 		</Card>
 	)
