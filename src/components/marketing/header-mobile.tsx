@@ -101,21 +101,21 @@ export default function HeaderMobile() {
 				</motion.ul>
 
 				<div
-					className={`flex items-center justify-between sticky top-0 z-50 transition-shadow w-full h-14 border-b
+					className={`sticky top-0 z-50 flex h-14 w-full items-center justify-between border-b px-3 transition-shadow sm:px-4
 ${
 	scrollPosition > 56
 		? 'bg-background/40 shadow bg-opacity-60 backdrop-blur-lg backdrop-filter border-b'
-		: 'bg-trasparent shadow-none'
+		: 'bg-transparent shadow-none'
 }
 `}
 				>
-					<div className='-mt-6 ml-4 z-30'>
+					<div className='z-30 flex h-10 w-10 items-center justify-start'>
 						<MenuToggle toggle={toggleOpen} />
 					</div>
-					<div className=' '>
+					<div className='flex items-center justify-center'>
 						<Logo />
 					</div>
-					<div className=' pointer-events-auto z-30'>
+					<div className='pointer-events-auto z-30 flex min-w-[112px] items-center justify-end'>
 						<AuthButtons />
 					</div>
 				</div>
@@ -127,7 +127,8 @@ ${
 const MenuToggle = ({ toggle }: { toggle: any }) => (
 	<button
 		onClick={toggle}
-		className='pointer-events-auto absolute z-30'
+		className='pointer-events-auto z-30 flex h-10 w-10 items-center justify-center rounded-md text-foreground transition-colors hover:bg-accent/70'
+		aria-label='Toggle menu'
 	>
 		<svg
 			width='23'

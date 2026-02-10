@@ -1,166 +1,38 @@
 'use client'
 
-// =============================================
-// IMPORTS
-// =============================================
 import { useState } from 'react'
 import Link from 'next/link'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { motion } from 'framer-motion'
-import {
-	ArrowRight01Icon,
-	ArtificialIntelligence02Icon,
-	AnalyticsUpIcon,
-	Camera01Icon,
-	CheckmarkBadge01Icon,
-	CheckmarkCircle02Icon,
-	Layers01Icon,
-	SparklesIcon,
-	ShoppingCart01Icon,
-	ViewIcon,
-} from '@hugeicons/core-free-icons'
+
 import { Footer } from '@/components/marketing/footer'
 import { Faq } from '@/components/marketing/faq'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 
-// =============================================
-// CONSTANTS
-// =============================================
-
-const TRUST_STATS = [
-	{ stat: '99%', label: 'OCR accuracy', icon: ViewIcon },
-	{ stat: '10+', label: 'List groups', icon: Layers01Icon },
-	{ stat: '250', label: 'Items per list', icon: ShoppingCart01Icon },
-	{ stat: '4.9/5', label: 'App store rating', icon: CheckmarkBadge01Icon },
-]
-
-const PROCESS_STEPS = [
-	{
-		title: 'Scan receipt in seconds',
-		desc: 'Take a photo and Listys extracts every product, price, and quantity automatically.',
-		icon: Camera01Icon,
-		badge: 'Capture',
-	},
-	{
-		title: 'Review and organize instantly',
-		desc: 'Listys classifies items by category so your next shopping trip is already structured.',
-		icon: ArtificialIntelligence02Icon,
-		badge: 'Organize',
-	},
-	{
-		title: 'Shop with a focused list',
-		desc: 'Track completed items live and keep your spending visible while you shop.',
-		icon: AnalyticsUpIcon,
-		badge: 'Execute',
-	},
-]
-
-const PREVIEW_BY_STEP = [
-	[
-		{ name: 'Organic Strawberries', detail: 'Produce - $5.99', checked: true },
-		{ name: 'Almond Milk', detail: 'Dairy - $4.50', checked: true },
-		{ name: 'Sourdough Bread', detail: 'Bakery - $5.25', checked: false },
-	],
-	[
-		{ name: 'Avocados (3)', detail: 'Produce - $4.99', checked: true },
-		{ name: 'Greek Yogurt', detail: 'Dairy - $6.50', checked: false },
-		{ name: 'Sparkling Water', detail: 'Beverages - $4.80', checked: false },
-	],
-	[
-		{ name: 'Chicken Breast', detail: 'Protein - $12.30', checked: true },
-		{ name: 'Cherry Tomatoes', detail: 'Produce - $3.75', checked: true },
-		{ name: 'Parmesan', detail: 'Dairy - $6.20', checked: false },
-	],
-]
-
-const FEATURE_CARDS = [
-	{
-		title: 'AI receipt extraction',
-		desc: 'Advanced OCR turns unstructured receipts into clean, editable shopping data.',
-		icon: ArtificialIntelligence02Icon,
-	},
-	{
-		title: 'Shared household lists',
-		desc: 'Coordinate with family members in one shared space, without duplicated purchases.',
-		icon: Layers01Icon,
-	},
-	{
-		title: 'Real-time progress',
-		desc: 'Mark products as completed and always know what is left in your current run.',
-		icon: ShoppingCart01Icon,
-	},
-	{
-		title: 'Spending visibility',
-		desc: 'Understand how much you spend by category and make better decisions every week.',
-		icon: AnalyticsUpIcon,
-	},
-]
-
-const STAT_ACCENTS = [
-	{
-		icon: 'bg-primary/10 text-primary ring-primary/15',
-		stat: 'text-primary',
-		label: 'text-primary/80',
-	},
-	{
-		icon: 'bg-chart-2/10 text-chart-2 ring-chart-2/20',
-		stat: 'text-chart-2',
-		label: 'text-chart-2/80',
-	},
-	{
-		icon: 'bg-chart-3/10 text-chart-3 ring-chart-3/20',
-		stat: 'text-chart-3',
-		label: 'text-chart-3/80',
-	},
-	{
-		icon: 'bg-chart-4/10 text-chart-4 ring-chart-4/20',
-		stat: 'text-chart-4',
-		label: 'text-chart-4/80',
-	},
-]
-
-const FEATURE_ACCENTS = [
-	{
-		icon: 'bg-primary/10 text-primary ring-primary/15 group-hover:bg-primary group-hover:text-white',
-	},
-	{
-		icon: 'bg-chart-2/10 text-chart-2 ring-chart-2/15 group-hover:bg-chart-2 group-hover:text-white',
-	},
-	{
-		icon: 'bg-chart-3/10 text-chart-3 ring-chart-3/15 group-hover:bg-chart-3 group-hover:text-white',
-	},
-	{
-		icon: 'bg-chart-4/10 text-chart-4 ring-chart-4/15 group-hover:bg-chart-4 group-hover:text-white',
-	},
-]
-const REVEAL_VIEWPORT = { once: true, amount: 0.18 }
-const STAGGER_REVEAL = {
-	hidden: {},
-	show: {
-		transition: { staggerChildren: 0.08 },
-	},
-} as const
-const FADE_UP = {
-	hidden: { opacity: 0, y: 18 },
-	show: {
-		opacity: 1,
-		y: 0,
-		transition: { duration: 0.48, ease: 'easeOut' as const },
-	},
-} as const
-const HERO_MEDIA_REVEAL = {
-	hidden: { opacity: 0, y: 36 },
-	show: {
-		opacity: 1,
-		y: 0,
-		transition: { duration: 0.62, delay: 0.42, ease: 'easeOut' as const },
-	},
-} as const
-
-// =============================================
-// COMPONENT
-// =============================================
+import {
+	ArrowRight01Icon,
+	AnalyticsUpIcon,
+	Camera01Icon,
+	CheckmarkCircle02Icon,
+	Share02Icon,
+	SparklesIcon,
+	ShoppingCart02Icon,
+	ViewIcon,
+} from '@hugeicons/core-free-icons'
+import {
+	FADE_UP,
+	FEATURE_ACCENTS,
+	FEATURE_CARDS,
+	HERO_MEDIA_REVEAL,
+	PHONE_PREVIEW_ITEMS,
+	PREVIEW_BY_STEP,
+	PROCESS_STEPS,
+	REVEAL_VIEWPORT,
+	STAGGER_REVEAL,
+	STAT_ACCENTS,
+	TRUST_STATS,
+} from '@/data/constants'
 
 export function LandingPageContent() {
 	const [activeStep, setActiveStep] = useState(0)
@@ -170,30 +42,50 @@ export function LandingPageContent() {
 			{/* =============================================
 			    HERO SECTION
 			    ============================================= */}
-			<section className='hero-mesh relative overflow-hidden pb-20 pt-24 sm:pb-24 sm:pt-28 md:pt-32'>
+			<section className='hero-mesh relative overflow-hidden pb-20 pt-12 sm:pb-24 sm:pt-28 md:pt-32'>
 				<div className='pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-slate-300/70 to-transparent' />
 				<div className='pointer-events-none absolute inset-x-0 bottom-px h-px bg-gradient-to-r from-transparent via-white/70 to-transparent' />
-				<motion.div className='relative z-10 mx-auto w-full max-w-7xl px-4 text-center sm:px-6 lg:px-8' initial='hidden' animate='show' variants={STAGGER_REVEAL}>
-					<motion.div className='mx-auto mb-12 max-w-3xl' variants={STAGGER_REVEAL}>
-						<motion.div className='mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary' variants={FADE_UP}>
+				<motion.div
+					className='relative z-10 mx-auto w-full max-w-7xl px-4 text-center sm:px-6 lg:px-8'
+					initial='hidden'
+					animate='show'
+					variants={STAGGER_REVEAL}
+				>
+					<motion.div
+						className='mx-auto mb-12 max-w-3xl'
+						variants={STAGGER_REVEAL}
+					>
+						<motion.div
+							className='mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary'
+							variants={FADE_UP}
+						>
 							<HugeiconsIcon
 								icon={SparklesIcon}
 								className='h-4 w-4 text-amber-400'
 							/>
 							<span>AI-Powered Receipts - Smart Lists</span>
 						</motion.div>
-						<motion.h1 className='text-balance text-4xl font-extrabold leading-[1.08] tracking-tight text-slate-900 drop-shadow-sm sm:text-5xl md:text-7xl' variants={FADE_UP}>
+						<motion.h1
+							className='text-balance text-4xl font-extrabold leading-[1.08] tracking-tight text-slate-900 drop-shadow-sm sm:text-5xl md:text-7xl'
+							variants={FADE_UP}
+						>
 							Turn Receipts into <br />
 							<span className='bg-gradient-to-r from-primary via-blue-600 to-violet-700 bg-clip-text text-transparent'>
 								Smart Shopping Lists
 							</span>
 						</motion.h1>
-						<motion.p className='mx-auto mt-8 max-w-2xl text-balance text-lg font-medium leading-relaxed text-slate-600 md:text-xl' variants={FADE_UP}>
+						<motion.p
+							className='mx-auto mt-8 max-w-2xl text-balance text-lg font-medium leading-relaxed text-slate-600 md:text-xl'
+							variants={FADE_UP}
+						>
 							Snap any grocery receipt and instantly turn it into an organized shopping list with real-time spend
 							tracking.
 						</motion.p>
 
-						<motion.div className='mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row' variants={FADE_UP}>
+						<motion.div
+							className='mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row'
+							variants={FADE_UP}
+						>
 							<Button
 								size='lg'
 								className='group h-14 w-full rounded-xl border border-white/10 px-10 text-lg font-bold shadow-xl shadow-indigo-600/30 ring-2 ring-indigo-500/20 transition-all hover:-translate-y-1 hover:opacity-95 sm:w-auto'
@@ -229,7 +121,7 @@ export function LandingPageContent() {
 						<div className='absolute -right-6 top-[64%] z-20 hidden items-center gap-2 rounded-full border border-chart-2/25 bg-white/90 px-3 py-2 text-xs font-semibold text-slate-700 shadow-[0_15px_35px_-22px_rgba(14,116,144,0.35)] backdrop-blur md:flex lg:-right-8'>
 							<span className='flex h-6 w-6 items-center justify-center rounded-full bg-chart-2/10 text-chart-2'>
 								<HugeiconsIcon
-									icon={Layers01Icon}
+									icon={Share02Icon}
 									className='h-3.5 w-3.5'
 								/>
 							</span>
@@ -328,13 +220,7 @@ export function LandingPageContent() {
 									</div>
 
 									<div className='flex-1 space-y-4 overflow-y-auto px-5 py-2 pb-20'>
-										{[
-											{ name: 'Organic Strawberries', detail: 'Produce - $5.99', checked: true },
-											{ name: 'Almond Milk', detail: 'Dairy - $4.50', checked: true },
-											{ name: 'Sourdough Bread', detail: 'Bakery - $5.25', checked: false },
-											{ name: 'Avocados (3)', detail: 'Produce - $4.99', checked: false },
-											{ name: 'Greek Yogurt', detail: 'Dairy - $6.50', checked: false },
-										].map(item => (
+										{PHONE_PREVIEW_ITEMS.map(item => (
 											<div
 												key={item.name}
 												className='cursor-pointer rounded-xl border border-slate-100 bg-white p-3 shadow-sm transition hover:border-blue-100 hover:shadow-md'
@@ -364,7 +250,7 @@ export function LandingPageContent() {
 									<div className='absolute bottom-0 z-20 flex h-20 w-full items-center justify-around border-t border-slate-100 bg-white px-6 pb-4 shadow-[0_-10px_40px_rgba(0,0,0,0.03)]'>
 										<div className='flex flex-col items-center gap-1 text-primary'>
 											<HugeiconsIcon
-												icon={ShoppingCart01Icon}
+												icon={ShoppingCart02Icon}
 												className='h-5 w-5'
 											/>
 											<span className='text-[10px] font-bold'>Lists</span>
@@ -385,7 +271,7 @@ export function LandingPageContent() {
 										</div>
 										<div className='flex cursor-pointer flex-col items-center gap-1 text-slate-400 transition-colors hover:text-slate-600'>
 											<HugeiconsIcon
-												icon={Layers01Icon}
+												icon={Share02Icon}
 												className='h-5 w-5'
 											/>
 											<span className='text-[10px] font-medium'>Settings</span>
@@ -401,13 +287,22 @@ export function LandingPageContent() {
 			{/* =============================================
 			    TRUST STATS SECTION
 			    ============================================= */}
-			<motion.section className='section-soft-surface relative overflow-hidden py-14' initial='hidden' whileInView='show' viewport={REVEAL_VIEWPORT} variants={STAGGER_REVEAL}>
+			<motion.section
+				className='section-soft-surface relative overflow-hidden py-14'
+				initial='hidden'
+				whileInView='show'
+				viewport={REVEAL_VIEWPORT}
+				variants={STAGGER_REVEAL}
+			>
 				<div className='pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-slate-300/70 to-transparent' />
 				<div className='pointer-events-none absolute inset-x-0 top-px h-px bg-gradient-to-r from-transparent via-white/70 to-transparent' />
 				<div className='pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-slate-300/65 to-transparent' />
 				<div className='mx-auto grid w-full max-w-7xl grid-cols-2 gap-4 px-4 sm:px-6 lg:grid-cols-4 lg:px-8'>
 					{TRUST_STATS.map((item, index) => (
-						<motion.div key={item.label} variants={FADE_UP}>
+						<motion.div
+							key={item.label}
+							variants={FADE_UP}
+						>
 							<Card className='premium-card rounded-2xl border-slate-200/70 bg-white/90 p-6 text-center transition-all duration-300 hover:-translate-y-0.5'>
 								<div
 									className={`mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-xl ring-1 ${STAT_ACCENTS[index].icon}`}
@@ -452,29 +347,29 @@ export function LandingPageContent() {
 							{PROCESS_STEPS.map((step, index) => {
 								const isActive = activeStep === index
 								return (
-										<button
-											key={step.title}
-											onClick={() => setActiveStep(index)}
-											className={`group grid w-full grid-cols-[auto_1fr] items-start gap-3.5 rounded-2xl border p-4 text-left transition ${
+									<button
+										key={step.title}
+										onClick={() => setActiveStep(index)}
+										className={`group grid w-full grid-cols-[auto_1fr] items-start gap-3.5 rounded-2xl border p-4 text-left transition ${
+											isActive
+												? 'border-primary/30 bg-gradient-to-br from-primary/8 to-accent/30 shadow-[0_14px_40px_-24px_rgba(37,99,235,0.55)]'
+												: 'border-slate-200/80 bg-white hover:border-accent/45 hover:bg-gradient-to-br hover:from-white hover:to-accent/20'
+										}`}
+									>
+										<div
+											className={`mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition-colors ${
 												isActive
-													? 'border-primary/30 bg-gradient-to-br from-primary/8 to-accent/30 shadow-[0_14px_40px_-24px_rgba(37,99,235,0.55)]'
-													: 'border-slate-200/80 bg-white hover:border-accent/45 hover:bg-gradient-to-br hover:from-white hover:to-accent/20'
+													? 'border-primary bg-primary text-white'
+													: 'border-slate-200 bg-slate-50 text-slate-600 group-hover:border-primary/20 group-hover:bg-accent group-hover:text-primary'
 											}`}
 										>
-											<div
-												className={`mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition-colors ${
-													isActive
-														? 'border-primary bg-primary text-white'
-														: 'border-slate-200 bg-slate-50 text-slate-600 group-hover:border-primary/20 group-hover:bg-accent group-hover:text-primary'
-												}`}
-											>
-												<HugeiconsIcon
-													icon={step.icon}
-													className='h-4.5 w-4.5'
-													strokeWidth={2}
-												/>
-											</div>
-											<div>
+											<HugeiconsIcon
+												icon={step.icon}
+												className='h-4.5 w-4.5'
+												strokeWidth={2}
+											/>
+										</div>
+										<div>
 											<p className='text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500'>{step.badge}</p>
 											<h3 className='mt-1 text-lg font-bold text-slate-900'>{step.title}</h3>
 											<p className='mt-1.5 text-sm leading-[1.65] text-slate-600'>{step.desc}</p>
@@ -485,7 +380,10 @@ export function LandingPageContent() {
 						</div>
 					</motion.div>
 
-					<motion.div className='relative' variants={FADE_UP}>
+					<motion.div
+						className='relative'
+						variants={FADE_UP}
+					>
 						<div className='absolute -inset-6 rounded-[2rem] bg-gradient-to-br from-primary/10 via-accent/30 to-chart-2/20 blur-2xl' />
 						<Card className='premium-card relative rounded-3xl border-slate-200/70 bg-white/95 p-7'>
 							<div className='mb-5 flex items-center justify-between'>
@@ -535,11 +433,20 @@ export function LandingPageContent() {
 			{/* =============================================
 			    FEATURES SECTION
 			    ============================================= */}
-			<motion.section className='feature-premium-surface relative overflow-hidden py-20 sm:py-24' initial='hidden' whileInView='show' viewport={REVEAL_VIEWPORT} variants={STAGGER_REVEAL}>
+			<motion.section
+				className='feature-premium-surface relative overflow-hidden py-20 sm:py-24'
+				initial='hidden'
+				whileInView='show'
+				viewport={REVEAL_VIEWPORT}
+				variants={STAGGER_REVEAL}
+			>
 				<div className='pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border/80 to-transparent' />
 				<div className='pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-border/80 to-transparent' />
 				<div className='relative mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8'>
-					<motion.div className='mx-auto max-w-2xl text-center' variants={FADE_UP}>
+					<motion.div
+						className='mx-auto max-w-2xl text-center'
+						variants={FADE_UP}
+					>
 						<p className='text-xs font-bold uppercase tracking-[0.2em] text-primary/80'>Why households choose Listys</p>
 						<h2 className='mt-3 font-serif text-3xl font-extrabold tracking-[-0.015em] text-slate-900 sm:text-4xl'>
 							Designed for everyday grocery shopping
@@ -551,7 +458,10 @@ export function LandingPageContent() {
 
 					<div className='mt-14 grid gap-5 md:grid-cols-2 xl:grid-cols-4'>
 						{FEATURE_CARDS.map((feature, index) => (
-							<motion.div key={feature.title} variants={FADE_UP}>
+							<motion.div
+								key={feature.title}
+								variants={FADE_UP}
+							>
 								<Card className='premium-card group rounded-2xl border-slate-200/70 bg-white/95 p-6 transition duration-300 hover:-translate-y-0.5'>
 									<div
 										className={`mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl ring-1 transition-colors ${FEATURE_ACCENTS[index].icon}`}
@@ -578,20 +488,29 @@ export function LandingPageContent() {
 			{/* =============================================
 			    CTA FINAL SECTION
 			    ============================================= */}
-			<motion.section className='section-soft-surface relative overflow-hidden pb-12 pt-20 sm:pt-24' initial='hidden' whileInView='show' viewport={REVEAL_VIEWPORT} variants={STAGGER_REVEAL}>
+			<motion.section
+				className='section-soft-surface relative overflow-hidden pb-12 pt-20 sm:pt-24'
+				initial='hidden'
+				whileInView='show'
+				viewport={REVEAL_VIEWPORT}
+				variants={STAGGER_REVEAL}
+			>
 				<div className='pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border/90 to-transparent' />
 				<div className='pointer-events-none absolute inset-x-0 top-px h-px bg-gradient-to-r from-transparent via-white/65 to-transparent' />
 				<div className='pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-border/90 to-transparent' />
 				<div className='pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_8%,rgba(59,130,246,0.08),transparent_34%),radial-gradient(circle_at_84%_18%,rgba(14,165,233,0.06),transparent_34%)]' />
 				<div className='relative mx-auto grid w-full max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-[1fr_auto] lg:items-center lg:px-8'>
-					<motion.div className='text-center lg:text-left' variants={FADE_UP}>
-							<p className='mb-3 text-xs font-bold uppercase tracking-[0.2em] text-primary/85'>Get started</p>
+					<motion.div
+						className='text-center lg:text-left'
+						variants={FADE_UP}
+					>
+						<p className='mb-3 text-xs font-bold uppercase tracking-[0.2em] text-primary/85'>Get started</p>
 						<h2 className='font-serif text-4xl font-extrabold leading-[1.12] tracking-[-0.015em] text-foreground sm:text-5xl'>
 							Build a smarter shopping habit with Listys
 						</h2>
-							<p className='mt-4 max-w-2xl text-base leading-relaxed text-slate-600 sm:text-lg'>
-								Start free today and organize your next grocery run in minutes with smarter lists and clearer spending.
-							</p>
+						<p className='mt-4 max-w-2xl text-base leading-relaxed text-slate-600 sm:text-lg'>
+							Start free today and organize your next grocery run in minutes with smarter lists and clearer spending.
+						</p>
 						<div className='mt-10 flex flex-col gap-4 sm:flex-row lg:justify-start'>
 							<Button
 								size='lg'
@@ -613,35 +532,33 @@ export function LandingPageContent() {
 					</motion.div>
 					<motion.div variants={FADE_UP}>
 						<Card className='w-full max-w-sm rounded-2xl border-border/70 bg-card/90 p-6 text-card-foreground shadow-[0_18px_38px_-28px_rgba(15,23,42,0.22)] backdrop-blur-sm'>
-							<p className='text-[11px] font-bold uppercase tracking-[0.15em] text-slate-500'>Outcome snapshot</p>
-						<div className='mt-4 space-y-4'>
-							<div className='border-border/70 flex items-center justify-between border-b pb-4'>
-								<div>
-									<p className='text-5xl font-extrabold leading-none'>50k+</p>
-										<p className='mt-1 text-xs font-bold uppercase tracking-wide text-slate-500'>Users</p>
+							<p className='text-[11px] font-bold uppercase tracking-[0.15em] text-primary/85'>Outcome snapshot</p>
+							<div className='mt-4 space-y-4'>
+								<div className='border-border/70 flex items-center justify-between border-b pb-4'>
+									<div>
+										<p className='text-5xl font-extrabold leading-none'>50k+</p>
+										<p className='mt-1 text-xs font-bold uppercase tracking-wide '>Users</p>
+									</div>
+									<div className='flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600'>
+										<HugeiconsIcon
+											icon={Share02Icon}
+											className='h-4 w-4'
+										/>
+									</div>
 								</div>
-								<div className='flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600'>
-									<HugeiconsIcon
-										icon={Layers01Icon}
-										className='h-4 w-4'
-									/>
+								<div className='flex items-center justify-between'>
+									<div>
+										<p className='text-5xl font-extrabold leading-none'>1M+</p>
+										<p className='mt-1 text-xs font-bold uppercase tracking-wide '>Receipts processed</p>
+									</div>
+									<div className='flex h-9 w-9 items-center justify-center rounded-lg bg-blue-100 text-primary'>
+										<HugeiconsIcon
+											icon={ViewIcon}
+											className='h-4 w-4'
+										/>
+									</div>
 								</div>
 							</div>
-							<div className='flex items-center justify-between'>
-								<div>
-									<p className='text-5xl font-extrabold leading-none'>1M+</p>
-										<p className='mt-1 text-xs font-bold uppercase tracking-wide text-slate-500'>
-											Receipts processed
-										</p>
-								</div>
-								<div className='flex h-9 w-9 items-center justify-center rounded-lg bg-blue-100 text-primary'>
-									<HugeiconsIcon
-										icon={ViewIcon}
-										className='h-4 w-4'
-									/>
-								</div>
-							</div>
-						</div>
 						</Card>
 					</motion.div>
 				</div>

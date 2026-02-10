@@ -156,7 +156,15 @@ export function GroupCard({ group, history = false }: Props) {
 								type='submit'
 								disabled={loading || !watchedName?.trim()}
 							>
-								Save
+								{loading && (
+									<HugeiconsIcon
+										icon={Loading03Icon}
+										strokeWidth={2}
+										className='h-4 w-4 animate-spin'
+										data-icon='inline-start'
+									/>
+								)}
+								{loading ? 'Saving…' : 'Save'}
 							</Button>
 						</div>
 					</form>
@@ -232,7 +240,7 @@ export function GroupCard({ group, history = false }: Props) {
 							<span>
 								{history
 									? `${group.completed_runs_count ?? 0} ${(group.completed_runs_count ?? 0) === 1 ? 'Shopping' : 'Shoppings'}`
-									: `${group.base_lists?.[0]?.count ?? 0} ${(group.base_lists?.[0]?.count ?? 0) === 1 ? 'list' : 'lists'} • ${group.total_items ?? 0} ${(group.total_items ?? 0) === 1 ? 'item' : 'items'}`}
+									: `${group.base_lists?.[0]?.count ?? 0} ${(group.base_lists?.[0]?.count ?? 0) === 1 ? 'list' : 'lists'}`}
 							</span>
 							<div className='flex items-center text-sm text-primary transition-colors'>
 								<span>{history ? 'View history' : 'View lists'}</span>

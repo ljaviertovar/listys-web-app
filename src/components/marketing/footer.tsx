@@ -1,38 +1,44 @@
 import Link from 'next/link'
-import { HugeiconsIcon } from '@hugeicons/react'
-import { Invoice01Icon } from '@hugeicons/core-free-icons'
+
+import Logo from '../commons/logo'
 
 export function Footer() {
 	return (
-		<footer className='relative bg-background/95 px-4 py-12 text-foreground sm:px-6 lg:px-8'>
+		<footer className='relative bg-white px-4 py-12 text-foreground sm:px-6 lg:px-8'>
 			<div className='pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border to-transparent' />
 			<div className='pointer-events-none absolute inset-x-0 top-px h-px bg-gradient-to-r from-transparent via-white/60 to-transparent' />
 			<div className='relative z-10 mx-auto max-w-6xl'>
 				<div className='relative mb-8 grid grid-cols-1 gap-8 md:grid-cols-4'>
-					<div>
-						<div className='mb-3 flex w-fit items-center gap-2 text-lg font-bold transition-transform hover:scale-105'>
-							<div className='flex h-8 w-8 items-center justify-center rounded-lg bg-primary'>
-								<HugeiconsIcon icon={Invoice01Icon} className='h-5 w-5 text-white' />
-							</div>
-							<span>Listys</span>
-						</div>
-						<p className='text-muted-foreground text-sm leading-relaxed'>Transform receipts into smart shopping lists.</p>
+					<div className='space-y-2'>
+						<Logo />
+						<p className='text-muted-foreground text-sm leading-relaxed'>
+							Transform receipts into smart shopping lists.
+						</p>
 					</div>
 					<div>
 						<h4 className='mb-3 font-semibold text-foreground'>Product</h4>
 						<ul className='text-muted-foreground space-y-2 text-sm'>
 							<li>
-								<Link href='#how-it-works' className='transition hover:text-foreground'>
+								<Link
+									href='#how-it-works'
+									className='transition hover:text-foreground'
+								>
 									How it works
 								</Link>
 							</li>
 							<li>
-								<Link href='#' className='transition hover:text-foreground'>
+								<Link
+									href='#'
+									className='transition hover:text-foreground'
+								>
 									Pricing
 								</Link>
 							</li>
 							<li>
-								<Link href='#faq' className='transition hover:text-foreground'>
+								<Link
+									href='#faq'
+									className='transition hover:text-foreground'
+								>
 									FAQ
 								</Link>
 							</li>
@@ -42,12 +48,18 @@ export function Footer() {
 						<h4 className='mb-3 font-semibold text-foreground'>Company</h4>
 						<ul className='text-muted-foreground space-y-2 text-sm'>
 							<li>
-								<Link href='#' className='transition hover:text-foreground'>
+								<Link
+									href='#'
+									className='transition hover:text-foreground'
+								>
 									About
 								</Link>
 							</li>
 							<li>
-								<Link href='#' className='transition hover:text-foreground'>
+								<Link
+									href='#'
+									className='transition hover:text-foreground'
+								>
 									Contact
 								</Link>
 							</li>
@@ -57,12 +69,18 @@ export function Footer() {
 						<h4 className='mb-3 font-semibold text-foreground'>Legal</h4>
 						<ul className='text-muted-foreground space-y-2 text-sm'>
 							<li>
-								<Link href='#' className='transition hover:text-foreground'>
+								<Link
+									href='#'
+									className='transition hover:text-foreground'
+								>
 									Privacy Policy
 								</Link>
 							</li>
 							<li>
-								<Link href='#' className='transition hover:text-foreground'>
+								<Link
+									href='#'
+									className='transition hover:text-foreground'
+								>
 									Terms of Service
 								</Link>
 							</li>
@@ -71,7 +89,7 @@ export function Footer() {
 				</div>
 
 				<div className='text-muted-foreground border-border/60 relative flex flex-col items-center justify-between gap-4 border-t pt-6 text-sm sm:flex-row'>
-					<p>&copy; {new Date().getFullYear()} Listys. All rights reserved.</p>
+					<p>&copy; {new Date().getFullYear()} Listys</p>
 					<div className='flex gap-6'>
 						<Link
 							href='https://x.com'
