@@ -15,6 +15,7 @@ import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
 import { ActionsItemFormBaseList } from '@/components/app/actions-item-form-base-list'
 import { Separator } from '@/components/ui/separator'
+import { getCategoryWithEmoji } from '@/data/constants'
 
 interface Props {
 	item: ShoppingSessionItem
@@ -97,7 +98,7 @@ export function ShoppingSessionItemRow({ item, isCompleted = false }: Props) {
 			<CardContent className='flex flex-row items-center'>
 				<div className='flex flex-1 items-center gap-2 justify-start'>
 					<div className='flex-1 space-y-1'>
-						<p className={`font-bold ${checked ? 'line-through text-muted-foreground' : ''}`}>
+						<p className={`font-bold ${checked ? 'line-through text-primary/80' : ''}`}>
 							{item.name}
 							{item.quantity && (
 								<span className='m-4 font-normal text-muted-foreground'>
@@ -105,7 +106,9 @@ export function ShoppingSessionItemRow({ item, isCompleted = false }: Props) {
 								</span>
 							)}
 						</p>
-						<div className='flex gap-2'>{item.category && <Badge variant={'category'}>{item.category}</Badge>}</div>
+						<div className='flex gap-2'>
+							{item.category && <Badge variant={'category'}>{getCategoryWithEmoji(item.category)}</Badge>}
+						</div>
 						{item.notes && (
 							<div className='flex items-center gap-1'>
 								<Separator

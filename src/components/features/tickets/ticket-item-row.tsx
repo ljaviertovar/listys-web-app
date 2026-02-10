@@ -4,6 +4,7 @@ import * as React from 'react'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { getCategoryWithEmoji } from '@/data/constants'
 
 import type { TicketItem } from '@/features/tickets/types'
 
@@ -49,7 +50,7 @@ export function TicketItemRow({ item, canSelect = false, selected = false, onSel
 						{item.price !== null && <span className='text-sm text-muted-foreground'>${item.price!.toFixed(2)}</span>}
 					</div>
 					<div className='flex items-center gap-2'>
-						{item.category && <Badge variant='category'>{item.category}</Badge>}
+						{item.category && <Badge variant='category'>{getCategoryWithEmoji(item.category)}</Badge>}
 					</div>
 				</div>
 				{canSelect ? (
