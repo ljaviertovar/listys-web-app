@@ -8,7 +8,8 @@
 		"build": "next build",
 		"start": "next start",
 		"lint": "eslint",
-		"copy:skills": "powershell -Command \"Copy-Item -Path .agents/skills -Destination .github -Recurse -Force\""
+		"copy:skills": "powershell -Command \"Copy-Item -Path .agents/skills -Destination .github -Recurse -Force\"",
+		"verify:limits-reference": "node ./scripts/verify-limits-reference.mjs"
 	},
 	"dependencies": {
 		"zustand": "^4.4.0",

@@ -123,6 +123,7 @@ Before implementing features, consult MCPs for:
 
 - All inputs validated with **Zod** on the server side
 - Configs centralized in `lib/config/*.ts`
+- Never invent limit values; always read `src/lib/config/limits.ts` as the source of truth
 - Array limits to prevent DoS attacks
 - Duplicate prevention with case-insensitive checks (`.ilike()`)
 - Error boundaries at root and authenticated layout levels
