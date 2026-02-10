@@ -4,7 +4,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 
 import { Card, CardContent } from '@/components/ui/card'
 import { CreateBaseListDialog, BaseListCard } from '@/components/features/base-lists'
-import { AddToListIcon } from '@hugeicons/core-free-icons'
+import { AddToListIcon, SearchList01FreeIcons, SearchList01Icon } from '@hugeicons/core-free-icons'
 
 import { PageHeader, PageContainer, PageFooterAction, BackLink, ActiveShopping } from '@/components/app'
 
@@ -76,17 +76,21 @@ export default async function BaseListsPage({ params }: { params: Promise<{ grou
 						className='flex min-h-100 flex-col items-center justify-center'
 						size='sm'
 					>
-						<CardContent className='flex flex-col items-center space-y-4 pt-6'>
-							<HugeiconsIcon
-								icon={AddToListIcon}
-								strokeWidth={1.5}
-								className='h-16 w-16 text-muted-foreground'
-							/>
-							<div className='text-center'>
-								<h3 className='text-lg font-semibold'>No base lists yet</h3>
-								<p className='text-sm text-muted-foreground'>Create your first base list with common items</p>
+						<CardContent className='flex w-full max-w-md flex-col items-center pt-6 text-center'>
+							<div className='flex h-16 w-16 items-center justify-center text-primary'>
+								<HugeiconsIcon
+									icon={SearchList01Icon}
+									strokeWidth={2}
+									className='h-12 w-12'
+								/>
 							</div>
-							<CreateBaseListDialog groupId={groupId} />
+							<div className='mt-1'>
+								<h3 className='text-xl font-semibold tracking-tight'>No base lists yet</h3>
+								<p className='mt-1 text-sm text-muted-foreground'>Create your first base list with common items.</p>
+							</div>
+							<div className='mt-6 w-full max-w-[260px]'>
+								<CreateBaseListDialog groupId={groupId} />
+							</div>
 						</CardContent>
 					</Card>
 				) : (

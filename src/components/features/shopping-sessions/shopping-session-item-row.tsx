@@ -95,16 +95,7 @@ export function ShoppingSessionItemRow({ item, isCompleted = false }: Props) {
 			className={`transition-all cursor-pointer ${checked ? 'border-primary bg-primary/5' : 'hover:border-primary'}`}
 		>
 			<CardContent className='flex flex-row items-center'>
-				<div onClick={e => e.stopPropagation()}>
-					<Checkbox
-						checked={checked ?? false}
-						onCheckedChange={handleToggle}
-						disabled={loading || isCompleted}
-						className='mt-0.5 w-5 h-5'
-					/>
-				</div>
-
-				<div className='flex flex-1 items-center gap-2 justify-start ml-3'>
+				<div className='flex flex-1 items-center gap-2 justify-start'>
 					<div className='flex-1 space-y-1'>
 						<p className={`font-bold ${checked ? 'line-through text-muted-foreground' : ''}`}>
 							{item.name}
@@ -143,6 +134,14 @@ export function ShoppingSessionItemRow({ item, isCompleted = false }: Props) {
 						/>
 					</div>
 				)}
+				<div onClick={e => e.stopPropagation()}>
+					<Checkbox
+						checked={checked ?? false}
+						onCheckedChange={handleToggle}
+						disabled={loading || isCompleted}
+						className='ml-6 mt-0.5 w-5 h-5 rounded-lg'
+					/>
+				</div>
 			</CardContent>
 		</Card>
 	)

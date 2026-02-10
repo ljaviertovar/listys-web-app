@@ -4,12 +4,6 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { motion } from 'framer-motion'
-
-import { Footer } from '@/components/marketing/footer'
-import { Faq } from '@/components/marketing/faq'
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-
 import {
 	ArrowRight01Icon,
 	AnalyticsUpIcon,
@@ -33,6 +27,10 @@ import {
 	STAT_ACCENTS,
 	TRUST_STATS,
 } from '@/data/constants'
+import { Footer } from '@/components/marketing/footer'
+import { Faq } from '@/components/marketing/faq'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 
 export function LandingPageContent() {
 	const [activeStep, setActiveStep] = useState(0)

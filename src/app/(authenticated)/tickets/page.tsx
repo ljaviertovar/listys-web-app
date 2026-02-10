@@ -6,7 +6,7 @@ import { PageHeader, PageContainer, PageFooterAction, BackLink } from '@/compone
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { UploadTicketDialog } from '@/components/features/tickets'
 import { Badge } from '@/components/ui/badge'
-import { ArrowRight01Icon, Invoice01Icon } from '@hugeicons/core-free-icons'
+import { ArrowRight01Icon, Invoice01Icon, SearchVisualIcon } from '@hugeicons/core-free-icons'
 
 import { getTickets } from '@/actions/tickets'
 
@@ -59,18 +59,25 @@ export default async function TicketsPage() {
 				)}
 
 				{!tickets || tickets.length === 0 ? (
-					<Card className='flex min-h-100 flex-col items-center justify-center'>
-						<CardContent className='flex flex-col items-center space-y-4 pt-6'>
-							<HugeiconsIcon
-								icon={Invoice01Icon}
-								strokeWidth={1.5}
-								className='h-16 w-16 text-muted-foreground'
-							/>
-							<div className='text-center'>
-								<h3 className='text-lg font-semibold'>No receipts yet</h3>
-								<p className='text-sm text-muted-foreground'>Upload your first receipt to get started</p>
+					<Card
+						className='flex min-h-100 flex-col items-center justify-center'
+						size='sm'
+					>
+						<CardContent className='flex w-full max-w-md flex-col items-center pt-6 text-center'>
+							<div className='flex h-16 w-16 items-center justify-center text-primary'>
+								<HugeiconsIcon
+									icon={SearchVisualIcon}
+									strokeWidth={2}
+									className='h-12 w-12'
+								/>
 							</div>
-							<UploadTicketDialog />
+							<div className='mt-1'>
+								<h3 className='text-xl font-semibold tracking-tight'>No receipts yet</h3>
+								<p className='mt-1 text-sm text-muted-foreground'>Upload your first receipt to get started.</p>
+							</div>
+							<div className='mt-6 w-full max-w-[260px]'>
+								<UploadTicketDialog />
+							</div>
 						</CardContent>
 					</Card>
 				) : (
