@@ -1,4 +1,4 @@
-# Copilot Instructions
+# CLAUDE Instructions
 
 Mandatory:
 
