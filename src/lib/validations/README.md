@@ -1,89 +1,72 @@
-// =============================================
-// DATA LIMITS AND VALIDATION RULES
-// =============================================
-// Purpose: Document maximum limits for arrays and collections to prevent DoS attacks
-// Last Updated: 2026-01-21
+# Data limits and validation rules
 
-/\*\*
+This document summarizes validation limits used across server actions and Zod schemas to prevent abuse (including DoS-style oversized payloads).
 
-- CONFIGURABLE LIMITS
-- All limits are now centralized in: src/lib/config/limits.ts
-- This allows easy modification for different user plans or business requirements
-  \*/
+- **Source of truth for configurable limits:** `src/lib/config/limits.ts`
+- **Last verified against commit:** `0c82a96`
 
-/\*\*
+## Configurable limits (`src/lib/config/limits.ts`)
 
-- GROUPS
-- - Max groups per user: 10 (configurable in limits.ts)
-- - Validation: Enforced in createGroup server action
-- - Rationale: Typical users have 3-5 categories (groceries, household, etc.)
-- - Future: Can be increased for premium plans
-    \*/
+| Constant | Value | Where it is used |
+| --- | ---: | --- |
+| `MAX_GROUPS_PER_USER` | 10 | Group creation limit in `createShoppingList` |
+| `MAX_ITEMS_PER_BASE_LIST` | 250 | Base list item cap in `createBaseListItem`, `mergeTicketItemsToBaseList`, `createBaseListFromTicket`, and shopping-session sync checks |
+| `MAX_TICKET_ITEMS_MERGE` | 200 | Ticket merge/create-from-ticket payload limits (`mergeTicketItemsSchema`, `createBaseListFromTicketSchema`) |
+| `MAX_SYNC_ITEMS` | 250 | Config-level cap intended for shopping-session sync safeguards |
+| `MAX_IMAGES_PER_TICKET` | 5 | Upload payload limit in `uploadTicketSchema` |
 
-/\*\*
+## Domain-specific limits
 
-- BASE LISTS
-- - Max items per base list: 60 (configurable in limits.ts)
-- - Validation: Enforced in createBaseListItem, mergeTicketItems, syncRunToBaseList
-- - Rationale: Typical shopping lists have 15-30 items, 60 provides safety margin
-- - Protection: Prevents both manual additions and batch operations from exceeding limit
-    \*/
+### Groups
 
-/\*\*
+- Maximum groups per user: **10**.
+- Enforced by: `createShoppingList`.
+- Rationale: keeps free-tier usage bounded and avoids unbounded group growth.
 
-- TICKET OPERATIONS
-- - Max items per ticket merge: 200 items (configurable in limits.ts)
-- - Max items when creating base list from ticket: 60 items (enforced by base list limit)
-- - Validation: Enforced in mergeTicketItemsSchema and createBaseListFromTicketSchema
-- - Rationale: OCR typically extracts 10-50 items per receipt, 200 provides safety margin
-    \*/
+### Base lists
 
-/\*\*
+- Maximum items per base list: **250**.
+- Enforced by: `createBaseListItem`, `mergeTicketItemsToBaseList`, `createBaseListFromTicket`, and `syncSessionToBaseList` capacity checks.
+- Protection: prevents both manual and batch operations from exceeding list capacity.
 
-- SHOPPING SESSION OPERATIONS
-- - Max items to sync from session to base list: 60 items (enforced by base list limit)
-- - Max sync items overall: 500 items (configurable in limits.ts, safety backstop)
-- - Validation: Enforced in syncSessionToBaseList function
-- - Natural bound: Shopping sessions inherit items from base lists (bounded by base list limit)
-- - Rationale: Typical shopping trips have 20-100 items
-    \*/
+### Ticket operations
 
-/\*\*
+- Maximum selected items per merge operation: **200**.
+- Maximum selected items when creating a base list from a ticket: **200**.
+- Maximum uploaded images per ticket: **5**.
+- Enforced by: `mergeTicketItemsSchema`, `createBaseListFromTicketSchema`, and `uploadTicketSchema`.
 
-- STRING LENGTH LIMITS
-- - Group names: 100 characters
-- - Base list names: 100 characters
-- - Shopping session names: 100 characters
-- - Item names: 200 characters
-- - Descriptions: 500 characters
-- - Notes/General notes: 500-1000 characters
-- - Units: 20 characters
-- - Categories: 50 characters
-- - Store names: 100 characters
-    \*/
+### Shopping session sync
 
-/\*\*
+- Configured sync cap (`MAX_SYNC_ITEMS`): **250**.
+- Additional safety check in `syncSessionToBaseList`: **500** (hard-coded backstop currently in action implementation).
+- Base list capacity still applies: synced result cannot exceed **250** items in the destination base list.
 
-- NUMERIC LIMITS
-- - Quantities: Must be positive numbers (> 0)
-- - Total amounts: Must be positive numbers (> 0)
-- - Sort order: Integer values
-    \*/
+## Field-level validation limits (Zod)
 
-/\*\*
+### String lengths
 
-- PERFORMANCE CONSIDERATIONS
-- - Database indexes on foreign keys prevent slow queries
-- - RLS policies ensure users only access their own data
-- - Pagination not required for current limits (typical users have < 100 items per list)
-- - Future: Add pagination if users regularly exceed 200 items per list
-    \*/
+| Field | Max length |
+| --- | ---: |
+| Group names | 100 |
+| Base list names | 100 |
+| Shopping session names | 100 |
+| Item names | 200 |
+| Notes | 500 |
+| General notes | 1000 |
+| Unit | 20 |
+| Category | 50 |
+| Store name | 100 |
 
-/\*\*
+### Numeric rules
 
-- SECURITY NOTES
-- - All validations happen server-side (never trust client data)
-- - Zod schemas provide type safety and runtime validation
-- - Unknown data types used in server actions force explicit validation
-- - Array limits prevent memory exhaustion attacks
-    \*/
+- `quantity`: minimum **0.1**, maximum **99**, increments of **0.1**.
+- `total_amount`: must be positive.
+- `sort_order`: integer.
+
+## Security and reliability notes
+
+- Validation is performed server-side; client input is never trusted.
+- Zod schemas provide runtime validation and typed inputs.
+- Server actions validate `unknown` payloads before business logic.
+- Array and collection limits reduce memory and processing abuse risk.

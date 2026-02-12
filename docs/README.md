@@ -1,816 +1,581 @@
-# Listys - Smart Shopping List Manager
+# Listys Web App
 
-**Listys** is a modern, full-stack SaaS application designed to simplify grocery shopping and expense tracking. It combines the power of **OCR technology** with intelligent shopping list management, allowing users to digitize receipts, organize shopping lists, and track their shopping history efficiently.
+Aplicación SaaS full-stack para planificación de compras y digitalización de tickets con IA.
 
----
+## 1. Resumen Ejecutivo
 
-## Table of Contents
+**Listys** permite gestionar listas de compra reutilizables, ejecutar sesiones de compra en tiempo real y convertir tickets en datos estructurados mediante OCR.
 
-- [Overview](#overview)
-- [Core Features](#core-features)
-- [Quality & Reliability Features](#quality--reliability-features)
-- [Architecture Diagrams](#architecture-diagrams)
-  - [System Architecture](#system-architecture)
-  - [User Flow](#user-flow)
-  - [Data Flow](#data-flow)
-  - [Entity Relationship Diagram (ERD)](#entity-relationship-diagram-erd)
-- [Tech Stack](#tech-stack)
-- [Business Logic & Limits](#business-logic--limits)
-- [Security & Validation](#security--validation)
-- [Database Schema](#database-schema)
-- [Getting Started](#getting-started)
-- [Development](#development)
-- [Deployment](#deployment)
+### Problemas que resuelve
 
----
+- Evita reconstruir listas manualmente en cada compra.
+- Reduce pérdida de información de tickets físicos.
+- Facilita el seguimiento histórico de sesiones y gasto total.
+- Sincroniza aprendizaje de compras reales hacia listas base.
 
-## Overview
+### Estado actual del producto
 
-Listys addresses the common challenges of grocery shopping:
+- Núcleo funcional completo en producción local (auth, listas, sesiones, tickets OCR, historial).
+- Arquitectura `Next.js App Router + Supabase` con seguridad basada en RLS.
+- OCR con proveedor configurable (`Gemini` u `OpenAI`) mediante Edge Functions.
 
-1. **Lost Receipts** → Upload receipts and extract items automatically with AI
-2. **Repetitive Planning** → Create reusable base shopping lists
-3. **Budget Tracking** → Track spending across shopping sessions
-4. **History Management** → View past purchases and spending patterns
+## 2. Features Implementadas (Auditadas en Código)
 
-**Target Users:** Families, meal planners, budget-conscious shoppers, and anyone who wants to streamline their grocery shopping process.
+## 2.1 Autenticación y Acceso
 
-**Value Proposition:** Transform paper receipts into structured shopping data, eliminate repetitive list creation, and gain insights into spending habits.
+- Registro e inicio de sesión con email/password.
+- OAuth con Google.
+- Callback server-side para intercambio de sesión.
+- Protección de rutas autenticadas con middleware y validación de sesión.
 
----
+Rutas relevantes:
+- `/auth/signin`
+- `/auth/signup`
+- `/auth/callback`
 
-## Core Features
+## 2.2 Dashboard
 
-### 1. **Group & List Organization**
+- Vista consolidada con métricas rápidas:
+  - número de grupos,
+  - tickets cargados,
+  - sesiones completadas.
+- Detección de sesión activa y acceso directo para continuar compra.
+- Carga asíncrona con `Suspense` y skeletons.
 
-- Create **shopping list groups** (e.g., "Weekly Groceries", "Costco Trips", "Meal Prep")
-- Build **base lists** with commonly purchased items
-- Maximum 10 groups per user to maintain focus
+Ruta relevante:
+- `/(authenticated)/dashboard`
 
-### 2. **AI Receipt Processing**
+## 2.3 Gestión de Grupos de Listas
 
-- Upload receipt images (JPEG, PNG, HEIC)
-- AI-powered extraction of items, quantities, and prices using OpenAI Vision API
-- Manual review and editing before creating lists
-- Merge extracted items into existing base lists (up to 200 items)
+- CRUD completo de grupos.
+- Límite por usuario: **10 grupos**.
+- Prevención de nombres duplicados (case-insensitive con `.ilike`).
+- Vista de grupos con conteo de listas base.
+- Vista de historial por grupo (solo grupos con sesiones completadas).
 
-### 3. **Active Shopping Sessions**
+Rutas relevantes:
+- `/(authenticated)/shopping-lists`
+- `/(authenticated)/shopping-history`
+- `/(authenticated)/shopping-history/[groupId]`
 
-- Create shopping sessions from base lists
-- Real-time item checking as you shop
-- Add/remove items on the fly
-- Complete sessions with total amount tracking
+## 2.4 Listas Base (Plantillas de Compra)
 
-### 4. **Shopping History**
+- CRUD completo de listas base por grupo.
+- Prevención de duplicados por nombre dentro del mismo grupo.
+- Gestión de ítems de lista base:
+  - crear,
+  - editar,
+  - eliminar,
+  - orden por `sort_order`.
+- Límite por lista base: **250 ítems**.
 
-- View all completed shopping sessions by group
-- Track spending over time
-- Date and amount details for each session
+Rutas relevantes:
+- `/(authenticated)/shopping-lists/[groupId]/lists`
+- `/(authenticated)/base-lists/[baseListId]/edit`
 
-### 5. **Smart Syncing**
+## 2.5 Sesiones de Compra (Shopping Sessions)
 
-- Sync shopping session changes back to base lists
-- Keep base lists updated with your actual purchases
-- Maximum 250 items per sync to maintain performance
+- Creación de sesión desde lista base (clonado de ítems).
+- Regla de negocio: **1 sesión activa por usuario**.
+- Gestión de ítems durante la sesión:
+  - check/uncheck,
+  - edición,
+  - alta/baja de ítems en caliente.
+- Progreso visual (% completado).
+- Finalización con:
+  - monto total opcional,
+  - notas generales,
+  - sincronización opcional a lista base (`sync_to_base`).
+- Cancelación de sesión activa.
 
----
+Ruta relevante:
+- `/(authenticated)/shopping/[runId]`
 
-## Quality & Reliability Features
+## 2.6 Historial
 
-### **User Experience**
+- Historial global de sesiones completadas.
+- Historial filtrado por grupo.
+- Tarjetas de historial con fecha/hora y monto total.
+- Navegación a detalle de sesión completada.
 
-- ✅ Loading states on all mutations (prevent double-submit)
-- ✅ Toast notifications for user feedback (success/error)
-- ✅ Error boundaries at root and authenticated layouts
-- ✅ Responsive design (mobile-first approach)
-- ✅ Consistent Edit/Delete button ordering (Edit left, Delete right)
-- ✅ Disabled inputs during submission
+Rutas relevantes:
+- `/(authenticated)/shopping-history`
+- `/(authenticated)/shopping-history/[groupId]`
 
-### **Data Integrity**
+## 2.7 Tickets + OCR con IA
 
-- ✅ Server-side validation with Zod schemas
-- ✅ Case-insensitive duplicate prevention
-- ✅ Configurable limits to prevent DoS attacks
-- ✅ Automatic cleanup of orphaned records (database triggers)
-- ✅ Foreign key cascades for referential integrity
+- Carga de ticket con **múltiples imágenes** (hasta 5).
+- Validación en servidor:
+  - mínimo 1 imagen,
+  - máximo 5,
+  - solo imágenes,
+  - tamaño máximo 10MB por imagen.
+- Estado OCR en ticket:
+  - `pending`, `processing`, `completed`, `failed`.
+- Extracción de ítems a `ticket_items` usando Edge Function.
+- Reintento manual de OCR (`retry`).
+- Registro de error OCR (`ocr_error`).
+- Eliminación de ticket con limpieza de imagen en storage.
+- Merge de ítems del ticket hacia lista base existente.
+- Creación de nueva lista base desde ítems OCR.
+- Asignación manual de ticket a grupo.
 
-### **Performance**
+Rutas relevantes:
+- `/(authenticated)/tickets`
+- `/(authenticated)/tickets/[ticketId]`
+- `POST /api/upload-ticket`
+- `GET /api/tickets/[ticketId]/status`
 
-- ✅ Optimized database indexes on foreign keys
-- ✅ Server Components by default (Client Components when needed)
-- ✅ Edge Functions for AI receipt processing (15-minute timeout)
-- ✅ Efficient RLS policies with auth.uid() filtering
+## 2.8 Estado Activo en Cliente
 
-### **Monitoring & Recovery**
+- Store de sesión activa con Zustand.
+- Inicialización de estado en cliente al cargar app.
+- Suscripción realtime a cambios en `shopping_sessions` para reflejar sesión activa en UI.
 
-- ✅ Automatic OCR retry mechanism (15-minute timeout)
-- ✅ Failed OCR tickets auto-marked for manual review
-- ✅ Error messages with actionable feedback
-- ✅ Storage cleanup for orphaned images (7+ days)
+## 3. Arquitectura Técnica
 
----
+## 3.1 Stack
 
-## Architecture Diagrams
+- `Next.js 16.1.0` (App Router)
+- `React 19`
+- `TypeScript`
+- `Supabase` (Auth, Postgres, Storage, Edge Functions)
+- `Tailwind CSS v4` + `shadcn/ui`
+- `Zod` + `react-hook-form`
+- `Zustand` (estado cliente)
+- `Sonner` (toasts)
+- `Framer Motion` (marketing/auth UI)
 
-### System Architecture
+## 3.2 Estructura de capas
+
+- `src/app`: rutas, layouts, API routes.
+- `src/actions`: server actions (dominio de negocio).
+- `src/components/features`: UI por feature.
+- `src/lib/validations`: contratos Zod.
+- `src/lib/config`: límites y configuración OCR.
+- `supabase/migrations`: esquema e integridad en DB.
+- `supabase/functions`: procesamiento OCR.
+
+## 3.3 Principios de diseño aplicados
+
+- Seguridad centrada en RLS (no en frontend).
+- Validación server-side con Zod antes de mutar datos.
+- Límites de negocio centralizados y reutilizados.
+- Revalidación selectiva de rutas con `revalidatePath`.
+- Flujo de errores explícito con respuestas `{ error }` en server actions.
+
+## 3.4 Diagramas (Mermaid)
+
+### Arquitectura del sistema
 
 ```mermaid
 flowchart TB
-    subgraph Client["Client Layer (Browser)"]
-        UI[Next.js UI<br/>React Server Components]
-        Forms[React Hook Form<br/>+ Zod Validation]
-        State[Zustand State<br/>Client-only]
+    subgraph Client["Cliente (Browser)"]
+        UI["Next.js App Router UI"]
+        Forms["React Hook Form + Zod"]
+        State["Zustand (estado cliente)"]
     end
 
-    subgraph Server["Next.js Server Layer"]
-        SA[Server Actions<br/>CRUD Operations]
-        API[API Routes<br/>File Uploads]
-        MW[Middleware<br/>Auth Protection]
+    subgraph Server["Capa Next.js"]
+        SA["Server Actions"]
+        API["API Routes"]
+        MW["Middleware auth"]
     end
 
-    subgraph Supabase["Supabase Platform"]
-        Auth[Supabase Auth<br/>Email/Magic Link/OAuth]
-        DB[(PostgreSQL<br/>with RLS)]
-        Storage[Supabase Storage<br/>Receipt Images]
-        Edge[Edge Functions<br/>OCR Processing]
+    subgraph Supabase["Supabase"]
+        Auth["Auth"]
+        DB[("Postgres + RLS")]
+        Storage["Storage (bucket tickets)"]
+        Edge["Edge Functions OCR"]
     end
 
-    subgraph External["External Services"]
-        OCR[OCR API<br/>Receipt Processing]
+    subgraph AI["Proveedores IA"]
+        Gemini["Gemini OCR"]
+        OpenAI["OpenAI OCR"]
     end
 
     UI --> Forms
     Forms --> SA
     UI --> API
-    SA --> Auth
-    API --> Auth
     MW --> Auth
+    SA --> Auth
     SA --> DB
+    API --> Auth
     API --> Storage
-    Edge --> OCR
-    Storage -.Trigger.-> Edge
+    API --> Edge
     Edge --> DB
-
-    style Client fill:#e3f2fd
-    style Server fill:#f3e5f5
-    style Supabase fill:#e8f5e9
-    style External fill:#fff3e0
+    Edge --> Gemini
+    Edge --> OpenAI
 ```
 
-### User Flow
+### Flujo de usuario (alto nivel)
 
 ```mermaid
 flowchart TD
-    Start([User Visits App]) --> Auth{Authenticated?}
-    Auth -->|No| SignIn[Sign In / Sign Up]
-    SignIn --> Dashboard
-    Auth -->|Yes| Dashboard[Dashboard]
+    A["Usuario entra a la app"] --> B{"Autenticado?"}
+    B -->|No| C["Sign in / Sign up"]
+    B -->|Sí| D["Dashboard"]
+    C --> D
 
-    Dashboard --> Action{Choose Action}
+    D --> E{"Acción principal"}
 
-    Action -->|Create Lists| Groups[View Groups]
-    Groups --> CreateGroup[Create Group]
-    CreateGroup --> BaseLists[View Base Lists]
-    BaseLists --> CreateList[Create Base List]
-    CreateList --> AddItems[Add Items Manually]
+    E --> F["Gestionar grupos y listas base"]
+    F --> G["Crear/editar ítems"]
+    G --> H["Iniciar shopping session"]
 
-    Action -->|Upload Receipt| Tickets[View Tickets]
-    Tickets --> Upload[Upload Receipt Image]
-    Upload --> OCR[OCR Processing]
-    OCR --> Review[Review Extracted Items]
-    Review --> Decision{Action?}
-    Decision -->|Create New List| NewList[Create Base List from OCR]
-    Decision -->|Merge to Existing| MergeList[Merge to Base List]
+    E --> I["Subir ticket (1..5 imágenes)"]
+    I --> J["OCR pending/processing"]
+    J --> K{"OCR completado?"}
+    K -->|No| L["Retry / revisar error"]
+    K -->|Sí| M["Seleccionar ítems extraídos"]
+    M --> N["Merge a lista existente"]
+    M --> O["Crear lista nueva desde ticket"]
 
-    Action -->|Start Shopping| Shopping[New Shopping Session]
-    Shopping --> SelectList[Select Base List]
-    SelectList --> ActiveSession[Active Shopping Session]
-    ActiveSession --> CheckItems[Check Items as Purchased]
-    CheckItems --> Complete[Complete Session]
-    Complete --> Amount[Enter Total Amount]
-    Amount --> SyncDecision{Sync Changes?}
-    SyncDecision -->|Yes| SyncBase[Sync to Base List]
-    SyncDecision -->|No| History
-    SyncBase --> History[Shopping History]
-
-    Action -->|View History| History
-    History --> ViewSessions[View Past Shopping Sessions]
-    ViewSessions --> Details[View Session Details]
-
-    style Dashboard fill:#4caf50,color:#fff
-    style OCR fill:#2196f3,color:#fff
-    style ActiveSession fill:#ff9800,color:#fff
-    style History fill:#9c27b0,color:#fff
+    H --> P["Comprar: check/uncheck + editar ítems"]
+    P --> Q["Completar sesión"]
+    Q --> R{"Sync to base?"}
+    R -->|Sí| S["Actualizar lista base"]
+    R -->|No| T["Guardar solo historial"]
+    S --> U["Historial por grupo"]
+    T --> U
 ```
 
-### Data Flow
+### Modelo de datos (ERD)
+
+```mermaid
+erDiagram
+    USERS ||--o{ GROUPS : owns
+    USERS ||--o{ BASE_LISTS : owns
+    USERS ||--o{ SHOPPING_SESSIONS : owns
+    USERS ||--o{ TICKETS : owns
+
+    GROUPS ||--o{ BASE_LISTS : contains
+    BASE_LISTS ||--o{ BASE_LIST_ITEMS : has
+    BASE_LISTS ||--o{ SHOPPING_SESSIONS : starts
+
+    SHOPPING_SESSIONS ||--o{ SHOPPING_SESSION_ITEMS : has
+
+    GROUPS o|--o{ TICKETS : classifies
+    BASE_LISTS o|--o{ TICKETS : linked_after_merge
+    TICKETS ||--o{ TICKET_ITEMS : extracts
+
+    GROUPS {
+      uuid id PK
+      uuid user_id FK
+      text name
+      text description
+      timestamptz created_at
+      timestamptz updated_at
+    }
+
+    BASE_LISTS {
+      uuid id PK
+      uuid group_id FK
+      uuid user_id FK
+      text name
+      timestamptz created_at
+      timestamptz updated_at
+    }
+
+    BASE_LIST_ITEMS {
+      uuid id PK
+      uuid base_list_id FK
+      text name
+      numeric quantity
+      text unit
+      text notes
+      text category
+      int sort_order
+      timestamptz created_at
+      timestamptz updated_at
+    }
+
+    SHOPPING_SESSIONS {
+      uuid id PK
+      uuid base_list_id FK
+      uuid user_id FK
+      shopping_session_status status
+      numeric total_amount
+      bool sync_to_base
+      text general_notes
+      timestamptz started_at
+      timestamptz completed_at
+      timestamptz created_at
+      timestamptz updated_at
+    }
+
+    SHOPPING_SESSION_ITEMS {
+      uuid id PK
+      uuid shopping_session_id FK
+      text name
+      numeric quantity
+      text unit
+      bool checked
+      text notes
+      text category
+      int sort_order
+      timestamptz created_at
+      timestamptz updated_at
+    }
+
+    TICKETS {
+      uuid id PK
+      uuid user_id FK
+      uuid group_id FK
+      uuid base_list_id FK
+      text image_path
+      text[] image_paths
+      text store_name
+      int total_items
+      ocr_status ocr_status
+      text ocr_error
+      timestamptz processed_at
+      timestamptz created_at
+    }
+
+    TICKET_ITEMS {
+      uuid id PK
+      uuid ticket_id FK
+      text name
+      numeric quantity
+      numeric price
+      text unit
+      text category
+      timestamptz created_at
+    }
+```
+
+## 3.5 Vista simplificada (negocio)
+
+```mermaid
+flowchart LR
+    U["Usuario"] --> A["Gestiona listas base"]
+    U --> B["Sube ticket"]
+    B --> C["OCR extrae productos"]
+    C --> D["Usuario revisa y decide"]
+    D --> E["Fusionar en lista existente"]
+    D --> F["Crear lista nueva"]
+    A --> G["Inicia sesión de compra"]
+    G --> H["Marca progreso de compra"]
+    H --> I["Completa sesión"]
+    I --> J["Historial y gasto"]
+```
+
+## 3.6 Vista detallada (ingeniería)
 
 ```mermaid
 sequenceDiagram
     actor User
     participant UI as Next.js UI
-    participant SA as Server Action
-    participant Auth as Supabase Auth
-    participant DB as PostgreSQL
-    participant Storage as Supabase Storage
-    participant Edge as Edge Function
-    participant OCR as OCR API
+    participant API as POST /api/upload-ticket
+    participant SA as Server Actions
+    participant DB as Supabase Postgres
+    participant ST as Supabase Storage
+    participant EF as Edge Function OCR
+    participant AI as Gemini/OpenAI
 
-    Note over User,OCR: Receipt Upload Flow
-    User->>UI: Upload receipt image
-    UI->>SA: POST /api/upload-ticket
-    SA->>Auth: Verify user session
-    Auth-->>SA: User ID
-    SA->>Storage: Upload image to bucket
-    Storage-->>SA: Image URL
-    SA->>DB: Create ticket record (status: pending)
-    DB-->>SA: Ticket ID
-    SA-->>UI: Success response
-    Storage->>Edge: Trigger Edge Function
-    Edge->>OCR: Process image
-    OCR-->>Edge: Extracted items (JSON)
-    Edge->>DB: Update ticket (items, status: completed)
-    DB-->>Edge: Success
-    Edge-->>Storage: Acknowledge
+    User->>UI: Sube 1..5 imágenes
+    UI->>API: multipart/form-data
+    API->>ST: Upload files
+    API->>DB: Insert ticket (pending)
+    API->>EF: Trigger OCR (fire-and-forget)
 
-    Note over User,DB: Shopping Session Flow
-    User->>UI: Create shopping session
-    UI->>SA: createShoppingSession()
-    SA->>Auth: Get user from session
-    Auth-->>SA: User ID
-    SA->>DB: Copy items from base_list to shopping_session
-    DB-->>SA: Shopping session ID
-    SA-->>UI: Redirect to /shopping/[sessionId]
-    User->>UI: Check items, add notes
-    UI->>SA: updateShoppingSessionItem()
-    SA->>DB: Update item (checked: true)
-    DB-->>SA: Success
-    User->>UI: Complete session
-    UI->>SA: completeShoppingSession()
-    SA->>DB: Update session (status: completed, total_amount)
-    DB-->>SA: Success
-    SA-->>UI: Redirect to history
+    EF->>DB: ticket -> processing
+    EF->>AI: OCR por imagen
+    AI-->>EF: items extraídos
+    EF->>EF: merge + dedupe de bordes
+    EF->>DB: Insert ticket_items
+    EF->>DB: ticket -> completed / failed
+
+    User->>SA: Merge a lista base o crear lista desde ticket
+    SA->>DB: upsert en base_list_items/base_lists
+    SA->>DB: ticket vinculado (base_list_id, group_id)
+
+    User->>SA: Inicia shopping session desde base list
+    SA->>DB: Insert shopping_sessions + clone de items
+    User->>SA: check/uncheck + ediciones
+    User->>SA: completeShoppingSession(sync_to_base?)
+    SA->>DB: status completed + historial + sync opcional
 ```
 
-### Entity Relationship Diagram (ERD)
-
-```mermaid
-erDiagram
-    USERS ||--o{ GROUPS : creates
-    USERS ||--o{ TICKETS : uploads
-
-    GROUPS ||--o{ BASE_LISTS : contains
-    GROUPS ||--o{ SHOPPING_SESSIONS : organizes
-
-    BASE_LISTS ||--o{ BASE_LIST_ITEMS : has
-    BASE_LISTS ||--o{ SHOPPING_SESSIONS : generates
-
-    SHOPPING_SESSIONS ||--o{ SHOPPING_SESSION_ITEMS : contains
-
-    TICKETS ||--o{ TICKET_ITEMS : extracts
-
-    USERS {
-        uuid id PK
-        string email
-        timestamp created_at
-    }
-
-    GROUPS {
-        uuid id PK
-        uuid user_id FK
-        string name
-        text description
-        timestamp created_at
-        timestamp updated_at
-    }
-
-    BASE_LISTS {
-        uuid id PK
-        uuid group_id FK
-        uuid user_id FK
-        string name
-        timestamp created_at
-        timestamp updated_at
-    }
-
-    BASE_LIST_ITEMS {
-        uuid id PK
-        uuid base_list_id FK
-        string name
-        numeric quantity
-        string unit
-        text notes
-        string category
-        integer sort_order
-        timestamp created_at
-    }
-
-    SHOPPING_SESSIONS {
-        uuid id PK
-        uuid base_list_id FK
-        uuid group_id FK
-        uuid user_id FK
-        string status
-        numeric total_amount
-        timestamp completed_at
-        timestamp created_at
-    }
-
-    SHOPPING_SESSION_ITEMS {
-        uuid id PK
-        uuid shopping_session_id FK
-        string name
-        numeric quantity
-        string unit
-        boolean checked
-        text notes
-        string category
-        timestamp created_at
-    }
-
-    TICKETS {
-        uuid id PK
-        uuid user_id FK
-        string image_url
-        string status
-        text ocr_error
-        timestamp created_at
-    }
-
-    TICKET_ITEMS {
-        uuid id PK
-        uuid ticket_id FK
-        string name
-        numeric quantity
-        string unit
-        numeric price
-        integer line_number
-    }
-```
-
----
-
-## Tech Stack
-
-### **Frontend**
+## 4. Modelo de Datos (Dominio)
 
-- **Framework:** Next.js 16.1.0 (App Router, Turbopack)
-- **Language:** TypeScript (strict mode)
-- **UI Library:** React 19.2.3
-- **Styling:** Tailwind CSS 4
-- **Components:** shadcn/ui (Radix UI primitives)
-- **Icons:** HugeIcons React + Lucide React
-- **Animations:** Framer Motion 12.25
-- **Forms:** React Hook Form 7.54 + Zod 3.24
-- **State Management:** Zustand (client-only state)
-- **Notifications:** Sonner (toast)
+Entidades principales:
 
-### **Backend**
+- `groups`: agrupación lógica de listas.
+- `base_lists`: plantillas de compra por grupo.
+- `base_list_items`: ítems de plantilla.
+- `shopping_sessions`: ejecución de compra.
+- `shopping_session_items`: ítems de sesión.
+- `tickets`: metadatos de tickets + estado OCR.
+- `ticket_items`: ítems extraídos por OCR.
 
-- **Platform:** Supabase
-- **Database:** PostgreSQL (with Row Level Security)
-- **Authentication:** Supabase Auth (email, magic link, OAuth)
-- **Storage:** Supabase Storage (receipt images)
-- **Functions:** Supabase Edge Functions (Deno runtime)
+Relaciones clave:
 
-### **Development**
+- `groups` -> `base_lists` (`ON DELETE CASCADE`).
+- `base_lists` -> `base_list_items` (`ON DELETE CASCADE`).
+- `base_lists` -> `shopping_sessions` (`ON DELETE CASCADE`).
+- `shopping_sessions` -> `shopping_session_items` (`ON DELETE CASCADE`).
+- `tickets.group_id` y `tickets.base_list_id` con `ON DELETE SET NULL` (tickets huérfanos controlados).
 
-- **Package Manager:** pnpm
-- **Linting:** ESLint 9.20
-- **Code Quality:** TypeScript strict mode
-- **Testing:** Jest + Playwright (planned)
+## 5. Seguridad e Integridad
 
-### **Deployment**
+## 5.1 RLS
 
-- **Hosting:** Vercel (Next.js)
-- **Database:** Supabase Cloud
-- **CDN:** Vercel Edge Network
+- Todas las tablas de usuario tienen Row Level Security.
+- Políticas basadas en `auth.uid() = user_id` o validación por relación padre.
+- Bucket `tickets` protegido por carpeta con prefijo del `user_id`.
 
----
+## 5.2 Integridad operativa
 
-## Business Logic & Limits
+- Triggers `updated_at` en tablas de dominio.
+- Trigger para borrar imagen de storage al borrar ticket.
+- Funciones SQL para detectar/limpiar imágenes huérfanas.
+- Función SQL para auto-marcar tickets OCR atascados como `failed`.
 
-All configurable limits are centralized in [`lib/config/limits.ts`](../src/lib/config/limits.ts):
+## 6. Pipeline OCR
 
-> Note: The file `src/lib/validations/README.md` previously contained older limit values (e.g. 60 items). The authoritative values are in `src/lib/config/limits.ts`. Update docs or that README when limits change to avoid drift.
+1. Cliente sube 1..5 imágenes a `POST /api/upload-ticket`.
+2. API route valida y sube a `storage.objects` (`tickets`).
+3. Se crea ticket con `ocr_status = pending`.
+4. Se dispara Edge Function según proveedor configurado:
+   - `process-ticket-ocr-gemini` o
+   - `process-ticket-ocr-openai`.
+5. Edge Function:
+   - cambia estado a `processing`,
+   - procesa imágenes en secuencia,
+   - aplica deduplicación de borde entre imágenes,
+   - inserta `ticket_items`,
+   - actualiza ticket a `completed` y `total_items`.
+6. Si falla, estado final en `failed` (con soporte para reintento manual).
 
-| Limit                       | Value | Rationale                                                                                |
-| --------------------------- | ----- | ---------------------------------------------------------------------------------------- |
-| **MAX_GROUPS_PER_USER**     | 10    | Prevents database bloat, encourages focused organization                                 |
-| **MAX_ITEMS_PER_BASE_LIST** | 250   | Supports large shopping trips (Costco, restaurant supply), efficient PostgreSQL handling |
-| **MAX_TICKET_ITEMS_MERGE**  | 200   | Most receipts have <100 items, still allows large merges                                 |
-| **MAX_SYNC_ITEMS**          | 250   | Matches base list limit to prevent inconsistent states                                   |
+Configuración:
 
-### **Design Decisions:**
+- `PROCESS_TICKET_OCR_PROVIDER=gemini|openai`
+- default actual: `gemini`
 
-1. **Consistent Limits:** `MAX_SYNC_ITEMS = MAX_ITEMS_PER_BASE_LIST` prevents impossible states (e.g., syncing 300 items to a list capped at 250)
+## 7. Límites de Negocio (Código Fuente)
 
-2. **DoS Prevention:** Array limits on all server actions prevent resource exhaustion attacks
+Definidos en `src/lib/config/limits.ts`:
 
-3. **Future Enhancement:** Limits can be made configurable per user plan (free, pro, enterprise)
+- `MAX_GROUPS_PER_USER = 10`
+- `MAX_ITEMS_PER_BASE_LIST = 250`
+- `MAX_TICKET_ITEMS_MERGE = 200`
+- `MAX_SYNC_ITEMS = 250`
+- `MAX_IMAGES_PER_TICKET = 5`
 
-4. **Performance:** 250 items ≈ <25KB JSON data, handled efficiently by PostgreSQL
+## 8. Rutas Funcionales
 
----
+Públicas:
 
-## Security & Validation
+- `/`
+- `/auth/signin`
+- `/auth/signup`
+- `/auth/callback`
 
-### **Security Model: RLS-First**
+Autenticadas:
 
-- ✅ **All security lives in Row Level Security (RLS) policies**
-- ✅ Frontend never trusts critical client data
-- ✅ Sensitive actions → Server Actions or API Routes only
-- ✅ Permissions are **deny by default**
+- `/dashboard`
+- `/shopping-lists`
+- `/shopping-lists/[groupId]/lists`
+- `/base-lists/[baseListId]/edit`
+- `/shopping/[runId]`
+- `/shopping-history`
+- `/shopping-history/[groupId]`
+- `/tickets`
+- `/tickets/[ticketId]`
 
-### **RLS Policies Pattern**
+API:
 
-Every user-facing table has RLS enabled:
+- `POST /api/upload-ticket`
+- `GET /api/tickets/[ticketId]/status`
 
-```sql
-ALTER TABLE table_name ENABLE ROW LEVEL SECURITY;
+## 9. Variables de Entorno
 
-CREATE POLICY "Users can view their own items"
-  ON table_name FOR SELECT
-  USING (auth.uid() = user_id);
+Base:
 
-CREATE POLICY "Users can insert their own items"
-  ON table_name FOR INSERT
-  WITH CHECK (auth.uid() = user_id);
-```
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
 
-### **Validation Architecture**
+OCR:
 
-1. **Server-Side Only:** All inputs validated with Zod schemas in `lib/validations/`
-2. **Configurable Limits:** Reference `lib/config/limits.ts` in schemas
-3. **Array Limits:** Prevent DoS attacks (e.g., max 250 items per request)
-4. **Duplicate Prevention:** Case-insensitive checks using `.ilike()`
-5. **Error Messages:** Actionable feedback with limit values
+- `PROCESS_TICKET_OCR_PROVIDER` (`gemini`/`openai`)
+- `GEMINI_API_KEY` (si proveedor = gemini)
+- `OPENAI_API_KEY` (si proveedor = openai)
 
-**Example Schema:**
+## 10. Desarrollo Local
 
-```typescript
-import { z } from 'zod'
-import { MAX_ITEMS_PER_BASE_LIST } from '@/lib/config/limits'
-
-export const createBaseListSchema = z.object({
-	group_id: z.string().uuid(),
-	name: z.string().min(1, 'Name is required').max(100),
-	items: z
-		.array(z.object({ name: z.string(), quantity: z.number() }))
-		.max(MAX_ITEMS_PER_BASE_LIST, `Cannot exceed ${MAX_ITEMS_PER_BASE_LIST} items`),
-})
-```
-
-### **Server Action Pattern**
-
-```typescript
-export async function createItem(data: unknown) {
-	// 1. Authentication
-	const {
-		data: { user },
-	} = await supabase.auth.getUser()
-	if (!user) return { error: 'Unauthorized' }
-
-	// 2. Input validation
-	const validation = schema.safeParse(data)
-	if (!validation.success) {
-		return { error: validation.error.errors[0].message }
-	}
-
-	// 3. Business logic validation (limits, duplicates)
-	const { count } = await supabase.from('items').select('*', { count: 'exact', head: true }).eq('user_id', user.id)
-
-	if (count >= MAX_ITEMS) {
-		return { error: `Maximum ${MAX_ITEMS} items allowed` }
-	}
-
-	// 4. Database operation
-	const { error } = await supabase.from('items').insert({ ...validation.data, user_id: user.id })
-
-	if (error) return { error: error.message }
-
-	// 5. Revalidate & return
-	revalidatePath('/items')
-	return { success: true }
-}
-```
-
----
-
-## Database Schema
-
-### **Core Tables**
-
-1. **`auth.users`** (Supabase managed)
-   - User authentication and profiles
-
-2. **`groups`**
-   - Shopping list groups (e.g., "Weekly Groceries")
-   - Fields: `id`, `user_id`, `name`, `description`, `created_at`, `updated_at`
-   - Cascades: Delete group → deletes all base_lists and shopping_sessions
-
-3. **`base_lists`**
-   - Reusable shopping list templates
-   - Fields: `id`, `group_id`, `user_id`, `name`, `created_at`, `updated_at`
-   - Cascades: Delete base_list → deletes all base_list_items
-
-4. **`base_list_items`**
-   - Items in base lists
-   - Fields: `id`, `base_list_id`, `name`, `quantity`, `unit`, `notes`, `category`, `sort_order`, `created_at`, `updated_at`
-
-5. **`shopping_sessions`**
-   - Active or completed shopping sessions
-   - Fields: `id`, `base_list_id`, `group_id`, `user_id`, `status` (enum: active, completed), `total_amount`, `completed_at`, `created_at`, `updated_at`
-   - Cascades: Delete shopping_session → deletes all shopping_session_items
-
-6. **`shopping_session_items`**
-   - Items in shopping sessions (copied from base_list_items)
-   - Fields: `id`, `shopping_session_id`, `name`, `quantity`, `unit`, `checked`, `notes`, `category`, `created_at`, `updated_at`
-
-7. **`tickets`**
-   - Uploaded receipts for OCR processing
-   - Fields: `id`, `user_id`, `image_url`, `status` (enum: pending, processing, completed, failed), `ocr_error`, `created_at`, `updated_at`
-   - Cascades: Delete ticket → deletes all ticket_items
-
-8. **`ticket_items`**
-   - Items extracted from OCR processing
-   - Fields: `id`, `ticket_id`, `name`, `quantity`, `unit`, `price`, `line_number`, `created_at`
-
-### **Database Triggers**
-
-1. **Auto-fail Stuck OCR Tickets** (runs hourly)
-   - Marks tickets as "failed" if processing >15 minutes
-   - Allows manual retry
-
-2. **Cleanup Orphaned Storage Images** (runs daily)
-   - Deletes images from storage if ticket deleted
-   - Only removes images older than 7 days
-
-3. **Handle Orphaned Tickets** (on base_list delete)
-   - If base_list created from ticket is deleted → marks ticket as "pending" for reuse
-
-### **Indexes**
-
-All foreign keys have indexes for performance:
-
-- `idx_groups_user_id`
-- `idx_base_lists_user_id`, `idx_base_lists_group_id`
-- `idx_shopping_sessions_user_id`, `idx_shopping_sessions_group_id`
-- `idx_tickets_user_id`
-
----
-
-## Getting Started
-
-### **Prerequisites**
-
-- Node.js 18+ (recommended: 20+)
-- pnpm 9+
-- Supabase CLI
-- Supabase account (free tier works)
-
-### **Local Setup**
-
-1. **Clone the repository:**
+Instalación:
 
 ```bash
-git clone <repository-url>
-cd listys-web-app
+npm install
 ```
 
-2. **Install dependencies:**
+Levantar app:
 
 ```bash
-pnpm install
+npm run dev
 ```
 
-3. **Set up Supabase:**
+Lint:
 
 ```bash
-# Initialize Supabase (if not already done)
-npx supabase init
+npm run lint
+```
 
-# Start local Supabase (Docker required)
+Type-check:
+
+```bash
+tsc --noEmit
+```
+
+Supabase local (opcional):
+
+```bash
 npx supabase start
-```
-
-4. **Configure environment variables:**
-
-Create `.env.local`:
-
-```bash
-NEXT_PUBLIC_SUPABASE_URL=<your-supabase-url>
-NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-supabase-anon-key>
-SUPABASE_SERVICE_ROLE_KEY=<your-service-role-key>
-```
-
-5. **Run database migrations:**
-
-```bash
 npx supabase db push
 ```
 
-6. **Start development server:**
+Regenerar tipos DB:
 
 ```bash
-pnpm dev
+npm run gen:types
 ```
 
-Visit [http://localhost:3000](http://localhost:3000)
+## 11. Migraciones Relevantes
 
----
+- `20260109000000_initial_schema.sql`: esquema base + RLS + triggers.
+- `20260109000001_storage_setup.sql`: bucket/policies de tickets.
+- `20260121000000_handle_orphaned_tickets.sql`: manejo de tickets sin grupo.
+- `20260121000001_fix_merged_tickets_group_id.sql`: consistencia ticket/lista.
+- `20260121000002_auto_fail_stuck_ocr_tickets.sql`: OCR stuck -> failed.
+- `20260121000003_cleanup_orphaned_storage_images.sql`: cleanup storage.
+- `20260127234440_add_ocr_error_column.sql`: trazabilidad de errores OCR.
+- `20260128000000_multi_image_tickets.sql`: soporte multiimagen.
+- `20260202000000_rename_shopping_runs_to_sessions.sql`: cambio de nomenclatura.
 
-## Development
+## 12. Estado de Calidad
 
-### **Commands**
+Actualmente:
 
-```bash
-pnpm dev          # Start development server
-pnpm build        # Build for production
-pnpm start        # Start production server
-pnpm lint         # Run ESLint
-tsc --noEmit      # Type checking (no script in package.json)
-```
+- Testing automatizado no configurado (Jest/Playwright pendientes).
+- Existe validación robusta en server actions + constraints y RLS en DB.
+- Cobertura funcional alta en flujos de negocio críticos.
 
-### **Supabase Commands**
+Riesgos técnicos actuales:
 
-```bash
-npx supabase start                    # Start local Supabase
-npx supabase stop                     # Stop local Supabase
-npx supabase db push                  # Push migrations to database
-npx supabase migration new <name>     # Create new migration
-npx supabase functions deploy         # Deploy Edge Functions
-npx supabase gen types typescript     # Generate TypeScript types
-```
+- Sin suite e2e para regresiones de flujos completos (auth, OCR, sesión).
+- Dependencia de servicios externos IA para extracción OCR.
 
-### **Project Structure**
+## 13. Roadmap Técnico Recomendado
 
-```bash
-src/
-├── actions/              # Server Actions (CRUD by domain)
-├── app/
-│   ├── (authenticated)   # Protected routes
-│   ├── (marketing)       # Public landing pages
-│   ├── api/              # API routes (file uploads)
-│   └── auth/             # Auth pages
-├── components/
-│   ├── app/              # App-specific (header, sidebar)
-│   ├── features/         # Feature components by domain
-│   ├── ui/               # shadcn/ui components
-│   └── commons/          # Shared components
-├── lib/
-│   ├── config/           # Configurable limits and settings
-│   ├── supabase/         # Supabase clients (server, client)
-│   ├── validations/      # Zod schemas by domain
-│   └── utils.ts          # Utilities (cn, etc.)
-└── utils/                # Helper functions (formatters, etc.)
+1. Incorporar pruebas E2E de happy-path y fallos OCR.
+2. Añadir observabilidad (logs estructurados, trazas por ticketId).
+3. Implementar políticas por plan (límites dinámicos por usuario).
+4. Agregar analítica de uso y costos OCR por proveedor.
+5. Endurecer idempotencia y retries en pipeline OCR.
 
-supabase/
-├── config.toml
-├── functions/            # Edge Functions
-└── migrations/           # SQL migrations (timestamped)
-```
+## 14. Licencia
 
-### **Code Guidelines**
-
-- **Import Order:** Directives → React → Next.js → External → Internal
-- **Naming:** kebab-case for files, camelCase for variables, PascalCase for components
-- **Error Handling:** Server actions use early returns, client components use try-catch
-- **Validation:** All server actions validate with Zod schemas
-- **Types:** Prefer `unknown` for inputs, `interface` for component props
-
-See [AGENTS.md](../AGENTS.md) for detailed coding guidelines.
-
----
-
-## Deployment
-
-### **Vercel Deployment**
-
-1. **Connect repository to Vercel:**
-   - Import project from GitHub/GitLab
-   - Select `listys-web-app` repository
-
-2. **Configure environment variables:**
-   - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-   - `SUPABASE_SERVICE_ROLE_KEY`
-
-3. **Deploy:**
-   - Vercel will automatically build and deploy
-   - Production URL: `https://listys.vercel.app` (or custom domain)
-
-### **Supabase Production**
-
-1. **Create project:**
-   - Go to [supabase.com](https://supabase.com)
-   - Create new project
-   - Copy connection details
-
-2. **Link local project:**
-
-```bash
-npx supabase link --project-ref <your-project-ref>
-```
-
-3. **Push migrations:**
-
-```bash
-npx supabase db push
-```
-
-4. **Deploy Edge Functions:**
-
-```bash
-npx supabase functions deploy process-ticket-ocr
-```
-
-5. **Configure Storage:**
-   - Create `ticket-images` bucket
-   - Set up RLS policies for user-specific access
-   - Enable automatic image optimization
-
-### **Post-Deployment Checklist**
-
-- [ ] Verify environment variables in Vercel
-- [ ] Test authentication flows (sign in, sign up, magic link)
-- [ ] Test OCR upload and processing
-- [ ] Verify storage bucket permissions
-- [ ] Enable Supabase Edge Function logging
-- [ ] Set up error monitoring (Sentry/LogRocket)
-- [ ] Configure custom domain (if applicable)
-
----
-
-## OCR Edge Function — Selección de proveedor
-
-La aplicación soporta dos proveedores de OCR para procesar tickets:
-
-- **`process-ticket-ocr-gemini`** — Usa Gemini 1.5 Flash (Google)
-- **`process-ticket-ocr-openai`** — Usa GPT-4.1 Mini (OpenAI)
-
-### **Configuración**
-
-El **backend (Next.js)** decide qué función Edge llamar basándose en la variable de entorno:
-
-**Variable:** `PROCESS_TICKET_OCR_PROVIDER`
-
-- Valores permitidos: `gemini` | `openai`
-- Valor por defecto: `gemini`
-
-**Ubicación de configuración:** `src/lib/config/ocr.ts`
-
-### **Despliegue de funciones**
-
-Ambas funciones Edge deben estar desplegadas:
-
-```bash
-npx supabase functions deploy process-ticket-ocr-gemini
-npx supabase functions deploy process-ticket-ocr-openai
-```
-
-### **Probar localmente**
-
-```bash
-# Servir función Gemini
-npx supabase functions serve process-ticket-ocr-gemini
-
-# Servir función OpenAI
-npx supabase functions serve process-ticket-ocr-openai
-```
-
-### **Variables de entorno requeridas**
-
-Añade a `.env.local`:
-
-```bash
-# Seleccionar proveedor OCR (gemini o openai)
-PROCESS_TICKET_OCR_PROVIDER=gemini
-
-# API Keys (usa la clave correspondiente según el proveedor)
-OPENAI_API_KEY=tu_api_key_aqui  # Para ambos proveedores
-```
-
-**Nota:** Ambas funciones usan `OPENAI_API_KEY` por ahora. Para Gemini, esta variable contiene la API key de Google AI Studio
-
----
-
----
-
-## License
-
-MIT License - See [LICENSE](../LICENSE) for details
-
----
-
-## Support
-
-For questions or issues, please:
-
-- Open an issue on GitHub
-- Contact support at support@listys.app
-- Check the [AGENTS.md](../AGENTS.md) for technical guidelines
-
----
-
-**Built with ❤️ using Next.js, Supabase, and TypeScript**
+Definir según estrategia del proyecto (privada/comercial/open-source).
