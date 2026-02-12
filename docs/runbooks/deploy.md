@@ -31,6 +31,7 @@ pnpm build
 5. Verificar migraciones de Supabase: revisar `supabase/migrations` y aplicar en entorno con herramientas de CI o manualmente.
 
 6. Validaciones post-deploy:
+
 - Smoke test: inicio de sesión, crear lista base, subir ticket (flujo happy-path).
 - Revisar logs de Edge Functions y cola de OCR.
 

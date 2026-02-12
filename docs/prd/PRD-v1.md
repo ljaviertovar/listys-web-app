@@ -35,58 +35,52 @@ Listys resuelve este problema automatizando la extracción (OCR) de tickets, per
 ## 6. User journeys
 
 1. Subir ticket → Procesamiento OCR → Revisar ítems extraídos → Crear lista nueva o mergear a lista existente.
+   - Paso 1: Usuario selecciona 1–5 imágenes y envía `POST /api/upload-ticket`.
+   - Paso 2: API valida archivos, sube imágenes y crea `ticket` con `ocr_status = pending`.
+   - Paso 3: Edge Function procesa imágenes y crea `ticket_items` (estado `processing`).
+   - Paso 4: OCR completa (`completed`) y usuario recibe notificación; puede revisar/editar ítems.
+   - Paso 5: Usuario elige "Crear lista" o "Mergear a lista existente"; el sistema aplica upsert en `base_list_items`.
 
-	- Paso 1: Usuario selecciona 1–5 imágenes y envía `POST /api/upload-ticket`.
-	- Paso 2: API valida archivos, sube imágenes y crea `ticket` con `ocr_status = pending`.
-	- Paso 3: Edge Function procesa imágenes y crea `ticket_items` (estado `processing`).
-	- Paso 4: OCR completa (`completed`) y usuario recibe notificación; puede revisar/editar ítems.
-	- Paso 5: Usuario elige "Crear lista" o "Mergear a lista existente"; el sistema aplica upsert en `base_list_items`.
-
-	- Acceptance criteria (ACE): El usuario puede completar el flujo end-to-end: upload acepta archivos válidos; OCR crea al menos un `ticket_item`; la acción "Merge" actualiza correctamente la lista objetivo y la UI muestra confirmación.
+   - Acceptance criteria (ACE): El usuario puede completar el flujo end-to-end: upload acepta archivos válidos; OCR crea al menos un `ticket_item`; la acción "Merge" actualiza correctamente la lista objetivo y la UI muestra confirmación.
 
 2. Crear lista base → Editar ítems → Iniciar sesión de compra desde lista base → Marcar ítems y completar sesión → Guardar historial.
+   - Paso 1: Usuario crea `base_list` con nombre y grupo.
+   - Paso 2: Usuario añade hasta `MAX_ITEMS_PER_BASE_LIST` ítems (250) con `sort_order`.
+   - Paso 3: Usuario inicia `shopping_session` que clona `base_list_items` a `shopping_session_items`.
+   - Paso 4: Durante la sesión el usuario puede check/uncheck, editar cantidades y notas.
+   - Paso 5: Al completar, si `sync_to_base` está activo, los cambios se aplican a `base_list_items` dentro de una transacción.
 
-	- Paso 1: Usuario crea `base_list` con nombre y grupo.
-	- Paso 2: Usuario añade hasta `MAX_ITEMS_PER_BASE_LIST` ítems (250) con `sort_order`.
-	- Paso 3: Usuario inicia `shopping_session` que clona `base_list_items` a `shopping_session_items`.
-	- Paso 4: Durante la sesión el usuario puede check/uncheck, editar cantidades y notas.
-	- Paso 5: Al completar, si `sync_to_base` está activo, los cambios se aplican a `base_list_items` dentro de una transacción.
-
-	- ACE: La sesión crea correctamente `shopping_session` y `shopping_session_items`; completar actualiza estado a `completed` y, si se solicita, sincroniza cambios a la lista base sin duplicados.
+   - ACE: La sesión crea correctamente `shopping_session` y `shopping_session_items`; completar actualiza estado a `completed` y, si se solicita, sincroniza cambios a la lista base sin duplicados.
 
 3. Ver historial → Abrir sesión completada → Reutilizar como base para nueva lista.
+   - Paso 1: Usuario abre `shopping-history` y filtra por grupo/fecha.
+   - Paso 2: Usuario selecciona una sesión completada y elige "Crear lista desde sesión".
+   - Paso 3: Sistema crea nueva `base_list` poblada con los `shopping_session_items` seleccionados.
 
-	- Paso 1: Usuario abre `shopping-history` y filtra por grupo/fecha.
-	- Paso 2: Usuario selecciona una sesión completada y elige "Crear lista desde sesión".
-	- Paso 3: Sistema crea nueva `base_list` poblada con los `shopping_session_items` seleccionados.
-
-	- ACE: Nueva `base_list` creada con ítems esperados y metadatos de origen (fecha, sessionId).
+   - ACE: Nueva `base_list` creada con ítems esperados y metadatos de origen (fecha, sessionId).
 
 (Estos flujos fueron inferidos del código del repositorio y pueden ajustarse — marcados como [Assumed].)
 
 ## 7. Functional requirements
 
-
 Transformamos los requisitos funcionales en historias de usuario con criterios de aceptación (ACE):
 
 - Historia: "Como usuario quiero subir fotos de un ticket para obtener ítems ya extraídos".
-	- ACE: `POST /api/upload-ticket` acepta 1–5 imágenes válidas; responde 202 (accept) o 201 con ticketId; el ticket queda en BD con `ocr_status = pending`.
+  - ACE: `POST /api/upload-ticket` acepta 1–5 imágenes válidas; responde 202 (accept) o 201 con ticketId; el ticket queda en BD con `ocr_status = pending`.
 
 - Historia: "Como sistema quiero procesar tickets en background para insertar `ticket_items`".
-	- ACE: Edge Function pone `ocr_status = processing` al comenzar y `completed`/`failed` al finalizar; `ticket_items` se insertan sin duplicados inter-imagen.
+  - ACE: Edge Function pone `ocr_status = processing` al comenzar y `completed`/`failed` al finalizar; `ticket_items` se insertan sin duplicados inter-imagen.
 
 - Historia: "Como usuario quiero crear/editar listas base y sus ítems".
-	- ACE: CRUD opera con validaciones; no se permiten >250 ítems; nombres duplicados dentro de un grupo rechazados con 409.
+  - ACE: CRUD opera con validaciones; no se permiten >250 ítems; nombres duplicados dentro de un grupo rechazados con 409.
 
 - Historia: "Como usuario quiero iniciar una sesión de compra desde una lista base".
-	- ACE: Crear `shopping_session` clona los ítems; la UI muestra progreso y la API permite marcar ítems; completar cambia estado a `completed` y registra `total_amount`.
+  - ACE: Crear `shopping_session` clona los ítems; la UI muestra progreso y la API permite marcar ítems; completar cambia estado a `completed` y registra `total_amount`.
 
 - Historia: "Como usuario quiero mergear ítems OCR a una lista existente".
-	- ACE: Merge upserta ítems por nombre/normalized_name; retorna resumen (nueva_count, updated_count, skipped_count).
-
+  - ACE: Merge upserta ítems por nombre/normalized_name; retorna resumen (nueva_count, updated_count, skipped_count).
 
 ## 8. Non-functional requirements
-
 
 SLOs, Observabilidad y Operaciones (detalladas):
 
@@ -95,17 +89,15 @@ SLOs, Observabilidad y Operaciones (detalladas):
 - Availability: Servicio web (Next.js) objetivo 99.9% uptime; Edge Functions y Supabase dependencias documentadas.
 
 - Observability:
-	- Instrumentar métricas: `tickets_uploaded_total`, `ocr_jobs_started`, `ocr_jobs_completed`, `ocr_jobs_failed`, `merge_operations_total`.
-	- Logs estructurados incluyendo `ticketId`, `userId`, `edgeFunctionInstance`, y timings.
-	- Tracing opcional: propagar `traceId` en pipeline OCR para correlación.
+  - Instrumentar métricas: `tickets_uploaded_total`, `ocr_jobs_started`, `ocr_jobs_completed`, `ocr_jobs_failed`, `merge_operations_total`.
+  - Logs estructurados incluyendo `ticketId`, `userId`, `edgeFunctionInstance`, y timings.
+  - Tracing opcional: propagar `traceId` en pipeline OCR para correlación.
 
 - Operational criteria:
-	- Reintentos exponenciales para fallos transitorios de OCR (max 3 attempts).
-	- Dead-letter queue o registro para tickets que fallen repetidamente, con `ocr_error` detallado.
-
+  - Reintentos exponenciales para fallos transitorios de OCR (max 3 attempts).
+  - Dead-letter queue o registro para tickets que fallen repetidamente, con `ocr_error` detallado.
 
 ## 9. Success metrics (KPIs)
-
 
 KPIs con criterios de aceptación (medibles):
 
@@ -113,7 +105,6 @@ KPIs con criterios de aceptación (medibles):
 - KPI: Retención 7d: ≥ 25%. ACE: definir "usuario activo" (login + acción de completar sesión) y reportar cohort retention.
 - KPI: OCR conversion rate: ≥ 60% ACE: medir porcentaje de tickets donde usuario acepta ≥3 ítems sin edición en 24h post-completion.
 - KPI: Merge success rate: ≥ 98% ACE: operaciones de merge que produzcan upsert sin error; contar `merge_failures`.
-
 
 ## 10. Constraints
 
