@@ -35,10 +35,9 @@ export default async function ShoppingRunPage({ params }: { params: Promise<{ ru
 	const runWithItems = shoppingSession as ShoppingSessionWithItems
 	const isCompleted = runWithItems.status === 'completed'
 
-	// Sort items: unchecked first, then by category and sort_order
+	// Preserve dynamic session ordering (sort_order), only pushing checked items to the bottom.
 	const sortedItems = [...runWithItems.items].sort((a, b) => {
 		if (a.checked !== b.checked) return a.checked ? 1 : -1
-		if (a.category !== b.category) return (a.category || '').localeCompare(b.category || '')
 		return (a.sort_order || 0) - (b.sort_order || 0)
 	})
 

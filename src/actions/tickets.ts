@@ -80,123 +80,40 @@ export async function mergeTicketItemsToBaseList(data: unknown) {
   }
 
   const { ticket_id, base_list_id, items: itemsToMerge } = validation.data
+  const selectedItemIds = itemsToMerge.filter((i) => i.merge).map((i) => i.id)
 
-  // Get base list with group_id
-  const { data: baseList, error: baseListError } = await supabase
-    .from('base_lists')
-    .select('id, group_id')
-    .eq('id', base_list_id)
-    .eq('user_id', user.id)
-    .single()
-
-  if (baseListError || !baseList) {
-    return { error: 'Base list not found' }
-  }
-
-  // Get ticket items
-  const { data: ticketItems, error: ticketError } = await supabase
-    .from('ticket_items')
-    .select('*')
-    .eq('ticket_id', ticket_id)
-    .in(
-      'id',
-      itemsToMerge.filter((i) => i.merge).map((i) => i.id)
-    )
-
-  if (ticketError) {
-    return { error: ticketError.message }
-  }
-
-  if (!ticketItems || ticketItems.length === 0) {
+  if (selectedItemIds.length === 0) {
     return { error: 'No items to merge' }
   }
 
-  // Get existing base list items
-  const { data: baseItems, error: baseError } = await supabase
-    .from('base_list_items')
-    .select('*')
-    .eq('base_list_id', base_list_id)
-
-  if (baseError) {
-    return { error: baseError.message }
-  }
-
-  // Create a map of existing items by name
-  const existingItems = new Map(
-    baseItems?.map((item: any) => [item.name.toLowerCase(), item]) || []
+  const { data: mergeSummary, error: mergeError } = await (supabase as any).rpc(
+    'merge_ticket_items_to_base_list',
+    {
+      p_ticket_id: ticket_id,
+      p_base_list_id: base_list_id,
+      p_item_ids: selectedItemIds,
+      p_max_items: MAX_ITEMS_PER_BASE_LIST,
+    }
   )
 
-  const itemsToUpdate: any[] = []
-  const itemsToInsert: any[] = []
-
-  ticketItems.forEach((ticketItem) => {
-    const existing = existingItems.get(ticketItem.name.toLowerCase())
-
-    if (existing) {
-      // Update quantity if item exists
-      itemsToUpdate.push({
-        id: existing.id,
-        quantity: existing.quantity + ticketItem.quantity,
-      })
-    } else {
-      // Insert new item
-      itemsToInsert.push({
-        base_list_id,
-        name: ticketItem.name,
-        quantity: ticketItem.quantity,
-        unit: ticketItem.unit,
-        category: ticketItem.category,
-        sort_order: 0,
-      })
-    }
-  })
-
-  // Check if adding new items would exceed the limit
-  const currentItemCount = baseItems?.length || 0
-  const newItemsCount = itemsToInsert.length
-
-  if (currentItemCount + newItemsCount > MAX_ITEMS_PER_BASE_LIST) {
-    return {
-      error: `Cannot merge items. This would exceed the maximum limit of ${MAX_ITEMS_PER_BASE_LIST} items per list (current: ${currentItemCount}, trying to add: ${newItemsCount}).`
-    }
+  if (mergeError) {
+    return { error: mergeError.message }
   }
 
-  // Execute updates
-  for (const item of itemsToUpdate) {
-    const { error } = await supabase
-      .from('base_list_items')
-      .update({ quantity: item.quantity })
-      .eq('id', item.id)
-
-    if (error) {
-      return { error: error.message }
-    }
-  }
-
-  // Execute inserts
-  if (itemsToInsert.length > 0) {
-    const { error } = await supabase
-      .from('base_list_items')
-      .insert(itemsToInsert)
-
-    if (error) {
-      return { error: error.message }
-    }
-  }
-
-  // Update ticket to mark it as merged and inherit group_id from base list
-  await supabase
-    .from('tickets')
-    .update({
-      base_list_id,
-      group_id: baseList.group_id
-    })
-    .eq('id', ticket_id)
+  const summary = Array.isArray(mergeSummary) ? mergeSummary[0] : mergeSummary
+  const newCount = Number(summary?.new_count ?? 0)
+  const updatedCount = Number(summary?.updated_count ?? 0)
+  const skippedCount = Number(summary?.skipped_count ?? 0)
 
   revalidatePath(`/base-lists/${base_list_id}`)
   revalidatePath('/tickets')
   revalidatePath(`/tickets/${ticket_id}`)
-  return { success: true }
+  return {
+    success: true,
+    new_count: newCount,
+    updated_count: updatedCount,
+    skipped_count: skippedCount,
+  }
 }
 
 export async function createBaseListFromTicket(data: unknown) {
@@ -347,15 +264,15 @@ export async function retryTicketOCR(id: string) {
     return { error: 'Ticket not found' }
   }
 
-  // Validate image exists in storage
-  const { data: fileExists, error: fileError } = await supabase.storage
-    .from('tickets')
-    .list(ticket.image_path.split('/')[0], {
-      search: ticket.image_path.split('/')[1],
-    })
+  const imagePaths: string[] =
+    Array.isArray((ticket as any).image_paths) && (ticket as any).image_paths.length > 0
+      ? (ticket as any).image_paths
+      : ticket.image_path
+        ? [ticket.image_path]
+        : []
 
-  if (fileError || !fileExists || fileExists.length === 0) {
-    return { error: 'Image file not found in storage. The image may have been deleted.' }
+  if (imagePaths.length === 0) {
+    return { error: 'No image paths found for this receipt.' }
   }
 
   // Delete existing ticket items
@@ -371,6 +288,7 @@ export async function retryTicketOCR(id: string) {
       ocr_status: 'pending',
       total_items: 0,
       processed_at: null,
+      ocr_error: null,
     })
     .eq('id', id)
 
@@ -378,16 +296,26 @@ export async function retryTicketOCR(id: string) {
     return { error: updateError.message }
   }
 
-  // Generate signed URL for the image
-  const { data: signedUrlData, error: signedUrlError } = await supabase.storage
-    .from('tickets')
-    .createSignedUrl(ticket.image_path, 3600) // 1 hour expiry
+  const signedUrls: string[] = []
+  for (const path of imagePaths) {
+    const { data: signedUrlData, error: signedUrlError } = await supabase.storage
+      .from('tickets')
+      .createSignedUrl(path, 3600)
 
-  if (signedUrlError || !signedUrlData?.signedUrl) {
-    // Mark as failed if we can't generate URL
+    if (signedUrlError || !signedUrlData?.signedUrl) {
+      continue
+    }
+
+    signedUrls.push(signedUrlData.signedUrl)
+  }
+
+  if (signedUrls.length === 0) {
     await supabase
       .from('tickets')
-      .update({ ocr_status: 'failed' })
+      .update({
+        ocr_status: 'failed',
+        ocr_error: 'Failed to generate signed URLs for receipt images.',
+      })
       .eq('id', id)
     return { error: 'Failed to generate image URL' }
   }
@@ -404,7 +332,8 @@ export async function retryTicketOCR(id: string) {
         },
         body: JSON.stringify({
           ticketId: id,
-          imageUrl: signedUrlData.signedUrl,
+          imageUrls: signedUrls,
+          imageUrl: signedUrls[0],
         }),
       }
     )
@@ -416,7 +345,10 @@ export async function retryTicketOCR(id: string) {
       // Mark as failed if Edge Function returns error
       await supabase
         .from('tickets')
-        .update({ ocr_status: 'failed' })
+        .update({
+          ocr_status: 'failed',
+          ocr_error: 'OCR processing failed during retry trigger.',
+        })
         .eq('id', id)
 
       return { error: 'OCR processing failed. Please try again.' }
@@ -427,7 +359,10 @@ export async function retryTicketOCR(id: string) {
     // Mark as failed on exception
     await supabase
       .from('tickets')
-      .update({ ocr_status: 'failed' })
+      .update({
+        ocr_status: 'failed',
+        ocr_error: 'Failed to connect to OCR service during retry.',
+      })
       .eq('id', id)
 
     return { error: 'Failed to connect to OCR service. Please try again.' }

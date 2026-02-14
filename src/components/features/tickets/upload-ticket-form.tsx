@@ -147,7 +147,7 @@ export function UploadTicketForm({ onSuccess }: Props) {
 			}
 
 			// Navigate immediately to the receipt page showing `pending` status
-			const ticketId = result?.data?.id || result?.id || null
+			const ticketId = result?.ticketId || result?.data?.id || result?.id || null
 			toast.success('Receipt uploaded — redirecting...')
 			onSuccess?.()
 			if (ticketId) {

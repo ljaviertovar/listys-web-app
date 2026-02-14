@@ -77,16 +77,28 @@ export async function createShoppingSession(data: unknown) {
     return { error: sessionError.message }
   }
 
-  // Copy items from base list
+  // Copy items from base list using dynamic ordering from enrichment fields.
   if (baseList.items && baseList.items.length > 0) {
-    const items = baseList.items.map((item: any) => ({
+    const orderedItems = [...baseList.items].sort((a: any, b: any) => {
+      const purchaseA = Number(a?.purchase_count ?? 0)
+      const purchaseB = Number(b?.purchase_count ?? 0)
+      if (purchaseA !== purchaseB) return purchaseB - purchaseA
+
+      const lastPurchasedA = a?.last_purchased_at ? new Date(a.last_purchased_at).getTime() : 0
+      const lastPurchasedB = b?.last_purchased_at ? new Date(b.last_purchased_at).getTime() : 0
+      if (lastPurchasedA !== lastPurchasedB) return lastPurchasedB - lastPurchasedA
+
+      return Number(a?.sort_order ?? 0) - Number(b?.sort_order ?? 0)
+    })
+
+    const items = orderedItems.map((item: any, index: number) => ({
       shopping_session_id: shoppingSession.id,
       name: item.name,
       quantity: item.quantity,
       unit: item.unit,
       notes: item.notes,
       category: item.category,
-      sort_order: item.sort_order,
+      sort_order: index,
       checked: false,
     }))
 
@@ -184,117 +196,21 @@ export async function completeShoppingSession(id: string, data: unknown) {
   }
 
   // Sync to base list if requested
-  if (validation.data.sync_to_base && shoppingSession.items) {
-    const { error: syncError } = await syncSessionToBaseList(
-      supabase,
-      shoppingSession.base_list_id,
-      shoppingSession.items
+  if (validation.data.sync_to_base) {
+    const { error: syncError } = await (supabase as any).rpc(
+      'sync_shopping_session_to_base_list',
+      {
+        p_session_id: id,
+        p_max_items: MAX_ITEMS_PER_BASE_LIST,
+      }
     )
 
-    if (syncError) {
-      return { error: 'Run completed but sync failed: ' + syncError }
-    }
+    if (syncError) return { error: 'Run completed but sync failed: ' + syncError.message }
   }
 
   revalidatePath('/dashboard')
   revalidatePath('/shopping-history')
   revalidatePath(`/shopping/${id}`)
-  return { success: true }
-}
-
-async function syncSessionToBaseList(
-  supabase: any,
-  baseListId: string,
-  sessionItems: any[]
-) {
-  // Safety check: Prevent DoS from excessive items
-  const MAX_SYNC_ITEMS = 500
-  if (sessionItems.length > MAX_SYNC_ITEMS) {
-    return { error: `Cannot sync more than ${MAX_SYNC_ITEMS} items. Please reduce the number of items.` }
-  }
-
-  // Get current base list items
-  const { data: baseItems, error: baseError } = await supabase
-    .from('base_list_items')
-    .select('*')
-    .eq('base_list_id', baseListId)
-
-  if (baseError) {
-    return { error: baseError.message }
-  }
-
-  // Create a map of existing items by name
-  const existingItems = new Map<string, any>(
-    baseItems?.map((item: any) => [item.name.toLowerCase(), item]) || []
-  )
-
-  const itemsToUpdate: any[] = []
-  const itemsToInsert: any[] = []
-
-  sessionItems.forEach((sessionItem) => {
-    const existing = existingItems.get(sessionItem.name.toLowerCase())
-
-    if (existing) {
-      // Update existing item
-      itemsToUpdate.push({
-        id: existing.id,
-        quantity: sessionItem.quantity,
-        unit: sessionItem.unit,
-        notes: sessionItem.notes,
-        category: sessionItem.category,
-      })
-    } else {
-      // Insert new item
-      itemsToInsert.push({
-        base_list_id: baseListId,
-        name: sessionItem.name,
-        quantity: sessionItem.quantity,
-        unit: sessionItem.unit,
-        notes: sessionItem.notes,
-        category: sessionItem.category,
-        sort_order: sessionItem.sort_order,
-      })
-    }
-  })
-
-  // Execute updates
-  for (const item of itemsToUpdate) {
-    const { error } = await supabase
-      .from('base_list_items')
-      .update({
-        quantity: item.quantity,
-        unit: item.unit,
-        notes: item.notes,
-        category: item.category,
-      })
-      .eq('id', item.id)
-
-    if (error) {
-      return { error: error.message }
-    }
-  }
-
-  // Execute inserts
-  if (itemsToInsert.length > 0) {
-    // Check if adding new items would exceed the limit
-    const currentItemCount = baseItems?.length || 0
-    const newItemsCount = itemsToInsert.length
-
-    if (currentItemCount + newItemsCount > MAX_ITEMS_PER_BASE_LIST) {
-      return {
-        error: `Cannot sync items. This would exceed the maximum limit of ${MAX_ITEMS_PER_BASE_LIST} items per list (current: ${currentItemCount}, trying to add: ${newItemsCount}).`
-      }
-    }
-
-    const { error } = await supabase
-      .from('base_list_items')
-      .insert(itemsToInsert)
-
-    if (error) {
-      return { error: error.message }
-    }
-  }
-
   return { success: true }
 }
 

@@ -5,6 +5,7 @@ import { getOCRFunctionURL } from '@/lib/config/ocr'
 
 export async function POST(request: NextRequest) {
   try {
+    const startedAt = Date.now()
     const supabase = await createClient()
     const {
       data: { user },
@@ -135,9 +136,12 @@ export async function POST(request: NextRequest) {
       console.error('No signed URLs could be created')
       await supabase
         .from('tickets')
-        .update({ ocr_status: 'failed' })
+        .update({
+          ocr_status: 'failed',
+          ocr_error: 'Failed to create signed URLs for OCR processing.',
+        })
         .eq('id', ticket.id)
-      return NextResponse.json({ data: ticket })
+      return NextResponse.json({ ticketId: ticket.id }, { status: 202 })
     }
 
     // Trigger OCR processing via Edge Function with all images
@@ -163,7 +167,13 @@ export async function POST(request: NextRequest) {
             const text = await res.text()
             console.error('OCR function error:', text)
             try {
-              await supabase.from('tickets').update({ ocr_status: 'failed' }).eq('id', ticket.id)
+              await supabase
+                .from('tickets')
+                .update({
+                  ocr_status: 'failed',
+                  ocr_error: `OCR function error: ${text.slice(0, 500)}`,
+                })
+                .eq('id', ticket.id)
             } catch (u) {
               console.error('Failed to update ticket status after OCR error:', u)
             }
@@ -179,7 +189,13 @@ export async function POST(request: NextRequest) {
         .catch(async (err) => {
           console.error('Failed to trigger OCR:', err)
           try {
-            await supabase.from('tickets').update({ ocr_status: 'failed' }).eq('id', ticket.id)
+            await supabase
+              .from('tickets')
+              .update({
+                ocr_status: 'failed',
+                ocr_error: 'Failed to trigger OCR edge function.',
+              })
+              .eq('id', ticket.id)
           } catch (u) {
             console.error('Failed to update ticket status after OCR failure:', u)
           }
@@ -188,7 +204,13 @@ export async function POST(request: NextRequest) {
       console.error('Failed to initiate OCR trigger:', err)
     }
 
-    return NextResponse.json({ data: ticket })
+    console.log('Upload accepted', {
+      ticketId: ticket.id,
+      userId: user.id,
+      timing_ms: Date.now() - startedAt,
+    })
+
+    return NextResponse.json({ ticketId: ticket.id }, { status: 202 })
   } catch (error: any) {
     console.error('Upload error:', error)
     return NextResponse.json(

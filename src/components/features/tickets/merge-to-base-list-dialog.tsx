@@ -10,6 +10,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Loading03Icon, FolderIcon, Add01Icon, ListViewIcon } from '@hugeicons/core-free-icons'
+import { toast } from 'sonner'
 import { getGroups } from '@/actions/shopping-lists'
 import { getBaseLists } from '@/actions/base-lists'
 import { mergeTicketItemsToBaseList, createBaseListFromTicket } from '@/actions/tickets'
@@ -92,6 +93,10 @@ export function MergeToBaseListDialog({ open, onOpenChange, ticketId, selectedIt
 					setError(result.error)
 					return
 				}
+
+				toast.success('Items merged successfully', {
+					description: `${result.new_count ?? 0} new, ${result.updated_count ?? 0} updated, ${result.skipped_count ?? 0} skipped`,
+				})
 			} else {
 				if (!newListName.trim()) {
 					setError('Please enter a list name')
