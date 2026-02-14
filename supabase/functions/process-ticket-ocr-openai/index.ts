@@ -344,8 +344,13 @@ function toTitleCase(input: string | null): string | null {
 }
 
 serve(async (req: Request) => {
+  const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+  let ticketId: string | undefined
+
   try {
-    const { ticketId, imageUrl, imageUrls }: RequestBody = await req.json()
+    const body: RequestBody = await req.json()
+    ticketId = body.ticketId
+    const { imageUrl, imageUrls } = body
 
     // Support both single image (backward compatibility) and multiple images
     const urls = imageUrls || (imageUrl ? [imageUrl] : [])
@@ -357,10 +362,16 @@ serve(async (req: Request) => {
       })
     }
 
-    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+    const startedAt = Date.now()
 
-    // Update ticket status to processing
-    await supabase.from('tickets').update({ ocr_status: 'processing' }).eq('id', ticketId)
+    const { data: ticketRow } = await supabase.from('tickets').select('ocr_attempts').eq('id', ticketId).single()
+    const nextAttempts = Number(ticketRow?.ocr_attempts ?? 0) + 1
+
+    // Update ticket status to processing and increment attempt counter.
+    await supabase
+      .from('tickets')
+      .update({ ocr_status: 'processing', ocr_attempts: nextAttempts, ocr_error: null })
+      .eq('id', ticketId)
 
     console.log(`Processing ${urls.length} image(s) for ticket ${ticketId}`)
 
@@ -414,8 +425,16 @@ serve(async (req: Request) => {
         ocr_status: 'completed',
         processed_at: new Date().toISOString(),
         total_items: mergedItems.length,
+        ocr_error: null,
       })
       .eq('id', ticketId)
+
+    console.log('OCR completed', {
+      ticketId,
+      timing_ms: Date.now() - startedAt,
+      item_count: mergedItems.length,
+      attempt: nextAttempts,
+    })
 
     return new Response(
       JSON.stringify({
@@ -427,6 +446,21 @@ serve(async (req: Request) => {
     )
   } catch (error: any) {
     console.error('OCR processing error:', error)
+
+    if (ticketId) {
+      try {
+        await supabase
+          .from('tickets')
+          .update({
+            ocr_status: 'failed',
+            ocr_error: String(error?.message || 'OCR processing failed').slice(0, 1000),
+            processed_at: new Date().toISOString(),
+          })
+          .eq('id', ticketId)
+      } catch (updateErr) {
+        console.error('Failed to persist OCR error state:', updateErr)
+      }
+    }
 
     return new Response(JSON.stringify({ error: error.message || 'OCR processing failed' }), {
       status: 500,
