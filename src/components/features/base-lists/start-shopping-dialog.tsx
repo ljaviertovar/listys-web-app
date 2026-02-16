@@ -77,6 +77,7 @@ export function StartShoppingDialog({ baseListId, baseListName, disabled, itemsC
 					className='w-full'
 					variant={'outline'}
 					size={'sm'}
+					data-testid='start-shopping-button'
 				>
 					<HugeiconsIcon
 						icon={ShoppingCart02Icon}
@@ -123,6 +124,7 @@ export function StartShoppingDialog({ baseListId, baseListName, disabled, itemsC
 						onClick={handleConfirm}
 						disabled={loading || isEmpty}
 						className='flex-1'
+						data-testid='confirm-start-shopping'
 					>
 						{loading ? (
 							<HugeiconsIcon

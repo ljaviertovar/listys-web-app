@@ -75,7 +75,10 @@ export function CreateBaseListDialog({ groupId }: Props) {
 			onOpenChange={isOpen => !loading && setOpen(isOpen)}
 		>
 			<DialogTrigger asChild>
-				<Button className='w-full'>
+				<Button
+					className='w-full'
+					data-testid='create-list-button'
+				>
 					<HugeiconsIcon
 						icon={PlusSignIcon}
 						strokeWidth={2}
@@ -125,6 +128,7 @@ export function CreateBaseListDialog({ groupId }: Props) {
 							type='submit'
 							disabled={loading}
 							className='flex-1'
+							data-testid='submit-list-button'
 						>
 							{loading && (
 								<HugeiconsIcon

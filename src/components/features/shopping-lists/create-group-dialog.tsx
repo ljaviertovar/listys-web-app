@@ -63,7 +63,10 @@ export function CreateGroupDialog() {
 			onOpenChange={isOpen => !loading && setOpen(isOpen)}
 		>
 			<DialogTrigger asChild>
-				<Button className='w-full'>
+				<Button
+					className='w-full'
+					data-testid='create-group-button'
+				>
 					<HugeiconsIcon
 						icon={PlusSignIcon}
 						strokeWidth={2}
@@ -126,6 +129,7 @@ export function CreateGroupDialog() {
 							type='submit'
 							disabled={loading}
 							className='flex-1'
+							data-testid='submit-group-button'
 						>
 							{loading && (
 								<HugeiconsIcon
