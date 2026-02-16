@@ -12,8 +12,8 @@ export default function Logo({ isCollapsed }: Props) {
 		>
 			<svg
 				xmlns='http://www.w3.org/2000/svg'
-				width='30'
-				height='30'
+				width='300'
+				height='300'
 				aria-hidden='true'
 				className='text-primary'
 				viewBox='810 322.5 300 300'
