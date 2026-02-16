@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation'
 import { HugeiconsIcon } from '@hugeicons/react'
 
-import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { PageHeader, PageContainer, BackLink } from '@/components/app'
 import { TicketItemsSelector, TicketImage, TicketActions, TicketStatusListener } from '@/components/features/tickets'
@@ -48,13 +47,10 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 					label='Back to Receipts'
 				/>
 
-				<div className='grid gap-6 lg:grid-cols-2'>
-					{/* Realtime status listener (client) */}
-					<TicketStatusListener ticketId={ticketId} />
-
+				<div className='w-full flex gap-6 flex-col-reverse md:flex-row'>
 					{/* Ticket Image */}
 					<Card
-						className='hover:border-primary/50 transition-colors h-fit'
+						className='flex-1 hover:border-primary/50 transition-colors h-fit'
 						size='sm'
 					>
 						<CardHeader>
@@ -84,7 +80,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 
 					{/* Extracted Items */}
 					<Card
-						className='hover:border-primary/50 transition-colors'
+						className='flex-1 hover:border-primary/50 transition-colors'
 						size='sm'
 					>
 						<CardHeader className='flex gap-2 items-start justify-between'>
@@ -103,19 +99,10 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 									</CardDescription>
 								</div>
 							</div>
-							<Badge
-								variant={
-									ticket.ocr_status === 'processing'
-										? 'processing'
-										: ticket.ocr_status === 'completed'
-											? 'completed'
-											: ticket.ocr_status === 'failed'
-												? 'failed'
-												: 'pending'
-								}
-							>
-								{ticket.ocr_status ? ticket.ocr_status.charAt(0).toUpperCase() + ticket.ocr_status.slice(1) : 'Pending'}
-							</Badge>
+							<TicketStatusListener
+								ticketId={ticketId}
+								initialStatus={(ticket.ocr_status as any) || 'pending'}
+							/>
 						</CardHeader>
 						<CardContent>
 							<TicketItemsSelector

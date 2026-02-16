@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { ThemeProvider } from '@/providers/theme-provider'
 import { Toaster } from 'sonner'
 
@@ -12,6 +12,14 @@ import ActiveSessionInit from '@/components/app/active-session-init'
 export const metadata: Metadata = {
 	title: 'Listys - Smart Shopping List Manager',
 	description: 'Manage your shopping lists with AI-powered receipt processing',
+}
+
+export const viewport: Viewport = {
+	width: 'device-width',
+	initialScale: 1,
+	maximumScale: 1,
+	userScalable: false,
+	viewportFit: 'cover',
 }
 
 export default function RootLayout({
@@ -34,7 +42,7 @@ export default function RootLayout({
 				>
 					<ActiveSessionInit />
 					{children}
-					<Toaster />
+					<Toaster position='top-center' />
 				</ThemeProvider>
 			</body>
 		</html>

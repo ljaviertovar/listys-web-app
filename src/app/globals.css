@@ -172,6 +172,11 @@
     @apply border-border outline-ring/50;
   }
 
+  html,
+  body {
+    height: 100%;
+  }
+
   body {
     @apply bg-background text-foreground;
     -webkit-font-smoothing: antialiased;
@@ -249,14 +254,12 @@
 .scan-line {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    180deg,
-    transparent 0%,
-    rgba(56, 189, 248, 0.08) 47%,
-    rgba(56, 189, 248, 0.22) 50%,
-    rgba(56, 189, 248, 0.08) 53%,
-    transparent 100%
-  );
+  background: linear-gradient(180deg,
+      transparent 0%,
+      rgba(56, 189, 248, 0.08) 47%,
+      rgba(56, 189, 248, 0.22) 50%,
+      rgba(56, 189, 248, 0.08) 53%,
+      transparent 100%);
   animation: scan-line 3s linear infinite;
   pointer-events: none;
 }
@@ -271,6 +274,7 @@
 }
 
 @keyframes floating {
+
   0%,
   100% {
     transform: translateY(0px);

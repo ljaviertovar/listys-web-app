@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { PackageSearch } from 'lucide-react'
@@ -26,16 +26,7 @@ export function TicketItemsSelector({ ticketId, items, status, ocrError }: Props
 	const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
 	const [showMergeDialog, setShowMergeDialog] = useState(false)
 
-	// Auto-refresh while processing
-	useEffect(() => {
-		if (status === 'processing' || status === 'pending') {
-			const timer = setTimeout(() => {
-				router.refresh()
-			}, 3000)
-
-			return () => clearTimeout(timer)
-		}
-	}, [status, router])
+	// Polling removed — TicketStatusListener handles refresh on status change
 
 	const toggleItem = (itemId: string) => {
 		setSelectedItems(prev => {
@@ -57,10 +48,14 @@ export function TicketItemsSelector({ ticketId, items, status, ocrError }: Props
 		}
 	}
 
-	const handleMergeSuccess = () => {
+	const handleMergeSuccess = (baseListId: string) => {
 		setShowMergeDialog(false)
 		setSelectedItems(new Set())
-		router.refresh()
+		if (baseListId) {
+			router.push(`/base-lists/${baseListId}/edit`)
+		} else {
+			router.refresh()
+		}
 	}
 
 	if (status === 'pending' || status === 'processing') {

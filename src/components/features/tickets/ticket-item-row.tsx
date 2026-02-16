@@ -54,12 +54,15 @@ export function TicketItemRow({ item, canSelect = false, selected = false, onSel
 					</div>
 				</div>
 				{canSelect ? (
-					<div onClick={handleToggle}>
+					<div
+						onClick={e => e.stopPropagation()}
+						className='ml-6 mt-0.5'
+					>
 						<Checkbox
 							checked={selected}
 							onCheckedChange={() => onSelectToggle?.(item.id)}
 							aria-label={item.name}
-							className='ml-6 mt-0.5 w-5 h-5 rounded-lg'
+							className='w-5 h-5 rounded-lg'
 						/>
 					</div>
 				) : null}

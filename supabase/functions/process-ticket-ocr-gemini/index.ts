@@ -42,8 +42,12 @@ async function getBase64FromUrl(url: string): Promise<{ base64: string; mimeType
 
 function toTitleCase(input: string | null): string | null {
   if (!input) return null;
-  const cleaned = input.replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
-  return cleaned.split(/\s+/).map(p => p.toLowerCase().charAt(0).toUpperCase() + p.slice(1)).join(' ');
+  let cleaned = input.replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+  if (!cleaned) return null;
+  // Strip leading department/aisle numbers (e.g. "27 PRODUCE" -> "PRODUCE")
+  cleaned = cleaned.replace(/^\d+\s+/, '');
+  if (!cleaned) return null;
+  return cleaned.split(/\s+/).map(p => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()).join(' ');
 }
 
 /* --- PROCESAMIENTO OPTIMIZADO CON GEMINI 3 --- */
@@ -150,20 +154,43 @@ serve(async (req) => {
 
     const startedAt = Date.now();
 
-    // Marcar como procesando e incrementar intentos
+    // Check current OCR attempts and enforce max limit
     console.log('[DEBUG] Fetching current ticket state...');
     const { data: ticket } = await supabase.from('tickets').select('ocr_attempts').eq('id', ticketId).single();
-    console.log('[DEBUG] Current ocr_attempts:', ticket?.ocr_attempts || 0);
+    const currentAttempts = ticket?.ocr_attempts || 0;
+    const MAX_OCR_ATTEMPTS = 3;
+
+    console.log('[DEBUG] Current ocr_attempts:', currentAttempts);
+
+    // Check if max attempts exceeded
+    if (currentAttempts >= MAX_OCR_ATTEMPTS) {
+      console.error('[ERROR] Max OCR attempts exceeded:', currentAttempts, '>=', MAX_OCR_ATTEMPTS);
+      await supabase.from('tickets').update({
+        ocr_status: 'failed',
+        ocr_error: `Maximum OCR retry attempts (${currentAttempts}/${MAX_OCR_ATTEMPTS}) exceeded. Please delete this receipt and try uploading again with a clearer image.`
+      }).eq('id', ticketId);
+
+      return new Response(
+        JSON.stringify({
+          error: 'Max OCR attempts exceeded',
+          attempts: currentAttempts,
+          max: MAX_OCR_ATTEMPTS
+        }),
+        { status: 429, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    // Mark as processing and increment attempts
     const { error: updateError } = await supabase.from('tickets').update({
       ocr_status: 'processing',
-      ocr_attempts: (ticket?.ocr_attempts || 0) + 1
+      ocr_attempts: currentAttempts + 1
     }).eq('id', ticketId);
 
     if (updateError) {
       console.error('[ERROR] Failed to update ticket to processing:', updateError);
       throw updateError;
     }
-    console.log('[DEBUG] Ticket status updated to processing');
+    console.log('[DEBUG] Ticket status updated to processing, attempt:', currentAttempts + 1);
 
     // PROCESAMIENTO EN PARALELO (Mucho más rápido)
     console.log('[INFO] Starting parallel image processing...');
