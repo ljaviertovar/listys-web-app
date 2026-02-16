@@ -1,6 +1,7 @@
 'use client'
 
 import { AuthButtons } from '@/components/features/auth'
+import { InstallAppButton } from '@/components/features/pwa'
 import { useScrollPosition } from '@/hooks/use-scroll-position'
 import { cn } from '@/lib/utils'
 import MobileMenu from './mobile-menu'
@@ -22,6 +23,7 @@ export const Header = () => {
 			<div className='flex-1' />
 
 			<div className='flex items-center'>
+				<InstallAppButton />
 				<AuthButtons />
 			</div>
 		</header>
