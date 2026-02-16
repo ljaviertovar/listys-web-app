@@ -179,7 +179,10 @@ export function GroupCard({ group, history = false }: Props) {
 				className='hover:border-primary/50 transition-colors cursor-pointer group'
 				size='sm'
 			>
-				<Link href={history ? `/shopping-history/${group.id}` : `/shopping-lists/${group.id}/lists`}>
+				<Link
+					href={history ? `/shopping-history/${group.id}` : `/shopping-lists/${group.id}/lists`}
+					data-testid={`group-card-${group.id}`}
+				>
 					<CardHeader className='gap-0'>
 						{!history && (
 							<div className='flex items-center justify-end gap-1'>

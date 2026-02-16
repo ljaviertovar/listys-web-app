@@ -105,6 +105,7 @@ export function BaseListCard({ baseList, hasActiveRun = false, isActiveRun = fal
 			<Card
 				className={`hover:border-primary/50 transition-colors gap-2`}
 				size='sm'
+				data-testid={`list-card-${baseList.id}`}
 			>
 				<CardHeader className='gap-0'>
 					<div className='flex items-center justify-end gap-1'>
