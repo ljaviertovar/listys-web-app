@@ -44,9 +44,6 @@ export function HistorySessionCard({ session }: Props) {
 						</span>
 						<div className='flex flex-col'>
 							<CardTitle className='text-base md:text-lg truncate w-full max-w-[20ch]'>{session.name}</CardTitle>
-							{session.base_list && (
-								<CardDescription className='text-xs'>From: {session.base_list.name}</CardDescription>
-							)}
 						</div>
 					</div>
 				</CardHeader>

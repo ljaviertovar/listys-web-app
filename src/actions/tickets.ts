@@ -45,22 +45,38 @@ export async function getTicket(id: string) {
     return { error: 'Unauthorized' }
   }
 
-  const { data: ticket, error } = await supabase
+  // Fetch ticket with items using separate queries to avoid RLS join issues
+  const { data: ticket, error: ticketError } = await supabase
     .from('tickets')
     .select(`
       *,
-      items:ticket_items(*),
       base_list:base_lists(id, name)
     `)
     .eq('id', id)
     .eq('user_id', user.id)
     .single()
 
-  if (error) {
-    return { error: error.message }
+  if (ticketError) {
+    return { error: ticketError.message }
   }
 
-  return { data: ticket }
+  // Get items separately
+  const { data: items, error: itemsError } = await supabase
+    .from('ticket_items')
+    .select('*')
+    .eq('ticket_id', id)
+
+  if (itemsError) {
+    console.error('[getTicket] Error fetching items:', itemsError)
+  }
+
+  // Combine the results
+  const ticketWithItems = {
+    ...ticket,
+    items: items || [],
+  }
+
+  return { data: ticketWithItems }
 }
 
 export async function mergeTicketItemsToBaseList(data: unknown) {
@@ -215,18 +231,42 @@ export async function deleteTicket(id: string) {
     return { error: 'Unauthorized' }
   }
 
-  // Get ticket to delete image from storage
+  // Get ticket to delete images from storage
   const { data: ticket } = await supabase
     .from('tickets')
-    .select('image_path')
+    .select('image_path, image_paths')
     .eq('id', id)
     .eq('user_id', user.id)
     .single()
 
-  if (ticket?.image_path) {
-    await supabase.storage.from('tickets').remove([ticket.image_path])
+  // Collect all image paths to delete
+  const imagesToDelete: string[] = []
+
+  if (ticket && typeof ticket === 'object' && !('code' in ticket)) {
+    // Handle new multi-image format (image_paths array)
+    if ((ticket as any).image_paths && Array.isArray((ticket as any).image_paths)) {
+      imagesToDelete.push(...(ticket as any).image_paths)
+    }
+    // Handle legacy single image format (image_path)
+    else if ((ticket as any).image_path) {
+      imagesToDelete.push((ticket as any).image_path)
+    }
   }
 
+  // Delete images from storage
+  if (imagesToDelete.length > 0) {
+    const { error: storageError } = await supabase.storage
+      .from('tickets')
+      .remove(imagesToDelete)
+
+    if (storageError) {
+      console.error('Failed to delete images from storage:', storageError)
+      // Don't fail the whole operation if storage deletion fails
+      // The ticket will still be deleted from the database
+    }
+  }
+
+  // Delete ticket from database (cascades to ticket_items)
   const { error } = await supabase
     .from('tickets')
     .delete()

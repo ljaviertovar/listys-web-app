@@ -48,8 +48,20 @@ export const MAX_SYNC_ITEMS = 250          // Maximum items to sync from shoppin
  *    - Each image processed sequentially by OpenAI Vision API
  *    - Items merged automatically, removing duplicates at borders
  *    - 5 images typically covers receipts up to 200+ items
+ *
+ * MAX_OCR_ATTEMPTS (3):
+ *    - Maximum number of times to retry OCR processing for a failed ticket
+ *    - Prevents infinite loops and wasted API credits
+ *    - After 3 attempts, user must delete and re-upload with a better image
+ *
+ * OCR_PROCESSING_TIMEOUT_MINUTES (10):
+ *    - Maximum time a ticket can stay in 'processing' status
+ *    - If exceeded, ticket is marked as failed (likely Edge Function crash)
+ *    - User can retry or delete the ticket
  */
-export const MAX_IMAGES_PER_TICKET = 5     // Maximum images per ticket upload
+export const MAX_IMAGES_PER_TICKET = 5
+export const MAX_OCR_ATTEMPTS = 3
+export const OCR_PROCESSING_TIMEOUT_MINUTES = 10     // Maximum images per ticket upload
 
 /**
  * FUTURE ENHANCEMENT IDEAS:

@@ -60,6 +60,7 @@ export default async function ShoppingRunPage({ params }: { params: Promise<{ ru
 						<Progress
 							value={progress}
 							className='h-2'
+							indicatorClassName='bg-green-500'
 						/>
 						{!isCompleted && <ActiveShoppingBadge />}
 					</div>
@@ -104,7 +105,7 @@ export default async function ShoppingRunPage({ params }: { params: Promise<{ ru
 				)}
 
 				<ScrollArea className='h-full min-h-0 sm:px-6 touch-pan-y overscroll-contain'>
-					<div className='space-y-2'>
+					<div className='space-y-2 mb-4'>
 						{sortedItems.map(item => (
 							<ShoppingSessionItemRow
 								key={item.id}

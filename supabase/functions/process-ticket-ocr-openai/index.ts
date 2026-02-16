@@ -329,7 +329,11 @@ function toTitleCase(input: string | null): string | null {
   if (!input) return null
 
   // Normalize: replace non-alphanumeric with spaces, collapse runs
-  const cleaned = input.replace(/[^\p{L}\p{N}]+/gu, ' ').trim()
+  let cleaned = input.replace(/[^\p{L}\p{N}]+/gu, ' ').trim()
+  if (!cleaned) return null
+
+  // Strip leading department/aisle numbers (e.g. "27 PRODUCE" -> "PRODUCE")
+  cleaned = cleaned.replace(/^\d+\s+/, '')
   if (!cleaned) return null
 
   const parts = cleaned.split(/\s+/)

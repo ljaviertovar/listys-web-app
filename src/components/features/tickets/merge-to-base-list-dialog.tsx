@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -20,7 +19,7 @@ interface Props {
 	onOpenChange: (open: boolean) => void
 	ticketId: string
 	selectedItemIds: string[]
-	onSuccess: () => void
+	onSuccess: (baseListId: string) => void
 }
 
 type Group = { id: string; name: string }
@@ -36,7 +35,6 @@ export function MergeToBaseListDialog({ open, onOpenChange, ticketId, selectedIt
 	const [loading, setLoading] = useState(false)
 	const [loadingData, setLoadingData] = useState(true)
 	const [error, setError] = useState<string | null>(null)
-	const router = useRouter()
 
 	// Load groups and base lists
 	useEffect(() => {
@@ -97,6 +95,10 @@ export function MergeToBaseListDialog({ open, onOpenChange, ticketId, selectedIt
 				toast.success('Items merged successfully', {
 					description: `${result.new_count ?? 0} new, ${result.updated_count ?? 0} updated, ${result.skipped_count ?? 0} skipped`,
 				})
+
+				onOpenChange(false)
+				onSuccess(selectedBaseListId)
+				return
 			} else {
 				if (!newListName.trim()) {
 					setError('Please enter a list name')
@@ -121,9 +123,14 @@ export function MergeToBaseListDialog({ open, onOpenChange, ticketId, selectedIt
 					setError(result.error)
 					return
 				}
+
+				toast.success('List created successfully')
+				onOpenChange(false)
+				onSuccess(result.data?.id ?? '')
+				return
 			}
 
-			onSuccess()
+			onSuccess('')
 		} catch (err: any) {
 			setError(err.message || 'Failed to add items')
 		} finally {

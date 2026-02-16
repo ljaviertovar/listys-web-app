@@ -84,8 +84,32 @@ export function TicketActions({ ticket }: Props) {
 	const showRetryButton = ticket.ocr_status === 'failed' || ticket.ocr_status === 'pending'
 	const retryButtonLabel = ticket.ocr_status === 'failed' ? 'Retry' : 'Reprocess'
 
+	// For stuck tickets in processing state, show delete button with a warning
+	// (ocr_attempts will be set by the auto-fail function if truly stuck)
+	const isStuckProcessing = ticket.ocr_status === 'processing' && (ticket as any).ocr_attempts >= 2 // If 2+ attempts and still processing, likely stuck
+
+	const deleteWarningMessage = isStuckProcessing
+		? 'This receipt appears to be stuck in processing. You can delete it and try uploading again with a clearer photo.'
+		: 'This will remove the receipt image and all extracted items. This action cannot be undone.'
+
 	return (
 		<div className='flex items-center gap-2'>
+			{/* Allow delete for failed/completed tickets, and stuck processing tickets */}
+			{(ticket.ocr_status !== 'processing' || isStuckProcessing) && (
+				<Button
+					variant='destructive'
+					size='sm'
+					onClick={() => setShowDeleteDialog(true)}
+				>
+					<HugeiconsIcon
+						icon={Delete02Icon}
+						strokeWidth={2}
+						className='h-4 w-4'
+					/>
+					Delete Receipt
+				</Button>
+			)}
+
 			{showRetryButton && (
 				<Button
 					variant='outline'
@@ -110,22 +134,6 @@ export function TicketActions({ ticket }: Props) {
 				</Button>
 			)}
 
-			{/* Hide delete while processing to avoid accidental removal during OCR */}
-			{ticket.ocr_status !== 'processing' && (
-				<Button
-					variant='destructive'
-					size='sm'
-					onClick={() => setShowDeleteDialog(true)}
-				>
-					<HugeiconsIcon
-						icon={Delete02Icon}
-						strokeWidth={2}
-						className='h-4 w-4'
-					/>
-					Delete Receipt
-				</Button>
-			)}
-
 			<AlertDialog
 				open={showDeleteDialog}
 				onOpenChange={setShowDeleteDialog}
@@ -140,9 +148,7 @@ export function TicketActions({ ticket }: Props) {
 							/>
 						</AlertDialogMedia>
 						<AlertDialogTitle>Delete Receipt?</AlertDialogTitle>
-						<AlertDialogDescription>
-							This will remove the receipt image and all extracted items. This action cannot be undone.
-						</AlertDialogDescription>
+						<AlertDialogDescription>{deleteWarningMessage}</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
 						<AlertDialogCancel variant={'outline'}>Cancel</AlertDialogCancel>
