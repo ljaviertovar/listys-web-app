@@ -242,14 +242,14 @@ export async function deleteTicket(id: string) {
   // Collect all image paths to delete
   const imagesToDelete: string[] = []
 
-  if (ticket) {
+  if (ticket && typeof ticket === 'object' && !('code' in ticket)) {
     // Handle new multi-image format (image_paths array)
     if ((ticket as any).image_paths && Array.isArray((ticket as any).image_paths)) {
       imagesToDelete.push(...(ticket as any).image_paths)
     }
     // Handle legacy single image format (image_path)
-    else if (ticket.image_path) {
-      imagesToDelete.push(ticket.image_path)
+    else if ((ticket as any).image_path) {
+      imagesToDelete.push((ticket as any).image_path)
     }
   }
 

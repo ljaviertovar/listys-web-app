@@ -64,10 +64,11 @@ export async function createGroup(userId: string, name?: string) {
 /**
  * Create a base list for testing
  */
-export async function createBaseList(groupId: string, name?: string) {
+export async function createBaseList(userId: string, groupId: string, name?: string) {
   const supabase = createTestClient()
 
   const baseListData: BaseList = {
+    user_id: userId,
     group_id: groupId,
     name: name || `Test List ${Date.now()}`,
   }
@@ -93,6 +94,7 @@ export async function createBaseListItems(
   const itemsData: BaseListItem[] = items.map((item) => ({
     base_list_id: baseListId,
     name: item.name,
+    normalized_name: item.name.toLowerCase().trim(),
     quantity: item.quantity || 1,
     unit: item.unit || 'unit',
     category: item.category || null,
@@ -117,6 +119,7 @@ export async function createTicket(userId: string, groupId?: string) {
     user_id: userId,
     group_id: groupId || null,
     ocr_status: 'pending',
+    image_path: `test-image-${Date.now()}.jpg`,
   }
 
   const { data, error } = await supabase.from('tickets').insert(ticketData).select().single()
@@ -139,7 +142,7 @@ export async function createCompleteSetup(options?: {
 }) {
   const user = await createTestUser(options?.userEmail)
   const group = await createGroup(user.userId, options?.groupName)
-  const baseList = await createBaseList(group.id, options?.baseListName)
+  const baseList = await createBaseList(user.userId, group.id, options?.baseListName)
 
   let items: Awaited<ReturnType<typeof createBaseListItems>> | undefined
 
