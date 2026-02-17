@@ -16,7 +16,7 @@ export const Header = () => {
 				scrollPosition > 20 ? 'bg-card/60' : 'bg-card/40',
 			)}
 		>
-			<div className='flex items-center gap-2 md:hidden'>
+			<div className='flex items-center gap-2 lg:hidden'>
 				<MobileMenu />
 			</div>
 

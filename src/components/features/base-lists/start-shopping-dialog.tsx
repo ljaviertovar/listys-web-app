@@ -75,7 +75,6 @@ export function StartShoppingDialog({ baseListId, baseListName, disabled, itemsC
 				<Button
 					disabled={disabled || isEmpty}
 					className='w-full'
-					variant={'outline'}
 					size={'sm'}
 					data-testid='start-shopping-button'
 				>

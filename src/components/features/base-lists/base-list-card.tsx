@@ -5,14 +5,17 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { HugeiconsIcon } from '@hugeicons/react'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
 
-import { Card, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { ListViewIcon, ShoppingCart02Icon, Edit02Icon, Delete02Icon, Loading03Icon } from '@hugeicons/core-free-icons'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { ListViewIcon, Edit02Icon, Delete02Icon, Loading03Icon, ArrowRight01Icon } from '@hugeicons/core-free-icons'
 
-import { deleteBaseList } from '@/actions/base-lists'
-import { createShoppingSession } from '@/actions/shopping-sessions'
+import { deleteBaseList, updateBaseList } from '@/actions/base-lists'
 
 import type { BaseListWithCount } from '@/features/base-lists/types'
 
@@ -28,20 +31,41 @@ import {
 	AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { ActiveShoppingBadge } from '@/components/app/active-shopping-badge'
-import { StartShoppingDialog } from '@/components/features/base-lists'
+import { Separator } from '@/components/ui/separator'
 
 interface Props {
 	baseList: BaseListWithCount
-	hasActiveRun?: boolean
 	isActiveRun?: boolean
-	activeRunId?: string
 }
 
-export function BaseListCard({ baseList, hasActiveRun = false, isActiveRun = false, activeRunId }: Props) {
+export function BaseListCard({ baseList, isActiveRun = false }: Props) {
 	const [showDeleteDialog, setShowDeleteDialog] = useState(false)
 	const [loading, setLoading] = useState(false)
-	const [startingRun, setStartingRun] = useState(false)
+	const [editing, setEditing] = useState(false)
 	const router = useRouter()
+
+	const editBaseListSchema = z.object({
+		name: z.string().min(1, 'Name is required').max(100),
+		notes: z.string().max(200, 'Notes cannot exceed 200 characters').optional(),
+	})
+
+	type EditBaseListFormData = z.infer<typeof editBaseListSchema>
+
+	const {
+		register,
+		handleSubmit,
+		reset,
+		watch,
+		formState: { errors },
+	} = useForm<EditBaseListFormData>({
+		resolver: zodResolver(editBaseListSchema),
+		defaultValues: {
+			name: baseList.name,
+			notes: baseList.notes ?? '',
+		},
+	})
+
+	const watchedName = watch('name')
 
 	const handleDelete = async () => {
 		setLoading(true)
@@ -57,142 +81,191 @@ export function BaseListCard({ baseList, hasActiveRun = false, isActiveRun = fal
 		}
 	}
 
-	const handleStartRun = async () => {
-		setStartingRun(true)
+	const handleEditSave = async (data: EditBaseListFormData) => {
+		setLoading(true)
 		try {
-			// Prevent starting from an empty base list
-			if (!baseList.items_count || baseList.items_count === 0) {
-				toast.error('Cannot start a shopping session from an empty base list. Add items first.')
-				setStartingRun(false)
-				return
-			}
-			const result = await createShoppingSession({
-				base_list_id: baseList.id,
-				name: baseList.name,
+			const normalizedNotes = data.notes?.trim() ? data.notes.trim() : null
+			const normalizedName = data.name.trim()
+			const { error } = await updateBaseList(baseList.id, {
+				name: normalizedName,
+				notes: normalizedNotes,
 			})
 
-			// If there's an active session, redirect to it
-			if (result.error) {
-				const resultWithId = result as { error: string; activeRunId?: string }
-				if (resultWithId.activeRunId) {
-					router.push(`/shopping/${resultWithId.activeRunId}`)
-					return
-				}
-				// Show error message to user
-				toast.error('Cannot start shopping session', {
-					description: result.error,
-				})
-				return
-			}
+			if (error) throw new Error(error)
 
-			if (!result.data) throw new Error('Failed to create shopping session')
-
-			router.push(`/shopping/${result.data.id}`)
+			setEditing(false)
+			router.refresh()
+			toast.success('Base list updated')
 		} catch (err) {
-			console.error('Failed to start shopping session:', err)
-			toast.error('Error', {
-				description: 'Failed to start shopping session. Please try again.',
-			})
+			console.error('Failed to update base list:', err)
+			const message = err instanceof Error ? err.message : 'Failed to update base list'
+			toast.error(message)
 		} finally {
-			setStartingRun(false)
+			setLoading(false)
 		}
 	}
 
-	const isDisabled = hasActiveRun && !isActiveRun
+	const handleEditCancel = () => {
+		reset({
+			name: baseList.name,
+			notes: baseList.notes ?? '',
+		})
+		setEditing(false)
+	}
 
-	return (
-		<>
+	const baseListNotes = baseList.notes
+
+	if (editing) {
+		return (
 			<Card
-				className={`hover:border-primary/50 transition-colors gap-2`}
+				className='hover:border-primary/50 transition-colors gap-2'
 				size='sm'
 				data-testid={`list-card-${baseList.id}`}
 			>
-				<CardHeader className='gap-0'>
-					<div className='flex items-center justify-end gap-1'>
-						{isActiveRun && <ActiveShoppingBadge />}
-						{!isActiveRun && (
-							<>
-								<Button
-									variant='ghost'
-									size='icon'
-									asChild
-									className='h-8 w-8'
-									aria-label='Edit list'
-								>
-									<Link href={`/base-lists/${baseList.id}/edit`}>
+				<CardHeader className='gap-2'>
+					<form
+						onSubmit={handleSubmit(handleEditSave)}
+						className='space-y-2'
+					>
+						<Input
+							{...register('name')}
+							disabled={loading}
+							aria-invalid={!!errors.name}
+							required
+						/>
+						<Textarea
+							{...register('notes')}
+							disabled={loading}
+							placeholder='Description (optional)'
+							className='min-h-20'
+						/>
+						<div>
+							{errors.name && <p className='text-xs text-destructive'>{errors.name.message}</p>}
+							{errors.notes && <p className='text-xs text-destructive'>{errors.notes.message}</p>}
+						</div>
+						<div className='flex items-center justify-end gap-2'>
+							<Button
+								type='button'
+								size='sm'
+								variant='outline'
+								onClick={handleEditCancel}
+								disabled={loading}
+							>
+								Cancel
+							</Button>
+							<Button
+								type='submit'
+								size='sm'
+								disabled={loading || !watchedName?.trim()}
+							>
+								{loading && (
+									<HugeiconsIcon
+										icon={Loading03Icon}
+										strokeWidth={2}
+										className='h-4 w-4 animate-spin'
+										data-icon='inline-start'
+									/>
+								)}
+								{loading ? 'Saving…' : 'Save'}
+							</Button>
+						</div>
+					</form>
+				</CardHeader>
+			</Card>
+		)
+	}
+
+	return (
+		<>
+			<Link href={`/base-lists/${baseList.id}/edit`}>
+				<Card
+					className={`hover:border-primary/50 transition-colors gap-2 cursor-pointer group`}
+					size='sm'
+					data-testid={`list-card-${baseList.id}`}
+				>
+					<CardHeader className='gap-0'>
+						<div className='flex items-center justify-end gap-1'>
+							{isActiveRun && <ActiveShoppingBadge />}
+							{!isActiveRun && (
+								<>
+									<Button
+										variant='ghost'
+										size='icon'
+										className='h-8 w-8'
+										onClick={e => {
+											e.preventDefault()
+											e.stopPropagation()
+											setEditing(true)
+										}}
+										disabled={loading}
+										aria-label='Edit list'
+									>
 										<HugeiconsIcon
 											icon={Edit02Icon}
 											strokeWidth={2}
 											className='h-4 w-4'
 										/>
-									</Link>
-								</Button>
-								<Button
-									variant='ghost'
-									size='icon'
-									onClick={e => {
-										e.preventDefault()
-										e.stopPropagation()
-										setShowDeleteDialog(true)
-									}}
-									disabled={loading}
-									className='h-8 w-8'
-									aria-label='Delete list'
-								>
-									<HugeiconsIcon
-										icon={Delete02Icon}
-										strokeWidth={2}
-									/>
-								</Button>
-							</>
-						)}
-					</div>
-					<div className='flex gap-2 items-center'>
-						<span className='h-10 w-10 bg-primary/10 flex justify-center items-center rounded-lg'>
-							<HugeiconsIcon
-								icon={ListViewIcon}
-								strokeWidth={2}
-								className='h-5 w-5 text-primary'
-							/>
-						</span>
-						<div className='flex flex-col flex-1 min-w-0'>
-							<CardTitle className='text-base md:text-lg truncate w-full max-w-[25ch] md:max-w-[20ch]'>
-								{baseList.name}
-							</CardTitle>
+									</Button>
+									<Button
+										variant='ghost'
+										size='icon'
+										onClick={e => {
+											e.preventDefault()
+											e.stopPropagation()
+											setShowDeleteDialog(true)
+										}}
+										disabled={loading}
+										className='h-8 w-8'
+										aria-label='Delete list'
+									>
+										<HugeiconsIcon
+											icon={Delete02Icon}
+											strokeWidth={2}
+										/>
+									</Button>
+								</>
+							)}
 						</div>
-					</div>
-				</CardHeader>
-				<CardFooter className='justify-between items-center'>
-					<span>
-						{baseList.items_count} {baseList.items_count === 1 ? 'item' : 'items'}
-					</span>
-					{isActiveRun ? (
-						<Button
-							variant={'outline'}
-							size={'sm'}
-							asChild
-						>
-							<Link href={`/shopping/${activeRunId}`}>
+						<div className='flex gap-2 items-center'>
+							<span className='h-10 w-10 bg-primary/10 flex justify-center items-center rounded-lg'>
 								<HugeiconsIcon
-									icon={ShoppingCart02Icon}
+									icon={ListViewIcon}
 									strokeWidth={2}
-									data-icon='inline-start'
+									className='h-5 w-5 text-primary'
 								/>
-								Continue Shopping
-							</Link>
-						</Button>
-					) : (
-						<div className='w-6/12'>
-							<StartShoppingDialog
-								baseListId={baseList.id}
-								baseListName={baseList.name}
-								disabled={isDisabled || startingRun || loading}
-								itemsCount={baseList.items_count}
+							</span>
+							<div className='flex flex-col flex-1 min-w-0'>
+								<CardTitle className='text-base md:text-lg truncate w-full max-w-[25ch] md:max-w-[20ch]'>
+									{baseList.name}
+								</CardTitle>
+								{baseListNotes && (
+									<CardDescription className='flex items-center gap-1'>
+										<Separator
+											orientation='vertical'
+											className='border-primary/20 border'
+										/>
+										<p className='text-xs md:text-sm text-muted-foreground'>{baseListNotes}</p>
+									</CardDescription>
+								)}
+							</div>
+						</div>
+					</CardHeader>
+					<CardFooter className='justify-between items-center'>
+						<span>
+							{baseList.items_count} {baseList.items_count === 1 ? 'item' : 'items'}
+						</span>
+
+						<div className='flex items-center text-sm text-primary transition-colors'>
+							<span>View Items</span>
+							<HugeiconsIcon
+								icon={ArrowRight01Icon}
+								strokeWidth={2}
+								className='h-4 w-4 transition-transform group-hover:translate-x-1'
 							/>
 						</div>
-					)}
-				</CardFooter>
-			</Card>
+					</CardFooter>
+				</Card>
+			</Link>
 
 			<AlertDialog
 				open={showDeleteDialog}

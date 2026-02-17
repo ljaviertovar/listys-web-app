@@ -3,10 +3,12 @@ import { z } from 'zod'
 export const createBaseListSchema = z.object({
   group_id: z.string().uuid(),
   name: z.string().min(1, 'Name is required').max(100),
+  notes: z.string().max(500).nullable().optional(),
 })
 
 export const updateBaseListSchema = z.object({
   name: z.string().min(1, 'Name is required').max(100).optional(),
+  notes: z.string().max(500).nullable().optional(),
 })
 
 export const createBaseListItemSchema = z.object({

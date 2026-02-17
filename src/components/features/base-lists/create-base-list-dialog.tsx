@@ -17,6 +17,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import { createBaseList } from '@/actions/base-lists'
 import { createBaseListSchema, type CreateBaseListInput } from '@/lib/validations/base-list'
 import { PlusSignIcon, Loading03Icon } from '@hugeicons/core-free-icons'
@@ -40,6 +41,7 @@ export function CreateBaseListDialog({ groupId }: Props) {
 		resolver: zodResolver(createBaseListSchema),
 		defaultValues: {
 			group_id: groupId,
+			notes: '',
 		},
 	})
 
@@ -47,13 +49,16 @@ export function CreateBaseListDialog({ groupId }: Props) {
 		setLoading(true)
 
 		try {
-			const { data: baseList, error } = await createBaseList(data)
+			const { data: baseList, error } = await createBaseList({
+				...data,
+				notes: data.notes?.trim() ? data.notes.trim() : null,
+			})
 
 			if (error) throw new Error(error)
 
 			toast.success('Base list created successfully')
 			setOpen(false)
-			reset({ group_id: groupId })
+			reset({ group_id: groupId, notes: '' })
 
 			// Redirect to edit page to add items
 			if (baseList?.id) {
@@ -109,6 +114,17 @@ export function CreateBaseListDialog({ groupId }: Props) {
 								className='text-base'
 							/>
 							{errors.name && <p className='text-sm text-destructive'>{errors.name.message}</p>}
+						</div>
+						<div className='space-y-2'>
+							<Label htmlFor='notes'>Notes</Label>
+							<Textarea
+								id='notes'
+								{...register('notes')}
+								placeholder='Optional notes for this list'
+								disabled={loading}
+								className='text-base min-h-20'
+							/>
+							{errors.notes && <p className='text-sm text-destructive'>{errors.notes.message}</p>}
 						</div>
 						<p className='text-xs text-muted-foreground'>
 							<span className='text-destructive'>*</span> Required fields

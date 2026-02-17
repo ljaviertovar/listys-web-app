@@ -27,6 +27,7 @@ import {
 import { FolderIcon, Edit02Icon, Delete02Icon, ArrowRight01Icon, Loading03Icon } from '@hugeicons/core-free-icons'
 
 import { deleteGroup, updateGroup } from '@/actions/shopping-lists'
+import { Separator } from '@/components/ui/separator'
 
 interface Group {
 	id: string
@@ -234,7 +235,15 @@ export function GroupCard({ group, history = false }: Props) {
 							</span>
 							<div className='flex flex-col'>
 								<CardTitle className='text-base md:text-lg truncate w-full max-w-[20ch]'>{group.name}</CardTitle>
-								{group.description && <CardDescription className='text-xs'>{group.description}</CardDescription>}
+								{group.description && (
+									<CardDescription className='text-xs'>
+										<Separator
+											orientation='vertical'
+											className='border-primary/20 border'
+										/>
+										<p className='text-xs md:text-sm text-muted-foreground'>{group.description}</p>
+									</CardDescription>
+								)}
 							</div>
 						</div>
 					</CardHeader>

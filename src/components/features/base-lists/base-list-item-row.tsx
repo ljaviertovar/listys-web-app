@@ -10,6 +10,7 @@ import { getCategoryWithEmoji } from '@/data/constants'
 import { deleteBaseListItem, updateBaseListItem } from '@/actions/base-lists'
 
 import type { BaseListItem } from '@/features/base-lists/types'
+import { Separator } from '@/components/ui/separator'
 
 interface Props {
 	item: BaseListItem
@@ -64,9 +65,13 @@ export function BaseListItemRow({ item, isLocked = false }: Props) {
 							{item.category && <Badge variant={'category'}>{getCategoryWithEmoji(item.category)}</Badge>}
 						</div>
 						{item.notes && (
-							<p className='text-xs md:text-sm text-muted-foreground'>
-								{'> '} {item.notes}
-							</p>
+							<div className='flex items-center gap-1'>
+								<Separator
+									orientation='vertical'
+									className='border-primary/20 border'
+								/>
+								<p className='text-xs md:text-sm text-muted-foreground'>{item.notes}</p>
+							</div>
 						)}
 					</div>
 				</div>

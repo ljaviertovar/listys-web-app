@@ -70,6 +70,10 @@ Unless explicitly stated otherwise:
 - Scope data by user_id where applicable.
 - Enable RLS on all user-facing tables.
 - Prefer constraints and transactions over app logic.
+- Never run Supabase migrations or table updates that may delete existing records.
+- Before every migration, explicitly review and verify that it cannot remove records directly or indirectly.
+- Destructive or potentially destructive migrations are only allowed with explicit user confirmation or when explicitly requested.
+- This prohibition also applies to all test runs (unit, integration, E2E, or any automated test flow): tests must not execute destructive migrations.
 
 ---
 
@@ -171,6 +175,9 @@ Guidelines:
 
 - Cover critical logic.
 - Do not mock Supabase in E2E tests.
+- For every modified component/feature, always run the corresponding test(s) and fix failures before finishing.
+- If a modified component/feature has no test yet, create one.
+- Keep unit tests to the minimum necessary; prefer integration tests and E2E tests whenever feasible.
 
 ---
 

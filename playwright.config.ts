@@ -1,9 +1,16 @@
 import { defineConfig, devices } from '@playwright/test'
 import { config } from 'dotenv'
 import path from 'path'
+import fs from 'fs'
 
-// Load environment variables from .env.local
-config({ path: path.resolve(process.cwd(), '.env.local') })
+// Load environment variables from dedicated E2E env file only
+const e2eEnvPath = path.resolve(process.cwd(), '.env.test.local')
+
+if (fs.existsSync(e2eEnvPath)) {
+  config({ path: e2eEnvPath, override: true })
+} else {
+  process.env.E2E_CONFIG_INVALID = 'true'
+}
 
 /**
  * See https://playwright.dev/docs/test-configuration.
