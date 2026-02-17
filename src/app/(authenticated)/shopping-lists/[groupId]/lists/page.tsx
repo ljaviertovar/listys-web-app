@@ -108,9 +108,7 @@ export default async function BaseListsPage({ params }: { params: Promise<{ grou
 								<BaseListCard
 									key={baseList.id}
 									baseList={baseList}
-									hasActiveRun={!!activeSession}
 									isActiveRun={activeSession?.base_list_id === baseList.id}
-									activeRunId={activeSession?.id}
 								/>
 							))}
 					</div>
