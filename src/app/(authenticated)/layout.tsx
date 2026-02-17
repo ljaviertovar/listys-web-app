@@ -24,7 +24,10 @@ export default async function AuthenticatedLayout({ children }: { children: Reac
 	return (
 		<>
 			<SidebarProvider defaultOpen={defaultOpen}>
-				<AppSidebar />
+				<div className='hidden lg:block'>
+					<AppSidebar />
+				</div>
+
 				<div
 					id='content'
 					className={cn(

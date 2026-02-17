@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -8,7 +9,7 @@ import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Loading03Icon, FolderIcon, Add01Icon, ListViewIcon } from '@hugeicons/core-free-icons'
+import { Loading03Icon, FolderIcon, Add01Icon, ListViewIcon, Folder01Icon } from '@hugeicons/core-free-icons'
 import { toast } from 'sonner'
 import { getGroups } from '@/actions/shopping-lists'
 import { getBaseLists } from '@/actions/base-lists'
@@ -162,32 +163,32 @@ export function MergeToBaseListDialog({ open, onOpenChange, ticketId, selectedIt
 							className='h-8 w-8 animate-spin text-primary'
 						/>
 					</div>
+				) : groups.length === 0 ? (
+					<div className='flex flex-col items-center justify-center gap-4 py-8 text-center'>
+						<div className='rounded-full bg-muted p-4'>
+							<HugeiconsIcon
+								icon={Folder01Icon}
+								strokeWidth={2}
+								className='h-8 w-8 text-muted-foreground'
+							/>
+						</div>
+						<div className='space-y-1'>
+							<p className='text-sm font-medium'>No groups found</p>
+							<p className='text-sm text-muted-foreground'>Create a group first to organize your shopping lists.</p>
+						</div>
+						<Button
+							asChild
+							variant='link'
+							onClick={() => onOpenChange(false)}
+						>
+							<Link href='/shopping-lists'>Start by creating a group</Link>
+						</Button>
+					</div>
 				) : (
 					<form
 						onSubmit={handleSubmit}
-						className='space-y-4'
+						className='space-y-8'
 					>
-						<RadioGroup
-							value={mode}
-							onValueChange={(value: 'existing' | 'new') => setMode(value)}
-							className='space-y-3'
-						>
-							<div className='flex items-center space-x-3'>
-								<RadioGroupItem
-									value='existing'
-									id='existing'
-								/>
-								<Label htmlFor='existing'>Add to existing list</Label>
-							</div>
-							<div className='flex items-center space-x-3'>
-								<RadioGroupItem
-									value='new'
-									id='new'
-								/>
-								<Label htmlFor='new'>Create new list</Label>
-							</div>
-						</RadioGroup>
-
 						{/* Group selector (always shown) */}
 						<div className='space-y-2'>
 							<Label>Shopping List Group</Label>
@@ -220,6 +221,27 @@ export function MergeToBaseListDialog({ open, onOpenChange, ticketId, selectedIt
 								</SelectContent>
 							</Select>
 						</div>
+
+						<RadioGroup
+							value={mode}
+							onValueChange={(value: 'existing' | 'new') => setMode(value)}
+							className='space-y-3'
+						>
+							<div className='flex items-center space-x-3'>
+								<RadioGroupItem
+									value='existing'
+									id='existing'
+								/>
+								<Label htmlFor='existing'>Add to existing list</Label>
+							</div>
+							<div className='flex items-center space-x-3'>
+								<RadioGroupItem
+									value='new'
+									id='new'
+								/>
+								<Label htmlFor='new'>Create new list</Label>
+							</div>
+						</RadioGroup>
 
 						{mode === 'existing' ? (
 							<div className='space-y-2'>

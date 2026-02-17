@@ -23,6 +23,16 @@ function isIosSafari() {
   return isIos && isSafari
 }
 
+function isAndroid() {
+  if (typeof window === 'undefined') return false
+  return /android/.test(window.navigator.userAgent.toLowerCase())
+}
+
+function isMobileDevice() {
+  if (typeof window === 'undefined') return false
+  return /android|iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase())
+}
+
 function isStandalone() {
   if (typeof window === 'undefined') return false
 
@@ -58,10 +68,13 @@ export function InstallAppButton() {
     }
   }, [])
 
-  const showIosHint = useMemo(() => !installed && !installEvent && isIosSafari(), [installed, installEvent])
+  const showManualHint = useMemo(
+    () => !installed && !installEvent && isMobileDevice(),
+    [installed, installEvent],
+  )
 
   if (installed) return null
-  if (!installEvent && !showIosHint) return null
+  if (!installEvent && !showManualHint) return null
 
   const onClick = async () => {
     if (installEvent) {
@@ -73,8 +86,29 @@ export function InstallAppButton() {
       return
     }
 
-    toast.message('Install on iPhone', {
-      description: 'Tap Share and then "Add to Home Screen".',
+    if (!window.isSecureContext) {
+      toast.message('Secure context required', {
+        description: 'Open the app over HTTPS to enable installation on mobile.',
+      })
+      return
+    }
+
+    if (isIosSafari()) {
+      toast.message('Install on iPhone', {
+        description: 'Tap Share and then "Add to Home Screen".',
+      })
+      return
+    }
+
+    if (isAndroid()) {
+      toast.message('Install on Android', {
+        description: 'Open browser menu and tap "Install app" or "Add to Home screen".',
+      })
+      return
+    }
+
+    toast.message('Install app', {
+      description: 'Use your browser install option from the menu.',
     })
   }
 

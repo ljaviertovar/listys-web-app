@@ -75,7 +75,7 @@ export default async function TicketsPage() {
 								<h3 className='text-xl font-semibold tracking-tight'>No receipts yet</h3>
 								<p className='mt-1 text-sm text-muted-foreground'>Upload your first receipt to get started.</p>
 							</div>
-							<div className='mt-6 w-full max-w-[260px]'>
+							<div className='mt-6 w-full max-w-65'>
 								<UploadTicketDialog />
 							</div>
 						</CardContent>
@@ -83,8 +83,6 @@ export default async function TicketsPage() {
 				) : (
 					<div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3'>
 						{formattedTickets.map(ticket => {
-							const isMerged = !!ticket.base_list_id
-
 							return (
 								<Card
 									key={ticket.id}
@@ -93,7 +91,6 @@ export default async function TicketsPage() {
 									<Link href={`/tickets/${ticket.id}`}>
 										<CardHeader className='gap-0'>
 											<div className='flex items-center justify-end gap-1'>
-												{isMerged && <Badge variant='merged'>Merged</Badge>}
 												<Badge
 													variant={
 														ticket.ocr_status === 'processing'
@@ -124,20 +121,14 @@ export default async function TicketsPage() {
 														{ticket.store_name || 'Unknown Base List'}
 													</CardTitle>
 													<CardDescription className='text-xs'>
-														{ticket.formattedDate} - {ticket.formattedTime}
+														Uploaded: {ticket.formattedDate} - {ticket.formattedTime}
 													</CardDescription>
 												</div>
 											</div>
 										</CardHeader>
-										<CardContent className='py-4'>
-											<span className='text-muted-foreground'>
-												{isMerged && ticket.base_list?.name
-													? `Merged to: ${ticket.base_list.name}`
-													: ticket.base_list?.name || 'No base list assigned'}
-											</span>
-										</CardContent>
+										<CardContent className='py-4'></CardContent>
 										<CardFooter className='justify-between items-center'>
-											{(ticket.total_items ?? 0) > 0 && <span>{ticket.total_items} items</span>}
+											{(ticket.total_items ?? 0) > 0 && <span>{ticket.total_items} extracted items</span>}
 											<div className='flex items-center text-sm text-primary transition-colors'>
 												<span>View details</span>
 												<HugeiconsIcon

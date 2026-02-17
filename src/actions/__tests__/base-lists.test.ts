@@ -89,6 +89,25 @@ describe('createBaseList', () => {
     const result = await createBaseList({ group_id: TEST_UUID, name: 'Weekly' })
     expect(result.data).toEqual(newList)
   })
+
+  it('creates list with notes on happy path', async () => {
+    const newList = { id: 'new-id-2', name: 'Weekly', group_id: TEST_UUID, notes: 'Family grocery list' }
+    const supabase = setupMock()
+    supabase.from = sequentialFrom({
+      base_lists: [
+        { data: null, error: null }, // dedup — no duplicate
+        { data: newList, error: null }, // insert
+      ],
+    })
+
+    const result = await createBaseList({
+      group_id: TEST_UUID,
+      name: 'Weekly',
+      notes: 'Family grocery list',
+    })
+
+    expect(result.data).toEqual(newList)
+  })
 })
 
 // ────────────────────────────────────
@@ -186,6 +205,55 @@ describe('getBaseLists', () => {
 
     const result = await getBaseLists()
     expect(result.data).toEqual(lists)
+  })
+})
+
+// ────────────────────────────────────
+// updateBaseList
+// ────────────────────────────────────
+describe('updateBaseList', () => {
+  it('returns validation error for notes longer than 500 chars', async () => {
+    setupMock()
+    const result = await updateBaseList(TEST_UUID, {
+      notes: 'a'.repeat(501),
+    })
+
+    expect(result.error).toBeTruthy()
+  })
+
+  it('updates list name and notes on happy path', async () => {
+    const updated = { id: TEST_UUID, name: 'Weekly Updated', notes: 'Main grocery run' }
+    const supabase = setupMock()
+    supabase.from = sequentialFrom({
+      base_lists: [
+        { data: { group_id: TEST_UUID_2 }, error: null }, // get current list for dedup
+        { data: null, error: null }, // dedup no duplicate
+        { data: updated, error: null }, // update
+      ],
+    })
+
+    const result = await updateBaseList(TEST_UUID, {
+      name: 'Weekly Updated',
+      notes: 'Main grocery run',
+    })
+
+    expect(result.data).toEqual(updated)
+  })
+
+  it('updates notes only without duplicate-name lookup', async () => {
+    const updated = { id: TEST_UUID, name: 'Weekly', notes: null }
+    const supabase = setupMock()
+    supabase.from = sequentialFrom({
+      base_lists: [
+        { data: updated, error: null }, // update only
+      ],
+    })
+
+    const result = await updateBaseList(TEST_UUID, {
+      notes: null,
+    })
+
+    expect(result.data).toEqual(updated)
   })
 })
 

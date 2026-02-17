@@ -79,13 +79,18 @@ e2e/
 ### Prerequisitos
 
 1. **Supabase Project**: Proyecto activo con credenciales configuradas
-2. **Environment Variables**: Archivo `.env.local` con:
+2. **Environment Variables**: Archivo `.env.test.local` con:
 
    ```bash
    NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
    NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
    SUPABASE_SERVICE_ROLE_KEY=your-service-role-key  # Para test helpers
+   E2E_ALLOW_DB_RESET=true  # Required to allow destructive test cleanup
+   E2E_TEST_PROJECT_REF=your-test-project-ref  # Must match NEXT_PUBLIC_SUPABASE_URL ref
    ```
+
+⚠️ **Safety guard:** E2E cleanup will fail intentionally unless both `E2E_ALLOW_DB_RESET=true`
+and `E2E_TEST_PROJECT_REF` are set and match the current Supabase project ref.
 
 3. **Playwright Browsers**:
    ```bash

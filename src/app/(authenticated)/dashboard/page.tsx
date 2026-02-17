@@ -43,8 +43,8 @@ async function DashboardCards() {
 			<DashboardCard
 				href='/shopping-lists'
 				icon={FolderLibraryIcon}
-				title='Shopping Lists'
-				description='Manage your shopping list groups'
+				title='Shopping Lists Groups'
+				description='Manage your shopping list groups and their lists.'
 				count={groups.length}
 			/>
 
@@ -52,7 +52,7 @@ async function DashboardCards() {
 				href='/tickets'
 				icon={Invoice01Icon}
 				title='Receipts'
-				description='Upload and manage receipts'
+				description='Upload and manage receipts. Create shopping lists from them.'
 				count={ticketsCount}
 			/>
 
@@ -60,7 +60,7 @@ async function DashboardCards() {
 				href='/shopping-history'
 				icon={TimeQuarterPassIcon}
 				title='Shopping History'
-				description='View past shopping sessions'
+				description='View past shopping sessions and their details.'
 				count={historyCount}
 			/>
 		</div>

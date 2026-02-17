@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import { Card, CardContent } from '@/components/ui/card'
 
 import { PageHeader, PageContainer } from '@/components/app'
-import { CreateGroupDialog, GroupCard } from '@/components/features/shopping-lists'
+import { GroupCard } from '@/components/features/shopping-lists'
 
 import { getGroupsWithHistory } from '@/actions/shopping-lists'
 import { createClient } from '@/lib/supabase/server'
@@ -43,13 +43,10 @@ export default async function HistoryPage() {
 								<FolderSearch2 className='h-12 w-12' />
 							</div>
 							<div className='mt-1'>
-								<h3 className='text-xl font-semibold tracking-tight'>No groups yet</h3>
+								<h3 className='text-xl font-semibold tracking-tight'>No shopping history yet</h3>
 								<p className='mt-2 text-sm text-muted-foreground'>
-									Create groups and complete shopping runs to start building your history.
+									Complete your first shopping session to start building your history.
 								</p>
-							</div>
-							<div className='mt-6 w-full max-w-[260px]'>
-								<CreateGroupDialog />
 							</div>
 						</CardContent>
 					</Card>

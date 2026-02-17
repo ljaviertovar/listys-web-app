@@ -1,0 +1,2 @@
+ALTER TABLE public.base_lists
+ADD COLUMN IF NOT EXISTS notes TEXT;
