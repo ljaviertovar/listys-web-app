@@ -16,7 +16,7 @@ export function ShoppingSessionActions({ sessionId, progress }: Props) {
 
 	return (
 		<>
-			<div className='w-full flex items-center gap-2'>
+			<div className='w-full flex items-center gap-2 lg:mb-2'>
 				<CancelSessionButton sessionId={sessionId} />
 				<CompleteSessionButton onOpenAlert={() => setAlertOpen(true)} />
 			</div>

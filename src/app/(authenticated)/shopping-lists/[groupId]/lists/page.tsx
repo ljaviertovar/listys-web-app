@@ -4,7 +4,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 
 import { Card, CardContent } from '@/components/ui/card'
 import { CreateBaseListDialog, BaseListCard } from '@/components/features/base-lists'
-import { AddToListIcon, SearchList01FreeIcons, SearchList01Icon } from '@hugeicons/core-free-icons'
+import { SearchList01Icon } from '@hugeicons/core-free-icons'
 
 import { PageHeader, PageContainer, PageFooterAction, BackLink, ActiveShopping } from '@/components/app'
 
@@ -69,7 +69,7 @@ export default async function BaseListsPage({ params }: { params: Promise<{ grou
 					<div className='rounded-lg bg-destructive/10 p-4 text-sm text-destructive'>Error loading lists: {error}</div>
 				)}
 
-				{activeSession && <ActiveShopping />}
+				{activeSession && <ActiveShopping activeShopping={{ ...activeSession, name: '' }} />}
 
 				{!baseLists || baseLists.length === 0 ? (
 					<Card

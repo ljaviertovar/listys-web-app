@@ -17,7 +17,7 @@ function PageHeaderContent({ title, desc, children }: Props) {
 					<p className='text-sm text-muted-foreground md:text-md tabular-nums'>{desc}</p>
 				</div>
 			</div>
-			<div className='w-full max-w-7xl m-auto md:p-3 lg:p-4'>{children}</div>
+			<div className='w-full max-w-7xl m-auto md:p-3 lg:p-4 md:pt-0 lg:pt-0'>{children}</div>
 		</header>
 	)
 }

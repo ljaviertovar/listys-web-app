@@ -55,25 +55,26 @@ export default async function ShoppingRunPage({ params }: { params: Promise<{ ru
 						: `${checkedCount} of ${totalCount} items (${progress}%)`
 				}
 			>
-				{totalCount > 0 && (
-					<div className='w-full px-3 pb-3 flex gap-3 items-center -mt-2'>
-						<Progress
-							value={progress}
-							className='h-2'
-							indicatorClassName='bg-green-500'
-						/>
-						{!isCompleted && <ActiveShoppingBadge />}
-					</div>
-				)}
-				<div className='justify-end hidden md:flex'>
-					<div className='w-fit'>
-						{!isCompleted && (
+				<div className='w-full px-3 pb-3 -mt-2 flex flex-col gap-3 md:flex-row md:items-end md:justify-between md:gap-6'>
+					{totalCount > 0 && (
+						<div className='w-full flex gap-3 items-center md:min-w-0 md:flex-1'>
+							<Progress
+								value={progress}
+								className='h-2'
+								indicatorClassName='bg-green-500'
+							/>
+							{!isCompleted && <ActiveShoppingBadge />}
+						</div>
+					)}
+
+					{!isCompleted && (
+						<div className='hidden w-full md:ml-auto md:block md:max-w-[360px] lg:max-w-[420px]'>
 							<ShoppingSessionActions
 								sessionId={runId}
 								progress={progress}
 							/>
-						)}
-					</div>
+						</div>
+					)}
 				</div>
 			</PageHeader>
 

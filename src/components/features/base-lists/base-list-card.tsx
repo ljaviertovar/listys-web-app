@@ -227,7 +227,7 @@ export function BaseListCard({ baseList, isActiveRun = false }: Props) {
 							)}
 						</div>
 						<div className='flex gap-2 items-center'>
-							<span className='h-10 w-10 bg-primary/10 flex justify-center items-center rounded-lg'>
+							<span className='h-10 w-10 bg-primary/10 flex justify-center items-center rounded-lg shadow'>
 								<HugeiconsIcon
 									icon={ListViewIcon}
 									strokeWidth={2}
