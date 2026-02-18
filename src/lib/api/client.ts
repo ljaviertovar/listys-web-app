@@ -12,19 +12,22 @@ export type LegacyResult<T = any> = {
 async function getBaseUrl(): Promise<string> {
   if (typeof window !== 'undefined') return ''
 
+  // On server-side we should prefer the incoming request host to preserve
+  // same-origin cookies/session in multi-domain production setups.
+  const { headers } = await import('next/headers')
+  const h = await headers()
+  const host = h.get('x-forwarded-host') || h.get('host')
+  const proto = h.get('x-forwarded-proto') || 'http'
+
+  if (host) return `${proto}://${host}`
+
   const explicit = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL
   if (explicit) return explicit
 
   const vercel = process.env.VERCEL_URL
   if (vercel) return `https://${vercel}`
 
-  const { headers } = await import('next/headers')
-  const h = await headers()
-  const host = h.get('x-forwarded-host') || h.get('host')
-  const proto = h.get('x-forwarded-proto') || 'http'
-
-  if (!host) return ''
-  return `${proto}://${host}`
+  return ''
 }
 
 async function request<T = any>(path: string, init?: RequestInit): Promise<LegacyResult<T>> {
@@ -54,6 +57,22 @@ async function request<T = any>(path: string, init?: RequestInit): Promise<Legac
 
     if (res.status === 204) {
       return { data: undefined as T }
+    }
+
+    const contentType = res.headers.get('content-type') || ''
+    if (!contentType.includes('application/json')) {
+      const raw = await res.text()
+      const looksLikeHtml = raw.trimStart().startsWith('<!doctype') || raw.trimStart().startsWith('<html')
+      const isAuthPage = looksLikeHtml && (raw.includes('/auth/signin') || raw.includes('Sign in') || raw.includes('signin'))
+
+      if (isAuthPage || res.status === 401 || res.status === 403) {
+        return { error: 'Unauthorized', errorCode: 'UNAUTHORIZED' }
+      }
+
+      return {
+        error: `Unexpected non-JSON response (status ${res.status})`,
+        details: { contentType, preview: raw.slice(0, 180) },
+      }
     }
 
     const payload = (await res.json()) as ApiSuccess<T> | ApiError
