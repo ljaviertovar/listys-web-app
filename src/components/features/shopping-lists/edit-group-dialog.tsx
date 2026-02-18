@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { updateGroup } from '@/actions/shopping-lists'
+import { updateGroup } from '@/lib/api/endpoints/groups'
 import { updateGroupSchema, type UpdateGroupInput } from '@/lib/validations/group'
 import {
 	Dialog,

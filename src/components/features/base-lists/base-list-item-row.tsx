@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { ActionsItemFormBaseList } from '@/components/app/actions-item-form-base-list'
 import { getCategoryWithEmoji } from '@/data/constants'
 
-import { deleteBaseListItem, updateBaseListItem } from '@/actions/base-lists'
+import { deleteBaseListItem, updateBaseListItem } from '@/lib/api/endpoints/base-lists'
 
 import type { BaseListItem } from '@/features/base-lists/types'
 import { Separator } from '@/components/ui/separator'
@@ -33,7 +33,7 @@ export function BaseListItemRow({ item, isLocked = false }: Props) {
 			<ActionsItemFormBaseList
 				item={item}
 				isDisabled={isLocked}
-				maxNameLength={100}
+				maxNameLength={200}
 				onUpdate={handleUpdate}
 				onDelete={handleDelete}
 				successMessages={{
@@ -78,7 +78,7 @@ export function BaseListItemRow({ item, isLocked = false }: Props) {
 				<ActionsItemFormBaseList
 					item={item}
 					isDisabled={isLocked}
-					maxNameLength={100}
+					maxNameLength={200}
 					onUpdate={handleUpdate}
 					onDelete={handleDelete}
 					successMessages={{

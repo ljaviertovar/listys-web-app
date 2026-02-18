@@ -46,6 +46,30 @@ Frontend stack:
 - Use `ON DELETE SET NULL` for optional relationships.
 - Prefer enum status fields for process lifecycle states.
 
+## REST Endpoint Design Policy
+
+Listys follows a hybrid REST design:
+
+- Use **resource endpoints** (`GET/POST/PATCH/DELETE`) for CRUD operations.
+- Use **action endpoints** (`POST /resource/:id/action`) only when an operation represents a domain workflow with side-effects.
+
+### Resource vs Action Endpoints
+
+| Category | Endpoint Pattern | Examples | Why |
+|----------|------------------|----------|-----|
+| Resource CRUD | `/api/v1/<resource>` + standard verbs | `/api/v1/base-lists/:id` (`PATCH`, `DELETE`), `/api/v1/tickets/:id` (`PATCH`) | Lower maintenance, predictable semantics |
+| Filtered reads | Collection query params | `/api/v1/shopping-sessions?status=active|completed` | Avoid one-off read endpoints |
+| Domain actions | `/api/v1/<resource>/:id/<action>` (`POST`) | `/api/v1/shopping-sessions/:id/complete`, `/api/v1/tickets/:id/retry-ocr` | Explicit intent + side-effects orchestration |
+| Ops/Maintenance actions | `/api/v1/<resource>/maintenance/<action>` | `.../mark-stuck-as-failed`, `.../cleanup-orphaned-images` | Operational jobs are not CRUD |
+
+### Deprecation Policy
+
+- Redundant action endpoints can remain temporarily for compatibility.
+- Deprecated routes must return:
+  - `Deprecation: true`
+  - `Sunset: <RFC-1123 date>`
+  - `Link: <successor endpoint>; rel="successor-version"`
+
 ## Repository Structure
 
 ```text

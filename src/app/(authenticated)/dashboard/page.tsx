@@ -3,9 +3,9 @@ import { FolderLibraryIcon, Invoice01Icon, TimeQuarterPassIcon } from '@hugeicon
 
 import { DashboardCard, PageHeader, PageContainer, ActiveShopping } from '@/components/app'
 
-import { getGroups } from '@/actions/shopping-lists'
-import { getTickets } from '@/actions/tickets'
-import { getActiveShoppingSession, getShoppingHistory } from '@/actions/shopping-sessions'
+import { getGroups } from '@/lib/api/endpoints/groups'
+import { getTickets } from '@/lib/api/endpoints/tickets'
+import { getActiveShoppingSession, getShoppingHistory } from '@/lib/api/endpoints/shopping-sessions'
 
 // Fallback skeleton for dashboard cards
 function CardsSkeleton() {

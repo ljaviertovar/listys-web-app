@@ -13,8 +13,8 @@ import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { PlusSignIcon, Loading03Icon } from '@hugeicons/core-free-icons'
 
-import { createBaseListItem } from '@/actions/base-lists'
-import { createShoppingSessionItem } from '@/actions/shopping-sessions'
+import { createBaseListItem } from '@/lib/api/endpoints/base-lists'
+import { createShoppingSessionItem } from '@/lib/api/endpoints/shopping-sessions'
 
 import { z } from 'zod'
 import { createBaseListItemSchema as baseListSchema } from '@/lib/validations/base-list'

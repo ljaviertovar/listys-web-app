@@ -8,7 +8,7 @@ import { ShoppingSessionItemRow, ShoppingSessionActions } from '@/components/fea
 
 import { CheckmarkCircle02Icon } from '@hugeicons/core-free-icons'
 
-import { getShoppingSession } from '@/actions/shopping-sessions'
+import { getShoppingSession } from '@/lib/api/endpoints/shopping-sessions'
 
 import { createClient } from '@/lib/supabase/server'
 import { formatDate, formatTime } from '@/utils/format-date'
