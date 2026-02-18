@@ -8,7 +8,7 @@ import { BaseListItemRow, StartShoppingDialog } from '@/components/features/base
 import { AddItemDialogBaseList, PageHeader, PageContainer, PageFooterAction, BackLink } from '@/components/app'
 import type { BaseListWithItems } from '@/features/base-lists/types'
 
-import { getBaseList } from '@/actions/base-lists'
+import { getBaseList } from '@/lib/api/endpoints/base-lists'
 
 import { PlusSignIcon } from '@hugeicons/core-free-icons'
 
@@ -118,7 +118,7 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 										<BaseListItemRow
 											key={item.id}
 											item={item}
-											isLocked={!!activeSession}
+											isLocked={false}
 										/>
 									))}
 							</div>

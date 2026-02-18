@@ -9,7 +9,7 @@ import {
 	toggleShoppingSessionItem,
 	updateShoppingSessionItem,
 	deleteShoppingSessionItem,
-} from '@/actions/shopping-sessions'
+} from '@/lib/api/endpoints/shopping-sessions'
 import type { ShoppingSessionItem } from '@/features/shopping-sessions/types'
 import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'

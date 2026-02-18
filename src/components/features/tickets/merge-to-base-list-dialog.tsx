@@ -11,9 +11,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Loading03Icon, FolderIcon, Add01Icon, ListViewIcon, Folder01Icon } from '@hugeicons/core-free-icons'
 import { toast } from 'sonner'
-import { getGroups } from '@/actions/shopping-lists'
-import { getBaseLists } from '@/actions/base-lists'
-import { mergeTicketItemsToBaseList, createBaseListFromTicket } from '@/actions/tickets'
+import { getGroups } from '@/lib/api/endpoints/groups'
+import { getBaseLists } from '@/lib/api/endpoints/base-lists'
+import { mergeTicketItemsToBaseList, createBaseListFromTicket } from '@/lib/api/endpoints/tickets'
 
 interface Props {
 	open: boolean
@@ -88,13 +88,20 @@ export function MergeToBaseListDialog({ open, onOpenChange, ticketId, selectedIt
 					items: selectedItemIds.map(id => ({ id, merge: true })),
 				})
 
-				if (result.error) {
+				if ('error' in result && result.error) {
 					setError(result.error)
 					return
 				}
 
+				const mergeResult = result as {
+					success?: boolean
+					new_count?: number
+					updated_count?: number
+					skipped_count?: number
+				}
+
 				toast.success('Items merged successfully', {
-					description: `${result.new_count ?? 0} new, ${result.updated_count ?? 0} updated, ${result.skipped_count ?? 0} skipped`,
+					description: `${mergeResult.new_count ?? 0} new, ${mergeResult.updated_count ?? 0} updated, ${mergeResult.skipped_count ?? 0} skipped`,
 				})
 
 				onOpenChange(false)

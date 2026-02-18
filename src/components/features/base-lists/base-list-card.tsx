@@ -15,7 +15,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { ListViewIcon, Edit02Icon, Delete02Icon, Loading03Icon, ArrowRight01Icon } from '@hugeicons/core-free-icons'
 
-import { deleteBaseList, updateBaseList } from '@/actions/base-lists'
+import { deleteBaseList, updateBaseList } from '@/lib/api/endpoints/base-lists'
 
 import type { BaseListWithCount } from '@/features/base-lists/types'
 

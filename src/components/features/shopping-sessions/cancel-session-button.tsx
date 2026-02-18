@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Cancel01Icon, Delete02Icon, Loading03Icon } from '@hugeicons/core-free-icons'
-import { cancelShoppingSession } from '@/actions/shopping-sessions'
+import { cancelShoppingSession } from '@/lib/api/endpoints/shopping-sessions'
 import { useActiveSessionStore } from '@/stores/active-session'
 
 interface Props {

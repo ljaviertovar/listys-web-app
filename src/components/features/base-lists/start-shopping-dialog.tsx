@@ -14,7 +14,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ShoppingCart02Icon, Loading03Icon } from '@hugeicons/core-free-icons'
-import { createShoppingSession } from '@/actions/shopping-sessions'
+import { createShoppingSession } from '@/lib/api/endpoints/shopping-sessions'
 import { toast } from 'sonner'
 import { AlertDialogMedia } from '@/components/ui/alert-dialog'
 import useActiveSessionStore from '@/stores/active-session'
