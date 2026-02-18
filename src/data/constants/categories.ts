@@ -19,6 +19,9 @@ export const CATEGORIES = [
 	'Other',
 	'Grocery',
 	'Bakery Commercial',
+	'Health',
+	'Alcohol',
+	'Frozen Foods',
 ] as const
 
 export type Category = typeof CATEGORIES[number]
@@ -37,6 +40,7 @@ export const CATEGORY_EMOJIS: Record<Category, string> = {
 	Deli: '🧀',
 	Food: '🍔',
 	'Health Wellness': '🧴',
+	'Health': '🧴',
 	'Bulk Food': '🛒',
 	'Health & Beauty': '🧴',
 	Household: '🧽',
@@ -44,6 +48,8 @@ export const CATEGORY_EMOJIS: Record<Category, string> = {
 	Other: '📦',
 	Grocery: '🛍️',
 	'Bakery Commercial': '🥖',
+	Alcohol: '🍺',
+	'Frozen Foods': '🧊',
 }
 
 /**

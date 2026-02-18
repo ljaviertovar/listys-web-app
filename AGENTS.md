@@ -62,6 +62,21 @@ Unless explicitly stated otherwise:
 - Server Actions only when they clearly simplify the flow.
 - Use proper HTTP status codes.
 
+### Endpoint Design Rules (Hybrid Semantic REST)
+
+- Prefer resource-oriented endpoints for CRUD:
+  - `GET /resources`, `GET /resources/:id`, `POST /resources`, `PATCH /resources/:id`, `DELETE /resources/:id`
+- Prefer query params over extra read endpoints for filtered views:
+  - Example: use `GET /resources?status=active|archived` instead of creating many read-only variants.
+- Use dedicated action endpoints only when behavior is a domain command with side-effects or orchestration:
+  - Example: `/resources/:id/complete`, `/resources/:id/retry`, `/resources/:id/sync`
+- Avoid action endpoints for simple attribute updates:
+  - Example: use `PATCH /resources/:id` with `{ owner_id }`, not `/resources/:id/assign-owner`.
+- Avoid duplicate paths for the same behavior:
+  - Do not keep both `/resource/:id/cancel` and `DELETE /resource/:id` permanently if they do the same thing.
+- If a legacy endpoint must remain temporarily, mark it explicitly as deprecated:
+  - Return `Deprecation: true`, `Sunset`, and `Link` headers pointing to the successor endpoint.
+
 ---
 
 ## 5) Database & Supabase Patterns

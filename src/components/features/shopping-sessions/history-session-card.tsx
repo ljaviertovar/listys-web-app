@@ -1,11 +1,12 @@
 'use client'
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Calendar03Icon, DollarCircleIcon, ShoppingCart02Icon, ArrowRight01Icon } from '@hugeicons/core-free-icons'
 import Link from 'next/link'
 import { formatDate, formatTime } from '@/utils/format-date'
+import { CardHeaderContent } from '@/components/app'
 
 interface Session {
 	id: string
@@ -34,18 +35,11 @@ export function HistorySessionCard({ session }: Props) {
 					<div className='flex items-center justify-end'>
 						<Badge variant='completed'>Completed</Badge>
 					</div>
-					<div className='flex gap-2 items-center'>
-						<span className='h-10 w-10 bg-primary/10 flex justify-center items-center rounded-lg'>
-							<HugeiconsIcon
-								icon={ShoppingCart02Icon}
-								strokeWidth={2}
-								className='h-6 w-6 text-primary'
-							/>
-						</span>
-						<div className='flex flex-col'>
-							<CardTitle className='text-base md:text-lg truncate w-full max-w-[20ch]'>{session.name}</CardTitle>
-						</div>
-					</div>
+
+					<CardHeaderContent
+						icon={ShoppingCart02Icon}
+						title={session.name}
+					/>
 				</CardHeader>
 				<CardContent className='pt-4'>
 					<div className='space-y-2 mb-4'>
