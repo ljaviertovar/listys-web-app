@@ -296,6 +296,9 @@ export async function getShoppingHistory() {
           name,
           description
         )
+      ),
+      shopping_session_items(
+        checked
       )
     `)
     .eq('user_id', user.id)
@@ -306,7 +309,21 @@ export async function getShoppingHistory() {
     return { error: error.message }
   }
 
-  return { data: sessions }
+  // Count checked items for each session
+  const sessionsWithCount = sessions?.map(session => {
+    const checkedItems = Array.isArray(session.shopping_session_items)
+      ? session.shopping_session_items.filter((item: { checked: boolean }) => item.checked)
+      : []
+
+    const { shopping_session_items, ...sessionData } = session
+
+    return {
+      ...sessionData,
+      total_items: checkedItems.length
+    }
+  })
+
+  return { data: sessionsWithCount }
 }
 
 // Shopping Session Items
