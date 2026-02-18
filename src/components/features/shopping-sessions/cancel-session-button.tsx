@@ -52,7 +52,7 @@ export function CancelSessionButton({ sessionId }: Props) {
 		>
 			<AlertDialogTrigger asChild>
 				<Button
-					variant='ghost'
+					variant='link'
 					size='sm'
 					className='flex-1'
 				>

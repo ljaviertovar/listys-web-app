@@ -14,7 +14,7 @@ export function CompleteSessionButton({ onOpenAlert }: Props) {
 		<Button
 			onClick={onOpenAlert}
 			size='sm'
-			variant={'ghost'}
+			variant={'link'}
 			className='flex-1'
 		>
 			<HugeiconsIcon
