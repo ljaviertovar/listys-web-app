@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import { HugeiconsIcon } from '@hugeicons/react'
 
 import { PageHeader, PageContainer, PageFooterAction, BackLink } from '@/components/app'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { UploadTicketDialog } from '@/components/features/tickets'
 import { Badge } from '@/components/ui/badge'
 import { ArrowRight01Icon, Invoice01Icon, SearchVisualIcon } from '@hugeicons/core-free-icons'
@@ -13,6 +13,7 @@ import { getTickets } from '@/lib/api/endpoints/tickets'
 import { createClient } from '@/lib/supabase/server'
 
 import { formatDate, formatTime } from '@/utils/format-date'
+import CardHeaderContent from '@/components/app/card-header-content'
 
 export default async function TicketsPage() {
 	const supabase = await createClient()
@@ -107,24 +108,12 @@ export default async function TicketsPage() {
 														: 'Pending'}
 												</Badge>
 											</div>
-											<div className='flex gap-2 items-center'>
-												<span className='h-10 w-10 bg-primary/10 flex justify-center items-center rounded-lg'>
-													<HugeiconsIcon
-														icon={Invoice01Icon}
-														strokeWidth={2}
-														className='h-6 w-6 text-primary'
-													/>
-												</span>
 
-												<div className='flex flex-col'>
-													<CardTitle className='flex items-center justify-between text-lg truncate w-full max-w-[20ch]'>
-														{ticket.store_name || 'Unknown Base List'}
-													</CardTitle>
-													<CardDescription className='text-xs'>
-														Uploaded: {ticket.formattedDate} - {ticket.formattedTime}
-													</CardDescription>
-												</div>
-											</div>
+											<CardHeaderContent
+												icon={Invoice01Icon}
+												title={ticket.store_name || 'Unknown Store'}
+												description={`Uploaded: ${ticket.formattedDate} - ${ticket.formattedTime}`}
+											/>
 										</CardHeader>
 										<CardContent className='py-4'></CardContent>
 										<CardFooter className='justify-between items-center'>

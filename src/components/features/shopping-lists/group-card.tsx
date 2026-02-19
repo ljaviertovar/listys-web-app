@@ -28,6 +28,7 @@ import { FolderIcon, Edit02Icon, Delete02Icon, ArrowRight01Icon, Loading03Icon }
 
 import { deleteGroup, updateGroup } from '@/lib/api/endpoints/groups'
 import { Separator } from '@/components/ui/separator'
+import { CardHeaderContent } from '@/components/app'
 
 interface Group {
 	id: string
@@ -225,27 +226,12 @@ export function GroupCard({ group, history = false }: Props) {
 								</Button>
 							</div>
 						)}
-						<div className='flex gap-2 items-center'>
-							<span className='h-10 w-10 bg-primary/10 flex justify-center items-center rounded-lg'>
-								<HugeiconsIcon
-									icon={FolderIcon}
-									strokeWidth={2}
-									className='h-6 w-6 text-primary'
-								/>
-							</span>
-							<div className='flex flex-col'>
-								<CardTitle className='text-base md:text-lg truncate w-full max-w-[20ch]'>{group.name}</CardTitle>
-								{group.description && (
-									<CardDescription className='text-xs'>
-										<Separator
-											orientation='vertical'
-											className='border-primary/20 border'
-										/>
-										<p className='text-xs md:text-sm text-muted-foreground'>{group.description}</p>
-									</CardDescription>
-								)}
-							</div>
-						</div>
+
+						<CardHeaderContent
+							icon={FolderIcon}
+							title={group.name}
+							description={group.description ?? ''}
+						/>
 					</CardHeader>
 					<CardContent className='pt-4'>
 						<div className='flex items-center justify-between'>

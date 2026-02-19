@@ -32,6 +32,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { ActiveShoppingBadge } from '@/components/app/active-shopping-badge'
 import { Separator } from '@/components/ui/separator'
+import { CardHeaderContent } from '@/components/app'
 
 interface Props {
 	baseList: BaseListWithCount
@@ -226,29 +227,12 @@ export function BaseListCard({ baseList, isActiveRun = false }: Props) {
 								</>
 							)}
 						</div>
-						<div className='flex gap-2 items-center'>
-							<span className='h-10 w-10 bg-primary/10 flex justify-center items-center rounded-lg shadow'>
-								<HugeiconsIcon
-									icon={ListViewIcon}
-									strokeWidth={2}
-									className='h-5 w-5 text-primary'
-								/>
-							</span>
-							<div className='flex flex-col flex-1 min-w-0'>
-								<CardTitle className='text-base md:text-lg truncate w-full max-w-[25ch] md:max-w-[20ch]'>
-									{baseList.name}
-								</CardTitle>
-								{baseListNotes && (
-									<CardDescription className='flex items-center gap-1'>
-										<Separator
-											orientation='vertical'
-											className='border-primary/20 border'
-										/>
-										<p className='text-xs md:text-sm text-muted-foreground'>{baseListNotes}</p>
-									</CardDescription>
-								)}
-							</div>
-						</div>
+
+						<CardHeaderContent
+							icon={ListViewIcon}
+							title={baseList.name}
+							description={baseListNotes ?? undefined}
+						/>
 					</CardHeader>
 					<CardFooter className='justify-between items-center'>
 						<span>

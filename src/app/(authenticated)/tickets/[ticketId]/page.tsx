@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 import { HugeiconsIcon } from '@hugeicons/react'
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { PageHeader, PageContainer, BackLink } from '@/components/app'
+import { PageHeader, PageContainer, BackLink, CardHeaderContent } from '@/components/app'
 import { TicketItemsSelector, TicketImage, TicketActions, TicketStatusListener } from '@/components/features/tickets'
 import { Invoice01Icon, ListViewIcon } from '@hugeicons/core-free-icons'
 
@@ -11,6 +11,7 @@ import { getTicket } from '@/lib/api/endpoints/tickets'
 import { createClient } from '@/lib/supabase/server'
 
 import { formatDate, formatTime } from '@/utils/format-date'
+import { Car } from 'lucide-react'
 
 export default async function TicketDetailPage({ params }: { params: Promise<{ ticketId: string }> }) {
 	const { ticketId } = await params
@@ -84,21 +85,12 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 						size='sm'
 					>
 						<CardHeader className='flex gap-2 items-start justify-between'>
-							<div className='flex gap-2 items-center'>
-								<span className='h-10 w-10 bg-primary/10 flex justify-center items-center rounded-lg'>
-									<HugeiconsIcon
-										icon={ListViewIcon}
-										strokeWidth={2}
-										className='h-5 w-5 text-primary'
-									/>
-								</span>
-								<div className='flex flex-col'>
-									<CardTitle className='text-lg'>Extracted Items</CardTitle>
-									<CardDescription className='text-sm'>
-										{ticket.ocr_status === 'completed' ? `${ticket.items?.length || 0} items found` : null}
-									</CardDescription>
-								</div>
-							</div>
+							<CardHeaderContent
+								icon={ListViewIcon}
+								title='Extracted Items'
+								description={ticket.ocr_status === 'completed' ? `${ticket.items?.length || 0} items found` : undefined}
+							/>
+
 							<TicketStatusListener
 								ticketId={ticketId}
 								initialStatus={(ticket.ocr_status as any) || 'pending'}
