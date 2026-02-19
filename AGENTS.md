@@ -1,22 +1,15 @@
-# AGENTS.md — Project Instructions for AI Coding Agents
+# AGENTS.md
 
-These instructions apply to any AI agent working in this repository (GitHub Copilot, Claude, Antigravity, Codex, etc.).
-If project-specific instructions exist elsewhere, follow them as additions unless they contradict this file.
-
----
-
-## 1) Goals
+## Goals
 
 You are a modern Web/SaaS engineer focused on production-quality code, maintainable architecture,
-security by default, and fast iteration without over-engineering.
+security by default, mobile first, and fast iteration without over-engineering.
 
 Prefer clarity over cleverness. Prefer proven solutions.
 
 ---
 
-## 2) Default Stack (Sensible Defaults)
-
-Unless explicitly stated otherwise:
+## Default Stack
 
 ### Core Platform
 
@@ -35,12 +28,12 @@ Unless explicitly stated otherwise:
 
 ### Testing
 
-- Unit: Jest or Vitest (follow existing repo)
-- E2E: Playwright (recommended)
+- Unit: Vitest
+- E2E: Playwright
 
 ---
 
-## 3) Non-Negotiable Rules
+## Non-Negotiable Rules
 
 ### Security
 
@@ -56,7 +49,7 @@ Unless explicitly stated otherwise:
 
 ---
 
-## 4) API Policy (REST First)
+## API Policy (REST First)
 
 - Default to REST via Route Handlers.
 - Server Actions only when they clearly simplify the flow.
@@ -79,7 +72,7 @@ Unless explicitly stated otherwise:
 
 ---
 
-## 5) Database & Supabase Patterns
+## Database & Supabase Patterns
 
 - Include created_at / updated_at timestamps.
 - Scope data by user_id where applicable.
@@ -92,58 +85,15 @@ Unless explicitly stated otherwise:
 
 ---
 
-## 6) Canonical Project Structure (Default)
+## Canonical Project Structure (Default)
 
-Use this structure unless explicitly instructed otherwise. If the repository already has a different convention,
-follow the existing convention and map new code into it.
+> Read this section only when creating new files or directories.
 
-```bash
-├── public
-├── src
-│   ├── actions/                  # Server Actions (CRUD by domain) — only if the repo uses them
-│   ├── app/
-│   │   ├── (authenticated)       # Protected routes
-│   │   ├── (marketing)           # Public landing pages
-│   │   ├── api/                  # API routes
-│   │   ├── auth/
-│   │   │   ├── callback/         # OAuth callback
-│   │   │   ├── signin/
-│   │   │   └── signup/
-│   │   ├── error.tsx             # Root error boundary
-│   │   ├── layout.tsx
-│   │   └── globals.css
-│   ├── components/
-│   │   ├── app/                  # App-specific components (header, footer, aside, menus, sidebar, dashboard, etc.)
-│   │   ├── features/             # Feature-specific components by domain
-│   │   ├── ui/                   # shared UI components (shadcn/ui if present)
-│   │   └── commons/              # Shared components (logo, etc.)
-│   ├── data/
-│   │   └── constants/            # App constants
-│   ├── hooks/                    # Custom React hooks
-│   ├── lib/
-│   │   ├── config/               # Configurable configs and settings (limits, feature flags, etc.)
-│   │   ├── supabase/             # Supabase clients (server, client, admin)
-│   │   ├── validations/          # Zod schemas by domain
-│   │   └── utils.ts              # Utilities (cn, etc.)
-│   ├── providers/                # React context providers
-│   ├── stores/                   # Zustand stores by domain
-│   └── utils/                    # Helper functions (formatters, etc.)
-├── supabase/
-│   ├── config.toml
-│   ├── functions/                # Edge Functions (only if used)
-│   └── migrations/               # SQL migrations (timestamped)
-└── README.md
-```
-
-Structure rules:
-
-- Keep domains cohesive: group code by feature/domain when possible.
-- Shared code must be truly shared (avoid dumping feature code in shared folders).
-- Prefer adding new code next to related code instead of creating new top-level buckets.
+The full structure and rules are defined in [docs/project-structure.md](docs/project-structure.md).
 
 ---
 
-## 7) Code Quality
+## Code Quality
 
 - TypeScript strict when possible.
 - Avoid any.
@@ -176,9 +126,40 @@ Guidelines:
 - Avoid circular dependencies.
 - Keep barrel files flat (no complex logic inside them).
 
+### Component Reusability
+
+Before writing new TSX, scan the codebase for existing components that already cover the need.
+Reuse what exists. Create new shared components only when nothing suitable is present.
+
+Abstraction threshold: any UI pattern that appears in **2 or more** distinct components or pages
+must be extracted into a standalone reusable component.
+
+- Where to place shared components:
+
+| Scope | Folder |
+| App-wide layout/structural pieces (header, sidebar, page shell, etc.) | `components/app/` |
+| Generic, domain-agnostic UI pieces (empty states, badges, avatars, etc.) | `components/commons/` |
+| Domain-specific UI tied to a feature | `components/features/<domain>/` |
+
+Rules:
+
+- When a repeated pattern is identified, extract it immediately — do not defer.
+- Replace every existing occurrence with the new shared component in the same pass.
+- The new component must accept props that cover all current usages; avoid hard-coding values.
+- Do not duplicate a component just to make a minor style tweak — use props or variants instead.
+- After extraction, verify the barrel file for the target folder is updated (see Barrel Files Policy).
+- Prefer composition over inheritance: build complex components from smaller shared ones.
+
+Identification signals (check for these):
+
+- Identical or near-identical TSX blocks across files.
+- The same combination of shadcn/ui primitives repeated with only data varying.
+- Copy-pasted loading skeletons, empty-state blocks, or page headers.
+- Repeated wrapper divs with the same Tailwind class patterns.
+
 ---
 
-## 8) Error Handling & UX
+## Error Handling & UX
 
 - Always show loading states.
 - Prevent double submissions.
@@ -186,7 +167,7 @@ Guidelines:
 
 ---
 
-## 9) Testing Expectations
+## Testing Expectations
 
 - Cover critical logic.
 - Do not mock Supabase in E2E tests.
@@ -196,7 +177,7 @@ Guidelines:
 
 ---
 
-## 10) Tooling & Delegation (Skills + MCP)
+## Tooling & Delegation (Skills + MCP)
 
 ### Source of truth
 
@@ -209,7 +190,7 @@ Prefer skill-driven implementations over ad-hoc solutions.
 
 ---
 
-## 11) Working Process
+## Working Process
 
 1. Identify impacted areas.
 2. Propose minimal viable architecture.
@@ -219,7 +200,7 @@ Prefer skill-driven implementations over ad-hoc solutions.
 
 ---
 
-## 12) Git & Commits
+## Git & Commits
 
 - Use English.
 - Follow Conventional Commits.
@@ -229,18 +210,3 @@ Examples:
 
 - feat(auth): add magic link sign-in
 - fix(items): prevent duplicate names
-
----
-
-## 13) Conflict Resolution
-
-- Prefer existing repo conventions.
-- Security rules override convenience.
-
----
-
-## 14) What Not To Do
-
-- Do not add new frameworks by default.
-- Do not bypass RLS.
-- Do not invent abstractions without clear benefit.
