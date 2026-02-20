@@ -36,10 +36,11 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 	const formattedTime = ticket.created_at ? formatTime(new Date(ticket.created_at)) : ''
 	const ticketItems = ticket.items || []
 	const extractedItemsCount = ticket.total_items ?? ticketItems.length
-	const pricedItemsCount = ticketItems.filter(item => item.price !== null).length
+	const pricedItemsCount = ticketItems.filter((item: { price?: number | null }) => item.price !== null).length
 	const calculatedTotal = ticketItems.reduce(
-		(sum, item) => sum + (item.price ?? 0) * (item.quantity ?? 1),
-		0
+		(sum: number, item: { price?: number | null; quantity?: number | null }) =>
+			sum + (item.price ?? 0) * (item.quantity ?? 1),
+		0,
 	)
 
 	return (
