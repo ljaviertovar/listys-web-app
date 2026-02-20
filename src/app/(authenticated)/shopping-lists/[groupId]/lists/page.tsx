@@ -28,7 +28,14 @@ export default async function BaseListsPage({ params }: { params: Promise<{ grou
 		supabase.from('groups').select('name').eq('id', groupId).single(),
 		supabase
 			.from('shopping_sessions')
-			.select('id, base_list_id')
+			.select(
+				`
+				id,
+				name,
+				base_list_id,
+				items:shopping_session_items(checked)
+			`,
+			)
 			.eq('user_id', user.id)
 			.eq('status', 'active')
 			.maybeSingle(),
@@ -52,11 +59,13 @@ export default async function BaseListsPage({ params }: { params: Promise<{ grou
 				title={group?.name || 'Base Lists'}
 				desc='Manage your base shopping lists'
 			>
-				<div className='justify-end hidden md:flex	'>
-					<div className='w-fit'>
-						<CreateBaseListDialog groupId={groupId} />
+				{baseLists && baseLists.length > 0 && (
+					<div className='justify-end hidden md:flex	'>
+						<div className='w-fit'>
+							<CreateBaseListDialog groupId={groupId} />
+						</div>
 					</div>
-				</div>
+				)}
 			</PageHeader>
 
 			<PageContainer>
@@ -69,7 +78,7 @@ export default async function BaseListsPage({ params }: { params: Promise<{ grou
 					<div className='rounded-lg bg-destructive/10 p-4 text-sm text-destructive'>Error loading lists: {error}</div>
 				)}
 
-				{activeSession && <ActiveShopping activeShopping={{ ...activeSession, name: '' }} />}
+				{activeSession && <ActiveShopping activeShopping={activeSession} />}
 
 				{!baseLists || baseLists.length === 0 ? (
 					<Card
@@ -115,11 +124,13 @@ export default async function BaseListsPage({ params }: { params: Promise<{ grou
 				)}
 			</PageContainer>
 
-			<PageFooterAction>
-				<div className='w-full md:hidden'>
-					<CreateBaseListDialog groupId={groupId} />
-				</div>
-			</PageFooterAction>
+			{baseLists && baseLists.length > 0 && (
+				<PageFooterAction>
+					<div className='w-full md:hidden'>
+						<CreateBaseListDialog groupId={groupId} />
+					</div>
+				</PageFooterAction>
+			)}
 		</>
 	)
 }

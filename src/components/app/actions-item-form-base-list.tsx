@@ -158,7 +158,7 @@ export function ActionsItemFormBaseList({
 						<Textarea
 							{...register('notes')}
 							className='bg-card h-20'
-							placeholder='Notes (optional)'
+							placeholder='Notes, eg. specific brand, flavor, etc.'
 							disabled={loading}
 						/>
 

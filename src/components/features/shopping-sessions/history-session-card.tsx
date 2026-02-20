@@ -21,9 +21,10 @@ interface Session {
 
 interface Props {
 	session: Session
+	href?: string
 }
 
-export function HistorySessionCard({ session }: Props) {
+export function HistorySessionCard({ session, href }: Props) {
 	const completedDate = session.completed_at ? new Date(session.completed_at) : null
 
 	return (
@@ -31,7 +32,7 @@ export function HistorySessionCard({ session }: Props) {
 			className='hover:border-primary/50 transition-colors cursor-pointer group'
 			size='sm'
 		>
-			<Link href={`/shopping/${session.id}`}>
+			<Link href={href ?? `/shopping/${session.id}`}>
 				<CardHeader className='gap-0'>
 					<div className='flex items-center justify-end'>
 						<Badge variant='completed'>Completed</Badge>

@@ -52,13 +52,15 @@ export function StartShoppingDialog({ baseListId, baseListName, disabled, itemsC
 				// Update store optimistically
 				setActiveSession({ id: data.id, name: data.name })
 				router.push(`/shopping/${data.id}`)
+				// Keep modal open with spinner until navigation completes
 			} else {
 				router.refresh()
+				setLoading(false)
+				setOpen(false)
 			}
 		} catch (err) {
 			const message = err instanceof Error ? err.message : 'Failed to start shopping session'
 			toast.error(message)
-		} finally {
 			setLoading(false)
 			setOpen(false)
 		}
@@ -105,7 +107,7 @@ export function StartShoppingDialog({ baseListId, baseListName, disabled, itemsC
 						) : (
 							<>
 								This will create a new shopping session using items from the base list
-								{baseListName ? ` "${baseListName}"` : ''}. Are you sure you want to continue?
+								{baseListName ? ` "${baseListName}"` : ''}.
 							</>
 						)}
 					</DialogDescription>

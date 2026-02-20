@@ -18,6 +18,7 @@ import { Menu02Icon } from '@hugeicons/core-free-icons'
 import { NAV_APP_ITEMS } from '@/data/constants/nav'
 import useActiveSessionStore from '@/stores/active-session'
 import { ActiveShoppingBadge } from './active-shopping-badge'
+import Logo from '../commons/logo'
 
 export default function MobileMenu() {
 	const activeRun = useActiveSessionStore(s => s.activeSession)
@@ -42,8 +43,15 @@ export default function MobileMenu() {
 			</DropdownMenuTrigger>
 			<DropdownMenuContent className='w-56'>
 				{/* Current active shopping run (initial section) */}
+
+				<div className='flex justify-center scale-80'>
+					<Logo />
+				</div>
+
 				{activeRun ? (
 					<>
+						<DropdownMenuSeparator />
+
 						<DropdownMenuLabel className='font-medium'>
 							<ActiveShoppingBadge />
 						</DropdownMenuLabel>

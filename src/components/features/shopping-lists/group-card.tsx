@@ -136,7 +136,7 @@ export function GroupCard({ group, history = false }: Props) {
 						<div>
 							<Textarea
 								{...register('description')}
-								placeholder='Description (optional)'
+								placeholder='Description or notes, eg. "Lists related to grocery shopping", "Lists for camping trips", etc.'
 								className='bg-card h-20 resize-none'
 								disabled={loading}
 							/>
