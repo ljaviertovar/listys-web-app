@@ -87,6 +87,7 @@ export default async function TicketsPage() {
 							return (
 								<Card
 									key={ticket.id}
+									size='sm'
 									className='hover:border-primary/50 transition-colors cursor-pointer group'
 								>
 									<Link href={`/tickets/${ticket.id}`}>

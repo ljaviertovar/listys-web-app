@@ -25,20 +25,18 @@ export default async function GroupsPage() {
 		<>
 			<PageHeader
 				title='Shopping List Groups'
-				desc='Organize your shopping lists into groups'
+				desc='Organize your shopping lists into groups or stores. Eg: Groceries, Electronics, Walmart, etc.'
 			>
-				<div className='justify-end hidden md:flex'>
-					<div className='w-fit'>
-						<CreateGroupDialog />
+				{groups && groups.length > 0 && (
+					<div className='justify-end hidden md:flex'>
+						<div className='w-fit'>
+							<CreateGroupDialog />
+						</div>
 					</div>
-				</div>
+				)}
 			</PageHeader>
 
 			<PageContainer>
-				{error && (
-					<div className='rounded-lg bg-destructive/10 p-4 text-sm text-destructive'>Error loading groups: {error}</div>
-				)}
-
 				<BackLink
 					href='/dashboard'
 					label='Back to Dashboard'
@@ -76,11 +74,13 @@ export default async function GroupsPage() {
 				)}
 			</PageContainer>
 
-			<PageFooterAction>
-				<div className='w-full md:hidden'>
-					<CreateGroupDialog />
-				</div>
-			</PageFooterAction>
+			{groups && groups.length > 0 && (
+				<PageFooterAction>
+					<div className='w-full md:hidden'>
+						<CreateGroupDialog />
+					</div>
+				</PageFooterAction>
+			)}
 		</>
 	)
 }

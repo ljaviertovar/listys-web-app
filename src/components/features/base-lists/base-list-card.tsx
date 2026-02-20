@@ -31,7 +31,7 @@ import {
 	AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { ActiveShoppingBadge } from '@/components/app/active-shopping-badge'
-import { Separator } from '@/components/ui/separator'
+
 import { CardHeaderContent } from '@/components/app'
 
 interface Props {
@@ -116,6 +116,8 @@ export function BaseListCard({ baseList, isActiveRun = false }: Props) {
 
 	const baseListNotes = baseList.notes
 
+	if (isActiveRun) return null
+
 	if (editing) {
 		return (
 			<Card
@@ -137,7 +139,7 @@ export function BaseListCard({ baseList, isActiveRun = false }: Props) {
 						<Textarea
 							{...register('notes')}
 							disabled={loading}
-							placeholder='Description (optional)'
+							placeholder='Description or notes, eg. "Weekly groceries", "Items for camping trip", etc.'
 							className='min-h-20'
 						/>
 						<div>

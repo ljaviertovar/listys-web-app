@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { HugeiconsIcon } from '@hugeicons/react'
 
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { PageHeader, PageContainer, BackLink, CardHeaderContent } from '@/components/app'
 import { TicketItemsSelector, TicketImage, TicketActions, TicketStatusListener } from '@/components/features/tickets'
 import { Invoice01Icon, ListViewIcon } from '@hugeicons/core-free-icons'
@@ -10,8 +10,8 @@ import { getTicket } from '@/lib/api/endpoints/tickets'
 
 import { createClient } from '@/lib/supabase/server'
 
+import { formatCurrency } from '@/utils/format-currency'
 import { formatDate, formatTime } from '@/utils/format-date'
-import { Car } from 'lucide-react'
 
 export default async function TicketDetailPage({ params }: { params: Promise<{ ticketId: string }> }) {
 	const { ticketId } = await params
@@ -34,7 +34,13 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 	// Format date on server side
 	const formattedDate = ticket.created_at ? formatDate(new Date(ticket.created_at)) : 'Unknown'
 	const formattedTime = ticket.created_at ? formatTime(new Date(ticket.created_at)) : ''
-	const createdAt = ticket.created_at ? new Date(ticket.created_at) : new Date()
+	const ticketItems = ticket.items || []
+	const extractedItemsCount = ticket.total_items ?? ticketItems.length
+	const pricedItemsCount = ticketItems.filter(item => item.price !== null).length
+	const calculatedTotal = ticketItems.reduce(
+		(sum, item) => sum + (item.price ?? 0) * (item.quantity ?? 1),
+		0
+	)
 
 	return (
 		<>
@@ -99,10 +105,28 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 						<CardContent>
 							<TicketItemsSelector
 								ticketId={ticketId}
-								items={ticket.items || []}
+								items={ticketItems}
 								status={ticket.ocr_status || 'pending'}
 								ocrError={(ticket as any).ocr_error}
 							/>
+
+							{ticket.ocr_status === 'completed' && ticketItems.length > 0 && (
+								<div className='mt-4 border-t pt-4 space-y-2'>
+									<div className='flex items-center justify-between text-sm'>
+										<span className='text-muted-foreground'>Extracted items</span>
+										<span className='font-medium'>{extractedItemsCount}</span>
+									</div>
+									<div className='flex items-center justify-between text-sm'>
+										<span className='text-muted-foreground'>Calculated total</span>
+										<span className='font-semibold'>{formatCurrency(calculatedTotal)}</span>
+									</div>
+									{pricedItemsCount < ticketItems.length && (
+										<p className='text-xs text-muted-foreground'>
+											Calculated using {pricedItemsCount} of {ticketItems.length} items with price.
+										</p>
+									)}
+								</div>
+							)}
 						</CardContent>
 						<CardFooter className='justify-end'>
 							<TicketActions ticket={ticket} />

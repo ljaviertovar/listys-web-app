@@ -15,8 +15,24 @@ import { formatDate, formatTime } from '@/utils/format-date'
 
 import type { ShoppingSessionWithItems } from '@/features/shopping-sessions/types'
 
-export default async function ShoppingRunPage({ params }: { params: Promise<{ runId: string }> }) {
+type SearchParams = {
+	from?: string | string[]
+	groupId?: string | string[]
+}
+
+export default async function ShoppingRunPage({
+	params,
+	searchParams,
+}: {
+	params: Promise<{ runId: string }>
+	searchParams: Promise<SearchParams>
+}) {
 	const { runId } = await params
+	const resolvedSearchParams = await searchParams
+	const origin = Array.isArray(resolvedSearchParams.from) ? resolvedSearchParams.from[0] : resolvedSearchParams.from
+	const originGroupId = Array.isArray(resolvedSearchParams.groupId)
+		? resolvedSearchParams.groupId[0]
+		: resolvedSearchParams.groupId
 	const supabase = await createClient()
 	const {
 		data: { user },
@@ -32,8 +48,19 @@ export default async function ShoppingRunPage({ params }: { params: Promise<{ ru
 		redirect('/dashboard')
 	}
 
-	const runWithItems = shoppingSession as ShoppingSessionWithItems
+	const runWithItems = shoppingSession as ShoppingSessionWithItems & { base_list?: { group_id?: string | null } | null }
 	const isCompleted = runWithItems.status === 'completed'
+
+	let backHref = '/shopping-history'
+	let backLabel = 'Back to Shopping History'
+
+	if (origin === 'history-group' && originGroupId) {
+		backHref = `/shopping-history/${originGroupId}`
+		backLabel = 'Back to Group History'
+	} else if (runWithItems.base_list?.group_id) {
+		backHref = `/shopping-lists/${runWithItems.base_list.group_id}/lists`
+		backLabel = 'Back to Group Lists'
+	}
 
 	// Preserve dynamic session ordering (sort_order), only pushing checked items to the bottom.
 	const sortedItems = [...runWithItems.items].sort((a, b) => {
@@ -81,8 +108,8 @@ export default async function ShoppingRunPage({ params }: { params: Promise<{ ru
 			<PageContainer>
 				{isCompleted && (
 					<BackLink
-						href='/shopping-history'
-						label='Back to Shopping History'
+						href={backHref}
+						label={backLabel}
 					/>
 				)}
 

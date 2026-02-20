@@ -71,6 +71,7 @@ export default async function GroupHistoryPage({ params }: { params: Promise<{ g
 							<HistorySessionCard
 								key={session.id}
 								session={session}
+								href={`/shopping/${session.id}?from=history-group&groupId=${groupId}`}
 							/>
 						))}
 					</div>
