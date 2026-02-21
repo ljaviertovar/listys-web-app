@@ -62,8 +62,11 @@ export default async function ShoppingRunPage({
 		backLabel = 'Back to Group Lists'
 	}
 
-	// Preserve dynamic session ordering (sort_order), only pushing checked items to the bottom.
-	const sortedItems = [...runWithItems.items].sort((a, b) => {
+	// If session is completed, only show checked items.
+	// Otherwise show all items, pushing checked ones to the bottom.
+	const items = isCompleted ? runWithItems.items.filter(item => item.checked === true) : runWithItems.items
+
+	const sortedItems = [...items].sort((a, b) => {
 		if (a.checked !== b.checked) return a.checked ? 1 : -1
 		return (a.sort_order || 0) - (b.sort_order || 0)
 	})
