@@ -74,6 +74,16 @@ export const USER_NAV_ITEMS: NavItem[] = [
 		url: '/dashboard',
 		icon: DashboardSquare02Icon,
 	},
+	{
+		title: 'Profile',
+		url: '/settings/profile',
+		icon: UserSettings01Icon,
+	},
+	{
+		title: 'Account',
+		url: '/settings/account',
+		icon: Settings02Icon,
+	},
 ]
 
 export const NAV_APP_ITEMS: NavItem[] = [
