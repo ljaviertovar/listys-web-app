@@ -63,6 +63,7 @@ export default async function TicketsPage() {
 					<Card
 						className='flex min-h-100 flex-col items-center justify-center'
 						size='sm'
+						variant='premium'
 					>
 						<CardContent className='flex w-full max-w-md flex-col items-center pt-6 text-center'>
 							<div className='flex h-16 w-16 items-center justify-center text-primary'>
@@ -87,8 +88,9 @@ export default async function TicketsPage() {
 							return (
 								<Card
 									key={ticket.id}
+									variant='premium'
 									size='sm'
-									className='hover:border-primary/50 transition-colors cursor-pointer group'
+									className='hover:bg-primary/1 hover:border-primary/50 transition-all cursor-pointer group'
 								>
 									<Link href={`/tickets/${ticket.id}`}>
 										<CardHeader className='gap-0'>

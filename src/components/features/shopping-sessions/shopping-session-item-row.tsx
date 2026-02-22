@@ -91,9 +91,9 @@ export function ShoppingSessionItemRow({ item, isCompleted = false }: Props) {
 			onKeyDown={handleKeyDown}
 			role='button'
 			tabIndex={0}
-			className={`group relative overflow-hidden transition-all duration-300 ${checked ? 'opacity-80 shadow-none ' : ''}`}
+			className={`group cursor-pointer relative overflow-hidden transition-all duration-300 hover:bg-primary/1 hover:border-primary/50 ${checked ? 'opacity-80 shadow-none ' : ''}`}
 		>
-			<CardContent className='flex flex-row items-center p-2.5 px-3 md:p-4'>
+			<CardContent className='flex flex-row items-center p-2.5 md:p-4'>
 				<div className='flex flex-1 min-w-0 items-center justify-start gap-3'>
 					<Badge
 						variant={'secondary'}
@@ -105,7 +105,7 @@ export function ShoppingSessionItemRow({ item, isCompleted = false }: Props) {
 
 					<div className='flex-1 min-w-0'>
 						<p
-							className={`truncate text-sm font-bold tracking-tight md:text-base ${
+							className={`truncate text-sm font-semibold tracking-tight md:text-base ${
 								checked ? 'text-muted-foreground/90 italic line-through' : 'text-foreground'
 							}`}
 						>

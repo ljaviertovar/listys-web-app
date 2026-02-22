@@ -48,36 +48,29 @@ export function BaseListItemRow({ item, isLocked = false }: Props) {
 
 	return (
 		<Card
-			size='sm'
-			className='hover:bg-primary/1 hover:border-primary/50 transition-colors cursor-pointer group'
+			variant='premium'
+			size='compact'
+			className='hover:bg-primary/1 hover:border-primary/50 transition-all cursor-pointer group'
 		>
-			<CardContent className='flex flex-row items-center'>
-				<div className='flex flex-1 items-center gap-2 justify-start'>
-					<div className='flex-1 space-y-1'>
-						<p className='font-bold'>
-							{item.name}
+			<CardContent className='flex flex-row items-center p-2.5 md:p-4'>
+				<div className='flex flex-1 min-w-0 items-center justify-start gap-3'>
+					<Badge
+						variant={'secondary'}
+						className={`h-7 min-w-12 justify-center rounded-lg px-2 py-0 font-bold text-sm uppercase transition-all bg-accent text-accent-foreground`}
+					>
+						{item.quantity ?? 1}
+						<span className='ml-0.5 text-xs font-medium lowercase opacity-60'>{item.unit || 'u'}</span>
+					</Badge>
 
-							<Badge
-								variant='category'
-								className='ml-2 text-xs'
-							>
-								{item.quantity ?? 1} {item.unit}
-							</Badge>
+					<div className='flex-1 min-w-0'>
+						<p
+							className={`truncate text-sm font-semibold tracking-tight md:text-base text-foreground'
+							`}
+						>
+							{item.name}
 						</p>
 
-						<div className='flex gap-2'>
-							{item.category && <Badge variant={'category'}>{getCategoryWithEmoji(item.category)}</Badge>}
-						</div>
-
-						{item.notes && (
-							<div className='flex items-center gap-1'>
-								<Separator
-									orientation='vertical'
-									className='border-primary/20 border'
-								/>
-								<p className='text-xs md:text-sm text-muted-foreground'>{item.notes}</p>
-							</div>
-						)}
+						{item.notes && <p className='mt-0.5 max-w-[180px] truncate text-xs text-muted-foreground'>{item.notes}</p>}
 					</div>
 				</div>
 				<ActionsItemFormBaseList

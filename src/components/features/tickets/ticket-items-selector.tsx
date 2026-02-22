@@ -11,6 +11,7 @@ import { MergeToBaseListDialog } from './merge-to-base-list-dialog'
 import { TicketProcessingError } from './ticket-processing-error'
 import { TicketItemRow } from './ticket-item-row'
 import { Loading03Icon, Add01Icon } from '@hugeicons/core-free-icons'
+import { getCategoryWithEmoji, normalizeCategory } from '@/data/constants'
 
 import type { TicketItem } from '@/features/tickets/types'
 
@@ -93,10 +94,28 @@ export function TicketItemsSelector({ ticketId, items, status, ocrError }: Props
 		)
 	}
 
-	const totalAmount = items.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 1), 0)
 	const allSelected = selectedItems.size === items.length
 	const someSelected = selectedItems.size > 0
 	const canMerge = status === 'completed'
+
+	const groupedItems = items.reduce(
+		(acc, item) => {
+			const normalizedCategory = normalizeCategory(item.category || '')
+			const key = normalizedCategory || 'Other'
+			if (!acc[key]) acc[key] = []
+			acc[key].push(item)
+			return acc
+		},
+		{} as Record<string, TicketItem[]>,
+	)
+
+	const categorySections = Object.entries(groupedItems)
+		.sort(([a], [b]) => a.localeCompare(b, 'en', { sensitivity: 'base' }))
+		.map(([category, sectionItems]) => ({
+			key: category,
+			title: getCategoryWithEmoji(category),
+			items: sectionItems,
+		}))
 
 	return (
 		<div className='space-y-4'>
@@ -132,16 +151,35 @@ export function TicketItemsSelector({ ticketId, items, status, ocrError }: Props
 				</div>
 			)}
 
-			{/* Items list */}
-			<div className='space-y-2'>
-				{items.map(item => (
-					<TicketItemRow
-						key={item.id}
-						item={item}
-						canSelect={canMerge}
-						selected={selectedItems.has(item.id)}
-						onSelectToggle={() => toggleItem(item.id)}
-					/>
+			{/* Items grouped by category */}
+			<div className='space-y-4'>
+				{categorySections.map(section => (
+					<section
+						key={section.key}
+						className='mb-8'
+					>
+						<div className='mb-2 flex items-center justify-between'>
+							<div className='min-w-0 flex-1'>
+								<p className='text-base font-bold tracking-tight uppercase'>{section.title}</p>
+								<div className='mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 tabular-nums text-[10px] font-bold uppercase tracking-tighter text-muted-foreground/70'>
+									<span>
+										{section.items.length} {section.items.length === 1 ? 'item' : 'items'}
+									</span>
+								</div>
+							</div>
+						</div>
+						<div className='space-y-2'>
+							{section.items.map(item => (
+								<TicketItemRow
+									key={item.id}
+									item={item}
+									canSelect={canMerge}
+									selected={selectedItems.has(item.id)}
+									onSelectToggle={() => toggleItem(item.id)}
+								/>
+							))}
+						</div>
+					</section>
 				))}
 			</div>
 

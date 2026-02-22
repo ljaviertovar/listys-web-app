@@ -114,9 +114,10 @@ export function GroupCard({ group, history = false }: Props) {
 		return (
 			<Card
 				size='sm'
+				variant='premium'
 				className='transition-colors'
 			>
-				<CardContent className='flex flex-col gap-2 pt-6'>
+				<CardContent className='flex flex-col gap-2'>
 					<form
 						onSubmit={handleSubmit(handleUpdate)}
 						className='space-y-3'
@@ -178,8 +179,9 @@ export function GroupCard({ group, history = false }: Props) {
 	return (
 		<>
 			<Card
-				className='hover:border-primary/50 transition-colors cursor-pointer group'
+				variant='premium'
 				size='sm'
+				className='hover:bg-primary/1 hover:border-primary/50 transition-all cursor-pointer group'
 			>
 				<Link
 					href={history ? `/shopping-history/${group.id}` : `/shopping-lists/${group.id}/lists`}

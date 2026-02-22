@@ -187,14 +187,14 @@ export default async function ShoppingRunPage({
 							</div>
 						) : (
 							<div className='space-y-4 pb-32'>
-								{categorySections.map((section, index) => (
+								{categorySections.map(section => (
 									<section
 										key={section.key}
 										className='mb-8'
 									>
-										<div className={`mb-3 flex items-center justify-between `}>
+										<div className='mb-2 flex items-center justify-between'>
 											<div className='min-w-0 flex-1'>
-												<p className='text-base font-semibold tracking-tight uppercase'>{section.title}</p>
+												<p className='text-base font-bold tracking-tight uppercase'>{section.title}</p>
 												<div className='mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 tabular-nums text-[10px] font-bold uppercase tracking-tighter text-muted-foreground/70'>
 													<span>
 														{section.items.length} {section.items.length === 1 ? 'item' : 'items'}

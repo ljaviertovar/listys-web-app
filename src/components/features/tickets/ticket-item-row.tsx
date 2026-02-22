@@ -3,10 +3,9 @@
 import * as React from 'react'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { getCategoryWithEmoji } from '@/data/constants'
 
 import type { TicketItem } from '@/features/tickets/types'
+import { Badge } from '@/components/ui/badge'
 
 interface Props {
 	item: TicketItem
@@ -32,25 +31,26 @@ export function TicketItemRow({ item, canSelect = false, selected = false, onSel
 
 	return (
 		<Card
-			size='sm'
+			size='compact'
 			role={canSelect ? 'button' : undefined}
 			tabIndex={canSelect ? 0 : undefined}
 			onKeyDown={canSelect ? handleKeyDown : undefined}
 			onClick={canSelect ? () => onSelectToggle?.(item.id) : undefined}
-			className={`transition-all cursor-pointer ${selected ? 'border-primary bg-primary/5' : 'hover:border-primary'}`}
+			className={`transition-all cursor-pointer ${selected ? 'border-primary bg-primary/5' : 'hover:bg-primary/1 hover:border-primary/50'}`}
 		>
-			<CardContent className='flex items-center gap-3 p-3'>
+			<CardContent className='flex items-center gap-3 p-2.5'>
 				<div className='flex-1'>
 					<p className='text-sm font-bold truncate w-full max-w-[28ch]'>{item.name}</p>
 					<div className='w-full flex justify-between items-center gap-4 mb-2'>
-						<span className='text-sm text-muted-foreground'>
-							{item.quantity || 1} {item.unit || 'pcs'}
-						</span>
+						<Badge
+							variant={'secondary'}
+							className={`h-7 min-w-12 justify-center rounded-lg px-2 py-0 font-bold text-sm uppercase transition-all bg-accent text-accent-foreground`}
+						>
+							{item.quantity ?? 1}
+							<span className='ml-0.5 text-xs font-medium lowercase opacity-60'>{item.unit || 'pcs'}</span>
+						</Badge>
 
 						{item.price !== null && <span className='text-sm text-muted-foreground'>${item.price!.toFixed(2)}</span>}
-					</div>
-					<div className='flex items-center gap-2'>
-						{item.category && <Badge variant='category'>{getCategoryWithEmoji(item.category)}</Badge>}
 					</div>
 				</div>
 				{canSelect ? (

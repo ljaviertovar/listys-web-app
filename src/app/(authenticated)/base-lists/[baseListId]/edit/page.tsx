@@ -130,6 +130,7 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 
 						<span className='text-primary font-medium'>{totalItems} Items</span>
 					</div>
+
 					<ScrollArea className='h-full min-h-0 sm:px-6 touch-pan-y overscroll-contain'>
 						{!baseListWithItems.items || baseListWithItems.items.length === 0 ? (
 							<div className='flex flex-col items-center justify-center py-12 text-center'>
@@ -148,20 +149,18 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 								{categorySections.map((section, index) => (
 									<section
 										key={section.key}
-										className='rounded-2xl border border-border/80 bg-card/90 p-2.5 shadow-sm ring-1 ring-primary/10'
+										className='mb-8'
 									>
-										<div
-											className={`mb-3 flex items-center justify-between rounded-xl border px-3 py-2.5 shadow-sm ${categoryHeaderThemes[index % categoryHeaderThemes.length]}`}
-										>
-											<div className='flex items-center gap-2'>
-												<p className='text-base font-semibold tracking-tight'>{section.title}</p>
+										<div className='mb-2 flex items-center justify-between'>
+											<div className='min-w-0 flex-1'>
+												<p className='text-base font-bold tracking-tight uppercase'>{section.title}</p>
+												<div className='mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 tabular-nums text-[10px] font-bold uppercase tracking-tighter text-muted-foreground/70'>
+													<span>
+														{section.items.length} {section.items.length === 1 ? 'item' : 'items'}
+													</span>
+													<span className='hidden h-1 w-1 rounded-full bg-border sm:inline-block' />
+												</div>
 											</div>
-											<Badge
-												variant='outline'
-												className='bg-background/70'
-											>
-												{section.items.length} items
-											</Badge>
 										</div>
 
 										<div className='space-y-2'>

@@ -123,6 +123,7 @@ export function BaseListCard({ baseList, isActiveRun = false }: Props) {
 			<Card
 				className='hover:border-primary/50 transition-colors gap-2'
 				size='sm'
+				variant='premium'
 				data-testid={`list-card-${baseList.id}`}
 			>
 				<CardHeader className='gap-2'>
@@ -182,8 +183,9 @@ export function BaseListCard({ baseList, isActiveRun = false }: Props) {
 		<>
 			<Link href={`/base-lists/${baseList.id}/edit`}>
 				<Card
-					className={`hover:border-primary/50 transition-colors gap-2 cursor-pointer group`}
+					variant='premium'
 					size='sm'
+					className='hover:bg-primary/1 hover:border-primary/50 transition-all cursor-pointer group'
 					data-testid={`list-card-${baseList.id}`}
 				>
 					<CardHeader className='gap-0'>
