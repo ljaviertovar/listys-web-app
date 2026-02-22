@@ -1,19 +1,21 @@
 import { redirect } from 'next/navigation'
 import { HugeiconsIcon } from '@hugeicons/react'
 
-import { Progress } from '@/components/ui/progress'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { Badge } from '@/components/ui/badge'
+import { Progress } from '@/components/ui/progress'
 import { PageHeader, PageContainer, PageFooterAction, BackLink, ActiveShoppingBadge } from '@/components/app'
 import { ShoppingSessionItemRow, ShoppingSessionActions } from '@/components/features/shopping-sessions'
 
-import { CheckmarkCircle02Icon } from '@hugeicons/core-free-icons'
+import { CheckmarkCircle02Icon, PlusSignIcon } from '@hugeicons/core-free-icons'
 
 import { getShoppingSession } from '@/actions/shopping-sessions'
+import { getCategoryWithEmoji, normalizeCategory } from '@/data/constants'
 
 import { createClient } from '@/lib/supabase/server'
 import { formatDate, formatTime } from '@/utils/format-date'
 
-import type { ShoppingSessionWithItems } from '@/features/shopping-sessions/types'
+import type { ShoppingSessionItem, ShoppingSessionWithItems } from '@/features/shopping-sessions/types'
 
 type SearchParams = {
 	from?: string | string[]
@@ -48,7 +50,9 @@ export default async function ShoppingRunPage({
 		redirect('/dashboard')
 	}
 
-	const runWithItems = shoppingSession as ShoppingSessionWithItems & { base_list?: { group_id?: string | null } | null }
+	const runWithItems = shoppingSession as ShoppingSessionWithItems & {
+		base_list?: { group_id?: string | null } | null
+	}
 	const isCompleted = runWithItems.status === 'completed'
 
 	let backHref = '/shopping-history'
@@ -71,12 +75,42 @@ export default async function ShoppingRunPage({
 		return (a.sort_order || 0) - (b.sort_order || 0)
 	})
 
+	const groupedItems = sortedItems.reduce(
+		(acc, item) => {
+			const normalizedCategory = normalizeCategory(item.category || '')
+			const key = normalizedCategory || 'Other'
+
+			if (!acc[key]) {
+				acc[key] = []
+			}
+
+			acc[key].push(item)
+			return acc
+		},
+		{} as Record<string, ShoppingSessionItem[]>,
+	)
+
+	const categorySections = Object.entries(groupedItems)
+		.sort(([categoryA], [categoryB]) => categoryA.localeCompare(categoryB, 'en', { sensitivity: 'base' }))
+		.map(([category, groupedCategoryItems]) => ({
+			key: category,
+			title: getCategoryWithEmoji(category),
+			items: groupedCategoryItems,
+			checkedCount: groupedCategoryItems.filter(item => item.checked).length,
+		}))
+	const categoryHeaderThemes = [
+		'border-primary/30 bg-gradient-to-r from-primary/10 to-primary/5',
+		'border-emerald-200/60 bg-gradient-to-r from-emerald-100/80 to-emerald-50/80 dark:border-emerald-900/50 dark:from-emerald-950/40 dark:to-emerald-900/20',
+		'border-amber-200/60 bg-gradient-to-r from-amber-100/80 to-amber-50/80 dark:border-amber-900/50 dark:from-amber-950/40 dark:to-amber-900/20',
+		'border-sky-200/60 bg-gradient-to-r from-sky-100/80 to-sky-50/80 dark:border-sky-900/50 dark:from-sky-950/40 dark:to-sky-900/20',
+	]
+
 	const checkedCount = runWithItems.items.filter(item => item.checked).length
 	const totalCount = runWithItems.items.length
 	const progress = totalCount > 0 ? Math.round((checkedCount / totalCount) * 100) : 0
 
 	return (
-		<>
+		<div className='flex h-dvh flex-col'>
 			<PageHeader
 				title={runWithItems.name}
 				desc={
@@ -108,58 +142,98 @@ export default async function ShoppingRunPage({
 				</div>
 			</PageHeader>
 
-			<PageContainer>
-				{isCompleted && (
-					<BackLink
-						href={backHref}
-						label={backLabel}
-					/>
-				)}
+			<div className='flex flex-1 min-h-0 flex-col'>
+				<PageContainer>
+					{isCompleted && (
+						<BackLink
+							href={backHref}
+							label={backLabel}
+						/>
+					)}
 
-				{isCompleted && (
-					<div className='rounded-lg border border-green-200 bg-green-50 p-4'>
-						<div className='flex items-start gap-3'>
-							<HugeiconsIcon
-								icon={CheckmarkCircle02Icon}
-								strokeWidth={2}
-								className='h-5 w-5 text-green-600 mt-0.5 shrink-0'
-							/>
-							<div className='flex-1'>
-								<p className='text-sm font-semibold text-green-900'>Shopping completed</p>
+					{isCompleted && (
+						<div className='rounded-lg border border-green-200 bg-green-50 p-4'>
+							<div className='flex items-start gap-3'>
+								<HugeiconsIcon
+									icon={CheckmarkCircle02Icon}
+									strokeWidth={2}
+									className='h-5 w-5 text-green-600 mt-0.5 shrink-0'
+								/>
+								<div className='flex-1'>
+									<p className='text-sm font-semibold text-green-900'>Shopping completed</p>
 
-								<p className='text-xs text-green-700 mt-1'>
-									{isCompleted && `${checkedCount} of ${totalCount} items were purchased`}
-								</p>
+									<p className='text-xs text-green-700 mt-1'>
+										{isCompleted && `${checkedCount} of ${totalCount} items were purchased`}
+									</p>
+								</div>
 							</div>
 						</div>
-					</div>
-				)}
+					)}
 
-				<ScrollArea className='h-full min-h-0 sm:px-6 touch-pan-y overscroll-contain'>
-					<div className='space-y-2 mb-4'>
-						{sortedItems.map(item => (
-							<ShoppingSessionItemRow
-								key={item.id}
-								item={item}
-								isCompleted={isCompleted}
-							/>
-						))}
-					</div>
-				</ScrollArea>
-			</PageContainer>
+					<ScrollArea className='h-full min-h-0 sm:px-6 touch-pan-y overscroll-contain'>
+						{sortedItems.length === 0 ? (
+							<div className='flex flex-col items-center justify-center py-12 text-center'>
+								<HugeiconsIcon
+									icon={PlusSignIcon}
+									strokeWidth={1.5}
+									className='mb-4 h-10 w-10 text-muted-foreground'
+								/>
+								<h3 className='text-lg font-medium'>{isCompleted ? 'No purchased items' : 'No items yet'}</h3>
+								<p className='mt-1 text-sm text-muted-foreground'>
+									{isCompleted
+										? 'No items were marked as purchased in this shopping run.'
+										: 'Add items to continue this shopping session.'}
+								</p>
+							</div>
+						) : (
+							<div className='space-y-4 pb-32'>
+								{categorySections.map((section, index) => (
+									<section
+										key={section.key}
+										className='mb-8'
+									>
+										<div className={`mb-3 flex items-center justify-between `}>
+											<div className='min-w-0 flex-1'>
+												<p className='text-base font-semibold tracking-tight uppercase'>{section.title}</p>
+												<div className='mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 tabular-nums text-[10px] font-bold uppercase tracking-tighter text-muted-foreground/70'>
+													<span>
+														{section.items.length} {section.items.length === 1 ? 'item' : 'items'}
+													</span>
+													<span className='hidden h-1 w-1 rounded-full bg-border sm:inline-block' />
+													<span>
+														{section.checkedCount}/{section.items.length} checked
+													</span>
+												</div>
+											</div>
+										</div>
+
+										<div className='grid gap-2'>
+											{section.items.map(item => (
+												<ShoppingSessionItemRow
+													key={item.id}
+													item={item}
+													isCompleted={isCompleted}
+												/>
+											))}
+										</div>
+									</section>
+								))}
+							</div>
+						)}
+					</ScrollArea>
+				</PageContainer>
+			</div>
 
 			<PageFooterAction>
 				<div className='w-full md:hidden'>
-					<div className='w-full flex flex-col gap-2'>
-						{!isCompleted && (
-							<ShoppingSessionActions
-								sessionId={runId}
-								progress={progress}
-							/>
-						)}
-					</div>
+					{!isCompleted && (
+						<ShoppingSessionActions
+							sessionId={runId}
+							progress={progress}
+						/>
+					)}
 				</div>
 			</PageFooterAction>
-		</>
+		</div>
 	)
 }
