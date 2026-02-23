@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Delete02Icon, Refresh04Icon, Loading03Icon } from '@hugeicons/core-free-icons'
 
-import { deleteTicket, retryTicketOCR } from '@/actions/tickets'
+import { deleteTicket, retryTicketOCR } from '@/lib/api/endpoints/tickets'
 
 import type { Ticket } from '@/features/tickets/types'
 

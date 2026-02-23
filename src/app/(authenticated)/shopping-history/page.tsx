@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { PageHeader, PageContainer } from '@/components/app'
 import { GroupCard } from '@/components/features/shopping-lists'
 
-import { getGroupsWithHistory } from '@/actions/shopping-lists'
+import { getGroupsWithHistory } from '@/lib/api/endpoints/groups'
 import { createClient } from '@/lib/supabase/server'
 import { FolderSearch2 } from 'lucide-react'
 

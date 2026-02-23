@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { getShoppingHistory } from '@/actions/shopping-sessions'
-import { getGroup } from '@/actions/shopping-lists'
+import { getShoppingHistory } from '@/lib/api/endpoints/shopping-sessions'
+import { getGroup } from '@/lib/api/endpoints/groups'
 import { Card, CardContent } from '@/components/ui/card'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ShoppingBasket01Icon } from '@hugeicons/core-free-icons'
@@ -29,7 +29,7 @@ export default async function GroupHistoryPage({ params }: { params: Promise<{ g
 	}
 
 	// Filter sessions for this specific group
-	const sessions = allSessions?.filter(session => session.base_list?.group?.id === groupId) || []
+	const sessions = allSessions?.filter((session: any) => session.base_list?.group?.id === groupId) || []
 
 	return (
 		<>
@@ -67,7 +67,7 @@ export default async function GroupHistoryPage({ params }: { params: Promise<{ g
 					</Card>
 				) : (
 					<div className='grid gap-4'>
-						{sessions.map(session => (
+						{sessions.map((session: any) => (
 							<HistorySessionCard
 								key={session.id}
 								session={session}

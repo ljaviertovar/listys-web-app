@@ -6,7 +6,7 @@ import { PageHeader, PageContainer, BackLink, CardHeaderContent } from '@/compon
 import { TicketItemsSelector, TicketImage, TicketActions, TicketStatusListener } from '@/components/features/tickets'
 import { Invoice01Icon, ListViewIcon } from '@hugeicons/core-free-icons'
 
-import { getTicket } from '@/actions/tickets'
+import { getTicket } from '@/lib/api/endpoints/tickets'
 
 import { createClient } from '@/lib/supabase/server'
 

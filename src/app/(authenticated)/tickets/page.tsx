@@ -8,7 +8,7 @@ import { UploadTicketDialog } from '@/components/features/tickets'
 import { Badge } from '@/components/ui/badge'
 import { ArrowRight01Icon, Invoice01Icon, SearchVisualIcon } from '@hugeicons/core-free-icons'
 
-import { getTickets } from '@/actions/tickets'
+import { getTickets } from '@/lib/api/endpoints/tickets'
 
 import { createClient } from '@/lib/supabase/server'
 
@@ -28,7 +28,7 @@ export default async function TicketsPage() {
 	const { data: tickets, error } = await getTickets()
 
 	// Format tickets on server side to avoid date serialization issues
-	const formattedTickets = (tickets || []).map(ticket => ({
+	const formattedTickets = (tickets || []).map((ticket: any) => ({
 		...ticket,
 		formattedDate: ticket.created_at ? formatDate(new Date(ticket.created_at)) : 'Unknown',
 		formattedTime: ticket.created_at ? formatTime(new Date(ticket.created_at)) : '',
@@ -84,7 +84,7 @@ export default async function TicketsPage() {
 					</Card>
 				) : (
 					<div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3'>
-						{formattedTickets.map(ticket => {
+						{formattedTickets.map((ticket: any) => {
 							return (
 								<Card
 									key={ticket.id}

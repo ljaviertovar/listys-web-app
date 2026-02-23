@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
-import { completeShoppingSession } from '@/actions/shopping-sessions'
+import { completeShoppingSession } from '@/lib/api/endpoints/shopping-sessions'
 import { useActiveSessionStore } from '@/stores/active-session'
 
 interface Props {

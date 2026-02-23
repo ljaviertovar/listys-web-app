@@ -8,7 +8,7 @@ import { SearchList01Icon } from '@hugeicons/core-free-icons'
 
 import { PageHeader, PageContainer, PageFooterAction, BackLink, ActiveShopping } from '@/components/app'
 
-import { getBaseListsByGroup } from '@/actions/base-lists'
+import { getBaseListsByGroup } from '@/lib/api/endpoints/base-lists'
 
 import type { BaseListWithCount } from '@/features/base-lists/types'
 
@@ -47,7 +47,7 @@ export default async function BaseListsPage({ params }: { params: Promise<{ grou
 
 	// Transform Supabase count result to our type
 	const baseListsWithCount: BaseListWithCount[] = baseLists
-		? baseLists.map(list => ({
+		? baseLists.map((list: any) => ({
 				...list,
 				items_count: Array.isArray(list.items) ? list.items[0]?.count || 0 : 0,
 			}))
