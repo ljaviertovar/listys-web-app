@@ -60,6 +60,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 					<Card
 						className='flex-1 hover:border-primary/50 transition-colors h-fit'
 						size='sm'
+						variant='premium'
 					>
 						<CardHeader>
 							<div className='flex gap-2 items-center'>
@@ -90,6 +91,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 					<Card
 						className='flex-1 hover:border-primary/50 transition-colors'
 						size='sm'
+						variant='premium'
 					>
 						<CardHeader className='flex gap-2 items-start justify-between'>
 							<CardHeaderContent

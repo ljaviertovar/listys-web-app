@@ -123,13 +123,14 @@ export function ActionsItemFormBaseList({
 	if (editing) {
 		return (
 			<Card
-				size='sm'
+				variant='premium'
+				size='compact'
 				className='transition-colors group text-base'
 			>
-				<CardContent className='flex flex-col gap-2'>
+				<CardContent className='flex flex-col gap-2 items-center p-2.5 px-3 md:p-4'>
 					<form
 						onSubmit={handleSubmit(handleSave)}
-						className='space-y-2'
+						className='space-y-2 w-full'
 					>
 						<div className='flex flex-col sm:flex-row gap-2 w-full'>
 							<Input

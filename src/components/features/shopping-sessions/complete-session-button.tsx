@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Tick02Icon } from '@hugeicons/core-free-icons'
@@ -14,7 +13,6 @@ export function CompleteSessionButton({ onOpenAlert }: Props) {
 		<Button
 			onClick={onOpenAlert}
 			size='sm'
-			variant={'link'}
 			className='flex-1'
 		>
 			<HugeiconsIcon

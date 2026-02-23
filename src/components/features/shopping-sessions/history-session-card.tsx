@@ -29,8 +29,9 @@ export function HistorySessionCard({ session, href }: Props) {
 
 	return (
 		<Card
-			className='hover:border-primary/50 transition-colors cursor-pointer group'
+			className='hover:bg-primary/1 hover:border-primary/50 transition-all cursor-pointer group'
 			size='sm'
+			variant='premium'
 		>
 			<Link href={href ?? `/shopping/${session.id}`}>
 				<CardHeader className='gap-0'>

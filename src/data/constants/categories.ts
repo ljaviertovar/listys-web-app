@@ -21,13 +21,19 @@ export const CATEGORIES = [
 	'Bakery Commercial',
 	'Health',
 	'Alcohol',
-	'Frozen Foods',
+	'Frozen Food',
+	'Salad Greens',
+	'Salad Bar',
+	'Apparel',
+	'Natural Foods',
 ] as const
 
 export type Category = typeof CATEGORIES[number]
 
 export const CATEGORY_EMOJIS: Record<Category, string> = {
-	Produce: '🥬',
+	Produce: '🥦',
+	'Salad Greens': '🥬',
+	'Salad Bar': '🥬',
 	Dairy: '🥛',
 	Meat: '🥩',
 	Meats: '🥩',
@@ -49,7 +55,9 @@ export const CATEGORY_EMOJIS: Record<Category, string> = {
 	Grocery: '🛍️',
 	'Bakery Commercial': '🥖',
 	Alcohol: '🍺',
-	'Frozen Foods': '🧊',
+	'Frozen Food': '🧊',
+	Apparel: '👕',
+	'Natural Foods': '🌿',
 }
 
 /**
@@ -69,7 +77,7 @@ export function normalizeCategory(raw: string): string {
 }
 
 export function getCategoryWithEmoji(category?: string | null) {
-	if (!category) return ''
+	if (!category) return '📦'
 
 	const normalized = normalizeCategory(category)
 	const emoji = CATEGORY_EMOJIS[normalized as Category]

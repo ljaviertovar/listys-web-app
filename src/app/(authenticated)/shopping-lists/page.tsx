@@ -37,15 +37,18 @@ export default async function GroupsPage() {
 			</PageHeader>
 
 			<PageContainer>
-				<BackLink
-					href='/dashboard'
-					label='Back to Dashboard'
-				/>
+				<div className='w-full mb-2'>
+					<BackLink
+						href='/dashboard'
+						label='Back to Dashboard'
+					/>
+				</div>
 
 				{!groups || groups.length === 0 ? (
 					<Card
 						className='flex min-h-100 flex-col items-center justify-center'
-						size='sm'
+						size='compact'
+						variant='premium'
 					>
 						<CardContent className='flex w-full max-w-md flex-col items-center pt-6 text-center'>
 							<div className='flex h-16 w-16 items-center justify-center text-primary'>

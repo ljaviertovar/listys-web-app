@@ -156,7 +156,7 @@ export function MergeToBaseListDialog({ open, onOpenChange, ticketId, selectedIt
 				className='w-11/12 sm:max-w-125'
 			>
 				<DialogHeader>
-					<DialogTitle>Add Items to List</DialogTitle>
+					<DialogTitle className='truncate font-bold tracking-tight text-foreground'>Add Items to List</DialogTitle>
 					<DialogDescription>
 						Add {selectedItemIds.length} selected item{selectedItemIds.length !== 1 ? 's' : ''} to a shopping list.
 					</DialogDescription>

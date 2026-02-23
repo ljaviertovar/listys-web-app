@@ -80,7 +80,7 @@ export function CreateGroupDialog() {
 				className='w-11/12'
 			>
 				<DialogHeader>
-					<DialogTitle>Create New Group</DialogTitle>
+					<DialogTitle className='truncate font-bold tracking-tight text-foreground'>Create New Group</DialogTitle>
 					<DialogDescription>Add a new group to organize your shopping lists</DialogDescription>
 				</DialogHeader>
 				<form onSubmit={handleSubmit(onSubmit)}>

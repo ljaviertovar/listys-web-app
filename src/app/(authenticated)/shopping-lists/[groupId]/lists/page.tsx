@@ -84,6 +84,7 @@ export default async function BaseListsPage({ params }: { params: Promise<{ grou
 					<Card
 						className='flex min-h-100 flex-col items-center justify-center'
 						size='sm'
+						variant='premium'
 					>
 						<CardContent className='flex w-full max-w-md flex-col items-center pt-6 text-center'>
 							<div className='flex h-16 w-16 items-center justify-center text-primary'>

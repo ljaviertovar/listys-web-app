@@ -5,10 +5,12 @@ import { createClient } from '@/lib/supabase/server'
 
 import ScrollArea from '@/components/ui/scroll-area'
 import { BaseListItemRow, StartShoppingDialog } from '@/components/features/base-lists'
+import { Badge } from '@/components/ui/badge'
 import { AddItemDialogBaseList, PageHeader, PageContainer, PageFooterAction, BackLink } from '@/components/app'
-import type { BaseListWithItems } from '@/features/base-lists/types'
+import type { BaseListItem, BaseListWithItems } from '@/features/base-lists/types'
 
-import { getBaseList } from '@/lib/api/endpoints/base-lists'
+import { getBaseList } from '@/actions/base-lists'
+import { getCategoryWithEmoji, normalizeCategory } from '@/data/constants'
 
 import { PlusSignIcon } from '@hugeicons/core-free-icons'
 
@@ -37,6 +39,37 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 
 	const baseListWithItems = baseList as BaseListWithItems
 	const totalItems = baseListWithItems.items ? baseListWithItems.items.length : 0
+	const sortedItems = [...(baseListWithItems.items || [])].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+
+	const groupedItems = sortedItems.reduce(
+		(acc, item) => {
+			const normalizedCategory = normalizeCategory(item.category || '')
+			const key = normalizedCategory || 'Other'
+
+			if (!acc[key]) {
+				acc[key] = []
+			}
+
+			acc[key].push(item)
+			return acc
+		},
+		{} as Record<string, BaseListItem[]>,
+	)
+
+	const categorySections = Object.entries(groupedItems)
+		.sort(([categoryA], [categoryB]) => categoryA.localeCompare(categoryB, 'en', { sensitivity: 'base' }))
+		.map(([category, items]) => ({
+			key: category,
+			title: getCategoryWithEmoji(category),
+			items,
+		}))
+
+	const categoryHeaderThemes = [
+		'border-primary/30 bg-gradient-to-r from-primary/10 to-primary/5',
+		'border-emerald-200/60 bg-gradient-to-r from-emerald-100/80 to-emerald-50/80 dark:border-emerald-900/50 dark:from-emerald-950/40 dark:to-emerald-900/20',
+		'border-amber-200/60 bg-gradient-to-r from-amber-100/80 to-amber-50/80 dark:border-amber-900/50 dark:from-amber-950/40 dark:to-amber-900/20',
+		'border-sky-200/60 bg-gradient-to-r from-sky-100/80 to-sky-50/80 dark:border-sky-900/50 dark:from-sky-950/40 dark:to-sky-900/20',
+	]
 
 	// Parallelize group info and session queries
 	const [groupResult, activeSessionResult, anyActiveSessionResult] = await Promise.all([
@@ -97,6 +130,7 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 
 						<span className='text-primary font-medium'>{totalItems} Items</span>
 					</div>
+
 					<ScrollArea className='h-full min-h-0 sm:px-6 touch-pan-y overscroll-contain'>
 						{!baseListWithItems.items || baseListWithItems.items.length === 0 ? (
 							<div className='flex flex-col items-center justify-center py-12 text-center'>
@@ -111,16 +145,35 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 								</p>
 							</div>
 						) : (
-							<div className='space-y-2'>
-								{baseListWithItems.items
-									.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
-									.map(item => (
-										<BaseListItemRow
-											key={item.id}
-											item={item}
-											isLocked={false}
-										/>
-									))}
+							<div className='space-y-4'>
+								{categorySections.map((section, index) => (
+									<section
+										key={section.key}
+										className='mb-8'
+									>
+										<div className='mb-2 flex items-center justify-between'>
+											<div className='min-w-0 flex-1'>
+												<p className='text-base font-bold tracking-tight uppercase'>{section.title}</p>
+												<div className='mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 tabular-nums text-[10px] font-bold uppercase tracking-tighter text-muted-foreground/70'>
+													<span>
+														{section.items.length} {section.items.length === 1 ? 'item' : 'items'}
+													</span>
+													<span className='hidden h-1 w-1 rounded-full bg-border sm:inline-block' />
+												</div>
+											</div>
+										</div>
+
+										<div className='space-y-2'>
+											{section.items.map(item => (
+												<BaseListItemRow
+													key={item.id}
+													item={item}
+													isLocked={!!activeSession}
+												/>
+											))}
+										</div>
+									</section>
+								))}
 							</div>
 						)}
 					</ScrollArea>

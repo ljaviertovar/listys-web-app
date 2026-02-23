@@ -26,8 +26,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { FolderIcon, Edit02Icon, Delete02Icon, ArrowRight01Icon, Loading03Icon } from '@hugeicons/core-free-icons'
 
-import { deleteGroup, updateGroup } from '@/lib/api/endpoints/groups'
-import { Separator } from '@/components/ui/separator'
+import { deleteGroup, updateGroup } from '@/actions/shopping-lists'
 import { CardHeaderContent } from '@/components/app'
 
 interface Group {
@@ -113,36 +112,31 @@ export function GroupCard({ group, history = false }: Props) {
 	if (editing) {
 		return (
 			<Card
-				size='sm'
-				className='transition-colors'
+				variant='premium'
+				className='border-primary/20 shadow-lg shadow-primary/5 ring-1 ring-primary/10'
 			>
-				<CardContent className='flex flex-col gap-2 pt-6'>
+				<CardHeader>
+					<CardTitle className='text-lg font-bold'>Edit Group</CardTitle>
+				</CardHeader>
+				<CardContent>
 					<form
 						onSubmit={handleSubmit(handleUpdate)}
 						className='space-y-3'
 					>
-						<div>
-							<Input
-								{...register('name')}
-								placeholder='Group name'
-								className='bg-card text-base'
-								aria-invalid={!!errors.name}
-								disabled={loading}
-								required
-							/>
-							{errors.name && <p className='text-xs text-destructive mt-1'>{errors.name.message}</p>}
-						</div>
-
-						<div>
-							<Textarea
-								{...register('description')}
-								placeholder='Description or notes, eg. "Lists related to grocery shopping", "Lists for camping trips", etc.'
-								className='bg-card h-20 resize-none'
-								disabled={loading}
-							/>
-							{errors.description && <p className='text-xs text-destructive mt-1'>{errors.description.message}</p>}
-						</div>
-
+						<Input
+							{...register('name')}
+							placeholder='Group name'
+							className='bg-muted/30 focus-visible:ring-primary'
+							aria-invalid={!!errors.name}
+							disabled={loading}
+							required
+						/>
+						<Textarea
+							{...register('description')}
+							placeholder='Description...'
+							className='h-20 resize-none bg-muted/30 focus-visible:ring-primary text-xs'
+							disabled={loading}
+						/>
 						<div className='flex items-center justify-end gap-2'>
 							<Button
 								size='sm'
@@ -178,74 +172,80 @@ export function GroupCard({ group, history = false }: Props) {
 	return (
 		<>
 			<Card
-				className='hover:border-primary/50 transition-colors cursor-pointer group'
-				size='sm'
+				variant='premium'
+				className='group relative flex h-full cursor-pointer flex-col bg-card transition-all duration-300 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 gap-0 py-4'
 			>
+				{/* Always Visible Actions (Mobile First) */}
+				{!history && (
+					<div className='flex items-center justify-end gap-1 px-4'>
+						<Button
+							variant='ghost'
+							size='icon'
+							onClick={e => {
+								e.preventDefault()
+								e.stopPropagation()
+								reset({
+									name: group.name,
+									description: group.description ?? '',
+								})
+								setEditing(true)
+							}}
+							className='h-8 w-8 rounded-md text-muted-foreground transition-colors hover:bg-primary/5 hover:text-primary'
+							aria-label='Edit group'
+						>
+							<HugeiconsIcon
+								icon={Edit02Icon}
+								strokeWidth={1.5}
+								className='h-4 w-4'
+							/>
+						</Button>
+						<Button
+							variant='ghost'
+							size='icon'
+							onClick={e => {
+								e.preventDefault()
+								e.stopPropagation()
+								setShowDeleteDialog(true)
+							}}
+							className='h-8 w-8 rounded-md text-muted-foreground transition-colors hover:bg-destructive/5 hover:text-destructive'
+							aria-label='Delete group'
+						>
+							<HugeiconsIcon
+								icon={Delete02Icon}
+								strokeWidth={1.5}
+								className='h-4 w-4'
+							/>
+						</Button>
+					</div>
+				)}
+
 				<Link
 					href={history ? `/shopping-history/${group.id}` : `/shopping-lists/${group.id}/lists`}
-					data-testid={`group-card-${group.id}`}
+					className='flex h-full flex-col'
 				>
-					<CardHeader className='gap-0'>
-						{!history && (
-							<div className='flex items-center justify-end gap-1'>
-								<Button
-									variant='ghost'
-									size='icon'
-									onClick={e => {
-										e.preventDefault()
-										e.stopPropagation()
-										reset({ name: group.name, description: group.description ?? '' })
-										setEditing(true)
-									}}
-									className='h-8 w-8'
-									aria-label='Edit group'
-								>
-									<HugeiconsIcon
-										icon={Edit02Icon}
-										strokeWidth={2}
-										className='h-4 w-4'
-									/>
-								</Button>
-								<Button
-									variant='ghost'
-									size='icon'
-									onClick={e => {
-										e.preventDefault()
-										e.stopPropagation()
-										setShowDeleteDialog(true)
-									}}
-									disabled={deleting}
-									className='h-8 w-8'
-									aria-label='Delete group'
-								>
-									<HugeiconsIcon
-										icon={Delete02Icon}
-										strokeWidth={2}
-										className='h-4 w-4'
-									/>
-								</Button>
-							</div>
-						)}
+					<CardHeaderContent
+						icon={FolderIcon}
+						title={group.name}
+						description={group.description ?? undefined}
+					/>
 
-						<CardHeaderContent
-							icon={FolderIcon}
-							title={group.name}
-							description={group.description ?? ''}
-						/>
-					</CardHeader>
-					<CardContent className='pt-4'>
-						<div className='flex items-center justify-between'>
-							<span>
-								{history
-									? `${group.completed_runs_count ?? 0} ${(group.completed_runs_count ?? 0) === 1 ? 'Shopping' : 'Shoppings'}`
-									: `${group.base_lists?.[0]?.count ?? 0} ${(group.base_lists?.[0]?.count ?? 0) === 1 ? 'list' : 'lists'}`}
-							</span>
-							<div className='flex items-center text-sm text-primary transition-colors'>
-								<span>{history ? 'View history' : 'View lists'}</span>
+					<CardContent className='mt-auto px-4'>
+						<div className='flex items-center justify-between border-t border-border/40 pt-2'>
+							<div className='flex items-baseline gap-1'>
+								<span className='text-lg font-bold text-foreground tabular-nums tracking-tight'>
+									{history ? (group.completed_runs_count ?? 0) : (group.base_lists?.[0]?.count ?? 0)}
+								</span>
+								<span className='text-xs font-bold uppercase tracking-widest text-primary/60'>
+									{history ? 'Sessions' : 'Lists'}
+								</span>
+							</div>
+
+							<div className='flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-primary'>
+								<span>View details</span>
 								<HugeiconsIcon
 									icon={ArrowRight01Icon}
-									strokeWidth={2}
-									className='h-4 w-4 transition-transform group-hover:translate-x-1'
+									strokeWidth={2.5}
+									className='h-3 w-3 transition-transform group-hover:translate-x-0.5'
 								/>
 							</div>
 						</div>
@@ -259,39 +259,29 @@ export function GroupCard({ group, history = false }: Props) {
 			>
 				<AlertDialogContent size='sm'>
 					<AlertDialogHeader>
-						<AlertDialogMedia className='rounded-lg bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive'>
+						<AlertDialogMedia className='rounded-xl bg-destructive/5 text-destructive border border-destructive/10'>
 							<HugeiconsIcon
 								icon={Delete02Icon}
 								strokeWidth={2}
-								className='h-4 w-4'
+								className='h-5 w-5'
 							/>
 						</AlertDialogMedia>
-						<AlertDialogTitle>Delete Group?</AlertDialogTitle>
-						<AlertDialogDescription>
-							This will delete "{group.name}" and all its base lists and shopping sessions. This action cannot be
-							undone.
+						<AlertDialogTitle className='truncate font-bold tracking-tight text-foreground'>
+							Delete Group?
+						</AlertDialogTitle>
+						<AlertDialogDescription className='text-xs'>
+							This will delete <strong>"{group.name}"</strong> and its data.
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
-						<AlertDialogCancel variant={'outline'}>Cancel</AlertDialogCancel>
+						<AlertDialogCancel variant='outline'>Cancel</AlertDialogCancel>
 						<AlertDialogAction
 							onClick={handleDelete}
 							disabled={deleting}
-							variant={'destructive'}
+							variant='destructive'
 							className='flex-1'
 						>
-							{deleting ? (
-								<>
-									<HugeiconsIcon
-										icon={Loading03Icon}
-										strokeWidth={2}
-										className='h-4 w-4 animate-spin'
-									/>
-									Deleting…
-								</>
-							) : (
-								'Delete'
-							)}
+							Delete Group
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>

@@ -90,7 +90,7 @@ export function EditGroupDialog({ group, open, onOpenChange }: Props) {
 				className='w-11/12'
 			>
 				<DialogHeader>
-					<DialogTitle>Edit Group</DialogTitle>
+					<DialogTitle className='truncate font-bold tracking-tight text-foreground'>Edit Group</DialogTitle>
 					<DialogDescription>Update your group details</DialogDescription>
 				</DialogHeader>
 

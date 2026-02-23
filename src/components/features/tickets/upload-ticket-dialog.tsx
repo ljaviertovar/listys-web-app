@@ -55,7 +55,7 @@ export function UploadTicketDialog() {
 				className='w-11/12 sm:max-w-125'
 			>
 				<DialogHeader>
-					<DialogTitle>Upload Receipt</DialogTitle>
+					<DialogTitle className='truncate font-bold tracking-tight text-foreground'>Upload Receipt</DialogTitle>
 					<DialogDescription>
 						Upload photos of your shopping receipt. We'll extract the items automatically.
 					</DialogDescription>

@@ -123,6 +123,7 @@ export function BaseListCard({ baseList, isActiveRun = false }: Props) {
 			<Card
 				className='hover:border-primary/50 transition-colors gap-2'
 				size='sm'
+				variant='premium'
 				data-testid={`list-card-${baseList.id}`}
 			>
 				<CardHeader className='gap-2'>
@@ -182,8 +183,9 @@ export function BaseListCard({ baseList, isActiveRun = false }: Props) {
 		<>
 			<Link href={`/base-lists/${baseList.id}/edit`}>
 				<Card
-					className={`hover:border-primary/50 transition-colors gap-2 cursor-pointer group`}
+					variant='premium'
 					size='sm'
+					className='hover:bg-primary/1 hover:border-primary/50 transition-all cursor-pointer group'
 					data-testid={`list-card-${baseList.id}`}
 				>
 					<CardHeader className='gap-0'>
@@ -266,7 +268,9 @@ export function BaseListCard({ baseList, isActiveRun = false }: Props) {
 								className='h-4 w-4'
 							/>
 						</AlertDialogMedia>
-						<AlertDialogTitle>Delete Base List?</AlertDialogTitle>
+						<AlertDialogTitle className='truncate font-bold tracking-tight text-foreground'>
+							Delete Base List?
+						</AlertDialogTitle>
 						<AlertDialogDescription>
 							This will delete the Base List and all its items. This action cannot be undone.
 						</AlertDialogDescription>

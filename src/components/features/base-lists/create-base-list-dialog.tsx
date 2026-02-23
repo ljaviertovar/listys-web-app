@@ -97,7 +97,7 @@ export function CreateBaseListDialog({ groupId }: Props) {
 				className='w-11/12'
 			>
 				<DialogHeader>
-					<DialogTitle>Create New Base List</DialogTitle>
+					<DialogTitle className='truncate font-bold tracking-tight text-foreground'>Create New Base List</DialogTitle>
 					<DialogDescription>Add a reusable shopping list template</DialogDescription>
 				</DialogHeader>
 				<form onSubmit={handleSubmit(onSubmit)}>
