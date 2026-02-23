@@ -27,6 +27,7 @@ import {
 import { FolderIcon, Edit02Icon, Delete02Icon, ArrowRight01Icon, Loading03Icon } from '@hugeicons/core-free-icons'
 
 import { deleteGroup, updateGroup } from '@/actions/shopping-lists'
+import { CardHeaderContent } from '@/components/app'
 
 interface Group {
 	id: string
@@ -172,11 +173,11 @@ export function GroupCard({ group, history = false }: Props) {
 		<>
 			<Card
 				variant='premium'
-				className='group relative flex h-full cursor-pointer flex-col bg-card transition-all duration-300 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5'
+				className='group relative flex h-full cursor-pointer flex-col bg-card transition-all duration-300 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 gap-0 py-4'
 			>
 				{/* Always Visible Actions (Mobile First) */}
 				{!history && (
-					<div className='absolute top-2 right-2 z-30 flex items-center gap-0.5'>
+					<div className='flex items-center justify-end gap-1 px-4'>
 						<Button
 							variant='ghost'
 							size='icon'
@@ -222,29 +223,13 @@ export function GroupCard({ group, history = false }: Props) {
 					href={history ? `/shopping-history/${group.id}` : `/shopping-lists/${group.id}/lists`}
 					className='flex h-full flex-col'
 				>
-					<CardHeader className='pb-1.5 pt-4 px-4 sm:px-5'>
-						<div className='flex items-center gap-3'>
-							{/* Lower hierarchy icon container */}
-							<div className='flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/5 border border-primary/10 transition-colors group-hover:bg-primary/10'>
-								<HugeiconsIcon
-									icon={FolderIcon}
-									strokeWidth={2}
-									className='h-4 w-4 text-primary'
-								/>
-							</div>
+					<CardHeaderContent
+						icon={FolderIcon}
+						title={group.name}
+						description={group.description ?? undefined}
+					/>
 
-							<div className='min-w-0 flex-1 pr-14 sm:pr-0'>
-								<CardTitle className='truncate text-base font-bold tracking-tight text-foreground transition-colors group-hover:text-primary'>
-									{group.name}
-								</CardTitle>
-								<CardDescription className='truncate text-xs font-medium text-muted-foreground'>
-									{group.description || 'No description'}
-								</CardDescription>
-							</div>
-						</div>
-					</CardHeader>
-
-					<CardContent className='mt-auto px-4 sm:px-5'>
+					<CardContent className='mt-auto px-4'>
 						<div className='flex items-center justify-between border-t border-border/40 pt-2'>
 							<div className='flex items-baseline gap-1'>
 								<span className='text-lg font-bold text-foreground tabular-nums tracking-tight'>
