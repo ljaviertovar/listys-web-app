@@ -48,7 +48,7 @@ export function AddItemDialogBaseList(props: Props) {
 				onOpenAutoFocus={e => e.preventDefault()}
 			>
 				<DialogHeader>
-					<DialogTitle>Add New Item</DialogTitle>
+					<DialogTitle className='truncate font-bold tracking-tight text-foreground'>Add New Item</DialogTitle>
 					<DialogDescription>
 						{isBaseList ? 'Add an item to this base list' : 'Add items you forgot to the shopping list'}
 					</DialogDescription>

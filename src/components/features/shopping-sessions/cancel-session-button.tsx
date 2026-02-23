@@ -73,7 +73,9 @@ export function CancelSessionButton({ sessionId }: Props) {
 							className='h-4 w-4'
 						/>
 					</AlertDialogMedia>
-					<AlertDialogTitle>Cancel Shopping?</AlertDialogTitle>
+					<AlertDialogTitle className='truncate font-bold tracking-tight text-foreground'>
+						Cancel Shopping?
+					</AlertDialogTitle>
 					<AlertDialogDescription>
 						This will discard this shopping entirely. It will not be saved to your history. This action cannot be undone
 					</AlertDialogDescription>

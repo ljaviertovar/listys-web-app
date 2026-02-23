@@ -68,7 +68,7 @@ export function CompleteSessionAlert({ title, description, sessionId, progress, 
 		>
 			<AlertDialogContent>
 				<AlertDialogHeader>
-					<AlertDialogTitle>{title}</AlertDialogTitle>
+					<AlertDialogTitle className='truncate font-bold tracking-tight text-foreground'>{title}</AlertDialogTitle>
 					<AlertDialogDescription>{description}</AlertDialogDescription>
 				</AlertDialogHeader>
 				<div className='py-4'>

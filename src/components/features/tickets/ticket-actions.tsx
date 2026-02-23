@@ -147,7 +147,9 @@ export function TicketActions({ ticket }: Props) {
 								className='h-4 w-4'
 							/>
 						</AlertDialogMedia>
-						<AlertDialogTitle>Delete Receipt?</AlertDialogTitle>
+						<AlertDialogTitle className='truncate font-bold tracking-tight text-foreground'>
+							Delete Receipt?
+						</AlertDialogTitle>
 						<AlertDialogDescription>{deleteWarningMessage}</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>

@@ -268,7 +268,9 @@ export function BaseListCard({ baseList, isActiveRun = false }: Props) {
 								className='h-4 w-4'
 							/>
 						</AlertDialogMedia>
-						<AlertDialogTitle>Delete Base List?</AlertDialogTitle>
+						<AlertDialogTitle className='truncate font-bold tracking-tight text-foreground'>
+							Delete Base List?
+						</AlertDialogTitle>
 						<AlertDialogDescription>
 							This will delete the Base List and all its items. This action cannot be undone.
 						</AlertDialogDescription>

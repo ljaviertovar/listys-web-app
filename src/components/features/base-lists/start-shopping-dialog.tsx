@@ -100,7 +100,9 @@ export function StartShoppingDialog({ baseListId, baseListName, disabled, itemsC
 							className='h-4 w-4'
 						/>
 					</AlertDialogMedia>
-					<DialogTitle>Start Shopping Session</DialogTitle>
+					<DialogTitle className='truncate font-bold tracking-tight text-foreground'>
+						Start Shopping Session
+					</DialogTitle>
 					<DialogDescription>
 						{isEmpty ? (
 							'This base list has no items. Add items before starting a shopping session.'
