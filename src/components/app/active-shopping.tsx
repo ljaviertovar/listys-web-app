@@ -52,7 +52,7 @@ export default function ActiveShopping({ activeShopping }: Props) {
 					<div className='flex items-start justify-between gap-4'>
 						<div className='space-y-0.5'>
 							<CardDescription className='text-[10px] font-bold uppercase tracking-[0.2em] text-primary md:text-xs'>
-								Active Shopping Session
+								Active Session
 							</CardDescription>
 							<CardTitle className='text-2xl font-bold tracking-tight text-foreground md:text-3xl'>
 								{activeShopping?.name || 'Current Shopping'}

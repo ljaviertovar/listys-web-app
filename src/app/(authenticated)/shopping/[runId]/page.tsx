@@ -113,20 +113,27 @@ export default async function ShoppingRunPage({
 		<div className='flex h-dvh flex-col'>
 			<PageHeader
 				title={runWithItems.name}
-				desc={
-					isCompleted
-						? `Completed on ${formatDate(new Date(runWithItems.completed_at!))} at ${formatTime(new Date(runWithItems.completed_at!))}`
-						: `${checkedCount} of ${totalCount} items (${progress}%)`
-				}
+				desc=''
 			>
 				<div className='w-full px-3 pb-3 -mt-2 flex flex-col gap-3 md:flex-row md:items-end md:justify-between md:gap-6'>
 					{totalCount > 0 && (
-						<div className='w-full flex gap-3 items-center md:min-w-0 md:flex-1'>
-							<Progress
-								value={progress}
-								className='h-2'
-								indicatorClassName='bg-green-500'
-							/>
+						<div className='w-full flex gap-3 justify-between items-center md:min-w-0 md:flex-1'>
+							<div className='flex flex-col gap-3'>
+								<div className='flex items-end justify-between text-sm'>
+									<p className='font-medium text-muted-foreground'>
+										Progress:{' '}
+										<span className='font-bold text-foreground tabular-nums'>
+											{checkedCount} of {totalCount} items
+										</span>{' '}
+										collected
+									</p>
+									<span className='ml-2 text-xl font-bold tabular-nums text-primary leading-none'>{progress}%</span>
+								</div>
+								<Progress
+									value={progress}
+									className='h-2'
+								/>
+							</div>
 							{!isCompleted && <ActiveShoppingBadge />}
 						</div>
 					)}
@@ -195,13 +202,13 @@ export default async function ShoppingRunPage({
 										<div className='mb-2 flex items-center justify-between'>
 											<div className='min-w-0 flex-1'>
 												<p className='text-base font-bold tracking-tight uppercase'>{section.title}</p>
-												<div className='mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 tabular-nums text-[10px] font-bold uppercase tracking-tighter text-muted-foreground/70'>
+												<div className='mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 tabular-nums text-[10px] font-bold tracking-tighter text-muted-foreground/70'>
 													<span>
-														{section.items.length} {section.items.length === 1 ? 'item' : 'items'}
+														{section.items.length} {section.items.length === 1 ? 'Item' : 'Items'}
 													</span>
 													<span className='hidden h-1 w-1 rounded-full bg-border sm:inline-block' />
 													<span>
-														{section.checkedCount}/{section.items.length} checked
+														{section.checkedCount}/{section.items.length} Checked
 													</span>
 												</div>
 											</div>

@@ -86,14 +86,13 @@ export function ShoppingSessionItemRow({ item, isCompleted = false }: Props) {
 	return (
 		<Card
 			variant='premium'
-			size='compact'
 			onClick={handleCardClick}
 			onKeyDown={handleKeyDown}
 			role='button'
 			tabIndex={0}
-			className={`group cursor-pointer relative overflow-hidden transition-all duration-300 hover:bg-primary/1 hover:border-primary/50 ${checked ? 'opacity-80 shadow-none ' : ''}`}
+			className={`group cursor-pointer relative overflow-hidden transition-all duration-300 hover:bg-primary/1 hover:border-primary/50 py-4 ${checked ? 'opacity-60' : ''}`}
 		>
-			<CardContent className='flex flex-row items-center p-2.5 md:p-4'>
+			<CardContent className='flex flex-row items-center px-4'>
 				<div className='flex flex-1 min-w-0 items-center justify-start gap-3'>
 					<Badge
 						variant={'secondary'}
@@ -143,7 +142,7 @@ export function ShoppingSessionItemRow({ item, isCompleted = false }: Props) {
 							checked={checked ?? false}
 							onCheckedChange={handleToggle}
 							disabled={loading || isCompleted}
-							className='h-5 w-5 rounded-md transition-all duration-300'
+							className='h-5 w-5 mt-1 rounded-md transition-all duration-300'
 						/>
 					</div>
 				</div>

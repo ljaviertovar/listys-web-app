@@ -242,7 +242,28 @@ export async function getShoppingHistory() {
     throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, error.message)
   }
 
-  return sessions
+  if (!sessions || sessions.length === 0) return []
+
+  // Count purchased (checked=true) items per session in a single batch query
+  const sessionIds = sessions.map(s => s.id)
+  const { data: checkedItems } = await supabase
+    .from('shopping_session_items')
+    .select('shopping_session_id')
+    .in('shopping_session_id', sessionIds)
+    .eq('checked', true)
+
+  const purchasedCountMap = (checkedItems ?? []).reduce(
+    (acc, item) => {
+      acc[item.shopping_session_id] = (acc[item.shopping_session_id] ?? 0) + 1
+      return acc
+    },
+    {} as Record<string, number>,
+  )
+
+  return sessions.map(s => ({
+    ...s,
+    purchased_count: purchasedCountMap[s.id] ?? 0,
+  }))
 }
 
 export async function updateShoppingSessionItem(id: string, data: unknown) {
