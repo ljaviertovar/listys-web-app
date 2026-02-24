@@ -74,12 +74,7 @@ async function ActiveShoppingSection() {
 
 	if (!activeSession) return null
 
-	return (
-		<ActiveShopping
-			activeShopping={activeSession}
-			dashboard
-		/>
-	)
+	return <ActiveShopping activeShopping={activeSession} />
 }
 
 export default async function DashboardPage() {
