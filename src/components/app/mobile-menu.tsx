@@ -58,7 +58,7 @@ export default function MobileMenu() {
 						<DropdownMenuItem asChild>
 							<Link
 								href={`/shopping/${activeRun.id}`}
-								className='block w-full h-9 leading-9 text-primary font-medium'
+								className='block w-full h-9 leading-9 font-bold tracking-tight text-foreground'
 							>
 								{activeRun.name ? `${activeRun.name}` : 'Unknown'}
 							</Link>

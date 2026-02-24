@@ -3,13 +3,14 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { motion } from 'framer-motion'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -27,7 +28,7 @@ import {
 import { FolderIcon, Edit02Icon, Delete02Icon, ArrowRight01Icon, Loading03Icon } from '@hugeicons/core-free-icons'
 
 import { deleteGroup, updateGroup } from '@/actions/shopping-lists'
-import { CardHeaderContent } from '@/components/app'
+import { CardFooterContent, CardHeaderContent } from '@/components/app'
 
 interface Group {
 	id: string
@@ -111,147 +112,136 @@ export function GroupCard({ group, history = false }: Props) {
 
 	if (editing) {
 		return (
-			<Card
-				variant='premium'
-				className='border-primary/20 shadow-lg shadow-primary/5 ring-1 ring-primary/10'
+			<motion.div
+				initial={{ opacity: 0, y: 10, scale: 0.97 }}
+				animate={{ opacity: 1, y: 0, scale: 1 }}
+				transition={{ duration: 0.28, ease: [0.23, 1, 0.32, 1] }}
 			>
-				<CardHeader>
-					<CardTitle className='text-lg font-bold'>Edit Group</CardTitle>
-				</CardHeader>
-				<CardContent>
-					<form
-						onSubmit={handleSubmit(handleUpdate)}
-						className='space-y-3'
-					>
-						<Input
-							{...register('name')}
-							placeholder='Group name'
-							className='bg-muted/30 focus-visible:ring-primary'
-							aria-invalid={!!errors.name}
-							disabled={loading}
-							required
-						/>
-						<Textarea
-							{...register('description')}
-							placeholder='Description...'
-							className='h-20 resize-none bg-muted/30 focus-visible:ring-primary text-xs'
-							disabled={loading}
-						/>
-						<div className='flex items-center justify-end gap-2'>
-							<Button
-								size='sm'
-								variant='outline'
-								onClick={handleCancel}
+				<Card
+					variant='premium'
+					className='border-primary/20 shadow-lg shadow-primary/5 ring-1 ring-primary/10'
+				>
+					<CardHeader>
+						<CardTitle className='font-bold'>Edit Group</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<form
+							onSubmit={handleSubmit(handleUpdate)}
+							className='space-y-3'
+						>
+							<Input
+								{...register('name')}
+								placeholder='Group name'
+								className='bg-muted/30 focus-visible:ring-primary text-base text-foreground'
+								aria-invalid={!!errors.name}
 								disabled={loading}
-								type='button'
-							>
-								Cancel
-							</Button>
-							<Button
-								size='sm'
-								type='submit'
-								disabled={loading || !watchedName?.trim()}
-							>
-								{loading && (
-									<HugeiconsIcon
-										icon={Loading03Icon}
-										strokeWidth={2}
-										className='h-4 w-4 animate-spin'
-										data-icon='inline-start'
-									/>
-								)}
-								{loading ? 'Saving…' : 'Save'}
-							</Button>
-						</div>
-					</form>
-				</CardContent>
-			</Card>
+								required
+							/>
+							<Textarea
+								{...register('description')}
+								placeholder='Description...'
+								className='h-20 resize-none bg-muted/30 focus-visible:ring-primary text-base text-foreground'
+								disabled={loading}
+							/>
+							<div className='flex items-center justify-end gap-2'>
+								<Button
+									size='sm'
+									variant='outline'
+									onClick={handleCancel}
+									disabled={loading}
+									type='button'
+								>
+									Cancel
+								</Button>
+								<Button
+									size='sm'
+									type='submit'
+									disabled={loading || !watchedName?.trim()}
+								>
+									{loading && (
+										<HugeiconsIcon
+											icon={Loading03Icon}
+											strokeWidth={2}
+											className='h-4 w-4 animate-spin'
+											data-icon='inline-start'
+										/>
+									)}
+									{loading ? 'Saving…' : 'Save'}
+								</Button>
+							</div>
+						</form>
+					</CardContent>
+				</Card>{' '}
+			</motion.div>
 		)
 	}
 
 	return (
 		<>
-			<Card
-				variant='premium'
-				className='group relative flex h-full cursor-pointer flex-col bg-card transition-all duration-300 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 gap-0 py-4'
+			<Link
+				href={history ? `/shopping-history/${group.id}` : `/shopping-lists/${group.id}/lists`}
+				className='group relative cursor-pointer transition-all duration-300 flex h-full flex-col'
 			>
-				{/* Always Visible Actions (Mobile First) */}
-				{!history && (
-					<div className='flex items-center justify-end gap-1 px-4'>
-						<Button
-							variant='ghost'
-							size='icon'
-							onClick={e => {
-								e.preventDefault()
-								e.stopPropagation()
-								reset({
-									name: group.name,
-									description: group.description ?? '',
-								})
-								setEditing(true)
-							}}
-							className='h-8 w-8 rounded-md text-muted-foreground transition-colors hover:bg-primary/5 hover:text-primary'
-							aria-label='Edit group'
-						>
-							<HugeiconsIcon
-								icon={Edit02Icon}
-								strokeWidth={1.5}
-								className='h-4 w-4'
-							/>
-						</Button>
-						<Button
-							variant='ghost'
-							size='icon'
-							onClick={e => {
-								e.preventDefault()
-								e.stopPropagation()
-								setShowDeleteDialog(true)
-							}}
-							className='h-8 w-8 rounded-md text-muted-foreground transition-colors hover:bg-destructive/5 hover:text-destructive'
-							aria-label='Delete group'
-						>
-							<HugeiconsIcon
-								icon={Delete02Icon}
-								strokeWidth={1.5}
-								className='h-4 w-4'
-							/>
-						</Button>
-					</div>
-				)}
-
-				<Link
-					href={history ? `/shopping-history/${group.id}` : `/shopping-lists/${group.id}/lists`}
-					className='flex h-full flex-col'
+				<Card
+					variant='premium'
+					className='flex h-full flex-col bg-card gap-0 py-4'
 				>
+					{!history && (
+						<div className='flex items-center justify-end gap-1 px-4'>
+							<Button
+								variant='ghost'
+								size='icon'
+								onClick={e => {
+									e.preventDefault()
+									e.stopPropagation()
+									reset({
+										name: group.name,
+										description: group.description ?? '',
+									})
+									setEditing(true)
+								}}
+								className='h-8 w-8 rounded-md text-muted-foreground transition-colors hover:bg-primary/5 hover:text-primary'
+								aria-label='Edit group'
+							>
+								<HugeiconsIcon
+									icon={Edit02Icon}
+									strokeWidth={1.5}
+									className='h-4 w-4'
+								/>
+							</Button>
+							<Button
+								variant='ghost'
+								size='icon'
+								onClick={e => {
+									e.preventDefault()
+									e.stopPropagation()
+									setShowDeleteDialog(true)
+								}}
+								className='h-8 w-8 rounded-md text-muted-foreground transition-colors hover:bg-destructive/5 hover:text-destructive'
+								aria-label='Delete group'
+							>
+								<HugeiconsIcon
+									icon={Delete02Icon}
+									strokeWidth={1.5}
+									className='h-4 w-4'
+								/>
+							</Button>
+						</div>
+					)}
+
 					<CardHeaderContent
 						icon={FolderIcon}
 						title={group.name}
 						description={group.description ?? undefined}
 					/>
 
-					<CardContent className='mt-auto px-4'>
-						<div className='flex items-center justify-between border-t border-border/40 pt-2'>
-							<div className='flex items-baseline gap-1'>
-								<span className='text-lg font-bold text-foreground tabular-nums tracking-tight'>
-									{history ? (group.completed_runs_count ?? 0) : (group.base_lists?.[0]?.count ?? 0)}
-								</span>
-								<span className='text-xs font-bold uppercase tracking-widest text-primary/60'>
-									{history ? 'Sessions' : 'Lists'}
-								</span>
-							</div>
-
-							<div className='flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-primary'>
-								<span>View details</span>
-								<HugeiconsIcon
-									icon={ArrowRight01Icon}
-									strokeWidth={2.5}
-									className='h-3 w-3 transition-transform group-hover:translate-x-0.5'
-								/>
-							</div>
-						</div>
-					</CardContent>
-				</Link>
-			</Card>
+					<CardFooterContent
+						count={history ? (group.completed_runs_count ?? 0) : (group.base_lists?.[0]?.count ?? 0)}
+						coutLabel={history ? 'Shoppings' : 'Lists'}
+						linkText='View details'
+					/>
+				</Card>
+			</Link>
 
 			<AlertDialog
 				open={showDeleteDialog}
