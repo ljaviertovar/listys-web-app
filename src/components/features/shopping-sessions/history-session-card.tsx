@@ -3,10 +3,10 @@
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Calendar03Icon, DollarCircleIcon, ShoppingCart02Icon, ArrowRight01Icon } from '@hugeicons/core-free-icons'
+import { DollarCircleIcon, ShoppingCart02Icon, ArrowRight01Icon } from '@hugeicons/core-free-icons'
 import Link from 'next/link'
 import { formatDate, formatTime } from '@/utils/format-date'
-import { CardHeaderContent } from '@/components/app'
+import { CardFooterContent, CardHeaderContent } from '@/components/app'
 
 interface Session {
 	id: string
@@ -16,6 +16,8 @@ interface Session {
 	completed_at: string | null
 	total_amount: number | null
 	total_items?: number | null
+	purchased_count?: number | null
+	shopping_session_items?: Array<{ id: string; checked: boolean | null }> | null
 	base_list: { name: string } | null
 }
 
@@ -26,26 +28,26 @@ interface Props {
 
 export function HistorySessionCard({ session, href }: Props) {
 	const completedDate = session.completed_at ? new Date(session.completed_at) : null
+	const purchasedCount =
+		session.purchased_count ??
+		session.shopping_session_items?.filter(i => i.checked === true).length ??
+		session.total_items ??
+		0
 
 	return (
-		<Card
-			className='hover:bg-primary/1 hover:border-primary/50 transition-all cursor-pointer group'
-			size='sm'
-			variant='premium'
-		>
-			<Link href={href ?? `/shopping/${session.id}`}>
-				<CardHeader className='gap-0'>
-					<div className='flex items-center justify-end'>
-						<Badge variant='completed'>Completed</Badge>
-					</div>
+		<Link href={href ?? `/shopping/${session.id}`}>
+			<Card
+				variant='premium'
+				className='group relative flex h-full cursor-pointer flex-col bg-card transition-all duration-300 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 gap-0 py-4'
+				data-testid={`history-card-${session.id}`}
+			>
+				<CardHeaderContent
+					icon={ShoppingCart02Icon}
+					title={session.name}
+					description={`Shopping: ${completedDate ? `${formatDate(completedDate)} - ${formatTime(completedDate)}` : 'Date unknown'}`}
+				/>
 
-					<CardHeaderContent
-						icon={ShoppingCart02Icon}
-						title={session.name}
-						description={`Shopping: ${completedDate ? `${formatDate(completedDate)} - ${formatTime(completedDate)}` : 'Date unknown'}`}
-					/>
-				</CardHeader>
-				<CardContent className='pt-4'>
+				<CardContent className='flex flex-row items-center px-4'>
 					<div className='space-y-2 mb-4'>
 						{session.total_amount && (
 							<div className='flex items-center gap-2 text-sm font-medium'>
@@ -58,23 +60,14 @@ export function HistorySessionCard({ session, href }: Props) {
 							</div>
 						)}
 					</div>
-					<CardFooter className='justify-between items-center'>
-						{(session.total_items ?? 0) > 0 && (
-							<span>
-								{session.total_items} {session.total_items === 1 ? 'purchased item' : 'purchased items'}
-							</span>
-						)}
-						<div className='flex items-center text-sm text-primary transition-colors'>
-							<span>View details</span>
-							<HugeiconsIcon
-								icon={ArrowRight01Icon}
-								strokeWidth={2}
-								className='h-4 w-4 transition-transform group-hover:translate-x-1'
-							/>
-						</div>
-					</CardFooter>
 				</CardContent>
-			</Link>
-		</Card>
+
+				<CardFooterContent
+					count={purchasedCount}
+					coutLabel={purchasedCount === 1 ? 'Purchased Item' : 'Purchased Items'}
+					linkText='View Details'
+				/>
+			</Card>
+		</Link>
 	)
 }
