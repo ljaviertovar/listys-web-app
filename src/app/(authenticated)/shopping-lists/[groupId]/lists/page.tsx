@@ -78,13 +78,10 @@ export default async function BaseListsPage({ params }: { params: Promise<{ grou
 					<div className='rounded-lg bg-destructive/10 p-4 text-sm text-destructive'>Error loading lists: {error}</div>
 				)}
 
-				{activeSession && <ActiveShopping activeShopping={activeSession} />}
-
 				{!baseLists || baseLists.length === 0 ? (
 					<Card
-						className='flex min-h-100 flex-col items-center justify-center'
-						size='sm'
 						variant='premium'
+						className='group relative flex h-full cursor-pointer flex-col bg-card transition-all duration-300 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 gap-0 py-4'
 					>
 						<CardContent className='flex w-full max-w-md flex-col items-center pt-6 text-center'>
 							<div className='flex h-16 w-16 items-center justify-center text-primary'>

@@ -3,13 +3,14 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { motion } from 'framer-motion'
 import { toast } from 'sonner'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 
-import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -32,7 +33,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { ActiveShoppingBadge } from '@/components/app/active-shopping-badge'
 
-import { CardHeaderContent } from '@/components/app'
+import { CardFooterContent, CardHeaderContent } from '@/components/app'
 
 interface Props {
 	baseList: BaseListWithCount
@@ -120,62 +121,70 @@ export function BaseListCard({ baseList, isActiveRun = false }: Props) {
 
 	if (editing) {
 		return (
-			<Card
-				className='hover:border-primary/50 transition-colors gap-2'
-				size='sm'
-				variant='premium'
-				data-testid={`list-card-${baseList.id}`}
+			<motion.div
+				initial={{ opacity: 0, y: 10, scale: 0.97 }}
+				animate={{ opacity: 1, y: 0, scale: 1 }}
+				transition={{ duration: 0.28, ease: [0.23, 1, 0.32, 1] }}
 			>
-				<CardHeader className='gap-2'>
-					<form
-						onSubmit={handleSubmit(handleEditSave)}
-						className='space-y-2'
-					>
-						<Input
-							{...register('name')}
-							disabled={loading}
-							aria-invalid={!!errors.name}
-							required
-						/>
-						<Textarea
-							{...register('notes')}
-							disabled={loading}
-							placeholder='Description or notes, eg. "Weekly groceries", "Items for camping trip", etc.'
-							className='min-h-20'
-						/>
-						<div>
-							{errors.name && <p className='text-xs text-destructive'>{errors.name.message}</p>}
-							{errors.notes && <p className='text-xs text-destructive'>{errors.notes.message}</p>}
-						</div>
-						<div className='flex items-center justify-end gap-2'>
-							<Button
-								type='button'
-								size='sm'
-								variant='outline'
-								onClick={handleEditCancel}
+				<Card
+					variant='premium'
+					className='border-primary/20 shadow-lg shadow-primary/5 ring-1 ring-primary/10'
+					data-testid={`list-card-${baseList.id}`}
+				>
+					<CardHeader>
+						<CardTitle className='font-bold'>Edit List</CardTitle>
+					</CardHeader>
+					<CardContent className='gap-2'>
+						<form
+							onSubmit={handleSubmit(handleEditSave)}
+							className='space-y-2'
+						>
+							<Input
+								{...register('name')}
 								disabled={loading}
-							>
-								Cancel
-							</Button>
-							<Button
-								type='submit'
-								size='sm'
-								disabled={loading || !watchedName?.trim()}
-							>
-								{loading && (
-									<HugeiconsIcon
-										icon={Loading03Icon}
-										strokeWidth={2}
-										className='h-4 w-4 animate-spin'
-										data-icon='inline-start'
-									/>
-								)}
-								{loading ? 'Saving…' : 'Save'}
-							</Button>
-						</div>
-					</form>
-				</CardHeader>
-			</Card>
+								aria-invalid={!!errors.name}
+								required
+							/>
+							<Textarea
+								{...register('notes')}
+								disabled={loading}
+								placeholder='Description or notes, eg. "Weekly groceries", "Items for camping trip", etc.'
+								className='min-h-20'
+							/>
+							<div>
+								{errors.name && <p className='text-xs text-destructive'>{errors.name.message}</p>}
+								{errors.notes && <p className='text-xs text-destructive'>{errors.notes.message}</p>}
+							</div>
+							<div className='flex items-center justify-end gap-2'>
+								<Button
+									type='button'
+									size='sm'
+									variant='outline'
+									onClick={handleEditCancel}
+									disabled={loading}
+								>
+									Cancel
+								</Button>
+								<Button
+									type='submit'
+									size='sm'
+									disabled={loading || !watchedName?.trim()}
+								>
+									{loading && (
+										<HugeiconsIcon
+											icon={Loading03Icon}
+											strokeWidth={2}
+											className='h-4 w-4 animate-spin'
+											data-icon='inline-start'
+										/>
+									)}
+									{loading ? 'Saving…' : 'Save'}
+								</Button>
+							</div>
+						</form>
+					</CardContent>
+				</Card>
+			</motion.div>
 		)
 	}
 
@@ -184,74 +193,62 @@ export function BaseListCard({ baseList, isActiveRun = false }: Props) {
 			<Link href={`/base-lists/${baseList.id}/edit`}>
 				<Card
 					variant='premium'
-					size='sm'
-					className='hover:bg-primary/1 hover:border-primary/50 transition-all cursor-pointer group'
+					className='group relative flex h-full cursor-pointer flex-col bg-card transition-all duration-300 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 gap-0 py-4'
 					data-testid={`list-card-${baseList.id}`}
 				>
-					<CardHeader className='gap-0'>
-						<div className='flex items-center justify-end gap-1'>
-							{isActiveRun && <ActiveShoppingBadge />}
-							{!isActiveRun && (
-								<>
-									<Button
-										variant='ghost'
-										size='icon'
-										className='h-8 w-8'
-										onClick={e => {
-											e.preventDefault()
-											e.stopPropagation()
-											setEditing(true)
-										}}
-										disabled={loading}
-										aria-label='Edit list'
-									>
-										<HugeiconsIcon
-											icon={Edit02Icon}
-											strokeWidth={2}
-											className='h-4 w-4'
-										/>
-									</Button>
-									<Button
-										variant='ghost'
-										size='icon'
-										onClick={e => {
-											e.preventDefault()
-											e.stopPropagation()
-											setShowDeleteDialog(true)
-										}}
-										disabled={loading}
-										className='h-8 w-8'
-										aria-label='Delete list'
-									>
-										<HugeiconsIcon
-											icon={Delete02Icon}
-											strokeWidth={2}
-										/>
-									</Button>
-								</>
-							)}
-						</div>
+					<div className='flex items-center justify-end gap-1'>
+						{!isActiveRun && (
+							<div className='flex items-center justify-end gap-1 px-4'>
+								<Button
+									variant='ghost'
+									size='icon'
+									onClick={e => {
+										e.preventDefault()
+										e.stopPropagation()
+										setEditing(true)
+									}}
+									disabled={loading}
+									className='h-8 w-8 rounded-md text-muted-foreground transition-colors hover:bg-primary/5 hover:text-primary'
+									aria-label='Edit list'
+								>
+									<HugeiconsIcon
+										icon={Edit02Icon}
+										strokeWidth={2}
+										className='h-4 w-4'
+									/>
+								</Button>
+								<Button
+									variant='ghost'
+									size='icon'
+									onClick={e => {
+										e.preventDefault()
+										e.stopPropagation()
+										setShowDeleteDialog(true)
+									}}
+									disabled={loading}
+									className='h-8 w-8 rounded-md text-muted-foreground transition-colors hover:bg-destructive/5 hover:text-destructive'
+									aria-label='Delete list'
+								>
+									<HugeiconsIcon
+										icon={Delete02Icon}
+										strokeWidth={2}
+									/>
+								</Button>
+							</div>
+						)}
+					</div>
 
-						<CardHeaderContent
-							icon={ListViewIcon}
-							title={baseList.name}
-							description={baseListNotes ?? undefined}
-						/>
-					</CardHeader>
-					<CardFooter className='justify-between items-center'>
-						<span>
-							{baseList.items_count} {baseList.items_count === 1 ? 'item' : 'items'}
-						</span>
+					<CardHeaderContent
+						icon={ListViewIcon}
+						title={baseList.name}
+						description={baseListNotes ?? undefined}
+					/>
 
-						<div className='flex items-center text-sm text-primary transition-colors'>
-							<span>View Items</span>
-							<HugeiconsIcon
-								icon={ArrowRight01Icon}
-								strokeWidth={2}
-								className='h-4 w-4 transition-transform group-hover:translate-x-1'
-							/>
-						</div>
-					</CardFooter>
+					<CardFooterContent
+						count={baseList.items_count}
+						coutLabel={baseList.items_count === 1 ? 'Item' : 'Items'}
+						linkText='View Items'
+					/>
 				</Card>
 			</Link>
 

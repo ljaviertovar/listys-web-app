@@ -9,8 +9,6 @@ import { ActionsItemFormBaseList } from '@/components/app/actions-item-form-base
 import { deleteBaseListItem, updateBaseListItem } from '@/lib/api/endpoints/base-lists'
 
 import type { BaseListItem } from '@/features/base-lists/types'
-import { Separator } from '@/components/ui/separator'
-import { getCategoryWithEmoji } from '@/data/constants'
 
 interface Props {
 	item: BaseListItem
@@ -49,10 +47,9 @@ export function BaseListItemRow({ item, isLocked = false }: Props) {
 	return (
 		<Card
 			variant='premium'
-			size='compact'
-			className='hover:bg-primary/1 hover:border-primary/50 transition-all cursor-pointer group'
+			className='group relative transition-all duration-300 flex h-full flex-col bg-card gap-0 py-4'
 		>
-			<CardContent className='flex flex-row items-center p-2.5 md:p-4'>
+			<CardContent className='flex flex-row items-center px-4'>
 				<div className='flex flex-1 min-w-0 items-center justify-start gap-3'>
 					<Badge
 						variant={'secondary'}

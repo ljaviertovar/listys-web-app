@@ -64,13 +64,6 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 			items,
 		}))
 
-	const categoryHeaderThemes = [
-		'border-primary/30 bg-gradient-to-r from-primary/10 to-primary/5',
-		'border-emerald-200/60 bg-gradient-to-r from-emerald-100/80 to-emerald-50/80 dark:border-emerald-900/50 dark:from-emerald-950/40 dark:to-emerald-900/20',
-		'border-amber-200/60 bg-gradient-to-r from-amber-100/80 to-amber-50/80 dark:border-amber-900/50 dark:from-amber-950/40 dark:to-amber-900/20',
-		'border-sky-200/60 bg-gradient-to-r from-sky-100/80 to-sky-50/80 dark:border-sky-900/50 dark:from-sky-950/40 dark:to-sky-900/20',
-	]
-
 	// Parallelize group info and session queries
 	const [groupResult, activeSessionResult, anyActiveSessionResult] = await Promise.all([
 		supabase.from('groups').select('id, name').eq('id', baseListWithItems.group_id).single(),
@@ -128,7 +121,12 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 							label={`Back to ${group?.name || 'Shopping Lists'}`}
 						/>
 
-						<span className='text-primary font-medium'>{totalItems} Items</span>
+						<div className='flex items-baseline gap-1 mb-4'>
+							<span className='text-lg font-bold text-foreground tabular-nums tracking-tight'>{totalItems}</span>
+							<span className='text-xs font-bold tracking-widest text-primary/60'>
+								{totalItems === 1 ? 'Item' : 'Items'}
+							</span>
+						</div>
 					</div>
 
 					<ScrollArea className='h-full min-h-0 sm:px-6 touch-pan-y overscroll-contain'>
@@ -145,8 +143,8 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 								</p>
 							</div>
 						) : (
-							<div className='space-y-4'>
-								{categorySections.map((section, index) => (
+							<div className='w-full max-w-2xl m-auto space-y-4'>
+								{categorySections.map(section => (
 									<section
 										key={section.key}
 										className='mb-8'
@@ -154,11 +152,10 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 										<div className='mb-2 flex items-center justify-between'>
 											<div className='min-w-0 flex-1'>
 												<p className='text-base font-bold tracking-tight uppercase'>{section.title}</p>
-												<div className='mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 tabular-nums text-[10px] font-bold uppercase tracking-tighter text-muted-foreground/70'>
+												<div className='mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 tabular-nums text-xs font-bold tracking-tighter text-muted-foreground/70'>
 													<span>
-														{section.items.length} {section.items.length === 1 ? 'item' : 'items'}
+														{section.items.length} {section.items.length === 1 ? 'Item' : 'Items'}
 													</span>
-													<span className='hidden h-1 w-1 rounded-full bg-border sm:inline-block' />
 												</div>
 											</div>
 										</div>

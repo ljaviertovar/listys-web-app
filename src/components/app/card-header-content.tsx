@@ -1,6 +1,5 @@
 import { CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react'
-import { Separator } from '../ui/separator'
 
 interface Props {
 	icon: IconSvgElement
@@ -19,11 +18,11 @@ export default function CardHeaderContent({ icon, title, description }: Props) {
 				/>
 			</div>
 			<div className='min-w-0 flex-1 pr-14 sm:pr-0'>
-				<CardTitle className=' text-base font-bold tracking-tight text-foreground transition-colors group-hover:text-primary max-w-[20ch]'>
+				<CardTitle className='text-base font-bold tracking-tight text-foreground transition-colors group-hover:text-primary max-w-[20ch]'>
 					{title}
 				</CardTitle>
 				{description && (
-					<CardDescription className='truncate text-xs font-medium text-muted-foreground'>
+					<CardDescription className='truncate text-sm font-medium text-muted-foreground'>
 						{description}
 					</CardDescription>
 				)}
