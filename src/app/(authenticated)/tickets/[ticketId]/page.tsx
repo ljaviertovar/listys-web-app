@@ -58,23 +58,15 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 				<div className='w-full flex gap-6 flex-col-reverse md:flex-row'>
 					{/* Ticket Image */}
 					<Card
-						className='flex-1 hover:border-primary/50 transition-colors h-fit'
-						size='sm'
 						variant='premium'
+						className='flex-1 group relative flex h-full cursor-pointer flex-col bg-card transition-all duration-300 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 gap-0 py-4'
 					>
-						<CardHeader>
-							<div className='flex gap-2 items-center'>
-								<span className='h-10 w-10 bg-primary/10 flex justify-center items-center rounded-lg'>
-									<HugeiconsIcon
-										icon={Invoice01Icon}
-										strokeWidth={2}
-										className='h-6 w-6 text-primary'
-									/>
-								</span>
-								<CardTitle className='text-lg'>Receipt Photo</CardTitle>
-							</div>
-						</CardHeader>
-						<CardContent>
+						<CardHeaderContent
+							icon={Invoice01Icon}
+							title='Receipt Photo'
+						/>
+
+						<CardContent className='px-4'>
 							<TicketImage
 								imagePaths={
 									(ticket as any).image_paths && (ticket as any).image_paths.length > 0
@@ -89,11 +81,10 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 
 					{/* Extracted Items */}
 					<Card
-						className='flex-1 hover:border-primary/50 transition-colors'
-						size='sm'
 						variant='premium'
+						className='flex-1 group relative flex h-full cursor-pointer flex-col bg-card transition-all duration-300 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 gap-0 py-4'
 					>
-						<CardHeader className='flex gap-2 items-start justify-between'>
+						<div className='flex gap-2 items-start justify-between px-4 pl-0'>
 							<CardHeaderContent
 								icon={ListViewIcon}
 								title='Extracted Items'
@@ -104,8 +95,8 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 								ticketId={ticketId}
 								initialStatus={(ticket.ocr_status as any) || 'pending'}
 							/>
-						</CardHeader>
-						<CardContent>
+						</div>
+						<CardContent className='px-4'>
 							<TicketItemsSelector
 								ticketId={ticketId}
 								items={ticketItems}
@@ -131,7 +122,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 								</div>
 							)}
 						</CardContent>
-						<CardFooter className='justify-end'>
+						<CardFooter className='justify-end mt-4'>
 							<TicketActions ticket={ticket} />
 						</CardFooter>
 					</Card>

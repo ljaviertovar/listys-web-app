@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { HugeiconsIcon } from '@hugeicons/react'
 
-import { PageHeader, PageContainer, PageFooterAction, BackLink } from '@/components/app'
+import { PageHeader, PageContainer, PageFooterAction, BackLink, CardFooterContent } from '@/components/app'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { UploadTicketDialog } from '@/components/features/tickets'
 import { Badge } from '@/components/ui/badge'
@@ -61,9 +61,8 @@ export default async function TicketsPage() {
 
 				{!tickets || tickets.length === 0 ? (
 					<Card
-						className='flex min-h-100 flex-col items-center justify-center'
-						size='sm'
 						variant='premium'
+						className='group relative flex h-full cursor-pointer flex-col bg-card transition-all duration-300 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 gap-0 py-4'
 					>
 						<CardContent className='flex w-full max-w-md flex-col items-center pt-6 text-center'>
 							<div className='flex h-16 w-16 items-center justify-center text-primary'>
@@ -86,52 +85,45 @@ export default async function TicketsPage() {
 					<div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3'>
 						{formattedTickets.map((ticket: any) => {
 							return (
-								<Card
+								<Link
 									key={ticket.id}
-									variant='premium'
-									size='sm'
-									className='hover:bg-primary/1 hover:border-primary/50 transition-all cursor-pointer group'
+									href={`/tickets/${ticket.id}`}
 								>
-									<Link href={`/tickets/${ticket.id}`}>
-										<CardHeader className='gap-0'>
-											<div className='flex items-center justify-end gap-1'>
-												<Badge
-													variant={
-														ticket.ocr_status === 'processing'
-															? 'processing'
-															: ticket.ocr_status === 'completed'
-																? 'completed'
-																: ticket.ocr_status === 'failed'
-																	? 'failed'
-																	: 'pending'
-													}
-												>
-													{ticket.ocr_status
-														? ticket.ocr_status.charAt(0).toUpperCase() + ticket.ocr_status.slice(1)
-														: 'Pending'}
-												</Badge>
-											</div>
+									<Card
+										variant='premium'
+										className='group relative flex h-full cursor-pointer flex-col bg-card transition-all duration-300 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 gap-0 py-4'
+									>
+										<div className='flex items-center justify-end gap-1 px-4'>
+											<Badge
+												variant={
+													ticket.ocr_status === 'processing'
+														? 'processing'
+														: ticket.ocr_status === 'completed'
+															? 'completed'
+															: ticket.ocr_status === 'failed'
+																? 'failed'
+																: 'pending'
+												}
+											>
+												{ticket.ocr_status
+													? ticket.ocr_status.charAt(0).toUpperCase() + ticket.ocr_status.slice(1)
+													: 'Pending'}
+											</Badge>
+										</div>
 
-											<CardHeaderContent
-												icon={Invoice01Icon}
-												title={ticket.store_name || 'Unknown Store'}
-												description={`Uploaded: ${ticket.formattedDate} - ${ticket.formattedTime}`}
-											/>
-										</CardHeader>
-										<CardContent className='py-4'></CardContent>
-										<CardFooter className='justify-between items-center'>
-											{(ticket.total_items ?? 0) > 0 && <span>{ticket.total_items} extracted items</span>}
-											<div className='flex items-center text-sm text-primary transition-colors'>
-												<span>View details</span>
-												<HugeiconsIcon
-													icon={ArrowRight01Icon}
-													strokeWidth={2}
-													className='h-4 w-4 transition-transform group-hover:translate-x-1'
-												/>
-											</div>
-										</CardFooter>
-									</Link>
-								</Card>
+										<CardHeaderContent
+											icon={Invoice01Icon}
+											title={ticket.store_name || 'Unknown Store'}
+											description={`Uploaded: ${ticket.formattedDate} - ${ticket.formattedTime}`}
+										/>
+
+										<CardFooterContent
+											count={ticket.total_items}
+											coutLabel={ticket.total_items === 1 ? 'Extracted Item' : 'Extracted Items'}
+											linkText='View details'
+										/>
+									</Card>
+								</Link>
 							)
 						})}
 					</div>

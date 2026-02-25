@@ -129,7 +129,7 @@ export function TicketItemsSelector({ ticketId, items, status, ocrError }: Props
 							aria-label='Select all items'
 							className='mt-0.5 w-5 h-5 rounded-lg'
 						/>
-						<span className='text-sm text-muted-foreground'>
+						<span className='text-base'>
 							{selectedItems.size === 0
 								? 'Select all items to add to a list'
 								: `${selectedItems.size} of ${items.length} selected`}
@@ -158,7 +158,7 @@ export function TicketItemsSelector({ ticketId, items, status, ocrError }: Props
 						key={section.key}
 						className='mb-8'
 					>
-						<div className='mb-2 flex items-center justify-between'>
+						<div className='mb-2 flex items-center justify-between p-4'>
 							<div className='min-w-0 flex-1'>
 								<p className='text-base font-bold tracking-tight uppercase'>{section.title}</p>
 								<div className='mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 tabular-nums text-[10px] font-bold uppercase tracking-tighter text-muted-foreground/70'>
