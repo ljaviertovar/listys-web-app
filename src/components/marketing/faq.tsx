@@ -7,22 +7,22 @@ const faqs = [
 	{
 		question: 'Is Listys really free?',
 		answer:
-			'Yes! We offer a generous free tier that includes 10 groups, unlimited lists, and all core features including AI receipt scanning.',
+			'Yes. You can start with a free plan that includes the core features, including receipt scanning and shared lists.',
 	},
 	{
 		question: 'How accurate is the receipt scanning?',
 		answer:
-			'We use advanced AI (OpenAI Vision) to achieve 99% accuracy. It works with receipts from any store, in any format or layout.',
+			'Listys is built for high accuracy across different receipt formats. You can quickly review and edit items before shopping.',
 	},
 	{
 		question: 'Can I share lists with my family?',
 		answer:
-			'Absolutely! You can create groups and invite family members or roommates to collaborate on shopping lists in real-time.',
+			'Yes. Create a shared group and collaborate with family members or roommates in real time.',
 	},
 	{
 		question: 'Is my data secure?',
 		answer:
-			'Security is our top priority. All your data is encrypted and stored securely using Supabase. We never sell your personal data.',
+			'Yes. Your data is stored securely, and we do not sell your personal information.',
 	},
 ]
 const REVEAL_VIEWPORT = { once: true, amount: 0.22 }
@@ -51,7 +51,7 @@ export function Faq() {
 					<h2 className='font-serif text-3xl font-extrabold tracking-[-0.015em] text-slate-900 md:text-4xl'>
 						Frequently Asked Questions
 					</h2>
-					<p className='text-lg text-slate-700'>Everything you need to know before getting started.</p>
+					<p className='text-lg text-slate-700'>Quick answers before you create your account.</p>
 				</motion.div>
 
 				<Accordion

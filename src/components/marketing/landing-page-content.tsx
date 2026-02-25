@@ -35,6 +35,14 @@ import { Card } from '@/components/ui/card'
 
 export function LandingPageContent() {
 	const [activeStep, setActiveStep] = useState(0)
+	const mobileHeroBadges = [
+		{ label: 'AI extraction', icon: Camera01Icon },
+		{ label: 'Auto-categorized', icon: SparklesIcon },
+		{ label: 'Shared lists', icon: Share02Icon },
+		{ label: 'Live sync', icon: ShoppingCart02Icon },
+		{ label: 'Spend tracking', icon: AnalyticsUpIcon },
+		{ label: '99% OCR accuracy', icon: ViewIcon },
+	]
 
 	return (
 		<div className='relative w-full overflow-hidden bg-slate-50 text-slate-900'>
@@ -62,7 +70,7 @@ export function LandingPageContent() {
 								icon={SparklesIcon}
 								className='h-4 w-4 text-amber-400'
 							/>
-							<span>AI-Powered Receipts - Smart Lists</span>
+							<span>Receipt to list in seconds</span>
 						</motion.div>
 						<motion.h1
 							className='text-balance text-4xl font-extrabold leading-[1.08] tracking-tight text-slate-900 drop-shadow-sm sm:text-5xl md:text-7xl'
@@ -70,15 +78,14 @@ export function LandingPageContent() {
 						>
 							Turn Receipts into <br />
 							<span className='bg-gradient-to-r from-primary via-blue-600 to-violet-700 bg-clip-text text-transparent'>
-								Smart Shopping Lists
+								Shared Shopping Lists
 							</span>
 						</motion.h1>
 						<motion.p
 							className='mx-auto mt-8 max-w-2xl text-balance text-lg font-medium leading-relaxed text-slate-600 md:text-xl'
 							variants={FADE_UP}
 						>
-							Snap any grocery receipt and instantly turn it into an organized shopping list with real-time spend
-							tracking.
+							Scan a receipt to get an organized shopping list you can share, check off live, and use to track spending.
 						</motion.p>
 
 						<motion.div
@@ -87,14 +94,14 @@ export function LandingPageContent() {
 						>
 							<Button
 								size='lg'
-								className='group h-14 w-full rounded-xl border border-white/10 px-10 text-lg font-bold shadow-xl shadow-indigo-600/30 ring-2 ring-indigo-500/20 transition-all hover:-translate-y-1 hover:opacity-95 sm:w-auto'
+								className='group h-14 w-full max-w-70 rounded-xl border border-white/10 px-10 text-lg font-bold shadow-xl shadow-indigo-600/30 ring-2 ring-indigo-500/20 transition-all hover:-translate-y-1 hover:opacity-95 sm:w-auto'
 								asChild
 							>
 								<Link
 									href='/auth/signup'
 									className='flex items-center gap-2'
 								>
-									Create Free Account
+									Get started for free
 									<HugeiconsIcon
 										icon={ArrowRight01Icon}
 										className='h-5 w-5 transition-transform group-hover:translate-x-1'
@@ -120,11 +127,38 @@ export function LandingPageContent() {
 						<div className='absolute -right-6 top-[64%] z-20 hidden items-center gap-2 rounded-full border border-chart-2/25 bg-white/90 px-3 py-2 text-xs font-semibold text-slate-700 shadow-[0_15px_35px_-22px_rgba(14,116,144,0.35)] backdrop-blur md:flex lg:-right-8'>
 							<span className='flex h-6 w-6 items-center justify-center rounded-full bg-chart-2/10 text-chart-2'>
 								<HugeiconsIcon
-									icon={Share02Icon}
+									icon={SparklesIcon}
 									className='h-3.5 w-3.5'
 								/>
 							</span>
 							Auto-categorized
+						</div>
+						<div className='absolute -left-2 top-[64%] z-20 hidden items-center gap-2 rounded-full border border-chart-3/25 bg-white/90 px-3 py-2 text-xs font-semibold text-slate-700 shadow-[0_15px_35px_-22px_rgba(34,197,94,0.28)] backdrop-blur lg:flex'>
+							<span className='flex h-6 w-6 items-center justify-center rounded-full bg-chart-3/10 text-chart-3'>
+								<HugeiconsIcon
+									icon={ShoppingCart02Icon}
+									className='h-3.5 w-3.5'
+								/>
+							</span>
+							Live sync
+						</div>
+						<div className='absolute right-4 top-[18%] z-20 hidden items-center gap-2 rounded-full border border-chart-4/25 bg-white/90 px-3 py-2 text-xs font-semibold text-slate-700 shadow-[0_15px_35px_-22px_rgba(59,130,246,0.25)] backdrop-blur lg:flex'>
+							<span className='flex h-6 w-6 items-center justify-center rounded-full bg-chart-4/10 text-chart-4'>
+								<HugeiconsIcon
+									icon={AnalyticsUpIcon}
+									className='h-3.5 w-3.5'
+								/>
+							</span>
+							99% OCR accuracy
+						</div>
+						<div className='absolute right-[19%] top-[81%] z-20 hidden items-center gap-2 rounded-full border border-slate-200/80 bg-white/90 px-3 py-2 text-xs font-semibold text-slate-700 shadow-[0_15px_35px_-22px_rgba(15,23,42,0.18)] backdrop-blur xl:flex'>
+							<span className='flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-primary'>
+								<HugeiconsIcon
+									icon={Share02Icon}
+									className='h-3.5 w-3.5'
+								/>
+							</span>
+							Shared lists
 						</div>
 
 						<div className='relative z-10 w-full max-w-[300px] -rotate-2 transform transition duration-500 hover:rotate-0'>
@@ -279,6 +313,23 @@ export function LandingPageContent() {
 								</div>
 							</div>
 						</div>
+
+						<div className='mt-16 grid w-full max-w-[320px] grid-cols-2 gap-2 md:hidden'>
+							{mobileHeroBadges.map(badge => (
+								<div
+									key={badge.label}
+									className='inline-flex min-w-0 items-center justify-center gap-2 rounded-xl border border-slate-200/80 bg-white px-3 py-2 text-[11px] font-semibold text-slate-700 shadow-[0_12px_22px_-24px_rgba(15,23,42,0.28)] backdrop-blur'
+								>
+									<span className='flex h-4.5 w-4.5 items-center justify-center rounded-full bg-primary/10 text-primary'>
+										<HugeiconsIcon
+											icon={badge.icon}
+											className='h-2.5 w-2.5'
+										/>
+									</span>
+									<span className='truncate'>{badge.label}</span>
+								</div>
+							))}
+						</div>
 					</motion.div>
 				</motion.div>
 			</section>
@@ -287,8 +338,8 @@ export function LandingPageContent() {
 
 			{/* =============================================
 			    TRUST STATS SECTION
-			    ============================================= */}
-			<motion.section
+			    =============================================
+			 <motion.section
 				className='section-soft-surface relative overflow-hidden py-14'
 				initial='hidden'
 				whileInView='show'
@@ -321,6 +372,8 @@ export function LandingPageContent() {
 				</div>
 			</motion.section>
 
+			*/}
+
 			{/* =============================================
 			    HOW IT WORKS SECTION
 			    ============================================= */}
@@ -334,6 +387,7 @@ export function LandingPageContent() {
 			>
 				<div className='pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border/85 to-transparent' />
 				<div className='pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-border/85 to-transparent' />
+
 				<div className='mx-auto grid w-full max-w-7xl gap-12 px-4 sm:px-6 md:grid-cols-2 md:items-start lg:items-center lg:px-8'>
 					<motion.div
 						variants={FADE_UP}
@@ -344,7 +398,7 @@ export function LandingPageContent() {
 							One clear process from scan to checkout
 						</h2>
 						<p className='mt-5 max-w-xl text-base leading-relaxed text-slate-600'>
-							Each step is designed to keep momentum. Capture fast, organize automatically, then shop with confidence.
+							Go from receipt photo to ready-to-shop list in three fast steps.
 						</p>
 
 						<div className='mt-10 space-y-5'>
@@ -436,27 +490,25 @@ export function LandingPageContent() {
 
 			{/* =============================================
 			    FEATURES SECTION
-			    ============================================= */}
+			    =============================================
 			<motion.section
-				className='feature-premium-surface relative overflow-hidden py-20 sm:py-24'
+				className='relative overflow-hidden py-20 sm:py-24'
 				initial='hidden'
 				whileInView='show'
 				viewport={REVEAL_VIEWPORT}
 				variants={STAGGER_REVEAL}
 			>
-				<div className='pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border/80 to-transparent' />
-				<div className='pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-border/80 to-transparent' />
 				<div className='relative mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8'>
 					<motion.div
 						className='mx-auto max-w-2xl text-center'
 						variants={FADE_UP}
 					>
-						<p className='text-xs font-bold uppercase tracking-[0.2em] text-primary/80'>Why households choose Listys</p>
+						<p className='text-xs font-bold uppercase tracking-[0.2em] text-primary/80'>Everything in one flow</p>
 						<h2 className='mt-3 font-serif text-3xl font-extrabold tracking-[-0.015em] text-slate-900 sm:text-4xl'>
-							Designed for everyday grocery shopping
+							Built for faster grocery runs
 						</h2>
 						<p className='mt-5 text-base text-slate-600 sm:text-lg'>
-							Everything stays connected, clean, and easy to act on across the entire shopping cycle.
+							Capture receipts, coordinate the household, shop faster, and keep spending visible.
 						</p>
 					</motion.div>
 
@@ -484,6 +536,8 @@ export function LandingPageContent() {
 				</div>
 			</motion.section>
 
+			*/}
+
 			{/* =============================================
 			    FAQ SECTION
 			    ============================================= */}
@@ -493,6 +547,7 @@ export function LandingPageContent() {
 			    CTA FINAL SECTION
 			    ============================================= */}
 			<motion.section
+				id='get-started'
 				className='section-soft-surface relative overflow-hidden pb-12 pt-20 sm:pt-24'
 				initial='hidden'
 				whileInView='show'
@@ -508,30 +563,35 @@ export function LandingPageContent() {
 						className='text-center lg:text-left'
 						variants={FADE_UP}
 					>
-						<p className='mb-3 text-xs font-bold uppercase tracking-[0.2em] text-primary/85'>Get started</p>
+						<p className='mb-3 text-xs font-bold uppercase tracking-[0.2em] text-primary/85'>Start free today</p>
 						<h2 className='font-serif text-4xl font-extrabold leading-[1.12] tracking-[-0.015em] text-foreground sm:text-5xl'>
-							Build a smarter shopping habit with Listys
+							Create your first shared shopping list in minutes
 						</h2>
 						<p className='mt-4 max-w-2xl text-base leading-relaxed text-slate-600 sm:text-lg'>
-							Start free today and organize your next grocery run in minutes with smarter lists and clearer spending.
+							Create a free account, upload one receipt, and get a ready-to-shop list your household can use right away.
 						</p>
-						<div className='mt-10 flex flex-col gap-4 sm:flex-row lg:justify-start'>
-							<Button
-								size='lg'
-								className='h-13 rounded-xl bg-primary px-8 text-base font-bold text-primary-foreground shadow-[0_14px_28px_-18px_rgba(37,99,235,0.55)] transition-colors hover:bg-primary/90'
-								asChild
+						<div className='flex flex-col gap-4 sm:flex-row lg:justify-start'>
+							<motion.div
+								className='mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row'
+								variants={FADE_UP}
 							>
-								<Link
-									href='/auth/signup'
-									className='flex items-center gap-2'
+								<Button
+									size='lg'
+									className='group h-14 w-full max-w-70 rounded-xl border border-white/10 px-10 text-lg font-bold shadow-xl shadow-indigo-600/30 ring-2 ring-indigo-500/20 transition-all hover:-translate-y-1 hover:opacity-95 sm:w-auto'
+									asChild
 								>
-									Create free account
-									<HugeiconsIcon
-										icon={ArrowRight01Icon}
-										className='h-5 w-5'
-									/>
-								</Link>
-							</Button>
+									<Link
+										href='/auth/signup'
+										className='flex items-center gap-2'
+									>
+										Create free account
+										<HugeiconsIcon
+											icon={ArrowRight01Icon}
+											className='h-5 w-5 transition-transform group-hover:translate-x-1'
+										/>
+									</Link>
+								</Button>
+							</motion.div>
 						</div>
 					</motion.div>
 					<motion.div variants={FADE_UP}>

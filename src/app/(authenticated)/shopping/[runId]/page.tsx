@@ -193,7 +193,7 @@ export default async function ShoppingRunPage({
 								</p>
 							</div>
 						) : (
-							<div className='space-y-4 pb-32'>
+							<div className='w-full max-w-2xl m-auto space-y-4 pb-32'>
 								{categorySections.map(section => (
 									<section
 										key={section.key}

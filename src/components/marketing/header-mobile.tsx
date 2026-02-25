@@ -13,11 +13,28 @@ import Logo from '../commons/logo'
 import { useScrollPosition } from '@/hooks/use-scroll-position'
 
 import { NavItem } from '@/types'
-import { NAV_ITEMS } from '@/data/constants'
+import { MARKETING_SECTION_LINKS, NAV_ITEMS } from '@/data/constants'
 
 type MenuItemWithSubMenuProps = {
 	item: NavItem
 	toggleOpen: () => void
+}
+
+function scrollToSection(href: string) {
+	if (typeof window === 'undefined') return
+
+	const hash = href.split('#')[1]
+	if (!hash || window.location.pathname !== '/') return
+
+	const target = document.getElementById(hash)
+	if (!target) return
+
+	const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+	const headerOffset = 76
+	const top = target.getBoundingClientRect().top + window.scrollY - headerOffset
+
+	window.history.replaceState(null, '', `/#${hash}`)
+	window.scrollTo({ top, behavior: prefersReducedMotion ? 'auto' : 'smooth' })
 }
 
 const sidebar = {
@@ -64,6 +81,36 @@ export default function HeaderMobile() {
 					variants={variants}
 					className='absolute grid place-content-center h-full w-full gap-3 px-10 py-16 max-h-screen overflow-y-auto'
 				>
+					<div className='mb-6'>
+						<div className='grid grid-cols-1 gap-2 sm:grid-cols-2'>
+							{MARKETING_SECTION_LINKS.map(link => (
+								<MenuItem key={link.href}>
+									<Link
+										href={link.href}
+										onClick={event => {
+											if (
+												link.href.includes('#') &&
+												typeof window !== 'undefined' &&
+												window.location.pathname === '/'
+											) {
+												event.preventDefault()
+												toggleOpen()
+												setTimeout(() => scrollToSection(link.href), 180)
+												return
+											}
+											toggleOpen()
+										}}
+										className='mb-1 block rounded-xl bg-white/70 px-3 py-3 text-lg font-semibold text-foreground  transition-all hover:border-primary/25 hover:bg-white hover:text-primary'
+									>
+										{link.label}
+									</Link>
+								</MenuItem>
+							))}
+						</div>
+					</div>
+
+					<div className='my-2 h-px w-full bg-border/70' />
+
 					{NAV_ITEMS.map((item, idx) => {
 						return (
 							<div key={idx}>

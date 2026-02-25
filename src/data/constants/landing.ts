@@ -10,7 +10,7 @@ import {
 
 export const TRUST_STATS = [
 	{ stat: '99%', label: 'OCR accuracy', icon: ViewIcon },
-	{ stat: '10+', label: 'List groups', icon: Share02Icon },
+	{ stat: '10+', label: 'Shared groups', icon: Share02Icon },
 	{ stat: '250', label: 'Items per list', icon: ShoppingCart02Icon },
 	{ stat: '4.9/5', label: 'App store rating', icon: CheckmarkBadge01Icon },
 ]
@@ -18,19 +18,19 @@ export const TRUST_STATS = [
 export const PROCESS_STEPS = [
 	{
 		title: 'Scan receipt in seconds',
-		desc: 'Take a photo and Listys extracts every product, price, and quantity automatically.',
+		desc: 'Snap a receipt and extract items, quantities, and prices in seconds.',
 		icon: Camera01Icon,
 		badge: 'Capture',
 	},
 	{
 		title: 'Review and organize instantly',
-		desc: 'Listys classifies items by category so your next shopping trip is already structured.',
+		desc: 'Review the result and start with a clean list ready for your next trip.',
 		icon: ArtificialIntelligence02Icon,
 		badge: 'Organize',
 	},
 	{
 		title: 'Shop with a focused list',
-		desc: 'Track completed items live and keep your spending visible while you shop.',
+		desc: 'Check off items as you shop and keep spending visible in real time.',
 		icon: AnalyticsUpIcon,
 		badge: 'Execute',
 	},
@@ -57,22 +57,22 @@ export const PREVIEW_BY_STEP = [
 export const FEATURE_CARDS = [
 	{
 		title: 'AI receipt extraction',
-		desc: 'Advanced OCR turns unstructured receipts into clean, editable shopping data.',
+		desc: 'Turn messy receipts into editable items, quantities, and prices.',
 		icon: ArtificialIntelligence02Icon,
 	},
 	{
-		title: 'Shared household lists',
-		desc: 'Coordinate with family members in one shared space, without duplicated purchases.',
+		title: 'Household coordination',
+		desc: 'Keep one shared list synced across family members and roommates.',
 		icon: Share02Icon,
 	},
 	{
 		title: 'Real-time progress',
-		desc: 'Mark products as completed and always know what is left in your current run.',
+		desc: 'Check items off live so everyone sees what is left.',
 		icon: ShoppingCart02Icon,
 	},
 	{
 		title: 'Spending visibility',
-		desc: 'Understand how much you spend by category and make better decisions every week.',
+		desc: 'Track totals while you shop and spot spending patterns over time.',
 		icon: AnalyticsUpIcon,
 	},
 ]
@@ -92,22 +92,23 @@ export type SharedAvatar = {
 export const SHARED_LISTS_SHOWCASE_COPY = {
 	eyebrow: 'Shared lists',
 	title: 'Shop better together with shared lists',
-	description: 'Keep one live list for the whole household and avoid duplicate purchases while everyone contributes.',
+	description: 'Use one live household list so everyone can add items, sync updates, and avoid duplicate buys.',
 }
 
 export const SHARED_LISTS_TOP_ITEMS: SharedListPreviewItem[] = [
-	{ name: 'apples', detail: '1 kg', checked: true },
+	{ name: 'apples', detail: '1 kg', checked: false },
 	{ name: 'tuna', detail: '3 pieces', checked: false },
 	{ name: 'milk', detail: 'Lactose free', checked: false },
-	{ name: 'toothpaste', detail: '1 piece', checked: true },
+	{ name: 'toothpaste', detail: '1 piece', checked: false },
 	{ name: 'shampoo', detail: 'Anti-dandruff', checked: false },
 ]
 
 export const SHARED_LISTS_BOTTOM_ITEMS: SharedListPreviewItem[] = [
-	{ name: 'potatoes', detail: '2 kg', checked: false },
-	{ name: 'pasta', detail: '1 pack', checked: false },
-	{ name: 'watermelon', detail: 'x1', checked: false },
 	{ name: 'apples', detail: '2 kg', checked: true },
+	{ name: 'tuna', detail: '3 pieces', checked: true },
+	{ name: 'milk', detail: 'Lactose free', checked: false },
+	{ name: 'toothpaste', detail: '1 piece', checked: true },
+	{ name: 'shampoo', detail: 'Anti-dandruff', checked: false },
 ]
 
 export const SHARED_LISTS_AVATARS: SharedAvatar[] = [
