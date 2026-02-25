@@ -36,12 +36,12 @@ export function TicketItemRow({ item, canSelect = false, selected = false, onSel
 			tabIndex={canSelect ? 0 : undefined}
 			onKeyDown={canSelect ? handleKeyDown : undefined}
 			onClick={canSelect ? () => onSelectToggle?.(item.id) : undefined}
-			className={`transition-all cursor-pointer ${selected ? 'border-primary bg-primary/5' : 'hover:bg-primary/1 hover:border-primary/50'}`}
+			className={`transition-all cursor-pointer p-0 ${selected ? 'border-primary bg-primary/5' : 'hover:bg-primary/1 hover:border-primary/50'}`}
 		>
-			<CardContent className='flex items-center gap-3 p-2.5'>
-				<div className='flex-1'>
+			<CardContent className='flex items-center gap-3 p-4'>
+				<div className='flex flex-col flex-1 gap-2'>
 					<p className='text-sm font-bold truncate w-full max-w-[28ch]'>{item.name}</p>
-					<div className='w-full flex justify-between items-center gap-4 mb-2'>
+					<div className='w-full flex justify-between items-center gap-4'>
 						<Badge
 							variant={'secondary'}
 							className={`h-7 min-w-12 justify-center rounded-lg px-2 py-0 font-bold text-sm uppercase transition-all bg-accent text-accent-foreground`}
