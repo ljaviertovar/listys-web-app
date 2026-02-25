@@ -77,6 +77,57 @@ export const FEATURE_CARDS = [
 	},
 ]
 
+export type SharedListPreviewItem = {
+	name: string
+	detail: string
+	checked: boolean
+}
+
+export type SharedAvatar = {
+	name: string
+	initials: string
+	accentClassName: string
+}
+
+export const SHARED_LISTS_SHOWCASE_COPY = {
+	eyebrow: 'Shared lists',
+	title: 'Shop better together with shared lists',
+	description: 'Keep one live list for the whole household and avoid duplicate purchases while everyone contributes.',
+}
+
+export const SHARED_LISTS_TOP_ITEMS: SharedListPreviewItem[] = [
+	{ name: 'apples', detail: '1 kg', checked: true },
+	{ name: 'tuna', detail: '3 pieces', checked: false },
+	{ name: 'milk', detail: 'Lactose free', checked: false },
+	{ name: 'toothpaste', detail: '1 piece', checked: true },
+	{ name: 'shampoo', detail: 'Anti-dandruff', checked: false },
+]
+
+export const SHARED_LISTS_BOTTOM_ITEMS: SharedListPreviewItem[] = [
+	{ name: 'potatoes', detail: '2 kg', checked: false },
+	{ name: 'pasta', detail: '1 pack', checked: false },
+	{ name: 'watermelon', detail: 'x1', checked: false },
+	{ name: 'apples', detail: '2 kg', checked: true },
+]
+
+export const SHARED_LISTS_AVATARS: SharedAvatar[] = [
+	{
+		name: 'Maya',
+		initials: 'MY',
+		accentClassName: 'bg-gradient-to-br from-emerald-300 via-lime-200 to-emerald-100 text-emerald-900',
+	},
+	{
+		name: 'Noah',
+		initials: 'NH',
+		accentClassName: 'bg-gradient-to-br from-amber-300 via-yellow-200 to-orange-100 text-amber-950',
+	},
+	{
+		name: 'Ava',
+		initials: 'AV',
+		accentClassName: 'bg-gradient-to-br from-sky-300 via-cyan-200 to-blue-100 text-sky-950',
+	},
+]
+
 export const PHONE_PREVIEW_ITEMS = [
 	{ name: 'Organic Strawberries', detail: 'Produce - $5.99', checked: true },
 	{ name: 'Almond Milk', detail: 'Dairy - $4.50', checked: true },

@@ -29,6 +29,7 @@ import {
 } from '@/data/constants'
 import { Footer } from '@/components/marketing/footer'
 import { Faq } from '@/components/marketing/faq'
+import { SharedListsShowcase } from '@/components/marketing/shared-lists-showcase'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 
@@ -282,6 +283,8 @@ export function LandingPageContent() {
 				</motion.div>
 			</section>
 
+			<SharedListsShowcase />
+
 			{/* =============================================
 			    TRUST STATS SECTION
 			    ============================================= */}
@@ -331,8 +334,11 @@ export function LandingPageContent() {
 			>
 				<div className='pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border/85 to-transparent' />
 				<div className='pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-border/85 to-transparent' />
-				<div className='mx-auto grid w-full max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-[1fr_1fr] lg:items-center lg:px-8'>
-					<motion.div variants={FADE_UP}>
+				<div className='mx-auto grid w-full max-w-7xl gap-12 px-4 sm:px-6 md:grid-cols-2 md:items-start lg:items-center lg:px-8'>
+					<motion.div
+						variants={FADE_UP}
+						className='min-w-0'
+					>
 						<p className='mb-3 text-xs font-bold uppercase tracking-[0.2em] text-primary/80'>How it works</p>
 						<h2 className='font-serif text-3xl font-extrabold leading-[1.15] tracking-[-0.015em] text-slate-900 sm:text-4xl'>
 							One clear process from scan to checkout
@@ -379,7 +385,7 @@ export function LandingPageContent() {
 					</motion.div>
 
 					<motion.div
-						className='relative'
+						className='relative min-w-0 w-full'
 						variants={FADE_UP}
 					>
 						<div className='absolute -inset-6 rounded-[2rem] bg-gradient-to-br from-primary/10 via-accent/30 to-chart-2/20 blur-2xl' />
