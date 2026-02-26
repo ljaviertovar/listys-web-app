@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import Link from 'next/link'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { motion } from 'framer-motion'
@@ -13,14 +12,13 @@ import {
 	SparklesIcon,
 	ShoppingCart02Icon,
 	ViewIcon,
+	Checkmark,
 } from '@hugeicons/core-free-icons'
 import {
 	FADE_UP,
 	FEATURE_ACCENTS,
 	FEATURE_CARDS,
 	HERO_MEDIA_REVEAL,
-	PHONE_PREVIEW_ITEMS,
-	PREVIEW_BY_STEP,
 	PROCESS_STEPS,
 	REVEAL_VIEWPORT,
 	STAGGER_REVEAL,
@@ -34,7 +32,6 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 
 export function LandingPageContent() {
-	const [activeStep, setActiveStep] = useState(0)
 	const mobileHeroBadges = [
 		{ label: 'AI extraction', icon: Camera01Icon },
 		{ label: 'Auto-categorized', icon: SparklesIcon },
@@ -42,6 +39,33 @@ export function LandingPageContent() {
 		{ label: 'Live sync', icon: ShoppingCart02Icon },
 		{ label: 'Spend tracking', icon: AnalyticsUpIcon },
 		{ label: '99% OCR accuracy', icon: ViewIcon },
+	]
+	const phonePreviewProgress = { checked: 1, total: 28, percent: 4 }
+	const phonePreviewSections = [
+		{
+			icon: '🥖',
+			title: 'BAKERY',
+			meta: '1 Item   0/1 Checked',
+			items: [{ name: 'sourdough bread', notes: '', quantity: 1, unit: 'unit', checked: false }],
+		},
+		{
+			icon: '🥛',
+			title: 'DAIRY',
+			meta: '2 Items   1/2 Checked',
+			items: [
+				{ name: 'Almond milk', notes: '', quantity: 1, unit: 'unit', checked: false },
+				{ name: 'Greek yogurt', notes: '', quantity: 1, unit: 'unit', checked: true },
+			],
+		},
+		{
+			icon: '🍎',
+			title: 'PRODUCE',
+			meta: '2 Items   0/2 Checked',
+			items: [
+				{ name: 'Organic strawberries', notes: '', quantity: 1, unit: 'box', checked: false },
+				{ name: 'Avocados', notes: '(3)', quantity: 3, unit: 'unit', checked: false },
+			],
+		},
 	]
 
 	return (
@@ -78,14 +102,15 @@ export function LandingPageContent() {
 						>
 							Turn Receipts into <br />
 							<span className='bg-gradient-to-r from-primary via-blue-600 to-violet-700 bg-clip-text text-transparent'>
-								Shared Shopping Lists
+								Smart Shopping Lists
 							</span>
 						</motion.h1>
 						<motion.p
 							className='mx-auto mt-8 max-w-2xl text-balance text-lg font-medium leading-relaxed text-slate-600 md:text-xl'
 							variants={FADE_UP}
 						>
-							Scan a receipt to get an organized shopping list you can share, check off live, and use to track spending.
+							Scan a receipt to get an organized shopping list you can share, check off live, and use to track spending
+							and habits over time.
 						</motion.p>
 
 						<motion.div
@@ -242,73 +267,109 @@ export function LandingPageContent() {
 										</div>
 									</div>
 
-									<div className='sticky top-0 z-20 flex items-center justify-between border-b border-slate-50 bg-white/80 px-6 py-4 backdrop-blur'>
-										<h4 className='text-2xl font-extrabold text-slate-900'>Groceries</h4>
-										<button
-											type='button'
-											className='flex h-8 w-8 items-center justify-center rounded-full bg-primary text-white shadow-lg shadow-blue-500/30 transition-transform hover:scale-105'
-										>
-											+
-										</button>
+									<div className='sticky top-0 z-20 border-b border-slate-100 bg-white/92 px-4 py-3 backdrop-blur'>
+										<div className='flex items-start justify-between gap-3'>
+											<div>
+												<h4 className='text-[13px] font-extrabold tracking-tight text-slate-900'>MARKET FRESH</h4>
+												<p className='mt-1 text-[10px] font-medium text-slate-500'>
+													Progress: {phonePreviewProgress.checked} of {phonePreviewProgress.total} items
+												</p>
+											</div>
+											<div className='flex items-center gap-2'>
+												<span className='text-lg font-extrabold leading-none text-primary'>
+													{phonePreviewProgress.percent}%
+												</span>
+												<span className='inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-1 text-[10px] font-bold text-emerald-700'>
+													<span className='h-2 w-2 rounded-full bg-emerald-500' />
+													Shopping
+												</span>
+											</div>
+										</div>
+										<div className='mt-2 h-1.5 rounded-full bg-slate-100'>
+											<div
+												className='h-full rounded-full bg-primary'
+												style={{ width: `${phonePreviewProgress.percent}%` }}
+											/>
+										</div>
 									</div>
 
-									<div className='flex-1 space-y-4 overflow-y-auto px-5 py-2 pb-20'>
-										{PHONE_PREVIEW_ITEMS.map(item => (
-											<div
-												key={item.name}
-												className='cursor-pointer rounded-xl border border-slate-100 bg-white p-3 shadow-sm transition hover:border-blue-100 hover:shadow-md'
-											>
-												<div className='flex items-center gap-4'>
-													<div
-														className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md ${
-															item.checked ? 'bg-primary text-white' : 'border-2 border-slate-200'
-														}`}
-													>
-														{item.checked && (
-															<HugeiconsIcon
-																icon={CheckmarkCircle02Icon}
-																className='h-4 w-4'
-															/>
-														)}
-													</div>
-													<div className='flex-1'>
-														<p className='text-sm font-bold text-slate-800'>{item.name}</p>
-														<p className='text-[11px] font-medium text-slate-500'>{item.detail}</p>
-													</div>
+									<div className='flex-1 space-y-3 overflow-y-auto px-4 py-3 pb-28'>
+										{phonePreviewSections.map(section => (
+											<div key={section.title}>
+												<div className='mb-2'>
+													<p className='flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-tight text-slate-800'>
+														<span aria-hidden='true'>{section.icon}</span>
+														<span>{section.title}</span>
+													</p>
+													<p className='mt-0.5 text-[9px] font-semibold uppercase tracking-tight text-slate-400 text-left'>
+														{section.meta}
+													</p>
+												</div>
+
+												<div className='space-y-2'>
+													{section.items.map(item => (
+														<div
+															key={`${section.title}-${item.name}`}
+															className={`rounded-xl border px-3 py-2 shadow-[0_10px_20px_-24px_rgba(15,23,42,0.25)]  ${item.checked ? 'border-primary bg-primary/5' : 'border-slate-100 bg-white'}`}
+														>
+															<div className='flex items-center gap-2.5'>
+																<div className='inline-flex h-7 min-w-[46px] items-center justify-center rounded-md bg-primary/10 px-2 text-[10px] font-bold text-primary'>
+																	{item.quantity}
+																	<span className='ml-1 text-[9px] font-semibold lowercase opacity-70'>
+																		{item.unit}
+																	</span>
+																</div>
+																<div className='min-w-0 flex-1 text-left'>
+																	<p className='truncate text-[11px] font-bold tracking-tight text-slate-800'>
+																		{item.name}
+																	</p>
+																	{item.notes ? (
+																		<p className='truncate text-[10px] text-slate-500'>{item.notes}</p>
+																	) : null}
+																</div>
+																<div
+																	className={`flex h-5 w-5 items-center justify-center rounded-md border ${
+																		item.checked
+																			? 'border-primary bg-primary text-white'
+																			: 'border-primary/70 bg-white text-transparent'
+																	}`}
+																>
+																	<HugeiconsIcon
+																		icon={Checkmark}
+																		className='h-3 w-3'
+																		strokeWidth={3}
+																	/>
+																</div>
+															</div>
+														</div>
+													))}
 												</div>
 											</div>
 										))}
 									</div>
 
-									<div className='absolute bottom-0 z-20 flex h-20 w-full items-center justify-around border-t border-slate-100 bg-white px-6 pb-4 shadow-[0_-10px_40px_rgba(0,0,0,0.03)]'>
-										<div className='flex flex-col items-center gap-1 text-primary'>
-											<HugeiconsIcon
-												icon={ShoppingCart02Icon}
-												className='h-5 w-5'
-											/>
-											<span className='text-[10px] font-bold'>Lists</span>
+									<div className='absolute bottom-0 z-20 w-full border-t border-slate-100 bg-white/96 px-3 pb-2 pt-2 shadow-[0_-10px_30px_rgba(0,0,0,0.04)]'>
+										<div className='mb-2 grid grid-cols-2 gap-2'>
+											<button
+												type='button'
+												className='h-8 rounded-md border border-slate-200 bg-white text-[10px] font-semibold text-slate-700'
+											>
+												Cancel Shopping
+											</button>
+											<button
+												type='button'
+												className='h-8 rounded-md bg-primary text-[10px] font-bold text-white shadow-sm'
+											>
+												Complete Shopping
+											</button>
 										</div>
-										<div className='flex cursor-pointer flex-col items-center gap-1 text-slate-400 transition-colors hover:text-slate-600'>
-											<HugeiconsIcon
-												icon={Camera01Icon}
-												className='h-5 w-5'
-											/>
-											<span className='text-[10px] font-medium'>Scan</span>
-										</div>
-										<div className='flex cursor-pointer flex-col items-center gap-1 text-slate-400 transition-colors hover:text-slate-600'>
-											<HugeiconsIcon
-												icon={AnalyticsUpIcon}
-												className='h-5 w-5'
-											/>
-											<span className='text-[10px] font-medium'>Stats</span>
-										</div>
-										<div className='flex cursor-pointer flex-col items-center gap-1 text-slate-400 transition-colors hover:text-slate-600'>
-											<HugeiconsIcon
-												icon={Share02Icon}
-												className='h-5 w-5'
-											/>
-											<span className='text-[10px] font-medium'>Settings</span>
-										</div>
+										<button
+											type='button'
+											className='flex h-8 w-full items-center justify-center gap-1 rounded-md border border-slate-200 bg-white text-[10px] font-semibold text-slate-700'
+										>
+											<span className='text-sm leading-none'>+</span>
+											Add Item
+										</button>
 									</div>
 								</div>
 							</div>
@@ -334,6 +395,91 @@ export function LandingPageContent() {
 				</motion.div>
 			</section>
 
+			{/* =============================================
+			    HOW IT WORKS SECTION
+			    ============================================= */}
+			<motion.section
+				id='how-it-works'
+				className='section-neutral-surface relative overflow-hidden py-20 sm:py-24'
+				initial='hidden'
+				whileInView='show'
+				viewport={REVEAL_VIEWPORT}
+				variants={STAGGER_REVEAL}
+			>
+				<div className='pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border/85 to-transparent' />
+				<div className='pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-border/85 to-transparent' />
+
+				<div className='mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8'>
+					<motion.div
+						variants={FADE_UP}
+						className='mx-auto max-w-3xl text-center'
+					>
+						<p className='mb-3 text-xs font-bold uppercase tracking-[0.2em] text-primary/80'>How it works</p>
+						<h2 className='font-serif text-3xl font-extrabold leading-[1.15] tracking-[-0.015em] text-slate-900 sm:text-4xl'>
+							Your smart shopping assistant
+						</h2>
+						<p className='mx-auto mt-5 max-w-2xl text-base leading-relaxed text-slate-600'>
+							Listys learns from your receipts to build smarter, reusable lists that make your next grocery run a
+							breeze.
+						</p>
+					</motion.div>
+
+					<motion.div
+						className='relative mx-auto mt-12 max-w-6xl'
+						variants={FADE_UP}
+					>
+						<div className='pointer-events-none absolute left-7 top-0 bottom-0 w-px bg-gradient-to-b from-primary/30 via-primary/20 to-transparent lg:hidden' />
+						<div className='pointer-events-none absolute left-0 right-0 top-14 hidden h-px bg-gradient-to-r from-transparent via-primary/25 to-transparent lg:block' />
+
+						<div className='grid gap-4 lg:grid-cols-3 lg:gap-5'>
+							{PROCESS_STEPS.map((step, index) => (
+								<motion.div
+									key={step.title}
+									variants={FADE_UP}
+									className='relative'
+								>
+									<div className='absolute left-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full border border-primary/20 bg-white text-xs font-extrabold text-primary shadow-[0_10px_25px_-18px_rgba(37,99,235,0.55)] lg:left-1/2 lg:top-0 lg:-translate-x-1/2 lg:-translate-y-1/2'>
+										{index + 1}
+									</div>
+
+									<Card className='premium-card relative h-full rounded-2xl border-slate-200/80 bg-white/95 p-5 pt-12 shadow-[0_20px_45px_-30px_rgba(15,23,42,0.22)]'>
+										<div className='flex items-start gap-3'>
+											<div className='flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-primary/15 bg-primary/8 text-primary'>
+												<HugeiconsIcon
+													icon={step.icon}
+													className='h-4.5 w-4.5'
+													strokeWidth={2}
+												/>
+											</div>
+											<div className='min-w-0'>
+												<p className='text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500'>{step.badge}</p>
+												<h3 className='mt-1 text-lg font-bold leading-tight text-slate-900'>{step.title}</h3>
+											</div>
+										</div>
+
+										<p className='mt-4 text-sm leading-[1.65] text-slate-600'>{step.desc}</p>
+
+										<div className='mt-5 flex items-center gap-2'>
+											<span className='h-1.5 w-1.5 rounded-full bg-primary/70' />
+											<p className='text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500'>
+												{index === 0
+													? 'Up to 5 photos per scan'
+													: index === 1
+														? 'Your lists get smarter over time'
+														: 'Items sorted by your habits'}
+											</p>
+										</div>
+									</Card>
+								</motion.div>
+							))}
+						</div>
+					</motion.div>
+				</div>
+			</motion.section>
+
+			{/* =============================================
+			    SHARED LISTS SHOWCASE SECTION
+			    ============================================= */}
 			<SharedListsShowcase />
 
 			{/* =============================================
@@ -373,120 +519,6 @@ export function LandingPageContent() {
 			</motion.section>
 
 			*/}
-
-			{/* =============================================
-			    HOW IT WORKS SECTION
-			    ============================================= */}
-			<motion.section
-				id='how-it-works'
-				className='section-neutral-surface relative overflow-hidden py-20 sm:py-24'
-				initial='hidden'
-				whileInView='show'
-				viewport={REVEAL_VIEWPORT}
-				variants={STAGGER_REVEAL}
-			>
-				<div className='pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border/85 to-transparent' />
-				<div className='pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-border/85 to-transparent' />
-
-				<div className='mx-auto grid w-full max-w-7xl gap-12 px-4 sm:px-6 md:grid-cols-2 md:items-start lg:items-center lg:px-8'>
-					<motion.div
-						variants={FADE_UP}
-						className='min-w-0'
-					>
-						<p className='mb-3 text-xs font-bold uppercase tracking-[0.2em] text-primary/80'>How it works</p>
-						<h2 className='font-serif text-3xl font-extrabold leading-[1.15] tracking-[-0.015em] text-slate-900 sm:text-4xl'>
-							One clear process from scan to checkout
-						</h2>
-						<p className='mt-5 max-w-xl text-base leading-relaxed text-slate-600'>
-							Go from receipt photo to ready-to-shop list in three fast steps.
-						</p>
-
-						<div className='mt-10 space-y-5'>
-							{PROCESS_STEPS.map((step, index) => {
-								const isActive = activeStep === index
-								return (
-									<button
-										key={step.title}
-										onClick={() => setActiveStep(index)}
-										className={`group grid w-full grid-cols-[auto_1fr] items-start gap-3.5 rounded-2xl border p-4 text-left transition ${
-											isActive
-												? 'border-primary/30 bg-gradient-to-br from-primary/8 to-accent/30 shadow-[0_14px_40px_-24px_rgba(37,99,235,0.55)]'
-												: 'border-slate-200/80 bg-white hover:border-accent/45 hover:bg-gradient-to-br hover:from-white hover:to-accent/20'
-										}`}
-									>
-										<div
-											className={`mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition-colors ${
-												isActive
-													? 'border-primary bg-primary text-white'
-													: 'border-slate-200 bg-slate-50 text-slate-600 group-hover:border-primary/20 group-hover:bg-accent group-hover:text-primary'
-											}`}
-										>
-											<HugeiconsIcon
-												icon={step.icon}
-												className='h-4.5 w-4.5'
-												strokeWidth={2}
-											/>
-										</div>
-										<div>
-											<p className='text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500'>{step.badge}</p>
-											<h3 className='mt-1 text-lg font-bold text-slate-900'>{step.title}</h3>
-											<p className='mt-1.5 text-sm leading-[1.65] text-slate-600'>{step.desc}</p>
-										</div>
-									</button>
-								)
-							})}
-						</div>
-					</motion.div>
-
-					<motion.div
-						className='relative min-w-0 w-full'
-						variants={FADE_UP}
-					>
-						<div className='absolute -inset-6 rounded-[2rem] bg-gradient-to-br from-primary/10 via-accent/30 to-chart-2/20 blur-2xl' />
-						<Card className='premium-card relative rounded-3xl border-slate-200/70 bg-white/95 p-7'>
-							<div className='mb-5 flex items-center justify-between'>
-								<div>
-									<p className='text-[11px] font-bold uppercase tracking-[0.15em] text-slate-500'>
-										Current shopping run
-									</p>
-									<p className='text-2xl font-extrabold text-slate-900'>Groceries</p>
-								</div>
-								<span className='rounded-full border border-chart-2/25 bg-chart-2/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.14em] text-chart-2'>
-									Step {activeStep + 1}
-								</span>
-							</div>
-							<div className='space-y-3.5'>
-								{PREVIEW_BY_STEP[activeStep].map(item => (
-									<div
-										key={item.name}
-										className='flex items-center justify-between rounded-xl border border-slate-200/80 bg-slate-50/75 px-4 py-3'
-									>
-										<div>
-											<p className='text-sm font-bold text-slate-900'>{item.name}</p>
-											<p className='text-xs text-slate-500'>{item.detail}</p>
-										</div>
-										<div
-											className={`h-7 w-7 rounded-full border-2 ${item.checked ? 'border-emerald-500 bg-emerald-500 text-white' : 'border-slate-300 bg-white'}`}
-										>
-											{item.checked && (
-												<div className='flex h-full items-center justify-center'>
-													<HugeiconsIcon
-														icon={CheckmarkCircle02Icon}
-														className='h-4 w-4'
-													/>
-												</div>
-											)}
-										</div>
-									</div>
-								))}
-							</div>
-							<div className='mt-7 rounded-xl border border-chart-5/20 bg-chart-5/10 px-4 py-3'>
-								<p className='text-sm font-semibold text-emerald-900'>Estimated savings this month: $184.70</p>
-							</div>
-						</Card>
-					</motion.div>
-				</div>
-			</motion.section>
 
 			{/* =============================================
 			    FEATURES SECTION
@@ -600,7 +632,7 @@ export function LandingPageContent() {
 							<div className='mt-4 space-y-4'>
 								<div className='border-border/70 flex items-center justify-between border-b pb-4'>
 									<div>
-										<p className='text-5xl font-extrabold leading-none'>50k+</p>
+										<p className='text-5xl font-extrabold leading-none'>1k+</p>
 										<p className='mt-1 text-xs font-bold uppercase tracking-wide '>Users</p>
 									</div>
 									<div className='flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600'>
@@ -612,7 +644,7 @@ export function LandingPageContent() {
 								</div>
 								<div className='flex items-center justify-between'>
 									<div>
-										<p className='text-5xl font-extrabold leading-none'>1M+</p>
+										<p className='text-5xl font-extrabold leading-none'>5k+</p>
 										<p className='mt-1 text-xs font-bold uppercase tracking-wide '>Receipts processed</p>
 									</div>
 									<div className='flex h-9 w-9 items-center justify-center rounded-lg bg-blue-100 text-primary'>

@@ -1,6 +1,6 @@
 'use client'
 
-import { CheckmarkCircle02Icon } from '@hugeicons/core-free-icons'
+import { Checkmark } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { motion, useReducedMotion } from 'framer-motion'
 
@@ -25,7 +25,80 @@ type SharedListCardProps = {
 	trailingAvatars?: boolean
 }
 
+type SharedListCategory = {
+	icon: string
+	title: string
+	meta: string
+	items: SharedListPreviewItem[]
+}
+
+function parseDetail(detail: string) {
+	const parts = detail.trim().split(/\s+/)
+	const first = parts[0]
+
+	if (first && /^[0-9]+$/.test(first)) {
+		return {
+			quantity: first,
+			unit: parts.slice(1).join(' ') || 'unit',
+			notes: '',
+		}
+	}
+
+	return {
+		quantity: '1',
+		unit: 'unit',
+		notes: detail,
+	}
+}
+
+const SHARED_LIST_CATEGORY_META: Record<string, { icon: string; title: string }> = {
+	bakery: { icon: '🥖', title: 'BAKERY' },
+	dairy: { icon: '🥛', title: 'DAIRY' },
+	produce: { icon: '🍎', title: 'PRODUCE' },
+}
+
+function getItemCategory(itemName: string) {
+	const name = itemName.toLowerCase()
+
+	if (name.includes('bread')) return 'bakery'
+	if (name.includes('milk') || name.includes('yogurt')) return 'dairy'
+	return 'produce'
+}
+
+function buildCategoryMeta(items: SharedListPreviewItem[]) {
+	const checked = items.filter(item => item.checked).length
+	return `${items.length} Item${items.length === 1 ? '' : 's'}   ${checked}/${items.length} Checked`
+}
+
+function groupSharedListItems(items: SharedListPreviewItem[]): SharedListCategory[] {
+	const order = ['bakery', 'dairy', 'produce'] as const
+	const buckets = new Map<string, SharedListPreviewItem[]>()
+
+	for (const item of items) {
+		const category = getItemCategory(item.name)
+		const current = buckets.get(category) ?? []
+		current.push(item)
+		buckets.set(category, current)
+	}
+
+	return order
+		.filter(category => buckets.has(category))
+		.map(category => {
+			const categoryItems = buckets.get(category) ?? []
+			const meta = SHARED_LIST_CATEGORY_META[category]
+
+			return {
+				icon: meta.icon,
+				title: meta.title,
+				meta: buildCategoryMeta(categoryItems),
+				items: categoryItems,
+			}
+		})
+}
+
 function SharedListCard({ title, subtitle, items, testId, trailingAvatars = false }: SharedListCardProps) {
+	const groupedItems = groupSharedListItems(items)
+
 	return (
 		<Card
 			data-testid={testId}
@@ -35,12 +108,12 @@ function SharedListCard({ title, subtitle, items, testId, trailingAvatars = fals
 				<div className='flex items-center gap-3'>
 					<div
 						aria-hidden='true'
-						className='flex h-8 w-8 items-center justify-center rounded-full bg-slate-100'
+						className='flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100'
 					>
 						<div className='space-y-0.5'>
-							<span className='block h-0.5 w-3 rounded-full bg-slate-500' />
-							<span className='block h-0.5 w-3 rounded-full bg-slate-500' />
-							<span className='block h-0.5 w-3 rounded-full bg-slate-500' />
+							<span className='block h-0.5 w-3 rounded-full bg-primary' />
+							<span className='block h-0.5 w-3 rounded-full bg-primary' />
+							<span className='block h-0.5 w-3 rounded-full bg-primary' />
 						</div>
 					</div>
 					<div>
@@ -72,34 +145,61 @@ function SharedListCard({ title, subtitle, items, testId, trailingAvatars = fals
 			</div>
 
 			<div className='rounded-[1.4rem] border border-slate-100 bg-slate-50/90 px-3 py-2'>
-				<ul className='space-y-0.5'>
-					{items.map(item => (
-						<li
-							key={`${title}-${item.name}-${item.detail}`}
-							className='flex items-center gap-3 border-b border-slate-200/70 py-2.5 last:border-b-0'
-						>
-							<span
-								aria-hidden='true'
-								className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${
-									item.checked
-										? 'border-emerald-500 bg-emerald-500 text-white'
-										: 'border-slate-300 bg-white text-transparent'
-								}`}
-							>
-								<HugeiconsIcon
-									icon={CheckmarkCircle02Icon}
-									className='h-3.5 w-3.5'
-								/>
-							</span>
-							<span className='min-w-0 flex-1 text-sm font-medium capitalize tracking-tight text-slate-900'>
-								{item.name}
-							</span>
-							<span className='shrink-0 rounded-md bg-lime-100 px-1.5 py-0.5 text-[10px] font-semibold text-lime-700'>
-								{item.detail}
-							</span>
-						</li>
+				<div className='space-y-3'>
+					{groupedItems.map(category => (
+						<div key={`${title}-${category.title}`}>
+							<div className='mb-2 px-1'>
+								<p className='flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-tight text-slate-800'>
+									<span aria-hidden='true'>{category.icon}</span>
+									<span>{category.title}</span>
+								</p>
+								<p className='mt-0.5 text-left text-[9px] font-semibold uppercase tracking-tight text-slate-400'>
+									{category.meta}
+								</p>
+							</div>
+
+							<ul className='space-y-2'>
+								{category.items.map(item => {
+									const parsed = parseDetail(item.detail)
+
+									return (
+										<li
+											key={`${title}-${category.title}-${item.name}-${item.detail}`}
+											className={`rounded-xl border px-3 py-2 shadow-[0_10px_20px_-24px_rgba(15,23,42,0.25)] ${
+												item.checked ? 'border-primary bg-primary/5' : 'border-slate-100 bg-white'
+											}`}
+										>
+											<div className='flex items-center gap-2.5'>
+												<div className='inline-flex h-7 min-w-[46px] items-center justify-center rounded-md bg-primary/10 px-2 text-[10px] font-bold text-primary'>
+													{parsed.quantity}
+													<span className='ml-1 text-[9px] font-semibold lowercase opacity-70'>{parsed.unit}</span>
+												</div>
+												<div className='min-w-0 flex-1 text-left'>
+													<p className='truncate text-[11px] font-bold tracking-tight text-slate-800'>{item.name}</p>
+													{parsed.notes ? <p className='truncate text-[10px] text-slate-500'>{parsed.notes}</p> : null}
+												</div>
+												<div
+													aria-hidden='true'
+													className={`flex h-5 w-5 items-center justify-center rounded-md border ${
+														item.checked
+															? 'border-primary bg-primary text-white'
+															: 'border-primary/70 bg-white text-transparent'
+													}`}
+												>
+													<HugeiconsIcon
+														icon={Checkmark}
+														className='h-3 w-3'
+														strokeWidth={3}
+													/>
+												</div>
+											</div>
+										</li>
+									)
+								})}
+							</ul>
+						</div>
 					))}
-				</ul>
+				</div>
 			</div>
 		</Card>
 	)
@@ -129,10 +229,6 @@ export function SharedListsShowcase() {
 					className='relative z-10'
 					variants={FADE_UP}
 				>
-					<div className='inline-flex items-center gap-2 rounded-full border border-amber-200/80 bg-amber-50 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.15em] text-amber-800'>
-						<span className='h-1.5 w-1.5 rounded-full bg-amber-500' />
-						Primary feature
-					</div>
 					<p className='mt-5 text-xs font-bold uppercase tracking-[0.2em] text-primary/80'>
 						{SHARED_LISTS_SHOWCASE_COPY.eyebrow}
 					</p>
@@ -155,8 +251,9 @@ export function SharedListsShowcase() {
 							>
 								<span className='mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white'>
 									<HugeiconsIcon
-										icon={CheckmarkCircle02Icon}
+										icon={Checkmark}
 										className='h-3.5 w-3.5'
+										strokeWidth={3}
 									/>
 								</span>
 								<span className='text-sm font-medium leading-relaxed text-slate-700'>{point}</span>

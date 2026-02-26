@@ -17,22 +17,22 @@ export const TRUST_STATS = [
 
 export const PROCESS_STEPS = [
 	{
-		title: 'Scan receipt in seconds',
-		desc: 'Snap a receipt and extract items, quantities, and prices in seconds.',
+		title: 'Snap your receipts',
+		desc: 'Upload up to 5 photos per scan. We\'ll magically extract all your items, quantities, and prices in seconds—no typing required.',
 		icon: Camera01Icon,
 		badge: 'Capture',
 	},
 	{
-		title: 'Review and organize instantly',
-		desc: 'Review the result and start with a clean list ready for your next trip.',
+		title: 'Build your master lists',
+		desc: 'Save your scanned items into reusable base lists. Listys quietly learns your habits, remembering what you buy and how much it costs.',
 		icon: ArtificialIntelligence02Icon,
 		badge: 'Organize',
 	},
 	{
-		title: 'Shop with a focused list',
-		desc: 'Check off items as you shop and keep spending visible in real time.',
-		icon: AnalyticsUpIcon,
-		badge: 'Execute',
+		title: 'Shop smarter next time',
+		desc: 'Start a shopping trip from your list. Listys automatically sorts items based on what you buy most, making your grocery run faster than ever.',
+		icon: ShoppingCart02Icon,
+		badge: 'Shop',
 	},
 ]
 
@@ -96,19 +96,15 @@ export const SHARED_LISTS_SHOWCASE_COPY = {
 }
 
 export const SHARED_LISTS_TOP_ITEMS: SharedListPreviewItem[] = [
-	{ name: 'apples', detail: '1 kg', checked: false },
-	{ name: 'tuna', detail: '3 pieces', checked: false },
-	{ name: 'milk', detail: 'Lactose free', checked: false },
-	{ name: 'toothpaste', detail: '1 piece', checked: false },
-	{ name: 'shampoo', detail: 'Anti-dandruff', checked: false },
+	{ name: 'organic strawberries', detail: '1 box', checked: false },
+	{ name: 'avocados', detail: '3 units', checked: false },
+	{ name: 'apples', detail: '2 kg', checked: false },
 ]
 
 export const SHARED_LISTS_BOTTOM_ITEMS: SharedListPreviewItem[] = [
-	{ name: 'apples', detail: '2 kg', checked: true },
-	{ name: 'tuna', detail: '3 pieces', checked: true },
-	{ name: 'milk', detail: 'Lactose free', checked: false },
-	{ name: 'toothpaste', detail: '1 piece', checked: true },
-	{ name: 'shampoo', detail: 'Anti-dandruff', checked: false },
+	{ name: 'organic strawberries', detail: '1 box', checked: true },
+	{ name: 'avocados', detail: '3 units', checked: true },
+	{ name: 'apples', detail: '2 kg', checked: false },
 ]
 
 export const SHARED_LISTS_AVATARS: SharedAvatar[] = [
