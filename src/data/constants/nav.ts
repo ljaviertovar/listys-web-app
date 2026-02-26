@@ -18,6 +18,13 @@ export const NAV_ITEMS: any[] = [
 	},
 ]
 
+export const MARKETING_SECTION_LINKS = [
+	{ label: 'Shared Lists', href: '/#shared-lists' },
+	{ label: 'How It Works', href: '/#how-it-works' },
+	{ label: 'FAQ', href: '/#faq' },
+	{ label: 'Get Started', href: '/#get-started' },
+]
+
 export const SIDEBAR_DATA: SidebarData = {
 	navGroups: [
 		{

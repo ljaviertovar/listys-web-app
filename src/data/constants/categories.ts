@@ -31,7 +31,7 @@ export const CATEGORIES = [
 export type Category = typeof CATEGORIES[number]
 
 export const CATEGORY_EMOJIS: Record<Category, string> = {
-	Produce: '🥦',
+	Produce: '🍎',
 	'Salad Greens': '🥬',
 	'Salad Bar': '🥬',
 	Dairy: '🥛',

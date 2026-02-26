@@ -28,7 +28,7 @@ function Card({
 				layout === 'horizontal' && 'p-0 gap-0 md:flex-row',
 				'has-data-[slot=card-banner]:p-0',
 				variant === 'premium' &&
-					'premium-card border-none ring-1 ring-slate-200/60 dark:ring-slate-800/60 shadow-sm hover:shadow-md',
+					'premium-card border border-muted-foreground/10 ring-1 ring-slate-200/60 dark:ring-slate-800/60 shadow-sm hover:shadow-md',
 				variant === 'accent' && 'border-primary/30 bg-primary/5 rounded-xl',
 				variant === 'ghost' && 'bg-transparent border-dashed border-2',
 				className,
