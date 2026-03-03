@@ -5,24 +5,24 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 
 const faqs = [
 	{
-		question: 'Is Listys really free?',
+		question: 'Do I have to retype my shopping list every week?',
 		answer:
-			'Yes. You can start with a free plan that includes the core features, including receipt scanning and shared lists.',
+			"No — that's exactly what Listys eliminates. Scan any receipt once and Listys extracts every item automatically. Those items are saved to a reusable base list, so your next shopping trip starts fully pre-filled. The more you use it, the smarter your list gets.",
 	},
 	{
-		question: 'How accurate is the receipt scanning?',
+		question: 'What if the scan misses an item or gets a name wrong?',
 		answer:
-			'Listys is built for high accuracy across different receipt formats. You can quickly review and edit items before shopping.',
+			"You always review extracted items before they're saved. Every field is editable — you can correct names, adjust quantities, or remove anything that didn't scan correctly. Listys is designed to be fast to review, not a black box you have to trust blindly.",
 	},
 	{
-		question: 'Can I share lists with my family?',
+		question: 'How does a shopping session work?',
 		answer:
-			'Yes. Create a shared group and collaborate with family members or roommates in real time.',
+			"When you're ready to shop, you start a session from any base list. Listys clones it so your original stays intact. During the trip you check off items as you go. When you finish, you can optionally sync changes back — so new items or adjustments automatically improve your list for next time.",
 	},
 	{
-		question: 'Is my data secure?',
+		question: 'Can multiple people use the same list?',
 		answer:
-			'Yes. Your data is stored securely, and we do not sell your personal information.',
+			"Yes. You can create a shared group and invite family members or roommates. Everyone sees the same list in real time — if one person checks off milk, it's checked off for everyone. No more duplicated items or out-of-sync notes.",
 	},
 ]
 const REVEAL_VIEWPORT = { once: true, amount: 0.22 }
@@ -47,7 +47,10 @@ export function Faq() {
 			<div className='pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border/80 to-transparent' />
 			<div className='pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-border/80 to-transparent' />
 			<div className='max-w-3xl mx-auto px-4 sm:px-6 lg:px-8'>
-				<motion.div className='text-center mb-12 space-y-4' variants={FADE_UP}>
+				<motion.div
+					className='text-center mb-12 space-y-4'
+					variants={FADE_UP}
+				>
 					<h2 className='font-serif text-3xl font-extrabold tracking-[-0.015em] text-slate-900 md:text-4xl'>
 						Frequently Asked Questions
 					</h2>
@@ -60,17 +63,21 @@ export function Faq() {
 					className='w-full space-y-4 border-none shadow-none rounded-none bg-transparent'
 				>
 					{faqs.map((faq, index) => (
-						<motion.div key={faq.question} variants={FADE_UP} transition={{ delay: index * 0.05 }}>
+						<motion.div
+							key={faq.question}
+							variants={FADE_UP}
+							transition={{ delay: index * 0.05 }}
+						>
 							<AccordionItem
 								value={`item-${index}`}
 								className='bg-white backdrop-blur-md border border-slate-200/50 rounded-xl px-2 shadow-sm transition-all duration-300 hover:shadow-md hover:border-slate-300/50 data-[state=open]:shadow-md data-[state=open]:border-primary/20'
 							>
-									<AccordionTrigger className=' text-lg font-medium text-slate-900 hover:text-primary transition-colors duration-200 hover:no-underline py-5 px-4'>
-										{faq.question}
-									</AccordionTrigger>
-									<AccordionContent className=' text-slate-700 text-base leading-relaxed pb-5 px-4'>
-										{faq.answer}
-									</AccordionContent>
+								<AccordionTrigger className=' text-lg font-medium text-slate-900 hover:text-primary transition-colors duration-200 hover:no-underline py-5 px-4'>
+									{faq.question}
+								</AccordionTrigger>
+								<AccordionContent className=' text-slate-700 text-base leading-relaxed pb-5 px-4'>
+									{faq.answer}
+								</AccordionContent>
 							</AccordionItem>
 						</motion.div>
 					))}
