@@ -10,8 +10,6 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import AuthButtons from '../features/auth/auth-buttons'
 import Logo from '../commons/logo'
 
-import { useScrollPosition } from '@/hooks/use-scroll-position'
-
 import { NavItem } from '@/types'
 import { MARKETING_SECTION_LINKS, NAV_ITEMS } from '@/data/constants'
 
@@ -62,15 +60,25 @@ export default function HeaderMobile() {
 	const { height } = useDimensions(containerRef)
 	const [isOpen, toggleOpen] = useCycle(false, true)
 
-	const scrollPosition = useScrollPosition()
-
 	return (
-		<header>
+		<>
+			<header className='sticky top-0 z-50 flex h-14 w-full items-center justify-between border-b border-b bg-background/40 shadow bg-opacity-60 backdrop-blur-lg backdrop-filter px-3 transition-shadow sm:px-4 lg:hidden'>
+				<div className='z-30 flex h-10 w-10 items-center justify-start'>
+					<MenuToggle toggle={toggleOpen} />
+				</div>
+				<div className='flex items-center justify-center'>
+					<Logo />
+				</div>
+				<div className='pointer-events-auto z-30 flex min-w-[112px] items-center justify-end'>
+					<AuthButtons />
+				</div>
+			</header>
+
 			<motion.nav
 				initial={false}
 				animate={isOpen ? 'open' : 'closed'}
 				custom={height}
-				className={`fixed inset-0 z-50 w-full lg:hidden ${isOpen ? '' : 'pointer-events-none'}`}
+				className={`fixed inset-0 z-40 w-full lg:hidden ${isOpen ? '' : 'pointer-events-none'}`}
 				ref={containerRef}
 			>
 				<motion.div
@@ -146,28 +154,8 @@ export default function HeaderMobile() {
 						)
 					})}
 				</motion.ul>
-
-				<div
-					className={`sticky top-0 z-50 flex h-14 w-full items-center justify-between border-b px-3 transition-shadow sm:px-4
-${
-	scrollPosition > 56
-		? 'bg-background/40 shadow bg-opacity-60 backdrop-blur-lg backdrop-filter border-b'
-		: 'bg-transparent shadow-none'
-}
-`}
-				>
-					<div className='z-30 flex h-10 w-10 items-center justify-start'>
-						<MenuToggle toggle={toggleOpen} />
-					</div>
-					<div className='flex items-center justify-center'>
-						<Logo />
-					</div>
-					<div className='pointer-events-auto z-30 flex min-w-[112px] items-center justify-end'>
-						<AuthButtons />
-					</div>
-				</div>
 			</motion.nav>
-		</header>
+		</>
 	)
 }
 

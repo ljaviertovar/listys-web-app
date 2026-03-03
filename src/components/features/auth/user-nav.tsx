@@ -78,7 +78,6 @@ export function UserNav({ user }: Props) {
 						/>
 						<AvatarFallback>{displayName.substring(0, 2).toUpperCase()}</AvatarFallback>
 					</Avatar>
-					User
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent
