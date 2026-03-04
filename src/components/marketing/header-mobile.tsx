@@ -12,6 +12,8 @@ import Logo from '../commons/logo'
 
 import { NavItem } from '@/types'
 import { MARKETING_SECTION_LINKS, NAV_ITEMS } from '@/data/constants'
+import { useScrollPosition } from '@/hooks/use-scroll-position'
+import { Menu02Icon } from '@hugeicons/core-free-icons'
 
 type MenuItemWithSubMenuProps = {
 	item: NavItem
@@ -59,17 +61,27 @@ export default function HeaderMobile() {
 	const containerRef = useRef(null)
 	const { height } = useDimensions(containerRef)
 	const [isOpen, toggleOpen] = useCycle(false, true)
+	const scrollPosition = useScrollPosition()
 
 	return (
 		<>
-			<header className='sticky top-0 z-50 flex h-14 w-full items-center justify-between border-b border-b bg-background/40 shadow bg-opacity-60 backdrop-blur-lg backdrop-filter px-3 transition-shadow sm:px-4 lg:hidden'>
+			<header
+				className={`sticky top-0 z-50 flex h-14 w-full items-center justify-between px-3 transition-shadow sm:px-4 lg:hidden ${
+					scrollPosition > 56
+						? 'bg-background/40 shadow border-b backdrop-blur-lg backdrop-filter'
+						: 'bg-transparent shadow-none'
+				}`}
+			>
 				<div className='z-30 flex h-10 w-10 items-center justify-start'>
-					<MenuToggle toggle={toggleOpen} />
+					<MenuToggle
+						toggle={toggleOpen}
+						isOpen={isOpen}
+					/>
 				</div>
-				<div className='flex items-center justify-center'>
+				<div className='absolute left-1/2 z-20 -translate-x-1/2'>
 					<Logo />
 				</div>
-				<div className='pointer-events-auto z-30 flex min-w-[112px] items-center justify-end'>
+				<div className='pointer-events-auto z-30 flex min-w-[40px] items-center justify-end'>
 					<AuthButtons />
 				</div>
 			</header>
@@ -117,8 +129,6 @@ export default function HeaderMobile() {
 						</div>
 					</div>
 
-					<div className='my-2 h-px w-full bg-border/70' />
-
 					{NAV_ITEMS.map((item, idx) => {
 						return (
 							<div key={idx}>
@@ -159,38 +169,20 @@ export default function HeaderMobile() {
 	)
 }
 
-const MenuToggle = ({ toggle }: { toggle: any }) => (
+const MenuToggle = ({ toggle, isOpen }: { toggle: () => void; isOpen: boolean }) => (
 	<button
 		onClick={toggle}
 		className='pointer-events-auto z-30 flex h-10 w-10 items-center justify-center rounded-md text-foreground transition-colors hover:bg-accent/70'
 		aria-label='Toggle menu'
 	>
-		<svg
+		<motion.svg
+			animate={isOpen ? 'open' : 'closed'}
 			width='23'
 			height='23'
 			viewBox='0 0 23 23'
 		>
-			<Path
-				variants={{
-					closed: { d: 'M 2 2.5 L 20 2.5' },
-					open: { d: 'M 3 16.5 L 17 2.5' },
-				}}
-			/>
-			<Path
-				d='M 2 9.423 L 20 9.423'
-				variants={{
-					closed: { opacity: 1 },
-					open: { opacity: 0 },
-				}}
-				transition={{ duration: 0.1 }}
-			/>
-			<Path
-				variants={{
-					closed: { d: 'M 2 16.346 L 20 16.346' },
-					open: { d: 'M 3 2.5 L 17 16.346' },
-				}}
-			/>
-		</svg>
+			<HugeiconsIcon icon={Menu02Icon} />
+		</motion.svg>
 	</button>
 )
 
