@@ -11,11 +11,11 @@ export default function Header() {
 
 	return (
 		<header
-			className={`sticky top-0 z-50 transition-shadow w-full
+			className={`hidden lg:block sticky top-0 z-50 transition-shadow w-full
   ${
 		scrollPosition > 56
 			? 'bg-background/40 shadow bg-opacity-60 backdrop-blur-lg backdrop-filter border-b'
-			: 'bg-trasparent shadow-none'
+			: 'bg-transparent shadow-none'
 	}
   `}
 		>

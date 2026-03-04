@@ -92,14 +92,18 @@ export function Footer() {
 					<p>&copy; {new Date().getFullYear()} Listys</p>
 					<div className='flex gap-6'>
 						<Link
-							href='https://x.com'
+							href='https://x.com/ljaviertovar'
 							className='relative transition-colors hover:text-foreground after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 after:bg-foreground after:transition-all hover:after:w-full'
+							target='_blank'
+							rel='noopener noreferrer'
 						>
-							Twitter
+							X
 						</Link>
 						<Link
-							href='https://github.com'
+							href='https://github.com/ljaviertovar'
 							className='relative transition-colors hover:text-foreground after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 after:bg-foreground after:transition-all hover:after:w-full'
+							target='_blank'
+							rel='noopener noreferrer'
 						>
 							GitHub
 						</Link>

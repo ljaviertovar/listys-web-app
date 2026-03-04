@@ -7,7 +7,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
 			<Header />
 			<HeaderMobile />
 
-			<main className='flex-1 pt-14 md:pt-0'>{children}</main>
+			<main className='flex-1'>{children}</main>
 		</div>
 	)
 }

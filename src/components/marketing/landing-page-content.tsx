@@ -119,7 +119,7 @@ export function LandingPageContent() {
 						>
 							<Button
 								size='lg'
-								className='group h-14 w-full max-w-70 rounded-xl border border-white/10 px-10 text-lg font-bold shadow-xl shadow-indigo-600/30 ring-2 ring-indigo-500/20 transition-all hover:-translate-y-1 hover:opacity-95 sm:w-auto'
+								className='group h-14 w-full max-w-70 rounded-xl border border-white/10 px-10 text-lg font-bold shadow-xl shadow-indigo-600/30 ring-2 ring-indigo-500/20 transition-all hover:-translate-y-1 hover:opacity-95 before:hidden after:hidden sm:w-auto'
 								asChild
 							>
 								<Link
@@ -428,8 +428,8 @@ export function LandingPageContent() {
 						className='relative mx-auto mt-12 max-w-6xl'
 						variants={FADE_UP}
 					>
-						<div className='pointer-events-none absolute left-7 top-0 bottom-0 w-px bg-gradient-to-b from-primary/30 via-primary/20 to-transparent lg:hidden' />
-						<div className='pointer-events-none absolute left-0 right-0 top-14 hidden h-px bg-gradient-to-r from-transparent via-primary/25 to-transparent lg:block' />
+						<div className='pointer-events-none absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-primary/30 via-primary/20 to-transparent lg:hidden' />
+						<div className='pointer-events-none absolute left-0 right-0 top-1/2 hidden h-px bg-gradient-to-r from-transparent via-primary/25 to-transparent lg:block' />
 
 						<div className='grid gap-4 lg:grid-cols-3 lg:gap-5'>
 							{PROCESS_STEPS.map((step, index) => (
@@ -438,7 +438,7 @@ export function LandingPageContent() {
 									variants={FADE_UP}
 									className='relative'
 								>
-									<div className='absolute left-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full border border-primary/20 bg-white text-xs font-extrabold text-primary shadow-[0_10px_25px_-18px_rgba(37,99,235,0.55)] lg:left-1/2 lg:top-0 lg:-translate-x-1/2 lg:-translate-y-1/2'>
+									<div className='absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full border border-primary/20 bg-white text-xs font-extrabold text-primary shadow-[0_10px_25px_-18px_rgba(37,99,235,0.55)] lg:left-1/2 lg:top-0 lg:-translate-x-1/2 lg:-translate-y-1/2'>
 										{index + 1}
 									</div>
 
