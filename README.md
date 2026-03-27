@@ -63,6 +63,27 @@ npm run lint
 tsc --noEmit
 ```
 
+## Demo público
+
+Para habilitar un demo público compartido:
+
+```bash
+DEMO_MODE_ENABLED=true
+NEXT_PUBLIC_DEMO_MODE_ENABLED=true
+DEMO_USER_EMAIL=demo@example.com
+DEMO_USER_PASSWORD=...
+DEMO_RESET_SECRET=...
+```
+
+Luego siembra o resetea el dataset canónico:
+
+```bash
+npm run demo:seed
+npm run demo:reset
+```
+
+La UI expone un botón `Enter Demo` en `/auth/signin`, el backend bloquea OCR y mutaciones de alto riesgo para esa cuenta, y el reset remoto queda disponible en `POST /api/v1/demo/maintenance/reset` con `Authorization: Bearer <DEMO_RESET_SECRET>`.
+
 ## Documentation Map
 
 - Documentación principal: [`docs/README.md`](docs/README.md)

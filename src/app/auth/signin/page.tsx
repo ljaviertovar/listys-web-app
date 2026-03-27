@@ -12,9 +12,10 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
-import { GoogleButtonSignin } from '@/components/features/auth'
+import { DemoSigninButton, GoogleButtonSignin } from '@/components/features/auth'
 import { BackLink } from '@/components/app'
 import Logo from '@/components/commons/logo'
+import { isDemoModeVisible } from '@/lib/demo/config'
 
 export default function SignInPage() {
 	const [email, setEmail] = useState('')
@@ -22,6 +23,7 @@ export default function SignInPage() {
 	const [error, setError] = useState<string | null>(null)
 	const [loading, setLoading] = useState(false)
 	const router = useRouter()
+	const showDemoAccess = isDemoModeVisible()
 
 	const handleSignIn = async (e: React.FormEvent) => {
 		e.preventDefault()
@@ -151,6 +153,19 @@ export default function SignInPage() {
 								typeSubmit='signin'
 								callbackUrl='/dashboard'
 							/>
+
+							{showDemoAccess && (
+								<div className='grid gap-3 rounded-2xl border border-primary/20 bg-primary/5 p-4'>
+									<div>
+										<p className='text-sm font-semibold text-foreground'>Public demo</p>
+										<p className='text-sm text-muted-foreground'>
+											Use the shared demo account to explore the product with preloaded data. Some changes reset
+											automatically.
+										</p>
+									</div>
+									<DemoSigninButton onError={setError} />
+								</div>
+							)}
 
 							<div className='relative'>
 								<div className='absolute inset-0 flex items-center'>

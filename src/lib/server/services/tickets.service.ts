@@ -4,6 +4,7 @@ import { mergeTicketItemsSchema, createBaseListFromTicketSchema } from '@/lib/va
 import { MAX_IMAGES_PER_TICKET, MAX_ITEMS_PER_BASE_LIST } from '@/lib/config/limits'
 import { getOCRFunctionURL } from '@/lib/config/ocr'
 import { z } from 'zod'
+import { assertDemoActionAllowed } from '@/lib/demo/policy'
 
 export async function getTickets() {
   const { supabase, user } = await createAuthenticatedClient()
@@ -70,12 +71,14 @@ export async function getTicketStatus(id: string) {
 }
 
 export async function mergeTicketItemsToBaseList(data: unknown) {
-  const { supabase } = await createAuthenticatedClient()
+  const { supabase, user } = await createAuthenticatedClient()
 
   const validation = mergeTicketItemsSchema.safeParse(data)
   if (!validation.success) {
     throw new ApiServiceError(422, ErrorCode.VALIDATION_ERROR, validation.error.issues[0]?.message ?? 'Invalid payload')
   }
+
+  assertDemoActionAllowed(user, 'merge-ticket-items')
 
   const { ticket_id, base_list_id, items: itemsToMerge } = validation.data
   const selectedItemIds = itemsToMerge.filter(i => i.merge).map(i => i.id)
@@ -111,6 +114,8 @@ export async function createBaseListFromTicket(data: unknown) {
   if (!validation.success) {
     throw new ApiServiceError(422, ErrorCode.VALIDATION_ERROR, validation.error.issues[0]?.message ?? 'Invalid payload')
   }
+
+  assertDemoActionAllowed(user, 'create-base-list-from-ticket')
 
   const { ticket_id, group_id, name, item_ids } = validation.data
 
@@ -169,6 +174,8 @@ export async function createBaseListFromTicket(data: unknown) {
 export async function deleteTicket(id: string) {
   const { supabase, user } = await createAuthenticatedClient()
 
+  assertDemoActionAllowed(user, 'delete-ticket')
+
   const { data: ticket } = await supabase
     .from('tickets')
     .select('image_path, image_paths')
@@ -218,6 +225,8 @@ export async function updateTicket(id: string, data: unknown) {
     throw new ApiServiceError(422, ErrorCode.VALIDATION_ERROR, validation.error.issues[0]?.message ?? 'Invalid payload')
   }
 
+  assertDemoActionAllowed(user, 'update-ticket')
+
   if (validation.data.group_id !== undefined && validation.data.group_id !== null) {
     const { data: group, error: groupError } = await supabase
       .from('groups')
@@ -249,6 +258,8 @@ export async function updateTicket(id: string, data: unknown) {
 
 export async function retryTicketOCR(id: string) {
   const { supabase, user } = await createAuthenticatedClient()
+
+  assertDemoActionAllowed(user, 'retry-ticket-ocr')
 
   const { data: ticket, error: ticketError } = await supabase
     .from('tickets')
@@ -363,6 +374,8 @@ export async function cleanupOrphanedStorageImages() {
 
 export async function uploadTicket(formData: FormData) {
   const { supabase, user } = await createAuthenticatedClient()
+
+  assertDemoActionAllowed(user, 'upload-ticket')
 
   const files = formData.getAll('files') as File[]
   const groupId = formData.get('group_id') as string | null

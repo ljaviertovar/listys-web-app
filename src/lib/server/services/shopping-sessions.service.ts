@@ -8,6 +8,7 @@ import {
   createShoppingSessionItemSchema,
 } from '@/lib/validations/shopping-session'
 import { MAX_ITEMS_PER_BASE_LIST } from '@/lib/config/limits'
+import { assertDemoActionAllowed } from '@/lib/demo/policy'
 
 export async function createShoppingSession(data: unknown) {
   const { supabase, user } = await createAuthenticatedClient()
@@ -16,6 +17,8 @@ export async function createShoppingSession(data: unknown) {
   if (!validation.success) {
     throw new ApiServiceError(422, ErrorCode.VALIDATION_ERROR, validation.error.issues[0]?.message ?? 'Invalid payload')
   }
+
+  assertDemoActionAllowed(user, 'create-shopping-session')
 
   const { data: existingSession } = await supabase
     .from('shopping_sessions')
@@ -107,6 +110,8 @@ export async function updateShoppingSession(id: string, data: unknown) {
     throw new ApiServiceError(422, ErrorCode.VALIDATION_ERROR, validation.error.issues[0]?.message ?? 'Invalid payload')
   }
 
+  assertDemoActionAllowed(user, 'update-shopping-session')
+
   const { data: shoppingSession, error } = await supabase
     .from('shopping_sessions')
     .update(validation.data)
@@ -130,6 +135,8 @@ export async function completeShoppingSession(id: string, data: unknown) {
   if (!validation.success) {
     throw new ApiServiceError(422, ErrorCode.VALIDATION_ERROR, validation.error.issues[0]?.message ?? 'Invalid payload')
   }
+
+  assertDemoActionAllowed(user, 'complete-shopping-session')
 
   const { data: shoppingSession, error: sessionError } = await supabase
     .from('shopping_sessions')
@@ -267,12 +274,14 @@ export async function getShoppingHistory() {
 }
 
 export async function updateShoppingSessionItem(id: string, data: unknown) {
-  const { supabase } = await createAuthenticatedClient()
+  const { supabase, user } = await createAuthenticatedClient()
 
   const validation = updateShoppingSessionItemSchema.safeParse(data)
   if (!validation.success) {
     throw new ApiServiceError(422, ErrorCode.VALIDATION_ERROR, validation.error.issues[0]?.message ?? 'Invalid payload')
   }
+
+  assertDemoActionAllowed(user, 'update-shopping-session-item')
 
   const { data: item, error } = await supabase
     .from('shopping_session_items')
@@ -290,12 +299,14 @@ export async function updateShoppingSessionItem(id: string, data: unknown) {
 }
 
 export async function createShoppingSessionItem(data: unknown) {
-  const { supabase } = await createAuthenticatedClient()
+  const { supabase, user } = await createAuthenticatedClient()
 
   const validation = createShoppingSessionItemSchema.safeParse(data)
   if (!validation.success) {
     throw new ApiServiceError(422, ErrorCode.VALIDATION_ERROR, validation.error.issues[0]?.message ?? 'Invalid payload')
   }
+
+  assertDemoActionAllowed(user, 'create-shopping-session-item')
 
   const { data: existingItems } = await supabase
     .from('shopping_session_items')
@@ -320,7 +331,9 @@ export async function createShoppingSessionItem(data: unknown) {
 }
 
 export async function deleteShoppingSessionItem(id: string) {
-  const { supabase } = await createAuthenticatedClient()
+  const { supabase, user } = await createAuthenticatedClient()
+
+  assertDemoActionAllowed(user, 'delete-shopping-session-item')
 
   const { error } = await supabase.from('shopping_session_items').delete().eq('id', id)
 
@@ -333,6 +346,8 @@ export async function deleteShoppingSessionItem(id: string) {
 
 export async function cancelShoppingSession(id: string) {
   const { supabase, user } = await createAuthenticatedClient()
+
+  assertDemoActionAllowed(user, 'cancel-shopping-session')
 
   const { error } = await supabase
     .from('shopping_sessions')

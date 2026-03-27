@@ -2,6 +2,7 @@ import { createAuthenticatedClient } from '@/lib/api/auth'
 import { ApiServiceError, ErrorCode } from '@/lib/api/http'
 import { createGroupSchema, updateGroupSchema } from '@/lib/validations/group'
 import { MAX_GROUPS_PER_USER } from '@/lib/config/limits'
+import { assertDemoActionAllowed } from '@/lib/demo/policy'
 
 export async function createGroup(data: unknown) {
   const { supabase, user } = await createAuthenticatedClient()
@@ -10,6 +11,8 @@ export async function createGroup(data: unknown) {
   if (!validation.success) {
     throw new ApiServiceError(422, ErrorCode.VALIDATION_ERROR, validation.error.issues[0]?.message ?? 'Invalid payload')
   }
+
+  assertDemoActionAllowed(user, 'create-group')
 
   const { count, error: countError } = await supabase
     .from('groups')
@@ -63,6 +66,8 @@ export async function updateGroup(id: string, data: unknown) {
     throw new ApiServiceError(422, ErrorCode.VALIDATION_ERROR, validation.error.issues[0]?.message ?? 'Invalid payload')
   }
 
+  assertDemoActionAllowed(user, 'update-group')
+
   if (validation.data.name) {
     const { data: existingGroup } = await supabase
       .from('groups')
@@ -95,6 +100,8 @@ export async function updateGroup(id: string, data: unknown) {
 
 export async function deleteGroup(id: string) {
   const { supabase, user } = await createAuthenticatedClient()
+
+  assertDemoActionAllowed(user, 'delete-group')
 
   const { error } = await supabase.from('groups').delete().eq('id', id).eq('user_id', user.id)
 

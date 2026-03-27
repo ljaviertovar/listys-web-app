@@ -7,6 +7,7 @@ import {
   updateBaseListItemSchema,
 } from '@/lib/validations/base-list'
 import { MAX_ITEMS_PER_BASE_LIST } from '@/lib/config/limits'
+import { assertDemoActionAllowed } from '@/lib/demo/policy'
 
 export async function createBaseList(data: unknown) {
   const { supabase, user } = await createAuthenticatedClient()
@@ -15,6 +16,8 @@ export async function createBaseList(data: unknown) {
   if (!validation.success) {
     throw new ApiServiceError(422, ErrorCode.VALIDATION_ERROR, validation.error.issues[0]?.message ?? 'Invalid payload')
   }
+
+  assertDemoActionAllowed(user, 'create-base-list')
 
   const { data: existingList } = await supabase
     .from('base_lists')
@@ -48,6 +51,8 @@ export async function updateBaseList(id: string, data: unknown) {
   if (!validation.success) {
     throw new ApiServiceError(422, ErrorCode.VALIDATION_ERROR, validation.error.issues[0]?.message ?? 'Invalid payload')
   }
+
+  assertDemoActionAllowed(user, 'update-base-list')
 
   if (validation.data.name) {
     const { data: currentList } = await supabase
@@ -91,6 +96,8 @@ export async function updateBaseList(id: string, data: unknown) {
 
 export async function deleteBaseList(id: string) {
   const { supabase, user } = await createAuthenticatedClient()
+
+  assertDemoActionAllowed(user, 'delete-base-list')
 
   const { error } = await supabase.from('base_lists').delete().eq('id', id).eq('user_id', user.id)
 
@@ -156,12 +163,14 @@ export async function getBaseListsByGroup(groupId: string) {
 }
 
 export async function createBaseListItem(data: unknown) {
-  const { supabase } = await createAuthenticatedClient()
+  const { supabase, user } = await createAuthenticatedClient()
 
   const validation = createBaseListItemSchema.safeParse(data)
   if (!validation.success) {
     throw new ApiServiceError(422, ErrorCode.VALIDATION_ERROR, validation.error.issues[0]?.message ?? 'Invalid payload')
   }
+
+  assertDemoActionAllowed(user, 'create-base-list-item')
 
   const { count, error: countError } = await supabase
     .from('base_list_items')
@@ -194,12 +203,14 @@ export async function createBaseListItem(data: unknown) {
 }
 
 export async function updateBaseListItem(id: string, data: unknown) {
-  const { supabase } = await createAuthenticatedClient()
+  const { supabase, user } = await createAuthenticatedClient()
 
   const validation = updateBaseListItemSchema.safeParse(data)
   if (!validation.success) {
     throw new ApiServiceError(422, ErrorCode.VALIDATION_ERROR, validation.error.issues[0]?.message ?? 'Invalid payload')
   }
+
+  assertDemoActionAllowed(user, 'update-base-list-item')
 
   const { data: item, error } = await supabase
     .from('base_list_items')
@@ -217,7 +228,9 @@ export async function updateBaseListItem(id: string, data: unknown) {
 }
 
 export async function deleteBaseListItem(id: string) {
-  const { supabase } = await createAuthenticatedClient()
+  const { supabase, user } = await createAuthenticatedClient()
+
+  assertDemoActionAllowed(user, 'delete-base-list-item')
 
   const { error } = await supabase.from('base_list_items').delete().eq('id', id)
 
