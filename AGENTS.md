@@ -9,6 +9,18 @@ Prefer clarity over cleverness. Prefer proven solutions.
 
 ---
 
+## Setup
+
+Before running AI agents for the first time, install the required skills:
+
+```bash
+npx skills install
+```
+
+Re-run this command whenever new skills are added to the project.
+
+---
+
 ## Default Stack
 
 ### Core Platform
@@ -276,11 +288,3 @@ The full tooling and delegation policy is defined in [docs/tooling-delegation.md
 3. Implement end-to-end.
 4. Run lint, typecheck, tests.
 5. Update docs if behavior changes.
-
----
-
-## Git & Commits
-
-> Read this section only when creating commits.
-
-The full commit message guidelines are defined in [docs/git-commits.md](docs/git-commits.md).
