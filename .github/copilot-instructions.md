@@ -1,10 +1,8 @@
 # Copilot Instructions
 
-Mandatory:
-
-- Always read AGENTS.md before producing output.
-- If AGENTS.md and this file conflict, AGENTS.md wins.
-- Do not invent architecture outside the patterns defined in AGENTS.md.
-- Use Skills and MCP when available before generating custom logic.
-
-AGENTS.md is the authoritative rule set.
+- Read AGENTS.md first. AGENTS.md is the source of truth.
+- If anything conflicts, AGENTS.md wins.
+- Do not invent architecture, folders, APIs, or conventions not present in AGENTS.md.
+- If skills folders are missing, run: `npx skills install`.
+- Prefer using installed Skills/MCP over custom implementations when applicable.
+- When uncertain, ask for the relevant file/section instead of guessing.

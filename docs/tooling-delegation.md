@@ -20,6 +20,7 @@
 | `frontend-design`              | `.agents/skills/frontend-design/SKILL.md`              | Asked to build or redesign a UI component, page, landing section, dashboard, or any visual artifact where aesthetic quality and distinctive design are required.                                             |
 | `web-design-guidelines`        | `.agents/skills/web-design-guidelines/SKILL.md`        | Reviewing existing UI code for accessibility, UX compliance, or design best-practice audits ("review my UI", "check accessibility", "audit this page").                                                      |
 | `documentation-system-builder` | `.agents/skills/documentation-system-builder/SKILL.md` | Creating, updating, or auditing project documentation: PRDs, ADRs, architecture docs, runbooks, CHANGELOG, or any `docs/` content.                                                                           |
+| `git-commit`                   | `.agents/skills/git-commit/SKILL.md`                   | When the user asks to commit changes, create a git commit, generate a Conventional Commit message, stage files intelligently, or mentions "/commit" or similar commit-related actions.                       |
 
 ### Skill Combination Examples
 
@@ -31,3 +32,5 @@
 | Audit and improve an existing component            | `web-design-guidelines` + `vercel-react-best-practices`             |
 | Write a new ADR or update docs/                    | `documentation-system-builder`                                      |
 | Optimize a slow data-fetching component            | `vercel-react-best-practices` + `next-best-practices`               |
+| Prepare a conventional commit for staged changes   | `git-commit`                                                        |
+| Finalize a feature and commit with proper scope    | `next-best-practices` + `git-commit`                                |
