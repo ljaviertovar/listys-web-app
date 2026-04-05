@@ -54,7 +54,7 @@ export function CancelSessionButton({ sessionId }: Props) {
 				<Button
 					variant='ghost'
 					size='sm'
-					className='flex-1'
+					className='flex-1 text-destructive hover:text-destructive'
 				>
 					<HugeiconsIcon
 						icon={Cancel01Icon}

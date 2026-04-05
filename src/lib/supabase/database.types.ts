@@ -14,6 +14,123 @@ export type Database = {
   }
   public: {
     Tables: {
+      list_collaborators: {
+        Row: {
+          base_list_id: string
+          created_at: string
+          id: string
+          invited_by: string
+          joined_at: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          base_list_id: string
+          created_at?: string
+          id?: string
+          invited_by: string
+          joined_at?: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          base_list_id?: string
+          created_at?: string
+          id?: string
+          invited_by?: string
+          joined_at?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "list_collaborators_base_list_id_fkey"
+            columns: ["base_list_id"]
+            isOneToOne: false
+            referencedRelation: "base_lists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      list_invite_links: {
+        Row: {
+          base_list_id: string
+          created_at: string
+          created_by: string
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          max_uses: number | null
+          token: string
+          use_count: number
+        }
+        Insert: {
+          base_list_id: string
+          created_at?: string
+          created_by: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          token: string
+          use_count?: number
+        }
+        Update: {
+          base_list_id?: string
+          created_at?: string
+          created_by?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          token?: string
+          use_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "list_invite_links_base_list_id_fkey"
+            columns: ["base_list_id"]
+            isOneToOne: false
+            referencedRelation: "base_lists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shopping_session_participants: {
+        Row: {
+          id: string
+          joined_at: string
+          last_active_at: string
+          shopping_session_id: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          joined_at?: string
+          last_active_at?: string
+          shopping_session_id: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          joined_at?: string
+          last_active_at?: string
+          shopping_session_id?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shopping_session_participants_session_id_fkey"
+            columns: ["shopping_session_id"]
+            isOneToOne: false
+            referencedRelation: "shopping_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       base_list_items: {
         Row: {
           base_list_id: string

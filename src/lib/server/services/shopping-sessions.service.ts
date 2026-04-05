@@ -181,7 +181,10 @@ export async function getActiveShoppingSession() {
     .select(`
       *,
       items:shopping_session_items(*),
-      base_list:base_lists(*)
+      base_list:base_lists(
+        *,
+        collaborators:list_collaborators(id, user_id, role, joined_at)
+      )
     `)
     .eq('user_id', user.id)
     .eq('status', 'active')
@@ -193,7 +196,16 @@ export async function getActiveShoppingSession() {
     throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, error.message)
   }
 
-  return shoppingSession
+  if (!shoppingSession) return null
+
+  // Shape collaborators into lightweight display summaries for the UI
+  const baseList = shoppingSession.base_list as { collaborators?: Array<{ user_id: string }> } | null
+  const collaborators = (baseList?.collaborators ?? []).map(c => ({
+    initials: c.user_id.slice(0, 2).toUpperCase(),
+    display_name: null as string | null,
+  }))
+
+  return { ...shoppingSession, collaborators }
 }
 
 export async function getShoppingSession(id: string) {

@@ -51,9 +51,13 @@ export default async function ShoppingRunPage({
 	}
 
 	const runWithItems = shoppingSession as ShoppingSessionWithItems & {
-		base_list?: { group_id?: string | null } | null
+		base_list?: { group_id?: string | null; name?: string | null; user_id?: string | null } | null
 	}
 	const isCompleted = runWithItems.status === 'completed'
+
+	const baseListId = runWithItems.base_list_id
+	const baseListName = runWithItems.base_list?.name ?? runWithItems.name
+	const isListOwner = runWithItems.base_list?.user_id === user.id
 
 	let backHref = '/shopping-history'
 	let backLabel = 'Back to Shopping History'
@@ -139,10 +143,13 @@ export default async function ShoppingRunPage({
 					)}
 
 					{!isCompleted && (
-						<div className='hidden w-full md:ml-auto md:block md:max-w-[360px] lg:max-w-[420px]'>
+						<div className='hidden w-full md:ml-auto md:block md:max-w-90 lg:max-w-105'>
 							<ShoppingSessionActions
 								sessionId={runId}
 								progress={progress}
+								baseListId={baseListId}
+								baseListName={baseListName}
+								isOwner={isListOwner}
 							/>
 						</div>
 					)}
@@ -237,6 +244,9 @@ export default async function ShoppingRunPage({
 						<ShoppingSessionActions
 							sessionId={runId}
 							progress={progress}
+							baseListId={baseListId}
+							baseListName={baseListName}
+							isOwner={isListOwner}
 						/>
 					)}
 				</div>

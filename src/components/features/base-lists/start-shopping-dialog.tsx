@@ -24,9 +24,10 @@ interface Props {
 	baseListName?: string
 	disabled?: boolean
 	itemsCount?: number
+	className?: string
 }
 
-export function StartShoppingDialog({ baseListId, baseListName, disabled, itemsCount }: Props) {
+export function StartShoppingDialog({ baseListId, baseListName, disabled, itemsCount, className }: Props) {
 	const [open, setOpen] = useState(false)
 	const [loading, setLoading] = useState(false)
 	const router = useRouter()
@@ -76,7 +77,7 @@ export function StartShoppingDialog({ baseListId, baseListName, disabled, itemsC
 			<DialogTrigger asChild>
 				<Button
 					disabled={disabled || isEmpty}
-					className='w-full'
+					className={className ?? 'w-full'}
 					size={'sm'}
 					data-testid='start-shopping-button'
 				>

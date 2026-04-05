@@ -104,14 +104,15 @@ export async function deleteBaseList(id: string) {
 export async function getBaseList(id: string) {
   const { supabase, user } = await createAuthenticatedClient()
 
+  // RLS handles access: owners and collaborators can both read
   const { data: baseList, error } = await supabase
     .from('base_lists')
     .select(`
       *,
-      items:base_list_items(*)
+      items:base_list_items(*),
+      collaborators:list_collaborators(id, user_id, role, joined_at)
     `)
     .eq('id', id)
-    .eq('user_id', user.id)
     .single()
 
   if (error) {
@@ -119,7 +120,7 @@ export async function getBaseList(id: string) {
     throw new ApiServiceError(status, status === 404 ? ErrorCode.NOT_FOUND : ErrorCode.INTERNAL_ERROR, error.message)
   }
 
-  return baseList
+  return { ...baseList, is_owner: baseList.user_id === user.id }
 }
 
 export async function getBaseLists() {

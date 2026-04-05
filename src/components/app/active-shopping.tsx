@@ -3,17 +3,23 @@
 import { ArrowRight01Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import Link from 'next/link'
-import { Avatar, AvatarFallback, AvatarGroup, AvatarGroupCount } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Card, CardBanner, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
+import { CollaboratorAvatars } from '@/components/features/sharing'
 import { ActiveShoppingBadge } from './active-shopping-badge'
+
+interface CollaboratorSummary {
+	initials: string
+	display_name?: string | null
+}
 
 interface Props {
 	activeShopping?: {
 		id: string
 		name: string
 		items?: Array<{ checked: boolean | null }>
+		collaborators?: CollaboratorSummary[]
 	}
 }
 
@@ -22,6 +28,8 @@ export default function ActiveShopping({ activeShopping }: Props) {
 	const totalItems = activeShopping?.items?.length ?? 0
 	const checkedItems = activeShopping?.items?.filter(item => item.checked === true).length ?? 0
 	const progress = totalItems > 0 ? Math.round((checkedItems / totalItems) * 100) : 0
+	const collaborators = activeShopping?.collaborators ?? []
+	const isShared = collaborators.length > 0
 
 	// Local image path - ensuring no external sources
 	const cartImageUrl = '/images/shopping-session.jpg'
@@ -83,17 +91,16 @@ export default function ActiveShopping({ activeShopping }: Props) {
 
 				<CardFooter className='p-6 pt-4 md:p-8 md:pt-5'>
 					<div className='flex w-full flex-col gap-6 sm:flex-row sm:items-center sm:justify-between'>
-						<div className='flex items-center gap-3 justify-center'>
-							<AvatarGroup>
-								<Avatar size='sm'>
-									<AvatarFallback className='text-[10px] font-bold uppercase'>L</AvatarFallback>
-								</Avatar>
-								<AvatarGroupCount className='text-[10px] font-bold'>+2</AvatarGroupCount>
-							</AvatarGroup>
-							<p className='text-[10px] font-bold uppercase tracking-tight text-muted-foreground/80'>
-								Shared with family
-							</p>
-						</div>
+						{isShared ? (
+							<div className='flex items-center gap-3 justify-center'>
+								<CollaboratorAvatars collaborators={collaborators} />
+								<p className='text-[10px] font-bold uppercase tracking-tight text-muted-foreground/80'>
+									Shared with {collaborators.length === 1 ? '1 person' : `${collaborators.length} people`}
+								</p>
+							</div>
+						) : (
+							<div />
+						)}
 
 						<Button
 							asChild

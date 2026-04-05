@@ -15,14 +15,16 @@ import {
 import { AddItemFormBaseList } from './add-item-form-base-list'
 
 type Props =
-	| { context: 'base-list'; baseListId: string; isLocked?: boolean }
-	| { context: 'shopping-session'; sessionId: string }
+	| { context: 'base-list'; baseListId: string; isLocked?: boolean; className?: string; showLabel?: boolean }
+	| { context: 'shopping-session'; sessionId: string; className?: string; showLabel?: boolean }
 
 export function AddItemDialogBaseList(props: Props) {
 	const [open, setOpen] = useState(false)
 
 	const isBaseList = props.context === 'base-list'
 	const isLocked = isBaseList ? props.isLocked : false
+	const showLabel = props.showLabel ?? false
+	const buttonClassName = props.className ?? ''
 
 	return (
 		<Dialog
@@ -31,7 +33,8 @@ export function AddItemDialogBaseList(props: Props) {
 		>
 			<DialogTrigger asChild>
 				<Button
-					className='w-full'
+					size='sm'
+					className={buttonClassName}
 					variant={'outline'}
 					disabled={!!isLocked}
 				>
@@ -40,7 +43,7 @@ export function AddItemDialogBaseList(props: Props) {
 						strokeWidth={2}
 						data-icon='inline-start'
 					/>
-					Add Item
+					{showLabel && 'Add item'}
 				</Button>
 			</DialogTrigger>
 			<DialogContent

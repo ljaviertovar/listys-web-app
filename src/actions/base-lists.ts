@@ -151,21 +151,22 @@ export async function getBaseList(id: string) {
     return { error: 'Unauthorized' }
   }
 
+  // RLS handles access for both owners and collaborators; no user_id filter needed
   const { data: baseList, error } = await supabase
     .from('base_lists')
     .select(`
       *,
-      items:base_list_items(*)
+      items:base_list_items(*),
+      collaborators:list_collaborators(id, user_id, role, joined_at)
     `)
     .eq('id', id)
-    .eq('user_id', user.id)
     .single()
 
   if (error) {
     return { error: error.message }
   }
 
-  return { data: baseList }
+  return { data: { ...baseList, is_owner: baseList.user_id === user.id } }
 }
 
 export async function getBaseLists() {

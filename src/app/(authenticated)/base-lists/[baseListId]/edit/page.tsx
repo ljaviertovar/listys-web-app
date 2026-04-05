@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server'
 
 import ScrollArea from '@/components/ui/scroll-area'
 import { BaseListItemRow, StartShoppingDialog } from '@/components/features/base-lists'
+import { ShareListDialog } from '@/components/features/sharing'
 import { Badge } from '@/components/ui/badge'
 import { AddItemDialogBaseList, PageHeader, PageContainer, PageFooterAction, BackLink } from '@/components/app'
 import type { BaseListItem, BaseListWithItems } from '@/features/base-lists/types'
@@ -37,6 +38,7 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 		)
 	}
 
+	const isOwner = (baseList as any).is_owner !== false
 	const baseListWithItems = baseList as BaseListWithItems
 	const totalItems = baseListWithItems.items ? baseListWithItems.items.length : 0
 	const sortedItems = [...(baseListWithItems.items || [])].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
@@ -94,22 +96,28 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 				title={baseListWithItems.name}
 				desc='Manage items in this base list'
 			>
-				<div className='justify-end hidden md:flex'>
-					<div className='w-fit flex gap-4'>
-						<AddItemDialogBaseList
-							context='base-list'
+				<div className='hidden md:flex items-center justify-end gap-2'>
+					<AddItemDialogBaseList
+						context='base-list'
+						baseListId={baseListId}
+						isLocked={!!activeSession}
+						showLabel
+					/>
+					{!anyActiveSession && baseListWithItems.items.length > 0 && (
+						<StartShoppingDialog
 							baseListId={baseListId}
-							isLocked={!!activeSession}
+							baseListName={baseListWithItems.name}
+							itemsCount={totalItems}
+							disabled={!baseListWithItems.items || baseListWithItems.items.length === 0}
+							className='w-auto'
 						/>
-						{!anyActiveSession && baseListWithItems.items.length > 0 && (
-							<StartShoppingDialog
-								baseListId={baseListId}
-								baseListName={baseListWithItems.name}
-								itemsCount={totalItems}
-								disabled={!baseListWithItems.items || baseListWithItems.items.length === 0}
-							/>
-						)}
-					</div>
+					)}
+					<ShareListDialog
+						baseListId={baseListId}
+						listName={baseListWithItems.name}
+						isOwner={isOwner}
+						className='gap-2'
+					/>
 				</div>
 			</PageHeader>
 			{/* Main scrollable area */}
@@ -178,22 +186,29 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 			</div>
 
 			<PageFooterAction>
-				<div className='w-full md:hidden'>
-					<div className='w-full flex gap-4'>
-						<AddItemDialogBaseList
-							context='base-list'
+				<div
+					className='md:hidden w-full flex gap-4'
+					id='mobile-actions'
+				>
+					<AddItemDialogBaseList
+						context='base-list'
+						baseListId={baseListId}
+						isLocked={!!activeSession}
+					/>
+					<ShareListDialog
+						baseListId={baseListId}
+						listName={baseListWithItems.name}
+						isOwner={isOwner}
+						className='gap-2'
+					/>
+					{!anyActiveSession && baseListWithItems.items.length > 0 && (
+						<StartShoppingDialog
 							baseListId={baseListId}
-							isLocked={!!activeSession}
+							baseListName={baseListWithItems.name}
+							itemsCount={totalItems}
+							disabled={!baseListWithItems.items || baseListWithItems.items.length === 0}
 						/>
-						{!anyActiveSession && baseListWithItems.items.length > 0 && (
-							<StartShoppingDialog
-								baseListId={baseListId}
-								baseListName={baseListWithItems.name}
-								itemsCount={totalItems}
-								disabled={!baseListWithItems.items || baseListWithItems.items.length === 0}
-							/>
-						)}
-					</div>
+					)}
 				</div>
 			</PageFooterAction>
 		</div>

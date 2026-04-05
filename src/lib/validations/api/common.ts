@@ -27,3 +27,11 @@ export const ticketIdParamsSchema = z.object({
 export const shoppingSessionsQuerySchema = z.object({
   status: z.enum(['completed', 'active']).optional(),
 })
+
+export const inviteIdParamsSchema = z.object({
+  inviteId: z.string().uuid(),
+})
+
+export const collaboratorUserIdParamsSchema = z.object({
+  userId: z.string().uuid(),
+})
