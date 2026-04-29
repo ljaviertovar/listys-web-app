@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowRight01Icon, UserStar02Icon } from '@hugeicons/core-free-icons'
+import { ArrowRight01Icon, UserMultiple02Icon, UserStar02Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -67,7 +67,7 @@ export default function ActiveShopping({ activeShopping, isGuest = false }: Prop
 							<CardTitle className='text-2xl font-bold tracking-tight text-foreground md:text-3xl'>
 								{activeShopping?.name || 'Current Shopping'}
 							</CardTitle>
-							{isGuest && (
+							{isGuest ? (
 								<Badge
 									variant='pending'
 									className='mt-1.5 gap-1.5 text-[10px] font-bold uppercase tracking-wider'
@@ -78,7 +78,18 @@ export default function ActiveShopping({ activeShopping, isGuest = false }: Prop
 									/>
 									Shared with you
 								</Badge>
-							)}
+							) : isShared ? (
+								<Badge
+									variant='pending'
+									className='mt-1.5 gap-1.5 text-[10px] font-bold uppercase tracking-wider'
+								>
+									<HugeiconsIcon
+										icon={UserMultiple02Icon}
+										className='h-3 w-3'
+									/>
+									Shared with {collaborators.length === 1 ? '1 person' : `${collaborators.length} people`}
+								</Badge>
+							) : null}
 						</div>
 						<ActiveShoppingBadge />
 					</div>
@@ -104,18 +115,7 @@ export default function ActiveShopping({ activeShopping, isGuest = false }: Prop
 				</CardContent>
 
 				<CardFooter className='p-6 pt-4 md:p-8 md:pt-5'>
-					<div className='flex w-full flex-col gap-6 sm:flex-row sm:items-center sm:justify-between'>
-						{isShared && !isGuest ? (
-							<div className='flex items-center gap-3 justify-center'>
-								<CollaboratorAvatars collaborators={collaborators} />
-								<p className='text-[10px] font-bold uppercase tracking-tight text-muted-foreground/80'>
-									Shared with {collaborators.length === 1 ? '1 person' : `${collaborators.length} people`}
-								</p>
-							</div>
-						) : (
-							<div />
-						)}
-
+					<div className='flex w-full flex-col gap-6 sm:flex-row sm:items-center sm:justify-end'>
 						<Button
 							asChild
 							className='w-full px-6 text-xs font-bold uppercase tracking-widest sm:w-auto'

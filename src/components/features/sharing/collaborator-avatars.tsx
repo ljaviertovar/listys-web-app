@@ -23,7 +23,7 @@ export function CollaboratorAvatars({ collaborators, maxVisible = 3, size = 'sm'
 
 	const visible = collaborators.slice(0, maxVisible)
 	const overflowCount = collaborators.length - visible.length
-
+	console.log('CollaboratorAvatars', { collaborators, visible, overflowCount })
 	return (
 		<AvatarGroup className={cn(className)}>
 			{visible.map((c, idx) => (
@@ -35,7 +35,7 @@ export function CollaboratorAvatars({ collaborators, maxVisible = 3, size = 'sm'
 					<AvatarFallback className='text-[10px] font-bold uppercase'>{c.initials}</AvatarFallback>
 				</Avatar>
 			))}
-			{overflowCount > 0 && <AvatarGroupCount className='text-[10px] font-bold'>+{overflowCount}</AvatarGroupCount>}
+			{overflowCount > 0 && <AvatarGroupCount className='text-[10px] font-bold '>+{overflowCount}</AvatarGroupCount>}
 		</AvatarGroup>
 	)
 }
