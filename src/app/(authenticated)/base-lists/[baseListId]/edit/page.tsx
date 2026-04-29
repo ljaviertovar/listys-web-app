@@ -112,12 +112,14 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 							className='w-auto'
 						/>
 					)}
-					<ShareListDialog
-						baseListId={baseListId}
-						listName={baseListWithItems.name}
-						isOwner={isOwner}
-						className='gap-2'
-					/>
+					{isOwner && (
+						<ShareListDialog
+							baseListId={baseListId}
+							listName={baseListWithItems.name}
+							isOwner={isOwner}
+							className='gap-2'
+						/>
+					)}
 				</div>
 			</PageHeader>
 			{/* Main scrollable area */}
@@ -195,12 +197,14 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 						baseListId={baseListId}
 						isLocked={!!activeSession}
 					/>
-					<ShareListDialog
-						baseListId={baseListId}
-						listName={baseListWithItems.name}
-						isOwner={isOwner}
-						className='gap-2'
-					/>
+					{isOwner && (
+						<ShareListDialog
+							baseListId={baseListId}
+							listName={baseListWithItems.name}
+							isOwner={isOwner}
+							className='gap-2'
+						/>
+					)}
 					{!anyActiveSession && baseListWithItems.items.length > 0 && (
 						<StartShoppingDialog
 							baseListId={baseListId}

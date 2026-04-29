@@ -21,19 +21,22 @@ export default async function InviteAcceptPage({ params }: Props) {
 
 	let errorMessage: string | null = null
 	let baseListId: string | null = null
-	let listName: string | null = null
+	let activeSessionId: string | null = null
 
 	try {
 		const result = await acceptInvite(token)
 		baseListId = result.base_list_id
-		listName = result.list_name
+		activeSessionId = result.active_session_id ?? null
 	} catch (err) {
 		errorMessage = err instanceof Error ? err.message : 'This invite link is invalid or has expired.'
 	}
 
-	// On success, redirect to the list detail page immediately
+	// On success, redirect to the active shopping session or the list detail page
+	if (activeSessionId) {
+		redirect(`/shopping/${activeSessionId}`)
+	}
 	if (baseListId) {
-		redirect(`/base-lists/${baseListId}`)
+		redirect(`/base-lists/${baseListId}/edit`)
 	}
 
 	return (

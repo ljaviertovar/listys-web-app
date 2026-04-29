@@ -21,10 +21,12 @@ export function ShoppingSessionActions({ sessionId, progress, baseListId, baseLi
 	return (
 		<>
 			<div className='flex flex-col items-center gap-3 w-full'>
-				<div className='flex items-center gap-2 w-full sm:w-auto flex-1'>
-					<CancelSessionButton sessionId={sessionId} />
-					<CompleteSessionButton onOpenAlert={() => setAlertOpen(true)} />
-				</div>
+				{isOwner && (
+					<div className='flex items-center gap-2 w-full sm:w-auto flex-1'>
+						<CancelSessionButton sessionId={sessionId} />
+						<CompleteSessionButton onOpenAlert={() => setAlertOpen(true)} />
+					</div>
+				)}
 
 				<div className='flex items-center gap-2 w-full'>
 					<AddItemDialogBaseList
@@ -33,7 +35,7 @@ export function ShoppingSessionActions({ sessionId, progress, baseListId, baseLi
 						showLabel
 						className='flex-1'
 					/>
-					{baseListId && (
+					{baseListId && isOwner && (
 						<ShareListDialog
 							baseListId={baseListId}
 							listName={baseListName ?? ''}

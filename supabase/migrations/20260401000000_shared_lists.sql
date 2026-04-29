@@ -125,6 +125,19 @@ CREATE INDEX idx_list_invite_links_base_list_id ON public.list_invite_links(base
 -- 3. EXTEND RLS ON base_lists — add shared access
 -- =============================================
 
+-- Any authenticated user can view a base list if there is an active invite link for it.
+-- This allows the invite acceptance flow to resolve the list before the invitee becomes a collaborator.
+-- No circular dependency: list_invite_links SELECT policy allows auth.uid() IS NOT NULL (no back-reference to base_lists).
+CREATE POLICY "Invited users can view base lists with active invite links"
+  ON public.base_lists FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.list_invite_links
+      WHERE list_invite_links.base_list_id = base_lists.id
+        AND list_invite_links.is_active = true
+    )
+  );
+
 -- Collaborators can view shared lists
 CREATE POLICY "Collaborators can view shared base lists"
   ON public.base_lists FOR SELECT

@@ -3,6 +3,7 @@ import { randomBytes } from 'crypto'
 import { createAuthenticatedClient } from '@/lib/api/auth'
 import { ApiServiceError, ErrorCode } from '@/lib/api/http'
 import { createInviteLinkSchema } from '@/lib/validations/sharing'
+import { createAdminClient } from '@/lib/supabase/admin'
 import type { CollaboratorWithProfile, InviteLinkWithUrl } from '@/features/sharing/types'
 
 // Generates a cryptographically random URL-safe token
@@ -108,14 +109,18 @@ export async function revokeInviteLink(baseListId: string, inviteId: string): Pr
   }
 }
 
-/** Accept an invite by token. Returns the list name for a redirect UX. */
-export async function acceptInvite(token: string): Promise<{ base_list_id: string; list_name: string }> {
-  const { supabase, user } = await createAuthenticatedClient()
+/** Accept an invite by token. Returns the list and active session info for redirect UX. */
+export async function acceptInvite(token: string): Promise<{ base_list_id: string; list_name: string; active_session_id?: string }> {
+  const { user } = await createAuthenticatedClient()
+  // Use admin client for all operations: the invitee has no RLS access yet to
+  // base_lists or list_collaborators until after they are added as a collaborator.
+  const admin = createAdminClient()
 
-  // Look up the invite link
-  const { data: inviteLink, error: linkError } = await supabase
+  // Look up the invite link (no join — admin bypasses list_invite_links RLS too,
+  // but the actual invite token lookup doesn't need user context)
+  const { data: inviteLink, error: linkError } = await admin
     .from('list_invite_links')
-    .select('*, base_lists(id, name, user_id)')
+    .select('id, base_list_id, created_by, expires_at, max_uses, use_count, is_active')
     .eq('token', token)
     .eq('is_active', true)
     .single()
@@ -134,18 +139,25 @@ export async function acceptInvite(token: string): Promise<{ base_list_id: strin
     throw new ApiServiceError(410, ErrorCode.BAD_REQUEST, 'This invite link has reached its maximum number of uses')
   }
 
-  const baseList = inviteLink.base_lists as { id: string; name: string; user_id: string } | null
-  if (!baseList) {
+  // Resolve the base list bypassing RLS (invitee not yet a collaborator)
+  const { data: baseList, error: listError } = await admin
+    .from('base_lists')
+    .select('id, name, user_id')
+    .eq('id', inviteLink.base_list_id)
+    .single()
+
+  if (listError || !baseList) {
     throw new ApiServiceError(404, ErrorCode.NOT_FOUND, 'The shared list no longer exists')
   }
 
   // Owner accepting their own invite is a no-op
   if (baseList.user_id === user.id) {
-    return { base_list_id: baseList.id, list_name: baseList.name }
+    const activeSession = await resolveActiveSession(admin, baseList.id)
+    return { base_list_id: baseList.id, list_name: baseList.name, active_session_id: activeSession ?? undefined }
   }
 
-  // Idempotent: skip if already a collaborator
-  const { data: existing } = await supabase
+  // Idempotent: skip insert if already a collaborator
+  const { data: existing } = await admin
     .from('list_collaborators')
     .select('id')
     .eq('base_list_id', baseList.id)
@@ -153,10 +165,8 @@ export async function acceptInvite(token: string): Promise<{ base_list_id: strin
     .maybeSingle()
 
   if (!existing) {
-    // Add the collaborator row — inserted as the list owner (invited_by context is the link creator)
-    // We use service-level insert: the RLS INSERT policy requires owner, so we check via assertListOwner equivalent
-    // but here the action is triggered by the invited user; we use the list owner's row through the link
-    const { error: insertError } = await supabase
+    // Insert bypasses RLS (INSERT policy only allows owner; we verify via invite link instead)
+    const { error: insertError } = await admin
       .from('list_collaborators')
       .insert({
         base_list_id: baseList.id,
@@ -170,13 +180,28 @@ export async function acceptInvite(token: string): Promise<{ base_list_id: strin
     }
 
     // Increment use count
-    await supabase
+    await admin
       .from('list_invite_links')
       .update({ use_count: inviteLink.use_count + 1 })
       .eq('id', inviteLink.id)
   }
 
-  return { base_list_id: baseList.id, list_name: baseList.name }
+  const activeSession = await resolveActiveSession(admin, baseList.id)
+  return { base_list_id: baseList.id, list_name: baseList.name, active_session_id: activeSession ?? undefined }
+}
+
+/** Returns the ID of the active shopping session for a list, if any. */
+async function resolveActiveSession(admin: ReturnType<typeof createAdminClient>, baseListId: string): Promise<string | null> {
+  const { data } = await admin
+    .from('shopping_sessions')
+    .select('id')
+    .eq('base_list_id', baseListId)
+    .eq('status', 'active')
+    .order('started_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  return data?.id ?? null
 }
 
 // ---------------------------------------------------------------------------
