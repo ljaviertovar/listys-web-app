@@ -61,13 +61,11 @@ export function AddItemDialogBaseList(props: Props) {
 						context='base-list'
 						baseListId={props.baseListId}
 						isLocked={!!isLocked}
-						onSuccess={() => setOpen(false)}
 					/>
 				) : (
 					<AddItemFormBaseList
 						context='shopping-session'
 						sessionId={props.sessionId}
-						onSuccess={() => setOpen(false)}
 					/>
 				)}
 			</DialogContent>

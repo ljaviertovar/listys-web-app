@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -58,6 +59,7 @@ type Props =
 	| { context: 'shopping-session'; sessionId: string; onSuccess?: () => void }
 
 export function AddItemFormBaseList(props: Props) {
+	const router = useRouter()
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState<string | null>(null)
 
@@ -123,6 +125,7 @@ export function AddItemFormBaseList(props: Props) {
 				})
 			}
 			toast.success('Item added')
+			router.refresh()
 		} catch (err: any) {
 			const msg = err instanceof Error ? err.message : 'Failed to add item'
 			setError(msg)
