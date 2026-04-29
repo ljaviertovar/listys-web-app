@@ -6,6 +6,7 @@ import { DashboardCard, PageHeader, PageContainer, ActiveShopping } from '@/comp
 import { getGroups } from '@/lib/api/endpoints/groups'
 import { getTickets } from '@/lib/api/endpoints/tickets'
 import { getActiveShoppingSession, getShoppingHistory } from '@/lib/api/endpoints/shopping-sessions'
+import { createClient } from '@/lib/supabase/server'
 
 // Fallback skeleton for dashboard cards
 function CardsSkeleton() {
@@ -69,12 +70,23 @@ async function DashboardCards() {
 
 // Component to fetch and display active shopping
 async function ActiveShoppingSection() {
+	const supabase = await createClient()
+	const {
+		data: { user },
+	} = await supabase.auth.getUser()
 	const activeSessionResult = await getActiveShoppingSession()
 	const activeSession = activeSessionResult.data
 
 	if (!activeSession) return null
 
-	return <ActiveShopping activeShopping={activeSession} />
+	const isGuest = !!user && activeSession.user_id !== user.id
+
+	return (
+		<ActiveShopping
+			activeShopping={activeSession}
+			isGuest={isGuest}
+		/>
+	)
 }
 
 export default async function DashboardPage() {

@@ -174,8 +174,10 @@ export async function completeShoppingSession(id: string, data: unknown) {
 }
 
 export async function getActiveShoppingSession() {
-  const { supabase, user } = await createAuthenticatedClient()
+  const { supabase } = await createAuthenticatedClient()
 
+  // No user_id filter: RLS already restricts to sessions the user owns OR is a collaborator on.
+  // This allows invited collaborators to see the shared active session on their dashboard.
   const { data: shoppingSession, error } = await supabase
     .from('shopping_sessions')
     .select(`
@@ -186,7 +188,6 @@ export async function getActiveShoppingSession() {
         collaborators:list_collaborators(id, user_id, role, joined_at)
       )
     `)
-    .eq('user_id', user.id)
     .eq('status', 'active')
     .order('started_at', { ascending: false })
     .limit(1)

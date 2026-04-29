@@ -1,9 +1,10 @@
 'use client'
 
-import { ArrowRight01Icon } from '@hugeicons/core-free-icons'
+import { ArrowRight01Icon, UserStar02Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { Card, CardBanner, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { CollaboratorAvatars } from '@/components/features/sharing'
@@ -21,9 +22,10 @@ interface Props {
 		items?: Array<{ checked: boolean | null }>
 		collaborators?: CollaboratorSummary[]
 	}
+	isGuest?: boolean
 }
 
-export default function ActiveShopping({ activeShopping }: Props) {
+export default function ActiveShopping({ activeShopping, isGuest = false }: Props) {
 	// Calculate progress
 	const totalItems = activeShopping?.items?.length ?? 0
 	const checkedItems = activeShopping?.items?.filter(item => item.checked === true).length ?? 0
@@ -65,6 +67,18 @@ export default function ActiveShopping({ activeShopping }: Props) {
 							<CardTitle className='text-2xl font-bold tracking-tight text-foreground md:text-3xl'>
 								{activeShopping?.name || 'Current Shopping'}
 							</CardTitle>
+							{isGuest && (
+								<Badge
+									variant='pending'
+									className='mt-1.5 gap-1.5 text-[10px] font-bold uppercase tracking-wider'
+								>
+									<HugeiconsIcon
+										icon={UserStar02Icon}
+										className='h-3 w-3'
+									/>
+									Shared with you
+								</Badge>
+							)}
 						</div>
 						<ActiveShoppingBadge />
 					</div>
@@ -91,7 +105,7 @@ export default function ActiveShopping({ activeShopping }: Props) {
 
 				<CardFooter className='p-6 pt-4 md:p-8 md:pt-5'>
 					<div className='flex w-full flex-col gap-6 sm:flex-row sm:items-center sm:justify-between'>
-						{isShared ? (
+						{isShared && !isGuest ? (
 							<div className='flex items-center gap-3 justify-center'>
 								<CollaboratorAvatars collaborators={collaborators} />
 								<p className='text-[10px] font-bold uppercase tracking-tight text-muted-foreground/80'>
