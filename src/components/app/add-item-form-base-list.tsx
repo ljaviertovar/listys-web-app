@@ -16,6 +16,7 @@ import { PlusSignIcon, Loading03Icon } from '@hugeicons/core-free-icons'
 
 import { createBaseListItem } from '@/lib/api/endpoints/base-lists'
 import { createShoppingSessionItem } from '@/lib/api/endpoints/shopping-sessions'
+import { broadcastListActivity } from '@/utils/broadcast-activity'
 
 import { z } from 'zod'
 import { createBaseListItemSchema as baseListSchema } from '@/lib/validations/base-list'
@@ -126,6 +127,11 @@ export function AddItemFormBaseList(props: Props) {
 			}
 			toast.success('Item added')
 			router.refresh()
+			if (isBaseList) {
+				broadcastListActivity(`list_activity_${props.baseListId}`)
+			} else {
+				broadcastListActivity(`session_activity_${props.sessionId}`)
+			}
 		} catch (err: any) {
 			const msg = err instanceof Error ? err.message : 'Failed to add item'
 			setError(msg)

@@ -13,6 +13,7 @@ import {
 import type { ShoppingSessionItem } from '@/features/shopping-sessions/types'
 import { Badge } from '@/components/ui/badge'
 import { ActionsItemFormBaseList } from '@/components/app/actions-item-form-base-list'
+import { broadcastListActivity } from '@/utils/broadcast-activity'
 
 interface Props {
 	item: ShoppingSessionItem
@@ -36,6 +37,7 @@ export function ShoppingSessionItemRow({ item, isCompleted = false }: Props) {
 			const { error } = await toggleShoppingSessionItem(item.id, newChecked)
 			if (error) throw new Error(error)
 			router.refresh()
+			broadcastListActivity(`session_activity_${item.shopping_session_id}`)
 		} catch (err) {
 			setChecked(!newChecked) // Revert on error
 			console.error('Failed to toggle item:', err)

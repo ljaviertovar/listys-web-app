@@ -4,7 +4,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { createClient } from '@/lib/supabase/server'
 
 import ScrollArea from '@/components/ui/scroll-area'
-import { BaseListItemRow, StartShoppingDialog } from '@/components/features/base-lists'
+import { BaseListItemRow, StartShoppingDialog, BaseListRealtimeListener } from '@/components/features/base-lists'
 import { ShareListDialog } from '@/components/features/sharing'
 import { Badge } from '@/components/ui/badge'
 import { AddItemDialogBaseList, PageHeader, PageContainer, PageFooterAction, BackLink } from '@/components/app'
@@ -186,6 +186,8 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 					</ScrollArea>
 				</PageContainer>
 			</div>
+
+			<BaseListRealtimeListener baseListId={baseListId} />
 
 			<PageFooterAction>
 				<div

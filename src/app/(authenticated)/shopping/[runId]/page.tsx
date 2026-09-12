@@ -5,7 +5,11 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { PageHeader, PageContainer, PageFooterAction, BackLink, ActiveShoppingBadge } from '@/components/app'
-import { ShoppingSessionItemRow, ShoppingSessionActions } from '@/components/features/shopping-sessions'
+import {
+	ShoppingSessionItemRow,
+	ShoppingSessionActions,
+	ShoppingSessionRealtimeListener,
+} from '@/components/features/shopping-sessions'
 
 import { CheckmarkCircle02Icon, PlusSignIcon } from '@hugeicons/core-free-icons'
 
@@ -237,6 +241,8 @@ export default async function ShoppingRunPage({
 					</ScrollArea>
 				</PageContainer>
 			</div>
+
+			{!isCompleted && <ShoppingSessionRealtimeListener sessionId={runId} />}
 
 			<PageFooterAction>
 				<div className='w-full md:hidden'>
