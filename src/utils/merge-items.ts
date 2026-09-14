@@ -1,5 +1,4 @@
-import { BaseListItem } from '@/features/base-lists/types'
-import { TicketItem } from '@/features/tickets/types'
+import type { BaseListItem, TicketItem } from '@/types'
 
 export type MergeableItem = Pick<BaseListItem | TicketItem, 'name' | 'quantity' | 'unit'>
 

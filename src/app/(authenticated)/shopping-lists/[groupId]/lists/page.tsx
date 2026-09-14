@@ -8,9 +8,9 @@ import { SearchList01Icon } from '@hugeicons/core-free-icons'
 
 import { PageHeader, PageContainer, PageFooterAction, BackLink, ActiveShopping } from '@/components/app'
 
-import { getBaseListsByGroup } from '@/lib/api/endpoints/base-lists'
+import { getBaseListsByGroup } from '@/lib/api/endpoints'
 
-import type { BaseListWithCount } from '@/features/base-lists/types'
+import type { BaseListWithCount } from '@/types'
 
 export default async function BaseListsPage({ params }: { params: Promise<{ groupId: string }> }) {
 	const { groupId } = await params

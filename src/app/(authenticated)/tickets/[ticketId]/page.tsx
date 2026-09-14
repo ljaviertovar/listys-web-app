@@ -6,12 +6,11 @@ import { PageHeader, PageContainer, BackLink, CardHeaderContent } from '@/compon
 import { TicketItemsSelector, TicketImage, TicketActions, TicketStatusListener } from '@/components/features/tickets'
 import { Invoice01Icon, ListViewIcon } from '@hugeicons/core-free-icons'
 
-import { getTicket } from '@/lib/api/endpoints/tickets'
+import { getTicket } from '@/lib/api/endpoints'
 
 import { createClient } from '@/lib/supabase/server'
 
-import { formatCurrency } from '@/utils/format-currency'
-import { formatDate, formatTime } from '@/utils/format-date'
+import { formatCurrency, formatDate, formatTime } from '@/utils'
 
 export default async function TicketDetailPage({ params }: { params: Promise<{ ticketId: string }> }) {
 	const { ticketId } = await params

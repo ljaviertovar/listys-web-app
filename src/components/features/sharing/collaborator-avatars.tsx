@@ -1,7 +1,7 @@
 'use client'
 
 import { Avatar, AvatarFallback, AvatarGroup, AvatarGroupCount } from '@/components/ui/avatar'
-import { cn } from '@/lib/utils'
+import { cn } from '@/utils'
 
 interface CollaboratorAvatar {
 	/** Initials to display (1–2 chars) */

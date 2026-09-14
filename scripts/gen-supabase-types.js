@@ -39,8 +39,8 @@ if (projectId.includes('supabase.co')) {
 console.log('Generating Supabase types for project:', projectId)
 
 try {
-  execSync(`npx supabase gen types typescript --project-id ${projectId} > src/lib/supabase/database.types.ts`, { stdio: 'inherit' })
-  console.log('Wrote src/lib/supabase/database.types.ts')
+  execSync(`npx supabase gen types typescript --project-id ${projectId} > src/types/database.types.ts`, { stdio: 'inherit' })
+  console.log('Wrote src/types/database.types.ts')
 } catch (err) {
   exit('Failed to generate types: ' + err.message)
 }

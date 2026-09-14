@@ -2,12 +2,11 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 
 import { SidebarProvider } from '@/components/ui/sidebar'
-import { AppSidebar } from '@/components/app/sidebar'
-import { Header } from '@/components/app/header'
+import { AppSidebar, Header } from '@/components/app'
 
 import { createClient } from '@/lib/supabase/server'
 
-import { cn } from '@/utils/cn'
+import { cn } from '@/utils'
 
 export default async function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
 	const supabase = await createClient()

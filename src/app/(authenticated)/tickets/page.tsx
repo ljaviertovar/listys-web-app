@@ -8,12 +8,12 @@ import { UploadTicketDialog } from '@/components/features/tickets'
 import { Badge } from '@/components/ui/badge'
 import { ArrowRight01Icon, Invoice01Icon, SearchVisualIcon } from '@hugeicons/core-free-icons'
 
-import { getTickets } from '@/lib/api/endpoints/tickets'
+import { getTickets } from '@/lib/api/endpoints'
 
 import { createClient } from '@/lib/supabase/server'
 
-import { formatDate, formatTime } from '@/utils/format-date'
-import CardHeaderContent from '@/components/app/card-header-content'
+import { formatDate, formatTime } from '@/utils'
+import { CardHeaderContent } from '@/components/app'
 
 export default async function TicketsPage() {
 	const supabase = await createClient()

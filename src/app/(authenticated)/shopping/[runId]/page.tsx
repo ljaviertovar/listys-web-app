@@ -13,13 +13,13 @@ import {
 
 import { CheckmarkCircle02Icon, PlusSignIcon } from '@hugeicons/core-free-icons'
 
-import { getShoppingSession } from '@/actions/shopping-sessions'
+import { getShoppingSession } from '@/actions'
 import { getCategoryWithEmoji, normalizeCategory } from '@/data/constants'
 
 import { createClient } from '@/lib/supabase/server'
-import { formatDate, formatTime } from '@/utils/format-date'
+import { formatDate, formatTime } from '@/utils'
 
-import type { ShoppingSessionItem, ShoppingSessionWithItems } from '@/features/shopping-sessions/types'
+import type { ShoppingSessionItem, ShoppingSessionWithItems } from '@/types'
 
 type SearchParams = {
 	from?: string | string[]

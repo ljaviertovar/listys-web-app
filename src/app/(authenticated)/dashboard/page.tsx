@@ -3,9 +3,7 @@ import { FolderLibraryIcon, Invoice01Icon, TimeQuarterPassIcon } from '@hugeicon
 
 import { DashboardCard, PageHeader, PageContainer, ActiveShopping } from '@/components/app'
 
-import { getGroups } from '@/lib/api/endpoints/groups'
-import { getTickets } from '@/lib/api/endpoints/tickets'
-import { getActiveShoppingSession, getShoppingHistory } from '@/lib/api/endpoints/shopping-sessions'
+import { getActiveShoppingSession, getGroups, getShoppingHistory, getTickets } from '@/lib/api/endpoints'
 import { createClient } from '@/lib/supabase/server'
 
 // Fallback skeleton for dashboard cards

@@ -1,4 +1,4 @@
-import { NavItem, SidebarData } from '@/types'
+import type { NavItemO, NavLink, SidebarData } from '@/types'
 import {
 	DashboardSquare02Icon,
 	FolderLibraryIcon,
@@ -8,7 +8,7 @@ import {
 	Settings02Icon,
 } from '@hugeicons/core-free-icons'
 
-export const NAV_ITEMS: any[] = [
+export const NAV_ITEMS: NavItemO[] = [
 	{
 		title: 'Dashboard',
 		href: '/dashboard',
@@ -75,7 +75,7 @@ export const SIDEBAR_DATA: SidebarData = {
 	],
 }
 
-export const USER_NAV_ITEMS: NavItem[] = [
+export const USER_NAV_ITEMS: NavLink[] = [
 	{
 		title: 'Dashboard',
 		url: '/dashboard',
@@ -93,7 +93,7 @@ export const USER_NAV_ITEMS: NavItem[] = [
 	},
 ]
 
-export const NAV_APP_ITEMS: NavItem[] = [
+export const NAV_APP_ITEMS: NavLink[] = [
 	{
 		title: 'Shopping List Groups',
 		url: '/shopping-lists',

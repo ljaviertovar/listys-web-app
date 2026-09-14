@@ -1,5 +1,5 @@
 import { createTestClient } from './supabase-client'
-import type { Database } from '@/features/database.types'
+import type { Database } from '@/types'
 
 type Group = Database['public']['Tables']['groups']['Insert']
 type BaseList = Database['public']['Tables']['base_lists']['Insert']

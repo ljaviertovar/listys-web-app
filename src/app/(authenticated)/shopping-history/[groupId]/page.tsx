@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { getShoppingHistory } from '@/lib/api/endpoints/shopping-sessions'
-import { getGroup } from '@/lib/api/endpoints/groups'
+import { getGroup, getShoppingHistory } from '@/lib/api/endpoints'
 import { Card, CardContent } from '@/components/ui/card'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ShoppingBasket01Icon } from '@hugeicons/core-free-icons'

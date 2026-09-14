@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react'
 import { Copy01Icon, Delete02Icon, LinkSquare02Icon, Share01Icon, UserRemoveIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 
-import type { CollaboratorWithProfile, InviteLinkWithUrl } from '@/features/sharing/types'
+import type { CollaboratorWithProfile, InviteLinkWithUrl } from '@/types'
 import {
 	formatCollaboratorRole,
 	getCollaboratorDisplayName,
@@ -23,7 +23,7 @@ import {
 import { AlertDialogMedia } from '@/components/ui/alert-dialog'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useToast } from '@/hooks/use-toast'
+import { useToast } from '@/hooks'
 
 interface Props {
 	baseListId: string

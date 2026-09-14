@@ -4,7 +4,7 @@ import { createAuthenticatedClient } from '@/lib/api/auth'
 import { ApiServiceError, ErrorCode } from '@/lib/api/http'
 import { createInviteLinkSchema } from '@/lib/validations/sharing'
 import { createAdminClient } from '@/lib/supabase/admin'
-import type { CollaboratorWithProfile, InviteLinkWithUrl } from '@/features/sharing/types'
+import type { CollaboratorWithProfile, InviteLinkWithUrl } from '@/types'
 
 // Generates a cryptographically random URL-safe token
 function generateInviteToken(): string {

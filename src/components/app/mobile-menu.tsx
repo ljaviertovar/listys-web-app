@@ -15,7 +15,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 
 import { Menu02Icon } from '@hugeicons/core-free-icons'
 
-import { NAV_APP_ITEMS } from '@/data/constants/nav'
+import { NAV_APP_ITEMS } from '@/data/constants'
 import useActiveSessionStore from '@/stores/active-session'
 import { ActiveShoppingBadge } from './active-shopping-badge'
 import Logo from '../commons/logo'

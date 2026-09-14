@@ -8,9 +8,9 @@ import { BaseListItemRow, StartShoppingDialog, BaseListRealtimeListener } from '
 import { ShareListDialog } from '@/components/features/sharing'
 import { Badge } from '@/components/ui/badge'
 import { AddItemDialogBaseList, PageHeader, PageContainer, PageFooterAction, BackLink } from '@/components/app'
-import type { BaseListItem, BaseListWithItems } from '@/features/base-lists/types'
+import type { BaseListItem, BaseListWithItems } from '@/types'
 
-import { getBaseList } from '@/actions/base-lists'
+import { getBaseList } from '@/actions'
 import { getCategoryWithEmoji, normalizeCategory } from '@/data/constants'
 
 import { PlusSignIcon } from '@hugeicons/core-free-icons'

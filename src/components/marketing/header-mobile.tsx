@@ -7,16 +7,16 @@ import Link from 'next/link'
 import { motion, useCycle } from 'framer-motion'
 import { HugeiconsIcon } from '@hugeicons/react'
 
-import AuthButtons from '../features/auth/auth-buttons'
+import { AuthButtons } from '@/components/features/auth'
 import Logo from '../commons/logo'
 
-import { NavItem } from '@/types'
+import type { NavItemO } from '@/types'
 import { MARKETING_SECTION_LINKS, NAV_ITEMS } from '@/data/constants'
-import { useScrollPosition } from '@/hooks/use-scroll-position'
+import { useScrollPosition } from '@/hooks'
 import { Menu02Icon } from '@hugeicons/core-free-icons'
 
 type MenuItemWithSubMenuProps = {
-	item: NavItem
+	item: NavItemO
 	toggleOpen: () => void
 }
 
@@ -219,7 +219,7 @@ const MenuItemWithSubMenu: React.FC<MenuItemWithSubMenuProps> = ({ item, toggleO
 					onClick={() => setSubMenuOpen(!subMenuOpen)}
 				>
 					<div className='flex flex-row justify-between w-full items-center'>
-						<span className={`${pathname.includes(item.url) ? 'font-bold' : ''}`}>{item.title}</span>
+						<span className={`${pathname.includes(item.href) ? 'font-bold' : ''}`}>{item.title}</span>
 						{/* <div className={`${subMenuOpen && 'rotate-180'}`}>
               <Icon icon="lucide:chevron-down" width="24" height="24" />
             </div> */}
@@ -229,7 +229,7 @@ const MenuItemWithSubMenu: React.FC<MenuItemWithSubMenuProps> = ({ item, toggleO
 			<div className='mt-2 ml-2 flex flex-col space-y-2'>
 				{subMenuOpen && (
 					<>
-						{(item as any).subMenuItems?.map((subItem: any, subIdx: number) => {
+						{item.subMenuItems?.map((subItem, subIdx) => {
 							return (
 								<MenuItem key={subIdx}>
 									<Link

@@ -2,8 +2,8 @@
 
 import { AuthButtons } from '@/components/features/auth'
 import { InstallAppButton } from '@/components/features/pwa'
-import { useScrollPosition } from '@/hooks/use-scroll-position'
-import { cn } from '@/lib/utils'
+import { useScrollPosition } from '@/hooks'
+import { cn } from '@/utils'
 import MobileMenu from './mobile-menu'
 
 export const Header = () => {

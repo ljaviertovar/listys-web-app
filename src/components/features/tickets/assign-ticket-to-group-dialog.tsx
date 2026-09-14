@@ -16,9 +16,9 @@ import {
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { assignTicketToGroup } from '@/lib/api/endpoints/tickets'
+import { assignTicketToGroup } from '@/lib/api/endpoints'
 import { toast } from 'sonner'
-import type { Database } from '@/lib/supabase/database.types'
+import type { Database } from '@/types'
 
 type Group = Database['public']['Tables']['groups']['Row']
 

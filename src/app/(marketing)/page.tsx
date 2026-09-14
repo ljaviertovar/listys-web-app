@@ -1,5 +1,5 @@
 import { Metadata } from 'next'
-import { LandingPageContent } from '@/components/marketing/landing-page-content'
+import { LandingPageContent } from '@/components/marketing/landing-page'
 
 export const metadata: Metadata = {
 	title: 'Listys - Smart Shopping List Manager',

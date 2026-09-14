@@ -9,11 +9,11 @@ import {
 	toggleShoppingSessionItem,
 	updateShoppingSessionItem,
 	deleteShoppingSessionItem,
-} from '@/lib/api/endpoints/shopping-sessions'
-import type { ShoppingSessionItem } from '@/features/shopping-sessions/types'
+} from '@/lib/api/endpoints'
+import type { ShoppingSessionItem } from '@/types'
 import { Badge } from '@/components/ui/badge'
-import { ActionsItemFormBaseList } from '@/components/app/actions-item-form-base-list'
-import { broadcastListActivity } from '@/utils/broadcast-activity'
+import { ActionsItemFormBaseList } from '@/components/app'
+import { broadcastListActivity } from '@/utils'
 
 interface Props {
 	item: ShoppingSessionItem

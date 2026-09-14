@@ -16,9 +16,9 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { ListViewIcon, Edit02Icon, Delete02Icon, Loading03Icon, ArrowRight01Icon } from '@hugeicons/core-free-icons'
 
-import { deleteBaseList, updateBaseList } from '@/lib/api/endpoints/base-lists'
+import { deleteBaseList, updateBaseList } from '@/lib/api/endpoints'
 
-import type { BaseListWithCount } from '@/features/base-lists/types'
+import type { BaseListWithCount } from '@/types'
 
 import {
 	AlertDialog,
@@ -31,7 +31,7 @@ import {
 	AlertDialogMedia,
 	AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { ActiveShoppingBadge } from '@/components/app/active-shopping-badge'
+import { ActiveShoppingBadge } from '@/components/app'
 
 import { CardFooterContent, CardHeaderContent } from '@/components/app'
 

@@ -16,15 +16,15 @@ import {
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
-import { NavItem } from '@/types'
-import { USER_NAV_ITEMS } from '@/data/constants/nav'
+import type { NavLink } from '@/types'
+import { USER_NAV_ITEMS } from '@/data/constants'
 import { createClient } from '@/lib/supabase/client'
 
 interface Props {
 	user: any
 }
 
-const UserNavItem = ({ title, url, icon, onSelect }: NavItem & { onSelect: () => void }) => {
+const UserNavItem = ({ title, url, icon, onSelect }: NavLink & { onSelect: () => void }) => {
 	return (
 		<DropdownMenuItem asChild>
 			<Link

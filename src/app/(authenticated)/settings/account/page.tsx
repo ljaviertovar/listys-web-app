@@ -14,7 +14,7 @@ import { Badge } from '@/components/ui/badge'
 import { PageHeader, PageContainer, BackLink, CardHeaderContent } from '@/components/app'
 
 import { createClient } from '@/lib/supabase/server'
-import { formatDate, formatTime } from '@/utils/format-date'
+import { formatDate, formatTime } from '@/utils'
 
 export default async function AccountPage() {
 	const supabase = await createClient()

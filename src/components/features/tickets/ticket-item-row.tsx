@@ -4,7 +4,7 @@ import * as React from 'react'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Card, CardContent } from '@/components/ui/card'
 
-import type { TicketItem } from '@/features/tickets/types'
+import type { TicketItem } from '@/types'
 import { Badge } from '@/components/ui/badge'
 
 interface Props {

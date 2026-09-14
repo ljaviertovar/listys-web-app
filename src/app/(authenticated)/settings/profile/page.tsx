@@ -14,7 +14,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { PageHeader, PageContainer, BackLink, CardHeaderContent } from '@/components/app'
 
 import { createClient } from '@/lib/supabase/server'
-import { formatDate, formatTime } from '@/utils/format-date'
+import { formatDate, formatTime } from '@/utils'
 
 export default async function ProfilePage() {
 	const supabase = await createClient()

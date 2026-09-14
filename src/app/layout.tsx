@@ -8,7 +8,7 @@ import { Inter } from 'next/font/google'
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' })
 
 import './globals.css'
-import ActiveSessionInit from '@/components/app/active-session-init'
+import { ActiveSessionInit } from '@/components/app'
 
 export const metadata: Metadata = {
 	title: 'Listys - Smart Shopping List Manager',

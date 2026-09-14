@@ -69,7 +69,7 @@ test.describe('Shopping Session Lifecycle', () => {
         quantity: 1,
         unit: 'unit',
         purchase_count: 0,
-        last_purchased_at: null,
+        last_purchased_at: now.toISOString(),
       },
     ])
 
@@ -99,7 +99,6 @@ test.describe('Shopping Session Lifecycle', () => {
     // Clone items to shopping session
     const sessionItems = baseListItems!.map((item: any, index: number) => ({
       shopping_session_id: session!.id,
-      base_list_item_id: item.id,
       name: item.name,
       quantity: item.quantity,
       unit: item.unit,
@@ -156,7 +155,6 @@ test.describe('Shopping Session Lifecycle', () => {
     // Create session items (clone from base list)
     const sessionItemsData = baseListItems!.map((item: any) => ({
       shopping_session_id: session!.id,
-      base_list_item_id: item.id,
       name: item.name,
       quantity: item.quantity,
       unit: item.unit,
@@ -199,7 +197,7 @@ test.describe('Shopping Session Lifecycle', () => {
     const checkedItems = sessionItems!.filter((_: any, idx: number) => idx < 2) // Milk and Bread
 
     for (const sessionItem of checkedItems) {
-      const baseItem = baseListItems!.find((bi: any) => bi.id === sessionItem.base_list_item_id)
+      const baseItem = baseListItems!.find((bi: any) => bi.name === sessionItem.name)
       if (baseItem) {
         await supabase
           .from('base_list_items')
@@ -275,7 +273,7 @@ test.describe('Shopping Session Lifecycle', () => {
     expect(finalItems!.purchase_count).toBe(originalCount)
   })
 
-  test('Cancel active session resets status', async () => {
+  test('Cancel active session removes it', async () => {
     // Setup
     const setup = await createCompleteSetup({
       items: [{ name: 'Item', quantity: 1 }],
@@ -295,15 +293,19 @@ test.describe('Shopping Session Lifecycle', () => {
       .select()
       .single()
 
-    // Cancel session
+    // Cancel the session through the current delete contract.
+    const { error: cancelError } = await supabase
+      .from('shopping_sessions')
+      .delete()
+      .eq('id', session!.id)
+    expect(cancelError).toBeNull()
+
     const { data: cancelledSession } = await supabase
       .from('shopping_sessions')
-      .update({ status: 'cancelled' })
+      .select('id')
       .eq('id', session!.id)
-      .select()
-      .single()
-
-    expect(cancelledSession!.status).toBe('cancelled')
+      .maybeSingle()
+    expect(cancelledSession).toBeNull()
 
     // Verify user can create new active session (only 1 active allowed)
     const { data: newSession, error } = await supabase
@@ -367,7 +369,6 @@ test.describe('Shopping Session Lifecycle', () => {
     // Clone to session
     const sessionItemsData = baseItems!.map((item) => ({
       shopping_session_id: session!.id,
-      base_list_item_id: item.id,
       name: item.name,
       quantity: item.quantity,
       unit: item.unit,

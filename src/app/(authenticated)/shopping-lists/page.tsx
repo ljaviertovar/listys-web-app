@@ -7,7 +7,7 @@ import { PageHeader, PageContainer, PageFooterAction, BackLink } from '@/compone
 
 import { createClient } from '@/lib/supabase/server'
 
-import { getGroups } from '@/lib/api/endpoints/groups'
+import { getGroups } from '@/lib/api/endpoints'
 
 export default async function GroupsPage() {
 	const supabase = await createClient()
