@@ -36,7 +36,7 @@ omitted from this document.
 │   └── listys-logo.*                     # Public brand assets
 ├── scripts/                              # Maintenance, diagnostics, and code-generation scripts
 ├── src/
-│   ├── __tests__/                        # Shared unit-test helpers and test fixtures
+│   ├── test/                             # Shared Vitest/Testing Library setup and fixtures
 │   ├── actions/                          # Server Actions organized by domain
 │   ├── app/
 │   │   ├── (authenticated)/              # Protected routes and authenticated application shell
@@ -87,8 +87,6 @@ omitted from this document.
 │   ├── functions/                         # OCR Edge Functions
 │   └── migrations/                        # Version-controlled timestamped SQL migrations
 ├── next.config.ts                         # Next.js configuration
-├── package.json                           # Dependencies and development commands
-├── playwright.config.ts                   # Playwright configuration
 ├── tsconfig.json                          # TypeScript configuration
 ├── vitest.config.ts                       # Vitest configuration
 └── README.md                              # Project overview and setup instructions

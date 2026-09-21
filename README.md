@@ -1,6 +1,6 @@
 # Listys Web App
 
-Listys es una aplicación SaaS para organizar compras: permite crear listas base, iniciar sesiones de compra y procesar tickets con OCR para convertir recibos en ítems reutilizables. Este `README.md` es una guía de entrada rápida; la documentación extendida vive en [`docs/README.md`](docs/README.md).
+Listys is a SaaS application for organizing shopping: it lets users create base lists, start shopping sessions, and process receipts with OCR to turn them into reusable items. This `README.md` is a quick-start guide; extended documentation lives in [`docs/README.md`](docs/README.md).
 
 ## Stack
 
@@ -10,21 +10,21 @@ Listys es una aplicación SaaS para organizar compras: permite crear listas base
 - React Hook Form + Zod
 - zustand
 
-## Requisitos
+## Requirements
 
 - Node.js 20+
 - npm 10+
-- Proyecto/configuración de Supabase
+- A Supabase project and configuration
 
-## Quick Start (5 minutos)
+## Quick Start (5 minutes)
 
-1. Instala dependencias:
+1. Install dependencies:
 
    ```bash
    npm install
    ```
 
-2. Crea `.env.local` con variables mínimas:
+2. Create `.env.local` with the minimum variables:
 
    ```bash
    NEXT_PUBLIC_SUPABASE_URL=...
@@ -32,29 +32,29 @@ Listys es una aplicación SaaS para organizar compras: permite crear listas base
    SUPABASE_SERVICE_ROLE_KEY=...
    ```
 
-   Opcional para OCR por proveedor:
+   Optional provider-specific OCR variables:
 
    ```bash
    PROCESS_TICKET_OCR_PROVIDER=gemini
    OPENAI_API_KEY=...
    ```
 
-3. (Si aplica) inicializa y levanta Supabase local:
+3. If applicable, initialize and start local Supabase:
 
    ```bash
    npx supabase start
    npx supabase db push
    ```
 
-4. Inicia desarrollo:
+4. Start development:
 
    ```bash
    npm run dev
    ```
 
-5. Abre `http://localhost:3000`.
+5. Open `http://localhost:3000`.
 
-## Comandos mínimos
+## Essential commands
 
 ```bash
 npm run dev
@@ -65,13 +65,13 @@ tsc --noEmit
 
 ## Documentation Map
 
-- Documentación principal: [`docs/README.md`](docs/README.md)
-- PRD: _Pendiente (añadir cuando exista en `/docs`)_
-- Arquitectura: [`docs/README.md#architecture-diagrams`](docs/README.md#architecture-diagrams)
-- Runbooks: _Pendiente (añadir cuando exista en `/docs`)_
-- Guía para agentes: [`AGENTS.md`](AGENTS.md)
-- Contribución: _Pendiente (añadir `CONTRIBUTING.md` cuando exista)_
+- Main documentation: [`docs/README.md`](docs/README.md)
+- Product requirements: [`docs/prd/PRD-v2.md`](docs/prd/PRD-v2.md)
+- Architecture: [`docs/architecture/architecture.md`](docs/architecture/architecture.md)
+- Runbooks: [`docs/runbooks/`](docs/runbooks/)
+- Agent guidance: [`AGENTS.md`](AGENTS.md)
+- Contribution guide: [`docs/contributing/CONTRIBUTING.md`](docs/contributing/CONTRIBUTING.md)
 
 ---
 
-Si necesitas detalle técnico, despliegue, diagramas o procesos operativos, consulta [`/docs`](docs/README.md).
+For technical details, deployment, diagrams, or operational procedures, see [`/docs`](docs/README.md).

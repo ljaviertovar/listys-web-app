@@ -2,7 +2,9 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { HugeiconsIcon } from '@hugeicons/react'
 
-import { PageHeader, PageContainer, PageFooterAction, BackLink, CardFooterContent } from '@/components/app'
+import { BackLink } from '@/components/app'
+import { PageHeader, PageContainer, PageFooterAction } from '@/components/app/app-page'
+import { CardFooterContent, CardHeaderContent } from '@/components/app/app-card'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { UploadTicketDialog } from '@/components/features/tickets'
 import { Badge } from '@/components/ui/badge'
@@ -13,7 +15,6 @@ import { getTickets } from '@/lib/api/endpoints'
 import { createClient } from '@/lib/supabase/server'
 
 import { formatDate, formatTime } from '@/utils'
-import { CardHeaderContent } from '@/components/app'
 
 export default async function TicketsPage() {
 	const supabase = await createClient()

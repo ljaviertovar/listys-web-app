@@ -17,7 +17,7 @@ import { Menu02Icon } from '@hugeicons/core-free-icons'
 
 import { NAV_APP_ITEMS } from '@/data/constants'
 import useActiveSessionStore from '@/stores/active-session'
-import { ActiveShoppingBadge } from './active-shopping-badge'
+import { ActiveShoppingBadge } from './active-session'
 import Logo from '../commons/logo'
 
 export default function MobileMenu() {

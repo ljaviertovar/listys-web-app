@@ -4,7 +4,7 @@ import { useState } from 'react'
 
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
-import { ActionsItemFormBaseList } from '@/components/app'
+import { ActionsItemFormBaseList } from '@/components/app/active-session'
 
 import { deleteBaseListItem, updateBaseListItem } from '@/lib/api/endpoints'
 

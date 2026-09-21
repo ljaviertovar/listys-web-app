@@ -4,125 +4,125 @@
 
 ## 1. Product overview
 
-Listys — gestión de compras y OCR de tickets: una aplicación SaaS que permite a usuarios convertir tickets de compra en listas estructuradas, gestionar plantillas de compra reutilizables y ejecutar sesiones de compra en tiempo real con seguimiento de gasto.
+Listys — shopping management and receipt OCR: a SaaS application that lets users convert purchase receipts into structured lists, manage reusable shopping templates, and run real-time shopping sessions with spending tracking.
 
-Este PRD define el alcance inicial (MVP), objetivos de negocio y criterios de éxito para lanzar una primera versión estable y usable por usuarios individuales.
+This PRD defines the initial scope (MVP), business goals, and success criteria for launching a stable first version for individual users.
 
 ## 2. Problem statement
 
-Muchos consumidores pierden tiempo reescribiendo listas de compra o extrayendo manualmente información de tickets físicos. No existe una experiencia sencilla que conecte el flujo físico del ticket con listas digitales reutilizables y seguimiento de gasto por sesión.
+Many consumers waste time rewriting shopping lists or manually extracting information from physical receipts. There is no simple experience that connects the physical receipt workflow with reusable digital lists and per-session spending tracking.
 
-Listys resuelve este problema automatizando la extracción (OCR) de tickets, permitiendo la revisión/edición rápida y sincronizando ítems a listas base que se pueden reutilizar en futuras compras.
+Listys solves this problem by automating receipt extraction (OCR), enabling quick review and editing, and syncing items into base lists that can be reused for future shopping trips.
 
 ## 3. Goals
 
-- Entregar un MVP que permita subir tickets (1–5 imágenes), procesarlos con OCR y revisar/mergear resultados en una lista base.
-- Permitir crear y editar listas base, iniciar una sesión de compra clonando una lista base y completar la sesión con opcional sincronización a la lista base.
-- Mantener la seguridad: todo acceso a datos sensibles controlado por RLS y validado server-side.
+- Deliver an MVP that supports receipt uploads (1–5 images), OCR processing, and review/merge of results into a base list.
+- Allow users to create and edit base lists, start a shopping session by cloning a base list, and complete the session with optional synchronization back to the base list.
+- Maintain security: all access to sensitive data is controlled by RLS and validated server-side.
 
 ## 4. Non-goals
 
-- No cubrir integración con sistemas de punto de venta empresariales en el MVP.
-- No ofrecer análisis avanzado de gasto (reportes históricos detallados) en la primera versión.
-- No implementar multi-usuario colaboración en tiempo real (solo sesión por usuario en el MVP).
+- Do not cover integration with enterprise point-of-sale systems in the MVP.
+- Do not offer advanced spending analysis (detailed historical reports) in the first version.
+- Do not implement real-time multi-user collaboration (one session per user in the MVP).
 
 ## 5. Users & Personas
 
-1. Consumidor regular: compra semanalmente y quiere acelerar la creación de listas a partir de tickets.
-2. Organizador doméstico: mantiene listas base por categoría y comparte mentalmente (uso individual del producto).
-3. Usuario con múltiples tickets: desea historial y búsqueda de ítems de tickets anteriores para ahorrar tiempo.
+1. Regular consumer: shops weekly and wants to speed up list creation from receipts.
+2. Household organizer: maintains category-based base lists and uses the product individually.
+3. User with multiple receipts: wants history and search across items from previous receipts to save time.
 
 ## 6. User journeys
 
-1. Subir ticket → Procesamiento OCR → Revisar ítems extraídos → Crear lista nueva o mergear a lista existente.
-   - Paso 1: Usuario selecciona 1–5 imágenes y envía `POST /api/upload-ticket`.
-   - Paso 2: API valida archivos, sube imágenes y crea `ticket` con `ocr_status = pending`.
-   - Paso 3: Edge Function procesa imágenes y crea `ticket_items` (estado `processing`).
-   - Paso 4: OCR completa (`completed`) y usuario recibe notificación; puede revisar/editar ítems.
-   - Paso 5: Usuario elige "Crear lista" o "Mergear a lista existente"; el sistema aplica upsert en `base_list_items`.
+1. Upload receipt → OCR processing → Review extracted items → Create a new list or merge into an existing list.
+   - Step 1: The user selects 1–5 images and sends `POST /api/upload-ticket`.
+   - Step 2: The API validates the files, uploads the images, and creates a `ticket` with `ocr_status = pending`.
+   - Step 3: The Edge Function processes the images and creates `ticket_items` (`processing` status).
+   - Step 4: OCR completes (`completed`) and the user receives a notification; they can review and edit items.
+   - Step 5: The user chooses "Create list" or "Merge into existing list"; the system upserts into `base_list_items`.
 
-   - Acceptance criteria (ACE): El usuario puede completar el flujo end-to-end: upload acepta archivos válidos; OCR crea al menos un `ticket_item`; la acción "Merge" actualiza correctamente la lista objetivo y la UI muestra confirmación.
+   - Acceptance criteria (ACE): The user can complete the end-to-end flow: upload accepts valid files; OCR creates at least one `ticket_item`; the "Merge" action updates the target list correctly and the UI shows confirmation.
 
-2. Crear lista base → Editar ítems → Iniciar sesión de compra desde lista base → Marcar ítems y completar sesión → Guardar historial.
-   - Paso 1: Usuario crea `base_list` con nombre y grupo.
-   - Paso 2: Usuario añade hasta `MAX_ITEMS_PER_BASE_LIST` ítems (250) con `sort_order`.
-   - Paso 3: Usuario inicia `shopping_session` que clona `base_list_items` a `shopping_session_items`.
-   - Paso 4: Durante la sesión el usuario puede check/uncheck, editar cantidades y notas.
-   - Paso 5: Al completar, si `sync_to_base` está activo, los cambios se aplican a `base_list_items` dentro de una transacción.
+2. Create a base list → Edit items → Start a shopping session from the base list → Mark items and complete the session → Save history.
+   - Step 1: The user creates a `base_list` with a name and group.
+   - Step 2: The user adds up to `MAX_ITEMS_PER_BASE_LIST` items (250) with `sort_order`.
+   - Step 3: The user starts a `shopping_session` that clones `base_list_items` into `shopping_session_items`.
+   - Step 4: During the session, the user can check/uncheck items and edit quantities and notes.
+   - Step 5: On completion, if `sync_to_base` is enabled, changes are applied to `base_list_items` in a transaction.
 
-   - ACE: La sesión crea correctamente `shopping_session` y `shopping_session_items`; completar actualiza estado a `completed` y, si se solicita, sincroniza cambios a la lista base sin duplicados.
+   - ACE: The session correctly creates `shopping_session` and `shopping_session_items`; completion sets the status to `completed` and, when requested, synchronizes changes to the base list without duplicates.
 
-3. Ver historial → Abrir sesión completada → Reutilizar como base para nueva lista.
-   - Paso 1: Usuario abre `shopping-history` y filtra por grupo/fecha.
-   - Paso 2: Usuario selecciona una sesión completada y elige "Crear lista desde sesión".
-   - Paso 3: Sistema crea nueva `base_list` poblada con los `shopping_session_items` seleccionados.
+3. View history → Open a completed session → Reuse it as the basis for a new list.
+   - Step 1: The user opens `shopping-history` and filters by group/date.
+   - Step 2: The user selects a completed session and chooses "Create list from session".
+   - Step 3: The system creates a new `base_list` populated with the selected `shopping_session_items`.
 
-   - ACE: Nueva `base_list` creada con ítems esperados y metadatos de origen (fecha, sessionId).
+   - ACE: A new `base_list` is created with the expected items and source metadata (date, sessionId).
 
-(Estos flujos fueron inferidos del código del repositorio y pueden ajustarse — marcados como [Assumed].)
+These flows were inferred from the repository code and may change; they are marked as [Assumed].
 
 ## 7. Functional requirements
 
-Transformamos los requisitos funcionales en historias de usuario con criterios de aceptación (ACE):
+The functional requirements are expressed as user stories with acceptance criteria (ACE):
 
-- Historia: "Como usuario quiero subir fotos de un ticket para obtener ítems ya extraídos".
-  - ACE: `POST /api/upload-ticket` acepta 1–5 imágenes válidas; responde 202 (accept) o 201 con ticketId; el ticket queda en BD con `ocr_status = pending`.
+- Story: "As a user, I want to upload receipt photos so I can get extracted items."
+  - ACE: `POST /api/upload-ticket` accepts 1–5 valid images; returns 202 (accepted) or 201 with ticketId; the ticket remains in the database with `ocr_status = pending`.
 
-- Historia: "Como sistema quiero procesar tickets en background para insertar `ticket_items`".
-  - ACE: Edge Function pone `ocr_status = processing` al comenzar y `completed`/`failed` al finalizar; `ticket_items` se insertan sin duplicados inter-imagen.
+- Story: "As a system, I want to process receipts in the background so I can insert `ticket_items`."
+  - ACE: The Edge Function sets `ocr_status = processing` when it starts and `completed`/`failed` when it finishes; `ticket_items` are inserted without cross-image duplicates.
 
-- Historia: "Como usuario quiero crear/editar listas base y sus ítems".
-  - ACE: CRUD opera con validaciones; no se permiten >250 ítems; nombres duplicados dentro de un grupo rechazados con 409.
+- Story: "As a user, I want to create and edit base lists and their items."
+  - ACE: CRUD operates with validation; more than 250 items are not allowed; duplicate names within a group are rejected with 409.
 
-- Historia: "Como usuario quiero iniciar una sesión de compra desde una lista base".
-  - ACE: Crear `shopping_session` clona los ítems; la UI muestra progreso y la API permite marcar ítems; completar cambia estado a `completed` y registra `total_amount`.
+- Story: "As a user, I want to start a shopping session from a base list."
+  - ACE: Creating a `shopping_session` clones the items; the UI shows progress and the API allows items to be marked; completion sets the status to `completed` and records `total_amount`.
 
-- Historia: "Como usuario quiero mergear ítems OCR a una lista existente".
-  - ACE: Merge upserta ítems por nombre/normalized_name; retorna resumen (nueva_count, updated_count, skipped_count).
+- Story: "As a user, I want to merge OCR items into an existing list."
+  - ACE: Merge upserts items by name/normalized_name and returns a summary (new_count, updated_count, skipped_count).
 
 ## 8. Non-functional requirements
 
-SLOs, Observabilidad y Operaciones (detalladas):
+Detailed SLOs, observability, and operations:
 
-- SLO (API upload): 99.9% de requests `POST /api/upload-ticket` deben responder en <2s (p90 < 800ms) bajo carga normal.
-- SLO (OCR completion): 95% de los tickets pequeños (≤2 imágenes, baja complejidad) deben alcanzar `completed` en <120s.
-- Availability: Servicio web (Next.js) objetivo 99.9% uptime; Edge Functions y Supabase dependencias documentadas.
+- SLO (upload API): 99.9% of `POST /api/upload-ticket` requests must respond in <2s (p90 < 800ms) under normal load.
+- SLO (OCR completion): 95% of small receipts (≤2 images, low complexity) must reach `completed` in <120s.
+- Availability: Target 99.9% uptime for the web service (Next.js); Edge Functions and Supabase dependencies are documented.
 
 - Observability:
-  - Instrumentar métricas: `tickets_uploaded_total`, `ocr_jobs_started`, `ocr_jobs_completed`, `ocr_jobs_failed`, `merge_operations_total`.
-  - Logs estructurados incluyendo `ticketId`, `userId`, `edgeFunctionInstance`, y timings.
-  - Tracing opcional: propagar `traceId` en pipeline OCR para correlación.
+  - Instrument metrics: `tickets_uploaded_total`, `ocr_jobs_started`, `ocr_jobs_completed`, `ocr_jobs_failed`, `merge_operations_total`.
+  - Structured logs including `ticketId`, `userId`, `edgeFunctionInstance`, and timings.
+  - Optional tracing: propagate `traceId` through the OCR pipeline for correlation.
 
 - Operational criteria:
-  - Reintentos exponenciales para fallos transitorios de OCR (max 3 attempts).
-  - Dead-letter queue o registro para tickets que fallen repetidamente, con `ocr_error` detallado.
+  - Exponential retries for transient OCR failures (max 3 attempts).
+  - Dead-letter queue or record for repeatedly failed receipts, with detailed `ocr_error`.
 
 ## 9. Success metrics (KPIs)
 
-KPIs con criterios de aceptación (medibles):
+KPIs with measurable acceptance criteria:
 
-- KPI: Latencia OCR (p90): objetivo < 120s para tickets ≤2 imágenes. ACE: instrumentar `ocr_jobs_completed` con duración y reportar p50/p90/p99.
-- KPI: Retención 7d: ≥ 25%. ACE: definir "usuario activo" (login + acción de completar sesión) y reportar cohort retention.
-- KPI: OCR conversion rate: ≥ 60% ACE: medir porcentaje de tickets donde usuario acepta ≥3 ítems sin edición en 24h post-completion.
-- KPI: Merge success rate: ≥ 98% ACE: operaciones de merge que produzcan upsert sin error; contar `merge_failures`.
+- KPI: OCR latency (p90): target < 120s for receipts with ≤2 images. ACE: instrument `ocr_jobs_completed` with duration and report p50/p90/p99.
+- KPI: 7-day retention: ≥ 25%. ACE: define "active user" (login + completed-session action) and report cohort retention.
+- KPI: OCR conversion rate: ≥ 60%. ACE: measure the percentage of receipts where the user accepts ≥3 items without editing within 24 hours after completion.
+- KPI: Merge success rate: ≥ 98%. ACE: count merge operations that produce an error-free upsert; track `merge_failures`.
 
 ## 10. Constraints
 
-- Dependencia de proveedores de IA (Gemini/OpenAI) para OCR; latencia y coste variables.
-- Límite de almacenamiento por imagen (10MB) y máxima 5 imágenes por ticket.
-- RLS y políticas de Supabase deben cubrir todos los endpoints mutativos.
+- Dependency on AI providers (Gemini/OpenAI) for OCR; latency and cost vary.
+- Image storage limit of 10MB and a maximum of 5 images per receipt.
+- Supabase RLS and policies must cover all mutating endpoints.
 
 ## 11. Key risks & mitigations
 
-- OCR produce resultados pobres → Mitigación: mostrar UI de revisión y permitir reintentos manuales; registro de `ocr_error` para observabilidad.
-- Costes de IA elevados → Mitigación: batch processing, límites y cuotas por usuario, caché de resultados comunes.
-- Pérdida de datos al migrar listas → Mitigación: transacciones y constraints, backups periódicos.
+- Poor OCR results → Mitigation: provide a review UI and manual retries; record `ocr_error` for observability.
+- High AI costs → Mitigation: batch processing, per-user limits and quotas, and caching of common results.
+- Data loss during list migrations → Mitigation: transactions, constraints, and regular backups.
 
 ## 12. Roadmap (phases)
 
 - Phase 0 (Internal): Harden migrations, RLS, config limits, runbooks.
-- Phase 1 (MVP 3 months): Ticket upload + OCR, lists base CRUD, shopping session, basic UI polish.
-- Phase 2 (3–6 months): Improve OCR accuracy, multi-image merge, better UX flows, analytics basic.
+- Phase 1 (MVP 3 months): Receipt upload + OCR, base-list CRUD, shopping sessions, and basic UI polish.
+- Phase 2 (3–6 months): Improve OCR accuracy, multi-image merge, better UX flows, and basic analytics.
 
 ## 13. Assumptions
 
@@ -132,7 +132,7 @@ KPIs con criterios de aceptación (medibles):
 
 ---
 
-_Generado automáticamente a partir del repositorio. Marcar cualquier punto que quieras ajustar._
+_Generated automatically from the repository. Mark any item that needs adjustment._
 
 ## 14. Diagrams (from repo)
 
@@ -142,13 +142,13 @@ Below are key diagrams extracted from the repository documentation to aid techni
 
 ```mermaid
 flowchart TB
-		subgraph Client["Cliente (Browser)"]
+		 subgraph Client["Client (Browser)"]
 				UI["Next.js App Router UI"]
 				Forms["React Hook Form + Zod"]
-				State["Zustand (estado cliente)"]
+				State["Zustand (client state)"]
 		end
 
-		subgraph Server["Capa Next.js"]
+		 subgraph Server["Next.js layer"]
 				SA["Server Actions"]
 				API["API Routes"]
 				MW["Middleware auth"]
@@ -161,7 +161,7 @@ flowchart TB
 				Edge["Edge Functions OCR"]
 		end
 
-		subgraph AI["Proveedores IA"]
+		 subgraph AI["AI providers"]
 				Gemini["Gemini OCR"]
 				OpenAI["OpenAI OCR"]
 		end
@@ -184,31 +184,31 @@ flowchart TB
 
 ```mermaid
 flowchart TD
-		A["Usuario entra a la app"] --> B{"Autenticado?"}
+		 A["User opens the app"] --> B{"Authenticated?"}
 		B -->|No| C["Sign in / Sign up"]
-		B -->|Sí| D["Dashboard"]
+		 B -->|Yes| D["Dashboard"]
 		C --> D
 
-		D --> E{"Acción principal"}
+		 D --> E{"Primary action"}
 
-		E --> F["Gestionar grupos y listas base"]
-		F --> G["Crear/editar ítems"]
-		G --> H["Iniciar shopping session"]
+		 E --> F["Manage groups and base lists"]
+		 F --> G["Create/edit items"]
+		 G --> H["Start shopping session"]
 
-		E --> I["Subir ticket (1..5 imágenes)"]
+		 E --> I["Upload receipt (1..5 images)"]
 		I --> J["OCR pending/processing"]
-		J --> K{"OCR completado?"}
-		K -->|No| L["Retry / revisar error"]
-		K -->|Sí| M["Seleccionar ítems extraídos"]
-		M --> N["Merge a lista existente"]
-		M --> O["Crear lista nueva desde ticket"]
+		 J --> K{"OCR complete?"}
+		 K -->|No| L["Retry / review error"]
+		 K -->|Yes| M["Select extracted items"]
+		 M --> N["Merge into existing list"]
+		 M --> O["Create new list from receipt"]
 
-		H --> P["Comprar: check/uncheck + editar ítems"]
-		P --> Q["Completar sesión"]
+		 H --> P["Shop: check/uncheck + edit items"]
+		 P --> Q["Complete session"]
 		Q --> R{"Sync to base?"}
-		R -->|Sí| S["Actualizar lista base"]
-		R -->|No| T["Guardar solo historial"]
-		S --> U["Historial por grupo"]
+		 R -->|Yes| S["Update base list"]
+		 R -->|No| T["Save history only"]
+		 S --> U["Group history"]
 		T --> U
 ```
 

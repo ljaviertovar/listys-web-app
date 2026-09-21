@@ -2,7 +2,9 @@ import { redirect } from 'next/navigation'
 import { HugeiconsIcon } from '@hugeicons/react'
 
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { PageHeader, PageContainer, BackLink, CardHeaderContent } from '@/components/app'
+import { BackLink } from '@/components/app'
+import { PageHeader, PageContainer } from '@/components/app/app-page'
+import { CardHeaderContent } from '@/components/app/app-card'
 import { TicketItemsSelector, TicketImage, TicketActions, TicketStatusListener } from '@/components/features/tickets'
 import { Invoice01Icon, ListViewIcon } from '@hugeicons/core-free-icons'
 

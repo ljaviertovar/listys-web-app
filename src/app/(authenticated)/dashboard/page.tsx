@@ -1,7 +1,9 @@
 import { Suspense } from 'react'
 import { FolderLibraryIcon, Invoice01Icon, TimeQuarterPassIcon } from '@hugeicons/core-free-icons'
 
-import { DashboardCard, PageHeader, PageContainer, ActiveShopping } from '@/components/app'
+import { DashboardCard } from '@/components/app'
+import { ActiveShopping } from '@/components/app/active-session'
+import { PageHeader, PageContainer } from '@/components/app/app-page'
 
 import { getActiveShoppingSession, getGroups, getShoppingHistory, getTickets } from '@/lib/api/endpoints'
 import { createClient } from '@/lib/supabase/server'

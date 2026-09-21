@@ -1,6 +1,6 @@
 ### Source of truth
 
-- Skills: `.agents/skills/` · `.github/skills/` · `./agent/skills/`
+- Skills: `.claude/skills/` · `.agents/skills/` · `.github/skills/` · `./agent/skills/`
 
 ### Mandatory Skill Loading Rule
 

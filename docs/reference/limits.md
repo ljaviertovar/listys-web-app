@@ -1,7 +1,7 @@
 # Reference Limits
 
-Documento de referencia único para límites de negocio.  
-Fuente de verdad: `src/lib/config/limits.ts`.
+Single source of truth for business limits.  
+Source of truth: `src/lib/config/limits.ts`.
 
 | Constant | Value | Description |
 | --- | ---: | --- |

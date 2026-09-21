@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 
 import { Card, CardContent } from '@/components/ui/card'
 
-import { PageHeader, PageContainer } from '@/components/app'
+import { PageHeader, PageContainer } from '@/components/app/app-page'
 import { GroupCard } from '@/components/features/shopping-lists'
 
 import { getGroupsWithHistory } from '@/lib/api/endpoints'
