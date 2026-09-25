@@ -1,24 +1,29 @@
 /**
  * The landing page is styled with Tailwind utility classes directly in each component.
- * Only the handful of effects below stay as plain CSS, because they are not practical to
- * express as Tailwind utilities: multi-layer backgrounds, a mask-image, and a repeating
- * dashed line whose orientation flips per breakpoint. Everything else — layout, color,
- * spacing, typography, states — lives in the component markup.
+ * These small effects stay as plain CSS because they need custom geometry or repeating
+ * print-like patterns. Layout, color, spacing, typography, and states live in the markup.
  */
 
-/* Hero backdrop glow: six stacked gradients + blur + a fade mask. Paired with Tailwind's
-   `before:` positional utilities on the .hero-glow element in hero.tsx. */
-.hero-glow::before {
-	background:
-		linear-gradient(90deg, transparent 0 2%, rgba(37, 99, 235, 0.2) 6%, transparent 13%),
-		linear-gradient(90deg, transparent 7%, rgba(96, 165, 250, 0.24) 12%, transparent 19%),
-		linear-gradient(90deg, transparent 15%, rgba(56, 189, 248, 0.16) 20%, transparent 28%),
-		linear-gradient(90deg, transparent 70%, rgba(147, 197, 253, 0.14) 76%, transparent 83%),
-		linear-gradient(90deg, transparent 78%, rgba(56, 189, 248, 0.18) 84%, transparent 91%),
-		linear-gradient(90deg, transparent 86%, rgba(37, 99, 235, 0.22) 93%, transparent 99%);
-	filter: blur(96px);
-	-webkit-mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.72) 50%, rgba(0, 0, 0, 0.22) 100%);
-	mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.72) 50%, rgba(0, 0, 0, 0.22) 100%);
+/* A soft gray seam separates sections without introducing another accent color. */
+.section-divider {
+	position: relative;
+}
+
+.section-divider::before {
+	content: '';
+	position: absolute;
+	inset: 0 0 auto;
+	height: 1px;
+	background: linear-gradient(
+		90deg,
+		transparent 0%,
+		rgb(226 232 240 / 0.55) 16%,
+		rgb(226 232 240 / 0.9) 50%,
+		rgb(226 232 240 / 0.55) 84%,
+		transparent 100%
+	);
+	box-shadow: 0 1px 5px rgb(148 163 184 / 0.04);
+	pointer-events: none;
 }
 
 /* A shallow eight-tooth cut keeps the receipt edge even at every width. */

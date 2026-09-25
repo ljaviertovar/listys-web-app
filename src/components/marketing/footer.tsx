@@ -32,7 +32,7 @@ export function Footer() {
 	return (
 		<footer
 			data-testid='marketing-footer'
-			className='border-t border-slate-200 bg-white pt-12 pb-[34px]'
+			className='section-divider bg-white pt-12 pb-[34px]'
 		>
 			<Shell>
 				<div className='grid grid-cols-1 gap-8 sm:grid-cols-[2fr_1fr_1fr_1fr]'>

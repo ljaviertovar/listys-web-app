@@ -9,7 +9,7 @@ import { MARKETING_SECTION_LINKS } from '@/data/constants'
 import { useScrollPosition } from '@/hooks'
 import { cn } from '@/utils'
 
-/** Clear over the hero, frosted once the page moves. */
+/** Match the hero surface at the top, then turn solid white on scroll. */
 export default function Header() {
 	const scrollPosition = useScrollPosition()
 	const scrolled = scrollPosition > 18

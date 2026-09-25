@@ -98,7 +98,7 @@ export function SharedListsShowcase() {
 		<section
 			id='shared-lists'
 			data-testid='landing-shared-lists'
-			className='scroll-mt-16 border-t border-slate-200 bg-white py-[72px] min-[900px]:py-[104px]'
+			className='section-divider scroll-mt-16 bg-white py-[72px] min-[900px]:py-[104px]'
 		>
 			<Shell>
 				<div className='mt-2 grid gap-11 min-[1040px]:grid-cols-[minmax(0,330px)_minmax(0,1fr)] min-[1040px]:items-start min-[1040px]:gap-14'>

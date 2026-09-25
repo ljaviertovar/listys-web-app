@@ -182,7 +182,7 @@ export function Features() {
 		<section
 			id='features'
 			data-testid='landing-features'
-			className='scroll-mt-16 border-t border-slate-200 bg-slate-50 py-[72px] min-[900px]:py-[104px]'
+			className='section-divider scroll-mt-16 bg-slate-50 py-[72px] min-[900px]:py-[104px]'
 		>
 			<Shell>
 				<div className='mb-[34px] grid gap-4 min-[900px]:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] min-[900px]:items-start min-[900px]:gap-[60px]'>

@@ -32,7 +32,7 @@ export function Faq() {
 		<section
 			id='faq'
 			data-testid='landing-faq'
-			className='scroll-mt-16 border-t border-slate-200 bg-slate-50 py-[72px] min-[900px]:py-[104px]'
+			className='section-divider scroll-mt-16 bg-slate-50 py-[72px] min-[900px]:py-[104px]'
 		>
 			<Shell>
 				<div className='mt-2 grid grid-cols-1 gap-7 min-[920px]:grid-cols-[minmax(0,1.32fr)_minmax(0,1fr)] min-[920px]:items-start min-[920px]:gap-16'>

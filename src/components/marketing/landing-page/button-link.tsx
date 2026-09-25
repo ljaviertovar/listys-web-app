@@ -4,13 +4,9 @@ import type { ComponentProps } from 'react'
 
 import { cn } from '@/utils'
 
-/**
- * The landing page's flat CTA style (lift + shadow on hover) is a deliberately different
- * treatment from the app-wide shadcn Button (gradient overlay), so it stays a small
- * dedicated component instead of overriding that primitive.
- */
+/** The landing CTA carries the same restrained blue highlight as the app's primary button. */
 const buttonLinkVariants = cva(
-	'inline-flex items-center justify-center gap-[9px] rounded-[10px] bg-primary font-bold text-white shadow-[0_10px_20px_-12px_rgba(37,99,235,0.7)] transition-[background-color,transform] duration-150 hover:-translate-y-px hover:bg-blue-700 focus-visible:rounded-md focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-primary [&_svg]:size-[15px]',
+	'relative isolate inline-flex items-center justify-center gap-[9px] overflow-hidden rounded-[10px] border border-blue-700/20 bg-gradient-to-b from-blue-500 to-primary font-bold text-white shadow-[0_10px_20px_-12px_rgba(37,99,235,0.7)] transition-[background-color,box-shadow,transform] duration-150 before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-gradient-to-b before:from-white/20 before:to-transparent before:opacity-80 before:content-[\'\'] hover:-translate-y-px hover:from-blue-500 hover:to-blue-700 hover:shadow-[0_13px_25px_-12px_rgba(37,99,235,0.72)] focus-visible:rounded-md focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-primary [&_svg]:size-[15px]',
 	{
 		variants: {
 			size: {

@@ -13,7 +13,7 @@ function GetStarted() {
 		<section
 			id='get-started'
 			data-testid='landing-get-started'
-			className='scroll-mt-16 bg-[linear-gradient(90deg,rgba(8,13,26,.95)_0%,rgba(8,13,26,.9)_44%,rgba(8,13,26,.5)_100%),url(/images/landing/close-bg.jpg)] bg-cover bg-center max-[759px]:bg-[linear-gradient(180deg,rgba(8,13,26,.93)_0%,rgba(8,13,26,.88)_100%),url(/images/landing/close-bg.jpg)]'
+			className='section-divider scroll-mt-16 bg-[linear-gradient(90deg,rgba(8,13,26,.95)_0%,rgba(8,13,26,.9)_44%,rgba(8,13,26,.5)_100%),url(/images/landing/close-bg.jpg)] bg-cover bg-center max-[759px]:bg-[linear-gradient(180deg,rgba(8,13,26,.93)_0%,rgba(8,13,26,.88)_100%),url(/images/landing/close-bg.jpg)]'
 		>
 			<Shell className='py-20 min-[900px]:py-[110px]'>
 				<h2 className='max-w-[14em] text-[clamp(31px,4.2vw,46px)] leading-[1.08] font-extrabold text-white text-balance'>
