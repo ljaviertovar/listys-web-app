@@ -1,35 +1,52 @@
 'use client'
 
+import Link from 'next/link'
+
 import AuthButtons from '../features/auth/auth-buttons'
-import Navbar from './navbar'
-import Logo from '../commons/logo'
+import { Brand, ButtonLink, Shell } from './landing-page'
 
+import { MARKETING_SECTION_LINKS } from '@/data/constants'
 import { useScrollPosition } from '@/hooks'
+import { cn } from '@/utils'
 
+/** Clear over the hero, frosted once the page moves. */
 export default function Header() {
 	const scrollPosition = useScrollPosition()
+	const scrolled = scrollPosition > 18
 
 	return (
 		<header
-			className={`hidden lg:block sticky top-0 z-50 transition-shadow w-full
-  ${
-		scrollPosition > 56
-			? 'bg-background/40 shadow bg-opacity-60 backdrop-blur-lg backdrop-filter border-b'
-			: 'bg-transparent shadow-none'
-	}
-  `}
+			data-testid='marketing-header'
+			className={cn(
+				'sticky top-0 z-[60] border-b border-transparent bg-transparent transition-[background-color,border-color] duration-200',
+				scrolled && 'border-slate-200 bg-white/86 backdrop-blur-md',
+			)}
 		>
-			<div className='hidden container mx-auto max-w-7xl lg:flex h-14 items-center gap-6 px-8'>
-				<div className='flex items-center gap-4 shrink-0'>
-					<Logo />
-				</div>
-
-				<Navbar />
-
-				<div className='shrink-0'>
-					<AuthButtons />
-				</div>
-			</div>
+			<Shell className='flex h-16 items-center gap-[26px]'>
+				<Brand />
+				<nav className='hidden min-[900px]:flex min-[900px]:gap-6 min-[900px]:text-sm min-[900px]:font-semibold min-[900px]:text-slate-700'>
+					{MARKETING_SECTION_LINKS.map(link => (
+						<Link
+							key={link.href}
+							href={link.href}
+							className='hover:text-primary'
+						>
+							{link.label}
+						</Link>
+					))}
+				</nav>
+				<span className='flex-1' />
+				<AuthButtons
+					signedOut={
+						<ButtonLink
+							size='sm'
+							href='/auth/signup'
+						>
+							Create free account
+						</ButtonLink>
+					}
+				/>
+			</Shell>
 		</header>
 	)
 }

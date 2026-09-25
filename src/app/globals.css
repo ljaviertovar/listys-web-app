@@ -39,9 +39,6 @@
   --sidebar-accent-foreground: oklch(0.3791 0.1378 265.5222);
   --sidebar-border: oklch(0.9276 0.0058 264.5313);
   --sidebar-ring: oklch(0.6231 0.1880 259.8145);
-  --font-sans: Inter, sans-serif;
-  --font-serif: Source Serif 4, serif;
-  --font-mono: JetBrains Mono, monospace;
   --radius: 0.375rem;
   --shadow-x: 0;
   --shadow-y: 1px;
@@ -94,9 +91,6 @@
   --sidebar-accent-foreground: oklch(0.8823 0.0571 254.1284);
   --sidebar-border: oklch(0.3715 0 0);
   --sidebar-ring: oklch(0.6231 0.1880 259.8145);
-  --font-sans: Inter, sans-serif;
-  --font-serif: Source Serif 4, serif;
-  --font-mono: JetBrains Mono, monospace;
   --radius: 0.375rem;
   --shadow-x: 0;
   --shadow-y: 1px;
@@ -148,9 +142,9 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-mono);
-  --font-serif: var(--font-serif);
+  --font-sans: var(--font-inter), sans-serif;
+  --font-display: var(--font-plus-jakarta), sans-serif;
+  --font-mono: var(--font-ibm-plex-mono), ui-monospace, monospace;
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -190,7 +184,13 @@
   h4,
   h5,
   h6 {
+    font-family: var(--font-plus-jakarta), sans-serif;
     text-wrap: balance;
+  }
+
+  button,
+  [role='button'] {
+    font-family: var(--font-plus-jakarta), sans-serif;
   }
 
   /* Eliminate 300ms tap delay on touch devices */
@@ -209,25 +209,6 @@
   font-variant-numeric: tabular-nums;
 }
 
-.section-soft-surface {
-  background:
-    radial-gradient(circle at 8% 12%, rgba(99, 102, 241, 0.045), transparent 38%),
-    radial-gradient(circle at 90% 18%, rgba(56, 189, 248, 0.055), transparent 36%),
-    linear-gradient(180deg, rgba(248, 250, 252, 0.8) 0%, rgba(255, 255, 255, 0.9) 46%, rgba(248, 250, 252, 0.84) 100%);
-}
-
-.section-neutral-surface {
-  background: linear-gradient(180deg, rgba(248, 250, 252, 0.62) 0%, rgba(255, 255, 255, 0.9) 42%, rgba(248, 250, 252, 0.68) 100%);
-}
-
-.feature-premium-surface {
-  background:
-    radial-gradient(circle at 50% 0%, rgba(14, 165, 233, 0.13), transparent 34%),
-    radial-gradient(circle at 84% 20%, rgba(99, 102, 241, 0.08), transparent 36%),
-    radial-gradient(circle at 14% 28%, rgba(56, 189, 248, 0.07), transparent 34%),
-    linear-gradient(180deg, rgba(248, 250, 252, 0.78) 0%, rgba(255, 255, 255, 0.95) 30%, rgba(248, 250, 252, 0.88) 100%);
-}
-
 .premium-card {
   box-shadow:
     0 20px 25px -34px rgba(15, 23, 42, 0.28),
@@ -240,15 +221,6 @@
     radial-gradient(circle at 82% 16%, rgba(16, 185, 129, 0.14), transparent 30%),
     radial-gradient(circle at 65% 82%, rgba(99, 102, 241, 0.12), transparent 30%),
     linear-gradient(180deg, #f8fafc 0%, #eef4ff 52%, #f8fafc 100%);
-}
-
-.floating {
-  animation: floating 5.2s ease-in-out infinite;
-}
-
-.floating-delayed {
-  animation: floating 6.2s ease-in-out infinite;
-  animation-delay: 0.45s;
 }
 
 .scan-line {
@@ -271,18 +243,6 @@
   border-radius: 9999px;
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.38), transparent 70%);
   pointer-events: none;
-}
-
-@keyframes floating {
-
-  0%,
-  100% {
-    transform: translateY(0px);
-  }
-
-  50% {
-    transform: translateY(-10px);
-  }
 }
 
 @keyframes scan-line {

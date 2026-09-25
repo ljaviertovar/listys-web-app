@@ -1,115 +1,90 @@
 import Link from 'next/link'
 
-import Logo from '../commons/logo'
+import { Brand, Shell } from './landing-page'
 
+const COLUMNS = [
+	{
+		title: 'Product',
+		links: [
+			{ label: 'How it works', href: '/#how-it-works' },
+			{ label: 'Shared lists', href: '/#shared-lists' },
+			{ label: 'FAQ', href: '/#faq' },
+		],
+	},
+	{
+		title: 'Company',
+		links: [
+			{ label: 'About', href: '#' },
+			{ label: 'Contact', href: '#' },
+		],
+	},
+	{
+		title: 'Legal',
+		links: [
+			{ label: 'Privacy Policy', href: '#' },
+			{ label: 'Terms of Service', href: '#' },
+		],
+	},
+]
+
+/** Marketing footer. */
 export function Footer() {
 	return (
-		<footer className='relative bg-white px-4 py-12 text-foreground sm:px-6 lg:px-8'>
-			<div className='pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border to-transparent' />
-			<div className='pointer-events-none absolute inset-x-0 top-px h-px bg-gradient-to-r from-transparent via-white/60 to-transparent' />
-			<div className='relative z-10 mx-auto max-w-6xl'>
-				<div className='relative mb-8 grid grid-cols-1 gap-8 md:grid-cols-4'>
-					<div className='space-y-2'>
-						<Logo />
-						<p className='text-muted-foreground text-sm leading-relaxed'>
-							Transform receipts into smart shopping lists.
+		<footer
+			data-testid='marketing-footer'
+			className='border-t border-slate-200 bg-white pt-12 pb-[34px]'
+		>
+			<Shell>
+				<div className='grid grid-cols-1 gap-8 sm:grid-cols-[2fr_1fr_1fr_1fr]'>
+					<div>
+						<Brand />
+						<p className='mt-3 max-w-[26em] text-[13.5px] leading-[1.6] text-slate-500'>
+							Turn a receipt into a list your household will actually reuse.
 						</p>
 					</div>
-					<div>
-						<h4 className='mb-3 font-semibold text-foreground'>Product</h4>
-						<ul className='text-muted-foreground space-y-2 text-sm'>
-							<li>
-								<Link
-									href='#how-it-works'
-									className='transition hover:text-foreground'
-								>
-									How it works
-								</Link>
-							</li>
-							<li>
-								<Link
-									href='#'
-									className='transition hover:text-foreground'
-								>
-									Pricing
-								</Link>
-							</li>
-							<li>
-								<Link
-									href='#faq'
-									className='transition hover:text-foreground'
-								>
-									FAQ
-								</Link>
-							</li>
-						</ul>
-					</div>
-					<div>
-						<h4 className='mb-3 font-semibold text-foreground'>Company</h4>
-						<ul className='text-muted-foreground space-y-2 text-sm'>
-							<li>
-								<Link
-									href='#'
-									className='transition hover:text-foreground'
-								>
-									About
-								</Link>
-							</li>
-							<li>
-								<Link
-									href='#'
-									className='transition hover:text-foreground'
-								>
-									Contact
-								</Link>
-							</li>
-						</ul>
-					</div>
-					<div>
-						<h4 className='mb-3 font-semibold text-foreground'>Legal</h4>
-						<ul className='text-muted-foreground space-y-2 text-sm'>
-							<li>
-								<Link
-									href='#'
-									className='transition hover:text-foreground'
-								>
-									Privacy Policy
-								</Link>
-							</li>
-							<li>
-								<Link
-									href='#'
-									className='transition hover:text-foreground'
-								>
-									Terms of Service
-								</Link>
-							</li>
-						</ul>
-					</div>
+					{COLUMNS.map(column => (
+						<div key={column.title}>
+							<h4 className='mb-3 text-[13.5px] font-bold text-slate-900'>{column.title}</h4>
+							<ul>
+								{column.links.map(link => (
+									<li
+										key={link.label}
+										className='py-[5px] text-[13.5px] text-slate-500'
+									>
+										<Link
+											href={link.href}
+											className='hover:text-primary'
+										>
+											{link.label}
+										</Link>
+									</li>
+								))}
+							</ul>
+						</div>
+					))}
 				</div>
-
-				<div className='text-muted-foreground border-border/60 relative flex flex-col items-center justify-between gap-4 border-t pt-6 text-sm sm:flex-row'>
-					<p>&copy; {new Date().getFullYear()} Listys</p>
-					<div className='flex gap-6'>
+				<div className='mt-[38px] flex flex-wrap items-center justify-between gap-4 border-t border-slate-200 pt-5 text-[13px] text-slate-500'>
+					<span>&copy; {new Date().getFullYear()} Listys</span>
+					<span className='flex gap-[22px]'>
 						<Link
 							href='https://x.com/ljaviertovar'
-							className='relative transition-colors hover:text-foreground after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 after:bg-foreground after:transition-all hover:after:w-full'
 							target='_blank'
 							rel='noopener noreferrer'
+							className='hover:text-primary'
 						>
 							X
 						</Link>
 						<Link
 							href='https://github.com/ljaviertovar'
-							className='relative transition-colors hover:text-foreground after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 after:bg-foreground after:transition-all hover:after:w-full'
 							target='_blank'
 							rel='noopener noreferrer'
+							className='hover:text-primary'
 						>
 							GitHub
 						</Link>
-					</div>
+					</span>
 				</div>
-			</div>
+			</Shell>
 		</footer>
 	)
 }

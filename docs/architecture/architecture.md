@@ -148,7 +148,7 @@ src/
 ├── test/                    # Shared Vitest/Testing Library setup
 ├── types/                   # Domain and generated database types
 ├── utils/                   # Generic helpers and local tests
-└── middleware.ts            # Authentication middleware entry point
+└── proxy.ts                 # Authentication proxy (middleware) entry point
 
 supabase/
 ├── config.toml              # Local/project configuration

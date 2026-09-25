@@ -1,0 +1,84 @@
+/**
+ * The landing page is styled with Tailwind utility classes directly in each component.
+ * Only the handful of effects below stay as plain CSS, because they are not practical to
+ * express as Tailwind utilities: multi-layer backgrounds, a mask-image, and a repeating
+ * dashed line whose orientation flips per breakpoint. Everything else — layout, color,
+ * spacing, typography, states — lives in the component markup.
+ */
+
+/* Hero backdrop glow: six stacked gradients + blur + a fade mask. Paired with Tailwind's
+   `before:` positional utilities on the .hero-glow element in hero.tsx. */
+.hero-glow::before {
+	background:
+		linear-gradient(90deg, transparent 0 2%, rgba(37, 99, 235, 0.2) 6%, transparent 13%),
+		linear-gradient(90deg, transparent 7%, rgba(96, 165, 250, 0.24) 12%, transparent 19%),
+		linear-gradient(90deg, transparent 15%, rgba(56, 189, 248, 0.16) 20%, transparent 28%),
+		linear-gradient(90deg, transparent 70%, rgba(147, 197, 253, 0.14) 76%, transparent 83%),
+		linear-gradient(90deg, transparent 78%, rgba(56, 189, 248, 0.18) 84%, transparent 91%),
+		linear-gradient(90deg, transparent 86%, rgba(37, 99, 235, 0.22) 93%, transparent 99%);
+	filter: blur(96px);
+	-webkit-mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.72) 50%, rgba(0, 0, 0, 0.22) 100%);
+	mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.72) 50%, rgba(0, 0, 0, 0.22) 100%);
+}
+
+/* The receipt's torn-paper edge: a linear mask combined with a repeating conic-gradient notch. */
+.receipt-torn {
+	-webkit-mask:
+		linear-gradient(#000 0 0) top / 100% calc(100% - 9px) no-repeat,
+		conic-gradient(from 135deg at 50% 0, #000 0 90deg, transparent 0) bottom / 14px 9px repeat-x;
+	mask:
+		linear-gradient(#000 0 0) top / 100% calc(100% - 9px) no-repeat,
+		conic-gradient(from 135deg at 50% 0, #000 0 90deg, transparent 0) bottom / 14px 9px repeat-x;
+}
+
+/* The receipt's barcode: a repeating gradient of bars, not a real barcode. */
+.receipt-barcode {
+	background: repeating-linear-gradient(
+		90deg,
+		#0f172a 0 2px,
+		transparent 2px 4px,
+		#0f172a 4px 5px,
+		transparent 5px 9px,
+		#0f172a 9px 11px,
+		transparent 11px 13px
+	);
+}
+
+/* The dashed connector between the two device mockups; it runs horizontally on desktop and
+   flips to vertical once the devices stack on narrow screens. */
+.dashed-link::before {
+	content: '';
+	position: absolute;
+	left: -10px;
+	right: -10px;
+	top: 50%;
+	height: 1px;
+	background: repeating-linear-gradient(90deg, #7c3aed 0 5px, transparent 5px 10px);
+	opacity: 0.6;
+}
+@media (max-width: 699px) {
+	.dashed-link::before {
+		left: 50%;
+		right: auto;
+		top: -10px;
+		bottom: -10px;
+		width: 1px;
+		height: auto;
+		background: repeating-linear-gradient(180deg, #7c3aed 0 5px, transparent 5px 10px);
+	}
+}
+
+/* Receipt scan-line reveal, played once on mount via Tailwind's `animate-[seam_...]` arbitrary value. */
+@keyframes seam {
+	0% {
+		top: 6%;
+		opacity: 0;
+	}
+	14% {
+		opacity: 1;
+	}
+	100% {
+		top: 42%;
+		opacity: 1;
+	}
+}

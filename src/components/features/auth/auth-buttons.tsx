@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { type ReactNode, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 
@@ -8,7 +8,12 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
 import { UserNav } from './user-nav'
 
-export default function AuthButtons() {
+type Props = {
+	/** Replaces the default call to action shown to signed-out visitors. */
+	signedOut?: ReactNode
+}
+
+export default function AuthButtons({ signedOut }: Props) {
 	const [user, setUser] = useState<any>(null)
 	const [loading, setLoading] = useState(true)
 
@@ -45,6 +50,8 @@ export default function AuthButtons() {
 		<div className='flex justify-end gap-4'>
 			{user ? (
 				<UserNav user={user} />
+			) : signedOut ? (
+				signedOut
 			) : (
 				// Only show Sign Up when not authenticated
 				<div className='flex items-center gap-4'>

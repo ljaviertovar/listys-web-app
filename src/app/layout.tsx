@@ -3,9 +3,26 @@ import { ThemeProvider } from '@/providers/theme-provider'
 import { Toaster } from 'sonner'
 import { PwaRegister } from '@/components/features/pwa'
 
-import { Inter } from 'next/font/google'
+import { IBM_Plex_Mono, Inter, Plus_Jakarta_Sans } from 'next/font/google'
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-sans' })
+const plusJakartaSans = Plus_Jakarta_Sans({
+	subsets: ['latin'],
+	variable: '--font-plus-jakarta',
+	display: 'swap',
+})
+
+const inter = Inter({
+	subsets: ['latin'],
+	variable: '--font-inter',
+	display: 'swap',
+})
+
+const ibmPlexMono = IBM_Plex_Mono({
+	subsets: ['latin'],
+	weight: ['400', '500', '600'],
+	variable: '--font-ibm-plex-mono',
+	display: 'swap',
+})
 
 import './globals.css'
 import { ActiveSessionInit } from '@/components/app/active-session'
@@ -47,9 +64,9 @@ export default function RootLayout({
 		<html
 			lang='en'
 			suppressHydrationWarning
-			className={inter.variable}
+			className={`${plusJakartaSans.variable} ${inter.variable} ${ibmPlexMono.variable}`}
 		>
-			<body className={`${inter.className} relative scroll-smooth focus:scroll-auto`}>
+			<body className='font-sans relative scroll-smooth focus:scroll-auto'>
 				<ThemeProvider
 					attribute='class'
 					defaultTheme='light'

@@ -19,10 +19,10 @@ export const NAV_ITEMS: NavItemO[] = [
 ]
 
 export const MARKETING_SECTION_LINKS = [
-	{ label: 'Shared Lists', href: '/#shared-lists' },
-	{ label: 'How It Works', href: '/#how-it-works' },
+	{ label: 'How it works', href: '/#how-it-works' },
+	{ label: 'Features', href: '/#features' },
+	{ label: 'Shared lists', href: '/#shared-lists' },
 	{ label: 'FAQ', href: '/#faq' },
-	{ label: 'Get Started', href: '/#get-started' },
 ]
 
 export const SIDEBAR_DATA: SidebarData = {

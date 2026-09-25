@@ -80,7 +80,7 @@ omitted from this document.
 │   │   ├── database.types.ts
 │   │   ├── navigation.ts
 │   │   └── <domain>.ts
-│   ├── middleware.ts                      # Authentication middleware entry point
+│   ├── proxy.ts                           # Authentication proxy (middleware) entry point
 │   └── utils/                             # Generic helpers and formatters
 ├── supabase/
 │   ├── config.toml                       # Supabase local/project configuration

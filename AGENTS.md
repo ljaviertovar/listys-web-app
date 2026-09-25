@@ -268,6 +268,34 @@ Guidelines:
 - Avoid circular dependencies.
 - Keep barrel files flat (no complex logic inside them).
 
+### Styling
+
+Tailwind CSS is the default and only styling mechanism. Before adding any plain CSS (a new class in a `.css` file, a
+`.module.css` file, an inline `<style>` block, or a raw `style` object beyond a genuinely dynamic value), first try to
+express the same result with Tailwind utility classes — including arbitrary-value utilities (`text-[13px]`,
+`bg-[url(...)]`, `min-[900px]:flex`) and Tailwind's built-in variants (`hover:`, `focus-visible:`, `before:`/`after:`,
+`open:`, `group-open:`, `motion-reduce:`, `selection:`). Reach for a design token (an existing `--color-*`/semantic
+Tailwind color) before a literal hex value; only fall back to an arbitrary hex when no token fits.
+
+Only write a custom CSS class when the effect cannot reasonably be expressed as Tailwind utilities on the element —
+for example: a multi-layer background composited from several gradients, a `mask`/`-webkit-mask` image, a
+`repeating-linear-gradient` texture, or a `@keyframes` animation. When one of these is unavoidable:
+
+- Keep the custom class minimal — only the properties Tailwind cannot express, nothing that a utility class already
+  covers.
+- Name it for what it does (`.receipt-torn`, `.hero-glow`), never a generic name like `.custom` or `.style1`.
+- Add a one-line comment on the rule explaining why it is not a Tailwind utility.
+- Do not let a "just this once" custom class become a whole parallel design system (a scoped root with its own
+  `--token` variables reimplementing colors Tailwind already provides, a full class-per-component stylesheet). If a
+  page needs more than a couple of these exceptions, that is a signal to revisit the approach, not to keep adding
+  classes.
+
+Before adding a new custom class, check whether an existing one in `src/app/globals.css` already covers the same
+effect (e.g. `hero-mesh`, `scan-line`, `glossy-icon`, `premium-card`) instead of duplicating it.
+
+Delete a custom CSS class as soon as no component references it — an unused rule is dead weight the next person has
+to re-verify before trusting the stylesheet.
+
 ### Component Reusability
 
 Before writing new TSX or custom component styles, search for a suitable component in this order:

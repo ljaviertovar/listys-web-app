@@ -80,17 +80,17 @@ typography:
     fontWeight: 650
     lineHeight: 1.3
   body-lg:
-    fontFamily: "Plus Jakarta Sans, Inter, system-ui, sans-serif"
+    fontFamily: "Inter, system-ui, sans-serif"
     fontSize: "18px"
     fontWeight: 450
     lineHeight: 1.65
   body-md:
-    fontFamily: "Plus Jakarta Sans, Inter, system-ui, sans-serif"
+    fontFamily: "Inter, system-ui, sans-serif"
     fontSize: "15px"
     fontWeight: 400
     lineHeight: 1.6
   body-sm:
-    fontFamily: "Plus Jakarta Sans, Inter, system-ui, sans-serif"
+    fontFamily: "Inter, system-ui, sans-serif"
     fontSize: "13px"
     fontWeight: 400
     lineHeight: 1.55
@@ -364,14 +364,17 @@ they create muddy intermediate greys and unpredictable contrast.
 
 ### 4.1 Families
 
-**Plus Jakarta Sans** carries brand and interface. Its rounded geometry echoes the receipt mark without becoming playful.
-Use weights 400, 500, 600, 700, and 800.
+**Plus Jakarta Sans** carries brand hierarchy and action UI: display text, headings, card titles, buttons, and list names.
+Its rounded geometry echoes the receipt mark without becoming playful. Use weights 400, 500, 600, 700, and 800.
+
+**Inter** carries reading and input surfaces: paragraphs, helper text, form content, and dense list data. Its neutral shapes
+keep mobile shopping flows legible at a glance. Use weights 400, 500, 600, and 700.
 
 **IBM Plex Mono** represents captured source data. Use weights 400, 500, and 600 for receipt previews, totals, dates, OCR
 metadata, and compact overlines. It must not be used for paragraphs, form controls, or full shopping lists.
 
-Fallbacks are defined in the machine-readable block. Both families must be loaded through `next/font/google` so assets are
-self-hosted and layout shifts are controlled.
+Fallbacks are defined in the machine-readable block. All three families must be loaded through `next/font/google` so assets
+are self-hosted and layout shifts are controlled.
 
 ### 4.2 Scale and roles
 
@@ -702,7 +705,8 @@ Truncation is acceptable for repeated card titles only when the full value is av
 `src/app/globals.css` is the source of runtime semantic tokens. Keep shadcn-compatible names (`--background`, `--card`,
 `--primary`, and so on) and add only domain tokens that cannot be expressed semantically, such as `--scan`,
 `--collaboration`, and receipt-specific surfaces. Tailwind v4 token registration belongs in the existing `@theme inline`
-block. Do not define a second competing colour system in `tailwind.config.ts`.
+block. Do not define a second competing colour system in `tailwind.config.ts`. See AGENTS.md's Styling rule for when
+(rarely) a plain CSS class is the right call instead of a Tailwind utility.
 
 Recommended mapping:
 
@@ -739,25 +743,33 @@ mixing; the hex values above are the canonical visual targets, not a requirement
 
 ### 11.2 Fonts
 
-`src/app/layout.tsx` should eventually replace the current Inter-only configuration:
+`src/app/layout.tsx` loads the three typography roles once and exposes them as CSS variables:
 
 ```ts
-import { IBM_Plex_Mono, Plus_Jakarta_Sans } from 'next/font/google'
+import { IBM_Plex_Mono, Inter, Plus_Jakarta_Sans } from 'next/font/google'
 
-const fontSans = Plus_Jakarta_Sans({
+const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ['latin'],
-  variable: '--font-sans',
+  variable: '--font-plus-jakarta',
+  display: 'swap',
 })
 
-const fontReceipt = IBM_Plex_Mono({
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+})
+
+const ibmPlexMono = IBM_Plex_Mono({
   subsets: ['latin'],
   weight: ['400', '500', '600'],
-  variable: '--font-receipt',
+  variable: '--font-ibm-plex-mono',
+  display: 'swap',
 })
 ```
 
-Apply both variables to `<html>` and expose `--font-receipt` through Tailwind. Until that migration, Inter is the accepted
-fallback; individual components must not load their own web fonts.
+Apply all three variables to `<html>`. The global theme maps `font-sans` to Inter, `font-display` to Plus Jakarta Sans, and
+`font-mono` to IBM Plex Mono. Individual components must not load their own web fonts.
 
 ### 11.3 Component ownership
 
@@ -779,22 +791,21 @@ repository's `data-testid` and test-location rules.
 
 ### 11.4 Current implementation gaps
 
-These are migration notes, not permission for two systems:
+These are remaining implementation notes, not permission for two systems:
 
-1. **Typography:** the app currently loads Inter only. Plus Jakarta Sans and IBM Plex Mono are target roles.
-2. **Colour discipline:** marketing, authentication, shopping categories, and statuses use independent violet, pink, green,
+1. **Colour discipline:** marketing, authentication, shopping categories, and statuses use independent violet, pink, green,
    amber, sky, and slate utilities. Consolidate them into the semantic palette above.
-3. **Marketing motion:** `hero-mesh`, floating elements, pulsing arrows, and the looping scan line exceed the target motion
+2. **Marketing motion:** `hero-mesh`, floating elements, pulsing arrows, and the looping scan line exceed the target motion
    rules. Keep one receipt-to-list transformation and remove ambient loops.
-4. **Claims:** current marketing constants include “99% OCR accuracy” and “4.9/5 App store rating.” Remove them unless a
+3. **Claims:** current marketing constants include “99% OCR accuracy” and “4.9/5 App store rating.” Remove them unless a
    maintained evidence source exists.
-5. **Radius/elevation:** primitives and pages mix base 6px radii, 12px cards, 16px auth controls, and large device radii.
+4. **Radius/elevation:** primitives and pages mix base 6px radii, 12px cards, 16px auth controls, and large device radii.
    Normalize by semantic role rather than global search-and-replace.
-6. **Icons:** Hugeicons and Lucide coexist. Standardize feature by feature, never by replacing icons without reviewing
+5. **Icons:** Hugeicons and Lucide coexist. Standardize feature by feature, never by replacing icons without reviewing
    optical size and accessible labels.
-7. **Dark mode:** semantic tokens exist, but one-off literal colour utilities and translucent surfaces require a complete
+6. **Dark mode:** semantic tokens exist, but one-off literal colour utilities and translucent surfaces require a complete
    contrast review.
-8. **Copy:** product UI and documentation mix “ticket,” “receipt,” “shopping run,” and “shopping session.” User-facing
+7. **Copy:** product UI and documentation mix “ticket,” “receipt,” “shopping run,” and “shopping session.” User-facing
    English uses `receipt` and `shopping session`; internal legacy names may remain until safely migrated.
 
 Migrate one vertical flow at a time: primitives and tokens, app shell, active shopping, receipts/OCR, lists and history,
@@ -823,3 +834,7 @@ authentication, then marketing. Each flow should be visually complete in light/d
 - Hide primary mobile actions above the fold or behind an overflow menu.
 - Publish performance, accuracy, rating, or adoption claims without maintained evidence.
 - Introduce a new radius, shadow, status colour, or icon family without updating this document.
+- Reach for a plain CSS file, CSS module, or inline `<style>` before trying Tailwind utilities (including arbitrary
+  values and built-in variants) — a custom class is only for effects Tailwind genuinely cannot express (multi-layer
+  gradients, `mask`, `repeating-linear-gradient`, `@keyframes`), never a shortcut around learning the utility, and
+  never a parallel `--token` system duplicating colours Tailwind already has.

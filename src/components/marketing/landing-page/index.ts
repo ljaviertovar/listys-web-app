@@ -1,3 +1,6 @@
+export { Brand, LandingSprite } from './landing-icons'
+export { ButtonLink } from './button-link'
 export { Faq } from './faq'
 export { LandingPageContent } from './landing-page-content'
+export { Shell } from './shell'
 export { SharedListsShowcase } from './shared-lists-showcase'

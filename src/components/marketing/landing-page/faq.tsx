@@ -1,88 +1,74 @@
-'use client'
+import { Shell } from './shell'
 
-import { motion } from 'framer-motion'
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
-
-const faqs = [
+const FAQS = [
 	{
-		question: 'Do I have to retype my shopping list every week?',
+		question: 'Do I have to retype my list every week?',
 		answer:
-			"No — that's exactly what Listys eliminates. Scan any receipt once and Listys extracts every item automatically. Those items are saved to a reusable base list, so your next shopping trip starts fully pre-filled. The more you use it, the smarter your list gets.",
+			'No. Photograph a receipt once and its items become a base list you keep. Next week you start from that list instead of a blank one, and every new receipt fills in a little more of it.',
 	},
 	{
-		question: 'What if the scan misses an item or gets a name wrong?',
+		question: 'What happens when the scan gets something wrong?',
 		answer:
-			"You always review extracted items before they're saved. Every field is editable — you can correct names, adjust quantities, or remove anything that didn't scan correctly. Listys is designed to be fast to review, not a black box you have to trust blindly.",
+			'You catch it. Extracted items land in a review screen before anything is saved — change a name, fix a quantity, delete a line that should not be there. We aim for 99% accuracy on a legible receipt; the review step covers the rest.',
 	},
 	{
-		question: 'How does a shopping session work?',
+		question: 'What is a shopping session?',
 		answer:
-			"When you're ready to shop, you start a session from any base list. Listys clones it so your original stays intact. During the trip you check off items as you go. When you finish, you can optionally sync changes back — so new items or adjustments automatically improve your list for next time.",
+			"A copy of a list, made for one trip. Check items off as you walk the aisles — your original list stays untouched no matter what you do in the store. When you finish, you decide whether the trip's changes go back into it.",
 	},
 	{
-		question: 'Can multiple people use the same list?',
+		question: 'Can my household share a list?',
 		answer:
-			"Yes. You can create a shared group and invite family members or roommates. Everyone sees the same list in real time — if one person checks off milk, it's checked off for everyone. No more duplicated items or out-of-sync notes.",
+			'Yes. Invite them to a group and you all see the same list at the same time. When someone ticks off milk in the aisle, it is ticked for everyone, so nobody comes home with a second carton.',
+	},
+	{
+		question: 'What does it cost?',
+		answer: 'Nothing. One free account, with everything on this page in it. No paid tier and no card at sign-up.',
 	},
 ]
-const REVEAL_VIEWPORT = { once: true, amount: 0.22 }
-const FADE_UP = {
-	hidden: { opacity: 0, y: 16 },
-	show: {
-		opacity: 1,
-		y: 0,
-		transition: { duration: 0.45, ease: 'easeOut' as const },
-	},
-} as const
 
 export function Faq() {
 	return (
-		<motion.section
-			className='relative w-full overflow-hidden py-20'
+		<section
 			id='faq'
-			initial='hidden'
-			whileInView='show'
-			viewport={REVEAL_VIEWPORT}
+			data-testid='landing-faq'
+			className='scroll-mt-16 border-t border-slate-200 bg-slate-50 py-[72px] min-[900px]:py-[104px]'
 		>
-			<div className='pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border/80 to-transparent' />
-			<div className='pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-border/80 to-transparent' />
-			<div className='max-w-3xl mx-auto px-4 sm:px-6 lg:px-8'>
-				<motion.div
-					className='text-center mb-12 space-y-4'
-					variants={FADE_UP}
-				>
-					<h2 className='font-serif text-3xl font-extrabold tracking-[-0.015em] text-slate-900 md:text-4xl'>
-						Frequently Asked Questions
-					</h2>
-					<p className='text-lg text-slate-700'>Quick answers before you create your account.</p>
-				</motion.div>
-
-				<Accordion
-					type='single'
-					collapsible
-					className='w-full space-y-4 border-none shadow-none rounded-none bg-transparent'
-				>
-					{faqs.map((faq, index) => (
-						<motion.div
-							key={faq.question}
-							variants={FADE_UP}
-							transition={{ delay: index * 0.05 }}
-						>
-							<AccordionItem
-								value={`item-${index}`}
-								className='bg-white backdrop-blur-md border border-slate-200/50 rounded-xl px-2 shadow-sm transition-all duration-300 hover:shadow-md hover:border-slate-300/50 data-[state=open]:shadow-md data-[state=open]:border-primary/20'
+			<Shell>
+				<div className='mt-2 grid grid-cols-1 gap-7 min-[920px]:grid-cols-[minmax(0,1.32fr)_minmax(0,1fr)] min-[920px]:items-start min-[920px]:gap-16'>
+					<div className='min-[920px]:sticky min-[920px]:top-[96px] min-[920px]:order-2'>
+						<h2 className='text-[clamp(28px,3.6vw,40px)] leading-[1.08] font-extrabold text-slate-900 text-balance'>
+							Before you create an account
+						</h2>
+						<p className='mt-[14px] max-w-[30em] text-base leading-[1.6] text-slate-600'>
+							Five things worth knowing before you hand over an email address.
+						</p>
+					</div>
+					<div className='overflow-hidden rounded-2xl border border-slate-200 bg-white min-[920px]:order-1'>
+						{FAQS.map((faq, index) => (
+							<details
+								key={faq.question}
+								open={index === 0}
+								className='group border-t border-slate-200 open:bg-[linear-gradient(180deg,rgba(37,99,235,.035),transparent_60%)] first-of-type:border-t-0'
 							>
-								<AccordionTrigger className=' text-lg font-medium text-slate-900 hover:text-primary transition-colors duration-200 hover:no-underline py-5 px-4'>
+								<summary className='flex cursor-pointer list-none items-center justify-between gap-[22px] px-[22px] py-5 text-[15.5px] font-bold tracking-[-0.015em] text-slate-900 transition-colors hover:text-blue-700 [&::-webkit-details-marker]:hidden min-[920px]:px-[26px] min-[920px]:py-[22px] min-[920px]:text-[16.5px]'>
 									{faq.question}
-								</AccordionTrigger>
-								<AccordionContent className=' text-slate-700 text-base leading-relaxed pb-5 px-4'>
+									<span
+										className='relative size-4 shrink-0 text-slate-500 group-open:text-primary'
+										aria-hidden='true'
+									>
+										<span className='absolute top-[7.25px] right-0 left-0 h-[1.5px] rounded-[1px] bg-current' />
+										<span className='absolute top-0 bottom-0 left-[7.25px] w-[1.5px] rounded-[1px] bg-current transition-[transform,opacity] duration-[180ms] group-open:scale-y-0 group-open:opacity-0' />
+									</span>
+								</summary>
+								<p className='max-w-[48em] px-[22px] pb-[22px] text-[14.5px] leading-[1.7] text-slate-600 min-[920px]:px-[26px] min-[920px]:pb-[26px] min-[920px]:text-[15px]'>
 									{faq.answer}
-								</AccordionContent>
-							</AccordionItem>
-						</motion.div>
-					))}
-				</Accordion>
-			</div>
-		</motion.section>
+								</p>
+							</details>
+						))}
+					</div>
+				</div>
+			</Shell>
+		</section>
 	)
 }
