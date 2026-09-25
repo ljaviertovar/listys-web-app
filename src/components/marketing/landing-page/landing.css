@@ -21,14 +21,29 @@
 	mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.72) 50%, rgba(0, 0, 0, 0.22) 100%);
 }
 
-/* The receipt's torn-paper edge: a linear mask combined with a repeating conic-gradient notch. */
+/* A shallow eight-tooth cut keeps the receipt edge even at every width. */
 .receipt-torn {
-	-webkit-mask:
-		linear-gradient(#000 0 0) top / 100% calc(100% - 9px) no-repeat,
-		conic-gradient(from 135deg at 50% 0, #000 0 90deg, transparent 0) bottom / 14px 9px repeat-x;
-	mask:
-		linear-gradient(#000 0 0) top / 100% calc(100% - 9px) no-repeat,
-		conic-gradient(from 135deg at 50% 0, #000 0 90deg, transparent 0) bottom / 14px 9px repeat-x;
+	clip-path: polygon(
+		0 0,
+		100% 0,
+		100% calc(100% - 8px),
+		93.75% 100%,
+		87.5% calc(100% - 8px),
+		81.25% 100%,
+		75% calc(100% - 8px),
+		68.75% 100%,
+		62.5% calc(100% - 8px),
+		56.25% 100%,
+		50% calc(100% - 8px),
+		43.75% 100%,
+		37.5% calc(100% - 8px),
+		31.25% 100%,
+		25% calc(100% - 8px),
+		18.75% 100%,
+		12.5% calc(100% - 8px),
+		6.25% 100%,
+		0 calc(100% - 8px)
+	);
 }
 
 /* The receipt's barcode: a repeating gradient of bars, not a real barcode. */
@@ -65,20 +80,5 @@
 		width: 1px;
 		height: auto;
 		background: repeating-linear-gradient(180deg, #7c3aed 0 5px, transparent 5px 10px);
-	}
-}
-
-/* Receipt scan-line reveal, played once on mount via Tailwind's `animate-[seam_...]` arbitrary value. */
-@keyframes seam {
-	0% {
-		top: 6%;
-		opacity: 0;
-	}
-	14% {
-		opacity: 1;
-	}
-	100% {
-		top: 42%;
-		opacity: 1;
 	}
 }

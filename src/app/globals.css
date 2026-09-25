@@ -236,6 +236,13 @@
   pointer-events: none;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .scan-line {
+    animation: none;
+    transform: translateY(0);
+  }
+}
+
 .glossy-icon::after {
   content: '';
   position: absolute;

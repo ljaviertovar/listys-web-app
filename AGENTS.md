@@ -272,10 +272,16 @@ Guidelines:
 
 Tailwind CSS is the default and only styling mechanism. Before adding any plain CSS (a new class in a `.css` file, a
 `.module.css` file, an inline `<style>` block, or a raw `style` object beyond a genuinely dynamic value), first try to
-express the same result with Tailwind utility classes — including arbitrary-value utilities (`text-[13px]`,
-`bg-[url(...)]`, `min-[900px]:flex`) and Tailwind's built-in variants (`hover:`, `focus-visible:`, `before:`/`after:`,
-`open:`, `group-open:`, `motion-reduce:`, `selection:`). Reach for a design token (an existing `--color-*`/semantic
-Tailwind color) before a literal hex value; only fall back to an arbitrary hex when no token fits.
+express the same result with Tailwind utility classes — including arbitrary-value utilities (e.g. a one-off pixel
+size, an arbitrary breakpoint, or a background image path) and Tailwind's built-in variants (`hover:`,
+`focus-visible:`, `before:`/`after:`, `open:`, `group-open:`, `motion-reduce:`, `selection:`). Reach for a design
+token (an existing `--color-*`/semantic Tailwind color) before a literal hex value; only fall back to an arbitrary
+hex when no token fits.
+
+Never write a literal Tailwind arbitrary-value class (anything with a `[...]`) in a comment, doc, or string that
+isn't a real `className` — Tailwind v4 scans the whole repository for class candidates by default, so a placeholder
+example (e.g. a literal `url(...)` with no real path) gets compiled into real, broken CSS. Prose describing the
+capability, without the bracket syntax itself, is safe.
 
 Only write a custom CSS class when the effect cannot reasonably be expressed as Tailwind utilities on the element —
 for example: a multi-layer background composited from several gradients, a `mask`/`-webkit-mask` image, a

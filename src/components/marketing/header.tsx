@@ -19,12 +19,12 @@ export default function Header() {
 			data-testid='marketing-header'
 			className={cn(
 				'sticky top-0 z-[60] border-b border-transparent bg-transparent transition-[background-color,border-color] duration-200',
-				scrolled && 'border-slate-200 bg-white/86 backdrop-blur-md',
+				scrolled && 'border-slate-200 bg-white/70 backdrop-blur-md',
 			)}
 		>
-			<Shell className='flex h-16 items-center gap-[26px]'>
+			<Shell className='relative flex h-16 items-center gap-[26px]'>
 				<Brand />
-				<nav className='hidden min-[900px]:flex min-[900px]:gap-6 min-[900px]:text-sm min-[900px]:font-semibold min-[900px]:text-slate-700'>
+				<nav className='hidden min-[900px]:absolute min-[900px]:left-1/2 min-[900px]:flex min-[900px]:-translate-x-1/2 min-[900px]:gap-6 min-[900px]:text-sm min-[900px]:font-semibold min-[900px]:text-slate-700'>
 					{MARKETING_SECTION_LINKS.map(link => (
 						<Link
 							key={link.href}
