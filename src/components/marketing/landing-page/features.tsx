@@ -203,7 +203,7 @@ export function Features() {
 								className='relative h-[224px] overflow-hidden bg-[#F4F8FF] after:absolute after:inset-x-0 after:bottom-0 after:h-[78px] after:bg-[linear-gradient(180deg,rgba(255,255,255,0)_0%,rgba(255,255,255,.55)_58%,#fff_100%)] after:content-[""]'
 								aria-hidden='true'
 							>
-								<div className='absolute top-6 -right-4 left-[22px] rounded-xl border border-slate-200 bg-white px-[14px] py-[13px]'>
+								<div className='absolute top-6 right-5 left-[22px] rounded-xl border border-slate-200 bg-white px-[14px] py-[13px]'>
 									<div className='mb-[11px] flex items-start justify-between gap-[10px]'>
 										<div>
 											<div className='text-[12.5px] font-extrabold tracking-[-0.02em] text-slate-900'>

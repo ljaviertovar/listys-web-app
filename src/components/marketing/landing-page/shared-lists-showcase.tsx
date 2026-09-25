@@ -1,3 +1,5 @@
+import Image from 'next/image'
+
 import { Icon } from './landing-icons'
 import { Avatars, Pill, ProgressBar, Row, Rows } from './list-rows'
 import { Shell } from './shell'
@@ -93,6 +95,46 @@ function DeviceCard({ device }: { device: Device }) {
 	)
 }
 
+/** The photo carries the section headline; the mockups below prove the claim it makes. */
+function SharedListsBanner() {
+	return (
+		<div
+			data-testid='shared-lists-banner'
+			className='relative h-[210px] overflow-hidden rounded-2xl min-[900px]:h-[300px] min-[900px]:rounded-[20px]'
+		>
+			<Image
+				src='/images/landing/shared-lists.webp'
+				alt='Two shoppers, one at a kitchen counter and one in a grocery aisle, both looking at their phones.'
+				fill
+				sizes='(min-width: 1200px) 1136px, calc(100vw - 40px)'
+				className='object-cover object-[center_28%]'
+			/>
+			<div
+				aria-hidden='true'
+				className='absolute inset-0 bg-[linear-gradient(0deg,rgba(15,23,42,.82)_0%,rgba(15,23,42,.2)_60%,transparent_80%)] min-[900px]:bg-[linear-gradient(0deg,rgba(15,23,42,.78)_0%,rgba(15,23,42,.15)_55%,transparent_75%)]'
+			/>
+			<div className='absolute inset-x-[18px] bottom-4 min-[900px]:inset-x-8 min-[900px]:bottom-[26px]'>
+				<span className='font-mono text-[10px] tracking-[.12em] text-violet-300 uppercase min-[900px]:text-[11px]'>
+					Shared lists
+				</span>
+				<h2 className='mt-[5px] text-[22px] leading-[1.12] font-extrabold tracking-[-0.03em] text-white text-balance min-[900px]:mt-1.5 min-[900px]:text-[clamp(28px,3vw,32px)] min-[900px]:leading-[1.1]'>
+					Two of you, one list, in real time.
+				</h2>
+				<p className='mt-1.5 max-w-[46em] text-[12.5px] leading-[1.5] text-slate-200 min-[900px]:mt-2 min-[900px]:text-[14.5px] min-[900px]:leading-[1.55]'>
+					{/* Shorter copy on narrow screens so the text never covers the faces in the photo. */}
+					<span className='min-[640px]:hidden'>
+						Noah is in the aisle. Maya is at home — the check lands for her the moment he taps it.
+					</span>
+					<span className='hidden min-[640px]:inline'>
+						Noah is in the aisle. Maya is at home. The moment he ticks something off, it is ticked for her — and for
+						anyone else on the list.
+					</span>
+				</p>
+			</div>
+		</div>
+	)
+}
+
 export function SharedListsShowcase() {
 	return (
 		<section
@@ -101,20 +143,15 @@ export function SharedListsShowcase() {
 			className='section-divider scroll-mt-16 bg-white py-[72px] min-[900px]:py-[104px]'
 		>
 			<Shell>
-				<div className='mt-2 grid gap-11 min-[1040px]:grid-cols-[minmax(0,330px)_minmax(0,1fr)] min-[1040px]:items-start min-[1040px]:gap-14'>
+				<SharedListsBanner />
+
+				<div className='mt-5 grid gap-6 min-[900px]:mt-8 min-[900px]:gap-8 min-[1040px]:grid-cols-[minmax(0,300px)_minmax(0,1fr)] min-[1040px]:items-center min-[1040px]:gap-14'>
 					<div>
-						<h2 className='text-[clamp(28px,3.6vw,40px)] leading-[1.08] font-extrabold text-slate-900 text-balance'>
-							Two of you, one list, in real time.
-						</h2>
-						<p className='mt-4 text-base leading-[1.65] text-slate-600'>
-							Noah is in the aisle. Maya is at home. The moment he ticks something off, it is ticked for her — and
-							for anyone else on the list.
-						</p>
-						<div className='mt-[26px] flex flex-col gap-[14px]'>
+						<div className='flex flex-col gap-[10px] min-[900px]:gap-[14px]'>
 							{POINTS.map(point => (
 								<div
 									key={point}
-									className='flex items-start gap-3 text-[15px] leading-[1.55] text-slate-700'
+									className='flex items-start gap-[9px] text-[13.5px] leading-[1.45] text-slate-700 min-[900px]:gap-3 min-[900px]:text-[15px] min-[900px]:leading-[1.55]'
 								>
 									<i className='mt-[2px] flex size-[21px] shrink-0 items-center justify-center rounded-full bg-violet-50 text-violet-600 [&_svg]:size-3'>
 										<Icon id='tick' />
@@ -123,7 +160,7 @@ export function SharedListsShowcase() {
 								</div>
 							))}
 						</div>
-						<div className='mt-[26px] flex items-center gap-3 text-sm text-slate-600'>
+						<div className='mt-4 flex items-center gap-[9px] text-[12.5px] text-slate-600 min-[900px]:mt-[26px] min-[900px]:gap-3 min-[900px]:text-sm'>
 							<Avatars initials={['MY', 'NH', 'AV']} />
 							<span>Maya, Noah and Ava share this list</span>
 						</div>
@@ -141,11 +178,18 @@ export function SharedListsShowcase() {
 							<DeviceCard device={DEVICES[1]} />
 						</div>
 
-						<div className='mt-[18px] rounded-2xl border border-slate-200 bg-white px-4'>
+						<div
+							aria-label='Recent list activity'
+							data-testid='activity-toast-stack'
+							role='list'
+							className='mx-auto mt-[18px] grid w-fit max-w-full gap-2'
+						>
 							{FEED.map(entry => (
 								<div
 									key={entry.who}
-									className='flex items-center gap-3 border-t border-slate-200 py-[11px] text-[13px] text-slate-700 first:border-t-0'
+									data-testid={`activity-toast-${entry.initials.toLowerCase()}`}
+									role='listitem'
+									className='flex min-h-[48px] items-center gap-3 rounded-xl border border-slate-200 bg-white px-3.5 py-[10px] text-[13px] text-slate-700 shadow-sm'
 								>
 									<span className='flex size-6 shrink-0 items-center justify-center rounded-full bg-violet-600 font-mono text-[8.5px] font-semibold text-white'>
 										{entry.initials}
