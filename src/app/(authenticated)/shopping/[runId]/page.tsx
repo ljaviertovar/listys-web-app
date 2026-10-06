@@ -4,9 +4,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
-import { BackLink } from '@/components/app'
-import { ActiveShoppingBadge } from '@/components/app/active-session'
-import { PageHeader, PageContainer, PageFooterAction } from '@/components/app/app-page'
+import { BackLink, ActiveShoppingBadge, PageHeader, PageContainer, PageFooterAction } from '@/components/app'
 import {
 	ShoppingSessionItemRow,
 	ShoppingSessionActions,

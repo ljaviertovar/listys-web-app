@@ -8,7 +8,7 @@ import { motion, useCycle } from 'framer-motion'
 import { HugeiconsIcon } from '@hugeicons/react'
 
 import { AuthButtons } from '@/components/features/auth'
-import Logo from '../commons/logo'
+import Logo from '@/components/commons/logo'
 
 import type { NavItemO } from '@/types'
 import { MARKETING_SECTION_LINKS, NAV_ITEMS } from '@/data/constants'

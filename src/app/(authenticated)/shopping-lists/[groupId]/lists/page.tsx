@@ -6,9 +6,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { CreateBaseListDialog, BaseListCard } from '@/components/features/base-lists'
 import { SearchList01Icon } from '@hugeicons/core-free-icons'
 
-import { BackLink } from '@/components/app'
-import { ActiveShopping } from '@/components/app/active-session'
-import { PageHeader, PageContainer, PageFooterAction } from '@/components/app/app-page'
+import { BackLink, ActiveShopping, PageHeader, PageContainer, PageFooterAction } from '@/components/app'
 
 import { getBaseListsByGroup } from '@/lib/api/endpoints'
 

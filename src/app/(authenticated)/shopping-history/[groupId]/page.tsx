@@ -5,8 +5,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ShoppingBasket01Icon } from '@hugeicons/core-free-icons'
 import { HistorySessionCard } from '@/components/features/shopping-sessions'
-import { BackLink } from '@/components/app'
-import { PageHeader, PageContainer } from '@/components/app/app-page'
+import { BackLink, PageHeader, PageContainer } from '@/components/app'
 
 export default async function GroupHistoryPage({ params }: { params: Promise<{ groupId: string }> }) {
 	const { groupId } = await params

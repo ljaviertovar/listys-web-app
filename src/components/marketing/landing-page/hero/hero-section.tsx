@@ -1,9 +1,6 @@
 import type { CSSProperties } from 'react'
 
-import { ButtonLink } from './button-link'
-import { Icon } from './landing-icons'
-import { Shell } from './shell'
-import { Avatars, Check, Pill, ProgressBar } from './list-rows'
+import { Avatars, ButtonLink, Check, Icon, Pill, ProgressBar, Shell } from '../commons'
 
 import { cn } from '@/utils'
 
@@ -23,7 +20,13 @@ const RECEIPT_PILE: Slip[] = [
 			['GREEN OLIVES', '2.95'],
 		],
 		total: '6.35',
-		style: { left: '-3%', top: '18%', width: 142, fontSize: 8, transform: 'rotate(-8deg)' },
+		style: {
+			left: '-3%',
+			top: '18%',
+			width: 142,
+			fontSize: 8,
+			transform: 'rotate(-8deg)',
+		},
 	},
 	{
 		shop: 'FARMERS MARKET',
@@ -40,7 +43,13 @@ const RECEIPT_PILE: Slip[] = [
 			['CARROTS 1KG', '1.40'],
 		],
 		total: '24.10',
-		style: { left: '9%', top: '31%', width: 132, fontSize: 7.5, transform: 'rotate(5deg)' },
+		style: {
+			left: '9%',
+			top: '31%',
+			width: 132,
+			fontSize: 7.5,
+			transform: 'rotate(5deg)',
+		},
 	},
 	{
 		shop: 'PAPER & INK',
@@ -49,7 +58,13 @@ const RECEIPT_PILE: Slip[] = [
 			['PENS (5)', '3.20'],
 		],
 		total: '7.70',
-		style: { left: '3%', top: '44%', width: 126, fontSize: 7.5, transform: 'rotate(5deg)' },
+		style: {
+			left: '3%',
+			top: '44%',
+			width: 126,
+			fontSize: 7.5,
+			transform: 'rotate(5deg)',
+		},
 	},
 	{
 		shop: 'PHARMACY WEST',
@@ -65,7 +80,13 @@ const RECEIPT_PILE: Slip[] = [
 			['MOUTHWASH', '5.20'],
 		],
 		total: '44.85',
-		style: { left: '-1%', top: '70%', width: 146, fontSize: 8, transform: 'rotate(-4deg)' },
+		style: {
+			left: '-1%',
+			top: '70%',
+			width: 146,
+			fontSize: 8,
+			transform: 'rotate(-4deg)',
+		},
 	},
 	{
 		shop: 'ORCHARD LANE',
@@ -74,7 +95,13 @@ const RECEIPT_PILE: Slip[] = [
 			['FIGS', '4.10'],
 		],
 		total: '7.00',
-		style: { left: '3%', top: '59%', width: 124, fontSize: 7.5, transform: 'rotate(6deg)' },
+		style: {
+			left: '3%',
+			top: '59%',
+			width: 124,
+			fontSize: 7.5,
+			transform: 'rotate(6deg)',
+		},
 	},
 	{
 		shop: 'GREENGROCER 24',
@@ -85,7 +112,13 @@ const RECEIPT_PILE: Slip[] = [
 			['RED ONIONS', '1.95'],
 		],
 		total: '7.05',
-		style: { left: '9%', top: '84%', width: 138, fontSize: 7.5, transform: 'rotate(4deg)' },
+		style: {
+			left: '9%',
+			top: '84%',
+			width: 138,
+			fontSize: 7.5,
+			transform: 'rotate(4deg)',
+		},
 	},
 	{
 		shop: 'MILL BAKERY',
@@ -101,7 +134,13 @@ const RECEIPT_PILE: Slip[] = [
 			['APPLE TURNOVER', '3.40'],
 		],
 		total: '35.85',
-		style: { right: '-3%', top: '15%', width: 138, fontSize: 8, transform: 'rotate(6deg)' },
+		style: {
+			right: '-3%',
+			top: '15%',
+			width: 138,
+			fontSize: 8,
+			transform: 'rotate(6deg)',
+		},
 	},
 	{
 		shop: 'SUNSET LIQUOR',
@@ -110,7 +149,13 @@ const RECEIPT_PILE: Slip[] = [
 			['TONIC 6PK', '4.60'],
 		],
 		total: '17.00',
-		style: { right: '3%', top: '37%', width: 126, fontSize: 7.5, transform: 'rotate(-5deg)' },
+		style: {
+			right: '3%',
+			top: '37%',
+			width: 126,
+			fontSize: 7.5,
+			transform: 'rotate(-5deg)',
+		},
 	},
 	{
 		shop: 'TOWN HARDWARE',
@@ -125,7 +170,13 @@ const RECEIPT_PILE: Slip[] = [
 			['SCREWDRIVER', '4.80'],
 		],
 		total: '37.10',
-		style: { right: '14%', top: '55%', width: 132, fontSize: 7.5, transform: 'rotate(-5deg)' },
+		style: {
+			right: '14%',
+			top: '55%',
+			width: 132,
+			fontSize: 7.5,
+			transform: 'rotate(-5deg)',
+		},
 	},
 	{
 		shop: 'VALLEY DAIRY',
@@ -134,7 +185,13 @@ const RECEIPT_PILE: Slip[] = [
 			['BUTTER 250G', '3.10'],
 		],
 		total: '5.30',
-		style: { right: '-1%', top: '62%', width: 142, fontSize: 8, transform: 'rotate(4deg)' },
+		style: {
+			right: '-1%',
+			top: '62%',
+			width: 142,
+			fontSize: 8,
+			transform: 'rotate(4deg)',
+		},
 	},
 	{
 		shop: 'THE SPICE JAR',
@@ -145,7 +202,13 @@ const RECEIPT_PILE: Slip[] = [
 			['SAFFRON', '8.90'],
 		],
 		total: '15.30',
-		style: { right: '8%', top: '82%', width: 142, fontSize: 7.5, transform: 'rotate(-6deg)' },
+		style: {
+			right: '8%',
+			top: '82%',
+			width: 142,
+			fontSize: 7.5,
+			transform: 'rotate(-6deg)',
+		},
 	},
 ]
 
@@ -165,7 +228,10 @@ const RECEIPT_LINES: [string, string][] = [
 ]
 
 const PHONE_CATEGORIES = [
-	{ name: '🥖 Bakery', items: [{ name: 'Sourdough bread', qty: '1 unit', done: false }] },
+	{
+		name: '🥖 Bakery',
+		items: [{ name: 'Sourdough bread', qty: '1 unit', done: false }],
+	},
 	{
 		name: '🥛 Dairy',
 		items: [
@@ -182,7 +248,7 @@ const PHONE_CATEGORIES = [
 	},
 ]
 
-export function Hero() {
+export function HeroSection() {
 	return (
 		<section
 			data-testid='landing-hero'
@@ -306,7 +372,6 @@ export function Hero() {
 								Market Fresh · 12 items · 5 categories
 							</p>
 						</div>
-
 						<div className='relative z-10 min-[630px]:translate-x-[147px]'>
 							<p className='sr-only'>
 								A phone showing the twelve items from that receipt as a shopping list in progress, three of twelve

@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { acceptInvite } from '@/lib/server/services/sharing.service'
-import { PageHeader, PageContainer } from '@/components/app/app-page'
+import { PageHeader, PageContainer } from '@/components/app'
 import { Alert } from '@/components/ui/alert'
 
 interface Props {

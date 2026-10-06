@@ -3,8 +3,7 @@ import { FolderSearch2 } from 'lucide-react'
 
 import { Card, CardContent } from '@/components/ui/card'
 import { CreateGroupDialog, GroupCard } from '@/components/features/shopping-lists'
-import { BackLink } from '@/components/app'
-import { PageHeader, PageContainer, PageFooterAction } from '@/components/app/app-page'
+import { BackLink, PageHeader, PageContainer, PageFooterAction } from '@/components/app'
 
 import { createClient } from '@/lib/supabase/server'
 

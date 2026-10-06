@@ -31,9 +31,8 @@ import {
 	AlertDialogMedia,
 	AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { ActiveShoppingBadge } from '@/components/app/active-session'
+import { ActiveShoppingBadge, CardFooterContent, CardHeaderContent } from '@/components/app'
 
-import { CardFooterContent, CardHeaderContent } from '@/components/app/app-card'
 
 interface Props {
 	baseList: BaseListWithCount

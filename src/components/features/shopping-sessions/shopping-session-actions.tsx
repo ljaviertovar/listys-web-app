@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { CompleteSessionButton } from './complete-session-button'
 import { CompleteSessionAlert } from './complete-session-alert'
 import { CancelSessionButton } from './cancel-session-button'
-import { AddItemDialogBaseList } from '@/components/app/add-item'
+import { AddItemDialogBaseList } from '@/components/app'
 import { ShareListDialog } from '@/components/features/sharing'
 
 interface Props {

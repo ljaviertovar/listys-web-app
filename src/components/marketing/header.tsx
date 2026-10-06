@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 
-import AuthButtons from '../features/auth/auth-buttons'
+import { AuthButtons } from '@/components/features/auth'
 import { Brand, ButtonLink, Shell } from './landing-page'
 
 import { MARKETING_SECTION_LINKS } from '@/data/constants'

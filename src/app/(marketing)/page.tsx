@@ -1,45 +1,62 @@
-import { Metadata } from 'next'
-import { LandingPageContent } from '@/components/marketing/landing-page'
-
-export const metadata: Metadata = {
-	title: 'Listys - Smart Shopping List Manager',
-	description:
-		'Manage your shopping lists with AI-powered receipt processing. Transform photos into organized lists instantly.',
-	keywords: [
-		'shopping list',
-		'grocery app',
-		'AI receipt scanner',
-		'meal planning',
-		'expense tracker',
-		'smart shopping',
-	],
-	authors: [{ name: 'Listys Team' }],
-	openGraph: {
-		type: 'website',
-		locale: 'en_US',
-		url: 'https://listys.app',
-		title: 'Listys - Smart Shopping List Manager',
-		description: 'Transform receipts into organized shopping lists with AI. Save time and track spending.',
-		siteName: 'Listys',
-		images: [
-			{
-				url: '/og-image.jpg',
-				width: 1200,
-				height: 630,
-				alt: 'Listys App Preview',
-			},
-		],
-	},
-	twitter: {
-		card: 'summary_large_image',
-		title: 'Listys - Smart Shopping List Manager',
-		description: 'Transform receipts into organized shopping lists with AI.',
-		images: ['/og-image.jpg'],
-		creator: '@listysapp',
-	},
-	metadataBase: new URL('https://listys.app'),
-}
+import {
+	FaqSection,
+	FeaturesSection,
+	GetStartedSection,
+	HeroSection,
+	HowItWorksSection,
+	SectionWrapper,
+	SharedListsShowcaseSection,
+} from '@/components/marketing/landing-page'
 
 export default function Page() {
-	return <LandingPageContent />
+	return (
+		<>
+			<SectionWrapper
+				testId='home-page-hero'
+				width='full'
+			>
+				<HeroSection />
+			</SectionWrapper>
+
+			<SectionWrapper
+				id='how-it-works'
+				testId='home-page-how-it-works'
+				className='overflow-hidden bg-white'
+			>
+				<HowItWorksSection />
+			</SectionWrapper>
+
+			<SectionWrapper
+				id='features'
+				testId='home-page-features'
+				className='bg-slate-50'
+			>
+				<FeaturesSection />
+			</SectionWrapper>
+
+			<SectionWrapper
+				id='shared-lists'
+				testId='home-page-shared-lists'
+				className='bg-white'
+			>
+				<SharedListsShowcaseSection />
+			</SectionWrapper>
+
+			<SectionWrapper
+				id='faq'
+				testId='home-page-faq'
+				className='bg-slate-50'
+			>
+				<FaqSection />
+			</SectionWrapper>
+
+			<SectionWrapper
+				id='get-started'
+				testId='home-page-get-started'
+				className='bg-[linear-gradient(90deg,rgba(8,13,26,.95)_0%,rgba(8,13,26,.9)_44%,rgba(8,13,26,.5)_100%),url(/images/landing/close-bg.jpg)] bg-cover bg-center py-20 max-[759px]:bg-[linear-gradient(180deg,rgba(8,13,26,.93)_0%,rgba(8,13,26,.88)_100%),url(/images/landing/close-bg.jpg)] min-[900px]:py-[110px]'
+			>
+				<GetStartedSection />
+			</SectionWrapper>
+		</>
+	)
 }

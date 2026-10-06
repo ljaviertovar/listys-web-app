@@ -2,13 +2,13 @@ import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 
-import { SharedListsShowcase } from '../shared-lists-showcase'
+import { SharedListsShowcaseSection } from '../shared-lists-showcase-section'
 
 function render() {
-	return renderToStaticMarkup(createElement(SharedListsShowcase))
+	return renderToStaticMarkup(createElement(SharedListsShowcaseSection))
 }
 
-describe('SharedListsShowcase', () => {
+describe('SharedListsShowcaseSection', () => {
 	it('leads with the photo banner, which carries the section headline', () => {
 		const html = render()
 

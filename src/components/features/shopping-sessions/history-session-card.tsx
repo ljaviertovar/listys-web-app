@@ -6,7 +6,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { DollarCircleIcon, ShoppingCart02Icon, ArrowRight01Icon } from '@hugeicons/core-free-icons'
 import Link from 'next/link'
 import { formatDate, formatTime } from '@/utils'
-import { CardFooterContent, CardHeaderContent } from '@/components/app/app-card'
+import { CardFooterContent, CardHeaderContent } from '@/components/app'
 
 interface Session {
 	id: string

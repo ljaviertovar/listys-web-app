@@ -4,10 +4,16 @@ import { Icon } from './landing-icons'
 import { cn } from '@/utils'
 
 /** The list-of-rows wrapper shared by feature previews, how-it-works screens, and device cards. */
-export function Rows({ className, ...props }: ComponentProps<'ul'>) {
+export function Rows({
+	className,
+	testId,
+	'data-testid': dataTestId,
+	...props
+}: ComponentProps<'ul'> & { testId?: string }) {
 	return (
 		<ul
 			className={cn('flex flex-col gap-2', className)}
+			data-testid={testId ?? dataTestId ?? 'landing-rows'}
 			{...props}
 		/>
 	)
@@ -18,13 +24,18 @@ export function ProgressBar({
 	value,
 	className,
 	barClassName,
+	testId,
 }: {
 	value: number
 	className?: string
 	barClassName?: string
+	testId?: string
 }) {
 	return (
-		<div className={cn('h-[6px] overflow-hidden rounded-full bg-slate-100', className)}>
+		<div
+			data-testid={testId ?? 'landing-progress-bar'}
+			className={cn('h-[6px] overflow-hidden rounded-full bg-slate-100', className)}
+		>
 			<i
 				className={cn('block h-full rounded-full bg-primary', barClassName)}
 				style={{ width: `${value}%` }}
@@ -33,9 +44,10 @@ export function ProgressBar({
 	)
 }
 
-export function Check({ on, className }: { on?: boolean; className?: string }) {
+export function Check({ on, className, testId }: { on?: boolean; className?: string; testId?: string }) {
 	return (
 		<span
+			data-testid={testId ?? 'landing-check'}
 			className={cn(
 				'inline-flex size-5 shrink-0 items-center justify-center rounded-md border-[1.5px] border-primary/60 bg-white text-transparent [&_svg]:size-[11px]',
 				on && 'border-primary bg-primary text-white',
@@ -54,9 +66,18 @@ const PILL_STYLES = {
 	collab: 'bg-violet-50 text-violet-600',
 } as const
 
-export function Pill({ kind, children }: { kind: keyof typeof PILL_STYLES; children: ReactNode }) {
+export function Pill({
+	kind,
+	children,
+	testId,
+}: {
+	kind: keyof typeof PILL_STYLES
+	children: ReactNode
+	testId?: string
+}) {
 	return (
 		<span
+			data-testid={testId ?? 'landing-pill'}
 			className={cn(
 				'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2 py-1 font-mono text-[9px] font-bold tracking-[.09em] uppercase',
 				PILL_STYLES[kind],
@@ -68,9 +89,12 @@ export function Pill({ kind, children }: { kind: keyof typeof PILL_STYLES; child
 	)
 }
 
-export function Avatars({ initials }: { initials: string[] }) {
+export function Avatars({ initials, testId }: { initials: string[]; testId?: string }) {
 	return (
-		<span className='flex'>
+		<span
+			data-testid={testId ?? 'landing-avatars'}
+			className='flex'
+		>
 			{initials.map(initial => (
 				<span
 					key={initial}
@@ -84,6 +108,7 @@ export function Avatars({ initials }: { initials: string[] }) {
 }
 
 type RowProps = {
+	testId?: string
 	chip: string
 	name: string
 	meta?: string
@@ -101,9 +126,10 @@ type RowProps = {
  * The DOM reads quantity, name, state (the order a screen reader should hear);
  * `order-*` utilities reorder it visually to state, name, quantity.
  */
-export function Row({ chip, name, meta, by, checked, done, dated, live, aside }: RowProps) {
+export function Row({ chip, name, meta, by, checked, done, dated, live, aside, testId }: RowProps) {
 	return (
 		<li
+			data-testid={testId ?? 'landing-list-row'}
 			className={cn(
 				'relative flex items-center gap-[11px] rounded-xl border border-slate-200 bg-white px-[11px] py-[9px]',
 				done && 'border-blue-100 bg-[#F7FAFF]',
@@ -125,7 +151,12 @@ export function Row({ chip, name, meta, by, checked, done, dated, live, aside }:
 				{by && <span className='mt-[3px] block text-xs text-slate-500'>{by}</span>}
 			</span>
 			{aside}
-			{checked !== undefined && <Check on={checked} className='-order-1' />}
+			{checked !== undefined && (
+				<Check
+					on={checked}
+					className='-order-1'
+				/>
+			)}
 		</li>
 	)
 }

@@ -344,10 +344,13 @@ Rules:
 
 - Every new application-owned component MUST expose a `data-testid` on its root or primary parent DOM element so it
   can be identified in browser inspection and automated tests. Unchanged third-party UI primitives are exempt.
+- Before finishing a change, inspect every new application-owned React component in the diff, including reusable
+  layout and presentation helpers, and verify its rendered root has `data-testid`. A component with no rendered DOM
+  (such as a provider or listener) is exempt; do not add an artificial wrapper solely to satisfy this rule.
 - The value MUST describe the rendered content or role, not the implementation name. Use `ranked-menu-card`, not
   `card-custom` or `RankedMenuCard`.
 - Reusable components MUST accept a `testId` prop when their rendered meaning varies by usage. The caller supplies the
-  contextual identifier, such as `profile-preferences-card` or `menu-selection-card`.
+  contextual identifier, such as `profile-preferences-card` or `menu-selection-card`. The component forwards it to its root `data-testid`.
 - Repeated instances MUST use stable, contextual identifiers that distinguish them when a test needs to target one
   instance. Do not introduce generic hard-coded identifiers such as `card`, `section`, or `component`.
 - When adding or changing an application-owned component, update or add the relevant component test to query the

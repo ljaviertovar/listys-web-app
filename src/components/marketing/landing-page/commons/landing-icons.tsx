@@ -3,21 +3,13 @@ import Link from 'next/link'
 import { LogoMark } from '@/components/commons/logo'
 
 export type LandingIconId =
-	| 'tick'
-	| 'arr'
-	| 'ic-signal'
-	| 'ic-wifi'
-	| 'ic-batt'
-	| 'ic-scan'
-	| 'chev'
-	| 'spark'
-	| 'i-list'
-	| 'i-folders'
+	'tick' | 'arr' | 'ic-signal' | 'ic-wifi' | 'ic-batt' | 'ic-scan' | 'chev' | 'spark' | 'i-list' | 'i-folders'
 
 /** Rendered once per page; every <Icon> references a symbol from here. */
 export function LandingSprite() {
 	return (
 		<svg
+			data-testid='landing-icon-sprite'
 			width='0'
 			height='0'
 			style={{ position: 'absolute' }}
@@ -226,10 +218,11 @@ export function LandingSprite() {
 	)
 }
 
-export function Icon({ id, className }: { id: LandingIconId; className?: string }) {
+export function Icon({ id, className, testId }: { id: LandingIconId; className?: string; testId?: string }) {
 	return (
 		<svg
 			className={className}
+			data-testid={testId ?? 'landing-icon'}
 			aria-hidden='true'
 		>
 			<use href={`#lp-${id}`} />
@@ -240,6 +233,7 @@ export function Icon({ id, className }: { id: LandingIconId; className?: string 
 export function Brand() {
 	return (
 		<Link
+			data-testid='landing-brand-link'
 			className='flex items-center gap-[9px] text-[18px] font-extrabold tracking-[-0.03em] text-slate-900 [&_svg]:size-6 [&_svg]:shrink-0'
 			href='/'
 		>

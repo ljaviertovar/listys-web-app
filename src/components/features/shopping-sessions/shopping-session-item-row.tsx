@@ -12,7 +12,7 @@ import {
 } from '@/lib/api/endpoints'
 import type { ShoppingSessionItem } from '@/types'
 import { Badge } from '@/components/ui/badge'
-import { ActionsItemFormBaseList } from '@/components/app/active-session'
+import { ActionsItemFormBaseList } from '@/components/app'
 import { broadcastListActivity } from '@/utils'
 
 interface Props {

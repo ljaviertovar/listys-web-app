@@ -28,7 +28,7 @@ const COLUMNS = [
 ]
 
 /** Marketing footer. */
-export function Footer() {
+export default function Footer() {
 	return (
 		<footer
 			data-testid='marketing-footer'

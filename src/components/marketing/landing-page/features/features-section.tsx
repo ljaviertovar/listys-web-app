@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react'
 
-import { Avatars, Pill, ProgressBar, Row, Rows } from './list-rows'
-import { Shell } from './shell'
+import { Avatars, Pill, ProgressBar, Row, Rows } from '../commons'
 
 type Feature = {
 	title: string
@@ -177,53 +176,52 @@ const FEATURES: Feature[] = [
 	},
 ]
 
-export function Features() {
+export function FeaturesSection() {
 	return (
-		<section
-			id='features'
+		<div
 			data-testid='landing-features'
-			className='section-divider scroll-mt-16 bg-slate-50 py-[72px] min-[900px]:py-[104px]'
+			className='w-full'
 		>
-			<Shell>
-				<div className='mb-[34px] grid gap-4 min-[900px]:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] min-[900px]:items-start min-[900px]:gap-[60px]'>
-					<h2 className='text-[clamp(28px,3.6vw,40px)] leading-[1.08] font-extrabold text-slate-900 text-balance'>
-						The whole app, at a glance
-					</h2>
-					<p className='max-w-[34em] text-base leading-[1.6] text-slate-600 min-[900px]:pt-[7px]'>
-						Receipts, lists, groups, trips, people and history — all of it in the free account. There is only one.
-					</p>
-				</div>
-				<div className='grid grid-cols-1 gap-5 min-[680px]:grid-cols-2 min-[1040px]:grid-cols-3'>
-					{FEATURES.map(feature => (
+			<div className='mb-[34px] grid gap-4 min-[900px]:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] min-[900px]:items-start min-[900px]:gap-[60px]'>
+				<h2 className='text-[clamp(28px,3.6vw,40px)] leading-[1.08] font-extrabold text-slate-900 text-balance'>
+					The whole app, at a glance
+				</h2>
+				<p className='max-w-[34em] text-base leading-[1.6] text-slate-600 min-[900px]:pt-[7px]'>
+					Receipts, lists, groups, trips, people and history — all of it in the free account. There is only one.
+				</p>
+			</div>
+			<div className='grid grid-cols-1 gap-5 min-[680px]:grid-cols-2 min-[1040px]:grid-cols-3'>
+				{FEATURES.map(feature => (
+					<div
+						key={feature.title}
+						className='flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white'
+					>
 						<div
-							key={feature.title}
-							className='flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white'
+							className='relative h-[224px] overflow-hidden bg-[#F4F8FF] after:absolute after:inset-x-0 after:bottom-0 after:h-[78px] after:bg-[linear-gradient(180deg,rgba(255,255,255,0)_0%,rgba(255,255,255,.55)_58%,#fff_100%)] after:content-[""]'
+							aria-hidden='true'
 						>
-							<div
-								className='relative h-[224px] overflow-hidden bg-[#F4F8FF] after:absolute after:inset-x-0 after:bottom-0 after:h-[78px] after:bg-[linear-gradient(180deg,rgba(255,255,255,0)_0%,rgba(255,255,255,.55)_58%,#fff_100%)] after:content-[""]'
-								aria-hidden='true'
-							>
-								<div className='absolute top-6 right-5 left-[22px] rounded-xl border border-slate-200 bg-white px-[14px] py-[13px]'>
-									<div className='mb-[11px] flex items-start justify-between gap-[10px]'>
-										<div>
-											<div className='text-[12.5px] font-extrabold tracking-[-0.02em] text-slate-900'>
-												{feature.fragTitle}
-											</div>
-											<div className='mt-1 font-mono text-[11px] text-slate-500'>{feature.fragMeta}</div>
+							<div className='absolute top-6 right-5 left-[22px] rounded-xl border border-slate-200 bg-white px-[14px] py-[13px] shadow'>
+								<div className='mb-[11px] flex items-start justify-between gap-[10px]'>
+									<div>
+										<div className='text-[12.5px] font-extrabold tracking-[-0.02em] text-slate-900'>
+											{feature.fragTitle}
 										</div>
-										{feature.fragAside}
+										<div className='mt-1 font-mono text-[11px] text-slate-500'>{feature.fragMeta}</div>
 									</div>
-									{feature.content}
+									{feature.fragAside}
 								</div>
-							</div>
-							<div className='px-[22px] pt-5 pb-6'>
-								<h3 className='text-[17px] leading-[1.3] font-bold tracking-[-0.022em] text-slate-900'>{feature.title}</h3>
-								<p className='mt-2 text-sm leading-[1.55] text-slate-500'>{feature.body}</p>
+								{feature.content}
 							</div>
 						</div>
-					))}
-				</div>
-			</Shell>
-		</section>
+						<div className='px-[22px] pt-5 pb-6'>
+							<h3 className='text-[17px] leading-[1.3] font-bold tracking-[-0.022em] text-slate-900'>
+								{feature.title}
+							</h3>
+							<p className='mt-2 text-sm leading-[1.55] text-slate-500'>{feature.body}</p>
+						</div>
+					</div>
+				))}
+			</div>
+		</div>
 	)
 }

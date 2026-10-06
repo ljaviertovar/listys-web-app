@@ -11,9 +11,7 @@ import {
 
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { BackLink } from '@/components/app'
-import { PageHeader, PageContainer } from '@/components/app/app-page'
-import { CardHeaderContent } from '@/components/app/app-card'
+import { BackLink, PageHeader, PageContainer, CardHeaderContent } from '@/components/app'
 
 import { createClient } from '@/lib/supabase/server'
 import { formatDate, formatTime } from '@/utils'

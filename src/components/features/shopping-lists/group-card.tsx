@@ -28,7 +28,7 @@ import {
 import { FolderIcon, Edit02Icon, Delete02Icon, ArrowRight01Icon, Loading03Icon } from '@hugeicons/core-free-icons'
 
 import { deleteGroup, updateGroup } from '@/actions'
-import { CardFooterContent, CardHeaderContent } from '@/components/app/app-card'
+import { CardFooterContent, CardHeaderContent } from '@/components/app'
 
 interface Group {
 	id: string

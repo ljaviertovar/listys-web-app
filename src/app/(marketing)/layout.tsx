@@ -1,4 +1,4 @@
-import { Header, LandingSprite } from '@/components/marketing'
+import { Footer, Header, LandingSprite } from '@/components/marketing'
 
 import '@/components/marketing/landing-page/landing.css'
 
@@ -9,11 +9,13 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
 			<Header />
 
 			<main
-				id='top'
-				className='flex-1'
+				id='main-container'
+				data-testid='main-container'
 			>
 				{children}
 			</main>
+
+			<Footer />
 		</div>
 	)
 }

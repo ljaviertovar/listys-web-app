@@ -9,7 +9,7 @@ import {
 	formatCollaboratorRole,
 	getCollaboratorDisplayName,
 	getCollaboratorsEmptyStateMessage,
-} from '@/components/features/sharing/share-list-dialog.utils'
+} from './share-list-dialog.utils'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
