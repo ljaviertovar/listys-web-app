@@ -8,8 +8,8 @@ interface Props {
 }
 
 /**
- * Marks a running shopping session. Green is the "running and healthy" colour of the status family; the dot is static
- * (DESIGN.md §9 forbids ambient pulsing) and the word "Shopping" carries the meaning, so colour is never the only cue.
+ * Marks a running shopping session. The subtle pulse reinforces the active status; the word "Shopping" carries the
+ * meaning, so colour and motion are never the only cues.
  */
 export function ActiveShoppingBadge({ tone = 'default', className }: Props) {
 	return (
@@ -20,7 +20,10 @@ export function ActiveShoppingBadge({ tone = 'default', className }: Props) {
 		>
 			<span
 				aria-hidden='true'
-				className={cn('size-2 rounded-full', tone === 'on-dark' ? 'bg-green-400' : 'bg-green-600 dark:bg-green-400')}
+				className={cn(
+					'size-2 animate-pulse rounded-full motion-reduce:animate-none',
+					tone === 'on-dark' ? 'bg-green-400' : 'bg-green-600 dark:bg-green-400',
+				)}
 			/>
 			Shopping
 		</Badge>

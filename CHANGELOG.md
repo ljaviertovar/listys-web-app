@@ -28,6 +28,13 @@
   longer repeats it; the date is plain muted text instead of an amber pill and the filler subtitle is gone; section cards
   have real `h2` titles, drop their description and show two rows on phones; finished receipts are plain text, not badges;
   a brand-new account sees a "How it works" card instead of three empty cards.
+- Dashboard without data goes back to design A1: the hero asks for a receipt, the three cards show their empty states
+  ("New Group" and "Upload Receipt" inside them), the header Upload is hidden while the account has no lists (the hero already is the upload), and the greeting is the date pill with its line of
+  context again (now in the visitor's locale). This replaces the "How it works" card of the previous entry.
+- Dashboard: a failed request now shows an error with "Try again" instead of an empty account; the loading skeleton mirrors the
+  real layout; both heroes share `HeroSurface` and load the photo through `next/image`; card and hero shadows are the
+  `shadow-card` / `shadow-card-hover` tokens; every "Start Shopping" button names its list for screen readers and list links fill
+  their row; the phone session bar adds the safe-area inset to the page's bottom space.
 - Accessibility: pinch-zoom is no longer disabled (`maximum-scale` and `user-scalable` removed), the mobile drawer has a 44px
   close button, a 312px width and a 44px author-credit link, and `<main>` has `scroll-padding-bottom` so focus is not hidden
   behind fixed bottom bars. `StartShoppingDialog` accepts an optional `size`.

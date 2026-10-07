@@ -6,6 +6,7 @@ import { StartShoppingDialog } from '@/components/features/base-lists'
 import { UploadTicketDialog } from '@/components/features/tickets'
 import { Button } from '@/components/ui/button'
 import { cn, formatCurrency } from '@/utils'
+import { HeroSurface } from './hero-surface'
 import { FOCUS_RING, HERO_CTA, QUICK_START_CHIP } from './helpers/dashboard-styles'
 import { pluralize, type DashboardModel } from './helpers/build-dashboard-model'
 
@@ -31,17 +32,18 @@ export function NoSessionBanner({ quickStart, startTarget, lastTrip, hasLists }:
 	const otherLists = quickStart.filter(list => list.id !== startTarget?.id)
 
 	return (
-		<section
-			data-testid='dashboard-no-session-banner'
-			aria-labelledby='dashboard-no-session-title'
-			// Ink (#0F172A) scrim over the photo so the text keeps AA contrast; 24px radius as in A1.
-			className='relative isolate flex min-h-0 items-center overflow-hidden rounded-3xl shadow-[0_1px_2px_rgba(15,23,42,0.04),0_8px_24px_-18px_rgba(15,23,42,0.28)] md:min-h-[330px] bg-[linear-gradient(90deg,rgba(15,23,42,.95)_0%,rgba(15,23,42,.88)_46%,rgba(15,23,42,.45)_100%),url(/images/landing/close-bg.jpg)] bg-cover bg-center text-white max-md:bg-[linear-gradient(180deg,rgba(15,23,42,.93)_0%,rgba(15,23,42,.86)_100%),url(/images/landing/close-bg.jpg)]'
+		<HeroSurface
+			testId='dashboard-no-session-banner'
+			labelledBy='dashboard-no-session-title'
 		>
 			<div className='flex w-full max-w-xl flex-col gap-4 p-5 sm:p-8 md:gap-5 md:p-10'>
-				<span className='inline-flex w-fit items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs leading-[1.2] font-semibold text-slate-100'>
-					<span className='size-2 rounded-full bg-slate-400' />
-					No shopping session in progress
-				</span>
+				{/* Someone with no lists has never had a session, so saying there is none adds nothing: the hero just asks for a receipt. */}
+				{hasLists ? (
+					<span className='inline-flex w-fit items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs leading-[1.2] font-semibold text-slate-100'>
+						<span className='size-2 rounded-full bg-slate-400' />
+						No shopping session in progress
+					</span>
+				) : null}
 
 				<div className='flex flex-col gap-2'>
 					<h2
@@ -132,6 +134,6 @@ export function NoSessionBanner({ quickStart, startTarget, lastTrip, hasLists }:
 					</p>
 				) : null}
 			</div>
-		</section>
+		</HeroSurface>
 	)
 }

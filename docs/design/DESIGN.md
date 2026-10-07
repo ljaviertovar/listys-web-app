@@ -525,19 +525,21 @@ the 44px rule in section 10.2. The hero's list shortcuts are not covered by it: 
 
 The dashboard (approved design "A1") keeps its own control and card values, which take precedence over the generic scale on
 that surface: section cards use 20px on phones and 24px from `md` (the hero 24px), up-next cards 18px (with 14px icon tiles), list rows and
-every button 12px; section cards have a soft slate-200 hairline at 70% and the two-layer `card` shadow (deepening slightly,
-with the border turning blue-200, on hover), the hero shares that shadow, and dividers are slate-100 inset by the card padding; the
+every button 12px; section cards have a soft slate-200 hairline at 70% and the two-layer `card` shadow (`shadow-card` and `shadow-card-hover` in `globals.css`; deeper
+on hover), the hero shares that shadow, and dividers are slate-100 inset by the card padding; the
 hero call to action is 50px high with a blue glow and a 1px lift on hover; in-card actions use the neutral secondary button
 at the compact size below `md`. Each section card ends in a footer whose only content is its right-aligned "View all" link;
-uploading lives in the page header and is never repeated inside the Receipts card. Empty cards centre their copy and, for
-Groups, one next step ("New Group"; Receipts and History have none) in a block of the same height in all three cards.
-On phones each card previews two rows and drops its description, since the title and rows already say what it is;
-a finished receipt is plain text and only the other OCR states are badges. The greeting is a plain muted date, the name
-and nothing else: amber is reserved for "waiting". The hero has one blue button that does the obvious thing (starts the
+uploading lives in the page header (hidden while the account has no lists, because the hero is then the upload) and, while the Receipts card is empty, inside it. Empty cards centre their copy and one
+next step ("New Group", "Upload Receipt"; History has none) in a block of the same height in all three cards, and an
+account without data keeps this whole layout (design A1, "no data"): the hero asks for a receipt (without the "no shopping session" label) and the cards show their
+empty states. On phones a card that has rows previews two of them and drops its description, since the title and rows
+already say what it is; an empty card keeps it. A finished receipt is plain text and only the other OCR states are badges.
+The greeting is the date pill (amber), the name and a line of context, in the visitor's own locale. The hero has one blue button that does the obvious thing (starts the
 most overdue list after the usual confirmation, or uploads a receipt for an account without lists); the other lists are
 44px shortcuts under it. The phone session bar slides in only once the hero's own button has scrolled out of view, so two
-primary buttons never offer the same action at once. A brand-new account (no groups, receipts or sessions) sees the hero
-and a three-step "How it works" card instead of three empty cards, and only the hero carries Upload. The values live in `src/components/features/dashboard/helpers/dashboard-styles.ts`.
+primary buttons never offer the same action at once. If any of the dashboard's data fails to load, the page shows an
+error with "Try again" instead of the dashboard: a failed request must not look like an empty account. The photo behind
+the heroes is a `next/image` under an ink scrim (`HeroSurface`). The values live in `src/components/features/dashboard/helpers/dashboard-styles.ts`.
 Secondary buttons are the `outline` variant of `Button`: paper, ink text, a flat slate-200 hairline border, and a blue glyph
 (icons that set their own colour keep it). They look the same on every screen; the hierarchy is one blue primary per
 region, neutral secondary actions, then plain text links. Ghost buttons are for low-risk toolbar actions. Destructive
@@ -563,8 +565,9 @@ OCR badges use these exact labels: `Pending`, `Reading`, `Ready`, and `Failed`. 
 or `completed` may be mapped to user-facing language. The status listener may announce transitions through a polite live
 region; repeated polling must not produce repeated announcements.
 
-The running-session badge reads `Shopping` with a static green dot (never a pulse, section 9) and has an `on-dark` tone for
-photo and ink surfaces such as the dashboard banner. Badges are 24px high with a 12px/600 label.
+The running-session badge reads `Shopping` with a subtly pulsing green dot to reinforce its active state. The pulse stops
+when reduced motion is preferred. It has an `on-dark` tone for photo and ink surfaces such as the dashboard banner. Badges
+are 24px high with a 12px/600 label.
 
 Badges are compact context, never the only explanation for a failure. A failed receipt also includes a short safe error and
 `Try again` when retry is available.
@@ -690,9 +693,10 @@ Motion explains a state change, connects source to result, or confirms direct ma
 - Checkbox completion: scale/check draw no longer than 160ms.
 - Reordering after a check waits until the interaction resolves; it must not race the user's finger.
 
-No infinite floating cards, pulsing arrows, decorative blob drift, or perpetual scanning outside real processing. With
-`prefers-reduced-motion: reduce`, render the final state immediately, stop the scan seam, remove spatial transforms, and keep
-opacity changes below 100ms. State, focus, and completion remain visible without animation.
+No infinite floating cards, pulsing arrows, decorative blob drift, or perpetual scanning outside real processing. The
+running-session status dot is a status-specific pulse exception. With `prefers-reduced-motion: reduce`, render the final
+state immediately, stop the status pulse and scan seam, remove spatial transforms, and keep opacity changes below 100ms.
+State, focus, and completion remain visible without animation.
 
 ---
 

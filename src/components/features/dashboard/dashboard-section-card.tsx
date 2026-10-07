@@ -43,7 +43,7 @@ export function DashboardSectionCard({
 	return (
 		<Card
 			data-testid={testId}
-			className='h-full gap-4 rounded-[20px] border-slate-200/70 p-4.5 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_8px_24px_-18px_rgba(15,23,42,0.28)] transition-shadow duration-200 hover:shadow-[0_1px_2px_rgba(15,23,42,0.05),0_12px_28px_-18px_rgba(15,23,42,0.36)] md:rounded-3xl md:p-5 dark:border-border dark:shadow-none'
+			className='h-full gap-4 rounded-[20px] border-slate-200/70 p-4.5 shadow-card transition-shadow duration-200 hover:shadow-card-hover md:rounded-3xl md:p-5 dark:border-border dark:shadow-none'
 		>
 			<div className='flex items-center gap-4 md:items-start'>
 				<span className={cn('flex size-12 shrink-0 items-center justify-center rounded-2xl', TONES[tone])}>
@@ -55,8 +55,8 @@ export function DashboardSectionCard({
 				</span>
 				<div className='flex min-w-0 flex-1 flex-col gap-1'>
 					<h2 className='font-display text-base font-[650] leading-[1.3]'>{title}</h2>
-					{/* Phones skip the explanation: the title and the rows already say what the card is. */}
-					<CardDescription className='hidden text-[13px] leading-[1.55] md:block'>{description}</CardDescription>
+					{/* Phones skip the explanation once the card has rows: the title and the rows already say what it is. An empty card keeps it. */}
+					<CardDescription className={cn('text-[13px] leading-[1.55]', count > 0 && 'max-md:hidden')}>{description}</CardDescription>
 				</div>
 				<div className='flex flex-col items-end gap-1'>
 					<span className='font-display text-2xl font-bold leading-none tabular-nums'>{count}</span>

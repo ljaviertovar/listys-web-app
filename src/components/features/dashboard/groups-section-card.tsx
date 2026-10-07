@@ -79,7 +79,7 @@ export function GroupsSectionCard({ groups, count }: Props) {
 								>
 									<Link
 										href={`/base-lists/${list.id}/edit`}
-										className={cn('flex min-w-0 flex-1 flex-col gap-1 rounded-md hover:underline', FOCUS_RING)}
+										className={cn('flex min-w-0 flex-1 flex-col justify-center gap-1 self-stretch rounded-md hover:underline', FOCUS_RING)}
 									>
 										<span className='truncate text-sm font-medium leading-[1.2]'>{list.name}</span>
 										<span className='text-[13px] leading-[1.55] text-muted-foreground'>{pluralize(list.itemsCount, 'item')}</span>

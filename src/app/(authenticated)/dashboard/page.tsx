@@ -1,7 +1,7 @@
 import { Suspense } from 'react'
 
 import { PageContainer } from '@/components/app'
-import { DashboardSkeleton, DashboardView, buildDashboardModel } from '@/components/features/dashboard'
+import { DashboardLoadError, DashboardSkeleton, DashboardView, buildDashboardModel } from '@/components/features/dashboard'
 
 import { getActiveShoppingSession, getBaseLists, getGroups, getShoppingHistory, getTickets } from '@/lib/api/endpoints'
 import { createClient } from '@/lib/supabase/server'
@@ -25,6 +25,11 @@ async function DashboardContent() {
 			getShoppingHistory(),
 			getActiveShoppingSession(),
 		])
+
+	// A failed request must not be shown as an empty account: with no data the page would invite the user to start from scratch.
+	if ([groupsResult, baseListsResult, ticketsResult, historyResult, activeSessionResult].some(result => result.error)) {
+		return <DashboardLoadError />
+	}
 
 	const user = userResult.data.user
 	const activeSession = (activeSessionResult.data ?? null) as DashboardInput['activeSession']

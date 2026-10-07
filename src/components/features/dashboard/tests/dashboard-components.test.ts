@@ -4,8 +4,10 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { DashboardView, buildDashboardModel } from '@/components/features/dashboard'
 import { ActiveSessionBanner } from '@/components/features/dashboard/active-session-banner'
+import { DashboardLoadError } from '@/components/features/dashboard/dashboard-load-error'
 import { GroupsSectionCard } from '@/components/features/dashboard/groups-section-card'
 import { HistorySectionCard } from '@/components/features/dashboard/history-section-card'
+import { HeroSurface } from '@/components/features/dashboard/hero-surface'
 import { MobileSessionBar } from '@/components/features/dashboard/mobile-session-bar'
 import { NoSessionBanner } from '@/components/features/dashboard/no-session-banner'
 import { ReceiptsSectionCard } from '@/components/features/dashboard/receipts-section-card'
@@ -77,6 +79,7 @@ describe('NoSessionBanner', () => {
 		)
 
 		expect(html).toContain('Ready to go shopping?')
+		expect(html).toContain('No shopping session in progress')
 		expect(html).toContain('Start “NO frills” (Walmart · 28 items)')
 		expect(html).toContain('data-testid="start-shopping-button"')
 		expect(html).toContain('Last shopping session · NO frills · 14 Feb · $86.40')
@@ -207,22 +210,21 @@ describe('section cards', () => {
 		expect(html).toContain('justify-end')
 	})
 
-	it('offers the first step inside the empty groups card, below the copy, but never repeats Upload in the receipts card', () => {
+	it('offers the first step inside each empty card, below the copy', () => {
 		const receipts = renderToStaticMarkup(createElement(ReceiptsSectionCard, { count: 0, receipts: [] }))
 		const groups = renderToStaticMarkup(createElement(GroupsSectionCard, { count: 0, groups: [] }))
 
 		expect(receipts).toContain('data-testid="dashboard-receipts-empty"')
 		expect(receipts).toContain('No receipts yet')
-		expect(receipts).not.toContain('Upload Receipt')
+		expect(receipts.indexOf('No receipts yet')).toBeLessThan(receipts.indexOf('Upload Receipt'))
 		expect(groups.indexOf('No groups yet')).toBeLessThan(groups.indexOf('data-testid="create-group-button"'))
 	})
 
-	it('titles each card with a real heading, shows only two rows on phones and keeps the description for tablets up', () => {
+	it('titles each card with a real heading and shows only two rows on phones', () => {
 		const html = renderToStaticMarkup(createElement(ReceiptsSectionCard, { count: 0, receipts: [] }))
 
 		expect(html).toMatch(/<h2[^>]*>Receipts<\/h2>/)
 		expect(html).toContain('max-md:[&amp;&gt;*:nth-child(n+3)]:hidden')
-		expect(html).toContain('hidden text-[13px] leading-[1.55] md:block')
 	})
 
 	it('shows a finished receipt as quiet text and any other state as a badge', () => {
@@ -261,31 +263,90 @@ describe('section cards', () => {
 	})
 })
 
-describe('a brand-new account', () => {
+describe('an account without data', () => {
 	const emptyModel = () => buildDashboardModel({ groups: [], baseLists: [], tickets: [], trips: [], activeSession: null })
+	const emptyView = () => renderToStaticMarkup(createElement(DashboardView, { firstName: 'Javier', hasLists: false, model: emptyModel() }))
 
-	it('sees the hero and the three first steps instead of three empty cards', () => {
-		const html = renderToStaticMarkup(createElement(DashboardView, { firstName: 'Javier', hasLists: false, model: emptyModel() }))
+	it('keeps the full layout of design A1: the hero that asks for a receipt and the three empty cards', () => {
+		const html = emptyView()
 
 		expect(html).toContain('dashboard-no-session-banner')
-		expect(html).toContain('data-testid="dashboard-first-steps"')
-		expect(html).toContain('Upload a receipt')
+		expect(html).toContain('Start with a receipt')
+		expect(html).not.toContain('No shopping session in progress')
 		expect(html).toContain('1–5 photos · you review every item before it is saved')
-		expect(html).not.toContain('dashboard-groups-card')
-		expect(html).not.toContain('dashboard-receipts-card')
-		expect(html).not.toContain('dashboard-history-card')
-	})
-
-	it('has a single Upload button, the hero’s, because the header one would repeat it', () => {
-		const html = renderToStaticMarkup(createElement(DashboardView, { firstName: 'Javier', hasLists: false, model: emptyModel() }))
-
-		expect(html.match(/Upload Receipt/g)).toHaveLength(1)
-	})
-
-	it('keeps the header Upload for an account that already has lists', () => {
-		const html = renderToStaticMarkup(createElement(DashboardView, { firstName: 'Javier', hasLists: true, model: modelWith() }))
-
-		expect(html.match(/Upload Receipt/g)).toHaveLength(1)
+		expect(html).toContain('data-testid="dashboard-groups-empty"')
+		expect(html).toContain('data-testid="dashboard-receipts-empty"')
+		expect(html).toContain('data-testid="dashboard-history-empty"')
 		expect(html).not.toContain('dashboard-first-steps')
+	})
+
+	it('offers the first step in the groups and receipts cards, and none in History', () => {
+		const html = emptyView()
+
+		expect(html).toContain('data-testid="create-group-button"')
+		// The hero's button and the Receipts card's; a header one would repeat the hero's.
+		expect(html.match(/Upload Receipt/g)).toHaveLength(2)
+		expect(html.match(/h-\[172px\]/g)).toHaveLength(3)
+	})
+
+	it('keeps each empty card’s description on phones, where a card with rows drops it', () => {
+		const empty = renderToStaticMarkup(createElement(ReceiptsSectionCard, { count: 0, receipts: [] }))
+		const filled = renderToStaticMarkup(
+			createElement(ReceiptsSectionCard, { count: 1, receipts: [{ id: 'a', title: 'Grocery', meta: '17 Feb', status: 'completed' }] }),
+		)
+
+		expect(empty).not.toContain('max-md:hidden')
+		expect(filled).toContain('max-md:hidden')
+	})
+
+	it('greets with the date and a line of context, the same in every state', () => {
+		const html = emptyView()
+
+		expect(html).toContain('data-testid="dashboard-date-badge"')
+		expect(html).toContain('Here&#x27;s what&#x27;s happening with your household&#x27;s shopping today.')
+	})
+
+	it('shows the header Upload only once the account has lists, since before that the hero is the upload', () => {
+		const withLists = renderToStaticMarkup(createElement(DashboardView, { firstName: 'Javier', hasLists: true, model: modelWith() }))
+		const header = (html: string) => html.slice(html.indexOf('<header'), html.indexOf('</header>'))
+
+		expect(header(withLists)).toContain('Upload Receipt')
+		expect(header(emptyView())).not.toContain('Upload Receipt')
+	})
+})
+
+describe('DashboardLoadError', () => {
+	it('says what happened, that nothing changed, and offers a retry', () => {
+		const html = renderToStaticMarkup(createElement(DashboardLoadError))
+
+		expect(html).toContain('role="alert"')
+		expect(html).toContain('We couldn’t load your dashboard')
+		expect(html).toContain('data-testid="dashboard-load-error-retry"')
+	})
+})
+
+describe('HeroSurface', () => {
+	it('puts the photo behind an ink scrim and names the hero by its heading', () => {
+		// The component requires `children`, which createElement's variadic form does not satisfy for the type checker.
+		// eslint-disable-next-line react/no-children-prop
+		const html = renderToStaticMarkup(createElement(HeroSurface, { testId: 'hero', labelledBy: 'hero-title', children: createElement('h2', { id: 'hero-title' }, 'Hello') }))
+
+		expect(html).toContain('aria-labelledby="hero-title"')
+		expect(html).toContain('alt=""')
+		expect(html).toContain('rgba(15,23,42,.93)')
+		expect(html).toContain('shadow-card')
+	})
+})
+
+describe('the start button', () => {
+	it('names the list it starts, so repeated buttons are told apart', () => {
+		const html = renderToStaticMarkup(
+			createElement(GroupsSectionCard, {
+				count: 1,
+				groups: [{ id: 'g1', name: 'Walmart', description: null, listsCount: 1, lists: [{ id: 'l1', name: 'NO frills', itemsCount: 3 }], hiddenListsCount: 0 }],
+			}),
+		)
+
+		expect(html).toContain('aria-label="Start shopping NO frills"')
 	})
 })

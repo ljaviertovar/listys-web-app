@@ -1,6 +1,8 @@
-export default function AppSidebarFooter() {
+import { cn } from '@/utils'
+
+export default function AppSidebarFooter({ className }: { className?: string }) {
 	return (
-		<p className='p-4 text-sm text-muted-foreground'>
+		<p className={cn('p-4 text-sm text-muted-foreground', className)}>
 			Develop by{' '}
 			<a
 				href='https://www.ljaviertovar.dev/'

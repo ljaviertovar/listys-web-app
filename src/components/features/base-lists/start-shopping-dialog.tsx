@@ -84,6 +84,8 @@ export function StartShoppingDialog({ baseListId, baseListName, disabled, itemsC
 					className={className ?? 'w-full'}
 					variant={variant}
 					size={size}
+					// Several of these sit on one page, so the accessible name says which list each one starts.
+					aria-label={baseListName ? `Start shopping ${baseListName}` : undefined}
 					data-testid='start-shopping-button'
 				>
 					<HugeiconsIcon

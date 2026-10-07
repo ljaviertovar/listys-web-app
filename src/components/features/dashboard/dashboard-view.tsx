@@ -2,7 +2,6 @@ import { UploadTicketDialog } from '@/components/features/tickets'
 import { cn } from '@/utils'
 import { SECONDARY_ACTION } from './helpers/dashboard-styles'
 import { ActiveSessionBanner } from './active-session-banner'
-import { DashboardFirstSteps } from './dashboard-first-steps'
 import { DashboardGreeting } from './dashboard-greeting'
 import { GroupsSectionCard } from './groups-section-card'
 import { HistorySectionCard } from './history-section-card'
@@ -22,13 +21,12 @@ interface Props {
 
 /**
  * The dashboard layout: greeting, the shopping-session hero next to what needs attention, then the three section cards.
- * A brand-new account has nothing for those cards to show, so it gets the three first steps instead.
+ * An account without data keeps the same layout (approved design A1): the cards show their empty states and the one
+ * next step each section has.
  */
 export function DashboardView({ model, firstName, isGuest = false, hasLists }: Props) {
 	const hasUpNext = model.upNext.length > 0
-	const { groups, receipts, trips } = model.counts
-	const isNewAccount = groups === 0 && receipts === 0 && trips === 0 && !model.activeSession
-	// While an account has no lists the hero already is the upload button; a second one in the header would repeat it.
+	// Without lists the hero already is the upload button, so the header one would just repeat it.
 	const showHeaderUpload = hasLists
 
 	return (
@@ -69,30 +67,34 @@ export function DashboardView({ model, firstName, isGuest = false, hasLists }: P
 				) : null}
 			</div>
 
-			{isNewAccount ? (
-				<DashboardFirstSteps />
-			) : (
-				<div className='grid items-stretch gap-5 sm:grid-cols-2 xl:grid-cols-3'>
-					<GroupsSectionCard
-						groups={model.groups}
-						count={model.counts.groups}
+			<div className='grid items-stretch gap-5 sm:grid-cols-2 xl:grid-cols-3'>
+				<GroupsSectionCard
+					groups={model.groups}
+					count={model.counts.groups}
+				/>
+				<ReceiptsSectionCard
+					receipts={model.receipts}
+					count={model.counts.receipts}
+				/>
+				{/* On two columns the third card takes the whole row instead of leaving a half-empty one. */}
+				<div className='sm:col-span-2 xl:col-span-1'>
+					<HistorySectionCard
+						trips={model.trips}
+						count={model.counts.trips}
 					/>
-					<ReceiptsSectionCard
-						receipts={model.receipts}
-						count={model.counts.receipts}
-					/>
-					{/* On two columns the third card takes the whole row instead of leaving a half-empty one. */}
-					<div className='sm:col-span-2 xl:col-span-1'>
-						<HistorySectionCard
-							trips={model.trips}
-							count={model.counts.trips}
-						/>
-					</div>
 				</div>
-			)}
+			</div>
 
-			{/* PageContainer's bottom padding keeps the last card clear of this bar, and `scroll-pb` on <main> keeps focus clear of it. */}
-			{model.activeSession ? <MobileSessionBar session={model.activeSession} /> : null}
+			{/* PageContainer's bottom padding clears the 72px bar; the spacer adds the device's safe-area inset it also grows by. */}
+			{model.activeSession ? (
+				<>
+					<div
+						aria-hidden='true'
+						className='-mt-6 h-[env(safe-area-inset-bottom)] lg:hidden'
+					/>
+					<MobileSessionBar session={model.activeSession} />
+				</>
+			) : null}
 		</div>
 	)
 }
