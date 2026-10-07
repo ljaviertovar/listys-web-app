@@ -47,7 +47,6 @@ export default async function AccountPage() {
 				<div className='grid gap-4 lg:grid-cols-2'>
 					<Card
 						size='sm'
-						className='hover:border-primary/50 transition-colors'
 					>
 						<CardHeader>
 							<CardHeaderContent
@@ -113,7 +112,6 @@ export default async function AccountPage() {
 
 					<Card
 						size='sm'
-						className='hover:border-primary/50 transition-colors'
 					>
 						<CardHeader>
 							<CardHeaderContent

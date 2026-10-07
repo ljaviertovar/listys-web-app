@@ -1,10 +1,6 @@
 'use client'
 
 import { useSyncExternalStore } from 'react'
-import { Sun03Icon } from '@hugeicons/core-free-icons'
-import { HugeiconsIcon } from '@hugeicons/react'
-
-import { Badge } from '@/components/ui/badge'
 import { cn } from '@/utils'
 
 interface Props {
@@ -22,7 +18,11 @@ function greetingFor(hour: number) {
 	return 'Good evening'
 }
 
-/** Personal greeting and today's date, resolved in the visitor's own timezone once the page is on the client. */
+/**
+ * Personal greeting with today's date above it as plain text, resolved in the visitor's own timezone once the page is on
+ * the client. The date is deliberately not a coloured pill: amber means "waiting" on this screen, and a calm date in that
+ * colour read as a warning.
+ */
 export function DashboardGreeting({ name }: Props) {
 	const minutes = useSyncExternalStore(subscribe, getMinuteSnapshot, getServerSnapshot)
 	const now = minutes === null ? null : new Date(minutes * 60_000)
@@ -34,30 +34,18 @@ export function DashboardGreeting({ name }: Props) {
 	return (
 		<div
 			data-testid='dashboard-greeting'
-			className='flex flex-col items-start gap-2'
+			className='flex flex-col items-start gap-1'
 		>
 			{/* Always rendered so the page does not shift when the date resolves on the client. */}
-			<Badge
-				variant='pending'
-				data-testid='dashboard-date-badge'
-				className={cn(
-					'h-8 gap-2 border-amber-100 bg-amber-50 px-3 text-[13px] text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300',
-					!now && 'invisible',
-				)}
+			<p
+				data-testid='dashboard-date'
+				className={cn('text-[13px] leading-[1.55] font-medium text-muted-foreground', !now && 'invisible')}
 			>
-				<HugeiconsIcon
-					icon={Sun03Icon}
-					strokeWidth={1.5}
-					className='size-4 text-amber-500'
-				/>
 				{dateLabel || 'Today'}
-			</Badge>
+			</p>
 			<h1 className='font-display text-[clamp(24px,3vw,32px)] leading-[1.16] font-bold tracking-tight text-balance'>
 				{now ? `${greetingFor(now.getHours())}, ${name}` : `Hi, ${name}`}
 			</h1>
-			<p className='text-[15px] leading-[1.6] text-muted-foreground'>
-				Here&apos;s what&apos;s happening with your household&apos;s shopping today.
-			</p>
 		</div>
 	)
 }

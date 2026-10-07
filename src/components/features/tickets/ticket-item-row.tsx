@@ -36,7 +36,7 @@ export function TicketItemRow({ item, canSelect = false, selected = false, onSel
 			tabIndex={canSelect ? 0 : undefined}
 			onKeyDown={canSelect ? handleKeyDown : undefined}
 			onClick={canSelect ? () => onSelectToggle?.(item.id) : undefined}
-			className={`transition-all cursor-pointer p-0 ${selected ? 'border-primary bg-primary/5' : 'hover:bg-primary/1 hover:border-primary/50'}`}
+			className={`transition-all cursor-pointer p-0 ${selected ? 'border-primary bg-primary/5' : 'hover:bg-primary/1'}`}
 		>
 			<CardContent className='flex items-center gap-3 p-4'>
 				<div className='flex flex-col flex-1 gap-2'>

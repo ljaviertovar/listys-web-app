@@ -2,6 +2,8 @@ import Link from 'next/link'
 import { ArrowRight01Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 
+import { StartShoppingDialog } from '@/components/features/base-lists'
+import { UploadTicketDialog } from '@/components/features/tickets'
 import { Button } from '@/components/ui/button'
 import { cn, formatCurrency } from '@/utils'
 import { FOCUS_RING, HERO_CTA, QUICK_START_CHIP } from './helpers/dashboard-styles'
@@ -9,13 +11,25 @@ import { pluralize, type DashboardModel } from './helpers/build-dashboard-model'
 
 interface Props {
 	quickStart: DashboardModel['quickStart']
+	/** The list the hero's button starts; null while no list has items. */
+	startTarget: DashboardModel['startTarget']
 	lastTrip: DashboardModel['lastTrip']
 	/** Whether the user already owns at least one list; new users are pointed at a receipt instead. */
 	hasLists: boolean
 }
 
-/** Hero of the dashboard when no shopping session is running: the next one is a tap away, or a receipt gets the user started. */
-export function NoSessionBanner({ quickStart, lastTrip, hasLists }: Props) {
+function describeList(list: NonNullable<Props['startTarget']>) {
+	return [list.groupName, pluralize(list.itemsCount, 'item')].filter(Boolean).join(' · ')
+}
+
+/**
+ * Hero of the dashboard when no shopping session is running. One blue button does the obvious thing: it starts the list
+ * that is most due (after the usual confirmation), or, for an account without lists, uploads a receipt. The other lists
+ * are shortcuts to open underneath.
+ */
+export function NoSessionBanner({ quickStart, startTarget, lastTrip, hasLists }: Props) {
+	const otherLists = quickStart.filter(list => list.id !== startTarget?.id)
+
 	return (
 		<section
 			data-testid='dashboard-no-session-banner'
@@ -36,20 +50,25 @@ export function NoSessionBanner({ quickStart, lastTrip, hasLists }: Props) {
 					>
 						{hasLists ? 'Ready to go shopping?' : 'Start with a receipt'}
 					</h2>
-					<p className='text-[15px] leading-[1.6] text-slate-300'>
-						{hasLists
-							? 'Pick a list from one of your groups. Your list stays as it is; the session works on a copy.'
-							: 'Upload one receipt and Listys turns it into a list you can reuse every time you shop.'}
+					<p
+						data-testid='dashboard-no-session-description'
+						className='text-[15px] leading-[1.6] text-slate-300'
+					>
+						{!hasLists
+							? 'Upload one receipt and Listys turns it into a list you can reuse every time you shop.'
+							: startTarget
+								? `Start “${startTarget.name}” (${describeList(startTarget)}). Your list stays as it is; the session works on a copy.`
+								: 'Your lists have no items yet. Add some to a list and it is ready to shop.'}
 					</p>
 				</div>
 
-				{hasLists && quickStart.length > 0 ? (
+				{hasLists && otherLists.length > 0 ? (
 					<div className='flex flex-col gap-2'>
 						<span className='font-mono text-[11px] leading-[1.2] font-semibold tracking-widest text-slate-300 uppercase'>
-							Quick start
+							Your lists
 						</span>
 						<ul className='flex flex-wrap gap-2'>
-							{quickStart.map(list => (
+							{otherLists.map(list => (
 								<li key={list.id}>
 									<Link
 										href={`/base-lists/${list.id}/edit`}
@@ -61,9 +80,7 @@ export function NoSessionBanner({ quickStart, lastTrip, hasLists }: Props) {
 										)}
 									>
 										{list.name}
-										<span className='font-medium text-slate-300'>
-											· {[list.groupName, pluralize(list.itemsCount, 'item')].filter(Boolean).join(' · ')}
-										</span>
+										<span className='font-medium text-slate-300'>· {describeList(list)}</span>
 									</Link>
 								</li>
 							))}
@@ -71,24 +88,36 @@ export function NoSessionBanner({ quickStart, lastTrip, hasLists }: Props) {
 					</div>
 				) : null}
 
-				<Button
-					asChild
-					size='xl'
-					rounded='xl'
-					className={cn('mt-1 w-full md:w-auto', HERO_CTA)}
-				>
-					<Link
-						href={hasLists ? '/shopping-lists' : '/tickets'}
-						data-testid='dashboard-no-session-cta'
-						className={FOCUS_RING}
+				{!hasLists ? (
+					<UploadTicketDialog className={cn('mt-1 w-full md:w-auto', HERO_CTA)} />
+				) : startTarget ? (
+					<StartShoppingDialog
+						baseListId={startTarget.id}
+						baseListName={startTarget.name}
+						itemsCount={startTarget.itemsCount}
+						size='xl'
+						className={cn('mt-1 w-full md:w-auto', HERO_CTA)}
+					/>
+				) : (
+					<Button
+						asChild
+						size='xl'
+						rounded='xl'
+						className={cn('mt-1 w-full md:w-auto', HERO_CTA)}
 					>
-						{hasLists ? 'Start shopping' : 'Upload Receipt'}
-						<HugeiconsIcon
-							icon={ArrowRight01Icon}
-							strokeWidth={2}
-						/>
-					</Link>
-				</Button>
+						<Link
+							href='/shopping-lists'
+							data-testid='dashboard-no-session-cta'
+							className={FOCUS_RING}
+						>
+							Open your lists
+							<HugeiconsIcon
+								icon={ArrowRight01Icon}
+								strokeWidth={2}
+							/>
+						</Link>
+					</Button>
+				)}
 
 				{!hasLists ? (
 					<p className='font-mono text-xs leading-[1.55] font-medium tracking-[0.01em] text-slate-300'>

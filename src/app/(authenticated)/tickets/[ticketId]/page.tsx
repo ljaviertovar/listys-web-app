@@ -58,7 +58,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 					{/* Ticket Image */}
 					<Card
 						variant='premium'
-						className='flex-1 group relative flex h-full cursor-pointer flex-col bg-card transition-all duration-300 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 gap-0 py-4'
+						className='flex-1 group relative flex h-full cursor-pointer flex-col bg-card transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 gap-0 py-4'
 					>
 						<CardHeaderContent
 							icon={Invoice01Icon}
@@ -81,7 +81,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 					{/* Extracted Items */}
 					<Card
 						variant='premium'
-						className='flex-1 group relative flex h-full cursor-pointer flex-col bg-card transition-all duration-300 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 gap-0 py-4'
+						className='flex-1 group relative flex h-full cursor-pointer flex-col bg-card transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 gap-0 py-4'
 					>
 						<div className='flex gap-2 items-start justify-between px-4 pl-0'>
 							<CardHeaderContent

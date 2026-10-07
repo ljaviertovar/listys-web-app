@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react'
 
-import { Card, CardDescription, CardTitle } from '@/components/ui/card'
+import { Card, CardDescription } from '@/components/ui/card'
 import { cn } from '@/utils'
 
 const TONES = {
@@ -43,9 +43,9 @@ export function DashboardSectionCard({
 	return (
 		<Card
 			data-testid={testId}
-			className='h-full gap-4 rounded-[20px] border-slate-200/70 p-4.5 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_8px_24px_-18px_rgba(15,23,42,0.28)] transition-[border-color,box-shadow] duration-200 hover:border-blue-200 hover:shadow-[0_1px_2px_rgba(15,23,42,0.05),0_12px_28px_-18px_rgba(15,23,42,0.36)] md:rounded-3xl md:p-5 dark:border-border dark:shadow-none dark:hover:border-primary/40'
+			className='h-full gap-4 rounded-[20px] border-slate-200/70 p-4.5 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_8px_24px_-18px_rgba(15,23,42,0.28)] transition-shadow duration-200 hover:shadow-[0_1px_2px_rgba(15,23,42,0.05),0_12px_28px_-18px_rgba(15,23,42,0.36)] md:rounded-3xl md:p-5 dark:border-border dark:shadow-none'
 		>
-			<div className='flex items-start gap-4'>
+			<div className='flex items-center gap-4 md:items-start'>
 				<span className={cn('flex size-12 shrink-0 items-center justify-center rounded-2xl', TONES[tone])}>
 					<HugeiconsIcon
 						icon={icon}
@@ -54,15 +54,19 @@ export function DashboardSectionCard({
 					/>
 				</span>
 				<div className='flex min-w-0 flex-1 flex-col gap-1'>
-					<CardTitle className='font-display text-base font-[650] leading-[1.3]'>{title}</CardTitle>
-					<CardDescription className='text-[13px] leading-[1.55]'>{description}</CardDescription>
+					<h2 className='font-display text-base font-[650] leading-[1.3]'>{title}</h2>
+					{/* Phones skip the explanation: the title and the rows already say what the card is. */}
+					<CardDescription className='hidden text-[13px] leading-[1.55] md:block'>{description}</CardDescription>
 				</div>
 				<div className='flex flex-col items-end gap-1'>
 					<span className='font-display text-2xl font-bold leading-none tabular-nums'>{count}</span>
 					<span className='text-xs text-muted-foreground'>{countLabel}</span>
 				</div>
 			</div>
-			<div className='flex flex-1 flex-col gap-1 border-t border-slate-100 pt-2.5 dark:border-border'>{children}</div>
+			{/* Phones preview two rows per card to keep the page short; "View all" holds the rest. */}
+			<div className='flex flex-1 flex-col gap-1 border-t border-slate-100 pt-2.5 max-md:[&>*:nth-child(n+3)]:hidden dark:border-border'>
+				{children}
+			</div>
 			<div className='flex min-h-12 items-center justify-end gap-3 border-t border-slate-100 pt-3 dark:border-border'>
 				{footer}
 			</div>

@@ -61,7 +61,7 @@ export default async function TicketsPage() {
 				{!tickets || tickets.length === 0 ? (
 					<Card
 						variant='premium'
-						className='group relative flex h-full cursor-pointer flex-col bg-card transition-all duration-300 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 gap-0 py-4'
+						className='group relative flex h-full cursor-pointer flex-col bg-card transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 gap-0 py-4'
 					>
 						<CardContent className='flex w-full max-w-md flex-col items-center pt-6 text-center'>
 							<div className='flex h-16 w-16 items-center justify-center text-primary'>
@@ -90,7 +90,7 @@ export default async function TicketsPage() {
 								>
 									<Card
 										variant='premium'
-										className='group relative flex h-full cursor-pointer flex-col bg-card transition-all duration-300 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 gap-0 py-4'
+										className='group relative flex h-full cursor-pointer flex-col bg-card transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 gap-0 py-4'
 									>
 										<div className='flex items-center justify-end gap-1 px-4'>
 											<Badge

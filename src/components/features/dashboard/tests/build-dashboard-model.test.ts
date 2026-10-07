@@ -79,6 +79,10 @@ describe('buildDashboardModel', () => {
 		expect(model.quickStart[0]).toMatchObject({ groupName: 'Walmart', itemsCount: 28 })
 	})
 
+	it('starts the first list with items from the hero when none is overdue', () => {
+		expect(build().startTarget).toMatchObject({ name: 'NO frills', groupName: 'Walmart', itemsCount: 28 })
+	})
+
 	it('flags a processed receipt that is not in a list yet', () => {
 		const model = build({
 			tickets: [

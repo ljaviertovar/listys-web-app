@@ -11,6 +11,8 @@ import { cn } from '@/utils'
  */
 const PRIMARY_BUTTON_LAYER =
   "relative isolate overflow-hidden before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-gradient-to-b before:from-white/20 before:to-transparent before:opacity-80 before:transition-opacity before:duration-300 before:ease-[cubic-bezier(0.4,0.36,0,1)] after:pointer-events-none after:absolute after:inset-0 after:-z-10 after:bg-gradient-to-b after:from-white/10 after:to-transparent after:mix-blend-overlay"
+const SECONDARY_BUTTON_STYLE =
+  "border-slate-200 bg-card text-foreground shadow-none hover:border-slate-300 hover:bg-slate-50 dark:border-border dark:hover:bg-muted [&_svg:not([class*='text-'])]:text-primary"
 
 const buttonVariants = cva(
   "border border-transparent text-sm font-medium [&_svg:not([class*='size-'])]:size-4 inline-flex items-center justify-center whitespace-nowrap gap-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 focus:outline-none focus-visible:outline-none select-none transition-colors focus-visible:ring-1 focus-visible:ring-ring",
@@ -18,10 +20,9 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: `bg-primary text-primary-foreground shadow hover:bg-primary/90 ${PRIMARY_BUTTON_LAYER}`,
-        outline:
-          "border-slate-200 bg-card text-foreground shadow-none hover:border-slate-300 hover:bg-slate-50 dark:border-border dark:hover:bg-muted [&_svg:not([class*='text-'])]:text-primary",
+        outline: SECONDARY_BUTTON_STYLE,
         secondary:
-          "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
+          SECONDARY_BUTTON_STYLE,
         ghost: "hover:bg-accent hover:text-primary",
         destructive:
           "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",

@@ -27,9 +27,11 @@ interface Props {
 	className?: string
 	/** Lets a surface that already has a primary action demote this trigger to a secondary one. */
 	variant?: ComponentProps<typeof Button>['variant']
+	/** Defaults to small; a hero call to action asks for a larger button. */
+	size?: ComponentProps<typeof Button>['size']
 }
 
-export function StartShoppingDialog({ baseListId, baseListName, disabled, itemsCount, className, variant }: Props) {
+export function StartShoppingDialog({ baseListId, baseListName, disabled, itemsCount, className, variant, size = 'sm' }: Props) {
 	const [open, setOpen] = useState(false)
 	const [loading, setLoading] = useState(false)
 	const router = useRouter()
@@ -81,7 +83,7 @@ export function StartShoppingDialog({ baseListId, baseListName, disabled, itemsC
 					disabled={disabled || isEmpty}
 					className={className ?? 'w-full'}
 					variant={variant}
-					size={'sm'}
+					size={size}
 					data-testid='start-shopping-button'
 				>
 					<HugeiconsIcon

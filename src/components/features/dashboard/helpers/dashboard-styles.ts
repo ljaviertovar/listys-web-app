@@ -19,9 +19,12 @@ export const SECONDARY_ACTION = 'h-11 w-auto rounded-[12px] px-4.5 text-sm font-
 /** Secondary action inside a card: small on phones (32px), regular from `md` up (44px). */
 export const CARD_ACTION = 'h-8 w-auto rounded-[12px] px-3 text-xs font-semibold md:h-11 md:px-4.5 md:text-sm'
 
+/** Id of the hero's call to action; the phone session bar watches it to know when the hero has scrolled away. */
+export const HERO_CTA_ID = 'dashboard-hero-cta'
+
 /** Hero call to action: 50px, 12px radius, blue glow and a 1px lift on hover, on top of the shared primary highlight layer. */
 export const HERO_CTA =
-	'h-[50px] rounded-[12px] px-6 text-[15.5px] font-bold shadow-[0_16px_30px_-16px_rgba(37,99,235,0.75)] transition-[transform,box-shadow] duration-150 hover:-translate-y-px hover:shadow-[0_18px_34px_-14px_rgba(37,99,235,0.8)] motion-reduce:transition-none motion-reduce:hover:translate-y-0'
+	'h-[50px] rounded-[12px] md:self-start px-6 text-[15.5px] font-bold shadow-[0_16px_30px_-16px_rgba(37,99,235,0.75)] transition-[transform,box-shadow] duration-150 hover:-translate-y-px hover:shadow-[0_18px_34px_-14px_rgba(37,99,235,0.8)] motion-reduce:transition-none motion-reduce:hover:translate-y-0'
 
-/** Quick-start chip: small on phones, regular from `md` up. */
-export const QUICK_START_CHIP = 'min-h-8 gap-2 px-3 text-xs md:min-h-10 md:px-4 md:text-sm'
+/** Shortcut chip to a list: it is a touch target of its own, so it keeps the 44px minimum on every screen. */
+export const QUICK_START_CHIP = 'min-h-11 gap-2 px-4 text-xs md:text-sm'

@@ -117,7 +117,10 @@ export interface DashboardModel {
 	receipts: ReceiptPreview[]
 	trips: TripPreview[]
 	upNext: UpNextItem[]
+	/** Lists with items, up to a few; they are the shortcuts under the hero. */
 	quickStart: QuickStartList[]
+	/** The list the hero starts: the most overdue one, else the first with items. Null when no list has items. */
+	startTarget: QuickStartList | null
 	lastTrip: { listName: string; dateLabel: string; total: number | null } | null
 }
 
@@ -228,6 +231,23 @@ function buildTrips(trips: DashboardTripInput[]): TripPreview[] {
 	})
 }
 
+/** The list that has been shopped before, not within the last STALE_LIST_DAYS, and has items to buy; the longest wait first. */
+function findMostOverdueList(trips: DashboardTripInput[], baseLists: DashboardBaseListInput[], now: Date) {
+	const lastTripByList = new Map<string, string>()
+	for (const trip of trips) {
+		if (!trip.completed_at) continue
+		const known = lastTripByList.get(trip.base_list_id)
+		if (!known || new Date(trip.completed_at) > new Date(known)) lastTripByList.set(trip.base_list_id, trip.completed_at)
+	}
+
+	return baseLists
+		.map(list => ({ list, last: lastTripByList.get(list.id) }))
+		.filter((entry): entry is { list: DashboardBaseListInput; last: string } => Boolean(entry.last))
+		.map(entry => ({ ...entry, days: daysBetween(entry.last, now) }))
+		.filter(entry => entry.days >= STALE_LIST_DAYS && itemsCountOf(entry.list) > 0)
+		.sort((a, b) => b.days - a.days)[0]
+}
+
 function buildUpNext(
 	tickets: DashboardTicketInput[],
 	trips: DashboardTripInput[],
@@ -259,20 +279,7 @@ function buildUpNext(
 		})
 	}
 
-	// The most overdue list: it has been shopped before, and not within the last STALE_LIST_DAYS.
-	const lastTripByList = new Map<string, string>()
-	for (const trip of trips) {
-		if (!trip.completed_at) continue
-		const known = lastTripByList.get(trip.base_list_id)
-		if (!known || new Date(trip.completed_at) > new Date(known)) lastTripByList.set(trip.base_list_id, trip.completed_at)
-	}
-
-	const stale = baseLists
-		.map(list => ({ list, last: lastTripByList.get(list.id) }))
-		.filter((entry): entry is { list: DashboardBaseListInput; last: string } => Boolean(entry.last))
-		.map(entry => ({ ...entry, days: daysBetween(entry.last, now) }))
-		.filter(entry => entry.days >= STALE_LIST_DAYS && itemsCountOf(entry.list) > 0)
-		.sort((a, b) => b.days - a.days)[0]
+	const stale = findMostOverdueList(trips, baseLists, now)
 
 	if (stale) {
 		const groupName = groups.find(group => group.id === stale.list.group_id)?.name
@@ -296,15 +303,15 @@ export function buildDashboardModel({
 	activeSession,
 	now = new Date(),
 }: DashboardModelInput): DashboardModel {
-	const quickStart = baseLists
-		.filter(list => itemsCountOf(list) > 0)
-		.slice(0, MAX_QUICK_START)
-		.map(list => ({
-			id: list.id,
-			name: list.name,
-			groupName: groups.find(group => group.id === list.group_id)?.name ?? null,
-			itemsCount: itemsCountOf(list),
-		}))
+	const toQuickStart = (list: DashboardBaseListInput): QuickStartList => ({
+		id: list.id,
+		name: list.name,
+		groupName: groups.find(group => group.id === list.group_id)?.name ?? null,
+		itemsCount: itemsCountOf(list),
+	})
+	const quickStart = baseLists.filter(list => itemsCountOf(list) > 0).slice(0, MAX_QUICK_START).map(toQuickStart)
+	const overdue = findMostOverdueList(trips, baseLists, now)
+	const startTarget = overdue ? toQuickStart(overdue.list) : (quickStart[0] ?? null)
 
 	const latest = trips[0]
 
@@ -316,6 +323,7 @@ export function buildDashboardModel({
 		trips: buildTrips(trips),
 		upNext: buildUpNext(tickets, trips, baseLists, groups, now),
 		quickStart,
+		startTarget,
 		lastTrip: latest
 			? {
 					listName: latest.base_list?.name ?? latest.name,

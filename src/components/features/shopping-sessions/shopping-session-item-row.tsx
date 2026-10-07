@@ -92,7 +92,7 @@ export function ShoppingSessionItemRow({ item, isCompleted = false }: Props) {
 			onKeyDown={handleKeyDown}
 			role='button'
 			tabIndex={0}
-			className={`group cursor-pointer relative overflow-hidden transition-all duration-300 hover:bg-primary/1 hover:border-primary/50 py-4 ${checked ? 'opacity-60' : ''}`}
+			className={`group cursor-pointer relative overflow-hidden transition-all duration-300 hover:bg-primary/1 py-4 ${checked ? 'opacity-60' : ''}`}
 		>
 			<CardContent className='flex flex-row items-center px-4'>
 				<div className='flex flex-1 min-w-0 items-center justify-start gap-3'>

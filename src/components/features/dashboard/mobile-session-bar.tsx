@@ -1,8 +1,11 @@
+'use client'
+
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/utils'
-import { FOCUS_RING } from './helpers/dashboard-styles'
+import { FOCUS_RING, HERO_CTA_ID } from './helpers/dashboard-styles'
 import { pluralize, type ActiveSessionSummary } from './helpers/build-dashboard-model'
 
 const RING_RADIUS = 15
@@ -14,15 +17,33 @@ interface Props {
 
 /**
  * Phones only: keeps the shopping session's main action under the thumb while the page scrolls (the bottom-action-bar
- * of DESIGN.md: 94% paper, hairline border, 72px minimum, safe-area padding). On desktop the banner is always in view.
+ * of DESIGN.md: 94% paper, hairline border, 72px minimum, safe-area padding). It stays out of the way while the hero's own
+ * "Continue shopping" button is on screen, so the page never shows two primary buttons for the same action, and slides in
+ * once that button scrolls away. On desktop the banner is always in view.
  */
 export function MobileSessionBar({ session }: Props) {
 	const filled = (session.progress / 100) * RING_CIRCUMFERENCE
+	// Hidden until the observer reports: the hero sits at the top, so that is the right answer for the first paint.
+	const [heroCtaVisible, setHeroCtaVisible] = useState(true)
+
+	useEffect(() => {
+		const heroCta = document.getElementById(HERO_CTA_ID)
+		if (!heroCta) return
+		const observer = new IntersectionObserver(([entry]) => setHeroCtaVisible(entry.isIntersecting))
+		observer.observe(heroCta)
+		return () => observer.disconnect()
+	}, [])
 
 	return (
 		<div
 			data-testid='dashboard-mobile-session-bar'
-			className='fixed inset-x-0 bottom-0 z-40 min-h-[72px] border-t bg-background/94 px-4 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur lg:hidden'
+			data-hidden={heroCtaVisible}
+			aria-hidden={heroCtaVisible}
+			inert={heroCtaVisible}
+			className={cn(
+				'fixed inset-x-0 bottom-0 z-40 min-h-[72px] border-t bg-background/94 px-4 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur transition-transform duration-200 motion-reduce:transition-none lg:hidden',
+				heroCtaVisible && 'translate-y-full',
+			)}
 		>
 			<Link
 				href={`/shopping/${session.id}`}
@@ -63,7 +84,7 @@ export function MobileSessionBar({ session }: Props) {
 					</span>
 				</span>
 				{/* Not a nested control: the whole bar is the link, this only borrows the primary button's look. */}
-				<span className={buttonVariants({ size: 'xl', className: 'rounded-[12px] px-4 text-sm font-bold' })}>Continue</span>
+				<span className={buttonVariants({ size: 'xl', className: 'rounded-[12px] px-4 text-sm font-bold' })}>Continue<span className='sr-only'> shopping</span></span>
 			</Link>
 		</div>
 	)

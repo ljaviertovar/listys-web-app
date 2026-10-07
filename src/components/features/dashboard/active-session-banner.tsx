@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { cn } from '@/utils'
-import { FOCUS_RING, HERO_CTA } from './helpers/dashboard-styles'
+import { FOCUS_RING, HERO_CTA, HERO_CTA_ID } from './helpers/dashboard-styles'
 import { pluralize, type ActiveSessionSummary } from './helpers/build-dashboard-model'
 
 interface Props {
@@ -69,6 +69,7 @@ export function ActiveSessionBanner({ session, isGuest = false }: Props) {
 				>
 					<Link
 						href={`/shopping/${session.id}`}
+						id={HERO_CTA_ID}
 						data-testid='dashboard-continue-shopping'
 						className={FOCUS_RING}
 					>

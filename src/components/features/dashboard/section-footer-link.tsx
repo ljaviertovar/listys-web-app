@@ -18,7 +18,7 @@ export function SectionFooterLink({ href, children, testId }: Props) {
 			href={href}
 			data-testid={testId}
 			className={cn(
-				'inline-flex min-h-11 items-center gap-1 rounded-md text-sm font-semibold text-primary hover:underline',
+				'group/link inline-flex min-h-11 items-center gap-1 rounded-md text-sm font-semibold text-primary',
 				FOCUS_RING,
 			)}
 		>
@@ -26,7 +26,7 @@ export function SectionFooterLink({ href, children, testId }: Props) {
 			<HugeiconsIcon
 				icon={ArrowRight01Icon}
 				strokeWidth={2}
-				className='size-4'
+				className='size-4 transition-transform duration-150 ease-[cubic-bezier(0.2,0,0,1)] group-hover/link:translate-x-0.5 motion-reduce:transition-none'
 			/>
 		</Link>
 	)

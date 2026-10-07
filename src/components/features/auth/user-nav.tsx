@@ -70,15 +70,18 @@ export function UserNav({ user }: Props) {
 
 				<DropdownMenuSeparator />
 
-				<Button
-					variant='secondary'
-					size='sm'
-					className='w-full'
-					onClick={handleSignOut}
-				>
-					<HugeiconsIcon icon={Logout01Icon} strokeWidth={2} className='h-4 w-4' />
-					Sign Out
-				</Button>
+				<div className='flex justify-center py-2'>
+					<Button
+						variant='secondary'
+						size='sm'
+						rounded='xl'
+						className='w-fit text-xs font-semibold'
+						onClick={handleSignOut}
+					>
+						<HugeiconsIcon icon={Logout01Icon} strokeWidth={2} className='h-4 w-4' />
+						Sign Out
+					</Button>
+				</div>
 			</DropdownMenuContent>
 		</DropdownMenu>
 	)

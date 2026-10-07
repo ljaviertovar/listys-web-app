@@ -17,12 +17,20 @@
 - Restyle the running-session badge (static dot instead of a perpetual pulse, readable green, an `on-dark` tone for the
   dashboard banner) and size every `Badge` to the specified 24px height and 600 weight.
 - Align the dashboard with the approved A1 design: 24px card and hero radii, 12px controls, blue outline in-card actions,
-  inset slate dividers and blue hover borders on cards, 50px hero call to action with glow, folder tiles on group rows and the
-  amber date pill.
+  inset slate dividers and blue hover borders on cards, 50px hero call to action with glow and folder tiles on group rows.
 - Make the `outline` (secondary) `Button` variant neutral with a blue glyph: paper, ink text, flat slate-200 border. Every
   secondary button in the app inherits it, including the dashboard's Upload Receipt, Start Shopping and Install app.
 - Dashboard cards: soft shadow and lighter border, 20px radius on phones, hero shadow, "View all" right-aligned, no Upload in
   the Receipts footer, and centred, equal-height empty states with the first step ("New Group" / "Upload Receipt") under the copy.
+- Dashboard follow-up from the critique: the hero's blue button now starts the most overdue list (or uploads a receipt for an
+  account without lists) and the other lists are 44px "Your lists" shortcuts; the phone session bar only appears once the
+  hero's button scrolls away; the header Upload is hidden while the hero already is the upload, and the Receipts card no
+  longer repeats it; the date is plain muted text instead of an amber pill and the filler subtitle is gone; section cards
+  have real `h2` titles, drop their description and show two rows on phones; finished receipts are plain text, not badges;
+  a brand-new account sees a "How it works" card instead of three empty cards.
+- Accessibility: pinch-zoom is no longer disabled (`maximum-scale` and `user-scalable` removed), the mobile drawer has a 44px
+  close button, a 312px width and a 44px author-credit link, and `<main>` has `scroll-padding-bottom` so focus is not hidden
+  behind fixed bottom bars. `StartShoppingDialog` accepts an optional `size`.
 - `CreateGroupDialog` accepts optional `variant` and `className` for its trigger.
 - `GET /api/v1/base-lists` now also returns `items` (a count of each list's items). Additive; existing fields are unchanged.
 - Initialize documentation system and add PRD, ADR template, runbooks, and contributing guide.

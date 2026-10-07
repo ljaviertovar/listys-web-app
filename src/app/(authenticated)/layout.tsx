@@ -40,7 +40,8 @@ export default async function AuthenticatedLayout({ children }: { children: Reac
 					)}
 				>
 					<Header />
-					<main className='flex-1 overflow-y-auto bg-sidebar'>
+					{/* scroll-pb keeps a focused control clear of the fixed bottom bars (the dashboard's phone session bar is 72px+). */}
+					<main className='flex-1 scroll-pb-24 overflow-y-auto bg-sidebar'>
 						<div className='flex flex-col min-h-full'>{children}</div>
 					</main>
 				</div>

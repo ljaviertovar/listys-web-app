@@ -1,13 +1,11 @@
 import { Invoice01Icon } from '@hugeicons/core-free-icons'
 
 import { Badge } from '@/components/ui/badge'
-import { UploadTicketDialog } from '@/components/features/tickets'
 import { DashboardEmptyState } from './dashboard-empty-state'
 import { DashboardRow } from './dashboard-row'
 import { DashboardSectionCard } from './dashboard-section-card'
 import { SectionFooterLink } from './section-footer-link'
 import type { ReceiptPreview } from './helpers/build-dashboard-model'
-import { CARD_ACTION } from './helpers/dashboard-styles'
 
 const STATUS_LABELS: Record<ReceiptPreview['status'], string> = {
 	completed: 'Completed',
@@ -21,7 +19,7 @@ interface Props {
 	count: number
 }
 
-/** Receipts: the latest uploads with their OCR state. Uploading lives in the page header and, while empty, in this card. */
+/** Receipts: the latest uploads with their OCR state. Uploading lives in the page header (or the hero for a new account), not here. */
 export function ReceiptsSectionCard({ receipts, count }: Props) {
 	return (
 		<DashboardSectionCard
@@ -44,13 +42,7 @@ export function ReceiptsSectionCard({ receipts, count }: Props) {
 			{receipts.length === 0 ? (
 				<DashboardEmptyState
 					testId='dashboard-receipts-empty'
-					message='No receipts yet. Photograph one and Listys turns it into a list you can review.'
-					action={
-						<UploadTicketDialog
-							variant='outline'
-							className={CARD_ACTION}
-						/>
-					}
+					message='No receipts yet. Upload one with the button at the top and Listys turns it into a list you can review.'
 				/>
 			) : (
 				receipts.map(receipt => (
@@ -61,7 +53,14 @@ export function ReceiptsSectionCard({ receipts, count }: Props) {
 						meta={receipt.meta}
 						monoMeta
 						testId={`dashboard-receipt-${receipt.id}`}
-						trailing={<Badge variant={receipt.status}>{STATUS_LABELS[receipt.status]}</Badge>}
+						trailing={
+							// A finished receipt is the normal case, so it is plain text; only the states that need a look get a badge.
+							receipt.status === 'completed' ? (
+								<span className='text-xs text-muted-foreground'>{STATUS_LABELS.completed}</span>
+							) : (
+								<Badge variant={receipt.status}>{STATUS_LABELS[receipt.status]}</Badge>
+							)
+						}
 					/>
 				))
 			)}

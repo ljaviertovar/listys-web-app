@@ -3,11 +3,11 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Menu02Icon } from '@hugeicons/core-free-icons'
+import { Cancel01Icon, Menu02Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 
 import { Button } from '@/components/ui/button'
-import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
+import { Sheet, SheetClose, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import Logo from '@/components/commons/logo'
 import { SIDEBAR_DATA } from '@/data/constants'
 import useActiveSessionStore from '@/stores/active-session'
@@ -46,13 +46,28 @@ export default function MobileNavDrawer() {
 			<SheetContent
 				side='left'
 				data-testid='mobile-nav-drawer'
-				className='w-[19.5rem] gap-0 rounded-r-2xl p-0'
+				// The sheet's own `data-[side=left]:w-3/4` would win over a plain width, so the width is set on the same variant.
+				className='gap-0 rounded-r-2xl p-0 data-[side=left]:w-[19.5rem]'
+				showCloseButton={false}
 			>
 				<SheetTitle className='sr-only'>Menu</SheetTitle>
 				<SheetDescription className='sr-only'>Navigate between the sections of Listys.</SheetDescription>
 
-				<div className='flex h-16 shrink-0 items-center border-b px-5'>
+				<div className='flex h-16 shrink-0 items-center justify-between border-b pr-2 pl-5'>
 					<Logo />
+					<SheetClose asChild>
+						<Button
+							variant='ghost'
+							aria-label='Close menu'
+							className='size-11 rounded-xl'
+						>
+							<HugeiconsIcon
+								icon={Cancel01Icon}
+								strokeWidth={2}
+								className='size-5'
+							/>
+						</Button>
+					</SheetClose>
 				</div>
 
 				<nav

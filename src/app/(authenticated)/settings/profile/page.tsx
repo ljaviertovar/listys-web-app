@@ -48,7 +48,7 @@ export default async function ProfilePage() {
 				<div className='grid gap-4 lg:grid-cols-3'>
 					<Card
 						size='sm'
-						className='lg:col-span-1 h-fit hover:border-primary/50 transition-colors'
+						className='lg:col-span-1 h-fit'
 					>
 						<CardHeader className='flex-row items-start justify-between'>
 							<CardHeaderContent
@@ -86,7 +86,7 @@ export default async function ProfilePage() {
 
 					<Card
 						size='sm'
-						className='lg:col-span-2 hover:border-primary/50 transition-colors'
+						className='lg:col-span-2'
 					>
 						<CardHeader>
 							<CardHeaderContent

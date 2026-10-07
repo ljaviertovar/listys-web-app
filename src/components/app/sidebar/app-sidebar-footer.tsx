@@ -6,7 +6,7 @@ export default function AppSidebarFooter() {
 				href='https://www.ljaviertovar.dev/'
 				target='_blank'
 				rel='noopener noreferrer'
-				className='text-primary font-medium underline'
+				className='-my-3 inline-block py-3 text-primary font-medium underline'
 			>
 				L Javier Tovar
 			</a>
