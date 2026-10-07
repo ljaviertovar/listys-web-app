@@ -9,7 +9,7 @@ export function Rows({
 	testId,
 	'data-testid': dataTestId,
 	...props
-}: ComponentProps<'ul'> & { testId?: string }) {
+}: ComponentProps<'ul'> & { 'data-testid'?: string; testId?: string }) {
 	return (
 		<ul
 			className={cn('flex flex-col gap-2', className)}

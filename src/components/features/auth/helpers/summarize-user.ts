@@ -6,7 +6,7 @@ export interface UserSummary {
 	avatarUrl: string | null
 }
 
-interface UserLike {
+export interface UserLike {
 	email?: string | null
 	user_metadata?: Record<string, unknown> | null
 }

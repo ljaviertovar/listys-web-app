@@ -34,7 +34,7 @@ describe('SharedListsShowcaseSection', () => {
 		expect(html).toContain('Maya · at home')
 		expect(html).toContain('Synced')
 		expect(html).toContain('data-testid="activity-toast-stack"')
-		expect(html.match(/data-testid="activity-toast-/g)).toHaveLength(3)
+		expect(html.match(/role="listitem"/g)).toHaveLength(3)
 		expect(html).toContain('checked off almond milk')
 		expect(html).toContain('Maya, Noah and Ava share this list')
 	})

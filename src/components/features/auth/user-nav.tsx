@@ -16,10 +16,10 @@ import {
 } from '@/components/ui/dropdown-menu'
 
 import { createClient } from '@/lib/supabase/client'
-import { summarizeUser } from './helpers/summarize-user'
+import { summarizeUser, type UserLike } from './helpers/summarize-user'
 
 interface Props {
-	user: any
+	user: UserLike
 }
 
 export function UserNav({ user }: Props) {
