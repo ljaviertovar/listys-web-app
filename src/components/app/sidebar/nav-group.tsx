@@ -24,12 +24,13 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '../../ui/dropdown-menu'
-import { NavCollapsible, NavItem, NavLink, type NavGroup } from '@/types'
+import { NavCollapsible, NavLink, type NavGroup } from '@/types'
+import { checkIsActive } from './helpers/check-is-active'
 import Link from 'next/link'
 import { ReactNode } from 'react'
 
 const SIDEBAR_ITEM_STYLES =
-	'transition-all duration-200 hover:bg-primary/10 hover:text-primary hover:shadow-sm data-[active=true]:bg-primary data-[active=true]:text-primary-foreground data-[active=true]:shadow-sm data-[active=true]:font-semibold'
+	'transition-all duration-200 hover:bg-primary/10 hover:text-primary data-[active=true]:bg-primary/10 data-[active=true]:text-primary data-[active=true]:font-semibold'
 const SIDEBAR_SUB_ITEM_STYLES =
 	'transition-all duration-200 hover:bg-primary/10 hover:text-primary data-[active=true]:bg-primary/15 data-[active=true]:text-primary data-[active=true]:font-semibold'
 
@@ -219,14 +220,5 @@ const SidebarMenuCollapsedDropdown = ({ item, href }: { item: NavCollapsible; hr
 				</DropdownMenuContent>
 			</DropdownMenu>
 		</SidebarMenuItem>
-	)
-}
-
-function checkIsActive(href: string, item: NavItem, mainNav = false) {
-	return (
-		href === item.url || // /endpint?search=param
-		href.split('?')[0] === item.url || // endpoint
-		!!item?.items?.filter(i => i.url === href).length || // if child nav is active
-		(mainNav && href.split('/')[1] !== '' && href.split('/')[1] === item?.url?.split('/')[1])
 	)
 }

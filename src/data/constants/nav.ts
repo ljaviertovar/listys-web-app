@@ -92,21 +92,3 @@ export const USER_NAV_ITEMS: NavLink[] = [
 		icon: Settings02Icon,
 	},
 ]
-
-export const NAV_APP_ITEMS: NavLink[] = [
-	{
-		title: 'Shopping List Groups',
-		url: '/shopping-lists',
-		icon: FolderLibraryIcon,
-	},
-	{
-		title: 'Receipts',
-		url: '/tickets',
-		icon: Invoice01Icon,
-	},
-	{
-		title: 'Shopping History',
-		url: '/shopping-history',
-		icon: TimeQuarterPassIcon,
-	},
-]

@@ -23,7 +23,6 @@ export function CollaboratorAvatars({ collaborators, maxVisible = 3, size = 'sm'
 
 	const visible = collaborators.slice(0, maxVisible)
 	const overflowCount = collaborators.length - visible.length
-	console.log('CollaboratorAvatars', { collaborators, visible, overflowCount })
 	return (
 		<AvatarGroup className={cn(className)}>
 			{visible.map((c, idx) => (

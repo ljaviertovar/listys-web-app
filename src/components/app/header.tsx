@@ -3,8 +3,9 @@
 import { AuthButtons } from '@/components/features/auth'
 import { InstallAppButton } from '@/components/features/pwa'
 import { useScrollPosition } from '@/hooks'
+import Logo from '@/components/commons/logo'
 import { cn } from '@/utils'
-import MobileMenu from './mobile-menu'
+import MobileNavDrawer from './mobile-nav-drawer'
 
 export const Header = () => {
 	const scrollPosition = useScrollPosition()
@@ -12,18 +13,25 @@ export const Header = () => {
 	return (
 		<header
 			className={cn(
-				'sticky top-0 z-50 flex h-16 items-center gap-3 px-3 sm:px-4 border-b bg-card/40 backdrop-blur-lg backdrop-filter transition-colors duration-200',
-				scrollPosition > 20 ? 'bg-card/60' : 'bg-card/40',
+				'sticky top-0 z-50 grid h-16 grid-cols-[1fr_auto_1fr] items-center gap-2 px-2 sm:px-4 lg:flex lg:gap-3 border-b bg-card/88 backdrop-blur-lg backdrop-filter transition-colors duration-200',
+				scrollPosition > 20 && 'shadow-sm',
 			)}
 		>
-			<div className='flex items-center gap-2 lg:hidden'>
-				<MobileMenu />
+			<div className='flex items-center justify-self-start lg:hidden'>
+				<MobileNavDrawer />
 			</div>
 
-			<div className='flex-1' />
+			<div
+				data-testid='header-logo'
+				className='flex justify-center lg:hidden'
+			>
+				<Logo />
+			</div>
 
-			<div className='flex items-center'>
-				<InstallAppButton />
+			<div className='flex items-center justify-self-end lg:ml-auto'>
+				<div className='hidden md:block'>
+					<InstallAppButton />
+				</div>
 				<AuthButtons />
 			</div>
 		</header>

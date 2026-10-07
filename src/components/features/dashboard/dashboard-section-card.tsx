@@ -1,0 +1,69 @@
+import type { ReactNode } from 'react'
+import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react'
+
+import { Card, CardDescription, CardTitle } from '@/components/ui/card'
+import { cn } from '@/utils'
+
+const TONES = {
+	primary: 'bg-blue-50 text-primary dark:bg-primary/10',
+	ocr: 'bg-cyan-50 text-cyan-700 dark:bg-cyan-500/10 dark:text-cyan-400',
+	success: 'bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400',
+} as const
+
+interface Props {
+	testId: string
+	icon: IconSvgElement
+	tone: keyof typeof TONES
+	title: string
+	description: string
+	count: number
+	countLabel: string
+	footer: ReactNode
+	children: ReactNode
+}
+
+/**
+ * Shared shell of the three dashboard sections (A1): 24px radius, slate-200 border that turns blue-200 on hover, and
+ * hairline slate-100 dividers inset by the card padding. Cards stretch to the tallest sibling and the footer is pinned
+ * to the bottom so the "View all" links line up however much each card previews.
+ */
+export function DashboardSectionCard({
+	testId,
+	icon,
+	tone,
+	title,
+	description,
+	count,
+	countLabel,
+	footer,
+	children,
+}: Props) {
+	return (
+		<Card
+			data-testid={testId}
+			className='h-full gap-4 rounded-3xl border-slate-200 p-5 shadow-none transition-colors duration-200 hover:border-blue-200 dark:border-border dark:hover:border-primary/40'
+		>
+			<div className='flex items-start gap-4'>
+				<span className={cn('flex size-12 shrink-0 items-center justify-center rounded-2xl', TONES[tone])}>
+					<HugeiconsIcon
+						icon={icon}
+						strokeWidth={1.5}
+						className='size-6'
+					/>
+				</span>
+				<div className='flex min-w-0 flex-1 flex-col gap-1'>
+					<CardTitle className='font-display text-base font-[650] leading-[1.3]'>{title}</CardTitle>
+					<CardDescription className='text-[13px] leading-[1.55]'>{description}</CardDescription>
+				</div>
+				<div className='flex flex-col items-end gap-1'>
+					<span className='font-display text-2xl font-bold leading-none tabular-nums'>{count}</span>
+					<span className='text-xs text-muted-foreground'>{countLabel}</span>
+				</div>
+			</div>
+			<div className='flex flex-1 flex-col gap-1 border-t border-slate-100 pt-2.5 dark:border-border'>{children}</div>
+			<div className='flex min-h-12 items-center justify-between gap-3 border-t border-slate-100 pt-3 dark:border-border'>
+				{footer}
+			</div>
+		</Card>
+	)
+}

@@ -1,110 +1,59 @@
 import { Suspense } from 'react'
-import { FolderLibraryIcon, Invoice01Icon, TimeQuarterPassIcon } from '@hugeicons/core-free-icons'
 
-import { DashboardCard, ActiveShopping, PageHeader, PageContainer } from '@/components/app'
+import { PageContainer } from '@/components/app'
+import { DashboardSkeleton, DashboardView, buildDashboardModel } from '@/components/features/dashboard'
 
-import { getActiveShoppingSession, getGroups, getShoppingHistory, getTickets } from '@/lib/api/endpoints'
+import { getActiveShoppingSession, getBaseLists, getGroups, getShoppingHistory, getTickets } from '@/lib/api/endpoints'
 import { createClient } from '@/lib/supabase/server'
 
-// Fallback skeleton for dashboard cards
-function CardsSkeleton() {
-	return (
-		<div className='grid gap-6 md:grid-cols-3'>
-			{Array.from({ length: 3 }).map((_, i) => (
-				<div
-					key={i}
-					className='h-48 rounded-lg border bg-card animate-pulse'
-				/>
-			))}
-		</div>
-	)
+type DashboardInput = Parameters<typeof buildDashboardModel>[0]
+
+function firstNameOf(user: { email?: string; user_metadata?: Record<string, unknown> } | null) {
+	const metadata = user?.user_metadata
+	const fullName = (metadata?.name as string | undefined) || (metadata?.full_name as string | undefined)
+	return (fullName || user?.email?.split('@')[0] || 'there').trim().split(/\s+/)[0]
 }
 
-// Fallback skeleton for active shopping section
-function ActiveShoppingSkeleton() {
-	return <div className='h-32 rounded-lg border bg-card animate-pulse' />
-}
-
-// Component to fetch and display cards
-async function DashboardCards() {
-	const [groupsResult, historyResult, ticketsResult] = await Promise.all([
-		getGroups(),
-		getShoppingHistory(),
-		getTickets(),
-	])
-
-	const groups = groupsResult.data || []
-	const historyCount = historyResult.data?.length || 0
-	const ticketsCount = ticketsResult.data?.length || 0
-
-	return (
-		<div className='grid gap-6 md:grid-cols-3'>
-			<DashboardCard
-				href='/shopping-lists'
-				icon={FolderLibraryIcon}
-				title='Shopping Lists Groups'
-				description='Manage your shopping list groups and their lists.'
-				count={groups.length}
-			/>
-
-			<DashboardCard
-				href='/tickets'
-				icon={Invoice01Icon}
-				title='Receipts'
-				description='Upload and manage receipts. Create shopping lists from them.'
-				count={ticketsCount}
-			/>
-
-			<DashboardCard
-				href='/shopping-history'
-				icon={TimeQuarterPassIcon}
-				title='Shopping History'
-				description='View past shopping sessions and their details.'
-				count={historyCount}
-			/>
-		</div>
-	)
-}
-
-// Component to fetch and display active shopping
-async function ActiveShoppingSection() {
+async function DashboardContent() {
 	const supabase = await createClient()
-	const {
-		data: { user },
-	} = await supabase.auth.getUser()
-	const activeSessionResult = await getActiveShoppingSession()
-	const activeSession = activeSessionResult.data
+	const [userResult, groupsResult, baseListsResult, ticketsResult, historyResult, activeSessionResult] =
+		await Promise.all([
+			supabase.auth.getUser(),
+			getGroups(),
+			getBaseLists(),
+			getTickets(),
+			getShoppingHistory(),
+			getActiveShoppingSession(),
+		])
 
-	if (!activeSession) return null
+	const user = userResult.data.user
+	const activeSession = (activeSessionResult.data ?? null) as DashboardInput['activeSession']
+	const baseLists = baseListsResult.data ?? []
 
-	const isGuest = !!user && activeSession.user_id !== user.id
+	const model = buildDashboardModel({
+		groups: groupsResult.data ?? [],
+		baseLists,
+		tickets: ticketsResult.data ?? [],
+		trips: historyResult.data ?? [],
+		activeSession,
+	})
 
 	return (
-		<ActiveShopping
-			activeShopping={activeSession}
-			isGuest={isGuest}
+		<DashboardView
+			model={model}
+			firstName={firstNameOf(user)}
+			hasLists={baseLists.length > 0}
+			isGuest={!!user && !!activeSession && (activeSessionResult.data as { user_id?: string }).user_id !== user.id}
 		/>
 	)
 }
 
-export default async function DashboardPage() {
+export default function DashboardPage() {
 	return (
-		<>
-			<PageHeader
-				title='Dashboard'
-				desc='Overview of your shopping activity'
-			/>
-			<PageContainer>
-				{/* Active Shopping Session with Suspense */}
-				<Suspense fallback={<ActiveShoppingSkeleton />}>
-					<ActiveShoppingSection />
-				</Suspense>
-
-				{/* Quick Actions with Suspense */}
-				<Suspense fallback={<CardsSkeleton />}>
-					<DashboardCards />
-				</Suspense>
-			</PageContainer>
-		</>
+		<PageContainer>
+			<Suspense fallback={<DashboardSkeleton />}>
+				<DashboardContent />
+			</Suspense>
+		</PageContainer>
 	)
 }

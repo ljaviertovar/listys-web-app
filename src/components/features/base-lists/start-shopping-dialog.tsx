@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, type ComponentProps } from 'react'
 import { useRouter } from 'next/navigation'
 import {
 	Dialog,
@@ -25,9 +25,11 @@ interface Props {
 	disabled?: boolean
 	itemsCount?: number
 	className?: string
+	/** Lets a surface that already has a primary action demote this trigger to a secondary one. */
+	variant?: ComponentProps<typeof Button>['variant']
 }
 
-export function StartShoppingDialog({ baseListId, baseListName, disabled, itemsCount, className }: Props) {
+export function StartShoppingDialog({ baseListId, baseListName, disabled, itemsCount, className, variant }: Props) {
 	const [open, setOpen] = useState(false)
 	const [loading, setLoading] = useState(false)
 	const router = useRouter()
@@ -78,6 +80,7 @@ export function StartShoppingDialog({ baseListId, baseListName, disabled, itemsC
 				<Button
 					disabled={disabled || isEmpty}
 					className={className ?? 'w-full'}
+					variant={variant}
 					size={'sm'}
 					data-testid='start-shopping-button'
 				>

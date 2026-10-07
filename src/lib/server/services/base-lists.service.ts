@@ -128,7 +128,7 @@ export async function getBaseLists() {
 
   const { data: baseLists, error } = await supabase
     .from('base_lists')
-    .select('id, name, group_id')
+    .select('id, name, group_id, items:base_list_items(count)')
     .eq('user_id', user.id)
     .order('name', { ascending: true })
 

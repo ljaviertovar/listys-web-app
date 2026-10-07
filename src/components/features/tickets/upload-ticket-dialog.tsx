@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, type ComponentProps } from 'react'
 import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -26,7 +26,13 @@ const UploadTicketForm = dynamic(
 	},
 )
 
-export function UploadTicketDialog() {
+interface Props {
+	/** Lets a surface that already has a primary action demote this trigger to a secondary one. */
+	variant?: ComponentProps<typeof Button>['variant']
+	className?: string
+}
+
+export function UploadTicketDialog({ variant, className }: Props = {}) {
 	const [open, setOpen] = useState(false)
 	const router = useRouter()
 
@@ -41,7 +47,10 @@ export function UploadTicketDialog() {
 			onOpenChange={setOpen}
 		>
 			<DialogTrigger asChild>
-				<Button className='w-full'>
+				<Button
+					variant={variant}
+					className={className ?? 'w-full'}
+				>
 					<HugeiconsIcon
 						icon={Upload06Icon}
 						strokeWidth={2}

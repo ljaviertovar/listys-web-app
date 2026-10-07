@@ -1,48 +1,24 @@
 'use client'
 
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
+import { Logout01Icon } from '@hugeicons/core-free-icons'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
 	DropdownMenu,
 	DropdownMenuContent,
-	DropdownMenuItem,
 	DropdownMenuLabel,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
-import type { NavLink } from '@/types'
-import { USER_NAV_ITEMS } from '@/data/constants'
 import { createClient } from '@/lib/supabase/client'
 
 interface Props {
 	user: any
-}
-
-const UserNavItem = ({ title, url, icon, onSelect }: NavLink & { onSelect: () => void }) => {
-	return (
-		<DropdownMenuItem asChild>
-			<Link
-				className='flex h-10 w-full items-center gap-2 text-left text-sm'
-				href={url}
-				onClick={onSelect}
-			>
-				{icon && (
-					<HugeiconsIcon
-						icon={icon}
-						strokeWidth={2}
-						className='h-4 w-4'
-					/>
-				)}
-				{title}
-			</Link>
-		</DropdownMenuItem>
-	)
 }
 
 export function UserNav({ user }: Props) {
@@ -94,28 +70,15 @@ export function UserNav({ user }: Props) {
 
 				<DropdownMenuSeparator />
 
-				{USER_NAV_ITEMS.map(item => (
-					<UserNavItem
-						key={item.url}
-						title={item.title}
-						url={item.url}
-						icon={item.icon}
-						onSelect={() => setOpen(false)}
-					/>
-				))}
-
-				<DropdownMenuSeparator />
-
-				<DropdownMenuItem>
-					<Button
-						variant={'ghost'}
-						size={'sm'}
-						className='w-full h-6'
-						onClick={handleSignOut}
-					>
-						Sign Out
-					</Button>
-				</DropdownMenuItem>
+				<Button
+					variant='secondary'
+					size='sm'
+					className='w-full'
+					onClick={handleSignOut}
+				>
+					<HugeiconsIcon icon={Logout01Icon} strokeWidth={2} className='h-4 w-4' />
+					Sign Out
+				</Button>
 			</DropdownMenuContent>
 		</DropdownMenu>
 	)

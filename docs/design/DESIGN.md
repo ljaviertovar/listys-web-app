@@ -314,7 +314,7 @@ width. Do not recolour the mark by feature, add a glow, or place it inside a sec
 | Scan cyan | `#38BDF8` | OCR and synchronization accent only |
 
 The logo gradient is a brand asset, not a general-purpose background gradient. Product surfaces should use flat semantic
-colours. The marketing hero may use a restrained canvas wash from `#F8FAFC` to `#F4F8FF`; it must not become a multi-colour
+colours. The one exception is the highlight layer on primary buttons (section 7.1). The marketing hero may use a restrained canvas wash from `#F8FAFC` to `#F4F8FF`; it must not become a multi-colour
 mesh.
 
 ### 3.2 Neutrals and hierarchy
@@ -351,7 +351,8 @@ Dark mode is supported because the app already follows system preference. It is 
 
 - Canvas: `#0B1120`; paper: `#111827`; raised surface: `#172033`; border: `#334155`.
 - Primary text: `#F8FAFC`; body: `#CBD5E1`; muted: `#94A3B8`.
-- Interactive blue becomes `#60A5FA`; scan cyan remains `#38BDF8`.
+- Interactive blue becomes `#60A5FA`, and the text on it (`primary-foreground`) becomes ink `#0F172A`: white on `#60A5FA` is
+  about 2.5:1, ink is about 7:1. Scan cyan remains `#38BDF8`.
 - Semantic surfaces use low-chroma, dark tinted backgrounds while retaining their labels.
 - Images, uploaded receipts, and the logo are not colour-inverted.
 
@@ -511,7 +512,25 @@ their original content. On completed sessions, the screen becomes a record: dest
 ### 7.1 Buttons
 
 Primary buttons are action blue with white text, 44px minimum height, and a 10px radius. Use one primary action per region.
-Secondary buttons are paper with a visible control border. Ghost buttons are for low-risk toolbar actions. Destructive
+
+Every primary button carries the same **highlight layer**: a top-lit gradient, white at 20% fading to transparent over the
+fill, plus a 10% overlay. It is defined once (`PRIMARY_BUTTON_LAYER` in `src/components/ui/button.tsx`) and shared by the
+app `Button`, the marketing `ButtonLink`, and any non-interactive element that must look like a primary button (such as the
+"Continue" pill in the mobile session bar). The layer is always white, so it stays a highlight in dark mode. Secondary,
+ghost, and destructive buttons stay flat.
+
+In-card secondary actions (for example "Start Shopping" on a list inside a dashboard card) and the dashboard quick-start
+chips use a compact size below `md` (32px high, 12px label) and the regular size from `md` up (44px for actions, 40px for
+chips). This is a deliberate product decision and an exception to the 44px rule in section 10.2.
+
+The dashboard (approved design "A1") keeps its own control and card values, which take precedence over the generic scale on
+that surface: section cards and the hero use a 24px radius, up-next cards 18px (with 14px icon tiles), list rows and every
+button 12px; borders are slate-200 (turning blue-200 on card hover) with slate-100 dividers inset by the card padding; the
+hero call to action is 50px high with a blue glow and a 1px lift on hover; in-card actions use the neutral secondary button
+at the compact size below `md`. The values live in `src/components/features/dashboard/helpers/dashboard-styles.ts`.
+Secondary buttons are the `outline` variant of `Button`: paper, ink text, a flat slate-200 hairline border, and a blue glyph
+(icons that set their own colour keep it). They look the same on every screen; the hierarchy is one blue primary per
+region, neutral secondary actions, then plain text links. Ghost buttons are for low-risk toolbar actions. Destructive
 buttons become solid red only in the confirmation step; the action that opens a confirmation dialog may remain a red-text
 ghost control.
 
@@ -533,6 +552,9 @@ screens. Dialog forms keep the primary action at the bottom-right on desktop and
 OCR badges use these exact labels: `Pending`, `Reading`, `Ready`, and `Failed`. Internal database values such as `processing`
 or `completed` may be mapped to user-facing language. The status listener may announce transitions through a polite live
 region; repeated polling must not produce repeated announcements.
+
+The running-session badge reads `Shopping` with a static green dot (never a pulse, section 9) and has an `on-dark` tone for
+photo and ink surfaces such as the dashboard banner. Badges are 24px high with a 12px/600 label.
 
 Badges are compact context, never the only explanation for a failure. A failed receipt also includes a short safe error and
 `Try again` when retry is available.
@@ -675,7 +697,8 @@ links or meaningful glyphs on light surfaces.
 
 ### 10.2 Interaction
 
-- Interactive targets are at least 44×44px in shopping, upload, and mobile navigation flows.
+- Interactive targets are at least 44×44px in shopping, upload, and mobile navigation flows. The one documented exception
+  is the compact in-card actions and quick-start chips below `md` described in section 7.1.
 - Keyboard focus uses a 2px action-blue ring with a 2px offset; do not remove it in favour of colour change alone.
 - Drag-and-drop always has a file-picker equivalent. Reordering always has a keyboard or menu alternative.
 - Dialogs trap focus, use an accessible title, and restore focus.
@@ -738,8 +761,17 @@ Recommended mapping:
 }
 ```
 
-The code currently stores these variables as OKLCH. Keeping OKLCH is acceptable and preferred for controlled colour
-mixing; the hex values above are the canonical visual targets, not a requirement to change syntax.
+The code stores these variables as OKLCH. Keeping OKLCH is acceptable and preferred for controlled colour mixing; the hex
+values above are the canonical visual targets, not a requirement to change syntax. The action-blue family is implemented
+exactly, not approximated:
+
+| Token (`--primary`, `--ring`, `--sidebar-primary`, `--sidebar-ring`) | Hex | OKLCH in `globals.css` |
+| --- | --- | --- |
+| Light | `#2563EB` | `oklch(0.5461 0.2152 262.8809)` |
+| Dark | `#60A5FA` | `oklch(0.7137 0.1434 254.6240)` |
+| Dark `--primary-foreground` and `--sidebar-primary-foreground` | `#0F172A` | `oklch(0.2077 0.0398 265.7549)` |
+
+Before this, `--primary` held `oklch(0.6231 0.1880 259.8145)` (`#3B82F6`), a lighter blue than the spec.
 
 ### 11.2 Fonts
 
