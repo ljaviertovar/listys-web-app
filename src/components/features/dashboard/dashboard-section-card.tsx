@@ -18,14 +18,16 @@ interface Props {
 	description: string
 	count: number
 	countLabel: string
+	/** The "View all …" link; it is right-aligned in the footer. */
 	footer: ReactNode
 	children: ReactNode
 }
 
 /**
- * Shared shell of the three dashboard sections (A1): 24px radius, slate-200 border that turns blue-200 on hover, and
- * hairline slate-100 dividers inset by the card padding. Cards stretch to the tallest sibling and the footer is pinned
- * to the bottom so the "View all" links line up however much each card previews.
+ * Shared shell of the three dashboard sections (A1): a soft slate-200 hairline and a two-layer ink shadow (the `card`
+ * shadow of DESIGN.md) that deepen slightly while the border turns blue-200 on hover, 20px radius on phones and 24px
+ * from `md`, and slate-100 dividers inset by the card padding. Cards stretch to the tallest sibling and the footer is
+ * pinned to the bottom so the "View all" links line up however much each card previews.
  */
 export function DashboardSectionCard({
 	testId,
@@ -41,7 +43,7 @@ export function DashboardSectionCard({
 	return (
 		<Card
 			data-testid={testId}
-			className='h-full gap-4 rounded-3xl border-slate-200 p-5 shadow-none transition-colors duration-200 hover:border-blue-200 dark:border-border dark:hover:border-primary/40'
+			className='h-full gap-4 rounded-[20px] border-slate-200/70 p-4.5 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_8px_24px_-18px_rgba(15,23,42,0.28)] transition-[border-color,box-shadow] duration-200 hover:border-blue-200 hover:shadow-[0_1px_2px_rgba(15,23,42,0.05),0_12px_28px_-18px_rgba(15,23,42,0.36)] md:rounded-3xl md:p-5 dark:border-border dark:shadow-none dark:hover:border-primary/40'
 		>
 			<div className='flex items-start gap-4'>
 				<span className={cn('flex size-12 shrink-0 items-center justify-center rounded-2xl', TONES[tone])}>
@@ -61,7 +63,7 @@ export function DashboardSectionCard({
 				</div>
 			</div>
 			<div className='flex flex-1 flex-col gap-1 border-t border-slate-100 pt-2.5 dark:border-border'>{children}</div>
-			<div className='flex min-h-12 items-center justify-between gap-3 border-t border-slate-100 pt-3 dark:border-border'>
+			<div className='flex min-h-12 items-center justify-end gap-3 border-t border-slate-100 pt-3 dark:border-border'>
 				{footer}
 			</div>
 		</Card>

@@ -524,10 +524,13 @@ chips use a compact size below `md` (32px high, 12px label) and the regular size
 chips). This is a deliberate product decision and an exception to the 44px rule in section 10.2.
 
 The dashboard (approved design "A1") keeps its own control and card values, which take precedence over the generic scale on
-that surface: section cards and the hero use a 24px radius, up-next cards 18px (with 14px icon tiles), list rows and every
-button 12px; borders are slate-200 (turning blue-200 on card hover) with slate-100 dividers inset by the card padding; the
+that surface: section cards use 20px on phones and 24px from `md` (the hero 24px), up-next cards 18px (with 14px icon tiles), list rows and
+every button 12px; section cards have a soft slate-200 hairline at 70% and the two-layer `card` shadow (deepening slightly,
+with the border turning blue-200, on hover), the hero shares that shadow, and dividers are slate-100 inset by the card padding; the
 hero call to action is 50px high with a blue glow and a 1px lift on hover; in-card actions use the neutral secondary button
-at the compact size below `md`. The values live in `src/components/features/dashboard/helpers/dashboard-styles.ts`.
+at the compact size below `md`. Each section card ends in a footer whose only content is its right-aligned "View all" link;
+uploading lives in the page header and, while the Receipts card is empty, inside it. Empty cards centre their copy and one
+next step ("New Group", "Upload Receipt"; History has none) in a block of the same height in all three cards. The values live in `src/components/features/dashboard/helpers/dashboard-styles.ts`.
 Secondary buttons are the `outline` variant of `Button`: paper, ink text, a flat slate-200 hairline border, and a blue glyph
 (icons that set their own colour keep it). They look the same on every screen; the hierarchy is one blue primary per
 region, neutral secondary actions, then plain text links. Ghost buttons are for low-risk toolbar actions. Destructive

@@ -4,8 +4,10 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { DashboardView, buildDashboardModel } from '@/components/features/dashboard'
 import { ActiveSessionBanner } from '@/components/features/dashboard/active-session-banner'
+import { GroupsSectionCard } from '@/components/features/dashboard/groups-section-card'
 import { MobileSessionBar } from '@/components/features/dashboard/mobile-session-bar'
 import { NoSessionBanner } from '@/components/features/dashboard/no-session-banner'
+import { ReceiptsSectionCard } from '@/components/features/dashboard/receipts-section-card'
 import { UpNextList } from '@/components/features/dashboard/up-next-list'
 import type { ActiveSessionSummary } from '@/components/features/dashboard/helpers/build-dashboard-model'
 
@@ -150,5 +152,48 @@ describe('DashboardView', () => {
 		expect(html).toContain('data-testid="dashboard-list-l1"')
 		expect(html).toContain('No receipts yet')
 		expect(html).toContain('No shopping sessions yet')
+	})
+})
+
+describe('section cards', () => {
+	it('keeps Upload out of the receipts footer once there are receipts, leaving only the right-aligned link', () => {
+		const html = renderToStaticMarkup(
+			createElement(ReceiptsSectionCard, { count: 1, receipts: [{ id: 't1', title: 'Grocery', meta: '17 Feb · 28 items extracted', status: 'completed' }] }),
+		)
+
+		expect(html).not.toContain('Upload Receipt')
+		expect(html).toContain('data-testid="dashboard-receipts-view-all"')
+		expect(html).toContain('justify-end')
+	})
+
+	it('offers the first step inside the empty card, below the copy', () => {
+		const receipts = renderToStaticMarkup(createElement(ReceiptsSectionCard, { count: 0, receipts: [] }))
+		const groups = renderToStaticMarkup(createElement(GroupsSectionCard, { count: 0, groups: [] }))
+
+		expect(receipts).toContain('data-testid="dashboard-receipts-empty"')
+		expect(receipts.indexOf('No receipts yet')).toBeLessThan(receipts.indexOf('Upload Receipt'))
+		expect(groups.indexOf('No groups yet')).toBeLessThan(groups.indexOf('data-testid="create-group-button"'))
+	})
+
+	it('does not show the create-group button when groups already exist', () => {
+		const groups = renderToStaticMarkup(
+			createElement(GroupsSectionCard, { count: 1, groups: [{ id: 'g1', name: 'Walmart', description: null, listsCount: 0, lists: [], hiddenListsCount: 0 }] }),
+		)
+
+		expect(groups).not.toContain('create-group-button')
+	})
+
+	it('gives the three empty states the same height, with History carrying no action', () => {
+		const html = renderToStaticMarkup(
+			createElement(DashboardView, {
+				firstName: 'Javier',
+				hasLists: false,
+				model: buildDashboardModel({ groups: [], baseLists: [], tickets: [], trips: [], activeSession: null }),
+			}),
+		)
+
+		expect(html.match(/h-\[172px\]/g)).toHaveLength(3)
+		expect(html).toContain('data-testid="dashboard-history-empty"')
+		expect(html).toContain('1–5 photos · you review every item before it is saved')
 	})
 })

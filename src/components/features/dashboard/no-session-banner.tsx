@@ -21,7 +21,7 @@ export function NoSessionBanner({ quickStart, lastTrip, hasLists }: Props) {
 			data-testid='dashboard-no-session-banner'
 			aria-labelledby='dashboard-no-session-title'
 			// Ink (#0F172A) scrim over the photo so the text keeps AA contrast; 24px radius as in A1.
-			className='relative isolate flex min-h-[330px] items-center overflow-hidden rounded-3xl bg-[linear-gradient(90deg,rgba(15,23,42,.95)_0%,rgba(15,23,42,.88)_46%,rgba(15,23,42,.45)_100%),url(/images/landing/close-bg.jpg)] bg-cover bg-center text-white max-md:bg-[linear-gradient(180deg,rgba(15,23,42,.93)_0%,rgba(15,23,42,.86)_100%),url(/images/landing/close-bg.jpg)]'
+			className='relative isolate flex min-h-0 items-center overflow-hidden rounded-3xl shadow-[0_1px_2px_rgba(15,23,42,0.04),0_8px_24px_-18px_rgba(15,23,42,0.28)] md:min-h-[330px] bg-[linear-gradient(90deg,rgba(15,23,42,.95)_0%,rgba(15,23,42,.88)_46%,rgba(15,23,42,.45)_100%),url(/images/landing/close-bg.jpg)] bg-cover bg-center text-white max-md:bg-[linear-gradient(180deg,rgba(15,23,42,.93)_0%,rgba(15,23,42,.86)_100%),url(/images/landing/close-bg.jpg)]'
 		>
 			<div className='flex w-full max-w-xl flex-col gap-4 p-5 sm:p-8 md:gap-5 md:p-10'>
 				<span className='inline-flex w-fit items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs leading-[1.2] font-semibold text-slate-100'>
@@ -89,6 +89,12 @@ export function NoSessionBanner({ quickStart, lastTrip, hasLists }: Props) {
 						/>
 					</Link>
 				</Button>
+
+				{!hasLists ? (
+					<p className='font-mono text-xs leading-[1.55] font-medium tracking-[0.01em] text-slate-300'>
+						1–5 photos · you review every item before it is saved
+					</p>
+				) : null}
 
 				{lastTrip ? (
 					<p className='font-mono text-xs leading-[1.55] font-medium tracking-[0.01em] text-slate-300'>

@@ -2,6 +2,7 @@ import { Invoice01Icon } from '@hugeicons/core-free-icons'
 
 import { Badge } from '@/components/ui/badge'
 import { UploadTicketDialog } from '@/components/features/tickets'
+import { DashboardEmptyState } from './dashboard-empty-state'
 import { DashboardRow } from './dashboard-row'
 import { DashboardSectionCard } from './dashboard-section-card'
 import { SectionFooterLink } from './section-footer-link'
@@ -20,7 +21,7 @@ interface Props {
 	count: number
 }
 
-/** Receipts: the latest uploads with their OCR state, plus the upload action. */
+/** Receipts: the latest uploads with their OCR state. Uploading lives in the page header and, while empty, in this card. */
 export function ReceiptsSectionCard({ receipts, count }: Props) {
 	return (
 		<DashboardSectionCard
@@ -32,24 +33,25 @@ export function ReceiptsSectionCard({ receipts, count }: Props) {
 			count={count}
 			countLabel={count === 1 ? 'receipt' : 'receipts'}
 			footer={
-				<>
-					<SectionFooterLink
-						href='/tickets'
-						testId='dashboard-receipts-view-all'
-					>
-						View all receipts
-					</SectionFooterLink>
-					<UploadTicketDialog
-						variant='outline'
-						className={CARD_ACTION}
-					/>
-				</>
+				<SectionFooterLink
+					href='/tickets'
+					testId='dashboard-receipts-view-all'
+				>
+					View all receipts
+				</SectionFooterLink>
 			}
 		>
 			{receipts.length === 0 ? (
-				<p className='px-3 py-4 text-[13px] leading-[1.55] text-muted-foreground'>
-					No receipts yet. Photograph one and Listys turns it into a list you can review.
-				</p>
+				<DashboardEmptyState
+					testId='dashboard-receipts-empty'
+					message='No receipts yet. Photograph one and Listys turns it into a list you can review.'
+					action={
+						<UploadTicketDialog
+							variant='outline'
+							className={CARD_ACTION}
+						/>
+					}
+				/>
 			) : (
 				receipts.map(receipt => (
 					<DashboardRow

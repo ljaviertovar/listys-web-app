@@ -1,5 +1,6 @@
 import { TimeQuarterPassIcon } from '@hugeicons/core-free-icons'
 
+import { DashboardEmptyState } from './dashboard-empty-state'
 import { DashboardRow } from './dashboard-row'
 import { DashboardSectionCard } from './dashboard-section-card'
 import { SectionFooterLink } from './section-footer-link'
@@ -32,9 +33,10 @@ export function HistorySectionCard({ trips, count }: Props) {
 			}
 		>
 			{trips.length === 0 ? (
-				<p className='px-3 py-4 text-[13px] leading-[1.55] text-muted-foreground'>
-					No shopping sessions yet. Completed sessions show up here with their totals.
-				</p>
+				<DashboardEmptyState
+					testId='dashboard-history-empty'
+					message='No shopping sessions yet. Completed sessions show up here with their totals.'
+				/>
 			) : (
 				trips.map(trip => (
 					<DashboardRow

@@ -3,7 +3,9 @@ import { FolderIcon, FolderLibraryIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 
 import { StartShoppingDialog } from '@/components/features/base-lists'
+import { CreateGroupDialog } from '@/components/features/shopping-lists'
 import { cn } from '@/utils'
+import { DashboardEmptyState } from './dashboard-empty-state'
 import { DashboardRow } from './dashboard-row'
 import { DashboardSectionCard } from './dashboard-section-card'
 import { SectionFooterLink } from './section-footer-link'
@@ -36,9 +38,16 @@ export function GroupsSectionCard({ groups, count }: Props) {
 			}
 		>
 			{groups.length === 0 ? (
-				<p className='px-3 py-4 text-[13px] leading-[1.55] text-muted-foreground'>
-					No groups yet. Create one for each store you shop at, like Walmart or Costco.
-				</p>
+				<DashboardEmptyState
+					testId='dashboard-groups-empty'
+					message='No groups yet. Create one for each store you shop at, like Walmart or Costco.'
+					action={
+						<CreateGroupDialog
+							variant='outline'
+							className={CARD_ACTION}
+						/>
+					}
+				/>
 			) : (
 				groups.map(group => (
 					<div

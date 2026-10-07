@@ -27,7 +27,7 @@ export function ActiveSessionBanner({ session, isGuest = false }: Props) {
 			data-testid='dashboard-active-session-banner'
 			aria-labelledby='dashboard-active-session-title'
 			// Ink (#0F172A) scrim over the photo so the text keeps AA contrast; 24px radius as in A1.
-			className='relative isolate flex min-h-[330px] items-center overflow-hidden rounded-3xl bg-[linear-gradient(90deg,rgba(15,23,42,.95)_0%,rgba(15,23,42,.88)_46%,rgba(15,23,42,.45)_100%),url(/images/landing/close-bg.jpg)] bg-cover bg-center text-white max-md:bg-[linear-gradient(180deg,rgba(15,23,42,.93)_0%,rgba(15,23,42,.86)_100%),url(/images/landing/close-bg.jpg)]'
+			className='relative isolate flex min-h-0 items-center overflow-hidden rounded-3xl shadow-[0_1px_2px_rgba(15,23,42,0.04),0_8px_24px_-18px_rgba(15,23,42,0.28)] md:min-h-[330px] bg-[linear-gradient(90deg,rgba(15,23,42,.95)_0%,rgba(15,23,42,.88)_46%,rgba(15,23,42,.45)_100%),url(/images/landing/close-bg.jpg)] bg-cover bg-center text-white max-md:bg-[linear-gradient(180deg,rgba(15,23,42,.93)_0%,rgba(15,23,42,.86)_100%),url(/images/landing/close-bg.jpg)]'
 		>
 			<div className='flex w-full max-w-xl flex-col gap-4 p-5 sm:p-8 md:gap-5 md:p-10'>
 				<div className='flex flex-wrap items-center gap-3'>

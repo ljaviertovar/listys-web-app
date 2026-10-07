@@ -21,5 +21,8 @@
   amber date pill.
 - Make the `outline` (secondary) `Button` variant neutral with a blue glyph: paper, ink text, flat slate-200 border. Every
   secondary button in the app inherits it, including the dashboard's Upload Receipt, Start Shopping and Install app.
+- Dashboard cards: soft shadow and lighter border, 20px radius on phones, hero shadow, "View all" right-aligned, no Upload in
+  the Receipts footer, and centred, equal-height empty states with the first step ("New Group" / "Upload Receipt") under the copy.
+- `CreateGroupDialog` accepts optional `variant` and `className` for its trigger.
 - `GET /api/v1/base-lists` now also returns `items` (a count of each list's items). Additive; existing fields are unchanged.
 - Initialize documentation system and add PRD, ADR template, runbooks, and contributing guide.
