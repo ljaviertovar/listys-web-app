@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
-import type { Database } from '@/features/database.types'
+import type { Database } from '@/types'
 
 /**
  * Supabase client for E2E tests

@@ -16,9 +16,9 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { ListViewIcon, Edit02Icon, Delete02Icon, Loading03Icon, ArrowRight01Icon } from '@hugeicons/core-free-icons'
 
-import { deleteBaseList, updateBaseList } from '@/lib/api/endpoints/base-lists'
+import { deleteBaseList, updateBaseList } from '@/lib/api/endpoints'
 
-import type { BaseListWithCount } from '@/features/base-lists/types'
+import type { BaseListWithCount } from '@/types'
 
 import {
 	AlertDialog,
@@ -31,9 +31,8 @@ import {
 	AlertDialogMedia,
 	AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { ActiveShoppingBadge } from '@/components/app/active-shopping-badge'
+import { ActiveShoppingBadge, CardFooterContent, CardHeaderContent } from '@/components/app'
 
-import { CardFooterContent, CardHeaderContent } from '@/components/app'
 
 interface Props {
 	baseList: BaseListWithCount
@@ -193,7 +192,7 @@ export function BaseListCard({ baseList, isActiveRun = false }: Props) {
 			<Link href={`/base-lists/${baseList.id}/edit`}>
 				<Card
 					variant='premium'
-					className='group relative flex h-full cursor-pointer flex-col bg-card transition-all duration-300 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 gap-0 py-4'
+					className='group relative flex h-full cursor-pointer flex-col bg-card transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 gap-0 py-4'
 					data-testid={`list-card-${baseList.id}`}
 				>
 					<div className='flex items-center justify-end gap-1'>

@@ -2,17 +2,17 @@
 
 ## Purpose
 
-Procedimiento para desplegar la aplicación Listys en entorno de staging/production.
+Procedure for deploying the Listys application to staging or production.
 
 ## Prerequisites
 
-- Credenciales con acceso al proyecto (hosting provider, secrets manager, supabase).
-- CI configurado (GitHub Actions / otra) con variables de entorno.
+- Credentials with access to the project (hosting provider, secrets manager, Supabase).
+- CI configured (GitHub Actions or another system) with environment variables.
 
 ## Steps (manual)
 
-1. Revisar `main` branch: `git fetch && git checkout main && git pull`.
-2. Ejecutar tests locales y linter:
+1. Update the `main` branch: `git fetch && git checkout main && git pull`.
+2. Run local tests and the linter:
 
 ```bash
 pnpm install
@@ -20,26 +20,26 @@ pnpm test
 pnpm lint
 ```
 
-3. Construir aplicación:
+3. Build the application:
 
 ```bash
 pnpm build
 ```
 
-4. Publicar artefacto según plataforma (Vercel / self-hosted). Para Vercel: crear un release y activar deploy automático.
+4. Publish the artifact according to the platform (Vercel or self-hosted). For Vercel, create a release and enable the automatic deployment.
 
-5. Verificar migraciones de Supabase: revisar `supabase/migrations` y aplicar en entorno con herramientas de CI o manualmente.
+5. Verify Supabase migrations: review `supabase/migrations` and apply them in the target environment through CI tooling or manually.
 
-6. Validaciones post-deploy:
+6. Post-deployment checks:
 
-- Smoke test: inicio de sesión, crear lista base, subir ticket (flujo happy-path).
-- Revisar logs de Edge Functions y cola de OCR.
+- Smoke test: sign in, create a base list, and upload a receipt (happy path).
+- Review Edge Function logs and the OCR queue.
 
 ## Rollback
 
-- En Vercel: revertir a la versión anterior desde el panel.
-- Para DB: preparar migraciones de reversión y ejecutar con cuidado.
+- On Vercel: revert to the previous version from the dashboard.
+- For the database: prepare rollback migrations and execute them carefully.
 
 ## Contacts
 
-- Equipo: @dev-team
+- Team: @dev-team

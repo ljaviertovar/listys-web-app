@@ -105,6 +105,7 @@ test.describe('Concurrent Operations', () => {
       .insert({
         user_id: setup.user.userId,
         group_id: setup.group.id,
+        image_path: 'e2e-concurrent-merge.jpg',
         ocr_status: 'completed',
       })
       .select()
@@ -265,6 +266,7 @@ test.describe('Concurrent Operations', () => {
         .insert({
           user_id: setup.user.userId,
           group_id: setup.group.id,
+          image_path: `e2e-limit-${ticketIdx}.jpg`,
           ocr_status: 'completed',
         })
         .select()
@@ -369,6 +371,7 @@ test.describe('Concurrent Operations', () => {
       .from('base_lists')
       .insert({
         group_id: setup.group.id,
+        user_id: setup.user.userId,
         name: listName,
       })
       .select()
@@ -382,6 +385,7 @@ test.describe('Concurrent Operations', () => {
         .from('base_lists')
         .insert({
           group_id: setup.group.id,
+          user_id: setup.user.userId,
           name: listName,
         })
         .select()

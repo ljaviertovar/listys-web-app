@@ -113,15 +113,20 @@ export function InstallAppButton() {
   }
 
   return (
-    <Button
-      variant='outline'
-      size='sm'
-      onClick={onClick}
-      aria-label='Install app'
-      className='mr-2'
-    >
-      <DownloadIcon />
-      Install
-    </Button>
+    <>
+      <Button
+        variant='ghost'
+        onClick={onClick}
+        data-testid='install-app-button'
+        className='h-10 rounded-[10px] px-3 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-foreground dark:text-muted-foreground dark:hover:bg-muted [&_svg]:text-slate-500'
+      >
+        <DownloadIcon />
+        Install app
+      </Button>
+      <span
+        aria-hidden='true'
+        className='mx-1.5 hidden h-6 w-px bg-border lg:block'
+      />
+    </>
   )
 }

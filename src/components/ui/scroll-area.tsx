@@ -1,7 +1,7 @@
 'use client'
 
 import * as RadixScrollArea from '@radix-ui/react-scroll-area'
-import { cn } from '@/utils/cn'
+import { cn } from '@/utils'
 
 interface Props {
 	children: React.ReactNode

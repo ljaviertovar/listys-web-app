@@ -158,6 +158,7 @@ test.describe('OCR Pipeline End-to-End', () => {
       .insert({
         user_id: setup.user.userId,
         group_id: setup.group.id,
+        image_path: 'e2e-merge-ticket.jpg',
         ocr_status: 'completed',
       })
       .select()
@@ -197,8 +198,8 @@ test.describe('OCR Pipeline End-to-End', () => {
 
     expect(mergeError).toBeNull()
     expect(mergeResult).toBeDefined()
-    expect(mergeResult.new_count).toBe(1) // Eggs is new
-    expect(mergeResult.updated_count).toBe(1) // Milk is updated
+    expect(mergeResult?.[0].new_count).toBe(1) // Eggs is new
+    expect(mergeResult?.[0].updated_count).toBe(1) // Milk is updated
 
     // Verify enrichment fields updated
     const { data: baseListItems } = await supabase
@@ -237,6 +238,7 @@ test.describe('OCR Pipeline End-to-End', () => {
       .insert({
         user_id: setup.user.userId,
         group_id: setup.group.id,
+        image_path: 'e2e-remerge-ticket.jpg',
         ocr_status: 'completed',
       })
       .select()
@@ -302,6 +304,7 @@ test.describe('OCR Pipeline End-to-End', () => {
       .insert({
         user_id: setup.user.userId,
         group_id: setup.group.id,
+        image_path: 'e2e-failed-ticket.jpg',
         ocr_status: 'failed',
         ocr_error: 'Edge Function timeout',
       })

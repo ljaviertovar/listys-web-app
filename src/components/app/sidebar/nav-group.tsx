@@ -24,24 +24,34 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '../../ui/dropdown-menu'
-import { NavCollapsible, NavItem, NavLink, type NavGroup } from '@/types'
+import { NavCollapsible, NavLink, type NavGroup } from '@/types'
+import { checkIsActive } from './helpers/check-is-active'
+import type { NavCount } from './helpers/build-nav-counts'
+import { NavCountPill } from '../nav-count-pill'
 import Link from 'next/link'
 import { ReactNode } from 'react'
 
+/*
+ * Design A1: 44px entries with a 12px radius, slate text and a quiet slate hover, a slate icon that turns blue, and, for the
+ * current page, a soft blue fill, semibold blue text and a 3px blue marker just outside the entry. `overflow-visible` lets
+ * the marker show (the base button clips); the icon shrinks back to 16px when the sidebar collapses to icons.
+ */
 const SIDEBAR_ITEM_STYLES =
-	'transition-all duration-200 hover:bg-primary/10 hover:text-primary hover:shadow-sm data-[active=true]:bg-primary data-[active=true]:text-primary-foreground data-[active=true]:shadow-sm data-[active=true]:font-semibold'
+	'relative h-11 gap-3 overflow-visible group-data-[collapsible=icon]:overflow-hidden rounded-xl px-3 font-medium text-slate-700 transition-colors duration-150 hover:bg-slate-50 hover:text-foreground dark:text-foreground/80 dark:hover:bg-muted [&_svg]:size-5 [&_svg]:text-slate-500 hover:[&_svg]:text-slate-700 group-data-[collapsible=icon]:[&_svg]:size-4 data-[active=true]:bg-primary/10 data-[active=true]:font-semibold data-[active=true]:text-primary data-[active=true]:[&_svg]:text-primary data-[active=true]:before:absolute data-[active=true]:before:inset-y-2.5 data-[active=true]:before:-left-1 data-[active=true]:before:w-[3px] data-[active=true]:before:rounded-r-full data-[active=true]:before:bg-primary data-[active=true]:hover:bg-primary/10'
 const SIDEBAR_SUB_ITEM_STYLES =
 	'transition-all duration-200 hover:bg-primary/10 hover:text-primary data-[active=true]:bg-primary/15 data-[active=true]:text-primary data-[active=true]:font-semibold'
 
-export function NavGroup({ title, items }: NavGroup) {
+export function NavGroup({ title, items, counts }: NavGroup & { counts?: Record<string, NavCount> }) {
 	const { state } = useSidebar()
 
 	const href = `${usePathname()}?${useSearchParams().toString()}`
 
 	return (
-		<SidebarGroup>
-			<SidebarGroupLabel>{title}</SidebarGroupLabel>
-			<SidebarMenu>
+		<SidebarGroup className='px-3 pt-6 pb-0 group-data-[collapsible=icon]:px-2 group-data-[collapsible=icon]:pt-2'>
+			<SidebarGroupLabel className='h-auto rounded-none px-3 pt-0 pb-2 text-[11px] leading-none font-semibold tracking-[0.08em] text-slate-500 uppercase group-data-[collapsible=icon]:hidden'>
+				{title}
+			</SidebarGroupLabel>
+			<SidebarMenu className='gap-0.5'>
 				{items.map(item => {
 					const key = `${item.title}-${item.url}`
 
@@ -51,6 +61,7 @@ export function NavGroup({ title, items }: NavGroup) {
 								key={key}
 								item={item}
 								href={href}
+								count={counts?.[item.url]}
 							/>
 						)
 
@@ -80,7 +91,7 @@ const NavBadge = ({ children }: { children: ReactNode }) => (
 	<Badge className='rounded-full px-1 py-0 text-xs'>{children}</Badge>
 )
 
-const SidebarMenuLink = ({ item, href }: { item: NavLink; href: string }) => {
+const SidebarMenuLink = ({ item, href, count }: { item: NavLink; href: string; count?: NavCount }) => {
 	const { setOpenMobile } = useSidebar()
 	return (
 		<SidebarMenuItem>
@@ -102,6 +113,13 @@ const SidebarMenuLink = ({ item, href }: { item: NavLink; href: string }) => {
 					)}
 					<span>{item.title}</span>
 					{item.badge && <NavBadge>{item.badge}</NavBadge>}
+					{count ? (
+						<NavCountPill
+							count={count}
+							testId={`sidebar-count-${item.url.slice(1)}`}
+							className='group-data-[collapsible=icon]:hidden'
+						/>
+					) : null}
 				</Link>
 			</SidebarMenuButton>
 		</SidebarMenuItem>
@@ -219,14 +237,5 @@ const SidebarMenuCollapsedDropdown = ({ item, href }: { item: NavCollapsible; hr
 				</DropdownMenuContent>
 			</DropdownMenu>
 		</SidebarMenuItem>
-	)
-}
-
-function checkIsActive(href: string, item: NavItem, mainNav = false) {
-	return (
-		href === item.url || // /endpint?search=param
-		href.split('?')[0] === item.url || // endpoint
-		!!item?.items?.filter(i => i.url === href).length || // if child nav is active
-		(mainNav && href.split('/')[1] !== '' && href.split('/')[1] === item?.url?.split('/')[1])
 	)
 }

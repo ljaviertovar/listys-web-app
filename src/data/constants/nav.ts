@@ -1,4 +1,4 @@
-import { NavItem, SidebarData } from '@/types'
+import type { NavItemO, NavLink, SidebarData } from '@/types'
 import {
 	DashboardSquare02Icon,
 	FolderLibraryIcon,
@@ -8,7 +8,7 @@ import {
 	Settings02Icon,
 } from '@hugeicons/core-free-icons'
 
-export const NAV_ITEMS: any[] = [
+export const NAV_ITEMS: NavItemO[] = [
 	{
 		title: 'Dashboard',
 		href: '/dashboard',
@@ -19,10 +19,10 @@ export const NAV_ITEMS: any[] = [
 ]
 
 export const MARKETING_SECTION_LINKS = [
-	{ label: 'Shared Lists', href: '/#shared-lists' },
-	{ label: 'How It Works', href: '/#how-it-works' },
+	{ label: 'How it works', href: '/#how-it-works' },
+	{ label: 'Features', href: '/#features' },
+	{ label: 'Shared lists', href: '/#shared-lists' },
 	{ label: 'FAQ', href: '/#faq' },
-	{ label: 'Get Started', href: '/#get-started' },
 ]
 
 export const SIDEBAR_DATA: SidebarData = {
@@ -75,7 +75,7 @@ export const SIDEBAR_DATA: SidebarData = {
 	],
 }
 
-export const USER_NAV_ITEMS: NavItem[] = [
+export const USER_NAV_ITEMS: NavLink[] = [
 	{
 		title: 'Dashboard',
 		url: '/dashboard',
@@ -90,23 +90,5 @@ export const USER_NAV_ITEMS: NavItem[] = [
 		title: 'Account',
 		url: '/settings/account',
 		icon: Settings02Icon,
-	},
-]
-
-export const NAV_APP_ITEMS: NavItem[] = [
-	{
-		title: 'Shopping List Groups',
-		url: '/shopping-lists',
-		icon: FolderLibraryIcon,
-	},
-	{
-		title: 'Receipts',
-		url: '/tickets',
-		icon: Invoice01Icon,
-	},
-	{
-		title: 'Shopping History',
-		url: '/shopping-history',
-		icon: TimeQuarterPassIcon,
 	},
 ]

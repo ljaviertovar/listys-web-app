@@ -3,17 +3,67 @@ import { ThemeProvider } from '@/providers/theme-provider'
 import { Toaster } from 'sonner'
 import { PwaRegister } from '@/components/features/pwa'
 
-import { Inter } from 'next/font/google'
+import { IBM_Plex_Mono, Inter, Plus_Jakarta_Sans } from 'next/font/google'
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-sans' })
+const plusJakartaSans = Plus_Jakarta_Sans({
+	subsets: ['latin'],
+	variable: '--font-plus-jakarta',
+	display: 'swap',
+})
+
+const inter = Inter({
+	subsets: ['latin'],
+	variable: '--font-inter',
+	display: 'swap',
+})
+
+const ibmPlexMono = IBM_Plex_Mono({
+	subsets: ['latin'],
+	weight: ['400', '500', '600'],
+	variable: '--font-ibm-plex-mono',
+	display: 'swap',
+})
 
 import './globals.css'
-import ActiveSessionInit from '@/components/app/active-session-init'
+import { ActiveSessionInit } from '@/components/app'
 
 export const metadata: Metadata = {
 	title: 'Listys - Smart Shopping List Manager',
-	description: 'Manage your shopping lists with AI-powered receipt processing',
-	manifest: '/manifest.webmanifest',
+	description:
+		'Manage your shopping lists with AI-powered receipt processing. Transform photos into organized lists instantly.',
+	keywords: [
+		'shopping list',
+		'grocery app',
+		'AI receipt scanner',
+		'meal planning',
+		'expense tracker',
+		'smart shopping',
+	],
+	authors: [{ name: 'Listys Team' }],
+	openGraph: {
+		type: 'website',
+		locale: 'en_US',
+		url: 'https://listys.app',
+		title: 'Listys - Smart Shopping List Manager',
+		description: 'Transform receipts into organized shopping lists with AI. Save time and track spending.',
+		siteName: 'Listys',
+		images: [
+			{
+				url: '/og-image.jpg',
+				width: 1200,
+				height: 630,
+				alt: 'Listys App Preview',
+			},
+		],
+	},
+	twitter: {
+		card: 'summary_large_image',
+		title: 'Listys - Smart Shopping List Manager',
+		description: 'Transform receipts into organized shopping lists with AI.',
+		images: ['/og-image.jpg'],
+		creator: '@listysapp',
+	},
+	metadataBase: new URL('https://listys.app'),
 	appleWebApp: {
 		capable: true,
 		statusBarStyle: 'default',
@@ -32,8 +82,6 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
 	width: 'device-width',
 	initialScale: 1,
-	maximumScale: 1,
-	userScalable: false,
 	viewportFit: 'cover',
 	themeColor: '#0f172a',
 }
@@ -47,9 +95,9 @@ export default function RootLayout({
 		<html
 			lang='en'
 			suppressHydrationWarning
-			className={inter.variable}
+			className={`${plusJakartaSans.variable} ${inter.variable} ${ibmPlexMono.variable}`}
 		>
-			<body className={`${inter.className} relative scroll-smooth focus:scroll-auto`}>
+			<body className='font-sans relative scroll-smooth focus:scroll-auto'>
 				<ThemeProvider
 					attribute='class'
 					defaultTheme='light'

@@ -1,100 +1,64 @@
 import { Suspense } from 'react'
-import { FolderLibraryIcon, Invoice01Icon, TimeQuarterPassIcon } from '@hugeicons/core-free-icons'
 
-import { DashboardCard, PageHeader, PageContainer, ActiveShopping } from '@/components/app'
+import { PageContainer } from '@/components/app'
+import { DashboardLoadError, DashboardSkeleton, DashboardView, buildDashboardModel } from '@/components/features/dashboard'
 
-import { getGroups } from '@/lib/api/endpoints/groups'
-import { getTickets } from '@/lib/api/endpoints/tickets'
-import { getActiveShoppingSession, getShoppingHistory } from '@/lib/api/endpoints/shopping-sessions'
+import { getActiveShoppingSession, getBaseLists, getGroups, getShoppingHistory, getTickets } from '@/lib/api/endpoints'
+import { createClient } from '@/lib/supabase/server'
 
-// Fallback skeleton for dashboard cards
-function CardsSkeleton() {
+type DashboardInput = Parameters<typeof buildDashboardModel>[0]
+
+function firstNameOf(user: { email?: string; user_metadata?: Record<string, unknown> } | null) {
+	const metadata = user?.user_metadata
+	const fullName = (metadata?.name as string | undefined) || (metadata?.full_name as string | undefined)
+	return (fullName || user?.email?.split('@')[0] || 'there').trim().split(/\s+/)[0]
+}
+
+async function DashboardContent() {
+	const supabase = await createClient()
+	const [userResult, groupsResult, baseListsResult, ticketsResult, historyResult, activeSessionResult] =
+		await Promise.all([
+			supabase.auth.getUser(),
+			getGroups(),
+			getBaseLists(),
+			getTickets(),
+			getShoppingHistory(),
+			getActiveShoppingSession(),
+		])
+
+	// A failed request must not be shown as an empty account: with no data the page would invite the user to start from scratch.
+	if ([groupsResult, baseListsResult, ticketsResult, historyResult, activeSessionResult].some(result => result.error)) {
+		return <DashboardLoadError />
+	}
+
+	const user = userResult.data.user
+	const activeSession = (activeSessionResult.data ?? null) as DashboardInput['activeSession']
+	const baseLists = baseListsResult.data ?? []
+
+	const model = buildDashboardModel({
+		groups: groupsResult.data ?? [],
+		baseLists,
+		tickets: ticketsResult.data ?? [],
+		trips: historyResult.data ?? [],
+		activeSession,
+	})
+
 	return (
-		<div className='grid gap-6 md:grid-cols-3'>
-			{Array.from({ length: 3 }).map((_, i) => (
-				<div
-					key={i}
-					className='h-48 rounded-lg border bg-card animate-pulse'
-				/>
-			))}
-		</div>
+		<DashboardView
+			model={model}
+			firstName={firstNameOf(user)}
+			hasLists={baseLists.length > 0}
+			isGuest={!!user && !!activeSession && (activeSessionResult.data as { user_id?: string }).user_id !== user.id}
+		/>
 	)
 }
 
-// Fallback skeleton for active shopping section
-function ActiveShoppingSkeleton() {
-	return <div className='h-32 rounded-lg border bg-card animate-pulse' />
-}
-
-// Component to fetch and display cards
-async function DashboardCards() {
-	const [groupsResult, historyResult, ticketsResult] = await Promise.all([
-		getGroups(),
-		getShoppingHistory(),
-		getTickets(),
-	])
-
-	const groups = groupsResult.data || []
-	const historyCount = historyResult.data?.length || 0
-	const ticketsCount = ticketsResult.data?.length || 0
-
+export default function DashboardPage() {
 	return (
-		<div className='grid gap-6 md:grid-cols-3'>
-			<DashboardCard
-				href='/shopping-lists'
-				icon={FolderLibraryIcon}
-				title='Shopping Lists Groups'
-				description='Manage your shopping list groups and their lists.'
-				count={groups.length}
-			/>
-
-			<DashboardCard
-				href='/tickets'
-				icon={Invoice01Icon}
-				title='Receipts'
-				description='Upload and manage receipts. Create shopping lists from them.'
-				count={ticketsCount}
-			/>
-
-			<DashboardCard
-				href='/shopping-history'
-				icon={TimeQuarterPassIcon}
-				title='Shopping History'
-				description='View past shopping sessions and their details.'
-				count={historyCount}
-			/>
-		</div>
-	)
-}
-
-// Component to fetch and display active shopping
-async function ActiveShoppingSection() {
-	const activeSessionResult = await getActiveShoppingSession()
-	const activeSession = activeSessionResult.data
-
-	if (!activeSession) return null
-
-	return <ActiveShopping activeShopping={activeSession} />
-}
-
-export default async function DashboardPage() {
-	return (
-		<>
-			<PageHeader
-				title='Dashboard'
-				desc='Overview of your shopping activity'
-			/>
-			<PageContainer>
-				{/* Active Shopping Session with Suspense */}
-				<Suspense fallback={<ActiveShoppingSkeleton />}>
-					<ActiveShoppingSection />
-				</Suspense>
-
-				{/* Quick Actions with Suspense */}
-				<Suspense fallback={<CardsSkeleton />}>
-					<DashboardCards />
-				</Suspense>
-			</PageContainer>
-		</>
+		<PageContainer>
+			<Suspense fallback={<DashboardSkeleton />}>
+				<DashboardContent />
+			</Suspense>
+		</PageContainer>
 	)
 }

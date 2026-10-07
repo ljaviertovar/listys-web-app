@@ -4,18 +4,22 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
-import { PageHeader, PageContainer, PageFooterAction, BackLink, ActiveShoppingBadge } from '@/components/app'
-import { ShoppingSessionItemRow, ShoppingSessionActions } from '@/components/features/shopping-sessions'
+import { BackLink, ActiveShoppingBadge, PageHeader, PageContainer, PageFooterAction } from '@/components/app'
+import {
+	ShoppingSessionItemRow,
+	ShoppingSessionActions,
+	ShoppingSessionRealtimeListener,
+} from '@/components/features/shopping-sessions'
 
 import { CheckmarkCircle02Icon, PlusSignIcon } from '@hugeicons/core-free-icons'
 
-import { getShoppingSession } from '@/actions/shopping-sessions'
+import { getShoppingSession } from '@/actions'
 import { getCategoryWithEmoji, normalizeCategory } from '@/data/constants'
 
 import { createClient } from '@/lib/supabase/server'
-import { formatDate, formatTime } from '@/utils/format-date'
+import { formatDate, formatTime } from '@/utils'
 
-import type { ShoppingSessionItem, ShoppingSessionWithItems } from '@/features/shopping-sessions/types'
+import type { ShoppingSessionItem, ShoppingSessionWithItems } from '@/types'
 
 type SearchParams = {
 	from?: string | string[]
@@ -51,9 +55,13 @@ export default async function ShoppingRunPage({
 	}
 
 	const runWithItems = shoppingSession as ShoppingSessionWithItems & {
-		base_list?: { group_id?: string | null } | null
+		base_list?: { group_id?: string | null; name?: string | null; user_id?: string | null } | null
 	}
 	const isCompleted = runWithItems.status === 'completed'
+
+	const baseListId = runWithItems.base_list_id
+	const baseListName = runWithItems.base_list?.name ?? runWithItems.name
+	const isListOwner = runWithItems.base_list?.user_id === user.id
 
 	let backHref = '/shopping-history'
 	let backLabel = 'Back to Shopping History'
@@ -139,10 +147,13 @@ export default async function ShoppingRunPage({
 					)}
 
 					{!isCompleted && (
-						<div className='hidden w-full md:ml-auto md:block md:max-w-[360px] lg:max-w-[420px]'>
+						<div className='hidden w-full md:ml-auto md:block md:max-w-90 lg:max-w-105'>
 							<ShoppingSessionActions
 								sessionId={runId}
 								progress={progress}
+								baseListId={baseListId}
+								baseListName={baseListName}
+								isOwner={isListOwner}
 							/>
 						</div>
 					)}
@@ -231,12 +242,17 @@ export default async function ShoppingRunPage({
 				</PageContainer>
 			</div>
 
+			{!isCompleted && <ShoppingSessionRealtimeListener sessionId={runId} />}
+
 			<PageFooterAction>
 				<div className='w-full md:hidden'>
 					{!isCompleted && (
 						<ShoppingSessionActions
 							sessionId={runId}
 							progress={progress}
+							baseListId={baseListId}
+							baseListName={baseListName}
+							isOwner={isListOwner}
 						/>
 					)}
 				</div>

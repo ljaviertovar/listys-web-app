@@ -19,9 +19,9 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Delete02Icon, Refresh04Icon, Loading03Icon } from '@hugeicons/core-free-icons'
 
-import { deleteTicket, retryTicketOCR } from '@/lib/api/endpoints/tickets'
+import { deleteTicket, retryTicketOCR } from '@/lib/api/endpoints'
 
-import type { Ticket } from '@/features/tickets/types'
+import type { Ticket } from '@/types'
 
 interface Props {
 	ticket: Ticket

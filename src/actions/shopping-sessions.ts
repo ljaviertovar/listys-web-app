@@ -264,7 +264,6 @@ export async function getShoppingSession(id: string) {
       base_list:base_lists(*)
     `)
     .eq('id', id)
-    .eq('user_id', user.id)
     .single()
 
   if (error) {

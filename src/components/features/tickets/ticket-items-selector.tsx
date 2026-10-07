@@ -13,7 +13,7 @@ import { TicketItemRow } from './ticket-item-row'
 import { Loading03Icon, Add01Icon } from '@hugeicons/core-free-icons'
 import { getCategoryWithEmoji, normalizeCategory } from '@/data/constants'
 
-import type { TicketItem } from '@/features/tickets/types'
+import type { TicketItem } from '@/types'
 
 interface Props {
 	ticketId: string

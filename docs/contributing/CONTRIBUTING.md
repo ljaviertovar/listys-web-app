@@ -1,35 +1,35 @@
 # Contributing
 
-Gracias por contribuir a Listys. Estas son las guías básicas para colaborar.
+Thanks for contributing to Listys. These are the basic collaboration guidelines.
 
-## Desarrollo local
+## Local development
 
-1. Clona el repo y instala dependencias:
+1. Clone the repository and install dependencies:
 
 ```bash
 pnpm install
 ```
 
-2. Ejecuta linters y tests antes de abrir PR:
+2. Run linters and tests before opening a PR:
 
 ```bash
 pnpm lint
 pnpm test
 ```
 
-3. Usar ramas con convención: `feat/`, `fix/`, `chore/`, `hotfix/`.
+3. Use the following branch prefixes: `feat/`, `fix/`, `chore/`, `hotfix/`.
 
 ## Pull Requests
 
-- Título: usar Conventional Commits (ej.: `feat(tickets): add multi-image upload`).
-- Incluir descripción del cambio, referencia a issue y pasos para probar.
-- Añadir tests cuando aplique.
+- Title: use Conventional Commits (for example, `feat(tickets): add multi-image upload`).
+- Include a change description, issue reference, and testing steps.
+- Add tests when applicable.
 
-## Código y calidad
+## Code and quality
 
-- TypeScript estricto: evitar `any` salvo justificación documentada.
-- Validación server-side para todo input nuevo.
+- Strict TypeScript: avoid `any` unless there is a documented justification.
+- Server-side validation for all new input.
 
 ## Reporting bugs
 
-- Abrir issue con pasos para reproducir, entorno, y logs si aplica.
+- Open an issue with reproduction steps, environment details, and logs when applicable.

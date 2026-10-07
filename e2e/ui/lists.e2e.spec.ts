@@ -61,7 +61,7 @@ test.describe('Shopping Lists E2E', () => {
 
     // Assume we have a list from previous test or setup
     // Find and click on a list
-    await page.click('text=E2E Test List, a[href*="/shopping-lists/"]').first()
+    await page.locator('text=E2E Test List, a[href*="/shopping-lists/"]').first().click()
 
     // Edit an item
     await page.click('button[aria-label*="Edit"]:first-of-type, [data-testid="edit-item"]:first-of-type')
@@ -87,7 +87,7 @@ test.describe('Shopping Lists E2E', () => {
 
   test('should prevent duplicate item names in same list', async ({ page }) => {
     await page.goto(`${BASE_URL}/shopping-lists`)
-    await page.click('text=E2E Test List, a[href*="/shopping-lists/"]').first()
+    await page.locator('text=E2E Test List, a[href*="/shopping-lists/"]').first().click()
 
     // Add first item
     await page.click('button:has-text("Add Item"), button:has-text("New Item")')
@@ -110,7 +110,7 @@ test.describe('Shopping Lists E2E', () => {
 
   test('should validate required fields', async ({ page }) => {
     await page.goto(`${BASE_URL}/shopping-lists`)
-    await page.click('text=E2E Test List, a[href*="/shopping-lists/"]').first()
+    await page.locator('text=E2E Test List, a[href*="/shopping-lists/"]').first().click()
 
     // Try to add item without name
     await page.click('button:has-text("Add Item"), button:has-text("New Item")')

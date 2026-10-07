@@ -164,6 +164,7 @@ test.describe('RLS Policy Enforcement', () => {
       .insert({
         user_id: userA.userId,
         group_id: groupA.id,
+        image_path: 'e2e-user-a-ticket.jpg',
         ocr_status: 'pending',
       })
       .select()
@@ -197,6 +198,7 @@ test.describe('RLS Policy Enforcement', () => {
       .insert({
         user_id: userB.userId,
         group_id: groupB.id,
+        image_path: 'e2e-user-b-ticket.jpg',
         ocr_status: 'completed',
       })
       .select()

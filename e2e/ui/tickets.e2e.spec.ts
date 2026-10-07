@@ -50,7 +50,7 @@ test.describe('Ticket Scanning E2E', () => {
     await expect(page.locator('[data-testid="ticket-item"], [data-testid="ticket-group"]')).toBeVisible({ timeout: 5000 })
 
     // Click to view details
-    await page.click('[data-testid="ticket-item"], [data-testid="ticket-group"]').first()
+    await page.locator('[data-testid="ticket-item"], [data-testid="ticket-group"]').first().click()
 
     // Should show item details (name, category, etc.)
     await expect(page.locator('[data-testid="item-name"], text=/item/i')).toBeVisible()
@@ -60,7 +60,7 @@ test.describe('Ticket Scanning E2E', () => {
     await page.goto(`${BASE_URL}/shopping`)
 
     // Find ticket items
-    await page.click('[data-testid="ticket-group"]').first()
+    await page.locator('[data-testid="ticket-group"]').first().click()
 
     // Select items to merge
     await page.click('input[type="checkbox"]:first-of-type, [data-testid="select-item"]:first-of-type')

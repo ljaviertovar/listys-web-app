@@ -9,10 +9,11 @@ import {
 	toggleShoppingSessionItem,
 	updateShoppingSessionItem,
 	deleteShoppingSessionItem,
-} from '@/lib/api/endpoints/shopping-sessions'
-import type { ShoppingSessionItem } from '@/features/shopping-sessions/types'
+} from '@/lib/api/endpoints'
+import type { ShoppingSessionItem } from '@/types'
 import { Badge } from '@/components/ui/badge'
-import { ActionsItemFormBaseList } from '@/components/app/actions-item-form-base-list'
+import { ActionsItemFormBaseList } from '@/components/app'
+import { broadcastListActivity } from '@/utils'
 
 interface Props {
 	item: ShoppingSessionItem
@@ -36,6 +37,7 @@ export function ShoppingSessionItemRow({ item, isCompleted = false }: Props) {
 			const { error } = await toggleShoppingSessionItem(item.id, newChecked)
 			if (error) throw new Error(error)
 			router.refresh()
+			broadcastListActivity(`session_activity_${item.shopping_session_id}`)
 		} catch (err) {
 			setChecked(!newChecked) // Revert on error
 			console.error('Failed to toggle item:', err)
@@ -90,7 +92,7 @@ export function ShoppingSessionItemRow({ item, isCompleted = false }: Props) {
 			onKeyDown={handleKeyDown}
 			role='button'
 			tabIndex={0}
-			className={`group cursor-pointer relative overflow-hidden transition-all duration-300 hover:bg-primary/1 hover:border-primary/50 py-4 ${checked ? 'opacity-60' : ''}`}
+			className={`group cursor-pointer relative overflow-hidden transition-all duration-300 hover:bg-primary/1 py-4 ${checked ? 'opacity-60' : ''}`}
 		>
 			<CardContent className='flex flex-row items-center px-4'>
 				<div className='flex flex-1 min-w-0 items-center justify-start gap-3'>

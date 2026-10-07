@@ -2,18 +2,17 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { HugeiconsIcon } from '@hugeicons/react'
 
-import { PageHeader, PageContainer, PageFooterAction, BackLink, CardFooterContent } from '@/components/app'
+import { BackLink, PageHeader, PageContainer, PageFooterAction, CardFooterContent, CardHeaderContent } from '@/components/app'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { UploadTicketDialog } from '@/components/features/tickets'
 import { Badge } from '@/components/ui/badge'
 import { ArrowRight01Icon, Invoice01Icon, SearchVisualIcon } from '@hugeicons/core-free-icons'
 
-import { getTickets } from '@/lib/api/endpoints/tickets'
+import { getTickets } from '@/lib/api/endpoints'
 
 import { createClient } from '@/lib/supabase/server'
 
-import { formatDate, formatTime } from '@/utils/format-date'
-import CardHeaderContent from '@/components/app/card-header-content'
+import { formatDate, formatTime } from '@/utils'
 
 export default async function TicketsPage() {
 	const supabase = await createClient()
@@ -62,7 +61,7 @@ export default async function TicketsPage() {
 				{!tickets || tickets.length === 0 ? (
 					<Card
 						variant='premium'
-						className='group relative flex h-full cursor-pointer flex-col bg-card transition-all duration-300 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 gap-0 py-4'
+						className='group relative flex h-full cursor-pointer flex-col bg-card transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 gap-0 py-4'
 					>
 						<CardContent className='flex w-full max-w-md flex-col items-center pt-6 text-center'>
 							<div className='flex h-16 w-16 items-center justify-center text-primary'>
@@ -91,7 +90,7 @@ export default async function TicketsPage() {
 								>
 									<Card
 										variant='premium'
-										className='group relative flex h-full cursor-pointer flex-col bg-card transition-all duration-300 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 gap-0 py-4'
+										className='group relative flex h-full cursor-pointer flex-col bg-card transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 gap-0 py-4'
 									>
 										<div className='flex items-center justify-end gap-1 px-4'>
 											<Badge

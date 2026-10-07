@@ -44,10 +44,13 @@ export async function resetDatabase() {
   const supabase = createTestClient()
 
   // Delete in reverse dependency order
+  await supabase.from('shopping_session_participants').delete().neq('id', '00000000-0000-0000-0000-000000000000')
   await supabase.from('shopping_session_items').delete().neq('id', '00000000-0000-0000-0000-000000000000')
   await supabase.from('shopping_sessions').delete().neq('id', '00000000-0000-0000-0000-000000000000')
   await supabase.from('ticket_items').delete().neq('id', '00000000-0000-0000-0000-000000000000')
   await supabase.from('tickets').delete().neq('id', '00000000-0000-0000-0000-000000000000')
+  await supabase.from('list_collaborators').delete().neq('id', '00000000-0000-0000-0000-000000000000')
+  await supabase.from('list_invite_links').delete().neq('id', '00000000-0000-0000-0000-000000000000')
   await supabase.from('base_list_items').delete().neq('id', '00000000-0000-0000-0000-000000000000')
   await supabase.from('base_lists').delete().neq('id', '00000000-0000-0000-0000-000000000000')
   await supabase.from('groups').delete().neq('id', '00000000-0000-0000-0000-000000000000')

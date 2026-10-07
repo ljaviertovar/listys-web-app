@@ -2,30 +2,30 @@
 
 ## Purpose
 
-Procedimiento para respuesta a incidentes y restauración rápida de la aplicación.
+Procedure for incident response and rapid application recovery.
 
 ## Detection
 
-- Monitorización de logs de Edge Functions y Supabase.
-- Alertas de errores 5xx, colas de OCR con backlog, o fallos en migraciones.
+- Monitor Edge Function and Supabase logs.
+- Alert on 5xx errors, OCR queue backlog, or migration failures.
 
 ## Immediate actions
 
-1. Triage: identificar alcance (afecta a todos los usuarios, subset o proceso background).
-2. If crash or 5xx: activar modo mantenimiento si es necesario.
-3. Recolectar logs relevantes y crear issue en tracker con prioridad.
+1. Triage: identify the scope (all users, a subset, or a background process).
+2. If there is a crash or 5xx response, enable maintenance mode if necessary.
+3. Collect relevant logs and create a prioritized issue in the tracker.
 
 ## Containment
 
-- Rollback reciente deploy si incidente es por deploy.
-- Pause procesamiento batch/OCR si consumo desborda cuotas.
+- Roll back the recent deployment if the incident was caused by a deployment.
+- Pause batch/OCR processing if usage exceeds quotas.
 
 ## Recovery
 
-1. Aplicar hotfix en branch `hotfix/*` y desplegar a staging.
-2. Validar fixes en staging y luego promover a producción.
+1. Apply a hotfix on a `hotfix/*` branch and deploy it to staging.
+2. Validate the fixes in staging and then promote them to production.
 
 ## Postmortem
 
-- Documentar la causa raíz, timeline y acciones preventivas.
-- Crear ADR si la decisión requiere cambios arquitectónicos.
+- Document the root cause, timeline, and preventive actions.
+- Create an ADR if the decision requires architectural changes.

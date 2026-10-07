@@ -11,9 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Loading03Icon, FolderIcon, Add01Icon, ListViewIcon, Folder01Icon } from '@hugeicons/core-free-icons'
 import { toast } from 'sonner'
-import { getGroups } from '@/lib/api/endpoints/groups'
-import { getBaseLists } from '@/lib/api/endpoints/base-lists'
-import { mergeTicketItemsToBaseList, createBaseListFromTicket } from '@/lib/api/endpoints/tickets'
+import { createBaseListFromTicket, getBaseLists, getGroups, mergeTicketItemsToBaseList } from '@/lib/api/endpoints'
 
 interface Props {
 	open: boolean

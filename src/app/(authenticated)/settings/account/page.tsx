@@ -11,10 +11,10 @@ import {
 
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { PageHeader, PageContainer, BackLink, CardHeaderContent } from '@/components/app'
+import { BackLink, PageHeader, PageContainer, CardHeaderContent } from '@/components/app'
 
 import { createClient } from '@/lib/supabase/server'
-import { formatDate, formatTime } from '@/utils/format-date'
+import { formatDate, formatTime } from '@/utils'
 
 export default async function AccountPage() {
 	const supabase = await createClient()
@@ -47,7 +47,6 @@ export default async function AccountPage() {
 				<div className='grid gap-4 lg:grid-cols-2'>
 					<Card
 						size='sm'
-						className='hover:border-primary/50 transition-colors'
 					>
 						<CardHeader>
 							<CardHeaderContent
@@ -113,7 +112,6 @@ export default async function AccountPage() {
 
 					<Card
 						size='sm'
-						className='hover:border-primary/50 transition-colors'
 					>
 						<CardHeader>
 							<CardHeaderContent

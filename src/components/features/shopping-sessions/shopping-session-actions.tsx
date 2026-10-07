@@ -4,29 +4,45 @@ import { useState } from 'react'
 import { CompleteSessionButton } from './complete-session-button'
 import { CompleteSessionAlert } from './complete-session-alert'
 import { CancelSessionButton } from './cancel-session-button'
-import { AddItemDialogBaseList } from '@/components/app/add-item-dialog-base-list'
+import { AddItemDialogBaseList } from '@/components/app'
+import { ShareListDialog } from '@/components/features/sharing'
 
 interface Props {
 	sessionId: string
 	progress: number
+	baseListId?: string
+	baseListName?: string
+	isOwner?: boolean
 }
 
-export function ShoppingSessionActions({ sessionId, progress }: Props) {
+export function ShoppingSessionActions({ sessionId, progress, baseListId, baseListName, isOwner = false }: Props) {
 	const [alertOpen, setAlertOpen] = useState(false)
 
 	return (
 		<>
 			<div className='flex flex-col items-center gap-3 w-full'>
-				<div className='flex items-center gap-2 w-full sm:w-auto flex-1'>
-					<CancelSessionButton sessionId={sessionId} />
-					<CompleteSessionButton onOpenAlert={() => setAlertOpen(true)} />
-				</div>
+				{isOwner && (
+					<div className='flex items-center gap-2 w-full sm:w-auto flex-1'>
+						<CancelSessionButton sessionId={sessionId} />
+						<CompleteSessionButton onOpenAlert={() => setAlertOpen(true)} />
+					</div>
+				)}
 
-				<div className='w-full shrink-0'>
+				<div className='flex items-center gap-2 w-full'>
 					<AddItemDialogBaseList
 						context='shopping-session'
 						sessionId={sessionId}
+						showLabel
+						className='flex-1'
 					/>
+					{baseListId && isOwner && (
+						<ShareListDialog
+							baseListId={baseListId}
+							listName={baseListName ?? ''}
+							isOwner={isOwner}
+							className='flex-1 gap-2'
+						/>
+					)}
 				</div>
 			</div>
 

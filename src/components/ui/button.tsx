@@ -2,19 +2,27 @@ import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Slot } from "radix-ui";
 
-import { cn } from "@/lib/utils";
+import { cn } from '@/utils'
+
+/**
+ * Top-lit highlight (white 20% fading out) over the fill of every primary button: this Button's default variant, the
+ * marketing ButtonLink, and non-interactive lookalikes. Always white, so it stays a highlight when the dark theme flips
+ * `primary-foreground` to ink.
+ */
+const PRIMARY_BUTTON_LAYER =
+  "relative isolate overflow-hidden before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-gradient-to-b before:from-white/20 before:to-transparent before:opacity-80 before:transition-opacity before:duration-300 before:ease-[cubic-bezier(0.4,0.36,0,1)] after:pointer-events-none after:absolute after:inset-0 after:-z-10 after:bg-gradient-to-b after:from-white/10 after:to-transparent after:mix-blend-overlay"
+const SECONDARY_BUTTON_STYLE =
+  "border-slate-200 bg-card text-foreground shadow-none hover:border-slate-300 hover:bg-slate-50 dark:border-border dark:hover:bg-muted [&_svg:not([class*='text-'])]:text-primary"
 
 const buttonVariants = cva(
   "border border-transparent text-sm font-medium [&_svg:not([class*='size-'])]:size-4 inline-flex items-center justify-center whitespace-nowrap gap-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 focus:outline-none focus-visible:outline-none select-none transition-colors focus-visible:ring-1 focus-visible:ring-ring",
   {
     variants: {
       variant: {
-        default:
-          "bg-primary text-primary-foreground shadow hover:bg-primary/90 relative isolate overflow-hidden before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:rounded-md before:bg-gradient-to-b before:from-primary-foreground/20 before:opacity-80 before:transition-opacity before:duration-300 before:ease-[cubic-bezier(0.4,0.36,0,1)] after:pointer-events-none after:absolute after:inset-0 after:-z-10 after:rounded-md after:bg-gradient-to-b after:from-primary-foreground/10 after:to-transparent after:mix-blend-overlay",
-        outline:
-          "border-input bg-background shadow-sm hover:bg-accent/50 hover:text-accent-foreground",
+        default: `bg-primary text-primary-foreground shadow hover:bg-primary/90 ${PRIMARY_BUTTON_LAYER}`,
+        outline: SECONDARY_BUTTON_STYLE,
         secondary:
-          "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
+          SECONDARY_BUTTON_STYLE,
         ghost: "hover:bg-accent hover:text-primary",
         destructive:
           "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
@@ -73,4 +81,4 @@ function Button({
   );
 }
 
-export { Button, buttonVariants };
+export { Button, buttonVariants, PRIMARY_BUTTON_LAYER };

@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Cancel01Icon, Delete02Icon, Loading03Icon } from '@hugeicons/core-free-icons'
-import { cancelShoppingSession } from '@/lib/api/endpoints/shopping-sessions'
+import { cancelShoppingSession } from '@/lib/api/endpoints'
 import { useActiveSessionStore } from '@/stores/active-session'
 
 interface Props {
@@ -54,7 +54,7 @@ export function CancelSessionButton({ sessionId }: Props) {
 				<Button
 					variant='ghost'
 					size='sm'
-					className='flex-1'
+					className='flex-1 text-destructive hover:text-destructive'
 				>
 					<HugeiconsIcon
 						icon={Cancel01Icon}

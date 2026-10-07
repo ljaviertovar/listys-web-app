@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, type ComponentProps } from 'react'
 import { useRouter } from 'next/navigation'
 import {
 	Dialog,
@@ -14,7 +14,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ShoppingCart02Icon, Loading03Icon } from '@hugeicons/core-free-icons'
-import { createShoppingSession } from '@/lib/api/endpoints/shopping-sessions'
+import { createShoppingSession } from '@/lib/api/endpoints'
 import { toast } from 'sonner'
 import { AlertDialogMedia } from '@/components/ui/alert-dialog'
 import useActiveSessionStore from '@/stores/active-session'
@@ -24,9 +24,14 @@ interface Props {
 	baseListName?: string
 	disabled?: boolean
 	itemsCount?: number
+	className?: string
+	/** Lets a surface that already has a primary action demote this trigger to a secondary one. */
+	variant?: ComponentProps<typeof Button>['variant']
+	/** Defaults to small; a hero call to action asks for a larger button. */
+	size?: ComponentProps<typeof Button>['size']
 }
 
-export function StartShoppingDialog({ baseListId, baseListName, disabled, itemsCount }: Props) {
+export function StartShoppingDialog({ baseListId, baseListName, disabled, itemsCount, className, variant, size = 'sm' }: Props) {
 	const [open, setOpen] = useState(false)
 	const [loading, setLoading] = useState(false)
 	const router = useRouter()
@@ -76,8 +81,11 @@ export function StartShoppingDialog({ baseListId, baseListName, disabled, itemsC
 			<DialogTrigger asChild>
 				<Button
 					disabled={disabled || isEmpty}
-					className='w-full'
-					size={'sm'}
+					className={className ?? 'w-full'}
+					variant={variant}
+					size={size}
+					// Several of these sit on one page, so the accessible name says which list each one starts.
+					aria-label={baseListName ? `Start shopping ${baseListName}` : undefined}
 					data-testid='start-shopping-button'
 				>
 					<HugeiconsIcon

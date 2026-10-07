@@ -4,11 +4,11 @@ import { useState } from 'react'
 
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
-import { ActionsItemFormBaseList } from '@/components/app/actions-item-form-base-list'
+import { ActionsItemFormBaseList } from '@/components/app'
 
-import { deleteBaseListItem, updateBaseListItem } from '@/lib/api/endpoints/base-lists'
+import { deleteBaseListItem, updateBaseListItem } from '@/lib/api/endpoints'
 
-import type { BaseListItem } from '@/features/base-lists/types'
+import type { BaseListItem } from '@/types'
 
 interface Props {
 	item: BaseListItem

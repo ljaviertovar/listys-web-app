@@ -6,11 +6,11 @@ import { Card, CardContent } from '@/components/ui/card'
 import { CreateBaseListDialog, BaseListCard } from '@/components/features/base-lists'
 import { SearchList01Icon } from '@hugeicons/core-free-icons'
 
-import { PageHeader, PageContainer, PageFooterAction, BackLink, ActiveShopping } from '@/components/app'
+import { BackLink, ActiveShopping, PageHeader, PageContainer, PageFooterAction } from '@/components/app'
 
-import { getBaseListsByGroup } from '@/lib/api/endpoints/base-lists'
+import { getBaseListsByGroup } from '@/lib/api/endpoints'
 
-import type { BaseListWithCount } from '@/features/base-lists/types'
+import type { BaseListWithCount } from '@/types'
 
 export default async function BaseListsPage({ params }: { params: Promise<{ groupId: string }> }) {
 	const { groupId } = await params
@@ -81,7 +81,7 @@ export default async function BaseListsPage({ params }: { params: Promise<{ grou
 				{!baseLists || baseLists.length === 0 ? (
 					<Card
 						variant='premium'
-						className='group relative flex h-full cursor-pointer flex-col bg-card transition-all duration-300 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 gap-0 py-4'
+						className='group relative flex h-full cursor-pointer flex-col bg-card transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 gap-0 py-4'
 					>
 						<CardContent className='flex w-full max-w-md flex-col items-center pt-6 text-center'>
 							<div className='flex h-16 w-16 items-center justify-center text-primary'>

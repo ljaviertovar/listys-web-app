@@ -2,16 +2,15 @@ import { redirect } from 'next/navigation'
 import { HugeiconsIcon } from '@hugeicons/react'
 
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { PageHeader, PageContainer, BackLink, CardHeaderContent } from '@/components/app'
+import { BackLink, PageHeader, PageContainer, CardHeaderContent } from '@/components/app'
 import { TicketItemsSelector, TicketImage, TicketActions, TicketStatusListener } from '@/components/features/tickets'
 import { Invoice01Icon, ListViewIcon } from '@hugeicons/core-free-icons'
 
-import { getTicket } from '@/lib/api/endpoints/tickets'
+import { getTicket } from '@/lib/api/endpoints'
 
 import { createClient } from '@/lib/supabase/server'
 
-import { formatCurrency } from '@/utils/format-currency'
-import { formatDate, formatTime } from '@/utils/format-date'
+import { formatCurrency, formatDate, formatTime } from '@/utils'
 
 export default async function TicketDetailPage({ params }: { params: Promise<{ ticketId: string }> }) {
 	const { ticketId } = await params
@@ -59,7 +58,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 					{/* Ticket Image */}
 					<Card
 						variant='premium'
-						className='flex-1 group relative flex h-full cursor-pointer flex-col bg-card transition-all duration-300 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 gap-0 py-4'
+						className='flex-1 group relative flex h-full cursor-pointer flex-col bg-card transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 gap-0 py-4'
 					>
 						<CardHeaderContent
 							icon={Invoice01Icon}
@@ -82,7 +81,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 					{/* Extracted Items */}
 					<Card
 						variant='premium'
-						className='flex-1 group relative flex h-full cursor-pointer flex-col bg-card transition-all duration-300 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 gap-0 py-4'
+						className='flex-1 group relative flex h-full cursor-pointer flex-col bg-card transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 gap-0 py-4'
 					>
 						<div className='flex gap-2 items-start justify-between px-4 pl-0'>
 							<CardHeaderContent

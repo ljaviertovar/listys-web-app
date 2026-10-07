@@ -30,11 +30,13 @@ export async function initActiveSession() {
       return
     }
 
+    // No user_id filter: RLS restricts to sessions the user owns OR is a collaborator on.
     const { data: run } = await supabase
       .from('shopping_sessions')
       .select('id, name')
-      .eq('user_id', user.id)
       .eq('status', 'active')
+      .order('started_at', { ascending: false })
+      .limit(1)
       .maybeSingle()
 
     if (run) {

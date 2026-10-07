@@ -1,7 +1,7 @@
 # Reference Limits
 
-Documento de referencia único para límites de negocio.  
-Fuente de verdad: `src/lib/config/limits.ts`.
+Single source of truth for business limits.  
+Source of truth: `src/lib/config/limits.ts`.
 
 | Constant | Value | Description |
 | --- | ---: | --- |
@@ -10,3 +10,5 @@ Fuente de verdad: `src/lib/config/limits.ts`.
 | `MAX_TICKET_ITEMS_MERGE` | 200 | Maximum items to merge from a single OCR ticket |
 | `MAX_SYNC_ITEMS` | 250 | Maximum items to sync from shopping session to base list |
 | `MAX_IMAGES_PER_TICKET` | 5 | Maximum images per ticket upload |
+| `MAX_OCR_ATTEMPTS` | 3 | Maximum OCR processing attempts per ticket |
+| `OCR_PROCESSING_TIMEOUT_MINUTES` | 10 | Maximum processing time before a ticket is marked failed |

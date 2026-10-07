@@ -1,0 +1,89 @@
+/**
+ * The landing page is styled with Tailwind utility classes directly in each component.
+ * These small effects stay as plain CSS because they need custom geometry or repeating
+ * print-like patterns. Layout, color, spacing, typography, and states live in the markup.
+ */
+
+/* A soft gray seam separates sections without introducing another accent color. */
+.section-divider {
+	position: relative;
+}
+
+.section-divider::before {
+	content: '';
+	position: absolute;
+	inset: 0 0 auto;
+	height: 1px;
+	background: linear-gradient(
+		90deg,
+		transparent 0%,
+		rgb(226 232 240 / 0.55) 16%,
+		rgb(226 232 240 / 0.9) 50%,
+		rgb(226 232 240 / 0.55) 84%,
+		transparent 100%
+	);
+	box-shadow: 0 1px 5px rgb(148 163 184 / 0.04);
+	pointer-events: none;
+}
+
+/* A shallow eight-tooth cut keeps the receipt edge even at every width. */
+.receipt-torn {
+	clip-path: polygon(
+		0 0,
+		100% 0,
+		100% calc(100% - 8px),
+		93.75% 100%,
+		87.5% calc(100% - 8px),
+		81.25% 100%,
+		75% calc(100% - 8px),
+		68.75% 100%,
+		62.5% calc(100% - 8px),
+		56.25% 100%,
+		50% calc(100% - 8px),
+		43.75% 100%,
+		37.5% calc(100% - 8px),
+		31.25% 100%,
+		25% calc(100% - 8px),
+		18.75% 100%,
+		12.5% calc(100% - 8px),
+		6.25% 100%,
+		0 calc(100% - 8px)
+	);
+}
+
+/* The receipt's barcode: a repeating gradient of bars, not a real barcode. */
+.receipt-barcode {
+	background: repeating-linear-gradient(
+		90deg,
+		#0f172a 0 2px,
+		transparent 2px 4px,
+		#0f172a 4px 5px,
+		transparent 5px 9px,
+		#0f172a 9px 11px,
+		transparent 11px 13px
+	);
+}
+
+/* The dashed connector between the two device mockups; it runs horizontally on desktop and
+   flips to vertical once the devices stack on narrow screens. */
+.dashed-link::before {
+	content: '';
+	position: absolute;
+	left: -10px;
+	right: -10px;
+	top: 50%;
+	height: 1px;
+	background: repeating-linear-gradient(90deg, #7c3aed 0 5px, transparent 5px 10px);
+	opacity: 0.6;
+}
+@media (max-width: 699px) {
+	.dashed-link::before {
+		left: 50%;
+		right: auto;
+		top: -10px;
+		bottom: -10px;
+		width: 1px;
+		height: auto;
+		background: repeating-linear-gradient(180deg, #7c3aed 0 5px, transparent 5px 10px);
+	}
+}

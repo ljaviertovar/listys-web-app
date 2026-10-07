@@ -72,7 +72,7 @@ test.describe('Shopping Session E2E', () => {
     await expect(page.locator('text=/active.*session/i, [data-testid="active-session"]')).toBeVisible()
 
     // Should show items from base list
-    await expect(page.locator('[data-testid="shopping-item"], [data-testid="checklist-item"]')).toHaveCount.greaterThan(0)
+    expect(await page.locator('[data-testid="shopping-item"], [data-testid="checklist-item"]').count()).toBeGreaterThan(0)
   })
 
   test('should sync item checks in real-time', async ({ page }) => {
@@ -132,13 +132,13 @@ test.describe('Shopping Session E2E', () => {
     await page.goto(`${BASE_URL}/shopping-history`)
 
     // Should see list of past sessions
-    await expect(page.locator('[data-testid="history-item"], [data-testid="session-card"]')).toHaveCount.greaterThan(0)
+    expect(await page.locator('[data-testid="history-item"], [data-testid="session-card"]').count()).toBeGreaterThan(0)
 
     // Click on a session to view details
-    await page.click('[data-testid="history-item"], [data-testid="session-card"]').first()
+    await page.locator('[data-testid="history-item"], [data-testid="session-card"]').first().click()
 
     // Should show session details (date, items, total, etc.)
     await expect(page.locator('text=/completed.*at/i, text=/finished.*on/i')).toBeVisible()
-    await expect(page.locator('[data-testid="session-item"], li')).toHaveCount.greaterThan(0)
+    expect(await page.locator('[data-testid="session-item"], li').count()).toBeGreaterThan(0)
   })
 })

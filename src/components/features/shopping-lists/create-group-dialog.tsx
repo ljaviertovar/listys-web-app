@@ -1,10 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, type ComponentProps } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { createGroup } from '@/lib/api/endpoints/groups'
+import { createGroup } from '@/lib/api/endpoints'
 import { createGroupSchema, type CreateGroupInput } from '@/lib/validations/group'
 import {
 	Dialog,
@@ -23,7 +23,13 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { PlusSignIcon, Loading03Icon } from '@hugeicons/core-free-icons'
 import { toast } from 'sonner'
 
-export function CreateGroupDialog() {
+interface Props {
+	/** Lets a surface that already has a primary action demote this trigger to a secondary one. */
+	variant?: ComponentProps<typeof Button>['variant']
+	className?: string
+}
+
+export function CreateGroupDialog({ variant, className }: Props = {}) {
 	const [open, setOpen] = useState(false)
 	const [loading, setLoading] = useState(false)
 	const router = useRouter()
@@ -64,7 +70,8 @@ export function CreateGroupDialog() {
 		>
 			<DialogTrigger asChild>
 				<Button
-					className='w-full'
+					variant={variant}
+					className={className ?? 'w-full'}
 					data-testid='create-group-button'
 				>
 					<HugeiconsIcon
