@@ -3,9 +3,9 @@
 import { useEffect, useState } from 'react'
 
 import { createClient } from '@/lib/supabase/client'
-import { summarizeUser, type UserSummary } from '../helpers/summarize-user'
+import { summarizeUser, type UserSummary } from '@/components/features/auth'
 
-export interface MobileNavSummary {
+export interface NavSummary {
 	user: UserSummary | null
 	/** Groups the user owns; null until loaded. */
 	groupsCount: number | null
@@ -15,18 +15,26 @@ export interface MobileNavSummary {
 	progress: { checked: number; total: number } | null
 }
 
-const EMPTY: MobileNavSummary = { user: null, groupsCount: null, receiptsWaiting: null, progress: null }
+const EMPTY: NavSummary = { user: null, groupsCount: null, receiptsWaiting: null, progress: null }
+
+interface Options {
+	/** Nothing is fetched while false: the mobile menu is closed, or the sidebar is collapsed. */
+	enabled: boolean
+	sessionId: string | null
+	/** Changes when the numbers may have changed (the page, the menu opening); the summary is fetched again. */
+	refreshKey?: string | boolean
+}
 
 /**
- * What the mobile menu shows beyond the links: the account, the counts next to "Shopping List Groups" and "Receipts"
- * (the same ones the dashboard shows) and how far along the running session is. It loads when the menu opens, so no
- * page pays for it until someone asks for the menu, and it refreshes each time the menu opens.
+ * What the navigation shows beyond the links: the account, the counts next to "Shopping List Groups" and "Receipts"
+ * (the same ones the dashboard shows) and how far along the running session is. It loads only while `enabled`, so no
+ * page pays for it until the menu is opened, and it fetches again whenever `refreshKey` changes.
  */
-export function useMobileNavSummary(open: boolean, sessionId: string | null): MobileNavSummary {
-	const [summary, setSummary] = useState<MobileNavSummary>(EMPTY)
+export function useNavSummary({ enabled, sessionId, refreshKey }: Options): NavSummary {
+	const [summary, setSummary] = useState<NavSummary>(EMPTY)
 
 	useEffect(() => {
-		if (!open) return
+		if (!enabled) return
 		let cancelled = false
 
 		const load = async () => {
@@ -63,7 +71,7 @@ export function useMobileNavSummary(open: boolean, sessionId: string | null): Mo
 		return () => {
 			cancelled = true
 		}
-	}, [open, sessionId])
+	}, [enabled, sessionId, refreshKey])
 
 	return summary
 }

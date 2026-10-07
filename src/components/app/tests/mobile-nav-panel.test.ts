@@ -19,7 +19,7 @@ vi.mock('next/navigation', () => ({ usePathname: () => '/dashboard', useRouter: 
 vi.mock('@/stores/active-session', () => ({
 	default: (select: (state: unknown) => unknown) => select({ activeSession: store.session }),
 }))
-vi.mock('@/components/app/hooks/use-mobile-nav-summary', () => ({ useMobileNavSummary: () => summary.value }))
+vi.mock('@/components/app/hooks/use-nav-summary', () => ({ useNavSummary: () => summary.value }))
 
 const render = () => renderToStaticMarkup(createElement(MobileNavPanel, { open: true, onNavigate: () => {} }))
 
@@ -56,7 +56,7 @@ describe('MobileNavPanel', () => {
 		store.session = { id: 's1', name: 'Items for Dinner' }
 		const html = render()
 
-		expect(html).toContain('data-testid="mobile-nav-active-session"')
+		expect(html).toContain('data-testid="nav-active-session"')
 		expect(html).toContain('href="/shopping/s1"')
 		expect(html).toContain('Shopping now')
 		expect(html).toContain('Items for Dinner')
@@ -65,7 +65,7 @@ describe('MobileNavPanel', () => {
 	})
 
 	it('leaves the session card out when nothing is running', () => {
-		expect(render()).not.toContain('mobile-nav-active-session')
+		expect(render()).not.toContain('nav-active-session')
 	})
 
 	it('shows the account with a sign-out button, then the author credit', () => {

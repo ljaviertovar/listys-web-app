@@ -632,6 +632,17 @@ The active sidebar item uses a soft-blue fill and primary-ink text; it does not 
 are visually subordinate and omitted in collapsed mode. The mobile drawer preserves the same order and labels as desktop.
 Do not introduce a bottom navigation bar unless product navigation is intentionally restructured across the entire app.
 
+The app shell follows the approved dashboard design (A1). Sidebar and drawer entries are 44px high with a 12px radius, slate
+text and a slate-50 hover; labels are 11px uppercase with 0.08em tracking; the current page also gets a 3px blue marker just
+outside its entry. Two entries carry a count pill: Shopping List Groups (neutral, how many groups) and Receipts (amber, how
+many are still waiting for a list); a count of zero shows nothing. The foot of the sidebar and of the drawer holds the running
+session as a card ("Shopping now", `done/total`, a 6px progress bar) and the author credit; the drawer adds the signed-in
+account with a 44px sign-out button. When the sidebar collapses to icons, labels, counts, the session card and the credit are
+hidden. The desktop top bar is 64px: a "Section › Page" breadcrumb at the left (pages outside the navigation have none), and
+at the right a quiet "Install app" text button (when installation is possible), a hairline divider and the account pill
+(34px initials avatar, name and email from `lg`; the avatar alone below it). The counts, progress and account load in the
+browser, only while the navigation is visible, and again on each page change.
+
 ### 7.12 Dialogs, sheets, and menus
 
 Use dialogs for focused creation/confirmation, sheets for mobile navigation or multi-step review, and menus for short

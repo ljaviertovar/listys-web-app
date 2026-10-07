@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { summarizeUser } from '@/components/app/helpers/summarize-user'
+import { summarizeUser } from '@/components/features/auth/helpers/summarize-user'
 
 describe('summarizeUser', () => {
 	it('uses the profile name, with the first and last initials', () => {

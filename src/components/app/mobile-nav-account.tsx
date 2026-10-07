@@ -7,7 +7,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/client'
-import type { UserSummary } from './helpers/summarize-user'
+import type { UserSummary } from '@/components/features/auth'
 
 interface Props {
 	user: UserSummary

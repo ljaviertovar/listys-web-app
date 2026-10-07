@@ -5,6 +5,7 @@ import { InstallAppButton } from '@/components/features/pwa'
 import { useScrollPosition } from '@/hooks'
 import Logo from '@/components/commons/logo'
 import { cn } from '@/utils'
+import { AppBreadcrumb } from './app-breadcrumb'
 import MobileNavDrawer from './mobile-nav-drawer'
 
 export const Header = () => {
@@ -13,7 +14,7 @@ export const Header = () => {
 	return (
 		<header
 			className={cn(
-				'sticky top-0 z-50 grid h-16 grid-cols-[1fr_auto_1fr] items-center gap-2 px-2 sm:px-4 lg:flex lg:gap-3 border-b bg-card/88 backdrop-blur-lg backdrop-filter transition-colors duration-200',
+				'sticky top-0 z-50 grid h-16 grid-cols-[1fr_auto_1fr] items-center gap-2 px-2 sm:px-4 lg:flex lg:gap-3 lg:px-6 border-b bg-card/88 backdrop-blur-lg backdrop-filter transition-colors duration-200',
 				scrollPosition > 20 && 'shadow-sm',
 			)}
 		>
@@ -28,8 +29,10 @@ export const Header = () => {
 				<Logo />
 			</div>
 
+			<AppBreadcrumb />
+
 			<div className='flex items-center justify-self-end lg:ml-auto'>
-				<div className='hidden md:block'>
+				<div className='hidden items-center md:flex'>
 					<InstallAppButton />
 				</div>
 				<AuthButtons />

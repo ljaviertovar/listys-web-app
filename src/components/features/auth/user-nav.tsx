@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 
 import { createClient } from '@/lib/supabase/client'
+import { summarizeUser } from './helpers/summarize-user'
 
 interface Props {
 	user: any
@@ -33,9 +34,7 @@ export function UserNav({ user }: Props) {
 		router.refresh()
 	}
 
-	const userMetadata = user.user_metadata
-	const displayName = userMetadata?.name || userMetadata?.full_name || user.email?.split('@')[0] || 'User'
-	const avatarUrl = userMetadata?.avatar_url || userMetadata?.picture
+	const { name: displayName, initials, avatarUrl } = summarizeUser(user)
 
 	return (
 		<DropdownMenu
@@ -43,17 +42,28 @@ export function UserNav({ user }: Props) {
 			onOpenChange={setOpen}
 		>
 			<DropdownMenuTrigger asChild>
+				{/* A pill (design A1): the avatar on phones, the avatar with name and email from `lg`. 44px high either way. */}
 				<Button
 					variant='ghost'
-					className='relative rounded-full h-10 px-2 py-4'
+					aria-label='Account menu'
+					data-testid='user-nav-trigger'
+					className='h-11 gap-2.5 rounded-full border border-transparent py-0 pr-2 pl-1 hover:border-slate-200 hover:bg-slate-50 dark:hover:border-border dark:hover:bg-muted'
 				>
-					<Avatar className='h-8 w-8'>
-						<AvatarImage
-							src={avatarUrl || '/img/avatars/01.png'}
-							alt={displayName}
-						/>
-						<AvatarFallback>{displayName.substring(0, 2).toUpperCase()}</AvatarFallback>
+					<Avatar className='size-[34px]'>
+						{avatarUrl ? (
+							<AvatarImage
+								src={avatarUrl}
+								alt=''
+							/>
+						) : null}
+						<AvatarFallback className='bg-blue-100 text-[13px] font-bold text-blue-700 dark:bg-primary/20 dark:text-primary'>
+							{initials}
+						</AvatarFallback>
 					</Avatar>
+					<span className='hidden flex-col items-start gap-0.5 text-left lg:flex'>
+						<span className='text-[13.5px] leading-[1.1] font-semibold'>{displayName}</span>
+						<span className='text-xs leading-[1.1] font-normal text-muted-foreground'>{user.email}</span>
+					</span>
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent

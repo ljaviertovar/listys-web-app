@@ -35,6 +35,17 @@
   real layout; both heroes share `HeroSurface` and load the photo through `next/image`; card and hero shadows are the
   `shadow-card` / `shadow-card-hover` tokens; every "Start Shopping" button names its list for screen readers and list links fill
   their row; the phone session bar adds the safe-area inset to the page's bottom space.
+- Mobile menu follows the approved reference: uppercase section labels, count pills on Shopping List Groups (neutral) and
+  Receipts (amber, receipts still waiting for a list), the running session as a card with "Shopping now", `done/total` and a
+  progress bar, the signed-in account with a 44px sign-out button, the author credit, 24px right corners, a long soft shadow
+  and an ink scrim at 45%. The counts, progress and account load when the menu opens. `SheetContent` accepts `overlayClassName`
+  and `AppSidebarFooter` accepts `className`.
+- Desktop shell follows design A1: sidebar entries are 44px with a quiet hover and a blue marker on the current page, small
+  uppercase section labels, count pills on Shopping List Groups and Receipts, and the running session card above the author
+  credit; the top bar gains a "Section › Page" breadcrumb, a ghost "Install app" button and an account pill with the avatar,
+  name and email (the same pill is avatar-only on phones, now with initials instead of the placeholder image). The sidebar is
+  272px wide (`--sidebar-width` 17rem), as `DESIGN.md` specifies. The session card, counts and account summary are shared with
+  the mobile menu (`useNavSummary`, `NavSessionCard`, `NavCountPill`).
 - Accessibility: pinch-zoom is no longer disabled (`maximum-scale` and `user-scalable` removed), the mobile drawer has a 44px
   close button, a 312px width and a 44px author-credit link, and `<main>` has `scroll-padding-bottom` so focus is not hidden
   behind fixed bottom bars. `StartShoppingDialog` accepts an optional `size`.

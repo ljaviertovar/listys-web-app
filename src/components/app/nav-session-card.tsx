@@ -7,18 +7,18 @@ interface Props {
 	name: string
 	/** Null while the progress is still loading: the card then shows the name only. */
 	progress: { checked: number; total: number } | null
-	onNavigate: () => void
+	onNavigate?: () => void
 }
 
-/** The running shopping session at the foot of the mobile menu: a way back in, with how far along it is. */
-export function MobileNavSessionCard({ sessionId, name, progress, onNavigate }: Props) {
+/** The running shopping session at the foot of the sidebar and the mobile menu: a way back in, with how far along it is. */
+export function NavSessionCard({ sessionId, name, progress, onNavigate }: Props) {
 	const percent = progress && progress.total > 0 ? Math.round((progress.checked / progress.total) * 100) : 0
 
 	return (
 		<Link
 			href={`/shopping/${sessionId}`}
 			onClick={onNavigate}
-			data-testid='mobile-nav-active-session'
+			data-testid='nav-active-session'
 			className='flex flex-col gap-2.5 rounded-2xl border border-blue-100 bg-blue-50 p-3.5 text-foreground dark:border-primary/30 dark:bg-primary/10'
 		>
 			<span className='flex items-center justify-between gap-2'>

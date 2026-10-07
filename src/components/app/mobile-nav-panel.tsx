@@ -10,19 +10,15 @@ import { cn } from '@/utils'
 import { checkIsActive } from './sidebar/helpers/check-is-active'
 import AppSidebarFooter from './sidebar/app-sidebar-footer'
 import { MobileNavAccount } from './mobile-nav-account'
-import { MobileNavSessionCard } from './mobile-nav-session-card'
-import { useMobileNavSummary } from './hooks/use-mobile-nav-summary'
+import { NavCountPill } from './nav-count-pill'
+import { NavSessionCard } from './nav-session-card'
+import { buildNavCounts } from './sidebar/helpers/build-nav-counts'
+import { useNavSummary } from './hooks/use-nav-summary'
 
 interface Props {
 	open: boolean
 	onNavigate: () => void
 }
-
-/** Count pills of the reference menu: groups are neutral, receipts still waiting for a list are amber (they need a look). */
-const COUNT_STYLES = {
-	neutral: 'bg-slate-100 text-slate-600 dark:bg-muted dark:text-muted-foreground',
-	waiting: 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300',
-} as const
 
 /**
  * Everything inside the mobile menu below its header: the same sections as the sidebar, in the same order, with counts
@@ -31,12 +27,8 @@ const COUNT_STYLES = {
 export function MobileNavPanel({ open, onNavigate }: Props) {
 	const pathname = usePathname()
 	const activeSession = useActiveSessionStore(s => s.activeSession)
-	const summary = useMobileNavSummary(open, activeSession?.id ?? null)
-
-	const counts: Record<string, { value: number | null; style: keyof typeof COUNT_STYLES; label: (n: number) => string }> = {
-		'/shopping-lists': { value: summary.groupsCount, style: 'neutral', label: n => `${n} ${n === 1 ? 'group' : 'groups'}` },
-		'/tickets': { value: summary.receiptsWaiting, style: 'waiting', label: n => `${n} ${n === 1 ? 'receipt' : 'receipts'} waiting` },
-	}
+	const summary = useNavSummary({ enabled: open, sessionId: activeSession?.id ?? null, refreshKey: open })
+	const counts = buildNavCounts(summary)
 
 	return (
 		<>
@@ -78,17 +70,11 @@ export function MobileNavPanel({ open, onNavigate }: Props) {
 										/>
 									) : null}
 									{item.title}
-									{count?.value ? (
-										<span
-											aria-label={count.label(count.value)}
-											data-testid={`mobile-nav-count-${item.url.slice(1)}`}
-											className={cn(
-												'ml-auto inline-flex h-[22px] min-w-[22px] items-center justify-center rounded-full px-[7px] text-xs font-semibold tabular-nums',
-												COUNT_STYLES[count.style],
-											)}
-										>
-											{count.value}
-										</span>
+									{count ? (
+										<NavCountPill
+											count={count}
+											testId={`mobile-nav-count-${item.url.slice(1)}`}
+										/>
 									) : null}
 								</Link>
 							)
@@ -99,7 +85,7 @@ export function MobileNavPanel({ open, onNavigate }: Props) {
 
 			<div className='mt-auto flex shrink-0 flex-col gap-3 p-3'>
 				{activeSession ? (
-					<MobileNavSessionCard
+					<NavSessionCard
 						sessionId={activeSession.id}
 						name={activeSession.name ?? ''}
 						progress={summary.progress}
