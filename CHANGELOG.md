@@ -46,6 +46,10 @@
   name and email (the same pill is avatar-only on phones, now with initials instead of the placeholder image). The sidebar is
   272px wide (`--sidebar-width` 17rem), as `DESIGN.md` specifies. The session card, counts and account summary are shared with
   the mobile menu (`useNavSummary`, `NavSessionCard`, `NavCountPill`).
+- Git hooks (Husky): `pre-commit` runs ESLint (errors only) and the tests related to the staged files via lint-staged, then the
+  critical suite (`pnpm test:critical`: server actions, API routes, lib, stores, utils); `pre-push` runs `pnpm typecheck`
+  (`tsc --noEmit`), the check that `next build` fails on. The shared Supabase test helpers moved back to `src/test/helpers`
+  (the commit that moved the tests had deleted them, which broke 5 test files and the type check).
 - Accessibility: pinch-zoom is no longer disabled (`maximum-scale` and `user-scalable` removed), the mobile drawer has a 44px
   close button, a 312px width and a 44px author-credit link, and `<main>` has `scroll-padding-bottom` so focus is not hidden
   behind fixed bottom bars. `StartShoppingDialog` accepts an optional `size`.

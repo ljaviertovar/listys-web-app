@@ -47,6 +47,8 @@ export function InstallAppButton() {
   const [installed, setInstalled] = useState(false)
 
   useEffect(() => {
+    // Display mode can only be read in the browser, so it is synced after mount (reading it during render would not match the server HTML).
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setInstalled(isStandalone())
 
     const handleBeforeInstallPrompt = (event: Event) => {

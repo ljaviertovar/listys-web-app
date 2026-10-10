@@ -3,7 +3,7 @@ import {
   createSupabaseMock,
   sequentialFrom,
   TEST_UUID,
-} from '@/__tests__/helpers'
+} from '@/test/helpers'
 
 // --- Module mocks ---
 vi.mock('@/lib/supabase/server', () => ({
@@ -27,7 +27,7 @@ const mockedCreateClient = vi.mocked(createClient)
 
 function setupMock(overrides?: Parameters<typeof createSupabaseMock>[0]) {
   const { supabase } = createSupabaseMock(overrides)
-  mockedCreateClient.mockResolvedValue(supabase as any)
+  mockedCreateClient.mockResolvedValue(supabase as unknown as Awaited<ReturnType<typeof createClient>>)
   return supabase
 }
 

@@ -4,7 +4,7 @@ import {
   sequentialFrom,
   TEST_UUID,
   TEST_UUID_2,
-} from '@/__tests__/helpers'
+} from '@/test/helpers'
 
 vi.mock('@/lib/supabase/server', () => ({
   createClient: vi.fn(),
@@ -31,7 +31,7 @@ const mockedCreateClient = vi.mocked(createClient)
 
 function setupMock(overrides?: Parameters<typeof createSupabaseMock>[0]) {
   const { supabase } = createSupabaseMock(overrides)
-  mockedCreateClient.mockResolvedValue(supabase as any)
+  mockedCreateClient.mockResolvedValue(supabase as unknown as Awaited<ReturnType<typeof createClient>>)
   return supabase
 }
 
@@ -76,7 +76,7 @@ describe('createShoppingSession', () => {
 
     const result = await createShoppingSession({ base_list_id: TEST_UUID, name: 'Trip' })
     expect(result.error).toContain('active shopping run')
-    expect((result as any).activeSessionId).toBe('active-session')
+    expect('activeSessionId' in result ? result.activeSessionId : undefined).toBe('active-session')
   })
 
   it('rejects when base list is empty', async () => {

@@ -29,6 +29,7 @@ const buttonLinkVariants = cva(
 
 type ButtonLinkProps = ComponentProps<typeof Link> &
 	VariantProps<typeof buttonLinkVariants> & {
+		'data-testid'?: string
 		testId?: string
 	}
 
