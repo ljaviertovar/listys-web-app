@@ -117,7 +117,7 @@ export default async function TicketsPage() {
 										/>
 
 										<CardFooterContent
-											count={ticket.total_items}
+							count={ticket.total_items ?? 0}
 											coutLabel={ticket.total_items === 1 ? 'Extracted Item' : 'Extracted Items'}
 											linkText='View Details'
 										/>
