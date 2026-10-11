@@ -40,21 +40,22 @@ export function DashboardGreeting({ name }: Props) {
 				variant='pending'
 				data-testid='dashboard-date-badge'
 				className={cn(
-					'h-8 gap-2 border-amber-100 bg-amber-50 px-3 text-[13px] text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300',
+					// A white pill with a hairline ring, not a tinted one (design A1).
+					'h-7 gap-1.5 rounded-[8px] border-0 bg-card px-2.5 pl-2 text-[12.5px] text-slate-700 shadow-[0_0_0_1px_rgba(15,23,42,0.04),0_1px_2px_rgba(15,23,42,0.06)] dark:text-slate-200',
 					!now && 'invisible',
 				)}
 			>
 				<HugeiconsIcon
 					icon={Sun03Icon}
 					strokeWidth={1.5}
-					className='size-4 text-amber-500'
+					className='size-4 text-amber-600'
 				/>
 				{dateLabel || 'Today'}
 			</Badge>
-			<h1 className='font-display text-[clamp(24px,3vw,32px)] leading-[1.16] font-bold tracking-tight text-balance'>
+			<h1 className='font-display text-[30px] leading-[1.17] font-bold tracking-[-0.025em] text-balance md:text-[32px] lg:text-[34px]'>
 				{now ? `${greetingFor(now.getHours())}, ${name}` : `Hi, ${name}`}
 			</h1>
-			<p className='text-[15px] leading-[1.6] text-muted-foreground'>
+			<p className='text-sm leading-normal text-slate-500 md:text-[15px] dark:text-muted-foreground'>
 				Here&apos;s what&apos;s happening with your household&apos;s shopping today.
 			</p>
 		</div>

@@ -63,16 +63,18 @@ export function LogoMark({ className }: { className?: string }) {
 
 interface Props {
 	isCollapsed?: boolean
+	/** Type of the "Listys" wordmark; the default is the sidebar's, the phone header sets its own. */
+	wordmarkClassName?: string
 }
 
-export default function Logo({ isCollapsed }: Props) {
+export default function Logo({ isCollapsed, wordmarkClassName = 'text-xl' }: Props) {
 	return (
 		<Link
 			href='/'
 			className='font-semibold flex flex-none items-center gap-2'
 		>
 			<LogoMark />
-			{!isCollapsed && <span className='text-xl'>Listys</span>}
+			{!isCollapsed && <span className={wordmarkClassName}>Listys</span>}
 		</Link>
 	)
 }

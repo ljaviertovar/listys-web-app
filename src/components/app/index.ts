@@ -1,6 +1,8 @@
 // Barrel exports for cleaner imports
 export { default as BackLink } from './back-link'
 export { Header } from './header'
+export { MobileTabBar } from './mobile-tab-bar'
+export { ABOVE_MOBILE_TAB_BAR } from './helpers/mobile-tab-bar-layout'
 export { default as AppLoading } from './app-loading'
 export { AppSidebar } from './sidebar/app-sidebar'
 export { AddItemDialogBaseList } from './add-item/add-item-dialog-base-list'

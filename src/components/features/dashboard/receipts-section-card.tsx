@@ -1,76 +1,86 @@
-import { Invoice01Icon } from '@hugeicons/core-free-icons'
+import { Fragment } from 'react'
+import { CancelCircleIcon, CheckmarkCircle02Icon, Clock01Icon, Invoice01Icon } from '@hugeicons/core-free-icons'
+import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react'
 
-import { Badge } from '@/components/ui/badge'
 import { UploadTicketDialog } from '@/components/features/tickets'
+import { cn } from '@/utils'
 import { DashboardEmptyState } from './dashboard-empty-state'
 import { DashboardRow } from './dashboard-row'
 import { DashboardSectionCard } from './dashboard-section-card'
-import { SectionFooterLink } from './section-footer-link'
+import { RowIcon } from './row-icon'
 import type { ReceiptPreview } from './helpers/build-dashboard-model'
-import { CARD_ACTION } from './helpers/dashboard-styles'
+import { EMPTY_STATE_ACTION } from './helpers/dashboard-styles'
 
-const STATUS_LABELS: Record<ReceiptPreview['status'], string> = {
-	completed: 'Completed',
-	processing: 'Processing',
-	failed: 'Failed',
-	pending: 'Pending',
+// Each state has an icon and a word as well as a colour, so colour is never the only cue.
+const STATUS: Record<ReceiptPreview['status'], { label: string; icon: IconSvgElement; className: string }> = {
+	completed: { label: 'Completed', icon: CheckmarkCircle02Icon, className: 'text-green-700 dark:text-green-400' },
+	processing: { label: 'Processing', icon: Clock01Icon, className: 'text-amber-700 dark:text-amber-400' },
+	pending: { label: 'Pending', icon: Clock01Icon, className: 'text-slate-500 dark:text-muted-foreground' },
+	failed: { label: 'Failed', icon: CancelCircleIcon, className: 'text-red-700 dark:text-red-400' },
 }
 
 interface Props {
 	receipts: ReceiptPreview[]
-	count: number
 }
 
 /** Receipts: the latest uploads with their OCR state. While there are none, the card offers the upload itself. */
-export function ReceiptsSectionCard({ receipts, count }: Props) {
+export function ReceiptsSectionCard({ receipts }: Props) {
 	return (
 		<DashboardSectionCard
 			testId='dashboard-receipts-card'
-			icon={Invoice01Icon}
-			tone='ocr'
 			title='Receipts'
-			description='Upload and manage receipts. Create shopping lists from them.'
-			count={count}
-			countLabel={count === 1 ? 'receipt' : 'receipts'}
-			footer={
-				<SectionFooterLink
-					href='/tickets'
-					testId='dashboard-receipts-view-all'
-				>
-					View all receipts
-				</SectionFooterLink>
-			}
+			viewAll={{ href: '/tickets', noun: 'receipts', testId: 'dashboard-receipts-view-all' }}
 		>
 			{receipts.length === 0 ? (
 				<DashboardEmptyState
 					testId='dashboard-receipts-empty'
-					message='No receipts yet. Photograph one and Listys turns it into a list you can review.'
-					action={
-						<UploadTicketDialog
-							variant='outline'
-							className={CARD_ACTION}
-						/>
-					}
+					icon={Invoice01Icon}
+					tone='ocr'
+					title='No receipts yet.'
+					message='Photograph one and Listys turns it into a list you can review.'
+					action={<UploadTicketDialog className={EMPTY_STATE_ACTION} />}
 				/>
 			) : (
-				receipts.map(receipt => (
-					<DashboardRow
-						key={receipt.id}
-						href={`/tickets/${receipt.id}`}
-						title={receipt.title}
-						meta={receipt.meta}
-						monoMeta
-						testId={`dashboard-receipt-${receipt.id}`}
-						trailing={
-							// A finished receipt is the normal case, so it is plain text; only the states that need a look get a badge.
-							receipt.status === 'completed' ? (
-								<span className='text-xs text-muted-foreground'>{STATUS_LABELS.completed}</span>
-							) : (
-								<Badge variant={receipt.status}>{STATUS_LABELS[receipt.status]}</Badge>
-							)
-						}
-					/>
-				))
+				<div className='flex flex-1 flex-col gap-1'>
+					{receipts.map((receipt, index) => {
+						const status = STATUS[receipt.status]
+						return (
+							<Fragment key={receipt.id}>
+								{index > 0 ? (
+									<div
+										aria-hidden='true'
+										className='mx-2 h-px bg-slate-100 dark:bg-border'
+									/>
+								) : null}
+								<DashboardRow
+									href={`/tickets/${receipt.id}`}
+									title={receipt.title}
+									meta={receipt.meta}
+									monoMeta
+									testId={`dashboard-receipt-${receipt.id}`}
+									leading={
+										<RowIcon
+											icon={Invoice01Icon}
+											tone='ocr'
+											size='md'
+										/>
+									}
+									trailing={
+										<span className={cn('inline-flex h-6 shrink-0 items-center gap-[5px] font-display text-xs font-bold whitespace-nowrap', status.className)}>
+											<HugeiconsIcon
+												icon={status.icon}
+												strokeWidth={1.5}
+												aria-hidden='true'
+												className='size-3.5'
+											/>
+											{status.label}
+										</span>
+									}
+								/>
+							</Fragment>
+						)
+					})}
+				</div>
 			)}
 		</DashboardSectionCard>
 	)

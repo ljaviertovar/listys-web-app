@@ -16,14 +16,6 @@ import {
 	useSidebar,
 } from '@/components/ui/sidebar'
 import { Badge } from '../../ui/badge'
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuLabel,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from '../../ui/dropdown-menu'
 import { NavCollapsible, NavLink, type NavGroup } from '@/types'
 import { checkIsActive } from './helpers/check-is-active'
 import type { NavCount } from './helpers/build-nav-counts'
@@ -32,26 +24,22 @@ import Link from 'next/link'
 import { ReactNode } from 'react'
 
 /*
- * Design A1: 44px entries with a 12px radius, slate text and a quiet slate hover, a slate icon that turns blue, and, for the
- * current page, a soft blue fill, semibold blue text and a 3px blue marker just outside the entry. `overflow-visible` lets
- * the marker show (the base button clips); the icon shrinks back to 16px when the sidebar collapses to icons.
+ * Design A1 desktop: 36px entries on one line with an 18px icon, an 8px radius and a quiet slate hover. The icon is slate and
+ * turns blue with the text on the current page, which sits on the secondary-button surface (#E9ECF0) with semibold blue text,
+ * the same treatment as the phone tab bar.
  */
 const SIDEBAR_ITEM_STYLES =
-	'relative h-11 gap-3 overflow-visible group-data-[collapsible=icon]:overflow-hidden rounded-xl px-3 font-medium text-slate-700 transition-colors duration-150 hover:bg-slate-50 hover:text-foreground dark:text-foreground/80 dark:hover:bg-muted [&_svg]:size-5 [&_svg]:text-slate-500 hover:[&_svg]:text-slate-700 group-data-[collapsible=icon]:[&_svg]:size-4 data-[active=true]:bg-primary/10 data-[active=true]:font-semibold data-[active=true]:text-primary data-[active=true]:[&_svg]:text-primary data-[active=true]:before:absolute data-[active=true]:before:inset-y-2.5 data-[active=true]:before:-left-1 data-[active=true]:before:w-[3px] data-[active=true]:before:rounded-r-full data-[active=true]:before:bg-primary data-[active=true]:hover:bg-primary/10'
+	'h-9 gap-2 rounded-[8px] px-2 text-sm font-normal whitespace-nowrap text-slate-700 transition-colors duration-150 hover:bg-slate-100 hover:text-foreground [&_svg]:size-[18px] [&_svg]:text-slate-500 hover:[&_svg]:text-slate-700 data-[active=true]:[&_svg]:text-blue-700 dark:text-foreground/80 dark:hover:bg-muted data-[active=true]:bg-[#E9ECF0] data-[active=true]:font-semibold data-[active=true]:text-blue-700 data-[active=true]:hover:bg-[#DEE2E8] data-[active=true]:hover:text-blue-700 dark:data-[active=true]:bg-muted dark:data-[active=true]:text-blue-300'
 const SIDEBAR_SUB_ITEM_STYLES =
-	'transition-all duration-200 hover:bg-primary/10 hover:text-primary data-[active=true]:bg-primary/15 data-[active=true]:text-primary data-[active=true]:font-semibold'
+	'rounded-[8px] text-slate-700 transition-colors duration-150 hover:bg-slate-100 hover:text-foreground data-[active=true]:bg-[#E9ECF0] data-[active=true]:font-semibold data-[active=true]:text-blue-700'
 
 export function NavGroup({ title, items, counts }: NavGroup & { counts?: Record<string, NavCount> }) {
-	const { state } = useSidebar()
-
 	const href = `${usePathname()}?${useSearchParams().toString()}`
 
 	return (
-		<SidebarGroup className='px-3 pt-6 pb-0 group-data-[collapsible=icon]:px-2 group-data-[collapsible=icon]:pt-2'>
-			<SidebarGroupLabel className='h-auto rounded-none px-3 pt-0 pb-2 text-[11px] leading-none font-semibold tracking-[0.08em] text-slate-500 uppercase group-data-[collapsible=icon]:hidden'>
-				{title}
-			</SidebarGroupLabel>
-			<SidebarMenu className='gap-0.5'>
+		<SidebarGroup className='gap-0.5 p-0'>
+			<SidebarGroupLabel className='h-9 rounded-none px-2 text-sm font-semibold text-foreground'>{title}</SidebarGroupLabel>
+			<SidebarMenu className='gap-px px-1.5'>
 				{items.map(item => {
 					const key = `${item.title}-${item.url}`
 
@@ -62,15 +50,6 @@ export function NavGroup({ title, items, counts }: NavGroup & { counts?: Record<
 								item={item}
 								href={href}
 								count={counts?.[item.url]}
-							/>
-						)
-
-					if (state === 'collapsed')
-						return (
-							<SidebarMenuCollapsedDropdown
-								key={key}
-								item={item}
-								href={href}
 							/>
 						)
 
@@ -98,7 +77,6 @@ const SidebarMenuLink = ({ item, href, count }: { item: NavLink; href: string; c
 			<SidebarMenuButton
 				asChild
 				isActive={checkIsActive(href, item)}
-				tooltip={item.title}
 				className={SIDEBAR_ITEM_STYLES}
 			>
 				<Link
@@ -108,7 +86,8 @@ const SidebarMenuLink = ({ item, href, count }: { item: NavLink; href: string; c
 					{item.icon && (
 						<HugeiconsIcon
 							icon={item.icon}
-							strokeWidth={2}
+							strokeWidth={1.5}
+							aria-hidden='true'
 						/>
 					)}
 					<span>{item.title}</span>
@@ -117,7 +96,6 @@ const SidebarMenuLink = ({ item, href, count }: { item: NavLink; href: string; c
 						<NavCountPill
 							count={count}
 							testId={`sidebar-count-${item.url.slice(1)}`}
-							className='group-data-[collapsible=icon]:hidden'
 						/>
 					) : null}
 				</Link>
@@ -136,14 +114,12 @@ const SidebarMenuCollapsible = ({ item, href }: { item: NavCollapsible; href: st
 		>
 			<SidebarMenuItem>
 				<CollapsibleTrigger asChild>
-					<SidebarMenuButton
-						tooltip={item.title}
-						className={SIDEBAR_ITEM_STYLES}
-					>
+					<SidebarMenuButton className={SIDEBAR_ITEM_STYLES}>
 						{item.icon && (
 							<HugeiconsIcon
 								icon={item.icon}
-								strokeWidth={2}
+								strokeWidth={1.5}
+								aria-hidden='true'
 							/>
 						)}
 						<span>{item.title}</span>
@@ -167,7 +143,8 @@ const SidebarMenuCollapsible = ({ item, href }: { item: NavCollapsible; href: st
 										{subItem.icon && (
 											<HugeiconsIcon
 												icon={subItem.icon}
-												strokeWidth={2}
+												strokeWidth={1.5}
+												aria-hidden='true'
 											/>
 										)}
 										<span>{subItem.title}</span>
@@ -180,62 +157,5 @@ const SidebarMenuCollapsible = ({ item, href }: { item: NavCollapsible; href: st
 				</CollapsibleContent>
 			</SidebarMenuItem>
 		</Collapsible>
-	)
-}
-
-const SidebarMenuCollapsedDropdown = ({ item, href }: { item: NavCollapsible; href: string }) => {
-	return (
-		<SidebarMenuItem>
-			<DropdownMenu>
-				<DropdownMenuTrigger asChild>
-					<SidebarMenuButton
-						tooltip={item.title}
-						isActive={checkIsActive(href, item)}
-						className={SIDEBAR_ITEM_STYLES}
-					>
-						{item.icon && (
-							<HugeiconsIcon
-								icon={item.icon}
-								strokeWidth={2}
-							/>
-						)}
-						<span>{item.title}</span>
-						{item.badge && <NavBadge>{item.badge}</NavBadge>}
-						<ChevronRight className='ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90' />
-					</SidebarMenuButton>
-				</DropdownMenuTrigger>
-				<DropdownMenuContent
-					side='right'
-					align='start'
-					sideOffset={4}
-				>
-					<DropdownMenuLabel>
-						{item.title} {item.badge ? `(${item.badge})` : ''}
-					</DropdownMenuLabel>
-					<DropdownMenuSeparator />
-					{item.items.map(sub => (
-						<DropdownMenuItem
-							key={`${sub.title}-${sub.url}`}
-							asChild
-						>
-							<Link
-								href={sub.url}
-								className={`${checkIsActive(href, sub) ? 'bg-primary/15 text-primary font-semibold' : ''} gap-2 rounded-md transition-colors hover:bg-primary/10 hover:text-primary`}
-							>
-								{sub.icon && (
-									<HugeiconsIcon
-										icon={sub.icon}
-										strokeWidth={2}
-										className='w-4'
-									/>
-								)}
-								<span className='max-w-52 text-wrap'>{sub.title}</span>
-								{sub.badge && <span className='ml-auto text-xs'>{sub.badge}</span>}
-							</Link>
-						</DropdownMenuItem>
-					))}
-				</DropdownMenuContent>
-			</DropdownMenu>
-		</SidebarMenuItem>
 	)
 }

@@ -2,6 +2,30 @@
 
 ## Unreleased
 
+- Dashboard section titles (Shopping List Groups, Receipts, Shopping History) and "Up Next" are still `h2` elements but are set at the
+  h6 size on phones (16px, 600) and at the h4 size from `md` (20px).
+- Redesign the phone account menu (design "A1 mobile · Menú de usuario"): the avatar is a 44px circle that rests on the secondary
+  surface while the menu is open, which now has a 263px panel with a 44px identity block, 52px Dashboard, Profile and Account rows
+  (a grey icon tile and a regular 14px title), a full-width Sign out button, and a scrim over the page and the tab bar. From `lg` it keeps
+  the pill trigger and drops Dashboard, Profile and Account, which live in the sidebar.
+- Implement design A1 desktop. The sidebar is now the shadcn floating variant: a 240px white card with the Listys brand, groups
+  titled in semibold, 36px one-line entries with an 18px icon and the current page on the secondary-button surface, and the running
+  trip and credit at the foot. The top bar sits on the page ground with the sidebar trigger (also Ctrl/Cmd+B, which now hides the
+  sidebar entirely instead of collapsing it to icons), a hairline and the breadcrumb, and the account pill gains a chevron.
+  Desktop dashboard sizes follow the board: 34px greeting, 40px hero title, 36/40px hero padding, 36px section gaps, the
+  secondary-surface "Upload Receipt" button and 36px quick-start chips at every width. The redesigned surfaces now write their
+  8px and 12px radii explicitly, because `--radius` makes `rounded-lg` and `rounded-xl` 6px and 10px.
+- Realign `docs/design/DESIGN.md` with the Design system v2 canvas: grey `#F2F4F7` canvas with layered surfaces instead of
+  borders, the v2 radii (12/16/24/28), shadows, type scale and button set, the secondary-button surface for the current
+  navigation item, a new section 6.5 for the dashboard and phone shell, and the gaps between the canvas and the code in 11.4.
+- Implement design A1 mobile. The phone shell is now a 60px header with the logo and the account button, and a bottom tab bar
+  (Dashboard, Lists, a raised Upload Receipt button, Receipts, History) that replaces the side-sheet drawer; Profile and
+  Account moved into the account menu. The running trip's pill floats above the tab bar and stays visible next to the hero's
+  button. Dashboard cards follow the design: each section's title and "View all" sit above a white card with simple rows, a
+  grey "Start" pill and tinted empty states; "Up Next" is one white card; the date is a white pill; the hero chip says
+  "Shopping now"; buttons of the empty states are primary. The page ground is `#F2F4F7` and the receipts card previews three
+  rows. Removed `MobileNavDrawer`, `MobileNavPanel`, `MobileNavAccount` and their tests. The Design system v2 canvas gained
+  a "Móvil A1" section with the shell, the section cards and their measurements.
 - Redesign the dashboard (mobile first): greeting, an active-session or next-trip hero, an "Up next" list derived from real
   receipts, lists and trips, and the three section cards (groups with their nested lists, receipts, history) with aligned
   footers. Phones get a fixed bar to continue the running trip.
