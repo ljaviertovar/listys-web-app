@@ -19,7 +19,7 @@ export function NavSessionCard({ sessionId, name, progress, onNavigate }: Props)
 			href={`/shopping/${sessionId}`}
 			onClick={onNavigate}
 			data-testid='nav-active-session'
-			className='flex flex-col gap-2.5 rounded-2xl border border-blue-100 bg-blue-50 p-3.5 text-foreground dark:border-primary/30 dark:bg-primary/10'
+			className='flex flex-col gap-2.5 rounded-[10px] bg-blue-50 p-3.5 text-foreground dark:bg-primary/10'
 		>
 			<span className='flex items-center justify-between gap-2'>
 				<span className='inline-flex items-center gap-1.5 text-[11px] leading-none font-semibold tracking-[0.08em] text-blue-700 uppercase dark:text-primary'>

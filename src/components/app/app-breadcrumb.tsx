@@ -23,11 +23,11 @@ export function AppBreadcrumb() {
 				icon={ArrowRight01Icon}
 				strokeWidth={2}
 				aria-hidden='true'
-				className='size-4'
+				className='size-3.5 text-slate-400'
 			/>
 			<span
 				aria-current='page'
-				className='font-semibold text-foreground'
+				className='font-medium text-foreground'
 			>
 				{breadcrumb.page}
 			</span>

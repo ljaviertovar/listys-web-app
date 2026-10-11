@@ -32,14 +32,16 @@ export function DashboardView({ model, firstName, isGuest = false, hasLists }: P
 	return (
 		<div
 			data-testid='dashboard-view'
-			className='flex flex-col gap-6 md:gap-8'
+			// Top space of the design's 20px: +4px on phones, and 12px less than the page gutter from `lg`. Phones also keep room under the page for the floating session pill.
+			className={cn('flex flex-col gap-6 pt-1 md:gap-8 md:pt-0 lg:-mt-3 lg:gap-9', model.activeSession && 'max-lg:pb-[4.5rem]')}
 		>
 			<header className='flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between'>
 				<DashboardGreeting name={firstName} />
 				{showHeaderUpload ? (
+					// Phones upload from the tab bar's raised button, so this one only exists from `lg`.
 					<UploadTicketDialog
 						variant='outline'
-						className={cn(SECONDARY_ACTION, 'w-full sm:w-auto')}
+						className={cn(SECONDARY_ACTION, 'hidden lg:inline-flex')}
 					/>
 				) : null}
 			</header>
@@ -68,33 +70,16 @@ export function DashboardView({ model, firstName, isGuest = false, hasLists }: P
 			</div>
 
 			<div className='grid items-stretch gap-5 sm:grid-cols-2 xl:grid-cols-3'>
-				<GroupsSectionCard
-					groups={model.groups}
-					count={model.counts.groups}
-				/>
-				<ReceiptsSectionCard
-					receipts={model.receipts}
-					count={model.counts.receipts}
-				/>
+				<GroupsSectionCard groups={model.groups} />
+				<ReceiptsSectionCard receipts={model.receipts} />
 				{/* On two columns the third card takes the whole row instead of leaving a half-empty one. */}
 				<div className='sm:col-span-2 xl:col-span-1'>
-					<HistorySectionCard
-						trips={model.trips}
-						count={model.counts.trips}
-					/>
+					<HistorySectionCard trips={model.trips} />
 				</div>
 			</div>
 
-			{/* PageContainer's bottom padding clears the 72px bar; the spacer adds the device's safe-area inset it also grows by. */}
-			{model.activeSession ? (
-				<>
-					<div
-						aria-hidden='true'
-						className='-mt-6 h-[env(safe-area-inset-bottom)] lg:hidden'
-					/>
-					<MobileSessionBar session={model.activeSession} />
-				</>
-			) : null}
+			{/* PageContainer's bottom padding clears the pill, which floats above the phone tab bar. */}
+			{model.activeSession ? <MobileSessionBar session={model.activeSession} /> : null}
 		</div>
 	)
 }

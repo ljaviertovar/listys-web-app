@@ -75,6 +75,14 @@ export const SIDEBAR_DATA: SidebarData = {
 	],
 }
 
+/** The four destinations of the phone tab bar (the fifth slot is the receipt-upload action), in design A1 order. */
+export const MOBILE_TAB_ITEMS: { title: string; url: string; icon: NonNullable<NavLink['icon']> }[] = [
+	{ title: 'Dashboard', url: '/dashboard', icon: DashboardSquare02Icon },
+	{ title: 'Lists', url: '/shopping-lists', icon: FolderLibraryIcon },
+	{ title: 'Receipts', url: '/tickets', icon: Invoice01Icon },
+	{ title: 'History', url: '/shopping-history', icon: TimeQuarterPassIcon },
+]
+
 export const USER_NAV_ITEMS: NavLink[] = [
 	{
 		title: 'Dashboard',

@@ -1,15 +1,15 @@
 import Link from 'next/link'
-import { ArrowRight01Icon, UserStar02Icon } from '@hugeicons/core-free-icons'
+import { ArrowRight02Icon, UserStar02Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 
 import { ActiveShoppingBadge } from '@/components/app'
-import { CollaboratorAvatars } from '@/components/features/sharing'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { cn } from '@/utils'
+import { HeroCollaborators } from './hero-collaborators'
 import { HeroSurface } from './hero-surface'
-import { FOCUS_RING, HERO_CTA, HERO_CTA_ID } from './helpers/dashboard-styles'
+import { FOCUS_RING, HERO_CTA } from './helpers/dashboard-styles'
 import { pluralize, type ActiveSessionSummary } from './helpers/build-dashboard-model'
 
 interface Props {
@@ -28,20 +28,24 @@ export function ActiveSessionBanner({ session, isGuest = false }: Props) {
 			testId='dashboard-active-session-banner'
 			labelledBy='dashboard-active-session-title'
 		>
-			<div className='flex w-full max-w-xl flex-col gap-4 p-5 sm:p-8 md:gap-5 md:p-10'>
-				<div className='flex flex-wrap items-center gap-3'>
-					<ActiveShoppingBadge tone='on-dark' />
-					{origin ? <span className='text-[13px] leading-[1.55] text-slate-300'>{origin}</span> : null}
+			<div className='flex w-full max-w-xl flex-col gap-4 px-[22px] pt-40 md:pt-6 pb-[26px] sm:p-8 md:gap-[18px] md:px-10 md:py-9'>
+				<div className='flex flex-wrap items-center gap-2.5'>
+					<ActiveShoppingBadge
+						tone='on-dark'
+						label='Shopping now'
+						className='h-auto gap-[7px] border-0 bg-white/12 px-[11px] py-[5px] text-[12.5px] leading-[1.2] [&>span:first-child]:size-[7px]'
+					/>
+					{origin ? <span className='text-[13px] leading-tight text-slate-300'>{origin}</span> : null}
 				</div>
 
 				<div className='flex flex-col gap-2'>
 					<h2
 						id='dashboard-active-session-title'
-						className='font-display text-[clamp(24px,3vw,32px)] leading-[1.16] font-bold tracking-tight text-balance'
+						className='font-display text-[30px] leading-[1.17] font-bold tracking-[-0.025em] text-balance md:text-[32px] lg:text-[40px] lg:leading-[1.1]'
 					>
 						{session.name}
 					</h2>
-					<p className='text-[15px] leading-[1.6] text-slate-300'>
+					<p className='text-[15px] leading-[1.55] text-slate-300 md:text-base'>
 						{session.total === 0
 							? 'This shopping session has no items yet. Add some to get started.'
 							: `${pluralize(session.checked, 'item')} in the cart, ${session.remaining} to go. Pick up right where you left off.`}
@@ -55,7 +59,7 @@ export function ActiveSessionBanner({ session, isGuest = false }: Props) {
 						className='h-2 bg-white/15'
 						indicatorClassName='bg-linear-to-r from-blue-400 to-blue-500'
 					/>
-					<span className='text-[13px] leading-[1.55] text-slate-300 tabular-nums'>
+					<span className='font-mono text-[12.5px] leading-[1.3] text-slate-300 tabular-nums'>
 						{session.checked} of {pluralize(session.total, 'item')} · {session.progress}%
 					</span>
 				</div>
@@ -68,38 +72,34 @@ export function ActiveSessionBanner({ session, isGuest = false }: Props) {
 				>
 					<Link
 						href={`/shopping/${session.id}`}
-						id={HERO_CTA_ID}
 						data-testid='dashboard-continue-shopping'
 						className={FOCUS_RING}
 					>
 						Continue shopping
 						<HugeiconsIcon
-							icon={ArrowRight01Icon}
+							icon={ArrowRight02Icon}
 							strokeWidth={2}
+							className='size-[18px]'
 						/>
 					</Link>
 				</Button>
 
-				{isGuest || isShared ? (
-					<div className='flex items-center gap-3 text-[13px] leading-[1.55] text-slate-300'>
-						{isGuest ? (
-							<Badge
-								variant='pending'
-								className='gap-2'
-							>
-								<HugeiconsIcon
-									icon={UserStar02Icon}
-									className='size-3'
-								/>
-								Shared with you
-							</Badge>
-						) : (
-							<>
-								<CollaboratorAvatars collaborators={session.collaborators} />
-								<span>Shared with {pluralize(session.collaborators.length, 'person', 'people')}</span>
-							</>
-						)}
-					</div>
+				{isGuest ? (
+					<Badge
+						variant='pending'
+						className='w-fit gap-2'
+					>
+						<HugeiconsIcon
+							icon={UserStar02Icon}
+							className='size-3'
+						/>
+						Shared with you
+					</Badge>
+				) : isShared ? (
+					<HeroCollaborators
+						collaborators={session.collaborators}
+						caption={`Shared with ${pluralize(session.collaborators.length, 'person', 'people')}`}
+					/>
 				) : null}
 			</div>
 		</HeroSurface>

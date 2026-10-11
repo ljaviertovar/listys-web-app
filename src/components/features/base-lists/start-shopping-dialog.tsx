@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, type ComponentProps } from 'react'
+import { useState, type ComponentProps, type ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import {
 	Dialog,
@@ -29,9 +29,11 @@ interface Props {
 	variant?: ComponentProps<typeof Button>['variant']
 	/** Defaults to small; a hero call to action asks for a larger button. */
 	size?: ComponentProps<typeof Button>['size']
+	/** Replaces the default cart icon and "Start Shopping" label inside the trigger button. */
+	children?: ReactNode
 }
 
-export function StartShoppingDialog({ baseListId, baseListName, disabled, itemsCount, className, variant, size = 'sm' }: Props) {
+export function StartShoppingDialog({ baseListId, baseListName, disabled, itemsCount, className, variant, size = 'sm', children }: Props) {
 	const [open, setOpen] = useState(false)
 	const [loading, setLoading] = useState(false)
 	const router = useRouter()
@@ -88,12 +90,16 @@ export function StartShoppingDialog({ baseListId, baseListName, disabled, itemsC
 					aria-label={baseListName ? `Start shopping ${baseListName}` : undefined}
 					data-testid='start-shopping-button'
 				>
-					<HugeiconsIcon
-						icon={ShoppingCart02Icon}
-						strokeWidth={2}
-						data-icon='inline-start'
-					/>
-					Start Shopping
+					{children ?? (
+						<>
+							<HugeiconsIcon
+								icon={ShoppingCart02Icon}
+								strokeWidth={2}
+								data-icon='inline-start'
+							/>
+							Start Shopping
+						</>
+					)}
 				</Button>
 			</DialogTrigger>
 			<DialogContent

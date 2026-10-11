@@ -126,7 +126,7 @@ export interface DashboardModel {
 
 const MAX_GROUPS_PREVIEW = 2
 const MAX_LISTS_PER_GROUP = 3
-const MAX_RECEIPTS_PREVIEW = 2
+const MAX_RECEIPTS_PREVIEW = 3
 const MAX_TRIPS_PREVIEW = 3
 const MAX_UP_NEXT = 3
 const MAX_QUICK_START = 3

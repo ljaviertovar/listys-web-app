@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, type ComponentProps } from 'react'
+import { useState, type ComponentProps, type ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -29,10 +29,13 @@ const UploadTicketForm = dynamic(
 interface Props {
 	/** Lets a surface that already has a primary action demote this trigger to a secondary one. */
 	variant?: ComponentProps<typeof Button>['variant']
+	size?: ComponentProps<typeof Button>['size']
 	className?: string
+	/** Replaces the default "Upload Receipt" button, for surfaces that open the dialog from their own control. */
+	trigger?: ReactNode
 }
 
-export function UploadTicketDialog({ variant, className }: Props = {}) {
+export function UploadTicketDialog({ variant, size, className, trigger }: Props = {}) {
 	const [open, setOpen] = useState(false)
 	const router = useRouter()
 
@@ -47,17 +50,20 @@ export function UploadTicketDialog({ variant, className }: Props = {}) {
 			onOpenChange={setOpen}
 		>
 			<DialogTrigger asChild>
-				<Button
-					variant={variant}
-					className={className ?? 'w-full'}
-				>
-					<HugeiconsIcon
-						icon={Upload06Icon}
-						strokeWidth={2}
-						className='h-4 w-4'
-					/>
-					Upload Receipt
-				</Button>
+				{trigger ?? (
+					<Button
+						variant={variant}
+						size={size}
+						className={className ?? 'w-full'}
+					>
+						<HugeiconsIcon
+							icon={Upload06Icon}
+							strokeWidth={2}
+							className='h-4 w-4'
+						/>
+						Upload Receipt
+					</Button>
+				)}
 			</DialogTrigger>
 			<DialogContent
 				onOpenAutoFocus={e => e.preventDefault()}
@@ -66,7 +72,7 @@ export function UploadTicketDialog({ variant, className }: Props = {}) {
 				<DialogHeader>
 					<DialogTitle className='truncate font-bold tracking-tight text-foreground'>Upload Receipt</DialogTitle>
 					<DialogDescription>
-						Upload photos of your shopping receipt. We'll extract the items automatically.
+						Upload photos of your shopping receipt. We&apos;ll extract the items automatically.
 					</DialogDescription>
 				</DialogHeader>
 				<UploadTicketForm onSuccess={handleSuccess} />

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, type ComponentProps } from 'react'
+import { useState, type ComponentProps, type ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -27,9 +27,11 @@ interface Props {
 	/** Lets a surface that already has a primary action demote this trigger to a secondary one. */
 	variant?: ComponentProps<typeof Button>['variant']
 	className?: string
+	/** Replaces the default plus icon and "New Group" label inside the trigger button. */
+	children?: ReactNode
 }
 
-export function CreateGroupDialog({ variant, className }: Props = {}) {
+export function CreateGroupDialog({ variant, className, children }: Props = {}) {
 	const [open, setOpen] = useState(false)
 	const [loading, setLoading] = useState(false)
 	const router = useRouter()
@@ -74,12 +76,16 @@ export function CreateGroupDialog({ variant, className }: Props = {}) {
 					className={className ?? 'w-full'}
 					data-testid='create-group-button'
 				>
-					<HugeiconsIcon
-						icon={PlusSignIcon}
-						strokeWidth={2}
-						data-icon='inline-start'
-					/>
-					New Group
+					{children ?? (
+						<>
+							<HugeiconsIcon
+								icon={PlusSignIcon}
+								strokeWidth={2}
+								data-icon='inline-start'
+							/>
+							New Group
+						</>
+					)}
 				</Button>
 			</DialogTrigger>
 			<DialogContent

@@ -120,7 +120,7 @@ export function InstallAppButton() {
         variant='ghost'
         onClick={onClick}
         data-testid='install-app-button'
-        className='h-10 rounded-[10px] px-3 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-foreground dark:text-muted-foreground dark:hover:bg-muted [&_svg]:text-slate-500'
+        className='h-10 rounded-[10px] px-3 text-sm font-medium text-slate-600 hover:bg-[#E9ECF0] hover:text-foreground dark:text-muted-foreground dark:hover:bg-muted [&_svg]:text-slate-500'
       >
         <DownloadIcon />
         Install app
