@@ -14,7 +14,7 @@ export function SidebarBrand() {
 			<LogoMark className='size-8 shrink-0' />
 			<span className='flex min-w-0 flex-col gap-[3px]'>
 				<span className='font-display text-sm leading-[1.15] font-semibold tracking-[-0.01em] text-foreground'>Listys</span>
-				<span className='text-xs leading-[1.15] text-slate-500 dark:text-muted-foreground'>Shared shopping lists</span>
+				<span className='text-xs leading-[1.15] text-slate-500 dark:text-muted-foreground'>Reuse lists. Shop together.</span>
 			</span>
 		</Link>
 	)

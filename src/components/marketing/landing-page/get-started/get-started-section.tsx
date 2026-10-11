@@ -17,7 +17,7 @@ export function GetStartedSection() {
 					size='xl'
 					href='/auth/signup'
 				>
-					Create free account <Icon id='arr' />
+					Create Free Account <Icon id='arr' />
 				</ButtonLink>
 				<span className='font-mono text-xs tracking-[.05em] text-[#A8B4C6]'>
 					Google sign-in · no card · your lists stay yours

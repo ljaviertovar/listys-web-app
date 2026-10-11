@@ -24,7 +24,7 @@ describe('AppSidebar', () => {
 
 		expect(html).toContain('data-testid="sidebar-brand"')
 		expect(html).toContain('aria-label="Listys home"')
-		expect(html).toContain('Shared shopping lists')
+		expect(html).toContain('Reuse lists. Shop together.')
 	})
 
 	it('titles each group in plain semibold and lists its entries on one line, each with its icon', () => {

@@ -26,12 +26,17 @@ export function DashboardRow({ href, title, meta, monoMeta = false, leading, tra
 		>
 			{leading}
 			<span className='flex min-w-0 flex-1 flex-col gap-[3px]'>
-				<span className='truncate text-sm leading-[1.3] font-semibold text-foreground'>{title}</span>
+				<span
+					title={title}
+					className='truncate text-sm leading-[1.3] font-semibold text-foreground'
+				>
+					{title}
+				</span>
 				{meta ? (
 					<span
 						className={cn(
 							'text-slate-500 dark:text-muted-foreground',
-							monoMeta ? 'font-mono text-xs leading-normal font-medium tracking-[0.01em]' : 'text-[13px] leading-[1.55]',
+							monoMeta ? 'line-clamp-2 font-mono text-xs leading-normal font-medium tracking-[0.01em]' : 'text-[13px] leading-[1.55]',
 						)}
 					>
 						{meta}

@@ -28,7 +28,7 @@ interface Props {
 	user: UserLike
 }
 
-// Phones have no sidebar, so the account menu is where Dashboard, Profile and Account live; from `lg` the sidebar has them.
+// Keep Dashboard, Profile and Account available in the account menu at every breakpoint.
 // Each row is a grey icon tile and a regular 14px title (design A1 mobile).
 const MENU_ROW_TILE = 'bg-[#F2F4F7] text-slate-600 dark:bg-muted dark:text-muted-foreground'
 const MENU_URLS = ['/dashboard', '/settings/profile', '/settings/account']
@@ -132,7 +132,7 @@ export function UserNav({ user }: Props) {
 
 				<DropdownMenuSeparator className='mx-2.5 mt-0 mb-1 bg-[#EEF0F3] dark:bg-border' />
 
-				<DropdownMenuGroup className='lg:hidden'>
+				<DropdownMenuGroup>
 					{MENU_LINKS.map(item => {
 						return (
 							<DropdownMenuItem
@@ -156,7 +156,7 @@ export function UserNav({ user }: Props) {
 						)
 					})}
 				</DropdownMenuGroup>
-				<DropdownMenuSeparator className='mx-2.5 mt-1 mb-2 bg-[#EEF0F3] lg:hidden dark:bg-border' />
+				<DropdownMenuSeparator className='mx-2.5 mt-1 mb-2 bg-[#EEF0F3] dark:bg-border' />
 
 				<DropdownMenuItem
 					onSelect={handleSignOut}
@@ -168,7 +168,7 @@ export function UserNav({ user }: Props) {
 						strokeWidth={1.5}
 						className='size-[18px]'
 					/>
-					Sign out
+					Sign Out
 				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>

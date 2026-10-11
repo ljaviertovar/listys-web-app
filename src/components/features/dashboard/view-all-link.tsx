@@ -24,7 +24,7 @@ export function ViewAllLink({ href, noun, testId }: Props) {
 			)}
 		>
 			<span>
-				View all<span className='sr-only'> {noun}</span>
+				View All<span className='sr-only'> {noun}</span>
 			</span>
 			<HugeiconsIcon
 				icon={ArrowRight01Icon}

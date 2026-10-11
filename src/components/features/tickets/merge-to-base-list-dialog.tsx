@@ -137,8 +137,8 @@ export function MergeToBaseListDialog({ open, onOpenChange, ticketId, selectedIt
 			}
 
 			onSuccess('')
-		} catch (err: any) {
-			setError(err.message || 'Failed to add items')
+		} catch (err: unknown) {
+			setError(err instanceof Error ? err.message : 'Failed to add items')
 		} finally {
 			setLoading(false)
 		}
@@ -186,7 +186,7 @@ export function MergeToBaseListDialog({ open, onOpenChange, ticketId, selectedIt
 							variant='link'
 							onClick={() => onOpenChange(false)}
 						>
-							<Link href='/shopping-lists'>Start by creating a group</Link>
+							<Link href='/shopping-lists'>Start by Creating a Group</Link>
 						</Button>
 					</div>
 				) : (

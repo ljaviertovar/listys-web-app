@@ -30,7 +30,7 @@ export function MobileSessionBar({ session }: Props) {
 			<Link
 				href={`/shopping/${session.id}`}
 				className={cn(
-					'flex min-h-[72px] items-center gap-3 rounded-[20px] bg-slate-900 py-2 pr-2 pl-3 text-white shadow-[0_14px_30px_-16px_rgba(15,23,42,0.6)]',
+					'flex min-h-[72px] items-center gap-3 rounded-[20px] bg-slate-900 py-2 px-3 text-white shadow-[0_14px_30px_-16px_rgba(15,23,42,0.6)]',
 					FOCUS_RING,
 				)}
 			>
@@ -69,7 +69,9 @@ export function MobileSessionBar({ session }: Props) {
 					</span>
 				</span>
 				{/* Not a nested control: the whole bar is the link, this only borrows the primary button's look. */}
-				<span className={buttonVariants({ size: 'xl', className: 'rounded-[12px] px-4 text-sm font-bold' })}>Continue<span className='sr-only'> shopping</span></span>
+				<span className={buttonVariants({ variant: 'default', size: 'default', rounded: 'xl' })}>
+					Continue<span className='sr-only'> Shopping</span>
+				</span>
 			</Link>
 		</div>
 	)

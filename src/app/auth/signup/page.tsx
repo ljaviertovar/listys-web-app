@@ -42,8 +42,8 @@ export default function SignUpPage() {
 
 			router.push('/dashboard')
 			router.refresh()
-		} catch (error: any) {
-			setError(error.message || 'An error occurred during registration')
+		} catch (error: unknown) {
+			setError(error instanceof Error ? error.message : 'An error occurred during registration')
 		} finally {
 			setLoading(false)
 		}
@@ -127,7 +127,7 @@ export default function SignUpPage() {
 								href='/auth/signin'
 								className='font-semibold text-primary transition-colors hover:text-primary/80 hover:underline'
 							>
-								Sign in here
+								Sign In Here
 							</Link>
 						</CardDescription>
 					</CardHeader>
@@ -229,7 +229,7 @@ export default function SignUpPage() {
 										Creating account…
 									</div>
 								) : (
-									'Create account with email'
+									'Create Account with Email'
 								)}
 							</Button>
 						</form>

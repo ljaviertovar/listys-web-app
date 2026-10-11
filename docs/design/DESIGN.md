@@ -557,8 +557,8 @@ counts. Limits such as “up to 5 photos” and “250 items per list” are cap
 - Desktop (`lg+`): a floating 240px sidebar card (256px with its margins) that the top-bar trigger or Ctrl/Cmd+B hides
   completely; 64px top bar on the page ground; content on `canvas` (`#F2F4F7`), which also shows around the sidebar.
 - Mobile and tablet (below `lg`): no persistent sidebar. A 60px top bar holds the logo and the account button (Profile,
-  Account and Sign Out live in that menu); navigation is a bottom tab bar (see 7.11). Keep the main action close to the
-  bottom edge when the flow depends on it.
+  Account and Sign Out live in that menu); it hides while scrolling down and returns while scrolling up. Navigation is a
+  bottom tab bar (see 7.11). Keep the main action close to the bottom edge when the flow depends on it.
 - Page content max-width is 1280px. Reading and form columns cap at 720px; active shopping rows cap at 672px.
 - Page gutters are 16px mobile, 24px tablet, and 32px desktop.
 - Page header is part of the content hierarchy, not a second navigation bar. Title and description sit together; the
@@ -608,7 +608,7 @@ generic scale on this surface and live in `src/components/features/dashboard/hel
 | --- | --- |
 | Header | 60px (64px from `lg`), white with a bottom hairline; logo 30px plus the "Listys" wordmark (Plus Jakarta Sans 700 19px, `-.02em`); a 44x44 account button with a 34px initials avatar on `#DBEAFE`. No menu button: Profile, Account and Sign Out live in the account menu |
 | Tab bar | See section 7.11 |
-| Session pill | Only while a trip runs: 72px high, 20px radius, `#0F172A`; a 40px progress ring with a green dot, the trip name and "n of m - p%", and a 44px primary "Continue". It floats 10px above the tab bar with 12px side insets, stays visible next to the hero's own button, and the raised tab-bar action overlaps it |
+| Session pill | Only while a trip runs: 72px high, 20px radius, `#0F172A`; a 40px progress ring with a green dot, the trip name and "n of m - p%", and a 36px medium primary "Continue". It floats 10px above the tab bar with 12px side insets, stays visible next to the hero's own button, and the raised tab-bar action overlaps it |
 | Content | 16px gutter, 20px above the greeting, 40px below the last card, plus 72px while the pill is shown; surfaces pinned to the bottom edge sit above the tab bar (`ABOVE_MOBILE_TAB_BAR`) |
 
 **Hero.** A 24px-radius photo surface under the `hero-scrim`. One blue 52px button does the obvious thing: "Continue
@@ -623,7 +623,7 @@ in mono. A new account sees only the title "Start with a receipt", its explanati
 
 | Piece | Spec |
 | --- | --- |
-| Title row | `h2` 20px / 600 / 1.39 / `-.01em` and, on the right, a "View all" ghost link (blue 700, 600, 12px radius, hover `#E9ECF0`) 12px above the card. 32px high with a 12px label on phones; 40px and 14px from `md` |
+| Title row | `h2` 20px / 600 / 1.39 / `-.01em` and, on the right, a "View All" ghost link (blue 700, 600, 12px radius, hover `#E9ECF0`) 12px above the card. 32px high with a 12px label on phones; 40px and 14px from `md` |
 | Card | White, 24px radius, 10px padding, `raised` shadow, no border; the shadow deepens on hover |
 | Row | 12px radius, `10 8` padding, 12px gap, 36px icon tile (12px radius) in the 50-level tint, 14px / 600 title, mono 12px / 500 metadata in `muted` (may wrap), hover `#F2F4F7` |
 | Tile tints | Groups `#EFF6FF` / `#2563EB`, receipts `#ECFEFF` / `#0E7490`, history `#F0FDF4` / `#15803D`; 24px tile (8px radius) for lists, 32px (10px radius) for groups |
@@ -635,7 +635,7 @@ in mono. A new account sees only the title "Start with a receipt", its explanati
 **Up Next.** One white card (24px radius, 6px padding) of up to three rows: 64px high, 14px radius, a 40px tile (12px
 radius, 100-level tint with 700 icon: amber for a receipt waiting, red for one that failed, blue for a list not shopped for
 a while), a 14px / 600 title, a 12.5px `muted` detail, an 18px chevron in `faint`, and `divider` rules inset 64px left and
-12px right. The whole row is the link; the title has no "View all". Hover is `#F2F4F7` without lifting. The stacked variant
+12px right. The whole row is the link; the title has no "View All". Hover is `#F2F4F7` without lifting. The stacked variant
 with a tertiary action button is not used on the dashboard.
 
 **Greeting.** A white 28px date pill (8px radius, a hairline ring, 12.5px / 600, a sun icon) in the visitor's own locale,
@@ -652,7 +652,7 @@ a failed request must not look like an empty account. The photo behind the heroe
 | Hero button | 52px; new-account "Upload receipt" 44px | 52px |
 | Quick-start chips | 36px / 12.5px | 36px / 12.5px |
 | Empty-state button | 32px / 12px | 44px / 14px |
-| "View all" | 32px / 12px | 40px / 14px |
+| "View All" | 32px / 12px | 40px / 14px |
 | Header | 60px | 64px (`lg`) |
 | Tab bar and session pill | Shown | Hidden (`lg`) |
 | Header "Upload Receipt" | Hidden | Shown (`lg`) |
@@ -665,6 +665,11 @@ a failed request must not look like an empty account. The photo behind the heroe
 
 All buttons have a 12px radius at every size. Use one primary action per region; secondary for supporting actions with a
 blue tint; tertiary (neutral) for repeated actions; danger only in confirmations.
+
+The text of every button and link is in Title Case ("Start Shopping", "View All", "Sign Out", "Create Account with Email"):
+each word capitalised except short articles, conjunctions and prepositions ("a", "and", "with", "to"), which stay lowercase
+unless they open the label. This covers visible text and the tooltip titles of icon buttons ("Copy Link"). Headings,
+descriptions, badges, toasts and list or receipt data keep sentence case.
 
 | Variant | Surface and text | Hover |
 | --- | --- | --- |
@@ -803,7 +808,7 @@ raised 58px **Upload Receipt** button in the middle, Receipts and History.
 
 The desktop sidebar follows the A1 desktop board (the shadcn floating sidebar): a white card with a 12px radius and a
 hairline ring, 240px wide inside 8px margins on the page ground. It opens with the brand (the Listys mark at 32px, "Listys" in
-Jakarta 600 14 and "Shared shopping lists" in 12px muted, a 64px block that links home), then the three groups (Shopping,
+Jakarta 600 14 and "Reuse lists. Shop together." in 12px muted, a 64px block that links home), then the three groups (Shopping,
 Management, Settings), each with its title and its entries inset by 6px. Receipts carry an amber count pill (how many are still
 waiting for a list) and Shopping List Groups a neutral one (how many groups); a count of zero shows nothing. The foot holds the
 running session as a card (10px radius, "Shopping now", `done/total`, a 6px progress bar) and the author credit. The sidebar has
@@ -919,7 +924,7 @@ links or meaningful glyphs on light surfaces.
 
 - Interactive targets are at least 44×44px in shopping, upload, and mobile navigation flows. A control may look smaller
   (`sm` 32px, `md` 40px) only when its row or padding supplies a 44px hit area. The documented compact controls below `md`
-  are the "View all" links and the empty-state button (32px); the "Start" pills (32px) and the quick-start chips (36px) are
+  are the "View All" links and the empty-state button (32px); the "Start" pills (32px) and the quick-start chips (36px) are
   compact at every width (section 6.5). They remain deliberate product decisions.
 - Keyboard focus uses a 2px action-blue ring with a 2px offset; do not remove it in favour of colour change alone.
 - Drag-and-drop always has a file-picker equivalent. Reordering always has a keyboard or menu alternative.
@@ -1059,7 +1064,8 @@ These are remaining implementation notes, not permission for two systems:
    height and a `rounded-md` default radius, applies `PRIMARY_BUTTON_LAYER` to every primary, and its `secondary` is the white outlined style.
    The v2 set (flat primary, secondary `#E9ECF0` with blue text, tertiary, outline ring, danger soft, sizes 32/40/48/52, 12px
    radius, highlight layer only on the hero and raised action) is not implemented.
-3. **Canvas boards:** the A1 mobile boards still draw "View all" at 40px and the empty-state buttons at 44px, the new-account
+3. **Canvas boards:** the boards and the design system still draw the labels of buttons and links in sentence case ("View all",
+   "Start shopping", "Sign out", "New group"); the code follows the Title Case rule of section 7.1. They also still draw "View all" at 40px and the empty-state buttons at 44px, the new-account
    hero button at 52px, and an "Up Next" "View all" link; this document and the code use the compact phone sizes and no
    "Up Next" link. The "Invite family" row of "Up Next" is not produced by the dashboard model, and the quick-start chips
    exclude the list the hero button starts (the boards show all lists).

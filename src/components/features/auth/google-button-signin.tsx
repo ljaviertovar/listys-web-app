@@ -54,7 +54,7 @@ export default function GoogleButtonSignin({ typeSubmit, callbackUrl }: Props) {
 					strokeWidth={2}
 				/>
 			)}{' '}
-			{typeSubmit === 'signup' ? 'Sign Up with Google' : 'Sign in with Google'}
+			{typeSubmit === 'signup' ? 'Sign Up with Google' : 'Sign In with Google'}
 		</Button>
 	)
 }

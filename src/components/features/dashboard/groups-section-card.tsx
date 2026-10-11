@@ -38,7 +38,7 @@ export function GroupsSectionCard({ groups }: Props) {
 								strokeWidth={1.8}
 								className='size-[18px]'
 							/>
-							New group
+							New Group
 						</CreateGroupDialog>
 					}
 				/>
@@ -78,9 +78,11 @@ export function GroupsSectionCard({ groups }: Props) {
 										/>
 										<Link
 											href={`/base-lists/${list.id}/edit`}
-											className={cn('min-w-0 flex-1 rounded-md text-[13.5px] text-slate-700 hover:underline dark:text-foreground/80', FOCUS_RING)}
+											className={cn('-my-1.5 flex min-h-11 min-w-0 flex-1 items-center rounded-md text-[13.5px] text-slate-700 hover:underline dark:text-foreground/80', FOCUS_RING)}
 										>
-											{list.name} <span className='text-slate-400'>· {pluralize(list.itemsCount, 'item')}</span>
+											<span>
+												{list.name} <span className='text-slate-400'>· {pluralize(list.itemsCount, 'item')}</span>
+											</span>
 										</Link>
 										<StartShoppingDialog
 											baseListId={list.id}

@@ -27,7 +27,7 @@ export default async function TicketsPage() {
 	const { data: tickets, error } = await getTickets()
 
 	// Format tickets on server side to avoid date serialization issues
-	const formattedTickets = (tickets || []).map((ticket: any) => ({
+	const formattedTickets = (tickets || []).map(ticket => ({
 		...ticket,
 		formattedDate: ticket.created_at ? formatDate(new Date(ticket.created_at)) : 'Unknown',
 		formattedTime: ticket.created_at ? formatTime(new Date(ticket.created_at)) : '',
@@ -82,7 +82,7 @@ export default async function TicketsPage() {
 					</Card>
 				) : (
 					<div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3'>
-						{formattedTickets.map((ticket: any) => {
+						{formattedTickets.map(ticket => {
 							return (
 								<Link
 									key={ticket.id}
@@ -119,7 +119,7 @@ export default async function TicketsPage() {
 										<CardFooterContent
 											count={ticket.total_items}
 											coutLabel={ticket.total_items === 1 ? 'Extracted Item' : 'Extracted Items'}
-											linkText='View details'
+											linkText='View Details'
 										/>
 									</Card>
 								</Link>

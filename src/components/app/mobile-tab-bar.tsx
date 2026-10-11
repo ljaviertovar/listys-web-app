@@ -26,10 +26,12 @@ function Tab({ item, isActive }: { item: (typeof MOBILE_TAB_ITEMS)[number]; isAc
 			data-testid={`mobile-tab-${item.url.slice(1)}`}
 			data-active={isActive}
 			className={cn(
-				'flex min-h-11 flex-col items-center justify-start gap-1 rounded-[12px] pt-1.5 text-xs leading-none transition-colors',
+				'flex min-h-11 flex-col items-center justify-start gap-1 rounded-[12px] pt-1.5 pb-1.5 text-xs leading-none transition-colors',
 				TAB_FOCUS_RING,
 				// The current tab sits on the secondary-button surface (#E9ECF0) with blue text, like any selected option.
-				isActive ? 'bg-[#E9ECF0] font-semibold text-blue-700 dark:bg-muted dark:text-blue-300' : 'font-medium text-slate-500 hover:text-foreground',
+				isActive
+					? 'bg-[#E9ECF0] font-semibold text-blue-700 dark:bg-muted dark:text-blue-300'
+					: 'font-medium text-slate-500 hover:text-foreground',
 			)}
 		>
 			<HugeiconsIcon
@@ -39,12 +41,6 @@ function Tab({ item, isActive }: { item: (typeof MOBILE_TAB_ITEMS)[number]; isAc
 				className='size-5'
 			/>
 			<span>{item.title}</span>
-			{isActive ? (
-				<span
-					aria-hidden='true'
-					className='size-1 rounded-full bg-primary'
-				/>
-			) : null}
 		</Link>
 	)
 }
@@ -68,7 +64,7 @@ export function MobileTabBar() {
 		<nav
 			aria-label='Main'
 			data-testid='mobile-tab-bar'
-				className='fixed inset-x-0 bottom-0 z-40 grid shrink-0 grid-cols-5 items-start bg-card px-2 pt-1 pb-[max(1.125rem,env(safe-area-inset-bottom))] shadow-[0_-1px_0_rgba(15,23,42,0.06),0_-12px_24px_-22px_rgba(15,23,42,0.4)] lg:hidden'
+			className='fixed inset-x-0 bottom-0 z-40 grid shrink-0 grid-cols-5 items-start bg-card px-2 pt-1 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-[0_-1px_0_rgba(15,23,42,0.06),0_-12px_24px_-22px_rgba(15,23,42,0.4)] lg:hidden'
 		>
 			{tab(dashboard)}
 			{tab(lists)}
@@ -80,7 +76,7 @@ export function MobileTabBar() {
 							aria-label='Upload a receipt'
 							data-testid='mobile-tab-upload'
 							className={cn(
-							'-mt-5 size-12 border-0 shadow-[0_0_0_5px_var(--color-card),0_12px_24px_-10px_rgba(37,99,235,0.75)]',
+								'-mt-5 size-12 border-0 shadow-[0_0_0_5px_var(--color-card),0_12px_24px_-10px_rgba(37,99,235,0.75)]',
 								TAB_FOCUS_RING,
 							)}
 						>

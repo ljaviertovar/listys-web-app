@@ -156,7 +156,7 @@ export function ShareListDialog({
 							className='h-4 w-4'
 						/>
 					</AlertDialogMedia>
-					<DialogTitle className='truncate font-bold tracking-tight text-foreground'>Share "{listName}"</DialogTitle>
+					<DialogTitle className='truncate font-bold tracking-tight text-foreground'>Share &quot;{listName}&quot;</DialogTitle>
 					<DialogDescription>Invite collaborators to view and edit this list together.</DialogDescription>
 				</DialogHeader>
 
@@ -182,7 +182,7 @@ export function ShareListDialog({
 											icon={LinkSquare02Icon}
 											className='h-3.5 w-3.5'
 										/>
-										Generate link
+										Generate Link
 									</Button>
 								)}
 							</div>
@@ -207,7 +207,7 @@ export function ShareListDialog({
 									<div className='flex items-center justify-end gap-2'>
 										<Button
 											size='sm'
-											title='Copy link'
+											title='Copy Link'
 											onClick={() => handleCopyLink(inviteLinks[0].invite_url)}
 											disabled={copied}
 										>
@@ -226,7 +226,7 @@ export function ShareListDialog({
 										<Button
 											size='sm'
 											variant='outline'
-											title='Regenerate link'
+											title='Regenerate Link'
 											onClick={handleGenerateLink}
 											disabled={isRegenerating || isPending}
 										>
@@ -244,7 +244,7 @@ export function ShareListDialog({
 											size='sm'
 											variant='ghost'
 											className='text-destructive hover:text-destructive'
-											title='Revoke link'
+											title='Revoke Link'
 											onClick={() => handleRevokeLink(inviteLinks[0].id)}
 										>
 											<HugeiconsIcon
@@ -311,7 +311,7 @@ export function ShareListDialog({
 												size='icon'
 												variant='ghost'
 												className='h-8 w-8 shrink-0 text-destructive hover:text-destructive'
-												title='Remove collaborator'
+												title='Remove Collaborator'
 												onClick={() => handleRemoveCollaborator(collaborator.user_id)}
 											>
 												<HugeiconsIcon

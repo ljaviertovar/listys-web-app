@@ -306,7 +306,7 @@ export function HeroSection() {
 								size='xl'
 								href='/auth/signup'
 							>
-								Create free account <Icon id='arr' />
+								Create Free Account <Icon id='arr' />
 							</ButtonLink>
 						</div>
 						<ul className='mt-5 flex flex-wrap justify-center gap-x-5 gap-y-2'>
