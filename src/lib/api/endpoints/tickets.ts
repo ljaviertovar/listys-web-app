@@ -1,7 +1,8 @@
 import { apiDelete, apiGet, apiPatch, apiPost } from '@/lib/api/client'
+import type { Ticket } from '@/types/tickets'
 
 export async function getTickets() {
-  return apiGet('/api/v1/tickets')
+  return apiGet<Ticket[]>('/api/v1/tickets')
 }
 
 export async function getTicket(id: string) {

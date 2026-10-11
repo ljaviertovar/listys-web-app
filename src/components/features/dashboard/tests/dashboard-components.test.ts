@@ -110,7 +110,7 @@ describe('NoSessionBanner', () => {
 	it('sends someone whose lists are all empty to their lists instead of a start button', () => {
 		const html = renderToStaticMarkup(createElement(NoSessionBanner, { quickStart: [], startTarget: null, hasLists: true, lastTrip: null }))
 
-		expect(html).toContain('Open your lists')
+		expect(html).toContain('Open Your Lists')
 		expect(html).toContain('href="/shopping-lists"')
 		expect(html).not.toContain('start-shopping-button')
 	})
@@ -157,7 +157,7 @@ describe('MobileSessionBar', () => {
 		expect(html).toContain('lg:hidden')
 		expect(html).toContain('3 of 19 items · 16%')
 		expect(html).toContain('href="/shopping/s1"')
-		expect(html).toContain('Continue<span class="sr-only"> shopping</span>')
+		expect(html).toContain('Continue<span class="sr-only"> Shopping</span>')
 	})
 
 	it('floats above the tab bar and stays visible next to the hero button, as in design A1', () => {
@@ -216,7 +216,7 @@ describe('section cards', () => {
 
 		expect(html).not.toContain('Upload Receipt')
 		expect(html).toContain('data-testid="dashboard-receipts-view-all"')
-		expect(html).toContain('View all<span class="sr-only"> receipts</span>')
+		expect(html).toContain('View All<span class="sr-only"> receipts</span>')
 		expect(html).toContain('min-h-8 shrink-0 items-center gap-1 rounded-[12px] pr-2 pl-2.5 text-xs')
 		expect(html.indexOf('dashboard-receipts-view-all')).toBeLessThan(html.indexOf('dashboard-receipt-t1'))
 	})
@@ -230,7 +230,7 @@ describe('section cards', () => {
 		expect(receipts).toContain('No receipts yet')
 		expect(receipts.indexOf('No receipts yet')).toBeLessThan(receipts.indexOf('Upload Receipt'))
 		expect(groups.indexOf('No groups yet')).toBeLessThan(groups.indexOf('data-testid="create-group-button"'))
-		expect(groups).toContain('New group')
+		expect(groups).toContain('New Group')
 	})
 
 	it('titles each card with a real heading that names the card', () => {

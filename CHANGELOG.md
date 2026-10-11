@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- Text of buttons and links is Title Case across the app ("View All", "Sign Out", "Continue Shopping", "New Group", "Try Again",
+  "Install App", "Add Item", "Generate Link", "View Details", "Sign In with Email", "Create Free Account"…), and the rule is
+  written in `docs/design/DESIGN.md` section 7.1. Headings, descriptions, toasts and data keep sentence case.
+- Polish the dashboard on phone and desktop. The loading skeleton now mirrors the current layout (the hero next to "Up Next" from
+  `lg`, each section with its title row above its card, the Upload button only from `lg`), reads on the `#F2F4F7` page ground
+  and stops pulsing for people who ask for less motion (`Skeleton` now has `motion-reduce:animate-none`). Long names no longer
+  stretch the page: row metadata and the hero's origin clamp at two lines, truncated titles show their full text on hover, and the
+  list names in the groups card are 44px-tall targets instead of 19px text links. The error card uses the same 24px radius at every
+  width, and text selection in the dashboard is themed blue.
 - Dashboard section titles (Shopping List Groups, Receipts, Shopping History) and "Up Next" are still `h2` elements but are set at the
   h6 size on phones (16px, 600) and at the h4 size from `md` (20px).
 - Redesign the phone account menu (design "A1 mobile · Menú de usuario"): the avatar is a 44px circle that rests on the secondary

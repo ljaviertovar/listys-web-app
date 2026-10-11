@@ -42,7 +42,7 @@ export default function Header() {
 							size='sm'
 							href='/auth/signup'
 						>
-							Create free account
+							Create Free Account
 						</ButtonLink>
 					}
 				/>

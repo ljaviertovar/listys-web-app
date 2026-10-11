@@ -43,7 +43,7 @@ export function AddItemDialogBaseList(props: Props) {
 						strokeWidth={2}
 						data-icon='inline-start'
 					/>
-					{showLabel && 'Add item'}
+					{showLabel && 'Add Item'}
 				</Button>
 			</DialogTrigger>
 			<DialogContent

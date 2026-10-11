@@ -35,7 +35,7 @@ export function ActiveSessionBanner({ session, isGuest = false }: Props) {
 						label='Shopping now'
 						className='h-auto gap-[7px] border-0 bg-white/12 px-[11px] py-[5px] text-[12.5px] leading-[1.2] [&>span:first-child]:size-[7px]'
 					/>
-					{origin ? <span className='text-[13px] leading-tight text-slate-300'>{origin}</span> : null}
+					{origin ? <span className='line-clamp-2 text-[13px] leading-tight text-slate-300'>{origin}</span> : null}
 				</div>
 
 				<div className='flex flex-col gap-2'>
@@ -75,7 +75,7 @@ export function ActiveSessionBanner({ session, isGuest = false }: Props) {
 						data-testid='dashboard-continue-shopping'
 						className={FOCUS_RING}
 					>
-						Continue shopping
+						Continue Shopping
 						<HugeiconsIcon
 							icon={ArrowRight02Icon}
 							strokeWidth={2}

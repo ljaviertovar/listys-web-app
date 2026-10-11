@@ -34,7 +34,7 @@ export default async function AuthenticatedLayout({ children }: { children: Reac
 				<div
 					id='content'
 					className={cn(
-						'w-full min-w-0 max-w-full flex-1',
+						'relative w-full min-w-0 max-w-full flex-1',
 						'flex h-dvh flex-col',
 						'group-data-[scroll-locked=1]/body:h-full',
 						'has-[main.fixed-main]:group-data-[scroll-locked=1]/body:h-dvh',
@@ -43,7 +43,7 @@ export default async function AuthenticatedLayout({ children }: { children: Reac
 					<Header />
 					{/* scroll-pb keeps a focused control clear of the pinned bottom bars (the dashboard's phone session bar is 72px+). */}
 					{/* The page ground of design A1 (#F2F4F7); the dark theme keeps its own sidebar token. */}
-					<main className='flex-1 scroll-pb-24 overflow-y-auto bg-[#F2F4F7] dark:bg-sidebar'>
+					<main className='flex-1 scroll-pb-24 overflow-y-auto bg-[#F2F4F7] pt-15 dark:bg-sidebar lg:pt-0'>
 						<div className='flex flex-col min-h-full'>{children}</div>
 					</main>
 					<MobileTabBar />

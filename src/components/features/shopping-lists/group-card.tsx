@@ -238,7 +238,7 @@ export function GroupCard({ group, history = false }: Props) {
 					<CardFooterContent
 						count={history ? (group.completed_runs_count ?? 0) : (group.base_lists?.[0]?.count ?? 0)}
 						coutLabel={history ? 'Shoppings' : 'Lists'}
-						linkText='View details'
+						linkText='View Details'
 					/>
 				</Card>
 			</Link>
@@ -260,7 +260,7 @@ export function GroupCard({ group, history = false }: Props) {
 							Delete Group?
 						</AlertDialogTitle>
 						<AlertDialogDescription className='text-xs'>
-							This will delete <strong>"{group.name}"</strong> and its data.
+							This will delete <strong>&quot;{group.name}&quot;</strong> and its data.
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>

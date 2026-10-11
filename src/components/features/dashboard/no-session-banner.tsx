@@ -105,7 +105,7 @@ export function NoSessionBanner({ quickStart, startTarget, lastTrip, hasLists }:
 						size='xl'
 						className={cn('mt-1 w-full md:w-auto', HERO_CTA)}
 					>
-						Start shopping
+						Start Shopping
 						<HugeiconsIcon
 							icon={ArrowRight02Icon}
 							strokeWidth={2}
@@ -124,7 +124,7 @@ export function NoSessionBanner({ quickStart, startTarget, lastTrip, hasLists }:
 							data-testid='dashboard-no-session-cta'
 							className={FOCUS_RING}
 						>
-							Open your lists
+							Open Your Lists
 							<HugeiconsIcon
 								icon={ArrowRight02Icon}
 								strokeWidth={2}

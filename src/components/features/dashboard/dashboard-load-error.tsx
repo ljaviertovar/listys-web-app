@@ -19,7 +19,7 @@ export function DashboardLoadError() {
 		<div
 			role='alert'
 			data-testid='dashboard-load-error'
-			className='flex flex-col items-start gap-4 rounded-[20px] border border-red-200 bg-red-50 p-5 md:rounded-3xl md:p-8 dark:border-red-500/30 dark:bg-red-500/10'
+			className='flex flex-col items-start gap-4 rounded-3xl border border-red-200 bg-red-50 p-5 md:p-8 dark:border-red-500/30 dark:bg-red-500/10'
 		>
 			<span className='flex size-12 items-center justify-center rounded-2xl bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400'>
 				<HugeiconsIcon
@@ -41,7 +41,7 @@ export function DashboardLoadError() {
 				className='h-11 rounded-[12px] px-5 text-sm font-semibold'
 				data-testid='dashboard-load-error-retry'
 			>
-				{pending ? 'Trying again…' : 'Try again'}
+				{pending ? 'Trying Again…' : 'Try Again'}
 			</Button>
 		</div>
 	)

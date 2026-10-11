@@ -208,7 +208,7 @@ export function UploadTicketForm({ onSuccess }: Props) {
 									type='button'
 									onClick={() => removeImage(index)}
 									disabled={loading}
-									title='Remove image'
+									title='Remove Image'
 									className='absolute top-1 right-1 rounded-full bg-destructive p-1 text-white opacity-0 transition-opacity group-hover:opacity-100 disabled:cursor-not-allowed'
 								>
 									<HugeiconsIcon

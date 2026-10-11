@@ -3,24 +3,27 @@
 import { AuthButtons } from '@/components/features/auth'
 import { InstallAppButton } from '@/components/features/pwa'
 import { SidebarTrigger } from '@/components/ui/sidebar'
-import { useScrollPosition } from '@/hooks'
 import Logo from '@/components/commons/logo'
 import { cn } from '@/utils'
 import { AppBreadcrumb } from './app-breadcrumb'
+import { useHeaderScrollState } from './hooks/use-header-scroll-state'
 
 /**
- * Phones: the logo and the account button (60px, design A1 mobile), with navigation in the bottom tab bar.
- * From `lg` (design A1 desktop): a 64px bar on the page ground with the sidebar trigger, a hairline and the breadcrumb on
- * the left, and install + account on the right.
+ * Phones: a 60px logo and account bar that hides on downward scroll and returns on upward scroll; navigation stays in
+ * the bottom tab bar. From `lg` (design A1 desktop): a 64px bar on the page ground with sidebar trigger and breadcrumb
+ * on the left, and install + account on the right.
  */
 export const Header = () => {
-	const scrollPosition = useScrollPosition()
+	const { isHidden, isScrolled } = useHeaderScrollState()
 
 	return (
 		<header
+			aria-hidden={isHidden}
+			inert={isHidden}
 			className={cn(
-				'sticky top-0 z-50 flex h-15 items-center justify-between gap-2 border-b bg-card/88 pr-2 pl-4 backdrop-blur-lg backdrop-filter transition-colors duration-200 lg:h-16 lg:justify-start lg:gap-3 lg:border-b-0 lg:bg-[#F2F4F7] lg:pr-6 lg:pl-3 lg:backdrop-blur-none lg:dark:bg-sidebar',
-				scrollPosition > 20 && 'shadow-sm lg:shadow-none',
+				'absolute inset-x-0 top-0 z-50 flex h-15 items-center justify-between gap-2 border-b bg-card/88 pr-2 pl-4 backdrop-blur-lg backdrop-filter transition-[transform,box-shadow] duration-200 ease-[cubic-bezier(0.2,0,0,1)] motion-reduce:transition-none lg:static lg:h-16 lg:justify-start lg:gap-3 lg:border-b-0 lg:bg-[#F2F4F7] lg:pr-6 lg:pl-3 lg:backdrop-blur-none lg:dark:bg-sidebar',
+				isHidden && '-translate-y-full pointer-events-none lg:translate-y-0 lg:pointer-events-auto',
+				isScrolled && 'shadow-sm lg:shadow-none',
 			)}
 		>
 			<div

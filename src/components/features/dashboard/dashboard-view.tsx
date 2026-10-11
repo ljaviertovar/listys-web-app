@@ -33,7 +33,7 @@ export function DashboardView({ model, firstName, isGuest = false, hasLists }: P
 		<div
 			data-testid='dashboard-view'
 			// Top space of the design's 20px: +4px on phones, and 12px less than the page gutter from `lg`. Phones also keep room under the page for the floating session pill.
-			className={cn('flex flex-col gap-6 pt-1 md:gap-8 md:pt-0 lg:-mt-3 lg:gap-9', model.activeSession && 'max-lg:pb-[4.5rem]')}
+			className={cn('flex flex-col gap-6 pt-1 selection:bg-blue-200 selection:text-blue-950 md:gap-8 md:pt-0 lg:-mt-3 lg:gap-9', model.activeSession && 'max-lg:pb-[4.5rem]')}
 		>
 			<header className='flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between'>
 				<DashboardGreeting name={firstName} />
