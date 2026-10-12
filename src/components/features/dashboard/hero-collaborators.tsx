@@ -18,7 +18,7 @@ export function HeroCollaborators({ collaborators, caption }: Props) {
 	return (
 		<div
 			data-testid='dashboard-hero-collaborators'
-			className='flex items-center gap-2.5 font-mono text-xs tracking-[0.04em] text-slate-400'
+			className='flex items-center gap-2.5 font-mono text-xs font-medium tracking-[0.01em] text-slate-400'
 		>
 			<span className='flex'>
 				{visible.map((person, index) => (
@@ -26,7 +26,7 @@ export function HeroCollaborators({ collaborators, caption }: Props) {
 						key={index}
 						title={person.display_name ?? person.initials}
 						className={cn(
-							'box-border flex size-6 items-center justify-center rounded-full border-2 border-[#0B1220] font-sans text-[9.5px] font-bold uppercase',
+							'box-border flex size-6 items-center justify-center rounded-full border-2 border-[#0B1220] font-sans text-[10px] font-bold uppercase',
 							TONES[index % TONES.length],
 							index > 0 && '-ml-[7px]',
 						)}
@@ -35,7 +35,7 @@ export function HeroCollaborators({ collaborators, caption }: Props) {
 					</span>
 				))}
 				{hidden > 0 ? (
-					<span className='-ml-[7px] box-border flex size-6 items-center justify-center rounded-full border-2 border-[#0B1220] bg-slate-700 font-sans text-[9.5px] font-bold text-white'>
+					<span className='-ml-[7px] box-border flex size-6 items-center justify-center rounded-full border-2 border-[#0B1220] bg-slate-700 font-sans text-[10px] font-bold text-white'>
 						+{hidden}
 					</span>
 				) : null}

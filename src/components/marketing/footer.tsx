@@ -38,18 +38,18 @@ export default function Footer() {
 				<div className='grid grid-cols-1 gap-8 sm:grid-cols-[2fr_1fr_1fr_1fr]'>
 					<div>
 						<Brand />
-						<p className='mt-3 max-w-[26em] text-[13.5px] leading-[1.6] text-slate-500'>
+						<p className='mt-3 max-w-[26em] text-sm leading-[1.6] text-slate-500'>
 							Turn a receipt into a list your household will actually reuse.
 						</p>
 					</div>
 					{COLUMNS.map(column => (
 						<div key={column.title}>
-							<h4 className='mb-3 text-[13.5px] font-bold text-slate-900'>{column.title}</h4>
+							<h4 className='mb-3 text-sm font-semibold text-slate-900'>{column.title}</h4>
 							<ul>
 								{column.links.map(link => (
 									<li
 										key={link.label}
-										className='py-[5px] text-[13.5px] text-slate-500'
+										className='py-[5px] text-sm text-slate-500'
 									>
 										<Link
 											href={link.href}
@@ -63,7 +63,7 @@ export default function Footer() {
 						</div>
 					))}
 				</div>
-				<div className='mt-[38px] flex flex-wrap items-center justify-between gap-4 border-t border-slate-200 pt-5 text-[13px] text-slate-500'>
+				<div className='mt-[38px] flex flex-wrap items-center justify-between gap-4 border-t border-slate-200 pt-5 text-xs text-slate-500'>
 					<span>&copy; {new Date().getFullYear()} Listys</span>
 					<span className='flex gap-[22px]'>
 						<Link

@@ -59,7 +59,7 @@ export function SharedListsShowcaseSection() {
 						{POINTS.map(point => (
 							<div
 								key={point}
-								className='flex items-start gap-[9px] text-[13.5px] leading-[1.45] text-slate-700 min-[900px]:gap-3 min-[900px]:text-[15px] min-[900px]:leading-[1.55]'
+								className='flex items-start gap-[9px] text-sm leading-[1.5] text-slate-700 min-[900px]:gap-3 min-[900px]:text-base min-[900px]:leading-[1.55]'
 							>
 								<i className='mt-[2px] flex size-[21px] shrink-0 items-center justify-center rounded-full bg-violet-50 text-violet-600 [&_svg]:size-3'>
 									<Icon id='tick' />
@@ -68,7 +68,7 @@ export function SharedListsShowcaseSection() {
 							</div>
 						))}
 					</div>
-					<div className='mt-4 flex items-center gap-[9px] text-[12.5px] text-slate-600 min-[900px]:mt-[26px] min-[900px]:gap-3 min-[900px]:text-sm'>
+					<div className='mt-4 flex items-center gap-[9px] text-xs text-slate-600 min-[900px]:mt-[26px] min-[900px]:gap-3 min-[900px]:text-sm'>
 						<Avatars initials={['MY', 'NH', 'AV']} />
 						<span>Maya, Noah and Ava share this list</span>
 					</div>

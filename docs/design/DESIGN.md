@@ -62,10 +62,15 @@ colors:
 typography:
   display:
     fontFamily: "Plus Jakarta Sans, Inter, system-ui, sans-serif"
-    fontSize: "clamp(42px, 6vw, 72px)"
+    fontSize: "clamp(44px, 7vw, 76px)"
     fontWeight: 800
-    lineHeight: 1.02
-    letterSpacing: "-0.045em"
+    lineHeight: 1
+    letterSpacing: "-0.035em"
+  hero-lead:
+    fontFamily: "Inter, system-ui, sans-serif"
+    fontSize: "clamp(18px, 1.8vw, 20px)"
+    fontWeight: 500
+    lineHeight: 1.55
   marketing-heading:
     fontFamily: "Plus Jakarta Sans, Inter, system-ui, sans-serif"
     fontSize: "clamp(32px, 4vw, 48px)"
@@ -457,10 +462,11 @@ are self-hosted and layout shifts are controlled.
 
 | Role | Spec | Use |
 | --- | --- | --- |
-| Display | `800 clamp(42px, 6vw, 72px)/1.02`, `-.045em` | Marketing hero only |
+| Display | `800 clamp(44px, 7vw, 76px)/1`, `-.035em` | Landing hero title only (`max-width: 18ch`, two lines on desktop). The tracking stays at `-.035em`: at `-.045em` the word spaces close up at this size |
+| Hero lead | `500 clamp(18px, 1.8vw, 20px)/1.55` (Inter) | The line under the landing hero title; section ledes use Body large |
 | Marketing heading | `750 clamp(32px, 4vw, 48px)/1.1`, `-.035em` | Landing sections |
 | h1 (screen title) | `700 36px/1.11`, `-.03em` | Authenticated page heading; 30px (`/1.17`, `-.025em`) on phones, 32px from `md`, 34-36px on desktop |
-| h2 | `700 30px/1.17`, `-.025em` | Hero titles |
+| h2 | `700 30px/1.17`, `-.025em` | Hero titles: the dashboard hero stays at 30px (32px from `md`), never above the page h1 |
 | h3 | `700 24px/1.25`, `-.02em` | Session and list names |
 | h4 (section title) | `600 20px/1.33`, `-.015em` | Section titles and "Up Next" from `md`; the dashboard sets them at `/1.39`, `-.01em`. On phones they are `h2` elements set at the h6 size (`600 16px/1.5`, `-.005em`) |
 | h5 | `600 18px/1.39`, `-.01em` | Sub-sections |
@@ -1083,7 +1089,14 @@ These are remaining implementation notes, not permission for two systems:
    optical size and accessible labels.
 11. **Dark mode:** semantic tokens exist, but one-off literal colour utilities and translucent surfaces require a complete
    contrast review.
-12. **Copy:** product UI and documentation mix “ticket,” “receipt,” “shopping run,” and “shopping session.” User-facing
+12. **Type scale outside the landing page and dashboard:** these two follow section 4.2; the rest of the app does not yet.
+    `PageHeader` sets the screen h1 at 18px (24px from `md`) instead of 30-36px and uses the invalid `md:text-md`; empty-state
+    `h3`s use three different styles (`text-xl`/`text-lg`, `font-semibold`/`font-medium`) instead of the 24px h3; `CardTitle`
+    and `SheetTitle` are `font-medium` where the card title is 600, and `DialogTitle` is the 18px h5; the sidebar, the account
+    menu and several dialogs use 10px, 13px, 13.5px and 15px values outside the scale; IBM Plex Mono still loads weight 400.
+    Mock-up internals on the landing page (the receipt paper, the phone screen, the list rows) keep their own small illustrative
+    sizes and are not part of the scale.
+13. **Copy:** product UI and documentation mix “ticket,” “receipt,” “shopping run,” and “shopping session.” User-facing
    English uses `receipt` and `shopping session`; internal legacy names may remain until safely migrated.
 
 Migrate one vertical flow at a time: primitives and tokens, app shell, active shopping, receipts/OCR, lists and history,

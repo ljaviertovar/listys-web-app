@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Typography pass on the landing page and the dashboard, following `docs/design/DESIGN.md` section 4.2. Landing: section headings are
+  `750 clamp(32px, 4vw, 48px)` with `-.035em`, step titles the 24px h3, feature titles the 18px h5, section ledes Body large, FAQ and
+  footer text on the 12/14/16px steps, mono overlines at 11px with `.1em`, and buttons at weight 600. The hero title is now the
+  `Display` role (`800 clamp(44px, 7vw, 76px)`, two lines on desktop) with a new `Hero lead` under it. The hero no longer overflows
+  a phone viewport by 40px, which had pushed its text to 2px from the edge. Dashboard: the hero title is 30px (32px from `md`)
+  instead of 40px, the in-between sizes (12.5, 13, 13.5, 14.5, 15px) moved to the 12/14/16px steps, mono metadata uses `.01em`
+  tracking and weight 500, and the overline is weight 600. Other pages are untouched; their gaps are listed in section 11.4.
 - Text of buttons and links is Title Case across the app ("View All", "Sign Out", "Continue Shopping", "New Group", "Try Again",
   "Install App", "Add Item", "Generate Link", "View Details", "Sign In with Email", "Create Free Account"…), and the rule is
   written in `docs/design/DESIGN.md` section 7.1. Headings, descriptions, toasts and data keep sentence case.

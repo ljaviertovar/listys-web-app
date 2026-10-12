@@ -183,10 +183,10 @@ export function FeaturesSection() {
 			className='w-full'
 		>
 			<div className='mb-[34px] grid gap-4 min-[900px]:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] min-[900px]:items-start min-[900px]:gap-[60px]'>
-				<h2 className='text-[clamp(28px,3.6vw,40px)] leading-[1.08] font-extrabold text-slate-900 text-balance'>
+				<h2 className='text-[clamp(32px,4vw,48px)] leading-[1.1] font-[750] tracking-[-0.035em] text-slate-900 text-balance'>
 					The whole app, at a glance
 				</h2>
-				<p className='max-w-[34em] text-base leading-[1.6] text-slate-600 min-[900px]:pt-[7px]'>
+				<p className='max-w-[34em] text-lg leading-[1.65] font-[450] text-slate-600 min-[900px]:pt-[7px]'>
 					Receipts, lists, groups, trips, people and history — all of it in the free account. There is only one.
 				</p>
 			</div>
@@ -214,10 +214,10 @@ export function FeaturesSection() {
 							</div>
 						</div>
 						<div className='px-[22px] pt-5 pb-6'>
-							<h3 className='text-[17px] leading-[1.3] font-bold tracking-[-0.022em] text-slate-900'>
+							<h3 className='text-lg leading-[1.39] font-semibold tracking-[-0.01em] text-slate-900'>
 								{feature.title}
 							</h3>
-							<p className='mt-2 text-sm leading-[1.55] text-slate-500'>{feature.body}</p>
+							<p className='mt-2 text-sm leading-[1.5] text-slate-500'>{feature.body}</p>
 						</div>
 					</div>
 				))}

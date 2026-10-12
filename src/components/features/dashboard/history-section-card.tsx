@@ -46,7 +46,7 @@ export function HistorySectionCard({ trips }: Props) {
 							}
 							trailing={
 								trip.total !== null ? (
-									<span className='font-mono text-[13.5px] font-semibold tabular-nums'>{formatCurrency(trip.total)}</span>
+									<span className='font-mono text-sm font-semibold tabular-nums'>{formatCurrency(trip.total)}</span>
 								) : null
 							}
 						/>

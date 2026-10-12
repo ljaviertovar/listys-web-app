@@ -69,7 +69,7 @@ export function UpNextList({ items }: Props) {
 										/>
 										<span className='flex min-w-0 flex-1 flex-col gap-[3px]'>
 											<span className='text-sm leading-[1.3] font-semibold text-foreground'>{item.title}</span>
-											<span className='text-[12.5px] leading-[1.4] text-slate-500 dark:text-muted-foreground'>{item.detail}</span>
+											<span className='text-xs leading-[1.4] text-slate-500 dark:text-muted-foreground'>{item.detail}</span>
 										</span>
 										<HugeiconsIcon
 											icon={ArrowRight01Icon}

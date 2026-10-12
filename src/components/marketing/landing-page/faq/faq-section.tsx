@@ -33,10 +33,10 @@ export function FaqSection() {
 		>
 			<div className='mt-2 grid grid-cols-1 gap-7 min-[920px]:grid-cols-[minmax(0,1.32fr)_minmax(0,1fr)] min-[920px]:items-start min-[920px]:gap-16'>
 				<div className='min-[920px]:sticky min-[920px]:top-[96px] min-[920px]:order-2'>
-					<h2 className='text-[clamp(28px,3.6vw,40px)] leading-[1.08] font-extrabold text-slate-900 text-balance'>
+					<h2 className='text-[clamp(32px,4vw,48px)] leading-[1.1] font-[750] tracking-[-0.035em] text-slate-900 text-balance'>
 						Before you create an account
 					</h2>
-					<p className='mt-[14px] max-w-[30em] text-base leading-[1.6] text-slate-600'>
+					<p className='mt-[14px] max-w-[30em] text-lg leading-[1.65] font-[450] text-slate-600'>
 						Five things worth knowing before you hand over an email address.
 					</p>
 				</div>
@@ -47,7 +47,7 @@ export function FaqSection() {
 							open={index === 0}
 							className='group border-t border-slate-200 open:bg-[linear-gradient(180deg,rgba(37,99,235,.035),transparent_60%)] first-of-type:border-t-0'
 						>
-							<summary className='flex cursor-pointer list-none items-center justify-between gap-[22px] px-[22px] py-5 text-[15.5px] font-bold tracking-[-0.015em] text-slate-900 transition-colors hover:text-blue-700 [&::-webkit-details-marker]:hidden min-[920px]:px-[26px] min-[920px]:py-[22px] min-[920px]:text-[16.5px]'>
+							<summary className='flex cursor-pointer list-none items-center justify-between gap-[22px] px-[22px] py-5 text-base font-semibold tracking-[-0.005em] text-slate-900 transition-colors hover:text-blue-700 [&::-webkit-details-marker]:hidden min-[920px]:px-[26px] min-[920px]:py-[22px] min-[920px]:text-lg'>
 								{faq.question}
 								<span
 									className='relative size-4 shrink-0 text-slate-500 group-open:text-primary'
@@ -57,7 +57,7 @@ export function FaqSection() {
 									<span className='absolute top-0 bottom-0 left-[7.25px] w-[1.5px] rounded-[1px] bg-current transition-[transform,opacity] duration-[180ms] group-open:scale-y-0 group-open:opacity-0' />
 								</span>
 							</summary>
-							<p className='max-w-[48em] px-[22px] pb-[22px] text-[14.5px] leading-[1.7] text-slate-600 min-[920px]:px-[26px] min-[920px]:pb-[26px] min-[920px]:text-[15px]'>
+							<p className='max-w-[48em] px-[22px] pb-[22px] text-sm leading-[1.6] text-slate-600 min-[920px]:px-[26px] min-[920px]:pb-[26px] min-[920px]:text-base min-[920px]:leading-[1.75]'>
 								{faq.answer}
 							</p>
 						</details>
