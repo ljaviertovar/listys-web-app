@@ -7,13 +7,13 @@ import { cn } from '@/utils'
 
 /** The landing CTA is the app's primary button: same fill and the same shared highlight layer. */
 const buttonLinkVariants = cva(
-	`inline-flex items-center justify-center gap-[9px] rounded-[10px] border border-blue-700/20 bg-primary font-bold text-white shadow-[0_10px_20px_-12px_rgba(37,99,235,0.7)] transition-[background-color,box-shadow,transform] duration-150 hover:-translate-y-px hover:bg-primary/90 hover:shadow-[0_13px_25px_-12px_rgba(37,99,235,0.72)] focus-visible:rounded-md focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-primary [&_svg]:size-[15px] ${PRIMARY_BUTTON_LAYER}`,
+	`inline-flex items-center justify-center gap-[9px] rounded-[10px] border border-blue-700/20 bg-primary font-semibold text-white shadow-[0_10px_20px_-12px_rgba(37,99,235,0.7)] transition-[background-color,box-shadow,transform] duration-150 hover:-translate-y-px hover:bg-primary/90 hover:shadow-[0_13px_25px_-12px_rgba(37,99,235,0.72)] focus-visible:rounded-md focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-primary [&_svg]:size-[15px] ${PRIMARY_BUTTON_LAYER}`,
 	{
 		variants: {
 			size: {
-				sm: 'min-h-10 max-sm:min-h-11 rounded-[9px] px-[15px] text-[13.5px]',
+				sm: 'min-h-10 max-sm:min-h-11 rounded-[9px] px-[15px] text-sm',
 				lg: 'min-h-11 px-[18px] text-sm',
-				xl: 'min-h-[54px] rounded-xl px-[30px] text-[17px] shadow-[0_18px_34px_-16px_rgba(37,99,235,0.75)]',
+				xl: 'min-h-[54px] rounded-xl px-[30px] text-base shadow-[0_18px_34px_-16px_rgba(37,99,235,0.75)]',
 			},
 			variant: {
 				solid: '',

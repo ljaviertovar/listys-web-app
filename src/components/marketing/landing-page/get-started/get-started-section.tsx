@@ -6,10 +6,10 @@ export function GetStartedSection() {
 			data-testid='landing-get-started'
 			className='w-full'
 		>
-			<h2 className='max-w-[14em] text-[clamp(31px,4.2vw,46px)] leading-[1.08] font-extrabold text-white text-balance'>
+			<h2 className='max-w-[14em] text-[clamp(32px,4vw,48px)] leading-[1.1] font-[750] tracking-[-0.035em] text-white text-balance'>
 				Start with the receipt in your pocket.
 			</h2>
-			<p className='mt-[18px] max-w-[32em] text-[clamp(15px,1.7vw,18px)] leading-[1.55] text-slate-300'>
+			<p className='mt-[18px] max-w-[32em] text-lg leading-[1.65] font-[450] text-slate-300'>
 				Create a free account, upload one receipt, and walk out with a list your household can use this week.
 			</p>
 			<div className='mt-8 flex flex-col items-start gap-[14px]'>
@@ -19,7 +19,7 @@ export function GetStartedSection() {
 				>
 					Create Free Account <Icon id='arr' />
 				</ButtonLink>
-				<span className='font-mono text-xs tracking-[.05em] text-[#A8B4C6]'>
+				<span className='font-mono text-xs font-medium tracking-[0.01em] text-[#A8B4C6]'>
 					Google sign-in · no card · your lists stay yours
 				</span>
 			</div>

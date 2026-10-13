@@ -1,12 +1,8 @@
-import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { HugeiconsIcon } from '@hugeicons/react'
 
-import { BackLink, PageHeader, PageContainer, PageFooterAction, CardFooterContent, CardHeaderContent } from '@/components/app'
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
-import { UploadTicketDialog } from '@/components/features/tickets'
-import { Badge } from '@/components/ui/badge'
-import { ArrowRight01Icon, Invoice01Icon, SearchVisualIcon } from '@hugeicons/core-free-icons'
+import { PageHeader, PageContainer } from '@/components/app'
+import { SECONDARY_ACTION } from '@/components/app/helpers/a1-surface'
+import { TicketsList, UploadTicketDialog, type TicketsListItem } from '@/components/features/tickets'
 
 import { getTickets } from '@/lib/api/endpoints'
 
@@ -27,113 +23,45 @@ export default async function TicketsPage() {
 	const { data: tickets, error } = await getTickets()
 
 	// Format tickets on server side to avoid date serialization issues
-	const formattedTickets = (tickets || []).map(ticket => ({
-		...ticket,
-		formattedDate: ticket.created_at ? formatDate(new Date(ticket.created_at)) : 'Unknown',
-		formattedTime: ticket.created_at ? formatTime(new Date(ticket.created_at)) : '',
+	const listItems: TicketsListItem[] = (tickets || []).map(ticket => ({
+		id: ticket.id,
+		storeName: ticket.store_name,
+		status: ticket.ocr_status,
+		itemsCount: ticket.total_items,
+		uploadedLabel: ticket.created_at
+			? `Uploaded ${formatDate(new Date(ticket.created_at))} · ${formatTime(new Date(ticket.created_at))}`
+			: 'Upload date unknown',
 	}))
 
 	return (
 		<>
 			<PageHeader
+				variant='screen'
+				back={{ href: '/dashboard', label: 'Back to Dashboard' }}
 				title='Receipts'
 				desc='Upload and manage your shopping receipts'
 			>
-				<div className='justify-end hidden md:flex'>
-					<div className='w-fit'>
-						<UploadTicketDialog />
-					</div>
+				{/* Phones upload from the tab bar's raised button, so this one only exists from `md`. */}
+				<div className='hidden md:block'>
+					<UploadTicketDialog
+						variant='outline'
+						className={SECONDARY_ACTION}
+					/>
 				</div>
 			</PageHeader>
 
 			<PageContainer>
-				<BackLink
-					href='/dashboard'
-					label='Back to Dashboard'
-				/>
-
 				{error && (
-					<div className='rounded-lg bg-destructive/10 p-4 text-sm text-destructive'>
+					<div
+						role='alert'
+						className='rounded-[12px] bg-destructive/10 p-4 text-sm text-destructive'
+					>
 						Error loading tickets: {error}
 					</div>
 				)}
 
-				{!tickets || tickets.length === 0 ? (
-					<Card
-						variant='premium'
-						className='group relative flex h-full cursor-pointer flex-col bg-card transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 gap-0 py-4'
-					>
-						<CardContent className='flex w-full max-w-md flex-col items-center pt-6 text-center'>
-							<div className='flex h-16 w-16 items-center justify-center text-primary'>
-								<HugeiconsIcon
-									icon={SearchVisualIcon}
-									strokeWidth={2}
-									className='h-12 w-12'
-								/>
-							</div>
-							<div className='mt-1'>
-								<h3 className='text-xl font-semibold tracking-tight'>No receipts yet</h3>
-								<p className='mt-1 text-sm text-muted-foreground'>Upload your first receipt to get started.</p>
-							</div>
-							<div className='mt-6 w-full max-w-65'>
-								<UploadTicketDialog />
-							</div>
-						</CardContent>
-					</Card>
-				) : (
-					<div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3'>
-						{formattedTickets.map(ticket => {
-							return (
-								<Link
-									key={ticket.id}
-									href={`/tickets/${ticket.id}`}
-								>
-									<Card
-										variant='premium'
-										className='group relative flex h-full cursor-pointer flex-col bg-card transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 gap-0 py-4'
-									>
-										<div className='flex items-center justify-end gap-1 px-4'>
-											<Badge
-												variant={
-													ticket.ocr_status === 'processing'
-														? 'processing'
-														: ticket.ocr_status === 'completed'
-															? 'completed'
-															: ticket.ocr_status === 'failed'
-																? 'failed'
-																: 'pending'
-												}
-											>
-												{ticket.ocr_status
-													? ticket.ocr_status.charAt(0).toUpperCase() + ticket.ocr_status.slice(1)
-													: 'Pending'}
-											</Badge>
-										</div>
-
-										<CardHeaderContent
-											icon={Invoice01Icon}
-											title={ticket.store_name || 'Unknown Store'}
-											description={`Uploaded: ${ticket.formattedDate} - ${ticket.formattedTime}`}
-										/>
-
-										<CardFooterContent
-							count={ticket.total_items ?? 0}
-											coutLabel={ticket.total_items === 1 ? 'Extracted Item' : 'Extracted Items'}
-											linkText='View Details'
-										/>
-									</Card>
-								</Link>
-							)
-						})}
-					</div>
-				)}
+				<TicketsList tickets={listItems} />
 			</PageContainer>
-
-			<PageFooterAction>
-				<div className='w-full md:hidden'>
-					<UploadTicketDialog />
-				</div>
-			</PageFooterAction>
 		</>
 	)
 }

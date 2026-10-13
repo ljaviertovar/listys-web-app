@@ -48,13 +48,13 @@ export function NoSessionBanner({ quickStart, startTarget, lastTrip, hasLists }:
 				<div className='flex flex-col gap-2'>
 					<h2
 						id='dashboard-no-session-title'
-						className='font-display text-[30px] leading-[1.17] font-bold tracking-[-0.025em] text-balance md:text-[32px] lg:text-[40px] lg:leading-[1.1]'
+						className='font-display text-[30px] leading-[1.17] font-bold tracking-[-0.025em] text-balance md:text-[32px]'
 					>
 						{hasLists ? 'Ready to go shopping?' : 'Start with a receipt'}
 					</h2>
 					<p
 						data-testid='dashboard-no-session-description'
-						className='text-[15px] leading-[1.55] text-slate-300 md:text-base'
+						className='text-base leading-[1.55] text-slate-300'
 					>
 						{!hasLists
 							? 'Upload one receipt and Listys turns it into a list you can reuse every time you shop.'
@@ -66,7 +66,7 @@ export function NoSessionBanner({ quickStart, startTarget, lastTrip, hasLists }:
 
 				{hasLists && otherLists.length > 0 ? (
 					<div className='flex flex-col gap-2'>
-						<span className='font-mono text-[11px] leading-[1.2] font-medium tracking-widest text-slate-400 uppercase'>
+						<span className='font-mono text-[11px] leading-[1.2] font-semibold tracking-[0.1em] text-slate-400 uppercase'>
 							Your lists
 						</span>
 						<ul className='flex flex-wrap gap-2'>
@@ -135,13 +135,13 @@ export function NoSessionBanner({ quickStart, startTarget, lastTrip, hasLists }:
 				)}
 
 				{!hasLists ? (
-					<p className='font-mono text-xs leading-[1.3] font-medium tracking-[0.04em] text-slate-400'>
+					<p className='font-mono text-xs leading-[1.3] font-medium tracking-[0.01em] text-slate-400'>
 						1–5 photos · you review every item before it is saved
 					</p>
 				) : null}
 
 				{lastTrip ? (
-					<p className='font-mono text-xs leading-[1.3] font-medium tracking-[0.04em] text-slate-400'>
+					<p className='font-mono text-xs leading-[1.3] font-medium tracking-[0.01em] text-slate-400'>
 						Last shopping session · {lastTrip.listName} · {lastTrip.dateLabel}
 						{lastTrip.total !== null ? ` · ${formatCurrency(lastTrip.total)}` : ''}
 					</p>

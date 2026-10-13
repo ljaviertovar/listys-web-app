@@ -11,7 +11,7 @@ export type Device = {
 export function DeviceCard({ device }: { device: Device }) {
 	return (
 		<div className='flex flex-col gap-[11px]'>
-			<div className='flex items-center gap-[9px] font-mono text-[11px] tracking-[.09em] text-slate-500 uppercase'>
+			<div className='flex items-center gap-[9px] font-mono text-[11px] font-semibold tracking-[0.1em] text-slate-500 uppercase'>
 				<span className='flex size-5 shrink-0 items-center justify-center rounded-full bg-violet-600 text-[8px] font-semibold text-white'>
 					{device.initials}
 				</span>

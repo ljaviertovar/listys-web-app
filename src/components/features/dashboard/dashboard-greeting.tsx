@@ -55,7 +55,7 @@ export function DashboardGreeting({ name }: Props) {
 			<h1 className='font-display text-[30px] leading-[1.17] font-bold tracking-[-0.025em] text-balance md:text-[32px] lg:text-[34px]'>
 				{now ? `${greetingFor(now.getHours())}, ${name}` : `Hi, ${name}`}
 			</h1>
-			<p className='text-sm leading-normal text-slate-500 md:text-[15px] dark:text-muted-foreground'>
+			<p className='text-sm leading-normal text-slate-500 md:text-base dark:text-muted-foreground'>
 				Here&apos;s what&apos;s happening with your household&apos;s shopping today.
 			</p>
 		</div>

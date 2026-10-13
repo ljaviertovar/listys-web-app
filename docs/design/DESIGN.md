@@ -62,10 +62,15 @@ colors:
 typography:
   display:
     fontFamily: "Plus Jakarta Sans, Inter, system-ui, sans-serif"
-    fontSize: "clamp(42px, 6vw, 72px)"
+    fontSize: "clamp(44px, 7vw, 76px)"
     fontWeight: 800
-    lineHeight: 1.02
-    letterSpacing: "-0.045em"
+    lineHeight: 1
+    letterSpacing: "-0.035em"
+  hero-lead:
+    fontFamily: "Inter, system-ui, sans-serif"
+    fontSize: "clamp(18px, 1.8vw, 20px)"
+    fontWeight: 500
+    lineHeight: 1.55
   marketing-heading:
     fontFamily: "Plus Jakarta Sans, Inter, system-ui, sans-serif"
     fontSize: "clamp(32px, 4vw, 48px)"
@@ -135,7 +140,7 @@ typography:
     lineHeight: 1
   chip:
     fontFamily: "Inter, system-ui, sans-serif"
-    fontSize: "12.5px"
+    fontSize: "11.5px"
     fontWeight: 600
     lineHeight: 1
   tab:
@@ -255,10 +260,10 @@ components:
     height: "44px"
     padding: "0 14px"
   chip:
-    backgroundColor: "{colors.surface-secondary}"
-    rounded: "{rounded.tag}"
-    height: "26px"
-    padding: "0 10px"
+    backgroundColor: "status tint (100-level)"
+    rounded: "{rounded.pill}"
+    height: "22px"
+    padding: "0 8px"
   shopping-item:
     backgroundColor: "{colors.paper}"
     borderColor: "#E2E8F0"
@@ -457,10 +462,11 @@ are self-hosted and layout shifts are controlled.
 
 | Role | Spec | Use |
 | --- | --- | --- |
-| Display | `800 clamp(42px, 6vw, 72px)/1.02`, `-.045em` | Marketing hero only |
+| Display | `800 clamp(44px, 7vw, 76px)/1`, `-.035em` | Landing hero title only (`max-width: 18ch`, two lines on desktop). The tracking stays at `-.035em`: at `-.045em` the word spaces close up at this size |
+| Hero lead | `500 clamp(18px, 1.8vw, 20px)/1.55` (Inter) | The line under the landing hero title; section ledes use Body large |
 | Marketing heading | `750 clamp(32px, 4vw, 48px)/1.1`, `-.035em` | Landing sections |
 | h1 (screen title) | `700 36px/1.11`, `-.03em` | Authenticated page heading; 30px (`/1.17`, `-.025em`) on phones, 32px from `md`, 34-36px on desktop |
-| h2 | `700 30px/1.17`, `-.025em` | Hero titles |
+| h2 | `700 30px/1.17`, `-.025em` | Hero titles: the dashboard hero stays at 30px (32px from `md`), never above the page h1 |
 | h3 | `700 24px/1.25`, `-.02em` | Session and list names |
 | h4 (section title) | `600 20px/1.33`, `-.015em` | Section titles and "Up Next" from `md`; the dashboard sets them at `/1.39`, `-.01em`. On phones they are `h2` elements set at the h6 size (`600 16px/1.5`, `-.005em`) |
 | h5 | `600 18px/1.39`, `-.01em` | Sub-sections |
@@ -470,7 +476,7 @@ are self-hosted and layout shifts are controlled.
 | Body small | `400 14px/1.5` | Secondary text, table cells, navigation and sidebar items |
 | Body extra small | `400 12px/1.25` | Captions, helper text and fine print |
 | Label | `600 14px/1` (Plus Jakarta Sans) | Buttons, tabs, form actions |
-| Chip | `600 12.5px/1` (Inter) | Status chips and the date pill |
+| Chip | `600 11.5px/1` (Inter) | Status chips and counters (the date and session pills stay at `600 12.5px/1`) |
 | Tab | `500-600 11.5px/1` (Inter) | Tab-bar labels |
 | Mono | `500 14px/1.5` | Ids, dates, amounts |
 | Receipt meta | `500 12px/1.4`, `.01em` | Row metadata under titles: merchant, dates, item counts |
@@ -625,8 +631,8 @@ in mono. A new account sees only the title "Start with a receipt", its explanati
 | --- | --- |
 | Title row | `h2` 20px / 600 / 1.39 / `-.01em` and, on the right, a "View All" ghost link (blue 700, 600, 12px radius, hover `#E9ECF0`) 12px above the card. 32px high with a 12px label on phones; 40px and 14px from `md` |
 | Card | White, 24px radius, 10px padding, `raised` shadow, no border; the shadow deepens on hover |
-| Row | 12px radius, `10 8` padding, 12px gap, 36px icon tile (12px radius) in the 50-level tint, 14px / 600 title, mono 12px / 500 metadata in `muted` (may wrap), hover `#F2F4F7` |
-| Tile tints | Groups `#EFF6FF` / `#2563EB`, receipts `#ECFEFF` / `#0E7490`, history `#F0FDF4` / `#15803D`; 24px tile (8px radius) for lists, 32px (10px radius) for groups |
+| Row | 12px radius, `10 8` padding, 12px gap, 36px icon tile (12px radius) in the 100-level tint (the same fill "Up Next" uses), 14px / 600 title, mono 12px / 500 metadata in `muted` (may wrap), hover `#F2F4F7` |
+| Tile tints | Groups `#DBEAFE` / `#1D4ED8`, receipts `#CFFAFE` / `#0E7490`, history `#DCFCE7` / `#15803D` (the 100-level fill with the 700-level icon, as in "Up Next" and the tab bar); 24px tile (8px radius) for lists, 32px (10px radius) for groups |
 | Group and lists | A group row plus its lists, indented 24px with a 2px `#E2E8F0` rule; each list ends in a grey "Start" button (32px, `#E9ECF0`, 12px radius, 13px / 600). Preview: two groups of up to three lists |
 | Receipt status | A 14px icon plus the word, Plus Jakarta Sans 700 12px, no chip: Completed `#15803D`, Processing `#B45309`, Failed `#B91C1C`; `divider` rules between rows (inset 8px). Preview: three receipts |
 | History | Mono 13.5px / 600 total on the right. Preview: three trips |
@@ -726,18 +732,26 @@ region; repeated polling must not produce repeated announcements.
 
 The running-session badge reads `Shopping` (the dashboard hero chip reads `Shopping now`) with a subtly pulsing green dot to
 reinforce its active state. The pulse stops when reduced motion is preferred. It has an `on-dark` tone for photo and ink
-surfaces such as the dashboard banner: a 26px pill with a 12% white fill and a 7px dot. Status chips are 26px high with an
-8px radius, a `#E9ECF0` surface, an icon and a coloured 12.5px / 600 label; counters are 22px high with a 12px label, and
-deltas and "New" use the tinted success and danger surfaces.
+surfaces such as the dashboard banner: a 26px pill with a 12% white fill and a 7px dot. Status chips are small
+22px pills (999 radius) tinted with the 100-level of their status (`Pending` slate-100 / slate-700, `Processing` amber-100 / amber-700,
+`Completed` green-100 / green-700, `Failed` red-100 / red-700), with a 12px icon (a 6px dot for `Pending`) and an 11.5px / 600 label, padding
+8px. They are deliberately not the shape of a button (12px radius, `#E9ECF0`, 40px), so they never read as pressable. Counters share the
+22px pill with a 12px label, and deltas and "New" use the same tinted success and danger surfaces.
 
 Badges are compact context, never the only explanation for a failure. A failed receipt also includes a short safe error and
 `Try again` when retry is available.
 
 ### 7.4 Receipt upload and processing
 
-The upload zone uses a dashed control border, a camera/image glyph, accepted formats, the 10MB per-image limit, and the
-current `1–5` image count. Selected images appear in order with thumbnail, filename, remove action, and page number. Removal
-does not shift keyboard focus unpredictably.
+The upload form (`features/tickets/upload/`) opens as a bottom sheet on phones (28px top radius, up to 92% of
+the viewport) and as a centred 520px dialog from `sm`. It has a Jakarta 600 20px title with a 44px close button, a grey 14px
+description, a `Name *` field (48px, 16px radius) and `Photos *` with a mono `n / 5` counter. The photo field starts as one
+dashed 16px-radius tile with an upload glyph, `Choose Photos` in blue and the accepted formats and the 10MB per-image limit;
+once there are photos it becomes a 3-column grid of 3:4 thumbnails, each with a 44px target to remove it (a 24px dark disc),
+and an `Add More` tile while there is room. A photo that is left out (HEIC, or over 10MB) is named in an inline red alert with
+how to fix it; it does not block the others. `Upload` is enabled as soon as there is one valid photo (up to five); a missing name is reported on submit, not by a dead button.
+From `sm` the empty tile reads `Drag and drop photos here` / `or Choose Photos`, and the footer is one row: `* Required fields` on the left, `Cancel` and
+`Upload` (44px) on the right. Removal does not shift keyboard focus unpredictably.
 
 After submit:
 
@@ -751,16 +765,47 @@ Never invent a percentage for asynchronous OCR. A spinner or staged label is mor
 
 ### 7.5 Receipt card
 
-The list card shows merchant name, upload date/time, item count, assignment/group if present, and status. Merchant name is
-the title even when OCR returns none; use “Store not recognized,” not “Unknown.” The receipt/check icon is a supporting glyph,
-not a 64px illustration. The entire card may link to detail; action menus must stop propagation and remain separately
+The list card (`features/tickets/list/tickets-list.tsx`) is a 24px borderless card: a 36px cyan tile (12px radius, the size of the dashboard's receipt rows) with an 18px receipt glyph, the
+merchant name (Jakarta 600 16) beside the status chip, and the upload date and time in mono 12/500 underneath. A hairline
+separates one line about where the receipt stands: `Waiting in line to be read` (pending), a progress bar and `Reading your
+receipt...` (processing, no invented percentage), `Couldn’t read this receipt` in red with `View Details` (failed), or the item
+count in mono with `View Details` (completed). Merchant name is the title even when OCR returns none; use “Store not
+recognized,” not “Unknown.” The entire card links to detail; action menus must stop propagation and remain separately
 focusable.
+
+From `md` the grid is two columns (three from `xl`) and ends with a dashed `Upload Another Receipt` tile that opens the upload form; photos dropped on it
+arrive already chosen (`UploadAnotherTile`). The empty state is one 24px card with a 64px (72px from `md`) cyan tile, `No receipts yet`, the one primary `Upload Receipt` button (48px) and the
+limits in mono (`1–5 photos · PNG or JPG · 10 MB each`). Phones have a single upload action: the tab bar's raised button; the page
+has no second pinned upload bar. The page header uses the `screen` variant of `PageHeader`: back link (44px target) above a 30px
+title on the page ground, with no white band.
 
 ### 7.6 OCR review row
 
 Each extracted row exposes item name first, then quantity/unit and price. Confidence is not shown in the MVP unless it drives
 a user decision. Selected rows use a checkbox, `aria-checked`, a soft blue surface, and a visible check. Price uses tabular
 numerals and the locale-aware currency formatter. Edits retain the source image association without exposing internal IDs.
+
+On the receipt screen (`features/tickets/receipt/ticket-review.tsx`) the photo is never buried below the list: a 100px row under the
+title (thumbnail, `Receipt Photo`, `1 photo · Tap to enlarge`, a 44px expand control) opens a full-screen viewer with pinch and
+double-tap zoom, `−`/`+`, Rotate and Fit, a strip of 48px thumbnails when there are several photos, and `Compare`. Compare puts
+the photo above the items with a draggable, keyboard-operable separator, so a line can be checked against the paper and ticked
+without scrolling. Items are grouped by category in collapsible sections (a 32px line-icon tile, the name, a mono count); OCR
+names printed in capitals are shown in Title Case (short codes such as “PC” stay, the stored value is untouched). Rows have a
+44px checkbox target, a quantity chip and the price in mono. Ticking items raises a bar above the tab bar's upload button with the
+count, their total in mono, `Clear` and `Add to a List`. The summary card closes the screen with the item count, the calculated
+total (mono 20/700) and the receipt's own actions: `Retry` when it can be retried and a soft-red `Delete Receipt`.
+
+From `lg` the screen is two columns (3fr / 2fr). The items card is on the left, with its rows on one line (checkbox, name, quantity chip, price)
+and the selection bar stuck to the bottom of the card. The right column stays in view while the list scrolls: a `Receipt Photo` card (the photo on
+a dark stage, zoom, rotate and fit over it, a strip of 48px thumbnails and a `1 / 3` counter for several photos, and `Open Full Screen`), then the
+summary card. The full-screen viewer gets a left column of thumbnails, 52px arrows, a hint (`Scroll to zoom · Drag to pan · ← → to switch photos`),
+the wheel and mouse drag, and the keys `← →`, `+`, `-` and `0`. Compare puts the photo on the left (60% of the width) and the items on the right,
+with a vertical, keyboard-operable separator and the selection bar at the foot of the list. Zoom is relative to the photo's fitted size, so every step
+is the same enlargement whatever the shape of the photo or the screen.
+
+A receipt that was read but has no items (completed, 0 items found) keeps its items card but swaps the list for a warning: a 64px amber tile,
+`No items detected` (Jakarta 700 18), the explanation and three tips for a clearer photo. Its action card offers `Upload a Clearer Photo` (primary),
+`Try Again` (secondary, reads the same photo again) and the soft-red `Delete Receipt`; there are no totals.
 
 ### 7.7 Group and base-list card
 
@@ -1069,6 +1114,8 @@ These are remaining implementation notes, not permission for two systems:
    hero button at 52px, and an "Up Next" "View all" link; this document and the code use the compact phone sizes and no
    "Up Next" link. The "Invite family" row of "Up Next" is not produced by the dashboard model, and the quick-start chips
    exclude the list the hero button starts (the boards show all lists).
+3b. **Receipts:** the receipt screens implement the phone and desktop designs. Gaps: the upload form shows an indeterminate progress line, not the
+   per-photo progress ("1 of 2 photos uploaded") of the mockups, because the photos go up in one request; and the receipt list has no filter or search.
 4. **Cards and dark mode:** cards outside the dashboard keep the 16px radius and a border; v2 dark values are not defined
    in the canvas, so dark mode keeps section 3.4 until it is reviewed.
 5. **Colour discipline:** marketing, authentication, shopping categories, and statuses use independent violet, pink, green,
@@ -1083,7 +1130,14 @@ These are remaining implementation notes, not permission for two systems:
    optical size and accessible labels.
 11. **Dark mode:** semantic tokens exist, but one-off literal colour utilities and translucent surfaces require a complete
    contrast review.
-12. **Copy:** product UI and documentation mix “ticket,” “receipt,” “shopping run,” and “shopping session.” User-facing
+12. **Type scale outside the landing page and dashboard:** these two follow section 4.2; the rest of the app does not yet.
+    `PageHeader` sets the screen h1 at 18px (24px from `md`) instead of 30-36px and uses the invalid `md:text-md`; empty-state
+    `h3`s use three different styles (`text-xl`/`text-lg`, `font-semibold`/`font-medium`) instead of the 24px h3; `CardTitle`
+    and `SheetTitle` are `font-medium` where the card title is 600, and `DialogTitle` is the 18px h5; the sidebar, the account
+    menu and several dialogs use 10px, 13px, 13.5px and 15px values outside the scale; IBM Plex Mono still loads weight 400.
+    Mock-up internals on the landing page (the receipt paper, the phone screen, the list rows) keep their own small illustrative
+    sizes and are not part of the scale.
+13. **Copy:** product UI and documentation mix “ticket,” “receipt,” “shopping run,” and “shopping session.” User-facing
    English uses `receipt` and `shopping session`; internal legacy names may remain until safely migrated.
 
 Migrate one vertical flow at a time: primitives and tokens, app shell, active shopping, receipts/OCR, lists and history,

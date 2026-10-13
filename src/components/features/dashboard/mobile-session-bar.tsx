@@ -63,7 +63,7 @@ export function MobileSessionBar({ session }: Props) {
 					<span className='absolute top-0 right-0 size-[9px] rounded-full border-2 border-slate-900 bg-green-400' />
 				</span>
 				<span className='flex min-w-0 flex-1 flex-col gap-[3px]'>
-					<span className='truncate font-display text-[14.5px] leading-[1.2] font-bold'>{session.name}</span>
+					<span className='truncate font-display text-sm leading-[1.2] font-bold'>{session.name}</span>
 					<span className='text-xs leading-[1.2] text-slate-300 tabular-nums'>
 						{session.checked} of {pluralize(session.total, 'item')} · {session.progress}%
 					</span>

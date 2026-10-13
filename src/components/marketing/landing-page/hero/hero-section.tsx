@@ -284,20 +284,20 @@ export function HeroSection() {
 				))}
 			</div>
 
-			<Shell className='relative z-[2] w-full'>
+			<Shell className='relative z-[2] w-full min-w-0'>
 				<div className='flex flex-col items-center gap-12 min-[760px]:gap-14'>
 					<div className='mx-auto flex w-full max-w-[850px] flex-col items-center text-center'>
-						<div className='inline-flex w-fit items-center gap-[7px] rounded-full border border-primary/[0.22] bg-primary/[0.09] px-[11px] py-[5px] text-xs font-bold text-blue-700'>
+						<div className='inline-flex w-fit items-center gap-[7px] rounded-full border border-primary/[0.22] bg-primary/[0.09] px-[11px] py-[5px] text-[12.5px] font-semibold text-blue-700'>
 							<Icon
 								id='spark'
 								className='size-[13px] shrink-0 text-amber-500'
 							/>
 							Receipt to smart list in seconds
 						</div>
-						<h1 className='mt-5 max-w-[19ch] text-[clamp(36px,6vw,58px)] leading-[1.04] font-extrabold tracking-[-0.03em] text-slate-900 text-balance'>
+						<h1 className='mt-5 max-w-[18ch] text-[clamp(44px,7vw,76px)] leading-none font-extrabold tracking-[-0.035em] text-slate-900 text-balance'>
 							Never write the same shopping list twice.
 						</h1>
-						<p className='mt-5 max-w-[39em] text-[clamp(16px,1.6vw,18px)] leading-[1.6] text-slate-600'>
+						<p className='mt-6 max-w-[39em] text-[clamp(18px,1.8vw,20px)] leading-[1.55] font-medium text-slate-600'>
 							Photograph a receipt you already have. Listys turns it into a list your household can reuse, share, and
 							check off in the aisle.
 						</p>
@@ -313,7 +313,7 @@ export function HeroSection() {
 							{['Free to get started', 'No credit card required', 'Works for any store'].map(point => (
 								<li
 									key={point}
-									className='flex items-center gap-2 text-[13.5px] text-slate-500'
+									className='flex items-center gap-2 text-sm text-slate-500'
 								>
 									<Icon
 										id='tick'

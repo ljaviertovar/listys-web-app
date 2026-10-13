@@ -60,6 +60,7 @@ export const MAX_SYNC_ITEMS = 250          // Maximum items to sync from shoppin
  *    - User can retry or delete the ticket
  */
 export const MAX_IMAGES_PER_TICKET = 5
+export const MAX_TICKET_IMAGE_MB = 10 // Largest single receipt photo, in megabytes
 export const MAX_OCR_ATTEMPTS = 3
 export const OCR_PROCESSING_TIMEOUT_MINUTES = 10     // Maximum images per ticket upload
 

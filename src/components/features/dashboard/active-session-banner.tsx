@@ -35,17 +35,17 @@ export function ActiveSessionBanner({ session, isGuest = false }: Props) {
 						label='Shopping now'
 						className='h-auto gap-[7px] border-0 bg-white/12 px-[11px] py-[5px] text-[12.5px] leading-[1.2] [&>span:first-child]:size-[7px]'
 					/>
-					{origin ? <span className='line-clamp-2 text-[13px] leading-tight text-slate-300'>{origin}</span> : null}
+					{origin ? <span className='line-clamp-2 text-sm leading-tight text-slate-300'>{origin}</span> : null}
 				</div>
 
 				<div className='flex flex-col gap-2'>
 					<h2
 						id='dashboard-active-session-title'
-						className='font-display text-[30px] leading-[1.17] font-bold tracking-[-0.025em] text-balance md:text-[32px] lg:text-[40px] lg:leading-[1.1]'
+						className='font-display text-[30px] leading-[1.17] font-bold tracking-[-0.025em] text-balance md:text-[32px]'
 					>
 						{session.name}
 					</h2>
-					<p className='text-[15px] leading-[1.55] text-slate-300 md:text-base'>
+					<p className='text-base leading-[1.55] text-slate-300'>
 						{session.total === 0
 							? 'This shopping session has no items yet. Add some to get started.'
 							: `${pluralize(session.checked, 'item')} in the cart, ${session.remaining} to go. Pick up right where you left off.`}
@@ -59,7 +59,7 @@ export function ActiveSessionBanner({ session, isGuest = false }: Props) {
 						className='h-2 bg-white/15'
 						indicatorClassName='bg-linear-to-r from-blue-400 to-blue-500'
 					/>
-					<span className='font-mono text-[12.5px] leading-[1.3] text-slate-300 tabular-nums'>
+					<span className='font-mono text-xs leading-[1.3] font-medium tracking-[0.01em] text-slate-300 tabular-nums'>
 						{session.checked} of {pluralize(session.total, 'item')} · {session.progress}%
 					</span>
 				</div>

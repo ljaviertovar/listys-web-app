@@ -83,10 +83,10 @@ export function HowItWorksSection() {
 			className='w-full'
 		>
 			<div className='mb-[34px] grid gap-4 min-[900px]:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] min-[900px]:items-start min-[900px]:gap-[60px]'>
-				<h2 className='text-[clamp(28px,3.6vw,40px)] leading-[1.08] font-extrabold text-slate-900 text-balance'>
+				<h2 className='text-[clamp(32px,4vw,48px)] leading-[1.1] font-[750] tracking-[-0.035em] text-slate-900 text-balance'>
 					Photograph a receipt. Shop from the list. Repeat.
 				</h2>
-				<p className='max-w-[34em] text-base leading-[1.6] text-slate-600 min-[900px]:pt-[7px]'>
+				<p className='max-w-[34em] text-lg leading-[1.65] font-[450] text-slate-600 min-[900px]:pt-[7px]'>
 					The receipt is how the list gets fed. The list is what you actually use — and it starts closer to done after
 					every trip.
 				</p>
@@ -98,18 +98,18 @@ export function HowItWorksSection() {
 						className='grid items-center gap-[34px] min-[980px]:grid-cols-[minmax(0,1fr)_minmax(0,1.12fr)] min-[980px]:gap-[76px]'
 					>
 						<div className={cn('min-[980px]:order-1', step.flip && 'min-[980px]:order-2')}>
-							<span className='mb-4 inline-block font-mono text-xs font-semibold tracking-[.14em] text-primary'>
+							<span className='mb-4 inline-block font-mono text-[11px] leading-[1.2] font-semibold tracking-[0.1em] text-primary'>
 								{step.num}
 							</span>
-							<h3 className='text-[clamp(24px,3vw,34px)] leading-[1.1] font-extrabold tracking-[-0.03em] text-slate-900 text-balance'>
+							<h3 className='text-2xl leading-[1.25] font-bold tracking-[-0.02em] text-slate-900 text-balance'>
 								{step.title}
 							</h3>
-							<p className='mt-4 max-w-[40em] text-base leading-[1.66] text-slate-600'>{step.lede}</p>
+							<p className='mt-4 max-w-[40em] text-base leading-[1.75] text-slate-600'>{step.lede}</p>
 							<ul className='mt-[26px] flex flex-col gap-[13px]'>
 								{step.points.map(point => (
 									<li
 										key={point}
-										className='flex items-start gap-3 text-[15px] leading-[1.5] text-slate-700'
+										className='flex items-start gap-3 text-base leading-[1.5] text-slate-700'
 									>
 										<i className='mt-px flex size-[21px] shrink-0 items-center justify-center rounded-[7px] bg-blue-100 text-blue-700 [&_svg]:size-[11px]'>
 											<Icon id='tick' />
