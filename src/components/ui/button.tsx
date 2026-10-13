@@ -26,6 +26,9 @@ const buttonVariants = cva(
         ghost: "hover:bg-accent hover:text-primary",
         destructive:
           "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
+        // Soft red for an action that is allowed but should not shout: tinted fill, red text, no shadow.
+        "destructive-soft":
+          "bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-950 dark:text-red-300 dark:hover:bg-red-900",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {

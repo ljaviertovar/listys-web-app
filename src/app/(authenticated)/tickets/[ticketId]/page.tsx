@@ -1,16 +1,18 @@
 import { redirect } from 'next/navigation'
-import { HugeiconsIcon } from '@hugeicons/react'
 
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { BackLink, PageHeader, PageContainer, CardHeaderContent } from '@/components/app'
-import { TicketItemsSelector, TicketImage, TicketActions, TicketStatusListener } from '@/components/features/tickets'
-import { Invoice01Icon, ListViewIcon } from '@hugeicons/core-free-icons'
+import { PageHeader, PageContainer } from '@/components/app'
+import { TicketReview, TicketSummaryCard, sumLineTotals, toTicketStatus } from '@/components/features/tickets'
 
 import { getTicket } from '@/lib/api/endpoints'
 
 import { createClient } from '@/lib/supabase/server'
 
-import { formatCurrency, formatDate, formatTime } from '@/utils'
+import { formatDate, formatTime } from '@/utils'
+
+import type { Ticket } from '@/types'
+
+/** Columns the generated database types do not list yet. */
+type TicketRow = Ticket & { image_paths?: string[] | null; ocr_error?: string | null }
 
 export default async function TicketDetailPage({ params }: { params: Promise<{ ticketId: string }> }) {
 	const { ticketId } = await params
@@ -31,101 +33,48 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 	}
 
 	// Format date on server side
-	const formattedDate = ticket.created_at ? formatDate(new Date(ticket.created_at)) : 'Unknown'
-	const formattedTime = ticket.created_at ? formatTime(new Date(ticket.created_at)) : ''
+	const uploadedAt = ticket.created_at ? new Date(ticket.created_at) : null
 	const ticketItems = ticket.items || []
 	const extractedItemsCount = ticket.total_items ?? ticketItems.length
 	const pricedItemsCount = ticketItems.filter((item: { price?: number | null }) => item.price !== null).length
-	const calculatedTotal = ticketItems.reduce(
-		(sum: number, item: { price?: number | null; quantity?: number | null }) =>
-			sum + (item.price ?? 0) * (item.quantity ?? 1),
-		0,
-	)
+	const { image_paths: storedPaths, ocr_error: ocrError } = ticket as TicketRow
+	const imagePaths: string[] = storedPaths && storedPaths.length > 0 ? storedPaths : ticket.image_path ? [ticket.image_path] : []
 
 	return (
 		<>
 			<PageHeader
-				title={`${ticket.store_name || 'Unknown Receipt'}`}
-				desc={`Uploaded on ${formattedDate} at ${formattedTime}`}
+				variant='screen'
+				back={{ href: '/tickets', label: 'Back to Receipts' }}
+				title={ticket.store_name || 'Store not recognized'}
+				desc={
+					uploadedAt ? (
+						<>
+							Uploaded{' '}
+							<span className='font-mono text-[13px] font-medium tracking-[0.01em] text-slate-600 tabular-nums dark:text-foreground/80'>
+								{formatDate(uploadedAt)} · {formatTime(uploadedAt)}
+							</span>
+						</>
+					) : (
+						'Upload date unknown'
+					)
+				}
 			/>
 			<PageContainer>
-				<BackLink
-					href='/tickets'
-					label='Back to Receipts'
-				/>
-
-				<div className='w-full flex gap-6 flex-col-reverse md:flex-row'>
-					{/* Ticket Image */}
-					<Card
-						variant='premium'
-						className='flex-1 group relative flex h-full cursor-pointer flex-col bg-card transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 gap-0 py-4'
-					>
-						<CardHeaderContent
-							icon={Invoice01Icon}
-							title='Receipt Photo'
-						/>
-
-						<CardContent className='px-4'>
-							<TicketImage
-								imagePaths={
-									(ticket as any).image_paths && (ticket as any).image_paths.length > 0
-										? (ticket as any).image_paths
-										: ticket.image_path
-											? [ticket.image_path]
-											: []
-								}
-							/>
-						</CardContent>
-					</Card>
-
-					{/* Extracted Items */}
-					<Card
-						variant='premium'
-						className='flex-1 group relative flex h-full cursor-pointer flex-col bg-card transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 gap-0 py-4'
-					>
-						<div className='flex gap-2 items-start justify-between px-4 pl-0'>
-							<CardHeaderContent
-								icon={ListViewIcon}
-								title='Extracted Items'
-								description={ticket.ocr_status === 'completed' ? `${ticket.items?.length || 0} items found` : undefined}
-							/>
-
-							<TicketStatusListener
-								ticketId={ticketId}
-								initialStatus={(ticket.ocr_status as any) || 'pending'}
-							/>
-						</div>
-						<CardContent className='px-4'>
-							<TicketItemsSelector
-								ticketId={ticketId}
-								items={ticketItems}
-								status={ticket.ocr_status || 'pending'}
-								ocrError={(ticket as any).ocr_error}
-							/>
-
-							{ticket.ocr_status === 'completed' && ticketItems.length > 0 && (
-								<div className='mt-4 border-t pt-4 space-y-2'>
-									<div className='flex items-center justify-between text-sm'>
-										<span className='text-muted-foreground'>Extracted items</span>
-										<span className='font-medium'>{extractedItemsCount}</span>
-									</div>
-									<div className='flex items-center justify-between text-sm'>
-										<span className='text-muted-foreground'>Calculated total</span>
-										<span className='font-semibold'>{formatCurrency(calculatedTotal)}</span>
-									</div>
-									{pricedItemsCount < ticketItems.length && (
-										<p className='text-xs text-muted-foreground'>
-											Calculated using {pricedItemsCount} of {ticketItems.length} items with price.
-										</p>
-									)}
-								</div>
-							)}
-						</CardContent>
-						<CardFooter className='justify-end mt-4'>
-							<TicketActions ticket={ticket} />
-						</CardFooter>
-					</Card>
-				</div>
+				<TicketReview
+					ticketId={ticketId}
+					title={ticket.store_name || 'Receipt'}
+					imagePaths={imagePaths}
+					items={ticketItems}
+					status={toTicketStatus(ticket.ocr_status)}
+					ocrError={ocrError}
+				>
+					<TicketSummaryCard
+						ticket={ticket}
+						itemsCount={extractedItemsCount}
+						pricedItemsCount={pricedItemsCount}
+						total={sumLineTotals(ticketItems)}
+					/>
+				</TicketReview>
 			</PageContainer>
 		</>
 	)

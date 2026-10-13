@@ -366,15 +366,24 @@ Identification signals (check for these):
 
 ### Inline Component Extraction
 
-When a component defined or rendered inside another component grows large or complex, it must be
-extracted into its own file.
+The default is one component per file, but do not split a parent into atomic files. A file holds one main component
+and may keep the child components that only that parent renders, as long as those children are presentational: they
+build markup from their props and carry no logic of their own. Separate a child only when the separation pays for
+itself.
 
-Extraction triggers (any one is sufficient):
+A child must move to its own file when any of these is true:
 
-- The inline component exceeds ~40–50 lines of JSX/TSX logic.
-- It has its own local state, effects, or event handlers.
-- It is conditionally rendered and its logic is non-trivial.
-- Keeping it inline makes the parent component hard to read or test.
+- It carries its own logic: more than two `useEffect` calls, a subscription (realtime, polling, listeners), async or
+  server calls, or heavy computation.
+- Its state and event handlers have grown into a concern of their own (the same signals as in "Custom Hook Extraction";
+  extract the hook as well when they apply).
+- It is rendered outside its parent's file (see the abstraction threshold above). A shared piece gets its own file, or
+  shares one with the pieces it is always rendered with (for example, a set of controls that always appear together, or
+  the mobile and desktop variants of the same block).
+- Keeping it inline makes the parent hard to read or test, typically when the file grows past ~250 lines.
+
+A child may stay in the parent's file when it is purely visual: a row, a header, an empty or error state, a small
+toolbar, a status line. Small local UI state (an open flag, a `useId`) does not by itself justify a new file.
 
 Placement decision after extraction:
 
@@ -386,8 +395,10 @@ Placement decision after extraction:
 
 Rules:
 
-- Do not leave an extracted component as an unexported function in the same file; always move it
-  to its own file.
+- A child that stays in the parent's file is declared below the parent's props and helpers. Export it only when a test
+  or another file of the same module needs it; name its props `<Component>Props` so several components can share
+  the file.
+- Once a child meets an extraction trigger, move it to its own file; do not leave it as a large unexported function.
 - After extraction, update the barrel file (`index.ts`) of the target folder accordingly.
 - If placement is ambiguous, default to the domain folder and promote to `commons/` only when a
   second distinct use-site appears.
