@@ -290,8 +290,8 @@ components:
   session-pill:
     backgroundColor: "{colors.ink}"
     textColor: "{colors.paper}"
-    rounded: "{rounded.panel}"
-    minHeight: "72px"
+    rounded: "{rounded.field}"
+    minHeight: "48px"
 ---
 
 # Listys Design System
@@ -481,10 +481,11 @@ are self-hosted and layout shifts are controlled.
 | Mono | `500 14px/1.5` | Ids, dates, amounts |
 | Receipt meta | `500 12px/1.4`, `.01em` | Row metadata under titles: merchant, dates, item counts |
 | Overline | `600 11px/1.2`, `.1em`, uppercase | Actual process stage or data category |
+| Category caption | `600 12px/1.25` (Inter), `.04em`, uppercase, slate-700 | Category headings of a receipt, a list and a shopping session: the Caption size, not the mono Overline |
 
 Use tabular numerals for prices, item counts, percentages, quantities, and timestamps. Headings use `text-wrap: balance`;
-prose uses `text-wrap: pretty`. Uppercase is restricted to short mono overlines and receipt source material. Shopping
-category names use title case in the product UI even when OCR input arrived in capitals.
+prose uses `text-wrap: pretty`. Uppercase is restricted to short mono overlines and the category caption. Item names use title
+case in the product UI even when OCR input arrived in capitals; a category heading is the caption in capitals.
 
 ---
 
@@ -589,9 +590,25 @@ Active shopping is the densest and most time-sensitive screen:
 └────────────────────────────────────────────────────┘
 ```
 
-The category order follows product data; colour cycling between categories is not allowed. Category structure comes from
+The category order follows product data; colour cycling between categories is not allowed (each category keeps one fixed colour on its icon, never the order). Category structure comes from
 heading, spacing, and item counts. Checked items may move below unchecked items, but they must remain reachable and keep
 their original content. On completed sessions, the screen becomes a record: destructive and editing controls disappear.
+
+**Phone layout (design "Lists mobile · Sesión de compra").** Under the A1 header come the `Shopping` chip (22px, green, with the pulsing
+dot), a progress card (24px radius; "Collected", "1 of 4 items" and the percentage in mono at 24px, blue and green at 100%, over an
+8px bar), a row of two secondary buttons (`Share`, `Add Item`) and one card with a collapsible section per category (section 7.7).
+The count at the right of each category is `done/total` in mono and turns green when the category is complete. The session's own
+actions are one small floating `Actions` button (40px, white, blue label, a cart icon and a chevron) at the bottom right above the tab
+bar, away from the raised upload button. It opens a menu with `Complete Shopping` and, apart, `Cancel Shopping` in red. From `lg` the
+button is replaced by two buttons beside the title (`Cancel Shopping` soft red, `Complete Shopping` primary) and the content is capped at
+768px. The session bar of section 6.5 is not shown here: this screen is where it leads.
+
+`Complete Shopping` opens a sheet (section 7.12): with items still unticked it says how many ("You still have 3 unchecked items…"); with
+all of them ticked its title is "All Items Checked" and a green stroke icon replaces any celebratory emoji. Both offer "Sync changes
+back to base list", ticked by default, and the buttons `Continue Shopping` and `Complete Session`. `Cancel Shopping` opens a sheet that
+says the session is discarded, is not saved to the history and cannot be undone, with `Keep Shopping` and a red `Cancel Shopping`.
+Only the owner of the list sees these actions. A finished session shows `Completed`, a `Purchased` progress card and only the items
+that were bought, without checkboxes or menus.
 
 ### 6.4 Cards and collections
 
@@ -614,8 +631,8 @@ generic scale on this surface and live in `src/components/features/dashboard/hel
 | --- | --- |
 | Header | 60px (64px from `lg`), white with a bottom hairline; logo 30px plus the "Listys" wordmark (Plus Jakarta Sans 700 19px, `-.02em`); a 44x44 account button with a 34px initials avatar on `#DBEAFE`. No menu button: Profile, Account and Sign Out live in the account menu |
 | Tab bar | See section 7.11 |
-| Session pill | Only while a trip runs: 72px high, 20px radius, `#0F172A`; a 40px progress ring with a green dot, the trip name and "n of m - p%", and a 36px medium primary "Continue". It floats 10px above the tab bar with 12px side insets, stays visible next to the hero's own button, and the raised tab-bar action overlaps it |
-| Content | 16px gutter, 20px above the greeting, 40px below the last card, plus 72px while the pill is shown; surfaces pinned to the bottom edge sit above the tab bar (`ABOVE_MOBILE_TAB_BAR`) |
+| Session bar | Only while a trip runs, on every phone screen except the trip's own (`ActiveSessionBar`): 48px high, 16px radius, `#0F172A`; a 28px progress ring with a green dot, the trip name (13px / 700) and "n of m · p%" (mono 11px), and a 32px "Continue" in the primary look (12.5px / 600, 10px radius). The whole bar is the link. It floats 8px above the tab bar with 12px side insets, stays visible next to the dashboard hero's own button, and the raised tab-bar action overlaps its lower edge |
+| Content | 16px gutter, 20px above the greeting, 40px below the last card, plus 56px while the session bar is shown (a spacer after the page); surfaces pinned to the bottom edge sit above the tab bar (`ABOVE_MOBILE_TAB_BAR`), and above the session bar when it shows (`ABOVE_MOBILE_SESSION_BAR`) |
 
 **Hero.** A 24px-radius photo surface under the `hero-scrim`. One blue 52px button does the obvious thing: "Continue
 shopping" for a running session, "Start shopping" for the most overdue list, or "Upload receipt" for an account without
@@ -789,7 +806,7 @@ On the receipt screen (`features/tickets/receipt/ticket-review.tsx`) the photo i
 title (thumbnail, `Receipt Photo`, `1 photo · Tap to enlarge`, a 44px expand control) opens a full-screen viewer with pinch and
 double-tap zoom, `−`/`+`, Rotate and Fit, a strip of 48px thumbnails when there are several photos, and `Compare`. Compare puts
 the photo above the items with a draggable, keyboard-operable separator, so a line can be checked against the paper and ticked
-without scrolling. Items are grouped by category in collapsible sections (a 32px line-icon tile, the name, a mono count); OCR
+without scrolling. Items are grouped by category in collapsible sections (a 32px grey tile with the category's own coloured line icon, the name as the category caption in capitals, a mono count); OCR
 names printed in capitals are shown in Title Case (short codes such as “PC” stay, the stored value is untouched). Rows have a
 44px checkbox target, a quantity chip and the price in mono. Ticking items raises a bar above the tab bar's upload button with the
 count, their total in mono, `Clear` and `Add to a List`. The summary card closes the screen with the item count, the calculated
@@ -809,17 +826,38 @@ A receipt that was read but has no items (completed, 0 items found) keeps its it
 
 ### 7.7 Group and base-list card
 
-A group card answers: what is it, how many lists/items does it contain, who shares it, and where does it lead? Collaborator
-avatars show at most three people plus a `+N` counter. People are circles (40px with a 3px white ring, overlapping by 10px,
-soft radial gradients or initials on `#E9ECF0`); groups and stores are 12px-radius squares. A base-list card prioritizes list name,
-item count, notes, and `Start shopping`. Destructive management is secondary to opening or starting the list.
+The Lists section (design boards "Lists mobile") has four screens built from one set of pieces in `components/commons`
+(`EntityCard`, `EntityEditCard`, `CreateEntitySheet`, `ConfirmSheet`, `ListToolbar`, `EmptyStateCard`, `CategorySection`, `RowMenu`).
+
+- **Groups and lists.** After the A1 header, a toolbar row: the mono count ("3 groups") at the left and the screen's one creation
+  action at the right (`New Group`, `New Base List`: 44px, 12px radius, primary). A card (24px radius, borderless, 16px padding) holds a
+  36px blue tile (the 100-level fill, 700-level icon), the name (Plus Jakarta 16px / 600), one line of description or notes with an
+  ellipsis, and a `...` menu of 44px with Edit and Delete (Delete in red). Below a hairline, the count in mono ("2 lists", "No lists
+  yet") and a blue `View Details` / `View Items` link. The whole card is the link (the title stretches over it); the menu sits above it.
+  One column below `sm`, two from `sm`, three from `xl`.
+- **Edit in place.** `Edit Group` / `Edit List` swaps the card for a form on the same surface: `Name *` (a 48px field) and
+  `Description` / `Notes` (a field that grows), then `Cancel` and `Save` side by side. An empty name shows "Name is required" under the
+  field with an alert icon and a red 2px ring.
+- **Create.** A bottom sheet on phones and a 520px dialog from `sm`: title, one line of help, the same fields, "* Required fields" and
+  `Cancel` / `Create Group` (`Create List`). The first-use state is one card with a blue tile, what is missing and the same action.
+- **Delete.** A sheet titled with the name ("Delete “Walmart”?") and a red box with the consequence (the lists and items that go with
+  it, the people who lose access, that it cannot be undone), then `Cancel` and a red `Delete Group` / `Delete List`.
+- **Loading.** `loading.tsx` draws the toolbar and three card shapes.
+- **Category section.** A list's items and a trip's items sit in one card; each category folds: a 32px grey tile with the category's
+  own coloured icon (700 level: Bakery amber, Bulk Food orange, Dairy sky, Frozen teal, Meat red, Pantry purple, Produce green, Home
+  indigo), its name as the category caption (section 4.2), the count in mono (`3 items`, or `1/2` in a trip) and a chevron; the rows
+  sit on a `#F6F7F9` surface with 16px radius. Lists longer than 12 items open only their first two categories.
 
 ### 7.8 Shopping item row
 
-Minimum height is 56px. Quantity/unit sits in a fixed-width, soft-blue tile; name and optional note flex; checkbox/action
-stays at the trailing edge. Tapping the label toggles the item. Checked state adds a check, changes the accessible state, and
-may soften or strike the name; opacity alone is insufficient. Realtime updates must not animate or reorder while the user is
-editing that row.
+A list item row is at least 64px high: a quantity chip (22px, 7px radius, mono quantity and unit), the name in Title Case (the stored
+name is never changed) with an optional 12px note, and a 44px `...` menu with `Edit Item` and `Delete Item`. Editing swaps the row for an
+`Edit Item` form in its category (name, quantity and unit, notes, `Cancel` / `Save`). Deleting offers `Undo` in a toast; the API has no
+restore, so Undo adds the item again with the same data. A shopping-session row (68px) starts with a 44px checkbox target: tapping the
+label toggles the item, a ticked item is struck through and grey with its chip faded (never opacity alone: the checkbox and the
+accessible name say it too), and its menu is the same. `Add Item` is a sheet with name, quantity, unit, category and notes; its errors
+read "Name is required" and "Must be above 0" under the field. Realtime updates must not animate or reorder while the user is editing
+that row.
 
 ### 7.9 Progress
 
@@ -848,7 +886,7 @@ raised 58px **Upload Receipt** button in the middle, Receipts and History.
 | Bar | White, a hairline on top and a soft upward shadow; padding `4 8 18` (the bottom grows to the device's safe-area inset when larger); pinned to the bottom edge of the screen; hidden from `lg` |
 | Content clearance | The scrolling content carries a bottom padding equal to the bar's height (80.5px) so its last row stays reachable; surfaces pinned to the bottom edge sit above it (`ABOVE_MOBILE_TAB_BAR` in `src/components/app/helpers/mobile-tab-bar-layout.ts`) |
 | Tab | 58.5px high (every tab, even when none is current, so the bar never changes height), 24px icon at stroke 1.5, 11.5px label, 12px radius |
-| Current tab | `#E9ECF0` surface, `#1D4ED8` text, weight 600 and a 4px dot under the label (`aria-current="page"`); inactive tabs are `slate-500`, weight 500 |
+| Current tab | `#E9ECF0` surface, `#1D4ED8` text and weight 600, with no extra marker (`aria-current="page"`); inactive tabs are `slate-500`, weight 500. Lists stays current on a list and on a shopping session, whose paths start with `/base-lists` and `/shopping/` |
 | Raised action | 58x58, 16px radius, primary with the highlight layer, a 6px white ring plus the blue glow, 24px above the bar edge, 26px icon, `aria-label` "Upload a receipt" |
 
 The desktop sidebar follows the A1 desktop board (the shadcn floating sidebar): a white card with a 12px radius and a
@@ -869,6 +907,18 @@ load in the browser, only while the sidebar is open, and again on each page chan
 Use dialogs for focused creation/confirmation, sheets for mobile navigation or multi-step review, and menus for short
 secondary action lists. A dialog has one title, optional description, content, and a consistent footer. Destructive
 confirmation names the object being affected and states whether recovery is possible. Focus returns to the trigger on close.
+
+**A1 sheets.** Every create, edit, share and confirm flow of the Lists and receipts screens opens in `SheetDialog`: a bottom sheet on
+phones (28px top radius, a 20px Plus Jakarta 600 title at the left, a 44px close target) and a centred 520px dialog from `sm`.
+`ConfirmSheet` is its two-button form: `Cancel` (grey) at the left and the confirm at the right, 48px tall, red for a destructive action,
+with an optional red consequence box. Start Shopping is one: a 48px blue cart tile, "This will create a new shopping session using the
+items of “…”" and the note "Only one shopping session can be active at a time". While a session is active the `Start Shopping` button
+is not drawn at all, on the list screen and on the dashboard, and the session bar (section 6.5) is the way back. A list with no items
+shows it disabled.
+
+The share sheet holds the list's `Invite link` (a read-only mono field with an ellipsis, `Copy Link` that turns into `Link Copied`, and
+`Regenerate` / `Revoke`, which asks first in the same place) and its `Collaborators` (initials avatar, name, a role chip, and a remove
+control that asks first in the row).
 
 Dialogs are white with a 28px radius and the `overlay` shadow: a 22px icon, a Plus Jakarta Sans 700 17px title, a 28px
 tertiary close button, a grey 14px body, and a footer of a tertiary "Cancel" and the confirming button (danger for deletes).
@@ -1114,6 +1164,10 @@ These are remaining implementation notes, not permission for two systems:
    hero button at 52px, and an "Up Next" "View all" link; this document and the code use the compact phone sizes and no
    "Up Next" link. The "Invite family" row of "Up Next" is not produced by the dashboard model, and the quick-start chips
    exclude the list the hero button starts (the boards show all lists).
+3a. **Lists:** the Lists screens implement the phone designs (groups, lists, items, share, start, session, session bar) and degrade on desktop to the
+   same toolbar and cards, with the items and the session capped at 768px. Gaps: `Undo` after deleting an item adds it again (new id) because the API has no restore;
+   units show as stored (`l`, `unit`) where the boards draw `L`; "Revoke" keeps the existing behaviour (people who joined keep access until removed) and says so;
+   the toast of `Undo` appears at the top (`Toaster` position) and not above the tab bar; and the session bar needs a second request for its count when the page changes.
 3b. **Receipts:** the receipt screens implement the phone and desktop designs. Gaps: the upload form shows an indeterminate progress line, not the
    per-photo progress ("1 of 2 photos uploaded") of the mockups, because the photos go up in one request; and the receipt list has no filter or search.
 4. **Cards and dark mode:** cards outside the dashboard keep the 16px radius and a border; v2 dark values are not defined

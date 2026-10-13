@@ -14,10 +14,12 @@ import { EMPTY_STATE_ACTION, FOCUS_RING, START_ACTION } from './helpers/dashboar
 
 interface Props {
 	groups: GroupPreview[]
+	/** A shopping session is running, so no list can start another one: the "Start" buttons are not drawn. */
+	sessionActive?: boolean
 }
 
 /** Shopping List Groups: each group with the lists inside it, so the group → list → start path is visible at a glance. */
-export function GroupsSectionCard({ groups }: Props) {
+export function GroupsSectionCard({ groups, sessionActive = false }: Props) {
 	return (
 		<DashboardSectionCard
 			testId='dashboard-groups-card'
@@ -88,6 +90,7 @@ export function GroupsSectionCard({ groups }: Props) {
 											baseListId={list.id}
 											baseListName={list.name}
 											itemsCount={list.itemsCount}
+											sessionActive={sessionActive}
 											className={START_ACTION}
 										>
 											Start

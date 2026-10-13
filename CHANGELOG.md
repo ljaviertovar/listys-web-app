@@ -2,6 +2,32 @@
 
 ## Unreleased
 
+- The Lists section follows the approved phone designs: groups, the lists of a group, a list's items, sharing, starting a shopping and the
+  shopping session itself. Groups and lists are 24px cards with a tile, one line of description, a `...` menu (Edit and Delete) and a
+  `View Details` / `View Items` footer; the creation button moves to the toolbar under the title (the pinned bottom bar that fought the
+  tab bar's button is gone), the first-use state is one card with its own button, `loading.tsx` draws a skeleton, rename happens in the
+  card ("Name is required" under the field) and every create, edit, delete, share and confirm flow is a bottom sheet on phones
+  (`SheetDialog`, `ConfirmSheet`). A list's items are one card with a collapsible section per category (the coloured icon on a grey
+  tile, the name as a capitalised 12px caption, a mono count), rows with a quantity chip and a `...` menu, an inline `Edit Item` form,
+  `Add Item` as a sheet with field errors, and a delete that offers `Undo` (it adds the item again: the API has no restore). `Start
+  Shopping` is the primary action under the list's title (disabled when the list is empty) and is not drawn at all while a shopping
+  session is active, on the list and on the dashboard, because only one can run. The share sheet shows a read-only link with `Copy Link`
+  / `Link Copied`, `Regenerate`, `Revoke` (it asks first) and the collaborators with a role chip and a confirmation before removing one.
+  The shopping session has a `Shopping` chip, a progress card, `done/total` per category, `Share` and `Add Item`, and one small floating
+  `Actions` button (a menu with `Complete Shopping` and `Cancel Shopping`) above the tab bar instead of the pinned bar; `Complete` says
+  how many items are left or, with all ticked, reads "All Items Checked" with an icon instead of the emoji, and both it and `Cancel` are
+  sheets. From `lg` the two actions sit beside the title and the content is capped at 768px.
+- New active-session bar (`ActiveSessionBar`, `SessionBar`): on phones, a dark 48px bar above the tab bar with the trip's ring, name,
+  "n of m · p%" and `Continue`, shown on every screen except the session's own. It replaces the dashboard-only pill (`MobileSessionBar`
+  is gone) and is smaller (it was 72px); the receipt selection bar stacks above it. Lists stays the current tab on a list and on a
+  session. `tickets/receipt/helpers/ticket-category-icon.ts` moved to `commons/category-section` and now also gives each category its
+  own colour, so receipts and lists share one category section; category names there are the capitalised caption too.
+- Shared pieces for forms and cards: `components/commons` gains `SheetDialog`, `ConfirmSheet`, `FormField`, `EntityCard`,
+  `EntityEditCard`, `CreateEntitySheet`, `EntityCardSkeleton`, `ListToolbar`, `EmptyStateCard`, `CategorySection` and `RowMenu`;
+  `features/list-items` holds the item forms (`AddItemSheet`, `ItemEditForm`, `ItemQuantityChip`); `formatItemName` and a generic
+  `groupByCategory` live in `utils`. Removed: `EditGroupDialog` (unused), `AddItemDialogBaseList`, `ActionsItemFormBaseList`,
+  `CompleteSessionAlert`, `CompleteSessionButton`, `CancelSessionButton` and the sharing utils for badges and empty states.
+
 - Receipt status chips no longer look like a secondary button: they are 22px pills tinted with their status (Pending slate, Processing
   amber, Completed green, Failed red) with a 12px icon and an 11.5px / 600 label, instead of 26px grey chips with an 8px radius, and the
   receipt card's icon tile is 36px with an 18px icon (it was 48px with a 24px icon), the size of the dashboard's receipt rows.

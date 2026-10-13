@@ -11,11 +11,16 @@ import { MOBILE_TAB_ITEMS } from '@/data/constants'
 import { cn } from '@/utils'
 import { checkIsActive } from './sidebar/helpers/check-is-active'
 
+/** The screens of a list and of a running trip belong to the Lists tab although their paths start elsewhere. */
+export function isListsSection(pathname: string) {
+	return /^\/(base-lists|shopping)\//.test(pathname)
+}
+
 const TAB_FOCUS_RING =
 	'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card'
 
 /**
- * One destination of the bar; the current one is blue, bold, on a grey pill and carries a dot under its label (design A1 mobile). Every
+ * One destination of the bar; the current one is blue and bold on a grey pill, with no extra marker (design A1 mobile). Every
  * tab is as tall as the current one, so the bar keeps its height on pages where none of the four is current.
  */
 function Tab({ item, isActive }: { item: (typeof MOBILE_TAB_ITEMS)[number]; isActive: boolean }) {
@@ -56,7 +61,7 @@ export function MobileTabBar() {
 	const tab = (item: (typeof MOBILE_TAB_ITEMS)[number]) => (
 		<Tab
 			item={item}
-			isActive={checkIsActive(pathname, item, true)}
+			isActive={checkIsActive(pathname, item, true) || (item === lists && isListsSection(pathname))}
 		/>
 	)
 

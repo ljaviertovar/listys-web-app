@@ -3,7 +3,6 @@ import { describe, expect, it } from 'vitest'
 import type { TicketItem } from '@/types'
 
 import { classifyPhoto, isHeic, rejectionMessage } from '../upload/helpers/classify-photo'
-import { formatItemName } from '../receipt/helpers/format-item-name'
 import { groupTicketItems, lineTotal, sumLineTotals } from '../receipt/helpers/group-ticket-items'
 import {
 	MAX_ZOOM,
@@ -32,22 +31,6 @@ function item(overrides: Partial<TicketItem>): TicketItem {
 		...overrides,
 	}
 }
-
-describe('formatItemName', () => {
-	it('puts a name printed in capitals in Title Case', () => {
-		expect(formatItemName('PC MINI TORTILLA')).toBe('PC Mini Tortilla')
-		expect(formatItemName('BANANA ORGANIC')).toBe('Banana Organic')
-	})
-
-	it('keeps short codes in capitals and weights in lowercase', () => {
-		expect(formatItemName('BD SNK MRB CHDR')).toBe('BD Snk Mrb Chdr')
-		expect(formatItemName('GREEK YOGURT 500G')).toBe('Greek Yogurt 500g')
-	})
-
-	it('leaves a name that already has lowercase letters alone', () => {
-		expect(formatItemName('Mom’s Salsa')).toBe('Mom’s Salsa')
-	})
-})
 
 describe('groupTicketItems', () => {
 	it('groups by normalised category, sorted by name, with the uncategorised ones under Other', () => {

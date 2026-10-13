@@ -1,16 +1,15 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { HugeiconsIcon } from '@hugeicons/react'
 
-import { Card, CardContent } from '@/components/ui/card'
-import { CreateBaseListDialog, BaseListCard } from '@/components/features/base-lists'
-import { SearchList01Icon } from '@hugeicons/core-free-icons'
-
-import { BackLink, ActiveShopping, PageHeader, PageContainer, PageFooterAction } from '@/components/app'
+import { PageContainer, PageHeader } from '@/components/app'
+import { BaseListsList } from '@/components/features/base-lists'
 
 import { getBaseListsByGroup } from '@/lib/api/endpoints'
 
 import type { BaseListWithCount } from '@/types'
+
+/** A list as the API returns it: the item count comes nested as `items: [{ count }]`. */
+type BaseListRow = Omit<BaseListWithCount, 'items_count'> & { items?: Array<{ count?: number }> }
 
 export default async function BaseListsPage({ params }: { params: Promise<{ groupId: string }> }) {
 	const { groupId } = await params
@@ -28,14 +27,7 @@ export default async function BaseListsPage({ params }: { params: Promise<{ grou
 		supabase.from('groups').select('name').eq('id', groupId).single(),
 		supabase
 			.from('shopping_sessions')
-			.select(
-				`
-				id,
-				name,
-				base_list_id,
-				items:shopping_session_items(checked)
-			`,
-			)
+			.select('id, base_list_id')
 			.eq('user_id', user.id)
 			.eq('status', 'active')
 			.maybeSingle(),
@@ -46,89 +38,37 @@ export default async function BaseListsPage({ params }: { params: Promise<{ grou
 	const { data: activeSession } = activeSessionResult
 
 	// Transform Supabase count result to our type
-	const baseListsWithCount: BaseListWithCount[] = baseLists
-		? baseLists.map((list: any) => ({
-				...list,
-				items_count: Array.isArray(list.items) ? list.items[0]?.count || 0 : 0,
-			}))
-		: []
+	const baseListsWithCount: BaseListWithCount[] = ((baseLists ?? []) as BaseListRow[]).map(list => ({
+		...list,
+		items_count: Array.isArray(list.items) ? list.items[0]?.count || 0 : 0,
+	}))
 
 	return (
 		<>
 			<PageHeader
+				variant='screen'
+				back={{ href: '/shopping-lists', label: 'Back to Shopping Lists' }}
 				title={group?.name || 'Base Lists'}
 				desc='Manage your base shopping lists'
-			>
-				{baseLists && baseLists.length > 0 && (
-					<div className='justify-end hidden md:flex	'>
-						<div className='w-fit'>
-							<CreateBaseListDialog groupId={groupId} />
-						</div>
-					</div>
-				)}
-			</PageHeader>
+			/>
 
 			<PageContainer>
-				<BackLink
-					href='/shopping-lists'
-					label='Back to Shopping Lists'
-				/>
-
 				{error && (
-					<div className='rounded-lg bg-destructive/10 p-4 text-sm text-destructive'>Error loading lists: {error}</div>
-				)}
-
-				{!baseLists || baseLists.length === 0 ? (
-					<Card
-						variant='premium'
-						className='group relative flex h-full cursor-pointer flex-col bg-card transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 gap-0 py-4'
+					<div
+						role='alert'
+						className='rounded-[12px] bg-destructive/10 p-4 text-sm text-destructive'
 					>
-						<CardContent className='flex w-full max-w-md flex-col items-center pt-6 text-center'>
-							<div className='flex h-16 w-16 items-center justify-center text-primary'>
-								<HugeiconsIcon
-									icon={SearchList01Icon}
-									strokeWidth={2}
-									className='h-12 w-12'
-								/>
-							</div>
-							<div className='mt-1'>
-								<h3 className='text-xl font-semibold tracking-tight'>No base lists yet</h3>
-								<p className='mt-1 text-sm text-muted-foreground'>Create your first base list with common items.</p>
-							</div>
-							<div className='mt-6 w-full max-w-[260px]'>
-								<CreateBaseListDialog groupId={groupId} />
-							</div>
-						</CardContent>
-					</Card>
-				) : (
-					<div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3'>
-						{baseListsWithCount
-							.sort((a, b) => {
-								// Active session first
-								const aIsActive = activeSession?.base_list_id === a.id
-								const bIsActive = activeSession?.base_list_id === b.id
-								if (aIsActive && !bIsActive) return -1
-								if (!aIsActive && bIsActive) return 1
-								return 0
-							})
-							.map(baseList => (
-								<BaseListCard
-									key={baseList.id}
-									baseList={baseList}
-									isActiveRun={activeSession?.base_list_id === baseList.id}
-								/>
-							))}
+						Error loading lists: {error}
 					</div>
 				)}
-			</PageContainer>
 
-			{baseLists && baseLists.length > 0 && (
-				<PageFooterAction>
-					<div className='w-full md:hidden'>
-						<CreateBaseListDialog groupId={groupId} />
-					</div>
-				</PageFooterAction>
-			)}
+				<BaseListsList
+					groupId={groupId}
+					groupName={group?.name || 'this group'}
+					baseLists={baseListsWithCount}
+					activeBaseListId={activeSession?.base_list_id}
+				/>
+			</PageContainer>
 		</>
 	)
 }
