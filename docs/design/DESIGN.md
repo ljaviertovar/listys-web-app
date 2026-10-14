@@ -622,8 +622,8 @@ that were bought, without checkboxes or menus.
 ### 6.5 Dashboard and phone shell (design A1)
 
 The dashboard and the phone shell follow the A1 and A1 mobile boards of the canvas. Their values take precedence over the
-generic scale on this surface and live in `src/components/features/dashboard/helpers/dashboard-styles.ts` and
-`src/components/app/mobile-tab-bar.tsx`.
+generic scale on this surface. They are expressed with the native props and tokens of `src/components/ui/` (section 11.5) and
+the shell in `src/components/app/mobile-tab-bar.tsx`.
 
 **Phone shell** (below `lg`):
 
@@ -1149,16 +1149,13 @@ repository's `data-testid` and test-location rules.
 
 These are remaining implementation notes, not permission for two systems:
 
-1. **v2 surfaces and tokens:** `globals.css` still has `--background` white, `--muted` and `--sidebar` near `#F8FAFC`,
-   `--secondary` near `#F1F5F9`, `--border`/`--input` as hairlines and `--radius` at 6px. Only the authenticated layout sets
-   the `#F2F4F7` ground (`bg-[#F2F4F7]` on `main`), and only the dashboard uses 24px borderless cards and the `#E9ECF0` hover
-   values (as literal arbitrary values in `dashboard-styles.ts`). Move them into tokens. Because `--radius` is 6px, `rounded-lg`
-   and `rounded-xl` are 6px and 10px here, not the 8px and 12px of the v2 scale: the redesigned surfaces (sidebar, dashboard,
-   tab bar) write those radii as explicit values (`rounded-[8px]`, `rounded-[12px]`) until the token changes.
-2. **Buttons:** `ui/button.tsx` has `default`, `outline`, `secondary`, `ghost`, `destructive` and `link`, a 36px default
-   height and a `rounded-md` default radius, applies `PRIMARY_BUTTON_LAYER` to every primary, and its `secondary` is the white outlined style.
-   The v2 set (flat primary, secondary `#E9ECF0` with blue text, tertiary, outline ring, danger soft, sizes 32/40/48/52, 12px
-   radius, highlight layer only on the hero and raised action) is not implemented.
+1. **v2 surfaces and tokens (done, see 11.5):** `--background` is the `#F2F4F7` ground, `--secondary` the `#E9ECF0` button surface,
+   `--muted` `#F6F7F9`, `--destructive` `#DC2626` and `--radius` 8px, so `rounded-xl` is the 12px of controls and no call site writes an
+   arbitrary radius or hex. The marketing root restores the pre-A1 values for the landing page. Still open: `--border`/`--input` as
+   hairlines and the sidebar tokens.
+2. **Buttons (done, see 11.5):** `ui/button.tsx` carries the sizes (24, 32, 36, 40, 44 and 52px), the 12px radius, the Plus Jakarta
+   label and the `secondary`, `destructive`, `destructive-soft`, `success-soft`, `hero` and `fab` variants. Still open: the tertiary
+   variant, and the highlight layer is still on every primary instead of only the hero and the raised action.
 3. **Canvas boards:** the boards and the design system still draw the labels of buttons and links in sentence case ("View all",
    "Start shopping", "Sign out", "New group"); the code follows the Title Case rule of section 7.1. They also still draw "View all" at 40px and the empty-state buttons at 44px, the new-account
    hero button at 52px, and an "Up Next" "View all" link; this document and the code use the compact phone sizes and no
@@ -1170,16 +1167,15 @@ These are remaining implementation notes, not permission for two systems:
    the toast of `Undo` appears at the top (`Toaster` position) and not above the tab bar; and the session bar needs a second request for its count when the page changes.
 3b. **Receipts:** the receipt screens implement the phone and desktop designs. Gaps: the upload form shows an indeterminate progress line, not the
    per-photo progress ("1 of 2 photos uploaded") of the mockups, because the photos go up in one request; and the receipt list has no filter or search.
-4. **Cards and dark mode:** cards outside the dashboard keep the 16px radius and a border; v2 dark values are not defined
-   in the canvas, so dark mode keeps section 3.4 until it is reviewed.
+4. **Dark mode:** `Card` is the 24px borderless surface everywhere now; v2 dark values are not defined in the canvas and the new
+   tokens (`--secondary-hover`, shadows) only keep dark mode valid, so it is deferred until it is reviewed.
 5. **Colour discipline:** marketing, authentication, shopping categories, and statuses use independent violet, pink, green,
    amber, sky, and slate utilities. Consolidate them into the semantic palette above.
 6. **Marketing motion:** `hero-mesh`, floating elements, pulsing arrows, and the looping scan line exceed the target motion
    rules. Keep one receipt-to-list transformation and remove ambient loops.
 8. **Claims:** current marketing constants include “99% OCR accuracy” and “4.9/5 App store rating.” Remove them unless a
    maintained evidence source exists.
-9. **Radius/elevation:** primitives and pages mix base 6px radii, 12px cards, 16px auth controls, and large device radii.
-   Normalize to the roles in section 5.1 rather than by global search-and-replace.
+9. **Radius/elevation:** the roles of section 5.1 map onto the native radius scale (11.5); marketing keeps its own 6px base.
 10. **Icons:** Hugeicons and Lucide coexist. Standardize feature by feature, never by replacing icons without reviewing
    optical size and accessible labels.
 11. **Dark mode:** semantic tokens exist, but one-off literal colour utilities and translucent surfaces require a complete
@@ -1196,6 +1192,48 @@ These are remaining implementation notes, not permission for two systems:
 
 Migrate one vertical flow at a time: primitives and tokens, app shell, active shopping, receipts/OCR, lists and history,
 authentication, then marketing. Each flow should be visually complete in light/dark and mobile/desktop before the next begins.
+
+### 11.5 Native scale: the design on the library's own props
+
+The design is implemented with shadcn's native props and Tailwind's own scale; a call site does not restate any of it in `className`
+(AGENTS.md, "shadcn-native first"). Where the mockups draw a value that is not on the scale, the closest native one is used.
+
+| Concern | Native value | Lives in |
+| --- | --- | --- |
+| Button `size` | `xs` 24 · `sm` 32 · `default` 36 · `lg` 40 · `xl` 44 (touch actions, toolbars, sheet and form footers; the mockups' 48 became 44) · `2xl` 52 (hero) | `ui/button.tsx` |
+| Icon button `size` | `icon` 36 · `icon-xs` 24 · `icon-sm` 32 · `icon-lg` 40 · `icon-xl` 44 · `icon-2xl` 48 (raised tab-bar action) | `ui/button.tsx` |
+| Button `variant` | `default`, `secondary` (`--secondary`, blue text), `outline`, `ghost`, `destructive`, `destructive-soft`, `success-soft`, `hero` (glow, lift), `fab`, `link`; quiet row/icon actions `quiet`, `quiet-destructive`, `destructive-ghost`, `ghost-primary` (a blue text action such as "View All"), `floating` (the session Actions button); the dark viewer's `on-dark`, `viewer`, `overlay`; the drop target `dropzone` | `ui/button.tsx` |
+| Button `size` (content height) | `block`: `h-auto`, several lines, 24px padding (drop targets) | `ui/button.tsx` |
+| Button `rounded` | `xl` by default (12px); `md`, `lg`, `2xl`, `3xl`, `full` | `ui/button.tsx` |
+| Link that looks like a button | `<Button asChild variant size><Link/></Button>`; never `buttonVariants()` or hand-set classes on `Link` (back link, "View All", the shortcut chips, the session bar's Continue) | call sites |
+| Field `size` | `default` 36 (`rounded-xl`) · `lg` 44 (`rounded-2xl`, the 16px of the form fields); borderless on `bg-card` with `shadow-field`; invalid: a `--destructive` ring | `ui/input.tsx`, `ui/textarea.tsx`, `ui/select.tsx` |
+| Card | `rounded-3xl` (24px), `shadow-card`, no border; `size` `compact` / `tight` / `flush` for cards of rows; `variant` `premium`, `accent`, `ghost`, `glass`; `interactive` lifts the shadow | `ui/card.tsx` |
+| Badge | 22px (`h-5.5`), `text-xs`; `variant` `completed`, `failed`, `processing`, `pending`, `neutral`, `outline`, `on-dark`; `size` `lg` | `ui/badge.tsx` |
+| Dialog, sheet | `rounded-3xl`; on phones the sheet is `rounded-t-3xl`. `DialogContent variant` `sheet` (the A1 form panel: 20px gap, 20/24px padding, no border, safe-area bottom) or `viewer` (dark full screen); `DialogTitle variant` `sheet` / `strong` / `viewer`; `DialogDescription variant` `sheet`; `AlertDialogTitle variant` `strong`; `AlertDialogMedia tone` `destructive`. Closing is `<DialogClose asChild><Button variant='quiet' size='icon-xl'>` | `ui/dialog.tsx`, `ui/alert-dialog.tsx` |
+| Menus | `DropdownMenuContent variant` `menu` (a row or action menu: 16px radius, `shadow-menu`) or `account` (24px radius, `shadow-menu-lg`); `DropdownMenuItem size` `touch` (44px, display face) · `row` (52px link row) · `action` (filled secondary row, e.g. Sign Out) and `variant='destructive'`; `DropdownMenuLabel variant='identity'`; `DropdownMenuSeparator variant='solid'` | `ui/dropdown-menu.tsx` |
+| Form parts | `Label` is 14px semibold with the default 20px line; `Checkbox size` `default` 16 · `lg` 22 (the touch box of lists); `CardTitle variant` `strong` / `display`; `CardDescription size` `lg`, `weight` `medium` | `ui/label.tsx`, `ui/checkbox.tsx`, `ui/card.tsx` |
+| Progress | `size` `default` 12 · `md` 8 · `sm` 6; `tone` `default`, `soft` (pale blue track), `track` (hairline-grey), `on-dark` (translucent track, blue gradient fill); `complete` turns the fill green | `ui/progress.tsx` |
+| Avatar | `size` `sm` 24 · `default` 32 · `md` 36 · `lg` 40 · `xl` 44 · `2xl` 96; `ring` for the profile portrait; `AvatarFallback tone` `soft` (blue initials badge) or `initials` (bold uppercase); `AvatarGroupCount` is 12px bold | `ui/avatar.tsx` |
+| Sidebar | the A1 entries are the default look of `SidebarMenuButton`, `SidebarMenuSubButton` and `SidebarGroupLabel` (slate entry, blue on the secondary surface when current); `SidebarProvider` carries the page ground; `--sidebar` is the card white in light mode | `ui/sidebar.tsx`, `globals.css` |
+| Collapsible | `CollapsibleTrigger variant='row'`: the 52px header row of a category section | `ui/collapsible.tsx` |
+| Badge `size` | `lg` 28 (rounded-lg) · `hero` (as tall as its two lines need, for the pill over the dashboard hero) | `ui/badge.tsx` |
+| Radius scale | `--radius` 0.5rem: `rounded-lg` 8 · `rounded-xl` 12 (controls, rows) · `rounded-2xl` 16 (fields) · `rounded-3xl` 24 (cards, dialogs) · `rounded-full` | `globals.css` |
+| Colour tokens | `--background` `#F2F4F7` · `--card` white · `--secondary` `#E9ECF0`, `--secondary-hover` `#DEE2E8`, `--secondary-foreground` `#1D4ED8` · `--muted` `#F6F7F9` · `--destructive` `#DC2626` · `--color-ink` `#0B1220` (receipt viewer) | `globals.css` |
+| Shadow tokens | `shadow-card`, `shadow-card-hover`, `shadow-field`, `shadow-premium`, `shadow-glow`, `shadow-fab`, `shadow-menu`, `shadow-menu-lg` | `globals.css` |
+| Spacing, sizes | Tailwind steps (`h-5.5`, `gap-2.5`, `p-4`); odd pixel values were rounded to the nearest 2px step | call sites |
+| Text | `text-xs` 12 · `text-sm` 14 · `text-base` 16 · `text-xl` · `text-3xl` 30 · `text-4xl` 36; `tracking-tight` for titles, `tracking-widest` for overlines | call sites |
+| Global styles | app-wide tokens, base rules and the `focus-ring` utility: `src/app/globals.css`; the landing page's own styles and the `.marketing` scope that restores the pre-A1 white page, light secondary and 6px radius: `src/app/(marketing)/marketing.css` | `src/app/` |
+
+What stays as a class by rule, and is checked by `src/test/native-props-guard.test.ts`: layout (width, margin, position, flex/grid
+placement, container spacing such as `space-y-4` on a `CardContent`), the shape of a `Skeleton` (its size and radius are the placeholder),
+and the glyph size of an icon. The few justified exceptions are listed with their reason in `src/test/native-props-allowlist.ts`
+(the account trigger's responsive gap, the landing header's lighter weight, and four custom interactive surfaces: the receipt-photo card
+row, the photo thumbnails, the remove-photo hit area and the tab-bar tab).
+
+Differences from the boards that follow from the scale: form fields and sheet actions are 44px instead of 48, the hero call to
+action is 52px at every width, the dashboard's Start pills and empty-state buttons use the standard sizes, and the date pill and
+status chips are `Badge` variants. Menu items are 44px (the sessions menu drew 48), the arrows over the photo viewer are 48 (`icon-2xl`,
+drawn 52), "View All" is 32px at every width, and `Label` keeps the 20px line height of `text-sm`. Dark mode is deferred (11.4).
 
 ---
 

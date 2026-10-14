@@ -19,17 +19,13 @@ npx skills install
 
 Re-run this command whenever new skills are added to the project.
 
-Human contribution setup and verification are documented in
-[docs/contributing/CONTRIBUTING.md](docs/contributing/CONTRIBUTING.md).
-
 ---
 
 ## Default Stack
 
 ### Core Platform
 
-- Auth: Supabase Auth with Google OAuth (the current product contract is Google-only; other methods require an explicit
-  product decision)
+- Auth: Supabase Auth with Google OAuth
 - Database: Supabase PostgreSQL (with Prisma ORM)
 - Authorization: PostgreSQL RLS
 - Backend: Next.js Route Handlers (REST-first)
@@ -44,10 +40,14 @@ Human contribution setup and verification are documented in
 
 ### Testing
 
-- Unit: Vitest
-- E2E: Playwright
+- Unit and component logic: Vitest, using `pnpm test`.
+- Browser behavior and E2E: Playwright. Run E2E suites through the CLI with `npx playwright test`; use Playwright CLI
+  for interactive behavioral checks.
+- Visual validation: Chrome DevTools, using the available browser tools or MCP integration to inspect rendered
+  components, capture screenshots and compare the result with the proposed design.
 
-Run the configured unit and component tests with `pnpm test`. Add Playwright infrastructure only when an E2E flow requires it. Use Playwright CLI to run E2E tests: `npx playwright test`
+Add Playwright infrastructure only when a browser behavior or E2E flow requires it. See "Testing Expectations" for
+visual inspection requirements and the boundary between visual validation and behavioral tests.
 
 ---
 
@@ -270,6 +270,42 @@ Guidelines:
 
 ### Styling
 
+#### shadcn-native first
+
+When a project uses shadcn/ui, configure components through their supported props, variants and theme tokens.
+For other UI libraries, apply the same principle through the active library's equivalent APIs. Use the project's
+actual component locations, styling system and theme configuration; do not assume a framework or directory structure.
+
+- Component appearance — size, shape, colour, typography, borders, rings and shadows — belongs to the component's
+  props, variants and theme tokens. Do not override it at call sites with `className` or inline styles. Class-merging
+  utilities can make such overrides take precedence over the styles selected by props and silently break their contract.
+- Use `className` on library components only for external layout: width constraints, margins, positioning and flex/grid
+  placement. Control component height, internal padding, internal gaps and other appearance through the component API.
+- When the supported API cannot express a required design, define a reusable variant, size or theme token in the
+  project's shared component or theme layer, using the library's documented extension mechanism. Reuse it by name;
+  do not distribute appearance overrides or shared styling constants across call sites.
+- Wrappers around library components must accept and forward the relevant underlying props to the wrapped component.
+  In React, derive those props from the underlying component type where practical. Apply wrapper defaults only when a
+  caller omits the prop, so an explicit caller value always takes precedence.
+- Prefer the active styling system's standard spacing, sizing and radius scales, and the project's semantic colour
+  tokens. Use custom values only when no supported prop, token or utility expresses the requirement, and document the
+  reason where the exception is defined.
+- The rule covers every part of a library component, not only the headline control: titles, descriptions, menu items,
+  labels, avatars, progress bars, close buttons and compound-component triggers expose sizes, variants or tones too.
+  A native element or link that imitates a library component (a hand-styled button, a link with button classes, a
+  class-variance helper applied to a link) must use the library component, with the library's "render as child" option
+  when the element has to stay a link.
+- Exempt by rule: layout (width, margin, position, placement, spacing between children of a container), the shape of a
+  loading placeholder (its size and radius are what it draws) and the glyph size of an icon.
+- Where automated checks enforce these rules, derive the set of components and wrappers from the source instead of a
+  hand-kept list, follow class names through merge helpers, constants and `*ClassName` props, flag wrappers that drop
+  or override the props they receive (an explicit value written after the spread), and keep justified exceptions
+  explicit and documented. Do not assume particular test files, component names or allowlist locations.
+- Keep shared tokens, base rules and shared utilities in the project's established theme or global style layer.
+  Keep feature-specific styles scoped to their feature, following the project's styling conventions.
+
+#### Tailwind and plain CSS
+
 Tailwind CSS is the default and only styling mechanism. Before adding any plain CSS (a new class in a `.css` file, a
 `.module.css` file, an inline `<style>` block, or a raw `style` object beyond a genuinely dynamic value), first try to
 express the same result with Tailwind utility classes — including arbitrary-value utilities (e.g. a one-off pixel
@@ -296,8 +332,9 @@ for example: a multi-layer background composited from several gradients, a `mask
   page needs more than a couple of these exceptions, that is a signal to revisit the approach, not to keep adding
   classes.
 
-Before adding a new custom class, check whether an existing one in `src/app/globals.css` already covers the same
-effect (e.g. `hero-mesh`, `scan-line`, `glossy-icon`, `premium-card`) instead of duplicating it.
+Before adding a new custom class, check whether an existing one in `src/app/globals.css` (app-wide: `focus-ring`) or
+`src/app/(marketing)/marketing.css` (landing: `scan-line`, `receipt-torn`…) already covers the same effect instead of
+duplicating it.
 
 Delete a custom CSS class as soon as no component references it — an unused rule is dead weight the next person has
 to re-verify before trusting the stylesheet.
@@ -464,6 +501,15 @@ The full structure and rules are defined in [docs/architecture/project-structure
 ## Testing Expectations
 
 - Cover critical application-owned logic and behavior.
+- For every component change that affects appearance, start the application locally and use Chrome DevTools to open
+  the browser and validate the rendered result against the proposed design. Capture screenshots at the relevant mobile
+  and desktop viewports; inspect the live HTML/DOM structure, applied classes, computed styles and element dimensions.
+  Check typography, colours, spacing, alignment, sizing, responsive layout and relevant visual states. Fix discrepancies
+  and repeat the visual check before finishing. Reading TSX or passing behavioral tests alone does not validate appearance.
+- Use Playwright for browser-based user flows, navigation, interactions and behavioral assertions. Use isolated fixtures
+  and mock data or network responses where the test scope permits, while preserving the Supabase E2E rule below.
+  Test isolated application logic and component behavior with Vitest. Chrome DevTools visual checks complement the
+  automated tests; they do not replace them.
 - Place every component test in the `tests/` folder of its domain/module (see "Custom Hook
   Extraction") instead of loose next to the component file.
 - Do not create dedicated tests for unchanged third-party UI-library primitives, including generated or copied

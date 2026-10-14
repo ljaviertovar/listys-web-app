@@ -2,6 +2,45 @@
 
 ## Unreleased
 
+- The "shadcn-native first" rule now reaches every part of the library components and every wrapper, and the guard no longer depends on a
+  hand-written component list. `scripts/native-props-scan.cjs` reads the sources with the TypeScript compiler API and finds the wrappers
+  by itself (also wrappers of wrappers); it follows classes through `cn()`, templates, ternaries, constants (imported ones too) and any
+  `*ClassName` prop, and it flags `buttonVariants()` outside `ui`, hand-styled native `button`/`input`/`textarea`/`select`, links dressed as
+  buttons, classes on the child of an `asChild` component, wrappers that take `ButtonProps` and drop them, and `size`/`variant`/`rounded`
+  written after `{...props}`. The audit found 105 places (the old guard saw about a dozen): they now go through new native variants.
+  `Button` gained `quiet`, `quiet-destructive`, `destructive-ghost`, `ghost-primary`, `floating`, `on-dark`, `viewer`, `overlay` and
+  `dropzone`, the `block` size and the `3xl` radius; `DialogContent`/`DialogTitle`/`DialogDescription` have `sheet`, `strong` and `viewer`
+  variants, `AlertDialogTitle` `strong` and `AlertDialogMedia` `tone`; `DropdownMenuContent` has `menu` and `account`, its items `touch`,
+  `row` and `action` sizes, its label `identity` and its separator `solid`; `Checkbox` has `size` (`lg` = 22px), `Progress` `size`, `tone` and
+  `complete` (no more `indicatorClassName`), `Avatar` sizes up to `2xl`, `ring` and a fallback `tone`, `Card` title and description
+  variants, `Badge` a `hero` size, `CollapsibleTrigger` a `row` variant and `Label` is the semibold form label by default. The sidebar
+  entries, group label and provider carry the A1 look as their default; `--sidebar` is the card white. Tests: `native-props-guard.test.ts`
+  rebuilt on the scanner (with fixtures proving each class of mistake is caught) and behaviour tests for every variant above and for each
+  wrapper it derives. Visible changes: menu items in the sessions menu are 44px (were 48), the arrows over the photo viewer are 48 (were
+  52), "View All" is 32px at every width, the compare dialog's Done button uses the primary fill, and labels without their own class keep the
+  20px line height.
+- The app's design now rides on shadcn's own props instead of className constants. `Button` has a native scale (`xs` 24, `sm` 32,
+  `default` 36, `lg` 40, `xl` 44, `2xl` 52 and the matching icon sizes), a 12px default radius, the Plus Jakarta label and the
+  variants the A1 screens need (`secondary` is the grey button with blue text, `destructive` the red confirm, plus `success-soft`,
+  `hero` and `fab`); `Input`, `Textarea` and `SelectTrigger` carry the borderless field look with a `size` (`lg` = 44px); `Card` is
+  the 24px borderless surface with `size`, `variant` and `interactive`; `Badge` has the status tints and a `lg` size. Because call sites no
+  longer pass `h-`, `px-` or `rounded-` classes, `size` and `variant` now obey: wrappers such as `CreateGroupDialog`,
+  `CreateBaseListDialog`, `ShareListDialog`, `AddItemSheet`, `StartShoppingDialog` and `UploadTicketDialog` accept the `Button` props
+  and default to `size='xl'` (`AddItemSheet` lost its `emphasis` prop: pass `variant`). The 48px actions and fields are now 44px, the hero
+  call to action is 52px at every width, and `--radius` is 8px (so `rounded-xl` is the 12px of controls).
+- Theme tokens replace literals: `--background` is the `#F2F4F7` page ground, `--secondary` / `--secondary-hover` / `--secondary-foreground` the
+  grey button, `--muted` `#F6F7F9`, `--destructive` red-600, `--color-ink` the receipt viewer's dark surface, plus `shadow-card`,
+  `shadow-field`, `shadow-premium`, `shadow-glow` and `shadow-fab`. Arbitrary pixel and hex utilities in the app were converted to the
+  Tailwind scale and these tokens (text 13/13.5px are now `text-xs`/`text-sm`, titles 32/34px `text-3xl`/`text-4xl`).
+- Removed: `components/app/helpers/a1-surface.ts` (`A1_ACTION`, `A1_SECONDARY`, `A1_DANGER`, `A1_TOOLBAR_BUTTON`, `SECONDARY_ACTION`,
+  `FIELD_CONTROL`, `FIELD_AREA`, `CARD_SURFACE`, `FOCUS_RING`, `ROW_HOVER`), `features/dashboard/helpers/dashboard-styles.ts`,
+  the unused `ActiveShopping` card and the global `.premium-card`, `.hero-mesh`, `.tabular-nums` and `.scan-line` rules. The keyboard
+  focus ring is the `focus-ring` utility in `globals.css`.
+- The landing page's own CSS moved to `src/app/(marketing)/marketing.css`, which also holds the `.marketing` scope that restores the white
+  page, the light secondary and the 6px radius there, so the landing keeps its look under the new app tokens. New guard
+  `src/test/native-props-guard.test.ts` fails when a `Button`, `Input`, `Textarea`, `SelectTrigger`, `Card` or `Badge` gets size, spacing,
+  radius, colour or typography classes; `AGENTS.md` documents the rule ("shadcn-native first").
+
 - The Lists section follows the approved phone designs: groups, the lists of a group, a list's items, sharing, starting a shopping and the
   shopping session itself. Groups and lists are 24px cards with a tile, one line of description, a `...` menu (Edit and Delete) and a
   `View Details` / `View Items` footer; the creation button moves to the toolbar under the title (the pinned bottom bar that fought the
