@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from 'react'
+import { cva, type VariantProps } from 'class-variance-authority'
 import { DropdownMenu as DropdownMenuPrimitive } from 'radix-ui'
 
 import { cn } from '@/utils'
@@ -34,20 +35,35 @@ function DropdownMenuTrigger({ ...props }: React.ComponentProps<typeof DropdownM
 	)
 }
 
+/** `menu` is the A1 action menu (a row menu, the session actions); `account` is the larger account menu. */
+const dropdownMenuContentVariants = cva('', {
+	variants: {
+		variant: {
+			default: '',
+			menu: 'rounded-2xl border-0 bg-card p-1.5 shadow-menu ring-0',
+			account: 'rounded-3xl bg-card p-2 shadow-menu-lg ring-0',
+		},
+	},
+	defaultVariants: { variant: 'default' },
+})
+
 function DropdownMenuContent({
 	className,
 	align = 'start',
 	sideOffset = 4,
+	variant = 'default',
 	...props
-}: React.ComponentProps<typeof DropdownMenuPrimitive.Content>) {
+}: React.ComponentProps<typeof DropdownMenuPrimitive.Content> & VariantProps<typeof dropdownMenuContentVariants>) {
 	return (
 		<DropdownMenuPrimitive.Portal>
 			<DropdownMenuPrimitive.Content
 				data-slot='dropdown-menu-content'
+				data-variant={variant}
 				sideOffset={sideOffset}
 				align={align}
 				className={cn(
 					'data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 ring-foreground/5 bg-popover text-popover-foreground min-w-48 rounded-xl p-1 shadow-lg ring-1 duration-100 z-50 max-h-(--radix-dropdown-menu-content-available-height) w-(--radix-dropdown-menu-trigger-width) origin-(--radix-dropdown-menu-content-transform-origin) overflow-x-hidden overflow-y-auto data-[state=closed]:overflow-hidden',
+					dropdownMenuContentVariants({ variant }),
 					className,
 				)}
 				{...props}
@@ -65,22 +81,34 @@ function DropdownMenuGroup({ ...props }: React.ComponentProps<typeof DropdownMen
 	)
 }
 
+/** `touch` is a 44px action row; `row` a 52px link row with an icon tile; `action` a filled secondary row (Sign Out). */
+const dropdownMenuItemSizes = {
+	default: '',
+	touch: 'min-h-11 cursor-pointer font-display font-semibold',
+	row: 'min-h-13 gap-3 rounded-xl px-2.5 py-2 focus:bg-background dark:focus:bg-muted',
+	action: 'mx-0.5 mb-0.5 min-h-11 justify-center gap-2 rounded-xl bg-secondary font-display font-semibold hover:bg-secondary-hover focus:bg-secondary-hover dark:bg-muted dark:focus:bg-muted/70',
+}
+
 function DropdownMenuItem({
 	className,
 	inset,
 	variant = 'default',
+	size = 'default',
 	...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Item> & {
 	inset?: boolean
 	variant?: 'default' | 'destructive'
+	size?: keyof typeof dropdownMenuItemSizes
 }) {
 	return (
 		<DropdownMenuPrimitive.Item
 			data-slot='dropdown-menu-item'
 			data-inset={inset}
 			data-variant={variant}
+			data-size={size}
 			className={cn(
 				"focus:bg-accent focus:text-accent-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 dark:data-[variant=destructive]:focus:bg-destructive/20 data-[variant=destructive]:focus:text-destructive data-[variant=destructive]:*:[svg]:text-destructive not-data-[variant=destructive]:focus:**:text-accent-foreground gap-2.5 rounded-lg px-3 py-2 text-sm [&_svg:not([class*='size-'])]:size-4 group/dropdown-menu-item relative flex cursor-default items-center outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[inset]:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+				dropdownMenuItemSizes[size],
 				className,
 			)}
 			{...props}
@@ -162,25 +190,32 @@ function DropdownMenuRadioItem({
 function DropdownMenuLabel({
 	className,
 	inset,
+	variant = 'default',
 	...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Label> & {
 	inset?: boolean
+	/** `identity` is the account header: the avatar beside a name and an email. */
+	variant?: 'default' | 'identity'
 }) {
 	return (
 		<DropdownMenuPrimitive.Label
 			data-slot='dropdown-menu-label'
 			data-inset={inset}
-			className={cn('text-muted-foreground px-3 py-2.5 text-xs data-[inset]:pl-8', className)}
+			className={cn('text-muted-foreground px-3 py-2.5 text-xs data-[inset]:pl-8', variant === 'identity' && 'flex items-center gap-3 px-2.5 pt-2.5 pb-3 font-normal', className)}
 			{...props}
 		/>
 	)
 }
 
-function DropdownMenuSeparator({ className, ...props }: React.ComponentProps<typeof DropdownMenuPrimitive.Separator>) {
+function DropdownMenuSeparator({
+	className,
+	variant = 'default',
+	...props
+}: React.ComponentProps<typeof DropdownMenuPrimitive.Separator> & { variant?: 'default' | 'solid' }) {
 	return (
 		<DropdownMenuPrimitive.Separator
 			data-slot='dropdown-menu-separator'
-			className={cn('bg-border/50 -mx-1 my-1 h-px', className)}
+			className={cn('-mx-1 my-1 h-px', variant === 'solid' ? 'bg-border' : 'bg-border/50', className)}
 			{...props}
 		/>
 	)
@@ -251,6 +286,8 @@ function DropdownMenuSubContent({
 		/>
 	)
 }
+
+export { dropdownMenuContentVariants, dropdownMenuItemSizes }
 
 export {
 	DropdownMenu,

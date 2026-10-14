@@ -7,7 +7,8 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: oklch(1.0000 0 0);
+  /* Page grey of the app (A1 #F2F4F7): cards stay white on it. The marketing root restores white. */
+  --background: oklch(0.9665 0.0045 258.3247);
   --foreground: oklch(0.3211 0 0);
   --card: oklch(1.0000 0 0);
   --card-foreground: oklch(0.3211 0 0);
@@ -15,13 +16,16 @@
   --popover-foreground: oklch(0.3211 0 0);
   --primary: oklch(0.5461 0.2152 262.8809);
   --primary-foreground: oklch(1.0000 0 0);
-  --secondary: oklch(0.9670 0.0029 264.5419);
-  --secondary-foreground: oklch(0.4461 0.0263 256.8018);
-  --muted: oklch(0.9846 0.0017 247.8389);
+  /* Secondary button surface (A1 #E9ECF0 with blue-700 text) and its hover (#DEE2E8). */
+  --secondary: oklch(0.9419 0.0063 255.4760);
+  --secondary-hover: oklch(0.9115 0.0092 258.3370);
+  --secondary-foreground: oklch(0.4882 0.2172 264.3763);
+  --muted: oklch(0.9759 0.0029 264.5420);
   --muted-foreground: oklch(0.5510 0.0234 264.3637);
   --accent: oklch(0.9514 0.0250 236.8242);
   --accent-foreground: oklch(0.3791 0.1378 265.5222);
-  --destructive: oklch(0.6368 0.2078 25.3313);
+  /* Destructive = red-600 (A1 action-danger #DC2626). */
+  --destructive: oklch(0.5771 0.2152 27.3250);
   --destructive-foreground: oklch(1.0000 0 0);
   --border: oklch(0.9276 0.0058 264.5313);
   --input: oklch(0.9276 0.0058 264.5313);
@@ -31,7 +35,8 @@
   --chart-3: oklch(0.4882 0.2172 264.3763);
   --chart-4: oklch(0.4244 0.1809 265.6377);
   --chart-5: oklch(0.3791 0.1378 265.5222);
-  --sidebar: oklch(0.9846 0.0017 247.8389);
+  /* The A1 sidebar sits on the card surface (white), so its header, content and footer need no override. */
+  --sidebar: var(--card);
   --sidebar-foreground: oklch(0.3211 0 0);
   --sidebar-primary: oklch(0.5461 0.2152 262.8809);
   --sidebar-primary-foreground: oklch(1.0000 0 0);
@@ -39,7 +44,7 @@
   --sidebar-accent-foreground: oklch(0.3791 0.1378 265.5222);
   --sidebar-border: oklch(0.9276 0.0058 264.5313);
   --sidebar-ring: oklch(0.5461 0.2152 262.8809);
-  --radius: 0.375rem;
+  --radius: 0.5rem;
   --shadow-x: 0;
   --shadow-y: 1px;
   --shadow-blur: 3px;
@@ -68,6 +73,7 @@
   --primary: oklch(0.7137 0.1434 254.6240);
   --primary-foreground: oklch(0.2077 0.0398 265.7549);
   --secondary: oklch(0.2686 0 0);
+  --secondary-hover: oklch(0.3211 0 0);
   --secondary-foreground: oklch(0.9219 0 0);
   --muted: oklch(0.2393 0 0);
   --muted-foreground: oklch(0.7155 0 0);
@@ -91,7 +97,7 @@
   --sidebar-accent-foreground: oklch(0.8823 0.0571 254.1284);
   --sidebar-border: oklch(0.3715 0 0);
   --sidebar-ring: oklch(0.7137 0.1434 254.6240);
-  --radius: 0.375rem;
+  --radius: 0.5rem;
   --shadow-x: 0;
   --shadow-y: 1px;
   --shadow-blur: 3px;
@@ -118,6 +124,7 @@
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
+  --color-secondary-hover: var(--secondary-hover);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
@@ -133,6 +140,9 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+  /* Ink surface of the full-screen receipt viewer (#0B1220). */
+  --color-ink: oklch(0.1831 0.0309 263.3831);
+
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -159,9 +169,26 @@
   --shadow-lg: var(--shadow-lg);
   --shadow-xl: var(--shadow-xl);
   --shadow-2xl: var(--shadow-2xl);
-  /* Dashboard cards and heroes (docs/design/DESIGN.md 7.1): a hairline plus a long soft ink shadow, deeper on hover. */
-  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px -18px rgba(15, 23, 42, 0.28);
-  --shadow-card-hover: 0 1px 2px rgba(15, 23, 42, 0.05), 0 12px 28px -18px rgba(15, 23, 42, 0.36);
+  /* Surface of every A1 card (`Card`): a hairline ring plus a soft two-layer shadow instead of a border. */
+  --shadow-card: 0 0 0 1px rgba(15, 23, 42, 0.04), 0 1px 2px rgba(15, 23, 42, 0.04), 0 6px 20px -8px rgba(15, 23, 42, 0.12);
+  --shadow-card-hover: 0 0 0 1px rgba(15, 23, 42, 0.04), 0 1px 2px rgba(15, 23, 42, 0.05), 0 12px 28px -12px rgba(15, 23, 42, 0.22);
+  /* Text fields and select triggers (`Input`, `Textarea`, `SelectTrigger`): borderless with a hairline ring. */
+  --shadow-field: 0 0 0 1px rgba(15, 23, 42, 0.1), 0 2px 6px -2px rgba(15, 23, 42, 0.1);
+  /* `Button variant='hero'`: the blue glow under a hero call to action, and its lift on hover. */
+  --shadow-glow: 0 14px 28px -14px rgba(37, 99, 235, 0.85);
+  --shadow-glow-hover: 0 18px 32px -14px rgba(37, 99, 235, 0.9);
+  /* `Button variant='fab'`: the raised upload button of the tab bar, with a card-coloured ring that notches the bar. */
+  /* Floating menus: the row menu / actions menu and the larger account menu. */
+  --shadow-menu: 0 0 0 1px rgba(15, 23, 42, 0.06), 0 16px 32px -12px rgba(15, 23, 42, 0.35);
+  --shadow-menu-lg: 0 0 0 1px rgba(15, 23, 42, 0.04), 0 24px 48px -16px rgba(15, 23, 42, 0.35);
+  --shadow-fab: 0 0 0 5px var(--card), 0 12px 24px -10px rgba(37, 99, 235, 0.75);
+  /* `Card variant='premium'`: a long soft ink shadow. */
+  --shadow-premium: 0 20px 25px -34px rgba(15, 23, 42, 0.28), 0 8px 22px -18px rgba(15, 23, 42, 0.18);
+}
+
+/* Keyboard focus of links and rows that are not a library component: a 2px action-blue ring with a 2px offset. */
+@utility focus-ring {
+  @apply focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:outline-none;
 }
 
 @layer base {
@@ -204,55 +231,5 @@
   select,
   textarea {
     touch-action: manipulation;
-  }
-}
-
-/* Tabular numbers for counts/stats to prevent layout shift */
-.tabular-nums {
-  font-variant-numeric: tabular-nums;
-}
-
-.premium-card {
-  box-shadow:
-    0 20px 25px -34px rgba(15, 23, 42, 0.28),
-    0 8px 22px -18px rgba(15, 23, 42, 0.18);
-}
-
-.hero-mesh {
-  background:
-    radial-gradient(circle at 12% 18%, rgba(37, 99, 235, 0.2), transparent 34%),
-    radial-gradient(circle at 82% 16%, rgba(16, 185, 129, 0.14), transparent 30%),
-    radial-gradient(circle at 65% 82%, rgba(99, 102, 241, 0.12), transparent 30%),
-    linear-gradient(180deg, #f8fafc 0%, #eef4ff 52%, #f8fafc 100%);
-}
-
-.scan-line {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg,
-      transparent 0%,
-      rgba(56, 189, 248, 0.08) 47%,
-      rgba(56, 189, 248, 0.22) 50%,
-      rgba(56, 189, 248, 0.08) 53%,
-      transparent 100%);
-  animation: scan-line 3s linear infinite;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .scan-line {
-    animation: none;
-    transform: translateY(0);
-  }
-}
-
-
-@keyframes scan-line {
-  0% {
-    transform: translateY(-100%);
-  }
-
-  100% {
-    transform: translateY(100%);
   }
 }

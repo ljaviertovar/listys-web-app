@@ -5,7 +5,7 @@ import { Select as SelectPrimitive } from 'radix-ui'
 
 import { cn } from '@/utils'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { UnfoldMoreIcon, Tick02Icon, ArrowUp01Icon, ArrowDown01Icon } from '@hugeicons/core-free-icons'
+import { Tick02Icon, ArrowUp01Icon, ArrowDown01Icon } from '@hugeicons/core-free-icons'
 
 function Select({ ...props }: React.ComponentProps<typeof SelectPrimitive.Root>) {
 	return (
@@ -41,14 +41,14 @@ function SelectTrigger({
 	children,
 	...props
 }: React.ComponentProps<typeof SelectPrimitive.Trigger> & {
-	size?: 'sm' | 'default'
+	size?: 'sm' | 'default' | 'lg'
 }) {
 	return (
 		<SelectPrimitive.Trigger
 			data-slot='select-trigger'
 			data-size={size}
 			className={cn(
-				'flex w-full items-center justify-between gap-2 rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 data-[size=default]:h-9 data-[size=sm]:h-8 [&_svg]:size-4 [&_svg]:shrink-0',
+				'flex w-full items-center justify-between gap-2 rounded-xl border-0 bg-card px-3 py-2 text-sm shadow-field placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring aria-invalid:ring-2 aria-invalid:ring-destructive disabled:cursor-not-allowed disabled:opacity-50 data-[size=default]:h-9 data-[size=sm]:h-8 data-[size=lg]:h-11 data-[size=lg]:rounded-2xl data-[size=lg]:px-3.5 data-[size=lg]:text-base md:data-[size=lg]:text-sm [&_svg]:size-4 [&_svg]:shrink-0',
 				className,
 			)}
 			{...props}
@@ -56,9 +56,9 @@ function SelectTrigger({
 			{children}
 			<SelectPrimitive.Icon asChild>
 				<HugeiconsIcon
-					icon={UnfoldMoreIcon}
-					strokeWidth={2}
-					className='text-muted-foreground size-4 pointer-events-none'
+					icon={ArrowDown01Icon}
+					strokeWidth={1.8}
+					className='text-muted-foreground size-4.5 pointer-events-none'
 				/>
 			</SelectPrimitive.Icon>
 		</SelectPrimitive.Trigger>

@@ -126,7 +126,7 @@ function SidebarProvider({
 						...style,
 					} as React.CSSProperties
 				}
-				className={cn('group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex min-h-dvh w-full', className)}
+				className={cn('group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex min-h-dvh w-full bg-background dark:bg-sidebar', className)}
 				{...props}
 			>
 				{children}
@@ -229,7 +229,7 @@ function Sidebar({
 				<div
 					data-sidebar='sidebar'
 					data-slot='sidebar-inner'
-					className='bg-sidebar group-data-[variant=floating]:ring-sidebar-border group-data-[variant=floating]:overflow-hidden group-data-[variant=floating]:rounded-[12px] group-data-[variant=floating]:shadow-sm group-data-[variant=floating]:ring-1 flex size-full flex-col'
+					className='bg-sidebar group-data-[variant=floating]:ring-sidebar-border group-data-[variant=floating]:overflow-hidden group-data-[variant=floating]:rounded-xl group-data-[variant=floating]:shadow-sm group-data-[variant=floating]:ring-1 flex size-full flex-col'
 				>
 					{children}
 				</div>
@@ -275,7 +275,7 @@ function SidebarRail({ className, ...props }: React.ComponentProps<'button'>) {
 			onClick={toggleSidebar}
 			title='Toggle Sidebar'
 			className={cn(
-				'hover:after:bg-sidebar-border absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-all ease-linear group-data-[side=left]:-right-4 group-data-[side=right]:left-0 after:absolute after:inset-y-0 after:left-1/2 after:w-[2px] sm:flex',
+				'hover:after:bg-sidebar-border absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-all ease-linear group-data-[side=left]:-right-4 group-data-[side=right]:left-0 after:absolute after:inset-y-0 after:left-1/2 after:w-0.5 sm:flex',
 				'in-data-[side=left]:cursor-w-resize in-data-[side=right]:cursor-e-resize',
 				'[[data-side=left][data-state=collapsed]_&]:cursor-e-resize [[data-side=right][data-state=collapsed]_&]:cursor-w-resize',
 				'hover:group-data-[collapsible=offcanvas]:bg-sidebar group-data-[collapsible=offcanvas]:translate-x-0 group-data-[collapsible=offcanvas]:after:left-full',
@@ -382,7 +382,7 @@ function SidebarGroupLabel({
 			data-slot='sidebar-group-label'
 			data-sidebar='group-label'
 			className={cn(
-				'text-sidebar-foreground/70 ring-sidebar-ring h-8 rounded-md px-2 text-xs font-medium transition-[margin,opacity] duration-200 ease-linear group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0 focus-visible:ring-2 [&>svg]:size-4 flex shrink-0 items-center outline-hidden [&>svg]:shrink-0',
+				'text-foreground ring-sidebar-ring h-9 rounded-none px-2 text-sm font-semibold transition-[margin,opacity] duration-200 ease-linear group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0 focus-visible:ring-2 [&>svg]:size-4 flex shrink-0 items-center outline-hidden [&>svg]:shrink-0',
 				className,
 			)}
 			{...props}
@@ -448,7 +448,8 @@ const sidebarMenuButtonVariants = cva(
 	{
 		variants: {
 			variant: {
-				default: 'hover:bg-sidebar-active hover:text-sidebar-active-foreground',
+				// Design A1: a slate entry that turns blue on the secondary surface while it is the current page.
+				default: 'font-normal whitespace-nowrap text-slate-700 transition-colors duration-150 hover:bg-slate-100 hover:text-foreground [&_svg]:size-4.5 [&_svg]:text-slate-500 hover:[&_svg]:text-slate-700 data-[active=true]:[&_svg]:text-blue-700 dark:text-foreground/80 dark:hover:bg-muted data-[active=true]:bg-secondary data-[active=true]:font-semibold data-[active=true]:text-blue-700 data-[active=true]:hover:bg-secondary-hover data-[active=true]:hover:text-blue-700 dark:data-[active=true]:bg-muted dark:data-[active=true]:text-blue-300',
 				outline:
 					'bg-background hover:bg-sidebar-active hover:text-sidebar-active-foreground shadow-[0_0_0_1px_hsl(var(--sidebar-border))] hover:shadow-[0_0_0_1px_hsl(var(--sidebar-active))]',
 			},
@@ -638,7 +639,7 @@ function SidebarMenuSubButton({
 			data-size={size}
 			data-active={isActive}
 			className={cn(
-				'text-sidebar-foreground ring-sidebar-ring hover:bg-sidebar-active hover:text-sidebar-active-foreground active:bg-sidebar-active active:text-sidebar-active-foreground [&>svg]:text-sidebar-active-foreground data-active:bg-sidebar-active data-active:text-sidebar-active-foreground h-7 gap-2 rounded-md px-2 focus-visible:ring-2 data-[size=md]:text-sm data-[size=sm]:text-xs [&>svg]:size-4 flex min-w-0 -translate-x-px items-center overflow-hidden outline-hidden group-data-[collapsible=icon]:hidden disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:shrink-0',
+				'text-slate-700 ring-sidebar-ring hover:text-foreground active:bg-sidebar-active active:text-sidebar-active-foreground [&>svg]:text-sidebar-active-foreground h-7 gap-2 rounded-lg px-2 transition-colors duration-150 hover:bg-slate-100 data-[active=true]:bg-secondary data-[active=true]:font-semibold data-[active=true]:text-blue-700 focus-visible:ring-2 data-[size=md]:text-sm data-[size=sm]:text-xs [&>svg]:size-4 flex min-w-0 -translate-x-px items-center overflow-hidden outline-hidden group-data-[collapsible=icon]:hidden disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:shrink-0',
 				className,
 			)}
 			{...props}

@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { cva, type VariantProps } from 'class-variance-authority'
 
 import { cn } from '@/utils'
 
@@ -8,12 +9,16 @@ function Card({
 	variant = 'default',
 	layout = 'default',
 	side = 'left',
+	interactive = false,
 	...props
 }: React.ComponentProps<'div'> & {
-	size?: 'default' | 'sm' | 'compact'
-	variant?: 'default' | 'premium' | 'accent' | 'ghost'
+	/** `compact`, `tight` and `flush` drop the gap between the parts of the card and shrink its padding (a card of list rows). */
+	size?: 'default' | 'sm' | 'compact' | 'tight' | 'flush'
+	variant?: 'default' | 'premium' | 'accent' | 'ghost' | 'glass'
 	layout?: 'default' | 'horizontal'
 	side?: 'left' | 'right'
+	/** Lifts the shadow on hover: a card that holds rows or links to somewhere. */
+	interactive?: boolean
 }) {
 	return (
 		<div
@@ -23,14 +28,20 @@ function Card({
 			data-layout={layout}
 			data-side={side}
 			className={cn(
-				'bg-card text-card-foreground border overflow-hidden rounded-xl text-sm shadow group/card flex flex-col transition-all duration-300',
+				'group/card flex flex-col overflow-hidden rounded-3xl border-0 bg-card text-sm text-card-foreground shadow-card transition-all duration-300 dark:border dark:shadow-none',
 				layout === 'default' && 'gap-6 py-6',
 				layout === 'horizontal' && 'p-0 gap-0 md:flex-row',
+				size === 'compact' && 'gap-0 py-4',
+				size === 'tight' && 'gap-0 p-2.5',
+				size === 'flush' && 'gap-0 p-1.5',
+				interactive && 'hover:shadow-card-hover',
 				'has-data-[slot=card-banner]:p-0',
 				variant === 'premium' &&
-					'premium-card border border-muted-foreground/10 ring-1 ring-slate-200/60 dark:ring-slate-800/60 shadow-sm hover:shadow-md',
-				variant === 'accent' && 'border-primary/30 bg-primary/5 rounded-xl',
+					'border border-muted-foreground/10 shadow-premium ring-1 ring-slate-200/60 hover:shadow-xl hover:shadow-primary/5 dark:ring-slate-800/60',
+				variant === 'accent' && 'border border-primary/30 bg-primary/5',
 				variant === 'ghost' && 'bg-transparent border-dashed border-2',
+				// Frosted panel of the auth pages.
+				variant === 'glass' && 'border border-border/40 bg-card/80 shadow-2xl backdrop-blur-xl',
 				className,
 			)}
 			{...props}
@@ -67,21 +78,43 @@ function CardHeader({ className, ...props }: React.ComponentProps<'div'>) {
 	)
 }
 
-function CardTitle({ className, ...props }: React.ComponentProps<'div'>) {
+const cardTitleVariants = cva('', {
+	variants: {
+		variant: {
+			default: 'text-base font-medium',
+			// A card that leads somewhere: bold, tight, and it takes the primary on hover.
+			strong: 'text-base font-bold tracking-tight text-foreground transition-colors group-hover:text-primary',
+			// The title of a standalone card (sign-in, sign-up).
+			display: 'text-3xl font-bold tracking-tight',
+		},
+	},
+	defaultVariants: { variant: 'default' },
+})
+
+function CardTitle({ className, variant = 'default', ...props }: React.ComponentProps<'div'> & VariantProps<typeof cardTitleVariants>) {
 	return (
 		<div
 			data-slot='card-title'
-			className={cn('text-base font-medium', className)}
+			data-variant={variant}
+			className={cn(cardTitleVariants({ variant }), className)}
 			{...props}
 		/>
 	)
 }
 
-function CardDescription({ className, ...props }: React.ComponentProps<'div'>) {
+const cardDescriptionVariants = cva('text-muted-foreground', {
+	variants: {
+		size: { default: 'text-sm', lg: 'text-base' },
+		weight: { default: '', medium: 'font-medium' },
+	},
+	defaultVariants: { size: 'default', weight: 'default' },
+})
+
+function CardDescription({ className, size = 'default', weight = 'default', ...props }: React.ComponentProps<'div'> & VariantProps<typeof cardDescriptionVariants>) {
 	return (
 		<div
 			data-slot='card-description'
-			className={cn('text-muted-foreground text-sm', className)}
+			className={cn(cardDescriptionVariants({ size, weight }), className)}
 			{...props}
 		/>
 	)
