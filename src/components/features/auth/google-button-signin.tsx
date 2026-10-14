@@ -39,7 +39,8 @@ export default function GoogleButtonSignin({ typeSubmit, callbackUrl }: Props) {
 		<Button
 			type='button'
 			disabled={isLoading}
-			className='w-full h-11 text-base font-semibold transition-all hover:scale-[1.01] active:scale-[0.99] rounded-xl shadow-lg shadow-primary/20'
+			size='xl'
+			className='w-full'
 			onClick={handleGoogleSignIn}
 		>
 			{isLoading ? (

@@ -4,6 +4,8 @@ import { cn } from '@/utils'
 interface Props {
 	/** `on-dark` for photo/ink surfaces such as the dashboard banner; `default` for paper surfaces. */
 	tone?: 'default' | 'on-dark'
+	/** `hero` is the roomier pill over the dashboard hero. */
+	size?: 'default' | 'hero'
 	className?: string
 	/** The word that names the state; defaults to "Shopping". */
 	label?: string
@@ -13,12 +15,13 @@ interface Props {
  * Marks a running shopping session. The subtle pulse reinforces the active status; the word "Shopping" carries the
  * meaning, so colour and motion are never the only cues.
  */
-export function ActiveShoppingBadge({ tone = 'default', className, label = 'Shopping' }: Props) {
+export function ActiveShoppingBadge({ tone = 'default', size = 'default', className, label = 'Shopping' }: Props) {
 	return (
 		<Badge
-			variant='completed'
+			variant={tone === 'on-dark' ? 'on-dark' : 'completed'}
+			size={size}
 			data-testid='active-shopping-badge'
-			className={cn('gap-2', tone === 'on-dark' && 'bg-white/15 text-white dark:text-white', className)}
+			className={className}
 		>
 			<span
 				aria-hidden='true'

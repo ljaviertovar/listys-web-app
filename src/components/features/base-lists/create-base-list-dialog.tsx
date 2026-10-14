@@ -1,27 +1,21 @@
 'use client'
 
-import type { ComponentProps, ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { PlusSignIcon } from '@hugeicons/core-free-icons'
 
-import { Button } from '@/components/ui/button'
-import { A1_TOOLBAR_BUTTON } from '@/components/app/helpers/a1-surface'
+import { Button, type ButtonProps } from '@/components/ui/button'
 import { CreateEntitySheet, type EntityEditValues } from '@/components/commons'
 import { createBaseList } from '@/lib/api/endpoints'
-import { cn } from '@/utils'
 
-interface Props {
+/** The trigger is a regular `Button`: `size`, `variant`, `className`… go straight to it. `children` replaces the plus icon and "New Base List" label. */
+interface Props extends ButtonProps {
 	groupId: string
-	variant?: ComponentProps<typeof Button>['variant']
-	className?: string
-	/** Replaces the default plus icon and "New Base List" label inside the trigger button. */
-	children?: ReactNode
 }
 
 /** "New Base List": the sheet that creates a list inside a group and then opens it to add its items. */
-export function CreateBaseListDialog({ groupId, variant, className, children }: Props) {
+export function CreateBaseListDialog({ groupId, children, ...buttonProps }: Props) {
 	const router = useRouter()
 
 	const handleCreate = async ({ name, second }: EntityEditValues) => {
@@ -47,8 +41,8 @@ export function CreateBaseListDialog({ groupId, variant, className, children }: 
 		<CreateEntitySheet
 			trigger={
 				<Button
-					variant={variant}
-					className={cn(A1_TOOLBAR_BUTTON, className)}
+					size='xl'
+					{...buttonProps}
 					data-testid='create-base-list-button'
 				>
 					{children ?? (

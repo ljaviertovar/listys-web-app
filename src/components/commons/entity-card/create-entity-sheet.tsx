@@ -10,8 +10,6 @@ import { Loading03Icon } from '@hugeicons/core-free-icons'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { A1_ACTION, A1_SECONDARY, FIELD_AREA, FIELD_CONTROL } from '@/components/app/helpers/a1-surface'
-import { cn } from '@/utils'
 
 import { FormField } from '../form-field/form-field'
 import { SheetDialog } from '../sheet-dialog/sheet-dialog'
@@ -101,7 +99,7 @@ export function CreateEntitySheet({
 						disabled={loading}
 						aria-invalid={!!errors.name}
 						aria-describedby={errors.name ? `${id}-name-error` : undefined}
-						className={FIELD_CONTROL}
+						size='lg'
 					/>
 				</FormField>
 				<FormField
@@ -117,7 +115,7 @@ export function CreateEntitySheet({
 						disabled={loading}
 						aria-invalid={!!errors.second}
 						aria-describedby={errors.second ? `${id}-second-error` : undefined}
-						className={cn(FIELD_AREA, 'h-24 resize-none')}
+						rows={3}
 					/>
 				</FormField>
 				<p className='text-xs text-slate-500 dark:text-muted-foreground'>
@@ -125,19 +123,19 @@ export function CreateEntitySheet({
 				</p>
 				<div className='grid grid-cols-2 gap-3'>
 					<Button
+						size='xl'
 						type='button'
-						variant='outline'
+						variant='secondary'
 						disabled={loading}
 						onClick={() => setOpen(false)}
-						className={cn(A1_ACTION, A1_SECONDARY)}
 					>
 						Cancel
 					</Button>
 					<Button
+						size='xl'
 						type='submit'
 						disabled={loading}
 						data-testid={`${testId}-submit`}
-						className={A1_ACTION}
 					>
 						{loading ? (
 							<HugeiconsIcon

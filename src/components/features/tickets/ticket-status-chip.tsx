@@ -22,7 +22,7 @@ export function TicketStatusChip({ status, className, testId = 'ticket-status-ch
 			data-testid={testId}
 			data-status={status}
 			className={cn(
-				'inline-flex h-[22px] shrink-0 items-center gap-[5px] rounded-full px-2 font-sans text-[11.5px] leading-none font-semibold whitespace-nowrap',
+				'inline-flex h-5.5 shrink-0 items-center gap-1.5 rounded-full px-2 font-sans text-xs leading-none font-semibold whitespace-nowrap',
 				meta.tone,
 				className,
 			)}

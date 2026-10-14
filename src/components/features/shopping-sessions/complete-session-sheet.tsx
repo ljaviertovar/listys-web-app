@@ -66,7 +66,7 @@ export function CompleteSessionSheet({ sessionId, checked, total, open, onOpenCh
 			title={allChecked ? 'All Items Checked' : 'Complete Shopping Session?'}
 			media={
 				allChecked ? (
-					<span className='flex size-12 shrink-0 items-center justify-center rounded-[16px] bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300'>
+					<span className='flex size-12 shrink-0 items-center justify-center rounded-2xl bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300'>
 						<HugeiconsIcon
 							icon={CheckmarkCircle02Icon}
 							strokeWidth={1.5}
@@ -96,7 +96,7 @@ export function CompleteSessionSheet({ sessionId, checked, total, open, onOpenCh
 			<label
 				htmlFor={syncId}
 				data-testid='complete-session-sync'
-				className='flex cursor-pointer items-start gap-1 rounded-[16px] bg-[#F6F7F9] py-1 pr-3.5 dark:bg-muted'
+				className='flex cursor-pointer items-start gap-1 rounded-2xl bg-muted py-1 pr-3.5 dark:bg-muted'
 			>
 				<span className='flex size-11 shrink-0 items-center justify-center'>
 					<Checkbox
@@ -104,12 +104,12 @@ export function CompleteSessionSheet({ sessionId, checked, total, open, onOpenCh
 						checked={syncToBase}
 						onCheckedChange={value => setSyncToBase(value === true)}
 						disabled={loading}
-						className='size-[22px] rounded-[7px] border-slate-400 bg-white dark:bg-transparent'
+						size='lg'
 					/>
 				</span>
 				<span className='flex flex-col gap-1 pt-2.5 pb-2'>
 					<span className='text-sm leading-[1.3] font-semibold'>Sync changes back to base list</span>
-					<span className='text-[13px] leading-[1.45] text-slate-500 dark:text-muted-foreground'>
+					<span className='text-xs leading-[1.45] text-slate-500 dark:text-muted-foreground'>
 						Updates quantities and adds the items you created while shopping to your original base list.
 					</span>
 				</span>

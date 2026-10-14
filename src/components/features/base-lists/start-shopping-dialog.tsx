@@ -1,30 +1,22 @@
 'use client'
 
-import { useState, type ComponentProps, type ReactNode } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { InformationCircleIcon, Loading03Icon, ShoppingCart02Icon } from '@hugeicons/core-free-icons'
 
-import { Button } from '@/components/ui/button'
-import { A1_ACTION, A1_SECONDARY } from '@/components/app/helpers/a1-surface'
+import { Button, type ButtonProps } from '@/components/ui/button'
 import { SheetDialog } from '@/components/commons'
 import { createShoppingSession } from '@/lib/api/endpoints'
 import useActiveSessionStore from '@/stores/active-session'
 import { cn } from '@/utils'
 
-interface Props {
+/** The trigger is a regular `Button`: `size`, `variant`, `className`… go straight to it. `children` replaces the cart icon and "Start Shopping" label. */
+interface Props extends ButtonProps {
 	baseListId: string
 	baseListName?: string
-	disabled?: boolean
 	itemsCount?: number
-	className?: string
-	/** Lets a surface that already has a primary action demote this trigger to a secondary one. */
-	variant?: ComponentProps<typeof Button>['variant']
-	/** Defaults to small; a hero call to action asks for a larger button. */
-	size?: ComponentProps<typeof Button>['size']
-	/** Replaces the default cart icon and "Start Shopping" label inside the trigger button. */
-	children?: ReactNode
 	/** The server already knows a session is running, so the button is not even drawn before the client store loads. */
 	sessionActive?: boolean
 }
@@ -36,13 +28,11 @@ interface Props {
 export function StartShoppingDialog({
 	baseListId,
 	baseListName,
-	disabled,
 	itemsCount,
-	className,
-	variant,
-	size = 'sm',
 	children,
+	className,
 	sessionActive = false,
+	...buttonProps
 }: Props) {
 	const [open, setOpen] = useState(false)
 	const [loading, setLoading] = useState(false)
@@ -94,10 +84,10 @@ export function StartShoppingDialog({
 			onOpenChange={next => !loading && setOpen(next)}
 			trigger={
 				<Button
-					disabled={disabled || isEmpty}
-					className={className ?? 'w-full'}
-					variant={variant}
-					size={size}
+					size='xl'
+					{...buttonProps}
+					disabled={buttonProps.disabled || isEmpty}
+					className={cn('w-full', className)}
 					// Several of these sit on one page, so the accessible name says which list each one starts.
 					aria-label={baseListName ? `Start shopping ${baseListName}` : undefined}
 					data-testid='start-shopping-button'
@@ -119,7 +109,7 @@ export function StartShoppingDialog({
 		>
 			<div className='flex flex-col gap-4'>
 				<div className='flex items-center gap-3.5'>
-					<span className='flex size-12 shrink-0 items-center justify-center rounded-[16px] bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300'>
+					<span className='flex size-12 shrink-0 items-center justify-center rounded-2xl bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300'>
 						<HugeiconsIcon
 							icon={ShoppingCart02Icon}
 							strokeWidth={1.5}
@@ -140,7 +130,7 @@ export function StartShoppingDialog({
 				</div>
 				<div
 					role='note'
-					className='flex items-start gap-3 rounded-[16px] bg-blue-50 px-3.5 py-3 text-sm leading-normal text-blue-900 dark:bg-blue-950/40 dark:text-blue-200'
+					className='flex items-start gap-3 rounded-2xl bg-blue-50 px-3.5 py-3 text-sm leading-normal text-blue-900 dark:bg-blue-950/40 dark:text-blue-200'
 				>
 					<HugeiconsIcon
 						icon={InformationCircleIcon}
@@ -153,26 +143,26 @@ export function StartShoppingDialog({
 			</div>
 			<div className='grid grid-cols-2 gap-3'>
 				<Button
+					size='xl'
 					type='button'
-					variant='outline'
+					variant='secondary'
 					onClick={() => setOpen(false)}
 					disabled={loading}
-					className={cn(A1_ACTION, A1_SECONDARY, 'px-3')}
 				>
 					Cancel
 				</Button>
 				<Button
+					size='xl'
 					type='button'
 					onClick={handleConfirm}
 					disabled={loading || isEmpty}
 					data-testid='confirm-start-shopping'
-					className={cn(A1_ACTION, 'px-3')}
 				>
 					<HugeiconsIcon
 						icon={loading ? Loading03Icon : ShoppingCart02Icon}
 						strokeWidth={loading ? 2 : 1.5}
 						aria-hidden='true'
-						className={cn('size-[18px]', loading && 'animate-spin motion-reduce:animate-none')}
+						className={cn('size-4.5', loading && 'animate-spin motion-reduce:animate-none')}
 					/>
 					{loading ? 'Starting…' : 'Start Shopping'}
 				</Button>

@@ -19,7 +19,7 @@ export function NavCountPill({ count, testId, className }: Props) {
 			aria-label={count.label}
 			data-testid={testId}
 			className={cn(
-				'ml-auto inline-flex h-[22px] min-w-[22px] items-center justify-center rounded-full px-[7px] text-xs font-semibold tabular-nums',
+				'ml-auto inline-flex h-5.5 min-w-5.5 items-center justify-center rounded-full px-2 text-xs font-semibold tabular-nums',
 				TONES[count.tone],
 				className,
 			)}

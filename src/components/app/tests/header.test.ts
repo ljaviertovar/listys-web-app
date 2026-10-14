@@ -35,7 +35,7 @@ describe('Header', () => {
 
 		expect(html).toContain('h-15')
 		expect(html).toContain('lg:h-16')
-		expect(html).toContain('lg:bg-[#F2F4F7]')
+		expect(html).toContain('lg:bg-background')
 		expect(html).toContain('lg:border-b-0')
 	})
 })

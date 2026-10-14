@@ -3,6 +3,7 @@
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Add01Icon, MinusSignIcon, RotateTopRightIcon } from '@hugeicons/core-free-icons'
 
+import { Button } from '@/components/ui/button'
 import { cn } from '@/utils'
 
 import { MAX_ZOOM, MIN_ZOOM, formatZoom } from './helpers/photo-zoom'
@@ -13,8 +14,6 @@ interface TicketPhotoControlsProps {
 	className?: string
 }
 
-const BUTTON =
-	'inline-flex h-11 min-w-11 shrink-0 items-center justify-center rounded-[12px] bg-white/12 font-display text-sm font-semibold text-white transition-colors hover:bg-white/20 focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:outline-none disabled:opacity-40 disabled:hover:bg-white/12'
 
 /** Zoom out, the zoom level, zoom in, rotate and fit: the same controls under the full-screen photo and over the side panel's. */
 export function TicketPhotoControls({ view, className }: TicketPhotoControlsProps) {
@@ -24,19 +23,20 @@ export function TicketPhotoControls({ view, className }: TicketPhotoControlsProp
 			className={cn('flex items-center justify-between gap-2 lg:justify-center lg:gap-3', className)}
 		>
 			<div className='flex items-center gap-2'>
-				<button
+				<Button
 					type='button'
 					aria-label='Zoom Out'
 					disabled={view.zoom <= MIN_ZOOM}
 					onClick={view.zoomOut}
-					className={cn(BUTTON, 'w-11')}
+					variant='on-dark'
+					size='icon-xl'
 				>
 					<HugeiconsIcon
 						icon={MinusSignIcon}
 						strokeWidth={1.8}
 						className='size-5'
 					/>
-				</button>
+				</Button>
 				<span
 					role='status'
 					aria-label='Zoom level'
@@ -44,40 +44,43 @@ export function TicketPhotoControls({ view, className }: TicketPhotoControlsProp
 				>
 					{formatZoom(view.zoom)}
 				</span>
-				<button
+				<Button
 					type='button'
 					aria-label='Zoom In'
 					disabled={view.zoom >= MAX_ZOOM}
 					onClick={view.zoomIn}
-					className={cn(BUTTON, 'w-11')}
+					variant='on-dark'
+					size='icon-xl'
 				>
 					<HugeiconsIcon
 						icon={Add01Icon}
 						strokeWidth={1.8}
 						className='size-5'
 					/>
-				</button>
+				</Button>
 			</div>
 			<div className='flex items-center gap-2'>
-				<button
+				<Button
 					type='button'
 					aria-label='Rotate Photo'
 					onClick={view.rotate}
-					className={cn(BUTTON, 'w-11')}
+					variant='on-dark'
+					size='icon-xl'
 				>
 					<HugeiconsIcon
 						icon={RotateTopRightIcon}
 						strokeWidth={1.8}
 						className='size-5'
 					/>
-				</button>
-				<button
+				</Button>
+				<Button
 					type='button'
 					onClick={view.fit}
-					className={cn(BUTTON, 'px-3.5')}
+					variant='on-dark'
+					size='xl'
 				>
 					Fit
-				</button>
+				</Button>
 			</div>
 		</div>
 	)
@@ -114,7 +117,7 @@ export function TicketPhotoThumbs({ urls, current, onSelect, className, layout =
 						aria-label={`Photo ${index + 1}${index === current ? ', current' : ''}`}
 						aria-current={index === current ? 'true' : undefined}
 						className={cn(
-							'flex min-h-12 min-w-12 items-center justify-center rounded-[12px] focus-visible:ring-2 focus-visible:outline-none',
+							'flex min-h-12 min-w-12 items-center justify-center rounded-xl focus-visible:ring-2 focus-visible:outline-none',
 							tone === 'dark' ? 'focus-visible:ring-blue-400' : 'focus-visible:ring-blue-500',
 							index === current ? 'opacity-100' : 'opacity-60 hover:opacity-90',
 						)}
@@ -124,10 +127,10 @@ export function TicketPhotoThumbs({ urls, current, onSelect, className, layout =
 							src={url}
 							alt=''
 							className={cn(
-								'h-[60px] w-11 rounded-[10px] object-cover',
+								'h-15 w-11 rounded-lg object-cover',
 								index === current &&
 									(tone === 'dark'
-										? 'ring-2 ring-blue-400 ring-offset-2 ring-offset-[#0B1220]'
+										? 'ring-2 ring-blue-400 ring-offset-2 ring-offset-ink'
 										: 'ring-2 ring-blue-500 ring-offset-2 ring-offset-card'),
 							)}
 						/>

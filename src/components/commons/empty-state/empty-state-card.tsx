@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react'
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react'
 
-import { CARD_SURFACE } from '@/components/app/helpers/a1-surface'
 import { cn } from '@/utils'
 
 interface EmptyStateCardProps {
@@ -25,9 +24,9 @@ export function EmptyStateCard({ icon, tone = 'blue', title, description, childr
 	return (
 		<section
 			data-testid={testId}
-			className={cn('flex flex-col items-center gap-4 px-5 py-8 text-center', CARD_SURFACE)}
+			className='flex flex-col items-center gap-4 px-5 py-8 text-center rounded-3xl bg-card shadow-card'
 		>
-			<span className={cn('flex size-14 items-center justify-center rounded-[18px]', TONES[tone])}>
+			<span className={cn('flex size-14 items-center justify-center rounded-2xl', TONES[tone])}>
 				<HugeiconsIcon
 					icon={icon}
 					strokeWidth={1.5}
@@ -36,7 +35,7 @@ export function EmptyStateCard({ icon, tone = 'blue', title, description, childr
 				/>
 			</span>
 			<div className='flex max-w-sm flex-col gap-1.5'>
-				<h2 className='font-display text-lg leading-[1.3] font-semibold tracking-[-0.01em]'>{title}</h2>
+				<h2 className='font-display text-lg leading-[1.3] font-semibold '>{title}</h2>
 				<p className='text-sm leading-normal text-slate-500 dark:text-muted-foreground'>{description}</p>
 			</div>
 			{children}

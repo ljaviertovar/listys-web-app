@@ -7,8 +7,6 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { Loading03Icon } from '@hugeicons/core-free-icons'
 
 import { Button } from '@/components/ui/button'
-import { A1_ACTION, A1_SECONDARY } from '@/components/app/helpers/a1-surface'
-import { cn } from '@/utils'
 
 import { itemFormSchema, type ItemFormValues } from './helpers/item-form-schema'
 import { ItemFields } from './item-fields'
@@ -60,7 +58,7 @@ export function ItemEditForm({ item, onSubmit, onCancel }: ItemEditFormProps) {
 			noValidate
 			className='flex flex-col gap-4 p-4'
 		>
-			<h3 className='font-display text-base leading-[1.5] font-semibold tracking-[-0.005em]'>Edit Item</h3>
+			<h3 className='font-display text-base leading-[1.5] font-semibold '>Edit Item</h3>
 			<ItemFields
 				form={form}
 				idPrefix={`${id}-edit`}
@@ -68,18 +66,18 @@ export function ItemEditForm({ item, onSubmit, onCancel }: ItemEditFormProps) {
 			/>
 			<div className='grid grid-cols-2 gap-3'>
 				<Button
+					size='xl'
 					type='button'
-					variant='outline'
+					variant='secondary'
 					onClick={onCancel}
 					disabled={loading}
-					className={cn(A1_ACTION, A1_SECONDARY)}
 				>
 					Cancel
 				</Button>
 				<Button
+					size='xl'
 					type='submit'
 					disabled={loading}
-					className={A1_ACTION}
 				>
 					{loading ? (
 						<HugeiconsIcon

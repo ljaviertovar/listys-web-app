@@ -3,9 +3,8 @@
 import { useMemo } from 'react'
 import { TaskAdd01Icon } from '@hugeicons/core-free-icons'
 
-import { CARD_SURFACE } from '@/components/app/helpers/a1-surface'
 import { CategorySection, EmptyStateCard } from '@/components/commons'
-import { cn, groupByCategory } from '@/utils'
+import { groupByCategory } from '@/utils'
 import type { ShoppingSessionItem } from '@/types'
 
 import { ShoppingSessionItemRow } from './shopping-session-item-row'
@@ -47,7 +46,7 @@ export function ShoppingSessionItems({ items, isCompleted = false }: ShoppingSes
 		<section
 			aria-label='Items by category'
 			data-testid='session-items-card'
-			className={cn('px-4 pt-1', CARD_SURFACE)}
+			className='px-4 pt-1 rounded-3xl bg-card shadow-card'
 		>
 			{groups.map((group, index) => {
 				const done = group.items.filter(item => item.checked).length

@@ -6,7 +6,6 @@ import { UserRemove01Icon } from '@hugeicons/core-free-icons'
 
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { A1_ACTION, A1_DANGER, A1_SECONDARY, FOCUS_RING } from '@/components/app/helpers/a1-surface'
 import { cn } from '@/utils'
 import type { CollaboratorWithProfile } from '@/types'
 
@@ -45,15 +44,15 @@ export function ShareCollaborators({ collaborators, isOwner, isLoading, onRemove
 				>
 					Collaborators
 				</h3>
-				<span className='inline-flex h-[22px] min-w-[22px] items-center justify-center rounded-full bg-slate-100 px-1.5 font-mono text-[11.5px] font-semibold text-slate-700 tabular-nums dark:bg-muted dark:text-foreground'>
+				<span className='inline-flex h-5.5 min-w-5.5 items-center justify-center rounded-full bg-slate-100 px-1.5 font-mono text-xs font-semibold text-slate-700 tabular-nums dark:bg-muted dark:text-foreground'>
 					{collaborators.length}
 				</span>
 			</div>
 
 			{isLoading ? (
 				<div className='flex flex-col gap-2'>
-					<Skeleton className='h-14 w-full rounded-[16px]' />
-					<Skeleton className='h-14 w-full rounded-[16px]' />
+					<Skeleton className='h-14 w-full rounded-2xl' />
+					<Skeleton className='h-14 w-full rounded-2xl' />
 				</div>
 			) : collaborators.length === 0 ? (
 				<p className='py-2 text-sm text-slate-500 dark:text-muted-foreground'>No one else has joined yet.</p>
@@ -73,7 +72,7 @@ export function ShareCollaborators({ collaborators, isOwner, isLoading, onRemove
 									<div
 										role='alertdialog'
 										aria-label={`Remove ${name}?`}
-										className='flex flex-col gap-3 rounded-[20px] bg-red-50 p-3.5 text-red-900 dark:bg-red-950/40 dark:text-red-200'
+										className='flex flex-col gap-3 rounded-3xl bg-red-50 p-3.5 text-red-900 dark:bg-red-950/40 dark:text-red-200'
 									>
 										<div className='flex items-start gap-3'>
 											<InitialsAvatar
@@ -82,26 +81,27 @@ export function ShareCollaborators({ collaborators, isOwner, isLoading, onRemove
 											/>
 											<div className='flex min-w-0 flex-col gap-1'>
 												<p className='truncate text-sm leading-[1.3] font-semibold'>Remove {name}?</p>
-												<p className='text-[13.5px] leading-normal'>
+												<p className='text-sm leading-normal'>
 													Access to this list ends right away. They can join again with the link.
 												</p>
 											</div>
 										</div>
 										<div className='grid grid-cols-2 gap-3'>
 											<Button
+												size='xl'
 												type='button'
-												variant='outline'
+												variant='secondary'
 												disabled={removing}
 												onClick={() => setConfirmingId(null)}
-												className={cn(A1_ACTION, A1_SECONDARY)}
 											>
 												Cancel
 											</Button>
 											<Button
+												size='xl'
+												variant='destructive'
 												type='button'
 												disabled={removing}
 												onClick={() => remove(collaborator.user_id)}
-												className={cn(A1_ACTION, A1_DANGER)}
 											>
 												{removing ? 'Removing…' : 'Remove'}
 											</Button>
@@ -117,7 +117,7 @@ export function ShareCollaborators({ collaborators, isOwner, isLoading, onRemove
 											<span className='w-full truncate text-sm leading-[1.3] font-semibold'>{name}</span>
 											<span
 												className={cn(
-													'inline-flex h-[22px] items-center rounded-full px-2 text-[11.5px] leading-none font-semibold',
+													'inline-flex h-5.5 items-center rounded-full px-2 text-xs leading-none font-semibold',
 													collaborator.role === 'owner'
 														? 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300'
 														: 'bg-slate-100 text-slate-700 dark:bg-muted dark:text-foreground',
@@ -127,14 +127,13 @@ export function ShareCollaborators({ collaborators, isOwner, isLoading, onRemove
 											</span>
 										</div>
 										{isOwner && collaborator.role !== 'owner' ? (
-											<button
+											<Button
 												type='button'
 												aria-label={`Remove ${name}`}
 												onClick={() => setConfirmingId(collaborator.user_id)}
-												className={cn(
-													'flex size-11 shrink-0 items-center justify-center rounded-[12px] text-slate-600 transition-colors hover:bg-[#E9ECF0] hover:text-red-700 dark:text-muted-foreground dark:hover:bg-muted',
-													FOCUS_RING,
-												)}
+												variant='quiet-destructive'
+												size='icon-xl'
+												className='shrink-0'
 											>
 												<HugeiconsIcon
 													icon={UserRemove01Icon}
@@ -142,7 +141,7 @@ export function ShareCollaborators({ collaborators, isOwner, isLoading, onRemove
 													aria-hidden='true'
 													className='size-5'
 												/>
-											</button>
+											</Button>
 										) : null}
 									</div>
 								)}
@@ -160,7 +159,7 @@ function InitialsAvatar({ initials, seed }: { initials: string; seed: string }) 
 		<span
 			aria-hidden='true'
 			className={cn(
-				'flex size-10 shrink-0 items-center justify-center rounded-full text-[13px] font-bold uppercase',
+				'flex size-10 shrink-0 items-center justify-center rounded-full text-xs font-bold uppercase',
 				avatarTone(seed),
 			)}
 		>

@@ -30,17 +30,16 @@ interface Props {
 
 // Keep Dashboard, Profile and Account available in the account menu at every breakpoint.
 // Each row is a grey icon tile and a regular 14px title (design A1 mobile).
-const MENU_ROW_TILE = 'bg-[#F2F4F7] text-slate-600 dark:bg-muted dark:text-muted-foreground'
+const MENU_ROW_TILE = 'bg-background text-slate-600 dark:bg-muted dark:text-muted-foreground'
 const MENU_URLS = ['/dashboard', '/settings/profile', '/settings/account']
 const MENU_LINKS = USER_NAV_ITEMS.filter(item => MENU_URLS.includes(item.url))
 
-const MENU_ROW = 'min-h-[52px] gap-3 rounded-[14px] px-2.5 py-2 focus:bg-[#F2F4F7] dark:focus:bg-muted'
 
 function RowTile({ icon, className }: { icon: IconSvgElement; className: string }) {
 	return (
 		<span
 			aria-hidden='true'
-			className={cn('flex size-9 shrink-0 items-center justify-center rounded-[12px]', className)}
+			className={cn('flex size-9 shrink-0 items-center justify-center rounded-xl', className)}
 		>
 			<HugeiconsIcon
 				icon={icon}
@@ -74,23 +73,26 @@ export function UserNav({ user }: Props) {
 				{/* Phones: a 44px circle around the avatar, on the secondary surface while the menu is open. From `lg`: a pill with name, email and a chevron. */}
 				<Button
 					variant='ghost'
+					size='icon-xl'
+					rounded='full'
 					aria-label='Account menu'
 					data-testid='user-nav-trigger'
-					className='size-11 gap-0 rounded-full border-0 p-0 hover:bg-[#E9ECF0] data-[state=open]:bg-[#E9ECF0] lg:h-11 lg:w-auto lg:gap-2.5 lg:pr-2 lg:pl-1 dark:hover:bg-muted dark:data-[state=open]:bg-muted'
+					// From `lg` the circle widens into a pill (avatar, name, email, chevron): no native prop is responsive.
+					className='gap-0 lg:w-auto lg:gap-2.5 lg:pr-2 lg:pl-1'
 				>
-					<Avatar className='size-[34px]'>
+					<Avatar size='md'>
 						{avatarUrl ? (
 							<AvatarImage
 								src={avatarUrl}
 								alt=''
 							/>
 						) : null}
-						<AvatarFallback className='bg-blue-100 text-[13px] font-bold text-blue-700 dark:bg-primary/20 dark:text-primary'>
+						<AvatarFallback tone='soft'>
 							{initials}
 						</AvatarFallback>
 					</Avatar>
 					<span className='hidden flex-col items-start gap-0.5 text-left lg:flex'>
-						<span className='text-[13.5px] leading-[1.1] font-semibold'>{displayName}</span>
+						<span className='text-sm leading-[1.1] font-semibold'>{displayName}</span>
 						<span className='text-xs leading-[1.1] font-normal text-muted-foreground'>{user.email}</span>
 					</span>
 					<HugeiconsIcon
@@ -103,34 +105,38 @@ export function UserNav({ user }: Props) {
 			</DropdownMenuTrigger>
 			{open ? <AccountMenuScrim /> : null}
 			<DropdownMenuContent
-				// 4px under the 60px header on phones; 263px wide, 20px radius, an overlay shadow and no ring (design A1 mobile).
-				className='w-[263px] max-w-[calc(100vw-1rem)] rounded-[20px] bg-card p-2 shadow-[0_0_0_1px_rgba(15,23,42,0.04),0_24px_48px_-16px_rgba(15,23,42,0.35)] ring-0'
+				// 263px wide on phones (design A1 mobile); the account variant brings the radius, the overlay shadow and no ring.
+				variant='account'
+				className='w-[263px] max-w-[calc(100vw-1rem)]'
 				align='end'
 				sideOffset={12}
 				forceMount
 			>
 				<DropdownMenuLabel
 					data-testid='user-nav-identity'
-					className='flex items-center gap-3 px-2.5 pt-2.5 pb-3 font-normal'
+					variant='identity'
 				>
-					<Avatar className='size-11'>
+					<Avatar size='xl'>
 						{avatarUrl ? (
 							<AvatarImage
 								src={avatarUrl}
 								alt=''
 							/>
 						) : null}
-						<AvatarFallback className='bg-blue-100 text-[15px] font-bold text-blue-700 dark:bg-primary/20 dark:text-primary'>
+						<AvatarFallback tone='soft'>
 							{initials}
 						</AvatarFallback>
 					</Avatar>
-					<span className='flex min-w-0 flex-col gap-[3px]'>
-						<span className='truncate font-display text-[15px] leading-[1.2] font-bold tracking-[-0.01em] text-foreground'>{displayName}</span>
-						<span className='truncate text-[13px] leading-[1.3] text-slate-500 dark:text-muted-foreground'>{user.email}</span>
+					<span className='flex min-w-0 flex-col gap-1'>
+						<span className='truncate font-display text-base leading-[1.2] font-bold text-foreground'>{displayName}</span>
+						<span className='truncate text-xs leading-[1.3] text-slate-500 dark:text-muted-foreground'>{user.email}</span>
 					</span>
 				</DropdownMenuLabel>
 
-				<DropdownMenuSeparator className='mx-2.5 mt-0 mb-1 bg-[#EEF0F3] dark:bg-border' />
+				<DropdownMenuSeparator
+					variant='solid'
+					className='mx-2.5 mt-0 mb-1'
+				/>
 
 				<DropdownMenuGroup>
 					{MENU_LINKS.map(item => {
@@ -138,7 +144,7 @@ export function UserNav({ user }: Props) {
 							<DropdownMenuItem
 								key={item.url}
 								asChild
-								className={MENU_ROW}
+								size='row'
 							>
 								<Link
 									href={item.url}
@@ -156,17 +162,20 @@ export function UserNav({ user }: Props) {
 						)
 					})}
 				</DropdownMenuGroup>
-				<DropdownMenuSeparator className='mx-2.5 mt-1 mb-2 bg-[#EEF0F3] dark:bg-border' />
+				<DropdownMenuSeparator
+					variant='solid'
+					className='mx-2.5 mt-1 mb-2'
+				/>
 
 				<DropdownMenuItem
 					onSelect={handleSignOut}
 					data-testid='user-nav-sign-out'
-					className='mx-0.5 mb-0.5 min-h-11 justify-center gap-2 rounded-[12px] bg-[#E9ECF0] font-display text-sm font-semibold hover:bg-[#DEE2E8] focus:bg-[#DEE2E8] dark:bg-muted dark:focus:bg-muted/70'
+					size='action'
 				>
 					<HugeiconsIcon
 						icon={Logout01Icon}
 						strokeWidth={1.5}
-						className='size-[18px]'
+						className='size-4.5'
 					/>
 					Sign Out
 				</DropdownMenuItem>

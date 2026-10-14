@@ -13,6 +13,7 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
 import { cn } from '@/utils'
 
 interface SheetDialogProps {
@@ -60,31 +61,33 @@ export function SheetDialog({
 				role={role}
 				data-testid={testId}
 				onOpenAutoFocus={autoFocus ? undefined : e => e.preventDefault()}
-				className={cn(
-					'gap-5 rounded-[28px] border-0 p-5 sm:max-w-[520px] sm:p-6 max-sm:pb-[max(1.5rem,env(safe-area-inset-bottom))]',
-					className,
-				)}
+				variant='sheet'
+				className={cn('sm:max-w-[520px]', className)}
 			>
 				<DialogHeader className='relative gap-1 pr-12 text-left'>
-					<DialogTitle className='font-display text-xl leading-[1.3] font-semibold tracking-[-0.015em] text-foreground'>
+					<DialogTitle variant='sheet'>
 						{title}
 					</DialogTitle>
 					{description ? (
-						<DialogDescription className='text-sm leading-normal text-slate-500 dark:text-muted-foreground'>
+						<DialogDescription variant='sheet'>
 							{description}
 						</DialogDescription>
 					) : (
 						<DialogDescription className='sr-only'>{typeof title === 'string' ? title : 'Dialog'}</DialogDescription>
 					)}
-					<DialogClose
-						aria-label='Close'
-						className='absolute -top-1.5 -right-2 flex size-11 items-center justify-center rounded-[12px] text-slate-600 transition-colors hover:bg-[#E9ECF0] focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none dark:hover:bg-muted'
-					>
-						<HugeiconsIcon
-							icon={Cancel01Icon}
-							strokeWidth={1.8}
-							className='size-5'
-						/>
+					<DialogClose asChild>
+						<Button
+							aria-label='Close'
+							variant='quiet'
+							size='icon-xl'
+							className='absolute -top-1.5 -right-2'
+						>
+							<HugeiconsIcon
+								icon={Cancel01Icon}
+								strokeWidth={1.8}
+								className='size-5'
+							/>
+						</Button>
 					</DialogClose>
 				</DialogHeader>
 				{children}

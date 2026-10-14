@@ -9,7 +9,6 @@ import { DashboardRow } from './dashboard-row'
 import { DashboardSectionCard } from './dashboard-section-card'
 import { RowIcon } from './row-icon'
 import type { ReceiptPreview } from './helpers/build-dashboard-model'
-import { EMPTY_STATE_ACTION } from './helpers/dashboard-styles'
 
 // Each state has an icon and a word as well as a colour, so colour is never the only cue.
 const STATUS: Record<ReceiptPreview['status'], { label: string; icon: IconSvgElement; className: string }> = {
@@ -38,7 +37,7 @@ export function ReceiptsSectionCard({ receipts }: Props) {
 					tone='ocr'
 					title='No receipts yet.'
 					message='Photograph one and Listys turns it into a list you can review.'
-					action={<UploadTicketDialog className={EMPTY_STATE_ACTION} />}
+					action={<UploadTicketDialog className='w-auto' />}
 				/>
 			) : (
 				<div className='flex flex-1 flex-col gap-1'>
@@ -66,7 +65,7 @@ export function ReceiptsSectionCard({ receipts }: Props) {
 										/>
 									}
 									trailing={
-										<span className={cn('inline-flex h-6 shrink-0 items-center gap-[5px] font-display text-xs font-bold whitespace-nowrap', status.className)}>
+										<span className={cn('inline-flex h-6 shrink-0 items-center gap-1.5 font-display text-xs font-bold whitespace-nowrap', status.className)}>
 											<HugeiconsIcon
 												icon={status.icon}
 												strokeWidth={1.5}

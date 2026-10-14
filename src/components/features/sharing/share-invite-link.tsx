@@ -14,7 +14,6 @@ import {
 
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { A1_ACTION, A1_DANGER, A1_SECONDARY } from '@/components/app/helpers/a1-surface'
 import { cn } from '@/utils'
 import type { InviteLinkWithUrl } from '@/types'
 
@@ -74,52 +73,50 @@ export function ShareInviteLink({ link, isLoading, isGenerating, onGenerate, onR
 			</div>
 
 			{isLoading ? (
-				<Skeleton className='h-12 w-full rounded-[16px]' />
+				<Skeleton className='h-12 w-full rounded-2xl' />
 			) : !link ? (
 				<Button
+					size='xl'
 					onClick={onGenerate}
 					disabled={isGenerating}
 					data-testid='share-create-link'
-					className={A1_ACTION}
 				>
 					<HugeiconsIcon
 						icon={isGenerating ? Loading03Icon : Link01Icon}
 						strokeWidth={1.8}
 						aria-hidden='true'
-						className={cn('size-[18px]', isGenerating && 'animate-spin motion-reduce:animate-none')}
+						className={cn('size-4.5', isGenerating && 'animate-spin motion-reduce:animate-none')}
 					/>
 					{isGenerating ? 'Creating…' : 'Create Link'}
 				</Button>
 			) : (
 				<>
-					<div className='flex h-12 items-center gap-2.5 rounded-[16px] bg-[#F6F7F9] px-3.5 dark:bg-muted'>
+					<div className='flex h-12 items-center gap-2.5 rounded-2xl bg-muted px-3.5 dark:bg-muted'>
 						<HugeiconsIcon
 							icon={Link01Icon}
 							strokeWidth={1.8}
 							aria-hidden='true'
-							className='size-[18px] shrink-0 text-slate-500'
+							className='size-4.5 shrink-0 text-slate-500'
 						/>
 						<span
 							data-testid='share-link-url'
 							title={link.invite_url}
-							className='min-w-0 flex-1 truncate font-mono text-[13px] font-medium'
+							className='min-w-0 flex-1 truncate font-mono text-xs font-medium'
 						>
 							{link.invite_url}
 						</span>
 					</div>
 					<Button
+						size='xl'
+						variant={copied ? 'success-soft' : 'default'}
 						onClick={copy}
 						data-testid='share-copy-link'
-						className={cn(
-							A1_ACTION,
-							copied && 'bg-green-100 text-green-700 hover:bg-green-100 dark:bg-green-500/20 dark:text-green-300',
-						)}
 					>
 						<HugeiconsIcon
 							icon={copied ? Tick02Icon : Copy01Icon}
 							strokeWidth={1.8}
 							aria-hidden='true'
-							className='size-[18px]'
+							className='size-4.5'
 						/>
 						<span aria-live='polite'>{copied ? 'Link Copied' : 'Copy Link'}</span>
 					</Button>
@@ -128,7 +125,7 @@ export function ShareInviteLink({ link, isLoading, isGenerating, onGenerate, onR
 							role='alertdialog'
 							aria-labelledby='share-revoke-title'
 							data-testid='share-revoke-confirm'
-							className='flex flex-col gap-3 rounded-[20px] bg-red-50 p-3.5 text-red-900 dark:bg-red-950/40 dark:text-red-200'
+							className='flex flex-col gap-3 rounded-3xl bg-red-50 p-3.5 text-red-900 dark:bg-red-950/40 dark:text-red-200'
 						>
 							<div className='flex items-start gap-3'>
 								<HugeiconsIcon
@@ -144,7 +141,7 @@ export function ShareInviteLink({ link, isLoading, isGenerating, onGenerate, onR
 									>
 										Revoke this link?
 									</p>
-									<p className='text-[13.5px] leading-normal'>
+									<p className='text-sm leading-normal'>
 										Nobody can join with it anymore. People who already joined keep their access until you remove them. You can
 										create a new link at any time.
 									</p>
@@ -152,20 +149,21 @@ export function ShareInviteLink({ link, isLoading, isGenerating, onGenerate, onR
 							</div>
 							<div className='grid grid-cols-2 gap-3'>
 								<Button
+									size='xl'
 									type='button'
-									variant='outline'
+									variant='secondary'
 									onClick={() => setConfirmingRevoke(false)}
 									disabled={revoking}
-									className={cn(A1_ACTION, A1_SECONDARY)}
 								>
 									Cancel
 								</Button>
 								<Button
+									size='xl'
+									variant='destructive'
 									type='button'
 									onClick={revoke}
 									disabled={revoking}
 									data-testid='share-revoke-confirm-button'
-									className={cn(A1_ACTION, A1_DANGER)}
 								>
 									{revoking ? 'Revoking…' : 'Revoke Link'}
 								</Button>
@@ -174,31 +172,31 @@ export function ShareInviteLink({ link, isLoading, isGenerating, onGenerate, onR
 					) : (
 						<div className='grid grid-cols-2 gap-3'>
 							<Button
-								variant='outline'
+								size='xl'
+								variant='secondary'
 								onClick={onGenerate}
 								disabled={isGenerating}
 								data-testid='share-regenerate-link'
-								className={cn(A1_ACTION, A1_SECONDARY)}
 							>
 								<HugeiconsIcon
 									icon={Refresh04Icon}
 									strokeWidth={1.8}
 									aria-hidden='true'
-									className={cn('size-[18px]', isGenerating && 'animate-spin motion-reduce:animate-none')}
+									className={cn('size-4.5', isGenerating && 'animate-spin motion-reduce:animate-none')}
 								/>
 								Regenerate
 							</Button>
 							<Button
+								size='xl'
 								variant='destructive-soft'
 								onClick={() => setConfirmingRevoke(true)}
 								data-testid='share-revoke-link'
-								className={A1_ACTION}
 							>
 								<HugeiconsIcon
 									icon={Delete02Icon}
 									strokeWidth={1.8}
 									aria-hidden='true'
-									className='size-[18px]'
+									className='size-4.5'
 								/>
 								Revoke
 							</Button>

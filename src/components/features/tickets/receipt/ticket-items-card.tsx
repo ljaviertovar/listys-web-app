@@ -5,8 +5,6 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { ListViewIcon, Loading03Icon, PackageSearchIcon, SpamIcon, Tick02Icon } from '@hugeicons/core-free-icons'
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { CARD_SURFACE } from '@/components/app/helpers/a1-surface'
-import { cn } from '@/utils'
 
 import { TicketItemsList } from './ticket-items-list'
 import { TicketStatusListener } from './ticket-status-listener'
@@ -67,10 +65,10 @@ export function TicketItemsCard({ ticketId, items, status, ocrError, selection, 
 		<section
 			data-testid='ticket-items-card'
 			aria-labelledby='ticket-items-title'
-			className={cn('px-3.5 pt-4 pb-1.5', CARD_SURFACE)}
+			className='px-3.5 pt-4 pb-1.5 rounded-3xl bg-card shadow-card'
 		>
 			<div className='flex items-center gap-3 px-0.5'>
-				<span className='flex size-10 shrink-0 items-center justify-center rounded-[12px] bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300'>
+				<span className='flex size-10 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300'>
 					<HugeiconsIcon
 						icon={ListViewIcon}
 						strokeWidth={1.5}
@@ -80,12 +78,12 @@ export function TicketItemsCard({ ticketId, items, status, ocrError, selection, 
 				<div className='flex min-w-0 flex-1 flex-col gap-0.5'>
 					<h2
 						id='ticket-items-title'
-						className='font-display text-base leading-normal font-semibold tracking-[-0.005em]'
+						className='font-display text-base leading-normal font-semibold '
 					>
 						Extracted Items
 					</h2>
 					{status === 'completed' ? (
-						<span className='text-[13px] leading-[1.3] text-slate-500 dark:text-muted-foreground'>
+						<span className='text-xs leading-[1.3] text-slate-500 dark:text-muted-foreground'>
 							<b className='font-mono font-semibold text-foreground tabular-nums'>{items.length}</b>{' '}
 							{items.length === 1 ? 'item' : 'items'} found
 						</span>
@@ -125,7 +123,7 @@ export function TicketNoItems() {
 		>
 			<span
 				aria-hidden='true'
-				className='flex size-16 items-center justify-center rounded-[20px] bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300'
+				className='flex size-16 items-center justify-center rounded-3xl bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300'
 			>
 				<HugeiconsIcon
 					icon={PackageSearchIcon}
@@ -134,21 +132,21 @@ export function TicketNoItems() {
 				/>
 			</span>
 			<div className='flex flex-col items-center gap-1.5'>
-				<h3 className='font-display text-lg leading-[1.3] font-bold tracking-[-0.01em]'>No items detected</h3>
+				<h3 className='font-display text-lg leading-[1.3] font-bold '>No items detected</h3>
 				<p className='max-w-[300px] text-sm leading-normal text-slate-500 dark:text-muted-foreground'>
 					We could not find products in this receipt image. Try with a clearer photo and good lighting.
 				</p>
 			</div>
 			<ul
 				aria-label='Tips for a clearer photo'
-				className='flex w-full max-w-md flex-col gap-2.5 rounded-2xl bg-[#F6F7F9] p-3.5 text-left dark:bg-muted/50'
+				className='flex w-full max-w-md flex-col gap-2.5 rounded-2xl bg-muted p-3.5 text-left dark:bg-muted/50'
 			>
 				{TIPS.map(tip => (
 					<li
 						key={tip}
 						className='flex items-start gap-2.5 text-sm leading-[1.4] text-slate-700 dark:text-foreground/80'
 					>
-						<span className='mt-px flex size-5 shrink-0 items-center justify-center rounded-full bg-[#E9ECF0] text-blue-700 dark:bg-muted dark:text-blue-300'>
+						<span className='mt-px flex size-5 shrink-0 items-center justify-center rounded-full bg-secondary text-blue-700 dark:bg-muted dark:text-blue-300'>
 							<HugeiconsIcon
 								icon={Tick02Icon}
 								strokeWidth={2}

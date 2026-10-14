@@ -5,9 +5,8 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { StartShoppingDialog } from '@/components/features/base-lists'
 import { UploadTicketDialog } from '@/components/features/tickets'
 import { Button } from '@/components/ui/button'
-import { cn, formatCurrency } from '@/utils'
+import { formatCurrency } from '@/utils'
 import { HeroSurface } from './hero-surface'
-import { FOCUS_RING, HERO_CTA, QUICK_START_CHIP } from './helpers/dashboard-styles'
 import { pluralize, type DashboardModel } from './helpers/build-dashboard-model'
 
 interface Props {
@@ -36,11 +35,11 @@ export function NoSessionBanner({ quickStart, startTarget, lastTrip, hasLists }:
 			testId='dashboard-no-session-banner'
 			labelledBy='dashboard-no-session-title'
 		>
-			<div className='flex w-full max-w-xl flex-col gap-4 px-[22px] pt-40 pb-[26px] sm:p-8 md:gap-[18px] md:px-10 md:py-9'>
+			<div className='flex w-full max-w-xl flex-col gap-4 px-5.5 pt-40 pb-6.5 sm:p-8 md:gap-4.5 md:px-10 md:py-9'>
 				{/* Someone with no lists has never had a session, so saying there is none adds nothing: the hero just asks for a receipt. */}
 				{hasLists ? (
-					<span className='inline-flex w-fit items-center gap-[7px] rounded-full bg-white/12 px-[11px] py-[5px] text-[12.5px] leading-[1.2] font-semibold text-slate-200'>
-						<span className='size-[7px] rounded-full bg-slate-400' />
+					<span className='inline-flex w-fit items-center gap-2 rounded-full bg-white/12 px-3 py-1.5 text-xs leading-[1.2] font-semibold text-slate-200'>
+						<span className='size-2 rounded-full bg-slate-400' />
 						No shopping session in progress
 					</span>
 				) : null}
@@ -48,7 +47,7 @@ export function NoSessionBanner({ quickStart, startTarget, lastTrip, hasLists }:
 				<div className='flex flex-col gap-2'>
 					<h2
 						id='dashboard-no-session-title'
-						className='font-display text-[30px] leading-[1.17] font-bold tracking-[-0.025em] text-balance md:text-[32px]'
+						className='font-display text-3xl leading-[1.17] font-bold tracking-tight text-balance'
 					>
 						{hasLists ? 'Ready to go shopping?' : 'Start with a receipt'}
 					</h2>
@@ -66,24 +65,26 @@ export function NoSessionBanner({ quickStart, startTarget, lastTrip, hasLists }:
 
 				{hasLists && otherLists.length > 0 ? (
 					<div className='flex flex-col gap-2'>
-						<span className='font-mono text-[11px] leading-[1.2] font-semibold tracking-[0.1em] text-slate-400 uppercase'>
+						<span className='font-mono text-xs leading-[1.2] font-semibold tracking-widest text-slate-400 uppercase'>
 							Your lists
 						</span>
 						<ul className='flex flex-wrap gap-2'>
 							{otherLists.map(list => (
 								<li key={list.id}>
-									<Link
-										href={`/base-lists/${list.id}/edit`}
-										data-testid={`dashboard-quick-start-${list.id}`}
-										className={cn(
-											'inline-flex items-center rounded-full border border-white/20 bg-white/10 font-semibold transition-colors duration-150 hover:bg-white/20',
-											QUICK_START_CHIP,
-											FOCUS_RING,
-										)}
+									<Button
+										asChild
+										variant='on-dark'
+										size='lg'
+										rounded='full'
 									>
-										{list.name}
-										<span className='font-medium text-slate-400'>· {describeList(list)}</span>
-									</Link>
+										<Link
+											href={`/base-lists/${list.id}/edit`}
+											data-testid={`dashboard-quick-start-${list.id}`}
+										>
+											{list.name}
+											<span className='font-medium text-slate-400'>· {describeList(list)}</span>
+										</Link>
+									</Button>
 								</li>
 							))}
 						</ul>
@@ -92,56 +93,56 @@ export function NoSessionBanner({ quickStart, startTarget, lastTrip, hasLists }:
 
 				{!hasLists ? (
 					<UploadTicketDialog
-						size='xl'
-						className={cn(
-							'mt-1 w-full rounded-[12px] md:w-auto md:self-start md:h-[52px] md:gap-2.5 md:rounded-[12px] md:px-7 md:font-bold md:shadow-[0_14px_28px_-14px_rgba(37,99,235,0.85)] md:transition-[transform,box-shadow] md:duration-150 md:hover:-translate-y-px md:hover:shadow-[0_18px_32px_-14px_rgba(37,99,235,0.9)] md:motion-reduce:transition-none md:motion-reduce:hover:translate-y-0',
-						)}
+						variant='hero'
+						size='2xl'
+						className='mt-1 w-full md:w-auto md:self-start'
 					/>
 				) : startTarget ? (
 					<StartShoppingDialog
 						baseListId={startTarget.id}
 						baseListName={startTarget.name}
 						itemsCount={startTarget.itemsCount}
-						size='xl'
-						className={cn('mt-1 w-full md:w-auto', HERO_CTA)}
+						variant='hero'
+						size='2xl'
+						className='mt-1 w-full md:w-auto md:self-start'
 					>
 						Start Shopping
 						<HugeiconsIcon
 							icon={ArrowRight02Icon}
 							strokeWidth={2}
-							className='size-[18px]'
+							className='size-4.5'
 						/>
 					</StartShoppingDialog>
 				) : (
 					<Button
 						asChild
-						size='xl'
-						rounded='xl'
-						className={cn('mt-1 w-full md:w-auto', HERO_CTA)}
+						variant='hero'
+						size='2xl'
+						className='mt-1 w-full md:w-auto md:self-start'
 					>
 						<Link
 							href='/shopping-lists'
 							data-testid='dashboard-no-session-cta'
-							className={FOCUS_RING}
+							className='focus-ring'
 						>
 							Open Your Lists
 							<HugeiconsIcon
 								icon={ArrowRight02Icon}
 								strokeWidth={2}
-								className='size-[18px]'
+								className='size-4.5'
 							/>
 						</Link>
 					</Button>
 				)}
 
 				{!hasLists ? (
-					<p className='font-mono text-xs leading-[1.3] font-medium tracking-[0.01em] text-slate-400'>
+					<p className='font-mono text-xs leading-[1.3] font-medium text-slate-400'>
 						1–5 photos · you review every item before it is saved
 					</p>
 				) : null}
 
 				{lastTrip ? (
-					<p className='font-mono text-xs leading-[1.3] font-medium tracking-[0.01em] text-slate-400'>
+					<p className='font-mono text-xs leading-[1.3] font-medium text-slate-400'>
 						Last shopping session · {lastTrip.listName} · {lastTrip.dateLabel}
 						{lastTrip.total !== null ? ` · ${formatCurrency(lastTrip.total)}` : ''}
 					</p>

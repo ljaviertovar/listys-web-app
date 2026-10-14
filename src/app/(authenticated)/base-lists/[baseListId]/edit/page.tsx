@@ -28,7 +28,7 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 	if (error || !baseList) {
 		return (
 			<div className='container mx-auto max-w-4xl space-y-6 p-6'>
-				<div className='rounded-[12px] bg-destructive/10 p-4 text-sm text-destructive'>
+				<div className='rounded-xl bg-destructive/10 p-4 text-sm text-destructive'>
 					{error || 'Base list not found'}
 				</div>
 			</div>
@@ -82,8 +82,7 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 						baseListName={baseListWithItems.name}
 						itemsCount={items.length}
 						sessionActive={hasActiveSession}
-						size='default'
-						className='h-12 w-full rounded-[12px] font-display text-[15px] font-semibold sm:w-fit sm:px-8'
+						className='sm:w-fit'
 					/>
 
 					<ListToolbar

@@ -26,7 +26,6 @@ export function FormField({ htmlFor, label, required = false, error, children, t
 		>
 			<Label
 				htmlFor={htmlFor}
-				className='text-sm font-semibold'
 			>
 				{label}
 				{required ? (
@@ -43,7 +42,7 @@ export function FormField({ htmlFor, label, required = false, error, children, t
 				<p
 					id={`${htmlFor}-error`}
 					role='alert'
-					className='flex items-center gap-1.5 text-[12.5px] leading-[1.3] font-medium text-red-700 dark:text-red-400'
+					className='flex items-center gap-1.5 text-xs leading-[1.3] font-medium text-red-700 dark:text-red-400'
 				>
 					<HugeiconsIcon
 						icon={AlertCircleIcon}

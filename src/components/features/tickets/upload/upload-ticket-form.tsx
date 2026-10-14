@@ -107,7 +107,6 @@ export function UploadTicketForm({ onSuccess, initialFiles }: Props) {
 			<div className='flex flex-col gap-2'>
 				<Label
 					htmlFor='store_name'
-					className='text-sm font-semibold'
 				>
 					Name <span className='text-destructive'>*</span>
 				</Label>
@@ -117,14 +116,14 @@ export function UploadTicketForm({ onSuccess, initialFiles }: Props) {
 					placeholder='e.g. Walmart, Grocery Store'
 					disabled={loading}
 					aria-invalid={errors.store_name ? true : undefined}
-					className='h-12 rounded-[16px] border-0 bg-card px-3.5 text-base shadow-[0_0_0_1px_rgba(15,23,42,0.1),0_2px_6px_-2px_rgba(15,23,42,0.1)] focus-visible:ring-2 md:text-[15px]'
+					size='lg'
 				/>
 				{errors.store_name && <p className='text-sm text-destructive'>{errors.store_name.message}</p>}
 			</div>
 
 			<div className='flex flex-col gap-2'>
 				<div className='flex items-center justify-between'>
-					<Label className='text-sm font-semibold'>
+					<Label>
 						Photos <span className='text-destructive'>*</span>
 					</Label>
 					<span
@@ -184,16 +183,18 @@ export function UploadTicketForm({ onSuccess, initialFiles }: Props) {
 						<Button
 							type='button'
 							variant='secondary'
+							size='xl'
 							disabled={loading}
-							className='h-12 flex-1 rounded-[12px] border-0 bg-[#E9ECF0] font-display text-[15px] font-semibold text-blue-700 shadow-none hover:bg-[#DEE2E8] sm:h-11 sm:flex-none sm:px-5'
+							className='flex-1 sm:flex-none'
 						>
 							Cancel
 						</Button>
 					</DialogClose>
 					<Button
 						type='submit'
+						size='xl'
 						disabled={!canSubmit}
-						className='h-12 flex-1 rounded-[12px] font-display text-[15px] font-semibold sm:h-11 sm:flex-none sm:px-6'
+						className='flex-1 sm:flex-none'
 					>
 						{loading ? (
 							<>

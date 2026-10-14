@@ -2,7 +2,6 @@ import type { ReactNode } from 'react'
 import Link from 'next/link'
 
 import { cn } from '@/utils'
-import { FOCUS_RING, ROW_HOVER } from './helpers/dashboard-styles'
 
 interface Props {
 	href: string
@@ -22,10 +21,10 @@ export function DashboardRow({ href, title, meta, monoMeta = false, leading, tra
 		<Link
 			href={href}
 			data-testid={testId}
-			className={cn('flex items-center gap-3 rounded-[12px] px-2 py-2.5 transition-colors duration-150', ROW_HOVER, FOCUS_RING, className)}
+			className={cn('flex items-center gap-3 rounded-xl px-2 py-2.5 transition-colors duration-150', 'hover:bg-background dark:hover:bg-muted', 'focus-ring', className)}
 		>
 			{leading}
-			<span className='flex min-w-0 flex-1 flex-col gap-[3px]'>
+			<span className='flex min-w-0 flex-1 flex-col gap-1'>
 				<span
 					title={title}
 					className='truncate text-sm leading-[1.3] font-semibold text-foreground'
@@ -36,7 +35,7 @@ export function DashboardRow({ href, title, meta, monoMeta = false, leading, tra
 					<span
 						className={cn(
 							'text-slate-500 dark:text-muted-foreground',
-							monoMeta ? 'line-clamp-2 font-mono text-xs leading-normal font-medium tracking-[0.01em]' : 'text-sm leading-[1.5]',
+							monoMeta ? 'line-clamp-2 font-mono text-xs leading-normal font-medium ' : 'text-sm leading-[1.5]',
 						)}
 					>
 						{meta}

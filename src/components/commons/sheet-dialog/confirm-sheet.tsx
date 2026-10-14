@@ -5,8 +5,6 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { AlertCircleIcon, Loading03Icon } from '@hugeicons/core-free-icons'
 
 import { Button } from '@/components/ui/button'
-import { A1_ACTION, A1_DANGER, A1_SECONDARY } from '@/components/app/helpers/a1-surface'
-import { cn } from '@/utils'
 
 import { SheetDialog } from './sheet-dialog'
 
@@ -70,7 +68,7 @@ export function ConfirmSheet({
 				{consequence ? (
 					<div
 						role='note'
-						className='flex items-start gap-3 rounded-[16px] bg-red-50 px-3.5 py-3 text-sm leading-normal text-red-900 dark:bg-red-950/40 dark:text-red-200'
+						className='flex items-start gap-3 rounded-2xl bg-red-50 px-3.5 py-3 text-sm leading-normal text-red-900 dark:bg-red-950/40 dark:text-red-200'
 					>
 						<HugeiconsIcon
 							icon={AlertCircleIcon}
@@ -85,20 +83,21 @@ export function ConfirmSheet({
 			</div>
 			<div className='grid grid-cols-2 gap-3'>
 				<Button
+					size='xl'
 					type='button'
-					variant='outline'
+					variant='secondary'
 					disabled={loading}
 					onClick={() => onOpenChange(false)}
-					className={cn(A1_ACTION, A1_SECONDARY, 'px-3')}
 				>
 					{cancelLabel}
 				</Button>
 				<Button
 					type='button'
+					size='xl'
+					variant={tone === 'danger' ? 'destructive' : 'default'}
 					disabled={loading}
 					onClick={onConfirm}
 					data-testid={`${testId}-confirm`}
-					className={cn(A1_ACTION, tone === 'danger' && A1_DANGER, 'px-3')}
 				>
 					{loading ? (
 						<HugeiconsIcon

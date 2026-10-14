@@ -1,6 +1,5 @@
 import { UploadTicketDialog } from '@/components/features/tickets'
 import { cn } from '@/utils'
-import { SECONDARY_ACTION } from './helpers/dashboard-styles'
 import { ActiveSessionBanner } from './active-session-banner'
 import { DashboardGreeting } from './dashboard-greeting'
 import { GroupsSectionCard } from './groups-section-card'
@@ -39,8 +38,8 @@ export function DashboardView({ model, firstName, isGuest = false, hasLists }: P
 				{showHeaderUpload ? (
 					// Phones upload from the tab bar's raised button, so this one only exists from `lg`.
 					<UploadTicketDialog
-						variant='outline'
-						className={cn(SECONDARY_ACTION, 'hidden lg:inline-flex')}
+						variant='secondary'
+						className='hidden w-auto lg:inline-flex'
 					/>
 				) : null}
 			</header>

@@ -5,7 +5,6 @@ import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react'
 
 import { Card } from '@/components/ui/card'
 import { cn } from '@/utils'
-import { CARD_SURFACE, FOCUS_RING, ROW_HOVER } from './helpers/dashboard-styles'
 import { RowIcon } from './row-icon'
 import type { UpNextItem, UpNextKind } from './helpers/build-dashboard-model'
 
@@ -34,12 +33,12 @@ export function UpNextList({ items }: Props) {
 			<div className='flex min-h-10 items-center'>
 				<h2
 					id='dashboard-up-next-title'
-					className='font-display text-base leading-normal font-semibold tracking-[-0.005em] md:text-xl md:leading-[1.39] md:tracking-[-0.01em]'
+					className='font-display text-base leading-normal font-semibold md:text-xl md:leading-[1.39] '
 				>
 					Up Next
 				</h2>
 			</div>
-			<Card className={cn('gap-0 p-1.5', CARD_SURFACE)}>
+			<Card size='flush'>
 				<ul className='flex flex-col'>
 					{items.map((item, index) => {
 						const kind = KINDS[item.kind]
@@ -56,9 +55,9 @@ export function UpNextList({ items }: Props) {
 										href={item.href}
 										data-testid={`dashboard-up-next-${item.kind}`}
 										className={cn(
-											'flex min-h-16 items-center gap-3 rounded-[14px] px-3 py-2.5 transition-colors duration-150',
-											ROW_HOVER,
-											FOCUS_RING,
+											'flex min-h-16 items-center gap-3 rounded-xl px-3 py-2.5 transition-colors duration-150',
+											'hover:bg-background dark:hover:bg-muted',
+											'focus-ring',
 										)}
 									>
 										<RowIcon
@@ -67,7 +66,7 @@ export function UpNextList({ items }: Props) {
 											size='lg'
 											emphasis='medium'
 										/>
-										<span className='flex min-w-0 flex-1 flex-col gap-[3px]'>
+										<span className='flex min-w-0 flex-1 flex-col gap-1'>
 											<span className='text-sm leading-[1.3] font-semibold text-foreground'>{item.title}</span>
 											<span className='text-xs leading-[1.4] text-slate-500 dark:text-muted-foreground'>{item.detail}</span>
 										</span>
@@ -75,7 +74,7 @@ export function UpNextList({ items }: Props) {
 											icon={ArrowRight01Icon}
 											strokeWidth={2}
 											aria-hidden='true'
-											className='size-[18px] shrink-0 text-slate-400'
+											className='size-4.5 shrink-0 text-slate-400'
 										/>
 									</Link>
 								</li>

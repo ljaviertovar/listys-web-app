@@ -1,27 +1,19 @@
 'use client'
 
-import type { ComponentProps, ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { PlusSignIcon } from '@hugeicons/core-free-icons'
 
-import { Button } from '@/components/ui/button'
-import { A1_TOOLBAR_BUTTON } from '@/components/app/helpers/a1-surface'
+import { Button, type ButtonProps } from '@/components/ui/button'
 import { CreateEntitySheet, type EntityEditValues } from '@/components/commons'
 import { createGroup } from '@/lib/api/endpoints'
-import { cn } from '@/utils'
 
-interface Props {
-	/** Lets a surface that already has a primary action demote this trigger to a secondary one. */
-	variant?: ComponentProps<typeof Button>['variant']
-	className?: string
-	/** Replaces the default plus icon and "New Group" label inside the trigger button. */
-	children?: ReactNode
-}
+/** The trigger is a regular `Button`: `size`, `variant`, `className`… go straight to it. `children` replaces the plus icon and "New Group" label. */
+type Props = ButtonProps
 
 /** "New Group": the sheet that creates a group of shopping lists. */
-export function CreateGroupDialog({ variant, className, children }: Props = {}) {
+export function CreateGroupDialog({ children, ...buttonProps }: Props = {}) {
 	const router = useRouter()
 
 	const handleCreate = async ({ name, second }: EntityEditValues) => {
@@ -40,9 +32,7 @@ export function CreateGroupDialog({ variant, className, children }: Props = {}) 
 		<CreateEntitySheet
 			trigger={
 				<Button
-					size={'lg'}
-					variant={variant}
-					className={cn(A1_TOOLBAR_BUTTON, className)}
+					{...buttonProps}
 					data-testid='create-group-button'
 				>
 					{children ?? (

@@ -1,9 +1,8 @@
 'use client'
 
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import { Card, CardContent } from '@/components/ui/card'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { DollarCircleIcon, ShoppingCart02Icon, ArrowRight01Icon } from '@hugeicons/core-free-icons'
+import { DollarCircleIcon, ShoppingCart02Icon } from '@hugeicons/core-free-icons'
 import Link from 'next/link'
 import { formatDate, formatTime } from '@/utils'
 import { CardFooterContent, CardHeaderContent } from '@/components/app'
@@ -38,7 +37,8 @@ export function HistorySessionCard({ session, href }: Props) {
 		<Link href={href ?? `/shopping/${session.id}`}>
 			<Card
 				variant='premium'
-				className='group relative flex h-full cursor-pointer flex-col bg-card transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 gap-0 py-4'
+				size='compact'
+				className='group relative h-full cursor-pointer'
 				data-testid={`history-card-${session.id}`}
 			>
 				<CardHeaderContent

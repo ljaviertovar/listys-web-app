@@ -86,14 +86,11 @@ export default async function ShoppingRunPage({
 				title={runWithItems.name}
 				desc={
 					isCompleted ? (
-						<Badge
-							variant='completed'
-							className='h-[22px] px-2 text-[11.5px]'
-						>
+						<Badge variant='completed'>
 							Completed
 						</Badge>
 					) : (
-						<ActiveShoppingBadge className='h-[22px] gap-1.5 px-2 text-[11.5px]' />
+						<ActiveShoppingBadge />
 					)
 				}
 			>

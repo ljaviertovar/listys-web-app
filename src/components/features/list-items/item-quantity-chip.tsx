@@ -13,7 +13,7 @@ export function ItemQuantityChip({ quantity, unit, muted = false }: ItemQuantity
 		<span
 			data-testid='item-quantity-chip'
 			className={cn(
-				'inline-flex h-[22px] shrink-0 items-center gap-1 rounded-[7px] bg-[#E9ECF0] px-2 text-xs leading-none font-medium text-slate-600 dark:bg-muted dark:text-muted-foreground',
+				'inline-flex h-5.5 shrink-0 items-center gap-1 rounded-md bg-secondary px-2 text-xs leading-none font-medium text-slate-600 dark:bg-muted dark:text-muted-foreground',
 				muted && 'opacity-60',
 			)}
 		>

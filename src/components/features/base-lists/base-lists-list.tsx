@@ -29,7 +29,6 @@ export function BaseListsList({ groupId, groupName, baseLists, activeBaseListId 
 			>
 				<CreateBaseListDialog
 					groupId={groupId}
-					className='h-12 px-6 text-[15px]'
 				/>
 			</EmptyStateCard>
 		)

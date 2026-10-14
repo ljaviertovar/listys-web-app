@@ -4,23 +4,21 @@ import { useState } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Share01Icon } from '@hugeicons/core-free-icons'
 
-import { Button } from '@/components/ui/button'
-import { A1_SECONDARY, A1_TOOLBAR_BUTTON } from '@/components/app/helpers/a1-surface'
+import { Button, type ButtonProps } from '@/components/ui/button'
 import { SheetDialog } from '@/components/commons'
-import { cn } from '@/utils'
 import type { CollaboratorWithProfile, InviteLinkWithUrl } from '@/types'
 
 import { useShareList } from './hooks/use-share-list'
 import { ShareCollaborators } from './share-collaborators'
 import { ShareInviteLink } from './share-invite-link'
 
-interface Props {
+/** The trigger is a regular `Button` (`size`, `variant`, `className`… go straight to it). */
+interface Props extends Omit<ButtonProps, 'children'> {
 	baseListId: string
 	listName: string
 	isOwner: boolean
 	initialCollaborators?: CollaboratorWithProfile[]
 	initialInviteLinks?: InviteLinkWithUrl[]
-	className?: string
 }
 
 /** "Share": the button and the sheet where the owner of a list creates its invite link and manages who has access. */
@@ -30,7 +28,7 @@ export function ShareListDialog({
 	isOwner,
 	initialCollaborators,
 	initialInviteLinks,
-	className,
+	...buttonProps
 }: Props) {
 	const [open, setOpen] = useState(false)
 	const share = useShareList({ baseListId, isOwner, initialCollaborators, initialInviteLinks })
@@ -44,15 +42,16 @@ export function ShareListDialog({
 			}}
 			trigger={
 				<Button
-					variant='outline'
+					variant='secondary'
+					size='xl'
+					{...buttonProps}
 					data-testid='share-list-button'
-					className={cn(A1_TOOLBAR_BUTTON, A1_SECONDARY, className)}
 				>
 					<HugeiconsIcon
 						icon={Share01Icon}
 						strokeWidth={1.8}
 						aria-hidden='true'
-						className='size-[18px]'
+						className='size-4.5'
 					/>
 					Share
 				</Button>

@@ -50,7 +50,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 					uploadedAt ? (
 						<>
 							Uploaded{' '}
-							<span className='font-mono text-[13px] font-medium tracking-[0.01em] text-slate-600 tabular-nums dark:text-foreground/80'>
+							<span className='font-mono text-xs font-medium text-slate-600 tabular-nums dark:text-foreground/80'>
 								{formatDate(uploadedAt)} · {formatTime(uploadedAt)}
 							</span>
 						</>

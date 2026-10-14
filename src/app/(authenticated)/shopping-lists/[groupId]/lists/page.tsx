@@ -56,7 +56,7 @@ export default async function BaseListsPage({ params }: { params: Promise<{ grou
 				{error && (
 					<div
 						role='alert'
-						className='rounded-[12px] bg-destructive/10 p-4 text-sm text-destructive'
+						className='rounded-xl bg-destructive/10 p-4 text-sm text-destructive'
 					>
 						Error loading lists: {error}
 					</div>

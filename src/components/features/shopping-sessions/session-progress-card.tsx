@@ -1,5 +1,4 @@
 import { Progress } from '@/components/ui/progress'
-import { CARD_SURFACE } from '@/components/app/helpers/a1-surface'
 import { cn } from '@/utils'
 
 interface SessionProgressCardProps {
@@ -18,21 +17,21 @@ export function SessionProgressCard({ checked, total, isCompleted = false }: Ses
 		<section
 			aria-label='Shopping progress'
 			data-testid='session-progress-card'
-			className={cn('flex flex-col gap-3 p-4', CARD_SURFACE)}
+			className='flex flex-col gap-3 p-4 rounded-3xl bg-card shadow-card'
 		>
 			<div className='flex items-end justify-between gap-2'>
 				<div className='flex flex-col gap-1'>
-					<span className='text-[13px] leading-[1.3] text-slate-500 dark:text-muted-foreground'>
+					<span className='text-xs leading-[1.3] text-slate-500 dark:text-muted-foreground'>
 						{isCompleted ? 'Purchased' : 'Collected'}
 					</span>
-					<span className='font-display text-[15px] leading-[1.3] font-semibold'>
+					<span className='font-display text-base leading-[1.3] font-semibold'>
 						<b className='font-mono font-semibold tabular-nums'>{checked}</b> of{' '}
 						<b className='font-mono font-semibold tabular-nums'>{total}</b> {total === 1 ? 'item' : 'items'}
 					</span>
 				</div>
 				<span
 					className={cn(
-						'font-mono text-2xl leading-none font-semibold tracking-[-0.02em] tabular-nums',
+						'font-mono text-2xl leading-none font-semibold tracking-tight tabular-nums',
 						done ? 'text-green-700 dark:text-green-400' : 'text-blue-700 dark:text-blue-300',
 					)}
 				>
@@ -42,8 +41,9 @@ export function SessionProgressCard({ checked, total, isCompleted = false }: Ses
 			<Progress
 				value={percent}
 				aria-label='Items collected in this shopping session'
-				className='h-2 bg-[#E5E8EC] dark:bg-muted'
-				indicatorClassName={done ? 'bg-green-500' : 'bg-primary'}
+				size='md'
+				tone='track'
+				complete={done}
 			/>
 		</section>
 	)

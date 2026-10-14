@@ -5,7 +5,6 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { ArrowDown01Icon } from '@hugeicons/core-free-icons'
 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
-import { FOCUS_RING } from '@/components/app/helpers/a1-surface'
 import { cn } from '@/utils'
 
 import { getCategoryIcon, getCategoryTone } from './helpers/category-style'
@@ -44,52 +43,49 @@ export function CategorySection({
 	className,
 }: CategorySectionProps) {
 	return (
-		<Collapsible
-			defaultOpen={defaultOpen}
-			data-testid={testId}
-			className={cn(
-				'group/category border-t border-slate-100 pb-0 data-[state=open]:pb-2.5 dark:border-border',
-				className,
-			)}
-		>
-			<h3 className='m-0'>
-				<CollapsibleTrigger
-					className={cn('flex min-h-[52px] w-full items-center gap-3 rounded-[12px] text-left', FOCUS_RING)}
-				>
-					<span className='flex size-8 shrink-0 items-center justify-center rounded-[10px] bg-[#EEF1F5] dark:bg-muted'>
-						<HugeiconsIcon
-							icon={getCategoryIcon(category)}
-							strokeWidth={1.5}
+		<div className={cn('border-t border-slate-100 dark:border-border', className)}>
+			<Collapsible
+				defaultOpen={defaultOpen}
+				data-testid={testId}
+				className='group/category pb-0 data-[state=open]:pb-2.5'
+			>
+				<h3 className='m-0'>
+					<CollapsibleTrigger variant='row'>
+						<span className='flex size-8 shrink-0 items-center justify-center rounded-lg bg-secondary dark:bg-muted'>
+							<HugeiconsIcon
+								icon={getCategoryIcon(category)}
+								strokeWidth={1.5}
+								aria-hidden='true'
+								className={cn('size-4.5', getCategoryTone(category))}
+							/>
+						</span>
+						<span className='min-w-0 flex-1 truncate font-sans text-xs leading-[1.25] font-semibold tracking-[0.04em] text-slate-700 uppercase dark:text-foreground/80'>
+							{title}
+						</span>
+						<span
+							className={cn(
+								'font-mono text-xs tabular-nums',
+								complete ? 'font-semibold text-green-700 dark:text-green-400' : 'font-medium text-slate-500 dark:text-muted-foreground',
+							)}
+						>
+							{count}
+						</span>
+						<span
 							aria-hidden='true'
-							className={cn('size-[18px]', getCategoryTone(category))}
-						/>
-					</span>
-					<span className='min-w-0 flex-1 truncate font-sans text-xs leading-[1.25] font-semibold tracking-[0.04em] text-slate-700 uppercase dark:text-foreground/80'>
-						{title}
-					</span>
-					<span
-						className={cn(
-							'font-mono text-xs tabular-nums',
-							complete ? 'font-semibold text-green-700 dark:text-green-400' : 'font-medium text-slate-500 dark:text-muted-foreground',
-						)}
-					>
-						{count}
-					</span>
-					<span
-						aria-hidden='true'
-						className='flex size-9 items-center justify-center text-slate-500'
-					>
-						<HugeiconsIcon
-							icon={ArrowDown01Icon}
-							strokeWidth={1.8}
-							className='size-[18px] transition-transform group-data-[state=closed]/category:-rotate-90 motion-reduce:transition-none'
-						/>
-					</span>
-				</CollapsibleTrigger>
-			</h3>
-			<CollapsibleContent>
-				<div className={cn('overflow-hidden rounded-2xl bg-[#F6F7F9] dark:bg-muted/50', panelClassName)}>{children}</div>
-			</CollapsibleContent>
-		</Collapsible>
+							className='flex size-9 items-center justify-center text-slate-500'
+						>
+							<HugeiconsIcon
+								icon={ArrowDown01Icon}
+								strokeWidth={1.8}
+								className='size-4.5 transition-transform group-data-[state=closed]/category:-rotate-90 motion-reduce:transition-none'
+							/>
+						</span>
+					</CollapsibleTrigger>
+				</h3>
+				<CollapsibleContent>
+					<div className={cn('overflow-hidden rounded-2xl bg-muted dark:bg-muted/50', panelClassName)}>{children}</div>
+				</CollapsibleContent>
+			</Collapsible>
+		</div>
 	)
 }

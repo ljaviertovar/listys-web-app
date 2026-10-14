@@ -3,10 +3,9 @@
 import { useMemo } from 'react'
 import { TaskAdd01Icon } from '@hugeicons/core-free-icons'
 
-import { CARD_SURFACE } from '@/components/app/helpers/a1-surface'
 import { CategorySection, EmptyStateCard } from '@/components/commons'
 import { AddItemSheet } from '@/components/features/list-items'
-import { cn, groupByCategory } from '@/utils'
+import { groupByCategory } from '@/utils'
 import type { BaseListItem } from '@/types'
 
 import { BaseListItemRow } from './base-list-item-row'
@@ -40,7 +39,7 @@ export function BaseListItems({ baseListId, items, isLocked = false }: BaseListI
 				<AddItemSheet
 					target={{ context: 'base-list', baseListId }}
 					isLocked={isLocked}
-					emphasis='primary'
+					variant='default'
 				/>
 			</EmptyStateCard>
 		)
@@ -50,7 +49,7 @@ export function BaseListItems({ baseListId, items, isLocked = false }: BaseListI
 		<section
 			aria-label='Items by category'
 			data-testid='base-list-items-card'
-			className={cn('px-4 pt-1', CARD_SURFACE)}
+			className='px-4 pt-1 rounded-3xl bg-card shadow-card'
 		>
 			{groups.map((group, index) => (
 				<CategorySection

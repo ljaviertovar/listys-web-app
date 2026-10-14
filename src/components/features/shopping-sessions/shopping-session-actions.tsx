@@ -12,7 +12,6 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { A1_TOOLBAR_BUTTON, FOCUS_RING } from '@/components/app/helpers/a1-surface'
 import { ABOVE_MOBILE_TAB_BAR } from '@/components/app/helpers/mobile-tab-bar-layout'
 import { cn } from '@/utils'
 
@@ -45,27 +44,27 @@ export function ShoppingSessionActions({ sessionId, checked, total, isOwner = fa
 				className='hidden items-center gap-2 lg:flex'
 			>
 				<Button
+					size='xl'
 					variant='destructive-soft'
 					onClick={() => setCancelOpen(true)}
-					className={cn(A1_TOOLBAR_BUTTON)}
 				>
 					<HugeiconsIcon
 						icon={Cancel01Icon}
 						strokeWidth={1.8}
 						aria-hidden='true'
-						className='size-[18px]'
+						className='size-4.5'
 					/>
 					Cancel Shopping
 				</Button>
 				<Button
+					size='xl'
 					onClick={() => setCompleteOpen(true)}
-					className={A1_TOOLBAR_BUTTON}
 				>
 					<HugeiconsIcon
 						icon={Tick02Icon}
 						strokeWidth={1.8}
 						aria-hidden='true'
-						className='size-[18px]'
+						className='size-4.5'
 					/>
 					Complete Shopping
 				</Button>
@@ -80,19 +79,17 @@ export function ShoppingSessionActions({ sessionId, checked, total, isOwner = fa
 					onOpenChange={setMenuOpen}
 				>
 					<DropdownMenuTrigger asChild>
-						<button
+						<Button
 							type='button'
 							data-testid='session-actions-button'
-							className={cn(
-								'inline-flex h-10 items-center gap-1.5 rounded-[12px] bg-card pr-3 pl-3.5 font-display text-sm font-semibold text-blue-700 shadow-[0_0_0_1px_rgba(15,23,42,0.06),0_14px_28px_-10px_rgba(15,23,42,0.45)] dark:text-blue-300',
-								FOCUS_RING,
-							)}
+							variant='floating'
+							size='lg'
 						>
 							<HugeiconsIcon
 								icon={ShoppingCart02Icon}
 								strokeWidth={1.5}
 								aria-hidden='true'
-								className='size-[18px]'
+								className='size-4.5'
 							/>
 							Actions
 							<HugeiconsIcon
@@ -101,17 +98,18 @@ export function ShoppingSessionActions({ sessionId, checked, total, isOwner = fa
 								aria-hidden='true'
 								className='size-4'
 							/>
-						</button>
+						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent
 						side='top'
 						align='end'
 						sideOffset={8}
-						className='w-58 rounded-[16px] border-0 bg-card p-1.5 shadow-[0_0_0_1px_rgba(15,23,42,0.06),0_16px_32px_-12px_rgba(15,23,42,0.35)]'
+						variant='menu'
+						className='w-58'
 					>
 						<DropdownMenuItem
 							onSelect={() => setCompleteOpen(true)}
-							className='min-h-12 cursor-pointer gap-2.5 rounded-[10px] px-3 font-display text-sm font-semibold'
+							size='touch'
 						>
 							<HugeiconsIcon
 								icon={CheckmarkCircle02Icon}
@@ -124,7 +122,8 @@ export function ShoppingSessionActions({ sessionId, checked, total, isOwner = fa
 						<DropdownMenuSeparator />
 						<DropdownMenuItem
 							onSelect={() => setCancelOpen(true)}
-							className='min-h-12 cursor-pointer gap-2.5 rounded-[10px] px-3 font-display text-sm font-semibold text-red-700 focus:bg-red-50 focus:text-red-700 dark:text-red-400 dark:focus:bg-red-950/40'
+							variant='destructive'
+							size='touch'
 						>
 							<HugeiconsIcon
 								icon={Cancel01Icon}

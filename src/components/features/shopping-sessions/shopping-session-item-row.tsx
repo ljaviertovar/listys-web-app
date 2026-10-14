@@ -44,7 +44,7 @@ export function ShoppingSessionItemRow({ item, isCompleted = false }: ShoppingSe
 		<div
 			data-testid={`session-item-${item.id}`}
 			data-checked={checked}
-			className='flex min-h-[68px] items-center gap-0.5 py-1 pr-1.5 pl-0.5'
+			className='flex min-h-17 items-center gap-0.5 py-1 pr-1.5 pl-0.5'
 		>
 			<label
 				htmlFor={isCompleted ? undefined : checkboxId}
@@ -60,7 +60,7 @@ export function ShoppingSessionItemRow({ item, isCompleted = false }: ShoppingSe
 							onCheckedChange={toggle}
 							disabled={toggling}
 							aria-label={checked ? `${name}, collected` : `Mark ${name} as collected`}
-							className='size-[22px] rounded-[7px] border-slate-400 bg-white dark:bg-transparent'
+							size='lg'
 						/>
 					</span>
 				)}

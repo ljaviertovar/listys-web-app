@@ -1,8 +1,6 @@
 import type { ReactNode } from 'react'
 
 import { Card } from '@/components/ui/card'
-import { cn } from '@/utils'
-import { CARD_SURFACE } from './helpers/dashboard-styles'
 import { ViewAllLink } from './view-all-link'
 
 interface Props {
@@ -26,17 +24,16 @@ export function DashboardSectionCard({ testId, title, viewAll, children }: Props
 			<div className='flex items-center gap-3'>
 				<h2
 					id={`${testId}-title`}
-					className='min-w-0 flex-1 font-display text-base leading-normal font-semibold tracking-[-0.005em] md:text-xl md:leading-[1.39] md:tracking-[-0.01em]'
+					className='min-w-0 flex-1 font-display text-base leading-normal font-semibold md:text-xl md:leading-[1.39] '
 				>
 					{title}
 				</h2>
 				<ViewAllLink {...viewAll} />
 			</div>
 			<Card
-				className={cn(
-					'flex-1 gap-0 p-2.5 transition-shadow duration-200 hover:shadow-[0_0_0_1px_rgba(15,23,42,0.04),0_1px_2px_rgba(15,23,42,0.04),0_12px_28px_-12px_rgba(15,23,42,0.18)]',
-					CARD_SURFACE,
-				)}
+				size='tight'
+				interactive
+				className='flex-1'
 			>
 				{children}
 			</Card>

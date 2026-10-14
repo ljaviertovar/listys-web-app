@@ -18,11 +18,17 @@ export default function CardHeaderContent({ icon, title, description }: Props) {
 				/>
 			</div>
 			<div className='min-w-0 flex-1 pr-14 sm:pr-0'>
-				<CardTitle className='text-base font-bold tracking-tight text-foreground transition-colors group-hover:text-primary max-w-[20ch]'>
+				<CardTitle
+					variant='strong'
+					className='max-w-[20ch]'
+				>
 					{title}
 				</CardTitle>
 				{description && (
-					<CardDescription className='truncate text-sm font-medium text-muted-foreground'>
+					<CardDescription
+						weight='medium'
+						className='truncate'
+					>
 						{description}
 					</CardDescription>
 				)}

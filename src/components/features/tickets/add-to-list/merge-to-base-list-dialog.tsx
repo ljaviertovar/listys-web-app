@@ -155,7 +155,7 @@ export function MergeToBaseListDialog({ open, onOpenChange, ticketId, selectedIt
 				className='w-11/12 sm:max-w-125'
 			>
 				<DialogHeader>
-					<DialogTitle className='truncate font-bold tracking-tight text-foreground'>Add Items to List</DialogTitle>
+					<DialogTitle variant='strong' className='truncate'>Add Items to List</DialogTitle>
 					<DialogDescription>
 						Add {selectedItemIds.length} selected item{selectedItemIds.length !== 1 ? 's' : ''} to a shopping list.
 					</DialogDescription>
@@ -290,7 +290,6 @@ export function MergeToBaseListDialog({ open, onOpenChange, ticketId, selectedIt
 									value={newListName}
 									onChange={e => setNewListName(e.target.value)}
 									placeholder='e.g., Weekly Groceries'
-									className='text-base'
 								/>
 							</div>
 						)}

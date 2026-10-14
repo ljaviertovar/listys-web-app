@@ -42,16 +42,14 @@ export default function AuthenticatedError({
 				<div className='flex flex-col gap-3 sm:flex-row sm:justify-center'>
 					<Button
 						onClick={reset}
-						variant='default'
-						className='gap-2'
+						variant='default'
 					>
 						<RefreshCw className='h-4 w-4' />
 						Intentar de nuevo
 					</Button>
 					<Button
 						asChild
-						variant='outline'
-						className='gap-2'
+						variant='outline'
 					>
 						<Link href='/dashboard'>
 							<LayoutDashboard className='h-4 w-4' />

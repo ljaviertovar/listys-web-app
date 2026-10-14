@@ -4,23 +4,19 @@ import { useState } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { PlusSignIcon } from '@hugeicons/core-free-icons'
 
-import { Button } from '@/components/ui/button'
-import { A1_SECONDARY, A1_TOOLBAR_BUTTON } from '@/components/app/helpers/a1-surface'
+import { Button, type ButtonProps } from '@/components/ui/button'
 import { SheetDialog } from '@/components/commons'
-import { cn } from '@/utils'
 
 import { AddItemForm, type AddItemTarget } from './add-item-form'
 
-interface AddItemSheetProps {
+/** The trigger is a regular `Button`: `variant='default'` is the one that fills an empty list, the default (`secondary`) is the toolbar one. */
+interface AddItemSheetProps extends Omit<ButtonProps, 'children'> {
 	target: AddItemTarget
 	isLocked?: boolean
-	/** `secondary` is the toolbar button; `primary` the one that fills an empty list. */
-	emphasis?: 'secondary' | 'primary'
-	className?: string
 }
 
 /** "Add Item": the button and the sheet with the form that adds an item to a base list or to a shopping session. */
-export function AddItemSheet({ target, isLocked = false, emphasis = 'secondary', className }: AddItemSheetProps) {
+export function AddItemSheet({ target, isLocked = false, ...buttonProps }: AddItemSheetProps) {
 	const [open, setOpen] = useState(false)
 
 	return (
@@ -29,20 +25,17 @@ export function AddItemSheet({ target, isLocked = false, emphasis = 'secondary',
 			onOpenChange={setOpen}
 			trigger={
 				<Button
-					variant={emphasis === 'primary' ? 'default' : 'outline'}
+					variant='secondary'
+					size='xl'
+					{...buttonProps}
 					disabled={isLocked}
 					data-testid={`add-item-button-${target.context}`}
-					className={cn(
-						A1_TOOLBAR_BUTTON,
-						emphasis === 'primary' ? 'h-12 px-6 text-[15px]' : A1_SECONDARY,
-						className,
-					)}
 				>
 					<HugeiconsIcon
 						icon={PlusSignIcon}
 						strokeWidth={1.8}
 						aria-hidden='true'
-						className='size-[18px]'
+						className='size-4.5'
 					/>
 					Add Item
 				</Button>

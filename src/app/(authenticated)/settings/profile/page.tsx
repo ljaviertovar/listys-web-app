@@ -59,7 +59,10 @@ export default async function ProfilePage() {
 							<Badge variant={isVerified ? 'completed' : 'pending'}>{isVerified ? 'Verified' : 'Pending'}</Badge>
 						</CardHeader>
 						<CardContent className='flex flex-col items-center gap-3'>
-							<Avatar className='h-24 w-24 ring-2 ring-primary/20'>
+							<Avatar
+								size='2xl'
+								ring
+							>
 								<AvatarImage
 									src={avatarUrl || '/img/avatars/01.png'}
 									alt={displayName}

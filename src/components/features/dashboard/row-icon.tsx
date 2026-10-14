@@ -21,11 +21,11 @@ const TONES = {
 } as const
 
 const SIZES = {
-	xs: { box: 'size-6 rounded-[8px]', icon: 'size-3.5' },
-	sm: { box: 'size-8 rounded-[10px]', icon: 'size-[18px]' },
-	md: { box: 'size-9 rounded-[12px]', icon: 'size-[18px]' },
-	lg: { box: 'size-10 rounded-[12px]', icon: 'size-5' },
-	xl: { box: 'size-14 rounded-2xl', icon: 'size-[26px]' },
+	xs: { box: 'size-6 rounded-lg', icon: 'size-3.5' },
+	sm: { box: 'size-8 rounded-lg', icon: 'size-4.5' },
+	md: { box: 'size-9 rounded-xl', icon: 'size-4.5' },
+	lg: { box: 'size-10 rounded-xl', icon: 'size-5' },
+	xl: { box: 'size-14 rounded-2xl', icon: 'size-6.5' },
 } as const
 
 interface Props {

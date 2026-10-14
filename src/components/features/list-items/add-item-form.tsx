@@ -9,7 +9,6 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { Loading03Icon, PlusSignIcon } from '@hugeicons/core-free-icons'
 
 import { Button } from '@/components/ui/button'
-import { A1_ACTION, A1_SECONDARY } from '@/components/app/helpers/a1-surface'
 import { createBaseListItem, createShoppingSessionItem } from '@/lib/api/endpoints'
 import { broadcastListActivity, cn } from '@/utils'
 
@@ -67,7 +66,7 @@ export function AddItemForm({ target, isLocked = false, onCancel }: AddItemFormP
 			{isLocked ? (
 				<p
 					role='note'
-					className='rounded-[16px] bg-slate-100 px-3.5 py-3 text-sm leading-normal text-slate-600 dark:bg-muted dark:text-muted-foreground'
+					className='rounded-2xl bg-slate-100 px-3.5 py-3 text-sm leading-normal text-slate-600 dark:bg-muted dark:text-muted-foreground'
 				>
 					This list is locked because it is being shopped right now.
 				</p>
@@ -83,18 +82,18 @@ export function AddItemForm({ target, isLocked = false, onCancel }: AddItemFormP
 			</p>
 			<div className='grid grid-cols-2 gap-3'>
 				<Button
+					size='xl'
 					type='button'
-					variant='outline'
+					variant='secondary'
 					onClick={onCancel}
 					disabled={loading}
-					className={cn(A1_ACTION, A1_SECONDARY)}
 				>
 					Cancel
 				</Button>
 				<Button
+					size='xl'
 					type='submit'
 					disabled={loading || isLocked}
-					className={A1_ACTION}
 				>
 					<HugeiconsIcon
 						icon={loading ? Loading03Icon : PlusSignIcon}

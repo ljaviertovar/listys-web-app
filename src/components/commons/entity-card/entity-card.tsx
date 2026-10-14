@@ -4,8 +4,6 @@ import Link from 'next/link'
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react'
 import { ArrowRight01Icon, Delete02Icon, Edit02Icon } from '@hugeicons/core-free-icons'
 
-import { CARD_SURFACE, FOCUS_RING } from '@/components/app/helpers/a1-surface'
-import { cn } from '@/utils'
 
 import { RowMenu } from '../row-menu/row-menu'
 
@@ -52,22 +50,22 @@ export function EntityCard({
 	return (
 		<article
 			data-testid={testId}
-			className={cn('group/entity relative flex flex-col gap-3 p-4', CARD_SURFACE)}
+			className='group/entity relative flex flex-col gap-3 p-4 rounded-3xl bg-card shadow-card'
 		>
 			<div className='flex items-center gap-3'>
-				<span className='flex size-9 shrink-0 items-center justify-center rounded-[12px] bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300'>
+				<span className='flex size-9 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300'>
 					<HugeiconsIcon
 						icon={icon}
 						strokeWidth={1.5}
 						aria-hidden='true'
-						className='size-[18px]'
+						className='size-4.5'
 					/>
 				</span>
 				<div className='flex min-w-0 flex-1 flex-col'>
-					<h2 className='truncate font-display text-base leading-[1.5] font-semibold tracking-[-0.005em]'>
+					<h2 className='truncate font-display text-base leading-[1.5] font-semibold '>
 						<Link
 							href={href}
-							className={cn('rounded-[8px] after:absolute after:inset-0 after:rounded-3xl', FOCUS_RING)}
+							className='rounded-lg after:absolute after:inset-0 after:rounded-3xl focus-ring'
 						>
 							{title}
 						</Link>
@@ -90,7 +88,7 @@ export function EntityCard({
 				) : null}
 			</div>
 			<div className='flex items-center justify-between gap-3 border-t border-slate-100 pt-3 dark:border-border'>
-				<span className='text-[13px] leading-none text-slate-500 dark:text-muted-foreground'>
+				<span className='text-xs leading-none text-slate-500 dark:text-muted-foreground'>
 					{count === 0 ? (
 						`No ${emptyLabel} yet`
 					) : (

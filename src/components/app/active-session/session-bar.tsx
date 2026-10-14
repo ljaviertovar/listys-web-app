@@ -1,7 +1,6 @@
 import Link from 'next/link'
 
-import { buttonVariants } from '@/components/ui/button'
-import { FOCUS_RING } from '@/components/app/helpers/a1-surface'
+import { Button } from '@/components/ui/button'
 import { ABOVE_MOBILE_TAB_BAR } from '@/components/app/helpers/mobile-tab-bar-layout'
 import { cn } from '@/utils'
 
@@ -32,8 +31,8 @@ export function SessionBar({ id, name, progress }: SessionBarProps) {
 			<Link
 				href={`/shopping/${id}`}
 				className={cn(
-					'flex h-12 items-center gap-2.5 rounded-[16px] bg-slate-900 py-1.5 pr-1.5 pl-2.5 text-white shadow-[0_10px_22px_-14px_rgba(15,23,42,0.6)]',
-					FOCUS_RING,
+					'flex h-12 items-center gap-2.5 rounded-2xl bg-slate-900 py-1.5 pr-1.5 pl-2.5 text-white shadow-[0_10px_22px_-14px_rgba(15,23,42,0.6)]',
+					'focus-ring',
 				)}
 			>
 				<span className='relative size-7 shrink-0'>
@@ -65,15 +64,21 @@ export function SessionBar({ id, name, progress }: SessionBarProps) {
 					<span className='absolute top-0 right-0 size-2 rounded-full border-[1.5px] border-slate-900 bg-green-400' />
 				</span>
 				<span className='flex min-w-0 flex-1 flex-col gap-0.5'>
-					<span className='truncate font-display text-[13px] leading-[1.2] font-bold'>{name}</span>
-					<span className='font-mono text-[11px] leading-[1.2] text-slate-300 tabular-nums'>
+					<span className='truncate font-display text-xs leading-[1.2] font-bold'>{name}</span>
+					<span className='font-mono text-xs leading-[1.2] text-slate-300 tabular-nums'>
 						{progress ? `${progress.checked} of ${progress.total} · ${percent}%` : 'In progress'}
 					</span>
 				</span>
 				{/* Not a nested control: the whole bar is the link, this only borrows the primary button's look. */}
-				<span className={cn(buttonVariants({ variant: 'default', size: 'default', rounded: 'lg' }), 'h-8 rounded-[10px] px-3 text-[12.5px] font-semibold')}>
-					Continue<span className='sr-only'> Shopping</span>
-				</span>
+				<Button
+					asChild
+					size='sm'
+					rounded='lg'
+				>
+					<span>
+						Continue<span className='sr-only'> Shopping</span>
+					</span>
+				</Button>
 			</Link>
 		</div>
 	)

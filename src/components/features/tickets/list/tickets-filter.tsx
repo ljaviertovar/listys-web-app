@@ -51,8 +51,8 @@ export function TicketsFilter({ currentFilter, orphanedCount }: TicketsFilterPro
 					No Group
 					{orphanedCount > 0 && (
 						<Badge
-							variant='secondary'
-							className='ml-2 h-5 min-w-5 rounded-full bg-amber-500 px-1.5 text-xs text-white'
+							variant='pending'
+							className='ml-2'
 						>
 							{orphanedCount}
 						</Badge>

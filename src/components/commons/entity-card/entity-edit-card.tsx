@@ -10,8 +10,6 @@ import { Loading03Icon } from '@hugeicons/core-free-icons'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { A1_ACTION, A1_SECONDARY, CARD_SURFACE, FIELD_AREA, FIELD_CONTROL } from '@/components/app/helpers/a1-surface'
-import { cn } from '@/utils'
 
 import { FormField } from '../form-field/form-field'
 
@@ -73,9 +71,9 @@ export function EntityEditCard({
 			data-testid={testId}
 			onSubmit={handleSubmit(submit)}
 			noValidate
-			className={cn('flex flex-col gap-4 p-4', CARD_SURFACE)}
+			className='flex flex-col gap-4 p-4 rounded-3xl bg-card shadow-card'
 		>
-			<h2 className='font-display text-base leading-[1.5] font-semibold tracking-[-0.005em]'>{title}</h2>
+			<h2 className='font-display text-base leading-[1.5] font-semibold '>{title}</h2>
 			<FormField
 				htmlFor={`${id}-name`}
 				label='Name'
@@ -89,7 +87,7 @@ export function EntityEditCard({
 					disabled={loading}
 					aria-invalid={!!errors.name}
 					aria-describedby={errors.name ? `${id}-name-error` : undefined}
-					className={FIELD_CONTROL}
+					size='lg'
 				/>
 			</FormField>
 			<FormField
@@ -105,23 +103,23 @@ export function EntityEditCard({
 					placeholder={secondPlaceholder}
 					aria-invalid={!!errors.second}
 					aria-describedby={errors.second ? `${id}-second-error` : undefined}
-					className={cn(FIELD_AREA, 'h-24 resize-none')}
+					rows={3}
 				/>
 			</FormField>
 			<div className='grid grid-cols-2 gap-3'>
 				<Button
+					size='xl'
 					type='button'
-					variant='outline'
+					variant='secondary'
 					onClick={onCancel}
 					disabled={loading}
-					className={cn(A1_ACTION, A1_SECONDARY)}
 				>
 					Cancel
 				</Button>
 				<Button
+					size='xl'
 					type='submit'
 					disabled={loading}
-					className={A1_ACTION}
 				>
 					{loading ? (
 						<HugeiconsIcon

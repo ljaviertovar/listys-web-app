@@ -1,16 +1,11 @@
 'use client'
 
 import { Controller, type UseFormReturn } from 'react-hook-form'
-import { HugeiconsIcon } from '@hugeicons/react'
-import { ArrowDown01Icon } from '@hugeicons/core-free-icons'
-
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { FIELD_AREA, FIELD_CONTROL } from '@/components/app/helpers/a1-surface'
 import { FormField } from '@/components/commons'
 import { CATEGORIES, UNITS } from '@/data/constants'
-import { cn } from '@/utils'
 
 import { unitOptions, type ItemFormValues } from './helpers/item-form-schema'
 
@@ -22,11 +17,6 @@ interface ItemFieldsProps {
 	/** The category only matters when an item is added; editing keeps the one it has. */
 	withCategory?: boolean
 }
-
-const SELECT_CONTROL = cn(
-	FIELD_CONTROL,
-	'justify-between data-[size=default]:h-12 aria-invalid:ring-2 [&>svg:last-child]:hidden',
-)
 
 /** The fields shared by every item form: name, quantity with its unit, an optional category and notes. */
 export function ItemFields({ form, idPrefix, disabled = false, withCategory = false }: ItemFieldsProps) {
@@ -55,7 +45,7 @@ export function ItemFields({ form, idPrefix, disabled = false, withCategory = fa
 					disabled={disabled}
 					aria-invalid={!!errors.name}
 					aria-describedby={errors.name ? `${idPrefix}-name-error` : undefined}
-					className={FIELD_CONTROL}
+					size='lg'
 				/>
 			</FormField>
 
@@ -78,7 +68,7 @@ export function ItemFields({ form, idPrefix, disabled = false, withCategory = fa
 						disabled={disabled}
 						aria-invalid={!!errors.quantity}
 						aria-describedby={errors.quantity ? `${idPrefix}-quantity-error` : undefined}
-						className={FIELD_CONTROL}
+						size='lg'
 					/>
 				</FormField>
 				<FormField
@@ -99,15 +89,9 @@ export function ItemFields({ form, idPrefix, disabled = false, withCategory = fa
 								<SelectTrigger
 									id={`${idPrefix}-unit`}
 									aria-invalid={!!errors.unit}
-									className={SELECT_CONTROL}
+									size='lg'
 								>
 									<SelectValue placeholder='Unit' />
-									<HugeiconsIcon
-										icon={ArrowDown01Icon}
-										strokeWidth={1.8}
-										aria-hidden='true'
-										className='!block size-[18px] text-slate-500'
-									/>
 								</SelectTrigger>
 								<SelectContent>
 									{unitOptions(UNITS, field.value).map(unit => (
@@ -144,15 +128,9 @@ export function ItemFields({ form, idPrefix, disabled = false, withCategory = fa
 								<SelectTrigger
 									id={`${idPrefix}-category`}
 									aria-invalid={!!errors.category}
-									className={SELECT_CONTROL}
+									size='lg'
 								>
 									<SelectValue placeholder='Select category' />
-									<HugeiconsIcon
-										icon={ArrowDown01Icon}
-										strokeWidth={1.8}
-										aria-hidden='true'
-										className='!block size-[18px] text-slate-500'
-									/>
 								</SelectTrigger>
 								<SelectContent>
 									{CATEGORIES.map(category => (
@@ -183,7 +161,7 @@ export function ItemFields({ form, idPrefix, disabled = false, withCategory = fa
 					disabled={disabled}
 					aria-invalid={!!errors.notes}
 					aria-describedby={errors.notes ? `${idPrefix}-notes-error` : undefined}
-					className={cn(FIELD_AREA, 'resize-none')}
+					
 				/>
 			</FormField>
 		</div>

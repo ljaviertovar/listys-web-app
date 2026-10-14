@@ -31,10 +31,10 @@ export function CollaboratorAvatars({ collaborators, maxVisible = 3, size = 'sm'
 					size={size}
 					title={c.display_name ?? c.initials}
 				>
-					<AvatarFallback className='text-[10px] font-bold uppercase'>{c.initials}</AvatarFallback>
+					<AvatarFallback tone='initials'>{c.initials}</AvatarFallback>
 				</Avatar>
 			))}
-			{overflowCount > 0 && <AvatarGroupCount className='text-[10px] font-bold '>+{overflowCount}</AvatarGroupCount>}
+			{overflowCount > 0 && <AvatarGroupCount>+{overflowCount}</AvatarGroupCount>}
 		</AvatarGroup>
 	)
 }

@@ -19,7 +19,7 @@ export function ListToolbar({ count, unit, children, testId, className }: ListTo
 			data-testid={testId}
 			className={cn('flex min-h-11 flex-wrap items-center justify-between gap-2', className)}
 		>
-			<span className='text-[13px] leading-[1.3] text-slate-500 dark:text-muted-foreground'>
+			<span className='text-xs leading-[1.3] text-slate-500 dark:text-muted-foreground'>
 				<b className='font-mono font-semibold text-foreground tabular-nums'>{count}</b> {count === 1 ? unit.one : unit.many}
 			</span>
 			{children ? <div className='flex items-center gap-2'>{children}</div> : null}

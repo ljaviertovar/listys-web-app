@@ -97,7 +97,8 @@ describe('NoSessionBanner', () => {
 		expect(html).toContain('Your lists')
 		expect(html).toContain('data-testid="dashboard-quick-start-l2"')
 		expect(html).not.toContain('data-testid="dashboard-quick-start-l1"')
-		expect(html).toContain('min-h-9')
+		// The shortcuts are real buttons: the size and the shape come from the props.
+		expect(html).toContain('data-variant="on-dark" data-size="lg" data-rounded="full"')
 	})
 
 	it('shows no shortcuts when the only list is the one the button starts', () => {
@@ -119,9 +120,8 @@ describe('NoSessionBanner', () => {
 
 		expect(html).toContain('Start with a receipt')
 		expect(html).toContain('Upload Receipt')
-		expect(html).toContain('data-size="xl"')
-		expect(html).toContain('rounded-[12px]')
-		expect(html).toContain('md:h-[52px]')
+		expect(html).toContain('data-size="2xl"')
+		expect(html).toContain('data-variant="hero"')
 		expect(html).not.toContain('Your lists')
 		expect(html).not.toContain('Last shopping session')
 	})
@@ -204,7 +204,7 @@ describe('section cards', () => {
 		expect(html).not.toContain('Upload Receipt')
 		expect(html).toContain('data-testid="dashboard-receipts-view-all"')
 		expect(html).toContain('View All<span class="sr-only"> receipts</span>')
-		expect(html).toContain('min-h-8 shrink-0 items-center gap-1 rounded-[12px] pr-2 pl-2.5 text-xs')
+		expect(html).toContain('data-variant="ghost-primary" data-size="sm"')
 		expect(html.indexOf('dashboard-receipts-view-all')).toBeLessThan(html.indexOf('dashboard-receipt-t1'))
 	})
 
@@ -213,7 +213,8 @@ describe('section cards', () => {
 		const groups = renderToStaticMarkup(createElement(GroupsSectionCard, { groups: [] }))
 
 		expect(receipts).toContain('data-testid="dashboard-receipts-empty"')
-		expect(receipts).toContain('h-8 w-auto rounded-[12px] px-3 text-xs font-semibold md:h-11 md:px-4.5 md:text-sm')
+		expect(receipts).toContain('data-size="xl"')
+		expect(receipts).toContain('w-auto')
 		expect(receipts).toContain('No receipts yet')
 		expect(receipts.indexOf('No receipts yet')).toBeLessThan(receipts.indexOf('Upload Receipt'))
 		expect(groups.indexOf('No groups yet')).toBeLessThan(groups.indexOf('data-testid="create-group-button"'))

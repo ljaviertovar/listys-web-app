@@ -25,7 +25,7 @@ describe('PageHeader', () => {
 		expect(html).toContain('data-variant="screen"')
 		expect(html).toContain('href="/dashboard"')
 		expect(html).toContain('Back to Dashboard')
-		expect(html).toMatch(/<h1[^>]*text-\[30px\][^>]*>Receipts<\/h1>/)
+		expect(html).toMatch(/<h1[^>]*text-3xl[^>]*>Receipts<\/h1>/)
 		expect(html).toContain('Upload Receipt')
 		expect(html).not.toContain('border-b bg-card')
 	})

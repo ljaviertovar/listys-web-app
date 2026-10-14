@@ -35,7 +35,7 @@ export function TicketItemsList({ items, selection, canSelect }: TicketItemsList
 							checked={checkAll}
 							onCheckedChange={selection.toggleAll}
 							aria-label='Select all items'
-							className='size-[22px] rounded-[7px] border-slate-400 bg-white dark:bg-transparent'
+							size='lg'
 						/>
 					</span>
 					<span
@@ -120,13 +120,13 @@ export function TicketItemRow({ item, canSelect = false, selected = false, onSel
 						checked={selected}
 						onCheckedChange={() => onSelectToggle?.(item.id)}
 						aria-label={name}
-						className='size-[22px] rounded-[7px] border-slate-400 bg-white dark:bg-transparent'
+						size='lg'
 					/>
 				</span>
 			) : null}
 			<span className='flex min-w-0 flex-1 flex-col items-start gap-1.5 pl-1 lg:contents'>
 				<span className='w-full truncate text-sm leading-[1.25] font-semibold lg:min-w-0 lg:flex-1'>{name}</span>
-				<span className='inline-flex h-[22px] items-center gap-1 rounded-[7px] bg-[#E9ECF0] px-2 text-xs leading-none font-medium text-slate-600 lg:shrink-0 dark:bg-muted dark:text-muted-foreground'>
+				<span className='inline-flex h-5.5 items-center gap-1 rounded-md bg-secondary px-2 text-xs leading-none font-medium text-slate-600 lg:shrink-0 dark:bg-muted dark:text-muted-foreground'>
 					<b className='font-mono font-semibold text-foreground tabular-nums'>{item.quantity ?? 1}</b>
 					{item.unit || 'unit'}
 				</span>

@@ -1,4 +1,3 @@
-import { CARD_SURFACE } from '@/components/app/helpers/a1-surface'
 import { cn, formatCurrency } from '@/utils'
 import type { Ticket } from '@/types'
 
@@ -23,7 +22,7 @@ export function TicketSummaryCard({ ticket, itemsCount, pricedItemsCount, total 
 		<section
 			data-testid='ticket-summary-card'
 			aria-label='Receipt summary'
-			className={cn('flex flex-col px-4 pb-4', noItems ? 'pt-4' : 'pt-2', CARD_SURFACE)}
+			className={cn('flex flex-col px-4 pb-4', noItems ? 'pt-4' : 'pt-2', 'rounded-3xl bg-card shadow-card')}
 		>
 			{showTotals ? (
 				<>
@@ -33,7 +32,7 @@ export function TicketSummaryCard({ ticket, itemsCount, pricedItemsCount, total 
 					</div>
 					<div className='flex min-h-12 items-center justify-between border-t border-slate-100 text-sm font-semibold dark:border-border'>
 						<span>Calculated total</span>
-						<b className='font-mono text-xl leading-none font-bold tracking-[-0.01em] tabular-nums'>{formatCurrency(total)}</b>
+						<b className='font-mono text-xl leading-none font-bold tabular-nums'>{formatCurrency(total)}</b>
 					</div>
 					{pricedItemsCount < itemsCount ? (
 						<p className='pb-2 text-xs leading-normal text-slate-500 dark:text-muted-foreground'>
@@ -46,7 +45,7 @@ export function TicketSummaryCard({ ticket, itemsCount, pricedItemsCount, total 
 				{noItems ? (
 					<UploadTicketDialog
 						label='Upload a Clearer Photo'
-						className='h-12 w-full rounded-[12px] font-display text-[15px] font-semibold'
+						className='w-full'
 					/>
 				) : null}
 				<TicketActions

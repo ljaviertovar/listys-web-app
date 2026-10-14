@@ -32,7 +32,7 @@ export function TicketSelectionBar({ count, total, onClear, onAdd, placement = '
 			role='region'
 			aria-label='Selection actions'
 			className={cn(
-				'fixed inset-x-3 z-40 flex items-center gap-2 rounded-[20px] bg-card py-2.5 pr-2.5 pl-4 shadow-[0_0_0_1px_rgba(15,23,42,0.06),0_16px_32px_-12px_rgba(15,23,42,0.35)]',
+				'fixed inset-x-3 z-40 flex items-center gap-2 rounded-3xl bg-card py-2.5 pr-2.5 pl-4 shadow-[0_0_0_1px_rgba(15,23,42,0.06),0_16px_32px_-12px_rgba(15,23,42,0.35)]',
 				hasSessionBar ? ABOVE_MOBILE_SESSION_BAR : ABOVE_MOBILE_UPLOAD_BUTTON,
 				'lg:z-10 lg:rounded-t-none lg:border-t lg:border-slate-100 lg:px-5 lg:py-3 lg:shadow-none dark:lg:border-border',
 				placement === 'card'
@@ -54,20 +54,20 @@ export function TicketSelectionBar({ count, total, onClear, onAdd, placement = '
 			<Button
 				type='button'
 				variant='ghost'
+				size='xl'
 				onClick={onClear}
-				className='h-11 rounded-[12px] px-3 font-display text-sm font-semibold text-foreground hover:text-foreground'
 			>
 				Clear
 			</Button>
 			<Button
 				type='button'
+				size='xl'
 				onClick={onAdd}
-				className='h-11 gap-2 rounded-[12px] px-4 font-display text-sm font-semibold'
 			>
 				<HugeiconsIcon
 					icon={AddToListIcon}
 					strokeWidth={1.8}
-					className='size-[18px]'
+					className='size-4.5'
 				/>
 				Add to a List
 			</Button>

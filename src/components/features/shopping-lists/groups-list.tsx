@@ -22,7 +22,7 @@ export function GroupsList({ groups }: GroupsListProps) {
 				description='Create one group for each store you shop at, like Walmart or Costco, and keep its lists together.'
 				testId='groups-empty-state'
 			>
-				<CreateGroupDialog className='h-12 px-6 text-[15px]' />
+				<CreateGroupDialog />
 			</EmptyStateCard>
 		)
 	}
@@ -60,7 +60,7 @@ export function GroupsSkeleton() {
 		>
 			<div className='flex min-h-11 items-center justify-between'>
 				<Skeleton className='h-3.5 w-16 rounded-md' />
-				<Skeleton className='h-11 w-32 rounded-[12px]' />
+				<Skeleton className='h-11 w-32 rounded-xl' />
 			</div>
 			<div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:gap-6 xl:grid-cols-3'>
 				{[0, 1, 2].map(index => (
