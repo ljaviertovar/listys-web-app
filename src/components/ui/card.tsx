@@ -64,13 +64,22 @@ function CardBanner({ className, ...props }: React.ComponentProps<'div'>) {
 	)
 }
 
-function CardHeader({ className, ...props }: React.ComponentProps<'div'>) {
+function CardHeader({
+	className,
+	spacing = 'default',
+	...props
+}: React.ComponentProps<'div'> & {
+	/** `tight` pulls the content closer under the header (a standalone card: sign-in, sign-up). */
+	spacing?: 'default' | 'tight'
+}) {
 	return (
 		<div
 			data-slot='card-header'
+			data-spacing={spacing}
 			className={cn(
 				'gap-2 rounded-t-lg px-6 group-data-[size=sm]/card:px-4 [.border-b]:pb-6 group-data-[size=sm]/card:[.border-b]:pb-4 group/card-header @container/card-header grid auto-rows-min items-start has-data-[slot=card-action]:grid-cols-[1fr_auto] has-data-[slot=card-description]:grid-rows-[auto_auto]',
 				'group-data-[layout=horizontal]/card:md:p-8 group-data-[layout=horizontal]/card:md:pb-0',
+				spacing === 'tight' && 'pb-2',
 				className,
 			)}
 			{...props}
@@ -130,12 +139,28 @@ function CardAction({ className, ...props }: React.ComponentProps<'div'>) {
 	)
 }
 
-function CardContent({ className, ...props }: React.ComponentProps<'div'>) {
+function CardContent({
+	className,
+	space = 'default',
+	inset = 'default',
+	...props
+}: React.ComponentProps<'div'> & {
+	/** The rhythm between the children: `snug` is a 12px gap (a flex column), `stack` puts 16px between stacked blocks. */
+	space?: 'default' | 'snug' | 'stack'
+	/** `top` adds the 24px the card has above a content that has no header; `compact` narrows the sides to 16px. */
+	inset?: 'default' | 'top' | 'compact'
+}) {
 	return (
 		<div
 			data-slot='card-content'
+			data-space={space}
+			data-inset={inset}
 			className={cn(
 				'px-6 group-data-[size=sm]/card:px-4',
+				space === 'snug' && 'gap-3',
+				space === 'stack' && 'space-y-4',
+				inset === 'top' && 'pt-6',
+				inset === 'compact' && 'px-4',
 				'group-data-[layout=horizontal]/card:flex-1 group-data-[layout=horizontal]/card:flex group-data-[layout=horizontal]/card:flex-col group-data-[layout=horizontal]/card:md:p-8',
 				className,
 			)}

@@ -6,9 +6,11 @@ import { describe, expect, it, vi } from 'vitest'
 import { Badge } from '@/components/ui/badge'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Card, CardDescription, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Collapsible } from '@/components/ui/collapsible'
+import { SidebarContent, SidebarFooter, SidebarGroup, SidebarMenu } from '@/components/ui/sidebar'
 import { Checkbox } from '@/components/ui/checkbox'
-import { dialogContentVariants, dialogDescriptionVariants, dialogTitleVariants } from '@/components/ui/dialog'
+import { DialogFooter, DialogHeader, dialogContentVariants, dialogDescriptionVariants, dialogTitleVariants } from '@/components/ui/dialog'
 import { dropdownMenuContentVariants, dropdownMenuItemSizes } from '@/components/ui/dropdown-menu'
 import { Label } from '@/components/ui/label'
 import { Progress } from '@/components/ui/progress'
@@ -40,6 +42,7 @@ const HEIGHTS = {
 	'icon-lg': 'size-10',
 	'icon-xl': 'size-11',
 	'icon-2xl': 'size-12',
+	avatar: 'size-11',
 } as const
 
 /** The classes of the first element that carries `data-testid`. */
@@ -61,6 +64,27 @@ describe('Button', () => {
 		expect(classes).toEqual(expect.arrayContaining(['h-11', 'rounded-xl', 'bg-secondary', 'text-secondary-foreground', 'font-display']))
 		expect(html).toContain('data-size="xl"')
 		expect(html).toContain('data-variant="secondary"')
+	})
+
+	it('keeps the native xl of the library: 44px high, 24px padding and 16px text', () => {
+		const classes = buttonVariants({ size: 'xl' }).split(/\s+/)
+
+		expect(classes).toEqual(expect.arrayContaining(['h-11', 'px-6', 'text-base', 'gap-2']))
+		expect(classes).not.toContain('px-4')
+		// The other sizes keep their own text size (the base is `text-sm`); only xl and 2xl step up to base.
+		expect(buttonVariants({ size: 'lg' }).split(/\s+/)).not.toContain('text-base')
+	})
+
+	it('has an avatar size that is a circle on phones and a pill from lg, and a weight for the landing header', () => {
+		const avatar = buttonVariants({ size: 'avatar', rounded: 'full' }).split(/\s+/)
+
+		expect(avatar).toEqual(expect.arrayContaining(['size-11', 'gap-0', 'lg:w-auto', 'lg:gap-2.5', 'lg:pr-2', 'lg:pl-1', 'rounded-full']))
+		expect(buttonVariants({}).split(/\s+/)).toContain('font-semibold')
+		// `cn()` merges the base weight away, so the rendered button carries only the medium one.
+		const rendered = classOf(renderToStaticMarkup(h(Button, { weight: 'medium', 'data-testid': 'b' }, 'Go')), 'b')
+		expect(rendered).toContain('font-medium')
+		expect(rendered).not.toContain('font-semibold')
+		expect(renderToStaticMarkup(h(Button, { weight: 'medium', 'data-testid': 'b' }, 'Go'))).not.toContain('weight=')
 	})
 
 	it('lets `rounded` change the corner instead of a class', () => {
@@ -97,7 +121,7 @@ describe('wrappers around a Button hand its props through', () => {
 	})
 
 	it('has a behaviour case for every wrapper the scanner derives from the source', () => {
-		const { scan } = createRequire(import.meta.url)('../../../../scripts/native-props-scan.cjs') as {
+		const { scan } = createRequire(import.meta.url)('../../../test/native-props-scan.cjs') as {
 			scan: () => { wrappers: { name: string; takesButtonProps: boolean }[] }
 		}
 		const derived = scan().wrappers.filter(w => w.takesButtonProps).map(w => w.name)
@@ -230,5 +254,52 @@ describe('the variants that replaced per-call classes', () => {
 		expect(buttonVariants({ variant: 'destructive-ghost' })).toContain('text-red-700')
 		expect(buttonVariants({ variant: 'dropzone', size: 'block' })).toEqual(expect.stringContaining('border-dashed'))
 		expect(buttonVariants({ size: 'block' })).toContain('h-auto')
+	})
+})
+
+describe('container spacing is theme: it comes from variants', () => {
+	it('CardHeader `spacing="tight"` pulls the content up under it', () => {
+		expect(classOf(renderToStaticMarkup(h(CardHeader, { 'data-testid': 'x' })), 'x')).not.toContain('pb-2')
+		expect(classOf(renderToStaticMarkup(h(CardHeader, { spacing: 'tight', 'data-testid': 'x' })), 'x')).toContain('pb-2')
+	})
+
+	it('CardContent has `space` (snug / stack) and `inset` (top / compact)', () => {
+		const at = (props: Record<string, unknown>) => classOf(renderToStaticMarkup(h(CardContent, { 'data-testid': 'x', ...props })), 'x')
+
+		expect(at({})).not.toEqual(expect.arrayContaining(['space-y-4']))
+		expect(at({ space: 'snug' })).toContain('gap-3')
+		expect(at({ space: 'stack' })).toContain('space-y-4')
+		expect(at({ inset: 'top' })).toContain('pt-6')
+		expect(at({ inset: 'compact' })).toContain('px-4')
+		expect(at({ inset: 'compact' })).not.toContain('px-6')
+	})
+
+	it('DialogHeader `sheet` and DialogFooter `inline` replace the class strings the sheets used to pass', () => {
+		const header = classOf(renderToStaticMarkup(h(DialogHeader, { variant: 'sheet', 'data-testid': 'x' })), 'x')
+		const footer = classOf(renderToStaticMarkup(h(DialogFooter, { variant: 'inline', 'data-testid': 'x' })), 'x')
+
+		expect(header).toEqual(expect.arrayContaining(['relative', 'gap-1', 'pr-12', 'text-left']))
+		expect(footer).toEqual(expect.arrayContaining(['flex-row', 'gap-3', 'sm:space-x-0']))
+		expect(classOf(renderToStaticMarkup(h(DialogFooter, { 'data-testid': 'x' })), 'x')).not.toContain('gap-3')
+	})
+
+	it('DialogFooter `sheet` stacks two actions with the primary on top and splits them in two columns from sm', () => {
+		const sheet = classOf(renderToStaticMarkup(h(DialogFooter, { variant: 'sheet', 'data-testid': 'x' })), 'x')
+
+		expect(sheet).toEqual(expect.arrayContaining(['flex-col-reverse', 'gap-3', 'sm:grid', 'sm:grid-cols-2']))
+	})
+
+	it('Collapsible `section` leaves room under its open content', () => {
+		expect(classOf(renderToStaticMarkup(h(Collapsible, { variant: 'section', 'data-testid': 'x' })), 'x')).toContain('data-[state=open]:pb-2.5')
+		expect(classOf(renderToStaticMarkup(h(Collapsible, { 'data-testid': 'x' })), 'x')).not.toContain('data-[state=open]:pb-2.5')
+	})
+
+	it('the sidebar parts carry the A1 spacing as their default', () => {
+		const at = (part: unknown) => classOf(renderToStaticMarkup(h(part, { 'data-testid': 'x' })), 'x')
+
+		expect(at(SidebarContent)).toEqual(expect.arrayContaining(['gap-3', 'p-2']))
+		expect(at(SidebarFooter)).toEqual(expect.arrayContaining(['gap-3', 'p-2']))
+		expect(at(SidebarGroup)).toEqual(expect.arrayContaining(['gap-0.5', 'p-0']))
+		expect(at(SidebarMenu)).toEqual(expect.arrayContaining(['gap-px', 'px-1.5']))
 	})
 })

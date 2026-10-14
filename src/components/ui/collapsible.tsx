@@ -5,9 +5,21 @@ import { Collapsible as CollapsiblePrimitive } from "radix-ui"
 import { cn } from '@/utils'
 
 function Collapsible({
+  className,
+  variant = "default",
   ...props
-}: React.ComponentProps<typeof CollapsiblePrimitive.Root>) {
-  return <CollapsiblePrimitive.Root data-slot="collapsible" {...props} />
+}: React.ComponentProps<typeof CollapsiblePrimitive.Root> & {
+  /** `section` leaves 10px under the content while it is open (a category section of a card). */
+  variant?: "default" | "section"
+}) {
+  return (
+    <CollapsiblePrimitive.Root
+      data-slot="collapsible"
+      data-variant={variant}
+      className={cn(variant === "section" && "data-[state=open]:pb-2.5", className)}
+      {...props}
+    />
+  )
 }
 
 function CollapsibleTrigger({

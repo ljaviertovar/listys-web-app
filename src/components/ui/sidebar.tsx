@@ -328,7 +328,7 @@ function SidebarFooter({ className, ...props }: React.ComponentProps<'div'>) {
 		<div
 			data-slot='sidebar-footer'
 			data-sidebar='footer'
-			className={cn('gap-2 p-2 flex flex-col', className)}
+			className={cn('gap-3 p-2 flex flex-col', className)}
 			{...props}
 		/>
 	)
@@ -351,7 +351,7 @@ function SidebarContent({ className, ...props }: React.ComponentProps<'div'>) {
 			data-slot='sidebar-content'
 			data-sidebar='content'
 			className={cn(
-				'no-scrollbar gap-2 flex min-h-0 flex-1 flex-col overflow-auto group-data-[collapsible=icon]:overflow-hidden',
+				'no-scrollbar gap-3 p-2 flex min-h-0 flex-1 flex-col overflow-auto group-data-[collapsible=icon]:overflow-hidden',
 				className,
 			)}
 			{...props}
@@ -364,7 +364,7 @@ function SidebarGroup({ className, ...props }: React.ComponentProps<'div'>) {
 		<div
 			data-slot='sidebar-group'
 			data-sidebar='group'
-			className={cn('p-2 relative flex w-full min-w-0 flex-col', className)}
+			className={cn('gap-0.5 p-0 relative flex w-full min-w-0 flex-col', className)}
 			{...props}
 		/>
 	)
@@ -426,7 +426,7 @@ function SidebarMenu({ className, ...props }: React.ComponentProps<'ul'>) {
 		<ul
 			data-slot='sidebar-menu'
 			data-sidebar='menu'
-			className={cn('gap-1 flex w-full min-w-0 flex-col', className)}
+			className={cn('gap-px px-1.5 flex w-full min-w-0 flex-col', className)}
 			{...props}
 		/>
 	)

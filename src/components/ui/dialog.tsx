@@ -84,17 +84,36 @@ const DialogContent = React.forwardRef<
 ))
 DialogContent.displayName = DialogPrimitive.Content.displayName
 
-const DialogHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
+const DialogHeader = ({
+	className,
+	variant = 'default',
+	...props
+}: React.HTMLAttributes<HTMLDivElement> & {
+	/** `sheet` is the header of the app's sheets: left-aligned, a 4px gap and room on the right for the close button. */
+	variant?: 'default' | 'sheet'
+}) => (
 	<div
-		className={cn('flex flex-col space-y-1.5 text-center sm:text-left', className)}
+		data-variant={variant}
+		className={cn('flex flex-col space-y-1.5 text-center sm:text-left', variant === 'sheet' && 'relative gap-1 pr-12 text-left', className)}
 		{...props}
 	/>
 )
 DialogHeader.displayName = 'DialogHeader'
 
-const DialogFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
+const DialogFooter = ({
+	className,
+	variant = 'default',
+	...props
+}: React.HTMLAttributes<HTMLDivElement> & {
+	/**
+	 * `inline` keeps the buttons on one row with a 12px gap at every width (a form footer). `sheet` stacks two actions with the primary
+	 * on top below `sm` and puts them in two equal columns from `sm` (the confirm of a sheet).
+	 */
+	variant?: 'default' | 'inline' | 'sheet'
+}) => (
 	<div
-		className={cn('flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2', className)}
+		data-variant={variant}
+		className={cn('flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2', variant === 'inline' && 'flex-row gap-3 sm:space-x-0', variant === 'sheet' && 'gap-3 sm:grid sm:grid-cols-2 sm:space-x-0', className)}
 		{...props}
 	/>
 )

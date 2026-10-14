@@ -69,8 +69,8 @@ const buttonVariants = cva(
         default:
           "h-9 gap-1.5 px-3 has-data-[icon=inline-end]:pr-2.5 has-data-[icon=inline-start]:pl-2.5",
         lg: "h-10 gap-1.5 px-4 has-data-[icon=inline-end]:pr-3 has-data-[icon=inline-start]:pl-3",
-        // Touch height of the app: screen toolbars, sheet and form footers (44px).
-        xl: "h-11 gap-2 px-4 has-data-[icon=inline-end]:pr-3 has-data-[icon=inline-start]:pl-3",
+        // The native xl of the library: the touch height of the app (screen toolbars, sheet and form footers, 44px).
+        xl: "h-11 gap-2 px-6 text-base has-data-[icon=inline-end]:pr-4 has-data-[icon=inline-start]:pl-4",
         // Hero call to action (52px).
         "2xl": "h-13 gap-2.5 px-7 text-base has-data-[icon=inline-end]:pr-5 has-data-[icon=inline-start]:pl-5",
         // Content decides the height: a drop target or any block-shaped action that holds several lines.
@@ -81,6 +81,13 @@ const buttonVariants = cva(
         "icon-lg": "size-10",
         "icon-xl": "size-11",
         "icon-2xl": "size-12",
+        // The account trigger: an avatar circle that widens into a pill from `lg` (the content brings its own gap).
+        avatar: "size-11 gap-0 lg:w-auto lg:gap-2.5 lg:pr-2 lg:pl-1",
+      },
+      // Label weight: `medium` is the lighter label of the landing header (the base is semibold).
+      weight: {
+        default: "",
+        medium: "font-medium",
       },
       rounded: {
         default: "rounded-xl",
@@ -96,6 +103,7 @@ const buttonVariants = cva(
       variant: "default",
       size: "default",
       rounded: "default",
+      weight: "default",
     },
   },
 );
@@ -105,6 +113,7 @@ function Button({
   variant = "default",
   size = "default",
   rounded = "default",
+  weight = "default",
   asChild = false,
   ...props
 }: React.ComponentProps<"button"> &
@@ -119,7 +128,7 @@ function Button({
       data-variant={variant}
       data-size={size}
       data-rounded={rounded}
-      className={cn(buttonVariants({ variant, size, rounded, className }))}
+      className={cn(buttonVariants({ variant, size, rounded, weight, className }))}
       {...props}
     />
   );
