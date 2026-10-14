@@ -2,7 +2,7 @@ import { cn } from '@/utils'
 
 export default function AppSidebarFooter({ className }: { className?: string }) {
 	return (
-		<p className={cn('p-4 text-sm text-muted-foreground', className)}>
+		<p className={cn('px-2 pt-1 pb-1.5 text-xs text-slate-500', className)}>
 			Develop by{' '}
 			<a
 				href='https://www.ljaviertovar.dev/'

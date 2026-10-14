@@ -59,7 +59,7 @@ export default function AuthButtons({ signedOut }: Props) {
 						size='sm'
 						rounded='md'
 						// The landing header keeps the lighter weight and the 4px corner it had before the app's A1 buttons.
-						className='font-medium'
+						weight='medium'
 					>
 						<Link
 							href='/auth/signup'

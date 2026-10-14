@@ -7,6 +7,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { InformationCircleIcon, Loading03Icon, ShoppingCart02Icon } from '@hugeicons/core-free-icons'
 
 import { Button, type ButtonProps } from '@/components/ui/button'
+import { DialogFooter } from '@/components/ui/dialog'
 import { SheetDialog } from '@/components/commons'
 import { createShoppingSession } from '@/lib/api/endpoints'
 import useActiveSessionStore from '@/stores/active-session'
@@ -141,7 +142,7 @@ export function StartShoppingDialog({
 					<span>Only one shopping session can be active at a time.</span>
 				</div>
 			</div>
-			<div className='grid grid-cols-2 gap-3'>
+			<DialogFooter variant='sheet'>
 				<Button
 					size='xl'
 					type='button'
@@ -166,7 +167,7 @@ export function StartShoppingDialog({
 					/>
 					{loading ? 'Starting…' : 'Start Shopping'}
 				</Button>
-			</div>
+			</DialogFooter>
 		</SheetDialog>
 	)
 }

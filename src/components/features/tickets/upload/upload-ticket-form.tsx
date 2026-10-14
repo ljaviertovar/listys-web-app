@@ -178,7 +178,7 @@ export function UploadTicketForm({ onSuccess, initialFiles }: Props) {
 				<p className='text-xs text-slate-500'>
 					<span className='text-destructive'>*</span> Required fields
 				</p>
-				<DialogFooter className='flex-row gap-3 sm:space-x-0'>
+				<DialogFooter variant='inline'>
 					<DialogClose asChild>
 						<Button
 							type='button'

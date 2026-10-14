@@ -1,3 +1,4 @@
+import type { ComponentProps } from 'react'
 import { redirect } from 'next/navigation'
 
 import { Card, CardContent } from '@/components/ui/card'
@@ -38,7 +39,10 @@ export default async function HistoryPage() {
 						className='flex min-h-100 flex-col items-center justify-center'
 						size='sm'
 					>
-						<CardContent className='flex w-full max-w-md flex-col items-center pt-6 text-center'>
+						<CardContent
+							inset='top'
+							className='flex w-full max-w-md flex-col items-center text-center'
+						>
 							<div className='flex h-16 w-16 items-center justify-center text-primary'>
 								<FolderSearch2 className='h-12 w-12' />
 							</div>
@@ -52,7 +56,7 @@ export default async function HistoryPage() {
 					</Card>
 				) : (
 					<div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3'>
-						{groups.map((group: any) => (
+						{groups.map((group: ComponentProps<typeof GroupCard>['group']) => (
 							<GroupCard
 								key={group.id}
 								group={group}

@@ -47,7 +47,10 @@ export function HistorySessionCard({ session, href }: Props) {
 					description={`Shopping: ${completedDate ? `${formatDate(completedDate)} - ${formatTime(completedDate)}` : 'Date unknown'}`}
 				/>
 
-				<CardContent className='flex flex-row items-center px-4'>
+				<CardContent
+				inset='compact'
+				className='flex flex-row items-center'
+			>
 					<div className='space-y-2 mb-4'>
 						{session.total_amount && (
 							<div className='flex items-center gap-2 text-sm font-medium'>

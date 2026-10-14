@@ -58,7 +58,10 @@ export default async function ProfilePage() {
 							/>
 							<Badge variant={isVerified ? 'completed' : 'pending'}>{isVerified ? 'Verified' : 'Pending'}</Badge>
 						</CardHeader>
-						<CardContent className='flex flex-col items-center gap-3'>
+						<CardContent
+							space='snug'
+							className='flex flex-col items-center'
+						>
 							<Avatar
 								size='2xl'
 								ring
@@ -98,7 +101,7 @@ export default async function ProfilePage() {
 								description='Data available in your authenticated profile'
 							/>
 						</CardHeader>
-						<CardContent className='space-y-4'>
+						<CardContent space='stack'>
 							<div className='flex items-center justify-between gap-3 rounded-xl border border-border/70 bg-muted/20 p-3'>
 								<div className='flex items-center gap-2 text-sm text-muted-foreground'>
 									<HugeiconsIcon

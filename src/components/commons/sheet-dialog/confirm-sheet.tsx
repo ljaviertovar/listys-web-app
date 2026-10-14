@@ -5,6 +5,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { AlertCircleIcon, Loading03Icon } from '@hugeicons/core-free-icons'
 
 import { Button } from '@/components/ui/button'
+import { DialogFooter } from '@/components/ui/dialog'
 
 import { SheetDialog } from './sheet-dialog'
 
@@ -81,7 +82,7 @@ export function ConfirmSheet({
 				) : null}
 				{children}
 			</div>
-			<div className='grid grid-cols-2 gap-3'>
+			<DialogFooter variant='sheet'>
 				<Button
 					size='xl'
 					type='button'
@@ -109,7 +110,7 @@ export function ConfirmSheet({
 					) : null}
 					{loading ? (loadingLabel ?? confirmLabel) : confirmLabel}
 				</Button>
-			</div>
+			</DialogFooter>
 		</SheetDialog>
 	)
 }

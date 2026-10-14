@@ -108,7 +108,10 @@ export default function SignInPage() {
 				</div>
 
 				<Card variant='glass'>
-					<CardHeader className='pb-2 text-center'>
+					<CardHeader
+						spacing='tight'
+						className='text-center'
+					>
 						<motion.div
 							initial={{ scale: 0.8 }}
 							animate={{ scale: 1 }}
@@ -128,7 +131,7 @@ export default function SignInPage() {
 							</Link>
 						</CardDescription>
 					</CardHeader>
-					<CardContent className='pt-6'>
+					<CardContent inset='top'>
 						<form
 							className='grid gap-6'
 							onSubmit={handleSignIn}

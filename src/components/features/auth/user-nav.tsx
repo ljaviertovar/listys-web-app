@@ -73,12 +73,10 @@ export function UserNav({ user }: Props) {
 				{/* Phones: a 44px circle around the avatar, on the secondary surface while the menu is open. From `lg`: a pill with name, email and a chevron. */}
 				<Button
 					variant='ghost'
-					size='icon-xl'
+					size='avatar'
 					rounded='full'
 					aria-label='Account menu'
 					data-testid='user-nav-trigger'
-					// From `lg` the circle widens into a pill (avatar, name, email, chevron): no native prop is responsive.
-					className='gap-0 lg:w-auto lg:gap-2.5 lg:pr-2 lg:pl-1'
 				>
 					<Avatar size='md'>
 						{avatarUrl ? (

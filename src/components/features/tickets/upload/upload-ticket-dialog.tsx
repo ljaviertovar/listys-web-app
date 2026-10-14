@@ -94,7 +94,7 @@ export function UploadTicketDialog({
 				variant='sheet'
 				className='sm:max-w-[520px]'
 			>
-				<DialogHeader className='relative gap-1 pr-12 text-left'>
+				<DialogHeader variant='sheet'>
 					<DialogTitle variant='sheet'>
 						Upload Receipt
 					</DialogTitle>

@@ -231,7 +231,6 @@ export function MergeToBaseListDialog({ open, onOpenChange, ticketId, selectedIt
 						<RadioGroup
 							value={mode}
 							onValueChange={(value: 'existing' | 'new') => setMode(value)}
-							className='space-y-3'
 						>
 							<div className='flex items-center space-x-3'>
 								<RadioGroupItem

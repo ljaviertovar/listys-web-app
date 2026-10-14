@@ -64,7 +64,7 @@ export function SheetDialog({
 				variant='sheet'
 				className={cn('sm:max-w-[520px]', className)}
 			>
-				<DialogHeader className='relative gap-1 pr-12 text-left'>
+				<DialogHeader variant='sheet'>
 					<DialogTitle variant='sheet'>
 						{title}
 					</DialogTitle>

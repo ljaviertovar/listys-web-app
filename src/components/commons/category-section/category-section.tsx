@@ -47,7 +47,8 @@ export function CategorySection({
 			<Collapsible
 				defaultOpen={defaultOpen}
 				data-testid={testId}
-				className='group/category pb-0 data-[state=open]:pb-2.5'
+				variant='section'
+				className='group/category'
 			>
 				<h3 className='m-0'>
 					<CollapsibleTrigger variant='row'>

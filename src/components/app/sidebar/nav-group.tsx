@@ -27,9 +27,9 @@ export function NavGroup({ title, items, counts }: NavGroup & { counts?: Record<
 	const href = `${usePathname()}?${useSearchParams().toString()}`
 
 	return (
-		<SidebarGroup className='gap-0.5 p-0'>
+		<SidebarGroup>
 			<SidebarGroupLabel>{title}</SidebarGroupLabel>
-			<SidebarMenu className='gap-px px-1.5'>
+			<SidebarMenu>
 				{items.map(item => {
 					const key = `${item.title}-${item.url}`
 
