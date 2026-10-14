@@ -20,18 +20,6 @@ export interface GuardException {
 
 export const GUARD_ALLOWLIST: GuardException[] = [
 	{
-		file: 'components/features/auth/user-nav.tsx',
-		tag: 'Button',
-		tokens: ['gap-0', 'lg:gap-2.5'],
-		reason: 'The account trigger is an avatar circle on phones and a pill from `lg`; `Button` has no responsive size, so the gap differs per breakpoint.',
-	},
-	{
-		file: 'components/features/auth/auth-buttons.tsx',
-		tag: 'Button',
-		tokens: ['font-medium'],
-		reason: 'The landing header keeps the lighter weight it had before the A1 buttons (the landing must look unchanged).',
-	},
-	{
 		file: 'components/features/tickets/photo/ticket-photo-entry.tsx',
 		tag: 'button',
 		reason: 'The receipt-photo row is one big pressable card (thumbnail, text, chevron): it is a card surface that happens to be a button, not a Button.',

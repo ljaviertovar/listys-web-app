@@ -290,13 +290,15 @@ actual component locations, styling system and theme configuration; do not assum
 - Prefer the active styling system's standard spacing, sizing and radius scales, and the project's semantic colour
   tokens. Use custom values only when no supported prop, token or utility expresses the requirement, and document the
   reason where the exception is defined.
+- The padding and gap of container parts (card header and content, dialog header and footer, sidebar sections, groups of
+  options) are appearance too: they come from a `size`, `variant` or `spacing` prop of that part, not from `p-*`, `gap-*` or
+  `space-*` at the call site.
 - The rule covers every part of a library component, not only the headline control: titles, descriptions, menu items,
   labels, avatars, progress bars, close buttons and compound-component triggers expose sizes, variants or tones too.
   A native element or link that imitates a library component (a hand-styled button, a link with button classes, a
   class-variance helper applied to a link) must use the library component, with the library's "render as child" option
   when the element has to stay a link.
-- Exempt by rule: layout (width, margin, position, placement, spacing between children of a container), the shape of a
-  loading placeholder (its size and radius are what it draws) and the glyph size of an icon.
+- Exempt by rule: layout (width, margin, position, placement), the shape of a loading placeholder (its size and radius are what it draws) and the glyph size of an icon.
 - Where automated checks enforce these rules, derive the set of components and wrappers from the source instead of a
   hand-kept list, follow class names through merge helpers, constants and `*ClassName` props, flag wrappers that drop
   or override the props they receive (an explicit value written after the spread), and keep justified exceptions

@@ -2,8 +2,18 @@
 
 ## Unreleased
 
+- Container spacing is theme, not layout. `CardHeader spacing` (`tight`), `CardContent space` (`snug`, `stack`) and `inset` (`top`, `compact`),
+  `DialogHeader variant='sheet'`, `DialogFooter variant` (`inline`, `sheet`), `Collapsible variant='section'` and the A1 defaults of
+  `SidebarContent`, `SidebarFooter`, `SidebarGroup` and `SidebarMenu` replace the `space-y-4`, `gap-3`, `pt-6`, `px-4`, `pb-2` and `p-2` strings
+  that settings, history, sign-in/up, the sidebar, the sheets and the category sections passed; the guard now flags them. `Button` gained the
+  `avatar` size (the account trigger, a circle that becomes a pill from `lg`) and a `weight` prop (the landing header's lighter label), so the two
+  allowlist entries for them are gone. `Button size='xl'` is the library's own again (`h-11 px-6 text-base`; the previous pass had changed it to
+  `px-4`, `text-sm`). Because two xl buttons no longer fit side by side at 390px, the confirm footers of `ConfirmSheet` (also the complete and cancel
+  session sheets) and of the Start Shopping sheet use `DialogFooter variant='sheet'`: stacked with the primary on top below `sm`, two columns
+  from `sm`. The scanner moved to `src/test/native-props-scan.cjs` because `scripts/` is git-ignored and the guard could not run from a clean
+  clone. The padding of the `RadioGroup` in the merge dialog no longer stacks `space-y-3` on top of its own `gap-3`.
 - The "shadcn-native first" rule now reaches every part of the library components and every wrapper, and the guard no longer depends on a
-  hand-written component list. `scripts/native-props-scan.cjs` reads the sources with the TypeScript compiler API and finds the wrappers
+  hand-written component list. `src/test/native-props-scan.cjs` reads the sources with the TypeScript compiler API and finds the wrappers
   by itself (also wrappers of wrappers); it follows classes through `cn()`, templates, ternaries, constants (imported ones too) and any
   `*ClassName` prop, and it flags `buttonVariants()` outside `ui`, hand-styled native `button`/`input`/`textarea`/`select`, links dressed as
   buttons, classes on the child of an `asChild` component, wrappers that take `ButtonProps` and drop them, and `size`/`variant`/`rounded`

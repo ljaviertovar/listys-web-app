@@ -11,7 +11,7 @@ import { GUARD_ALLOWLIST } from './native-props-allowlist'
  * `rounded`, `tone`…). A call site may only pass layout classes (width, margin, position, flex/grid placement…); anything else
  * beats the prop through tailwind-merge, which is how `size` stopped working on the A1 buttons.
  *
- * The scan itself lives in `scripts/native-props-scan.cjs` (TypeScript compiler API, no hand-written component list): it covers every
+ * The scan itself lives in `src/test/native-props-scan.cjs` (TypeScript compiler API, no hand-written component list): it covers every
  * component imported from `@/components/ui/*`, the wrappers that forward to them (computed), `className` through any `*ClassName`
  * prop, `cn()`, templates, ternaries and constants (also imported ones), `buttonVariants()` outside `ui`, hand-styled native
  * `<button>/<input>/<textarea>/<select>`, links dressed as buttons, classes on the child of an `asChild` component, wrappers that
@@ -30,7 +30,7 @@ interface Wrapper {
 	file: string
 	takesButtonProps: boolean
 }
-const { scan } = createRequire(import.meta.url)('../../scripts/native-props-scan.cjs') as {
+const { scan } = createRequire(import.meta.url)('./native-props-scan.cjs') as {
 	scan: (root?: string) => { findings: Finding[]; wrappers: Wrapper[] }
 }
 
@@ -165,10 +165,10 @@ export default function Page() {
 		expect(find('asChild')).toHaveLength(1)
 	})
 
-	it('lets layout classes, container spacing, skeleton shapes and icon sizes through', () => {
+	it('flags the padding and gap of containers, and lets layout classes, skeleton shapes and icon sizes through', () => {
 		const flagged = fixture.findings.map(f => f.tag)
 
-		expect(flagged).not.toContain('CardContent')
+		expect(find('ui', 'CardContent').flatMap(f => f.tokens)).toEqual(expect.arrayContaining(['space-y-4', 'pt-6']))
 		expect(flagged).not.toContain('Skeleton')
 		expect(flagged).not.toContain('HugeiconsIcon')
 		expect(fixture.findings.filter(f => f.tokens.some(t => t === 'w-full' || t === 'mt-2'))).toEqual([])

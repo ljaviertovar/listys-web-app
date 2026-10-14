@@ -1200,7 +1200,8 @@ The design is implemented with shadcn's native props and Tailwind's own scale; a
 
 | Concern | Native value | Lives in |
 | --- | --- | --- |
-| Button `size` | `xs` 24 · `sm` 32 · `default` 36 · `lg` 40 · `xl` 44 (touch actions, toolbars, sheet and form footers; the mockups' 48 became 44) · `2xl` 52 (hero) | `ui/button.tsx` |
+| Button `size` | `xs` 24 · `sm` 32 · `default` 36 · `lg` 40 · `xl` 44, the library's own xl: `px-6`, `text-base`, `gap-2` (touch actions, toolbars, sheet and form footers; the mockups' 48 became 44) · `2xl` 52 (hero) · `avatar` 44 circle that widens into a pill from `lg` (the account trigger) | `ui/button.tsx` |
+| Button `weight` | `default` semibold · `medium` (the landing header's lighter label) | `ui/button.tsx` |
 | Icon button `size` | `icon` 36 · `icon-xs` 24 · `icon-sm` 32 · `icon-lg` 40 · `icon-xl` 44 · `icon-2xl` 48 (raised tab-bar action) | `ui/button.tsx` |
 | Button `variant` | `default`, `secondary` (`--secondary`, blue text), `outline`, `ghost`, `destructive`, `destructive-soft`, `success-soft`, `hero` (glow, lift), `fab`, `link`; quiet row/icon actions `quiet`, `quiet-destructive`, `destructive-ghost`, `ghost-primary` (a blue text action such as "View All"), `floating` (the session Actions button); the dark viewer's `on-dark`, `viewer`, `overlay`; the drop target `dropzone` | `ui/button.tsx` |
 | Button `size` (content height) | `block`: `h-auto`, several lines, 24px padding (drop targets) | `ui/button.tsx` |
@@ -1208,14 +1209,15 @@ The design is implemented with shadcn's native props and Tailwind's own scale; a
 | Link that looks like a button | `<Button asChild variant size><Link/></Button>`; never `buttonVariants()` or hand-set classes on `Link` (back link, "View All", the shortcut chips, the session bar's Continue) | call sites |
 | Field `size` | `default` 36 (`rounded-xl`) · `lg` 44 (`rounded-2xl`, the 16px of the form fields); borderless on `bg-card` with `shadow-field`; invalid: a `--destructive` ring | `ui/input.tsx`, `ui/textarea.tsx`, `ui/select.tsx` |
 | Card | `rounded-3xl` (24px), `shadow-card`, no border; `size` `compact` / `tight` / `flush` for cards of rows; `variant` `premium`, `accent`, `ghost`, `glass`; `interactive` lifts the shadow | `ui/card.tsx` |
+| Card parts | `CardHeader spacing` `default` · `tight` (8px under it, standalone cards); `CardContent space` `default` · `snug` (12px gap in a flex column) · `stack` (16px between stacked blocks) and `inset` `default` · `top` (24px above a content with no header) · `compact` (16px sides) | `ui/card.tsx` |
 | Badge | 22px (`h-5.5`), `text-xs`; `variant` `completed`, `failed`, `processing`, `pending`, `neutral`, `outline`, `on-dark`; `size` `lg` | `ui/badge.tsx` |
-| Dialog, sheet | `rounded-3xl`; on phones the sheet is `rounded-t-3xl`. `DialogContent variant` `sheet` (the A1 form panel: 20px gap, 20/24px padding, no border, safe-area bottom) or `viewer` (dark full screen); `DialogTitle variant` `sheet` / `strong` / `viewer`; `DialogDescription variant` `sheet`; `AlertDialogTitle variant` `strong`; `AlertDialogMedia tone` `destructive`. Closing is `<DialogClose asChild><Button variant='quiet' size='icon-xl'>` | `ui/dialog.tsx`, `ui/alert-dialog.tsx` |
+| Dialog, sheet | `rounded-3xl`; on phones the sheet is `rounded-t-3xl`. `DialogContent variant` `sheet` (the A1 form panel: 20px gap, 20/24px padding, no border, safe-area bottom) or `viewer` (dark full screen); `DialogTitle variant` `sheet` / `strong` / `viewer`; `DialogDescription variant` `sheet`; `AlertDialogTitle variant` `strong`; `AlertDialogMedia tone` `destructive`. `DialogHeader variant='sheet'` (left-aligned, 4px gap, room for the close button) and `DialogFooter variant` `inline` (one row, 12px gap) or `sheet` (two actions stacked with the primary on top below `sm`, two equal columns from `sm`: the confirm of every sheet, because two xl buttons with 24px padding do not fit side by side at 390px). Closing is `<DialogClose asChild><Button variant='quiet' size='icon-xl'>` | `ui/dialog.tsx`, `ui/alert-dialog.tsx` |
 | Menus | `DropdownMenuContent variant` `menu` (a row or action menu: 16px radius, `shadow-menu`) or `account` (24px radius, `shadow-menu-lg`); `DropdownMenuItem size` `touch` (44px, display face) · `row` (52px link row) · `action` (filled secondary row, e.g. Sign Out) and `variant='destructive'`; `DropdownMenuLabel variant='identity'`; `DropdownMenuSeparator variant='solid'` | `ui/dropdown-menu.tsx` |
 | Form parts | `Label` is 14px semibold with the default 20px line; `Checkbox size` `default` 16 · `lg` 22 (the touch box of lists); `CardTitle variant` `strong` / `display`; `CardDescription size` `lg`, `weight` `medium` | `ui/label.tsx`, `ui/checkbox.tsx`, `ui/card.tsx` |
 | Progress | `size` `default` 12 · `md` 8 · `sm` 6; `tone` `default`, `soft` (pale blue track), `track` (hairline-grey), `on-dark` (translucent track, blue gradient fill); `complete` turns the fill green | `ui/progress.tsx` |
 | Avatar | `size` `sm` 24 · `default` 32 · `md` 36 · `lg` 40 · `xl` 44 · `2xl` 96; `ring` for the profile portrait; `AvatarFallback tone` `soft` (blue initials badge) or `initials` (bold uppercase); `AvatarGroupCount` is 12px bold | `ui/avatar.tsx` |
-| Sidebar | the A1 entries are the default look of `SidebarMenuButton`, `SidebarMenuSubButton` and `SidebarGroupLabel` (slate entry, blue on the secondary surface when current); `SidebarProvider` carries the page ground; `--sidebar` is the card white in light mode | `ui/sidebar.tsx`, `globals.css` |
-| Collapsible | `CollapsibleTrigger variant='row'`: the 52px header row of a category section | `ui/collapsible.tsx` |
+| Sidebar | the A1 entries are the default look of `SidebarMenuButton`, `SidebarMenuSubButton` and `SidebarGroupLabel` (slate entry, blue on the secondary surface when current); the A1 spacing is the default of the parts: `SidebarContent` and `SidebarFooter` `gap-3 p-2`, `SidebarGroup` `gap-0.5 p-0`, `SidebarMenu` `gap-px px-1.5`; `SidebarProvider` carries the page ground; `--sidebar` is the card white in light mode | `ui/sidebar.tsx`, `globals.css` |
+| Collapsible | `Collapsible variant='section'` leaves 10px under its open content; `CollapsibleTrigger variant='row'`: the 52px header row of a category section | `ui/collapsible.tsx` |
 | Badge `size` | `lg` 28 (rounded-lg) · `hero` (as tall as its two lines need, for the pill over the dashboard hero) | `ui/badge.tsx` |
 | Radius scale | `--radius` 0.5rem: `rounded-lg` 8 · `rounded-xl` 12 (controls, rows) · `rounded-2xl` 16 (fields) · `rounded-3xl` 24 (cards, dialogs) · `rounded-full` | `globals.css` |
 | Colour tokens | `--background` `#F2F4F7` · `--card` white · `--secondary` `#E9ECF0`, `--secondary-hover` `#DEE2E8`, `--secondary-foreground` `#1D4ED8` · `--muted` `#F6F7F9` · `--destructive` `#DC2626` · `--color-ink` `#0B1220` (receipt viewer) | `globals.css` |
@@ -1225,12 +1227,13 @@ The design is implemented with shadcn's native props and Tailwind's own scale; a
 | Global styles | app-wide tokens, base rules and the `focus-ring` utility: `src/app/globals.css`; the landing page's own styles and the `.marketing` scope that restores the pre-A1 white page, light secondary and 6px radius: `src/app/(marketing)/marketing.css` | `src/app/` |
 
 What stays as a class by rule, and is checked by `src/test/native-props-guard.test.ts`: layout (width, margin, position, flex/grid
-placement, container spacing such as `space-y-4` on a `CardContent`), the shape of a `Skeleton` (its size and radius are the placeholder),
-and the glyph size of an icon. The few justified exceptions are listed with their reason in `src/test/native-props-allowlist.ts`
-(the account trigger's responsive gap, the landing header's lighter weight, and four custom interactive surfaces: the receipt-photo card
-row, the photo thumbnails, the remove-photo hit area and the tab-bar tab).
+placement), the shape of a `Skeleton` (its size and radius are the placeholder), and the glyph size of an icon. The padding and the gap
+of a container (`CardContent`, `CardHeader`, `DialogHeader`, `DialogFooter`, `Sidebar*`, `RadioGroup`, `Collapsible`) are theme, not layout:
+they come from the variants above, and the guard flags `space-y-4`, `gap-3` or `pt-6` on them. The few justified exceptions are listed
+with their reason in `src/test/native-props-allowlist.ts` (five custom interactive surfaces: the receipt-photo card row, the photo
+thumbnails, the remove-photo hit area, the session bar and the tab-bar tab).
 
-Differences from the boards that follow from the scale: form fields and sheet actions are 44px instead of 48, the hero call to
+Differences from the boards that follow from the scale: form fields and sheet actions are 44px instead of 48 (xl carries `px-6` and 16px text, so the confirm footers of the sheets stack), the hero call to
 action is 52px at every width, the dashboard's Start pills and empty-state buttons use the standard sizes, and the date pill and
 status chips are `Badge` variants. Menu items are 44px (the sessions menu drew 48), the arrows over the photo viewer are 48 (`icon-2xl`,
 drawn 52), "View All" is 32px at every width, and `Label` keeps the 20px line height of `text-sm`. Dark mode is deferred (11.4).
