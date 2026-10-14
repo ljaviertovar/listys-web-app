@@ -1,4 +1,4 @@
-import { createElement } from 'react'
+import { createElement, type ReactElement, type ReactNode } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import { Folder01Icon } from '@hugeicons/core-free-icons'
@@ -17,6 +17,9 @@ import {
 } from '@/components/commons'
 
 const noop = () => {}
+
+// Components whose props require `children` are built with children as the extra arguments, the way React.createElement takes them.
+const h = createElement as unknown as (type: unknown, props: object | null, ...children: ReactNode[]) => ReactElement
 
 describe('category style', () => {
 	it('gives every known category its own colour and an unknown one a neutral slate', () => {
@@ -38,7 +41,7 @@ describe('category style', () => {
 describe('CategorySection', () => {
 	const render = (props: Partial<Parameters<typeof CategorySection>[0]> = {}) =>
 		renderToStaticMarkup(
-			createElement(CategorySection, { category: 'Dairy', count: '2 items', testId: 'category-dairy', ...props }, createElement('p', null, 'rows')),
+			h(CategorySection, { category: 'Dairy', count: '2 items', testId: 'category-dairy', ...props }, createElement('p', null, 'rows')),
 		)
 
 	it('shows the category as an uppercase caption with its coloured icon and its count', () => {
@@ -66,7 +69,7 @@ describe('CategorySection', () => {
 describe('FormField', () => {
 	it('marks a required field and shows its error with an icon and role alert', () => {
 		const html = renderToStaticMarkup(
-			createElement(FormField, { htmlFor: 'name', label: 'Name', required: true, error: 'Name is required', testId: 'name-field' }, createElement('input', { id: 'name' })),
+			h(FormField, { htmlFor: 'name', label: 'Name', required: true, error: 'Name is required', testId: 'name-field' }, createElement('input', { id: 'name' })),
 		)
 
 		expect(html).toContain('data-testid="name-field"')
@@ -78,7 +81,7 @@ describe('FormField', () => {
 	})
 
 	it('shows no error line when the field is valid', () => {
-		const html = renderToStaticMarkup(createElement(FormField, { htmlFor: 'n', label: 'Notes', testId: 'f' }, createElement('input')))
+		const html = renderToStaticMarkup(h(FormField, { htmlFor: 'n', label: 'Notes', testId: 'f' }, createElement('input')))
 
 		expect(html).not.toContain('role="alert"')
 	})
@@ -113,7 +116,7 @@ describe('EntityCard', () => {
 		expect(html).toContain('View Details')
 	})
 
-	it('counts in mono with the right word and reads "No … yet" at zero', () => {
+	it('counts in mono with the right word and reads "No â€¦ yet" at zero', () => {
 		expect(card({ count: 1 })).toMatch(/<b class="font-mono[^>]*>1<\/b> list</)
 		expect(card()).toMatch(/<b class="font-mono[^>]*>2<\/b> lists</)
 		expect(card({ count: 0 })).toContain('No lists yet')
@@ -126,8 +129,8 @@ describe('EntityCard', () => {
 
 describe('ListToolbar', () => {
 	it('counts with the right word and holds the screen actions', () => {
-		const one = renderToStaticMarkup(createElement(ListToolbar, { count: 1, unit: { one: 'item', many: 'items' }, testId: 'toolbar' }, createElement('button', null, 'Add')))
-		const many = renderToStaticMarkup(createElement(ListToolbar, { count: 4, unit: { one: 'item', many: 'items' }, testId: 'toolbar' }))
+		const one = renderToStaticMarkup(h(ListToolbar, { count: 1, unit: { one: 'item', many: 'items' }, testId: 'toolbar' }, createElement('button', null, 'Add')))
+		const many = renderToStaticMarkup(h(ListToolbar, { count: 4, unit: { one: 'item', many: 'items' }, testId: 'toolbar' }))
 
 		expect(one).toContain('data-testid="toolbar"')
 		expect(one).toMatch(/>1<\/b> item</)
@@ -139,7 +142,7 @@ describe('ListToolbar', () => {
 describe('EmptyStateCard and skeleton', () => {
 	it('shows what is missing and the one action that fixes it', () => {
 		const html = renderToStaticMarkup(
-			createElement(EmptyStateCard, { icon: Folder01Icon, title: 'No groups yet', description: 'Create one group.', testId: 'empty' }, createElement('button', null, 'New Group')),
+			h(EmptyStateCard, { icon: Folder01Icon, title: 'No groups yet', description: 'Create one group.', testId: 'empty' }, createElement('button', null, 'New Group')),
 		)
 
 		expect(html).toContain('data-testid="empty"')
@@ -149,7 +152,7 @@ describe('EmptyStateCard and skeleton', () => {
 	})
 
 	it('uses the amber tile for a notice', () => {
-		const html = renderToStaticMarkup(createElement(EmptyStateCard, { icon: Folder01Icon, tone: 'amber', title: 'T', description: 'D', testId: 'e' }))
+		const html = renderToStaticMarkup(h(EmptyStateCard, { icon: Folder01Icon, tone: 'amber', title: 'T', description: 'D', testId: 'e' }))
 
 		expect(html).toContain('bg-amber-100')
 	})
@@ -175,7 +178,7 @@ describe('RowMenu and SheetDialog', () => {
 
 	it('renders only its trigger until it is opened', () => {
 		const html = renderToStaticMarkup(
-			createElement(SheetDialog, { trigger: createElement('button', null, 'Open'), title: 'Sheet', testId: 'sheet' }, createElement('p', null, 'body')),
+			h(SheetDialog, { trigger: createElement('button', null, 'Open'), title: 'Sheet', testId: 'sheet' }, createElement('p', null, 'body')),
 		)
 
 		expect(html).toContain('Open')

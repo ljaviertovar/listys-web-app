@@ -176,16 +176,13 @@ describe('DashboardView', () => {
 	})
 
 	it('does not offer Start on any list while a shopping session is running', () => {
-		const withSession = renderToStaticMarkup(
-			createElement(DashboardView, {
-				firstName: 'Javier',
-				hasLists: true,
-				model: modelWith({ activeSession: session, groups: [{ id: 'g1', name: 'Walmart', description: null, listsCount: 1, lists: [{ id: 'l1', name: 'NO frills', itemsCount: 28 }], hiddenListsCount: 0 }] }),
-			}),
-		)
+		const groups = [{ id: 'g1', name: 'Walmart', description: null, listsCount: 1, lists: [{ id: 'l1', name: 'NO frills', itemsCount: 28 }], hiddenListsCount: 0 }]
 
-		expect(withSession).toContain('dashboard-list-l1')
-		expect(withSession).not.toContain('start-shopping-button')
+		expect(renderToStaticMarkup(createElement(GroupsSectionCard, { groups }))).toContain('start-shopping-button')
+
+		const running = renderToStaticMarkup(createElement(GroupsSectionCard, { groups, sessionActive: true }))
+		expect(running).toContain('dashboard-list-l1')
+		expect(running).not.toContain('start-shopping-button')
 	})
 
 	it('nests each group’s lists under it and offers an empty-state for sections without data', () => {

@@ -40,6 +40,7 @@ export function CreateGroupDialog({ variant, className, children }: Props = {}) 
 		<CreateEntitySheet
 			trigger={
 				<Button
+					size={'lg'}
 					variant={variant}
 					className={cn(A1_TOOLBAR_BUTTON, className)}
 					data-testid='create-group-button'
