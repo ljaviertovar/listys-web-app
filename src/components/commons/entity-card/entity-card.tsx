@@ -50,7 +50,7 @@ export function EntityCard({
 	return (
 		<article
 			data-testid={testId}
-			className='group/entity relative flex flex-col gap-3 p-4 rounded-3xl bg-card shadow-card'
+			className='group/entity relative flex flex-col gap-2 p-3 rounded-3xl bg-card shadow-card md:gap-3 md:p-4'
 		>
 			<div className='flex items-center gap-3'>
 				<span className='flex size-9 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300'>

@@ -183,7 +183,7 @@ export function UploadTicketForm({ onSuccess, initialFiles }: Props) {
 						<Button
 							type='button'
 							variant='secondary'
-							size='xl'
+							size='primary'
 							disabled={loading}
 							className='flex-1 sm:flex-none'
 						>
@@ -192,7 +192,7 @@ export function UploadTicketForm({ onSuccess, initialFiles }: Props) {
 					</DialogClose>
 					<Button
 						type='submit'
-						size='xl'
+						size='primary'
 						disabled={!canSubmit}
 						className='flex-1 sm:flex-none'
 					>

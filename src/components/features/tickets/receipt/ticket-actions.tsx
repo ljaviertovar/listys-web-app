@@ -100,7 +100,7 @@ export function TicketActions({ ticket, allowRetry = false }: Props) {
 			{showRetryButton && (
 				<Button
 					variant='secondary'
-					size='xl'
+					size='primary'
 					onClick={handleRetry}
 					disabled={retrying}
 					className='w-full'
@@ -126,7 +126,7 @@ export function TicketActions({ ticket, allowRetry = false }: Props) {
 			{(ticket.ocr_status !== 'processing' || isStuckProcessing) && (
 				<Button
 					variant='destructive-soft'
-					size='xl'
+					size='primary'
 					onClick={() => setShowDeleteDialog(true)}
 					className='w-full'
 				>

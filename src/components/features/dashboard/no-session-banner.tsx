@@ -47,7 +47,7 @@ export function NoSessionBanner({ quickStart, startTarget, lastTrip, hasLists }:
 				<div className='flex flex-col gap-2'>
 					<h2
 						id='dashboard-no-session-title'
-						className='font-display text-3xl leading-[1.17] font-bold tracking-tight text-balance'
+						className='font-display text-xl leading-[1.17] font-bold tracking-tight text-balance md:text-3xl'
 					>
 						{hasLists ? 'Ready to go shopping?' : 'Start with a receipt'}
 					</h2>
@@ -74,7 +74,7 @@ export function NoSessionBanner({ quickStart, startTarget, lastTrip, hasLists }:
 									<Button
 										asChild
 										variant='on-dark'
-										size='lg'
+										size='primary'
 										rounded='full'
 									>
 										<Link

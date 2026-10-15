@@ -32,6 +32,7 @@ export function CreateGroupDialog({ children, ...buttonProps }: Props = {}) {
 		<CreateEntitySheet
 			trigger={
 				<Button
+					size='primary'
 					{...buttonProps}
 					data-testid='create-group-button'
 				>

@@ -39,7 +39,7 @@ export function ActiveSessionBanner({ session, isGuest = false }: Props) {
 				<div className='flex flex-col gap-2'>
 					<h2
 						id='dashboard-active-session-title'
-						className='font-display text-3xl leading-[1.17] font-bold tracking-tight text-balance'
+						className='font-display text-xl leading-[1.17] font-bold tracking-tight text-balance md:text-3xl'
 					>
 						{session.name}
 					</h2>

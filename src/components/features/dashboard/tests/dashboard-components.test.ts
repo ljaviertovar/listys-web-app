@@ -98,7 +98,7 @@ describe('NoSessionBanner', () => {
 		expect(html).toContain('data-testid="dashboard-quick-start-l2"')
 		expect(html).not.toContain('data-testid="dashboard-quick-start-l1"')
 		// The shortcuts are real buttons: the size and the shape come from the props.
-		expect(html).toContain('data-variant="on-dark" data-size="lg" data-rounded="full"')
+		expect(html).toContain('data-variant="on-dark" data-size="primary" data-rounded="full"')
 	})
 
 	it('shows no shortcuts when the only list is the one the button starts', () => {
@@ -213,7 +213,7 @@ describe('section cards', () => {
 		const groups = renderToStaticMarkup(createElement(GroupsSectionCard, { groups: [] }))
 
 		expect(receipts).toContain('data-testid="dashboard-receipts-empty"')
-		expect(receipts).toContain('data-size="xl"')
+		expect(receipts).toContain('data-size="primary"')
 		expect(receipts).toContain('w-auto')
 		expect(receipts).toContain('No receipts yet')
 		expect(receipts.indexOf('No receipts yet')).toBeLessThan(receipts.indexOf('Upload Receipt'))

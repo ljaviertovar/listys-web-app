@@ -88,7 +88,7 @@ export function ShareCollaborators({ collaborators, isOwner, isLoading, onRemove
 										</div>
 										<div className='grid grid-cols-2 gap-3'>
 											<Button
-												size='xl'
+												size='primary'
 												type='button'
 												variant='secondary'
 												disabled={removing}
@@ -97,7 +97,7 @@ export function ShareCollaborators({ collaborators, isOwner, isLoading, onRemove
 												Cancel
 											</Button>
 											<Button
-												size='xl'
+												size='primary'
 												variant='destructive'
 												type='button'
 												disabled={removing}

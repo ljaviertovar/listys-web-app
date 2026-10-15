@@ -91,7 +91,7 @@ export function TicketCompareDialog({ open, onOpenChange, title, urls, view, ite
 						</span>
 					</div>
 					<DialogClose asChild>
-						<Button size='xl'>Done</Button>
+						<Button size='primary'>Done</Button>
 					</DialogClose>
 				</div>
 				<DialogDescription className='sr-only'>

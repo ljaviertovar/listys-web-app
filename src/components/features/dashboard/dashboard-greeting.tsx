@@ -50,7 +50,7 @@ export function DashboardGreeting({ name }: Props) {
 				/>
 				{dateLabel || 'Today'}
 			</Badge>
-			<h1 className='font-display text-3xl leading-[1.17] font-bold tracking-tight text-balance lg:text-4xl'>
+			<h1 className='font-display text-2xl leading-[1.17] font-bold tracking-tight text-balance md:text-3xl lg:text-4xl'>
 				{now ? `${greetingFor(now.getHours())}, ${name}` : `Hi, ${name}`}
 			</h1>
 			<p className='text-sm leading-normal text-slate-500 md:text-base dark:text-muted-foreground'>

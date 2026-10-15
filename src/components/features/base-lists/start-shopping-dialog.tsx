@@ -85,7 +85,7 @@ export function StartShoppingDialog({
 			onOpenChange={next => !loading && setOpen(next)}
 			trigger={
 				<Button
-					size='xl'
+					size='primary'
 					{...buttonProps}
 					disabled={buttonProps.disabled || isEmpty}
 					className={cn('w-full', className)}
@@ -144,7 +144,7 @@ export function StartShoppingDialog({
 			</div>
 			<DialogFooter variant='sheet'>
 				<Button
-					size='xl'
+					size='primary'
 					type='button'
 					variant='secondary'
 					onClick={() => setOpen(false)}
@@ -153,7 +153,7 @@ export function StartShoppingDialog({
 					Cancel
 				</Button>
 				<Button
-					size='xl'
+					size='primary'
 					type='button'
 					onClick={handleConfirm}
 					disabled={loading || isEmpty}

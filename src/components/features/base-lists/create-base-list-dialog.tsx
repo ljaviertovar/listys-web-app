@@ -41,7 +41,7 @@ export function CreateBaseListDialog({ groupId, children, ...buttonProps }: Prop
 		<CreateEntitySheet
 			trigger={
 				<Button
-					size='xl'
+					size='primary'
 					{...buttonProps}
 					data-testid='create-base-list-button'
 				>

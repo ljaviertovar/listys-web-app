@@ -77,7 +77,7 @@ export function TicketCard({ id, storeName, status, itemsCount, uploadedLabel }:
 			href={`/tickets/${id}`}
 			data-testid={`ticket-card-${id}`}
 			data-status={ticketStatus}
-			className='group flex flex-col gap-3 p-4 transition-shadow hover:shadow-md rounded-3xl bg-card shadow-card focus-ring'
+			className='group flex flex-col gap-2 p-3 transition-shadow hover:shadow-md rounded-3xl bg-card shadow-card focus-ring md:gap-3 md:p-4'
 		>
 			<div className='flex items-start gap-3'>
 				<span className='flex size-9 shrink-0 items-center justify-center rounded-xl bg-cyan-100 text-cyan-700 dark:bg-cyan-500/20 dark:text-cyan-300'>

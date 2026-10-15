@@ -72,7 +72,7 @@ export function UploadTicketDialog({
 				<DialogTrigger asChild>
 					{trigger ?? (
 						<Button
-							size='xl'
+							size='primary'
 							{...buttonProps}
 							className={cn('w-full', className)}
 						>

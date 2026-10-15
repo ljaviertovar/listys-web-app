@@ -84,7 +84,7 @@ export function ConfirmSheet({
 			</div>
 			<DialogFooter variant='sheet'>
 				<Button
-					size='xl'
+					size='primary'
 					type='button'
 					variant='secondary'
 					disabled={loading}
@@ -94,7 +94,7 @@ export function ConfirmSheet({
 				</Button>
 				<Button
 					type='button'
-					size='xl'
+					size='primary'
 					variant={tone === 'danger' ? 'destructive' : 'default'}
 					disabled={loading}
 					onClick={onConfirm}

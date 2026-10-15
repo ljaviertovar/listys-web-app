@@ -39,7 +39,7 @@ export default function GoogleButtonSignin({ typeSubmit, callbackUrl }: Props) {
 		<Button
 			type='button'
 			disabled={isLoading}
-			size='xl'
+			size='primary'
 			className='w-full'
 			onClick={handleGoogleSignIn}
 		>

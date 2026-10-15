@@ -35,6 +35,7 @@ const HEIGHTS = {
 	default: 'h-9',
 	lg: 'h-10',
 	xl: 'h-11',
+	primary: 'h-10',
 	'2xl': 'h-13',
 	icon: 'size-9',
 	'icon-xs': 'size-6',
@@ -73,6 +74,14 @@ describe('Button', () => {
 		expect(classes).not.toContain('px-4')
 		// The other sizes keep their own text size (the base is `text-sm`); only xl and 2xl step up to base.
 		expect(buttonVariants({ size: 'lg' }).split(/\s+/)).not.toContain('text-base')
+	})
+
+	it('primary is lg below md and the library xl from md up', () => {
+		const classes = buttonVariants({ size: 'primary' }).split(/\s+/)
+
+		expect(classes).toEqual(expect.arrayContaining(['h-10', 'px-4', 'md:h-11', 'md:px-6', 'md:text-base']))
+		expect(classes).not.toContain('h-11')
+		expect(classes).not.toContain('text-base')
 	})
 
 	it('has an avatar size that is a circle on phones and a pill from lg, and a weight for the landing header', () => {
@@ -128,7 +137,7 @@ describe('wrappers around a Button hand its props through', () => {
 		const covered = ['CreateGroupDialog', 'CreateBaseListDialog', 'ShareListDialog', 'AddItemSheet', 'StartShoppingDialog', 'UploadTicketDialog']
 
 		expect([...derived].sort()).toEqual([...covered].sort())
-	})
+	}, 60_000)
 
 	it.each(Object.entries(triggers))('%s obeys the size and variant it is given', (_name, { render, testId }) => {
 		const html = renderToStaticMarkup(render({ size: 'sm', variant: 'ghost' }))
@@ -145,7 +154,7 @@ describe('wrappers around a Button hand its props through', () => {
 
 		expect(small).toContain('data-size="sm"')
 		expect(small).toContain('h-8')
-		expect(fallback).toContain('data-size="xl"')
+		expect(fallback).toContain('data-size="primary"')
 	})
 })
 

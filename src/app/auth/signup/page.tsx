@@ -226,7 +226,7 @@ export default function SignUpPage() {
 								type='submit'
 								variant='outline'
 								disabled={loading}
-								size='xl'
+								size='primary'
 								className='w-full'
 							>
 								{loading ? (

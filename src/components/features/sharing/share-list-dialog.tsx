@@ -43,7 +43,7 @@ export function ShareListDialog({
 			trigger={
 				<Button
 					variant='secondary'
-					size='xl'
+					size='primary'
 					{...buttonProps}
 					data-testid='share-list-button'
 				>

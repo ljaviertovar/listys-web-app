@@ -26,7 +26,7 @@ export function AddItemSheet({ target, isLocked = false, ...buttonProps }: AddIt
 			trigger={
 				<Button
 					variant='secondary'
-					size='xl'
+					size='primary'
 					{...buttonProps}
 					disabled={isLocked}
 					data-testid={`add-item-button-${target.context}`}
@@ -41,7 +41,11 @@ export function AddItemSheet({ target, isLocked = false, ...buttonProps }: AddIt
 				</Button>
 			}
 			title='Add New Item'
-			description={target.context === 'base-list' ? 'Add an item to this base list.' : 'Add an item you forgot to this shopping list.'}
+			description={
+				target.context === 'base-list'
+					? 'Add an item to this base list.'
+					: 'Add an item you forgot to this shopping list.'
+			}
 			testId='add-item-sheet'
 		>
 			<AddItemForm

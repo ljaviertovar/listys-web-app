@@ -54,14 +54,14 @@ export function TicketSelectionBar({ count, total, onClear, onAdd, placement = '
 			<Button
 				type='button'
 				variant='ghost'
-				size='xl'
+				size='primary'
 				onClick={onClear}
 			>
 				Clear
 			</Button>
 			<Button
 				type='button'
-				size='xl'
+				size='primary'
 				onClick={onAdd}
 			>
 				<HugeiconsIcon

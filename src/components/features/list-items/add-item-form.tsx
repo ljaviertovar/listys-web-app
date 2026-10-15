@@ -82,7 +82,7 @@ export function AddItemForm({ target, isLocked = false, onCancel }: AddItemFormP
 			</p>
 			<div className='grid grid-cols-2 gap-3'>
 				<Button
-					size='xl'
+					size='primary'
 					type='button'
 					variant='secondary'
 					onClick={onCancel}
@@ -91,7 +91,7 @@ export function AddItemForm({ target, isLocked = false, onCancel }: AddItemFormP
 					Cancel
 				</Button>
 				<Button
-					size='xl'
+					size='primary'
 					type='submit'
 					disabled={loading || isLocked}
 				>

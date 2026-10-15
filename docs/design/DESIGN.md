@@ -79,13 +79,13 @@ typography:
     letterSpacing: "-0.035em"
   h1-screen-title:
     fontFamily: "Plus Jakarta Sans, Inter, system-ui, sans-serif"
-    fontSize: "36px (30px on phones, 32px from md, 34-36px on desktop)"
+    fontSize: "36px (24px on phones, 30px from md, 36px on desktop)"
     fontWeight: 700
     lineHeight: 1.11
     letterSpacing: "-0.03em"
   h2:
     fontFamily: "Plus Jakarta Sans, Inter, system-ui, sans-serif"
-    fontSize: "30px"
+    fontSize: "30px (20px on phones: the hero and session titles)"
     fontWeight: 700
     lineHeight: 1.17
     letterSpacing: "-0.025em"
@@ -140,12 +140,12 @@ typography:
     lineHeight: 1
   chip:
     fontFamily: "Inter, system-ui, sans-serif"
-    fontSize: "11.5px"
+    fontSize: "12px"
     fontWeight: 600
     lineHeight: 1
   tab:
     fontFamily: "Inter, system-ui, sans-serif"
-    fontSize: "11.5px"
+    fontSize: "12px"
     fontWeight: "500-600"
     lineHeight: 1
   mono:
@@ -176,7 +176,7 @@ rounded:
   field: "16px"
   panel: "20px"
   card: "24px"
-  dialog: "28px"
+  dialog: "24px"
   device: "32px"
   pill: "999px"
 
@@ -222,8 +222,8 @@ components:
     backgroundColor: "{colors.primary}"
     textColor: "{colors.paper}"
     rounded: "{rounded.control}"
-    height: "40px (sm 32px, lg 48px)"
-    padding: "0 18px"
+    height: "44px (xl, the library's own; primary below md is lg 40px)"
+    padding: "0 24px"
   button-hero:
     backgroundColor: "{colors.primary}"
     textColor: "{colors.paper}"
@@ -465,8 +465,8 @@ are self-hosted and layout shifts are controlled.
 | Display | `800 clamp(44px, 7vw, 76px)/1`, `-.035em` | Landing hero title only (`max-width: 18ch`, two lines on desktop). The tracking stays at `-.035em`: at `-.045em` the word spaces close up at this size |
 | Hero lead | `500 clamp(18px, 1.8vw, 20px)/1.55` (Inter) | The line under the landing hero title; section ledes use Body large |
 | Marketing heading | `750 clamp(32px, 4vw, 48px)/1.1`, `-.035em` | Landing sections |
-| h1 (screen title) | `700 36px/1.11`, `-.03em` | Authenticated page heading; 30px (`/1.17`, `-.025em`) on phones, 32px from `md`, 34-36px on desktop |
-| h2 | `700 30px/1.17`, `-.025em` | Hero titles: the dashboard hero stays at 30px (32px from `md`), never above the page h1 |
+| h1 (screen title) | `700 36px/1.11`, `-.03em` | Authenticated page heading; 24px (`text-2xl`, `/1.17`, `-.025em`) below `md`, 30px (`text-3xl`) from `md`, 36px (`lg:text-4xl`) on desktop |
+| h2 | `700 30px/1.17`, `-.025em` | Hero and session titles: 20px (`text-xl`) below `md`, 30px (`text-3xl`) from `md`, never above the page h1 |
 | h3 | `700 24px/1.25`, `-.02em` | Session and list names |
 | h4 (section title) | `600 20px/1.33`, `-.015em` | Section titles and "Up Next" from `md`; the dashboard sets them at `/1.39`, `-.01em`. On phones they are `h2` elements set at the h6 size (`600 16px/1.5`, `-.005em`) |
 | h5 | `600 18px/1.39`, `-.01em` | Sub-sections |
@@ -476,8 +476,8 @@ are self-hosted and layout shifts are controlled.
 | Body small | `400 14px/1.5` | Secondary text, table cells, navigation and sidebar items |
 | Body extra small | `400 12px/1.25` | Captions, helper text and fine print |
 | Label | `600 14px/1` (Plus Jakarta Sans) | Buttons, tabs, form actions |
-| Chip | `600 11.5px/1` (Inter) | Status chips and counters (the date and session pills stay at `600 12.5px/1`) |
-| Tab | `500-600 11.5px/1` (Inter) | Tab-bar labels |
+| Chip | `600 12px/1` (Inter, `text-xs`) | Status chips (`Badge`, 22px high) and counters (the date and session pills stay at `600 12.5px/1`) |
+| Tab | `500-600 12px/1` (Inter, `text-xs`) | Tab-bar labels |
 | Mono | `500 14px/1.5` | Ids, dates, amounts |
 | Receipt meta | `500 12px/1.4`, `.01em` | Row metadata under titles: merchant, dates, item counts |
 | Overline | `600 11px/1.2`, `.1em`, uppercase | Actual process stage or data category |
@@ -493,7 +493,7 @@ case in the product UI even when OCR input arrived in capitals; a category headi
 
 ### 5.1 Radius
 
-Medium (12px) is the radius of components, large (16px) of form fields, 24px of cards and 28px of dialogs; the full pill is
+Medium (12px) is the radius of components, large (16px) of form fields, 24px of cards and dialogs; the full pill is
 only for avatars, switches and progress bars.
 
 | Token | Value | Applies to |
@@ -504,7 +504,7 @@ only for avatars, switches and progress bars.
 | `field` | `16px` | Inputs, selects, one-time-code cells, the raised tab-bar action |
 | `panel` | `20px` | Action menus, the phone session pill |
 | `card` | `24px` | Cards, hero surfaces, upload areas |
-| `dialog` | `28px` | Dialogs |
+| `dialog` | `24px` | Dialogs and phone sheets (`rounded-3xl`) |
 | `device` | `32px` | Marketing phone mockup only |
 | `pill` | `999px` | Person avatars, switches, progress tracks |
 
@@ -631,7 +631,7 @@ the shell in `src/components/app/mobile-tab-bar.tsx`.
 | --- | --- |
 | Header | 60px (64px from `lg`), white with a bottom hairline; logo 30px plus the "Listys" wordmark (Plus Jakarta Sans 700 19px, `-.02em`); a 44x44 account button with a 34px initials avatar on `#DBEAFE`. No menu button: Profile, Account and Sign Out live in the account menu |
 | Tab bar | See section 7.11 |
-| Session bar | Only while a trip runs, on every phone screen except the trip's own (`ActiveSessionBar`): 48px high, 16px radius, `#0F172A`; a 28px progress ring with a green dot, the trip name (13px / 700) and "n of m · p%" (mono 11px), and a 32px "Continue" in the primary look (12.5px / 600, 10px radius). The whole bar is the link. It floats 8px above the tab bar with 12px side insets, stays visible next to the dashboard hero's own button, and the raised tab-bar action overlaps its lower edge |
+| Session bar | Only while a trip runs, on every phone screen except the trip's own (`ActiveSessionBar`): 48px high, 16px radius, `#0F172A`; a 28px progress ring with a green dot, the trip name (12px / 700) and "n of m · p%" (mono 12px), and a `Button size='sm'` "Continue" (32px, 14px / 600, 8px radius). The whole bar is the link. It floats 8px above the tab bar with 12px side insets, stays visible next to the dashboard hero's own button, and the raised tab-bar action overlaps its lower edge |
 | Content | 16px gutter, 20px above the greeting, 40px below the last card, plus 56px while the session bar is shown (a spacer after the page); surfaces pinned to the bottom edge sit above the tab bar (`ABOVE_MOBILE_TAB_BAR`), and above the session bar when it shows (`ABOVE_MOBILE_SESSION_BAR`) |
 
 **Hero.** A 24px-radius photo surface under the `hero-scrim`. One blue 52px button does the obvious thing: "Continue
@@ -671,10 +671,12 @@ a failed request must not look like an empty account. The photo behind the heroe
 
 | Element | Phones | From `md` / `lg` |
 | --- | --- | --- |
-| Page title | 30px | 32px (`md`), 34-36px (desktop) |
+| Page title | 24px (`text-2xl`) | 30px (`text-3xl`) from `md`, 36px (`lg:text-4xl`) on desktop |
+| Hero and session title | 20px (`text-xl`) | 30px (`text-3xl`) from `md` |
+| Primary action (`size='primary'`) | 40px, 14px | 44px, 16px from `md` (`xl`) |
 | Hero button | 52px; new-account "Upload receipt" 44px | 52px |
 | Quick-start chips | 36px / 12.5px | 36px / 12.5px |
-| Empty-state button | 32px / 12px | 44px / 14px |
+| Empty-state button | `primary`, 40px / 14px | `primary`, 44px / 16px |
 | "View All" | 32px / 12px | 40px / 14px |
 | Header | 60px | 64px (`lg`) |
 | Tab bar and session pill | Shown | Hidden (`lg`) |
@@ -707,12 +709,14 @@ descriptions, badges, toasts and list or receipt data keep sentence case.
 | Size | Height | Padding and label |
 | --- | --- | --- |
 | `sm` | 32px | 0 14px, 13px, 6px gap |
-| `md` (default) | 40px | 0 18px, 14px / 600, 8px gap |
-| `lg` | 48px | 0 24px, 16px |
-| `hero` | 52px | 0 28px, Plus Jakarta Sans 700 16px, 10px gap, 18px icon |
-| Icon only | 40x40 | 18px icon; the raised tab-bar action is 58x58 with a 16px radius |
+| `default` | 36px | 0 12px, 14px / 600, 6px gap (the default size; dense rows and secondary actions) |
+| `lg` | 40px | 0 16px, 14px / 600 |
+| `xl` | 44px | 0 24px, 16px / 600 (the library's own xl; toolbars and sheet footers from `md`) |
+| `primary` | 40px below `md`, 44px from `md` | The primary action of a screen, sheet or form: `lg` on phones, `xl` from `md` (see section 11.5) |
+| `2xl` (hero) | 52px | 0 28px, Plus Jakarta Sans 700 16px, 10px gap, 18px icon |
+| Icon only | 36 to 48px | 18px icon; the raised tab-bar action is 48x48 with a 16px radius |
 
-Touch: `lg` for the main actions on phones; `md` by default; `sm` only inside dense rows that provide a 44px hit area.
+Touch: `primary` for the main action of a screen (`lg` on phones, `xl` from `md`); `default` for other buttons; `sm` only inside dense rows that provide a 44px hit area.
 The visual height is not the hit area: every control keeps at least a 44x44px target (section 10.2).
 
 The **hero call to action** and the **raised tab-bar action** carry a highlight layer: a top-lit gradient, white at 18-20%
@@ -751,7 +755,7 @@ The running-session badge reads `Shopping` (the dashboard hero chip reads `Shopp
 reinforce its active state. The pulse stops when reduced motion is preferred. It has an `on-dark` tone for photo and ink
 surfaces such as the dashboard banner: a 26px pill with a 12% white fill and a 7px dot. Status chips are small
 22px pills (999 radius) tinted with the 100-level of their status (`Pending` slate-100 / slate-700, `Processing` amber-100 / amber-700,
-`Completed` green-100 / green-700, `Failed` red-100 / red-700), with a 12px icon (a 6px dot for `Pending`) and an 11.5px / 600 label, padding
+`Completed` green-100 / green-700, `Failed` red-100 / red-700), with a 12px icon (a 6px dot for `Pending`) and a 12px / 600 label, padding
 8px. They are deliberately not the shape of a button (12px radius, `#E9ECF0`, 40px), so they never read as pressable. Counters share the
 22px pill with a 12px label, and deltas and "New" use the same tinted success and danger surfaces.
 
@@ -760,7 +764,7 @@ Badges are compact context, never the only explanation for a failure. A failed r
 
 ### 7.4 Receipt upload and processing
 
-The upload form (`features/tickets/upload/`) opens as a bottom sheet on phones (28px top radius, up to 92% of
+The upload form (`features/tickets/upload/`) opens as a bottom sheet on phones (24px top radius, up to 92% of
 the viewport) and as a centred 520px dialog from `sm`. It has a Jakarta 600 20px title with a 44px close button, a grey 14px
 description, a `Name *` field (48px, 16px radius) and `Photos *` with a mono `n / 5` counter. The photo field starts as one
 dashed 16px-radius tile with an upload glyph, `Choose Photos` in blue and the accepted formats and the 10MB per-image limit;
@@ -879,13 +883,13 @@ solid-blue block. Entries are 36px high on one line with an 8px radius, an 18px 
 14px label (inactive `#334155`, 400; current 600); counts are 22px chips. Group titles are 14px semibold ink, not uppercase.
 
 Below `lg` the sidebar is replaced by a bottom tab bar (approved design "A1 mobile"): five equal slots, Dashboard, Lists, a
-raised 58px **Upload Receipt** button in the middle, Receipts and History.
+raised 48px **Upload Receipt** button (`fab`, `icon-2xl`, 16px radius) in the middle, Receipts and History.
 
 | Piece | Spec |
 | --- | --- |
 | Bar | White, a hairline on top and a soft upward shadow; padding `4 8 18` (the bottom grows to the device's safe-area inset when larger); pinned to the bottom edge of the screen; hidden from `lg` |
 | Content clearance | The scrolling content carries a bottom padding equal to the bar's height (80.5px) so its last row stays reachable; surfaces pinned to the bottom edge sit above it (`ABOVE_MOBILE_TAB_BAR` in `src/components/app/helpers/mobile-tab-bar-layout.ts`) |
-| Tab | 58.5px high (every tab, even when none is current, so the bar never changes height), 24px icon at stroke 1.5, 11.5px label, 12px radius |
+| Tab | Height follows its content (44px minimum hit area, `min-h-11`), so every tab is the same height and the bar never changes height; 24px icon at stroke 1.5, 12px label (`text-xs`), 12px radius |
 | Current tab | `#E9ECF0` surface, `#1D4ED8` text and weight 600, with no extra marker (`aria-current="page"`); inactive tabs are `slate-500`, weight 500. Lists stays current on a list and on a shopping session, whose paths start with `/base-lists` and `/shopping/` |
 | Raised action | 58x58, 16px radius, primary with the highlight layer, a 6px white ring plus the blue glow, 24px above the bar edge, 26px icon, `aria-label` "Upload a receipt" |
 
@@ -909,7 +913,7 @@ secondary action lists. A dialog has one title, optional description, content, a
 confirmation names the object being affected and states whether recovery is possible. Focus returns to the trigger on close.
 
 **A1 sheets.** Every create, edit, share and confirm flow of the Lists and receipts screens opens in `SheetDialog`: a bottom sheet on
-phones (28px top radius, a 20px Plus Jakarta 600 title at the left, a 44px close target) and a centred 520px dialog from `sm`.
+phones (24px top radius, a 20px Plus Jakarta 600 title at the left, a 44px close target) and a centred 520px dialog from `sm`.
 `ConfirmSheet` is its two-button form: `Cancel` (grey) at the left and the confirm at the right, 48px tall, red for a destructive action,
 with an optional red consequence box. Start Shopping is one: a 48px blue cart tile, "This will create a new shopping session using the
 items of “…”" and the note "Only one shopping session can be active at a time". While a session is active the `Start Shopping` button
@@ -920,7 +924,7 @@ The share sheet holds the list's `Invite link` (a read-only mono field with an e
 `Regenerate` / `Revoke`, which asks first in the same place) and its `Collaborators` (initials avatar, name, a role chip, and a remove
 control that asks first in the row).
 
-Dialogs are white with a 28px radius and the `overlay` shadow: a 22px icon, a Plus Jakarta Sans 700 17px title, a 28px
+Dialogs are white with a 24px radius and the `overlay` shadow: a 22px icon, a Plus Jakarta Sans 700 17px title, a 28px
 tertiary close button, a grey 14px body, and a footer of a tertiary "Cancel" and the confirming button (danger for deletes).
 Action menus are white with a 20px radius, 8px padding and a floating shadow; each item is at least 52px high with a title, a
 short description and an optional shortcut, and a "Danger zone" group closes the menu.
@@ -1018,8 +1022,8 @@ links or meaningful glyphs on light surfaces.
 ### 10.2 Interaction
 
 - Interactive targets are at least 44×44px in shopping, upload, and mobile navigation flows. A control may look smaller
-  (`sm` 32px, `md` 40px) only when its row or padding supplies a 44px hit area. The documented compact controls below `md`
-  are the "View All" links and the empty-state button (32px); the "Start" pills (32px) and the quick-start chips (36px) are
+  (`sm` 32px, `default` 36px) only when its row or padding supplies a 44px hit area. The documented compact controls below `md`
+  are the "View All" links (32px) and the "Start" pills (32px); the primary action of a screen is `primary` (40px below `md`, 44px from `md`), and the empty-state button is `primary` too; the "Start" pills (32px) and the quick-start chips (36px) are
   compact at every width (section 6.5). They remain deliberate product decisions.
 - Keyboard focus uses a 2px action-blue ring with a 2px offset; do not remove it in favour of colour change alone.
 - Drag-and-drop always has a file-picker equivalent. Reordering always has a keyboard or menu alternative.
@@ -1181,7 +1185,7 @@ These are remaining implementation notes, not permission for two systems:
 11. **Dark mode:** semantic tokens exist, but one-off literal colour utilities and translucent surfaces require a complete
    contrast review.
 12. **Type scale outside the landing page and dashboard:** these two follow section 4.2; the rest of the app does not yet.
-    `PageHeader` sets the screen h1 at 18px (24px from `md`) instead of 30-36px and uses the invalid `md:text-md`; empty-state
+    `PageHeader` now sets the screen h1 at 24px below `md` and 30px from `md` (done); empty-state
     `h3`s use three different styles (`text-xl`/`text-lg`, `font-semibold`/`font-medium`) instead of the 24px h3; `CardTitle`
     and `SheetTitle` are `font-medium` where the card title is 600, and `DialogTitle` is the 18px h5; the sidebar, the account
     menu and several dialogs use 10px, 13px, 13.5px and 15px values outside the scale; IBM Plex Mono still loads weight 400.
@@ -1204,6 +1208,8 @@ The design is implemented with shadcn's native props and Tailwind's own scale; a
 | Button `weight` | `default` semibold · `medium` (the landing header's lighter label) | `ui/button.tsx` |
 | Icon button `size` | `icon` 36 · `icon-xs` 24 · `icon-sm` 32 · `icon-lg` 40 · `icon-xl` 44 · `icon-2xl` 48 (raised tab-bar action) | `ui/button.tsx` |
 | Button `variant` | `default`, `secondary` (`--secondary`, blue text), `outline`, `ghost`, `destructive`, `destructive-soft`, `success-soft`, `hero` (glow, lift), `fab`, `link`; quiet row/icon actions `quiet`, `quiet-destructive`, `destructive-ghost`, `ghost-primary` (a blue text action such as "View All"), `floating` (the session Actions button); the dark viewer's `on-dark`, `viewer`, `overlay`; the drop target `dropzone` | `ui/button.tsx` |
+| Button `size` on phones | `primary`: the primary action of a screen, sheet or form. It is `lg` (40px, `px-4`, `gap-1.5`) below `md` and the library's own `xl` (44px, `px-6`, `text-base`) from `md` up; one size, two breakpoints, no hook. Every other button keeps its size on every width. The primary actions are the toolbar actions (New Group, New Base List, Share, Add Item, Upload), Start Shopping, the confirm and submit buttons of the sheets and forms, Copy Link and Create Link, and the call to action of the dashboard empty and error states | `ui/button.tsx` |
+| Title roles on phones | Below `md` the page heading (`h1`, the screen header and the dashboard greeting) is `text-2xl` (24px); from `md` it is `text-3xl` and `lg:text-4xl` as before. The hero and session title (the dashboard hero, the no-session banner) is `text-xl` (20px) below `md` and `text-3xl` from `md`. Card names stay `text-base`, metadata `text-xs`. Receipt and group cards use `p-3 gap-2` below `md` and `p-4 gap-3` from `md`; they are plain elements, not `Card`, so their padding is a responsive class on the element | `app/`, `components/` |
 | Button `size` (content height) | `block`: `h-auto`, several lines, 24px padding (drop targets) | `ui/button.tsx` |
 | Button `rounded` | `xl` by default (12px); `md`, `lg`, `2xl`, `3xl`, `full` | `ui/button.tsx` |
 | Link that looks like a button | `<Button asChild variant size><Link/></Button>`; never `buttonVariants()` or hand-set classes on `Link` (back link, "View All", the shortcut chips, the session bar's Continue) | call sites |

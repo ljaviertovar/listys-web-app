@@ -44,7 +44,7 @@ export function ShoppingSessionActions({ sessionId, checked, total, isOwner = fa
 				className='hidden items-center gap-2 lg:flex'
 			>
 				<Button
-					size='xl'
+					size='primary'
 					variant='destructive-soft'
 					onClick={() => setCancelOpen(true)}
 				>
@@ -57,7 +57,7 @@ export function ShoppingSessionActions({ sessionId, checked, total, isOwner = fa
 					Cancel Shopping
 				</Button>
 				<Button
-					size='xl'
+					size='primary'
 					onClick={() => setCompleteOpen(true)}
 				>
 					<HugeiconsIcon
