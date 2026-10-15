@@ -1,25 +1,11 @@
-import { normalizeCategory } from '@/data/constants'
+import { groupByCategory, type CategoryGroup } from '@/utils'
 import type { TicketItem } from '@/types'
 
-export interface TicketItemGroup {
-	key: string
-	title: string
-	items: TicketItem[]
-}
+export type TicketItemGroup = CategoryGroup<TicketItem>
 
-/** Groups items by normalised category, sorted by name, with the uncategorised ones under "Other". */
+/** Groups a receipt's items by category; the same grouping every list uses. */
 export function groupTicketItems(items: TicketItem[]): TicketItemGroup[] {
-	const groups = new Map<string, TicketItem[]>()
-	for (const item of items) {
-		const key = normalizeCategory(item.category || '') || 'Other'
-		const bucket = groups.get(key)
-		if (bucket) bucket.push(item)
-		else groups.set(key, [item])
-	}
-
-	return [...groups.entries()]
-		.sort(([a], [b]) => a.localeCompare(b, 'en', { sensitivity: 'base' }))
-		.map(([key, groupItems]) => ({ key, title: key, items: groupItems }))
+	return groupByCategory(items)
 }
 
 /** Unit price times quantity; a missing quantity counts as one and a missing price as nothing. */

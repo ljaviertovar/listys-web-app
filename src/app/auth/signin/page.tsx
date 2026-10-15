@@ -62,7 +62,7 @@ export default function SignInPage() {
 						ease: 'easeInOut',
 					}}
 					style={{ willChange: 'transform' }}
-					className='absolute -top-[10%] -left-[10%] w-[60%] h-[60%] rounded-full bg-[#7C3AED]/20 blur-[100px] motion-reduce:animate-none'
+					className='absolute -top-[10%] -left-[10%] w-[60%] h-[60%] rounded-full bg-violet-600/20 blur-[100px] motion-reduce:animate-none'
 				/>
 				<motion.div
 					animate={{
@@ -76,7 +76,7 @@ export default function SignInPage() {
 						ease: 'easeInOut',
 					}}
 					style={{ willChange: 'transform' }}
-					className='absolute top-[10%] -right-[10%] w-[50%] h-[50%] rounded-full bg-[#EC4899]/25 blur-[100px] motion-reduce:animate-none'
+					className='absolute top-[10%] -right-[10%] w-[50%] h-[50%] rounded-full bg-pink-500/25 blur-[100px] motion-reduce:animate-none'
 				/>
 				<motion.div
 					animate={{
@@ -89,7 +89,7 @@ export default function SignInPage() {
 						ease: 'easeInOut',
 					}}
 					style={{ willChange: 'transform' }}
-					className='absolute -bottom-[20%] left-[10%] w-[70%] h-[70%] rounded-full bg-[#6366F1]/15 blur-[120px] motion-reduce:animate-none'
+					className='absolute -bottom-[20%] left-[10%] w-[70%] h-[70%] rounded-full bg-indigo-500/15 blur-[120px] motion-reduce:animate-none'
 				/>
 			</div>
 			<div className='absolute top-0 left-0 w-full h-full -z-10 opacity-[0.03] pointer-events-none bg-[url("https://www.transparenttextures.com/patterns/cubes.png")]' />
@@ -107,8 +107,11 @@ export default function SignInPage() {
 					/>
 				</div>
 
-				<Card className='border-border/40 bg-card/80 backdrop-blur-xl shadow-2xl'>
-					<CardHeader className='pb-2 text-center'>
+				<Card variant='glass'>
+					<CardHeader
+						spacing='tight'
+						className='text-center'
+					>
 						<motion.div
 							initial={{ scale: 0.8 }}
 							animate={{ scale: 1 }}
@@ -117,8 +120,8 @@ export default function SignInPage() {
 						>
 							<Logo />
 						</motion.div>
-						<CardTitle className='text-3xl font-bold tracking-tight'>Welcome back</CardTitle>
-						<CardDescription className='text-base'>
+						<CardTitle variant='display'>Welcome back</CardTitle>
+						<CardDescription size='lg'>
 							Log in to your account or{' '}
 							<Link
 								href='/auth/signup'
@@ -128,7 +131,7 @@ export default function SignInPage() {
 							</Link>
 						</CardDescription>
 					</CardHeader>
-					<CardContent className='pt-6'>
+					<CardContent inset='top'>
 						<form
 							className='grid gap-6'
 							onSubmit={handleSignIn}
@@ -154,7 +157,7 @@ export default function SignInPage() {
 
 							<div className='relative'>
 								<div className='absolute inset-0 flex items-center'>
-									<Separator className='w-full border-border/60' />
+									<Separator className='w-full' />
 								</div>
 								<div className='relative flex justify-center text-xs uppercase'>
 									<span className='bg-card px-3 text-muted-foreground font-medium'>Or continue with email</span>
@@ -165,7 +168,7 @@ export default function SignInPage() {
 								<div className='grid gap-2'>
 									<Label
 										htmlFor='email'
-										className='text-sm font-semibold ml-1'
+										className='ml-1'
 									>
 										Email address
 									</Label>
@@ -182,7 +185,8 @@ export default function SignInPage() {
 											value={email}
 											onChange={e => setEmail(e.target.value)}
 											placeholder='name@example.com'
-											className='pl-10 h-11 bg-background/50 border-border/50 focus:border-primary/50 transition-colors rounded-xl shadow-xs'
+											size='lg'
+											className='pl-10'
 										/>
 									</div>
 								</div>
@@ -190,7 +194,6 @@ export default function SignInPage() {
 									<div className='flex items-center justify-between ml-1'>
 										<Label
 											htmlFor='password'
-											className='text-sm font-semibold'
 										>
 											Password
 										</Label>
@@ -215,7 +218,8 @@ export default function SignInPage() {
 											value={password}
 											onChange={e => setPassword(e.target.value)}
 											placeholder='••••••••••••'
-											className='pl-10 h-11 bg-background/50 border-border/50 focus:border-primary/50 transition-colors rounded-xl shadow-xs'
+											size='lg'
+											className='pl-10'
 										/>
 									</div>
 								</div>
@@ -225,7 +229,8 @@ export default function SignInPage() {
 								type='submit'
 								variant='outline'
 								disabled={loading}
-								className='w-full h-11 text-base font-semibold transition-transform hover:scale-[1.01] active:scale-[0.99] rounded-xl'
+								size='primary'
+								className='w-full'
 							>
 								{loading ? (
 									<div className='flex items-center gap-2'>

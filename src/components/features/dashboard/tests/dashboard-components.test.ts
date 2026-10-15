@@ -8,7 +8,6 @@ import { DashboardLoadError } from '@/components/features/dashboard/dashboard-lo
 import { GroupsSectionCard } from '@/components/features/dashboard/groups-section-card'
 import { HistorySectionCard } from '@/components/features/dashboard/history-section-card'
 import { HeroSurface } from '@/components/features/dashboard/hero-surface'
-import { MobileSessionBar } from '@/components/features/dashboard/mobile-session-bar'
 import { NoSessionBanner } from '@/components/features/dashboard/no-session-banner'
 import { ReceiptsSectionCard } from '@/components/features/dashboard/receipts-section-card'
 import { UpNextList } from '@/components/features/dashboard/up-next-list'
@@ -98,7 +97,8 @@ describe('NoSessionBanner', () => {
 		expect(html).toContain('Your lists')
 		expect(html).toContain('data-testid="dashboard-quick-start-l2"')
 		expect(html).not.toContain('data-testid="dashboard-quick-start-l1"')
-		expect(html).toContain('min-h-9')
+		// The shortcuts are real buttons: the size and the shape come from the props.
+		expect(html).toContain('data-variant="on-dark" data-size="primary" data-rounded="full"')
 	})
 
 	it('shows no shortcuts when the only list is the one the button starts', () => {
@@ -120,9 +120,8 @@ describe('NoSessionBanner', () => {
 
 		expect(html).toContain('Start with a receipt')
 		expect(html).toContain('Upload Receipt')
-		expect(html).toContain('data-size="xl"')
-		expect(html).toContain('rounded-[12px]')
-		expect(html).toContain('md:h-[52px]')
+		expect(html).toContain('data-size="2xl"')
+		expect(html).toContain('data-variant="hero"')
 		expect(html).not.toContain('Your lists')
 		expect(html).not.toContain('Last shopping session')
 	})
@@ -149,29 +148,8 @@ describe('UpNextList', () => {
 	})
 })
 
-describe('MobileSessionBar', () => {
-	it('keeps the trip progress and the continue action in a bar that only exists on phones', () => {
-		const html = renderToStaticMarkup(createElement(MobileSessionBar, { session }))
-
-		expect(html).toContain('data-testid="dashboard-mobile-session-bar"')
-		expect(html).toContain('lg:hidden')
-		expect(html).toContain('3 of 19 items · 16%')
-		expect(html).toContain('href="/shopping/s1"')
-		expect(html).toContain('Continue<span class="sr-only"> Shopping</span>')
-	})
-
-	it('floats above the tab bar and stays visible next to the hero button, as in design A1', () => {
-		const html = renderToStaticMarkup(createElement(MobileSessionBar, { session }))
-
-		expect(html).toContain('fixed')
-		expect(html).toContain('bottom-[calc(3rem+max(1.125rem,env(safe-area-inset-bottom)))]')
-		expect(html).not.toContain('aria-hidden="true" inert')
-		expect(html).not.toContain('translate-y-full')
-	})
-})
-
 describe('DashboardView', () => {
-	it('shows the active-session hero and the fixed phone bar while a trip is running', () => {
+	it('shows the active-session hero while a trip is running (the phone bar is the layout’s, on every screen)', () => {
 		const html = renderToStaticMarkup(
 			createElement(DashboardView, {
 				firstName: 'Javier',
@@ -183,19 +161,28 @@ describe('DashboardView', () => {
 		)
 
 		expect(html).toContain('dashboard-active-session-banner')
-		expect(html).toContain('dashboard-mobile-session-bar')
+		expect(html).not.toContain('dashboard-mobile-session-bar')
 		expect(html).not.toContain('dashboard-no-session-banner')
 	})
 
-	it('shows the next-trip hero, the three sections and no phone bar when nothing is running', () => {
+	it('shows the next-trip hero and the three sections when nothing is running', () => {
 		const html = renderToStaticMarkup(createElement(DashboardView, { firstName: 'Javier', hasLists: true, model: modelWith() }))
 
 		expect(html).toContain('dashboard-no-session-banner')
 		expect(html).toContain('data-testid="dashboard-groups-card"')
 		expect(html).toContain('data-testid="dashboard-receipts-card"')
 		expect(html).toContain('data-testid="dashboard-history-card"')
-		expect(html).not.toContain('dashboard-mobile-session-bar')
 		expect(html).toContain('Hi, Javier')
+	})
+
+	it('does not offer Start on any list while a shopping session is running', () => {
+		const groups = [{ id: 'g1', name: 'Walmart', description: null, listsCount: 1, lists: [{ id: 'l1', name: 'NO frills', itemsCount: 28 }], hiddenListsCount: 0 }]
+
+		expect(renderToStaticMarkup(createElement(GroupsSectionCard, { groups }))).toContain('start-shopping-button')
+
+		const running = renderToStaticMarkup(createElement(GroupsSectionCard, { groups, sessionActive: true }))
+		expect(running).toContain('dashboard-list-l1')
+		expect(running).not.toContain('start-shopping-button')
 	})
 
 	it('nests each group’s lists under it and offers an empty-state for sections without data', () => {
@@ -217,7 +204,7 @@ describe('section cards', () => {
 		expect(html).not.toContain('Upload Receipt')
 		expect(html).toContain('data-testid="dashboard-receipts-view-all"')
 		expect(html).toContain('View All<span class="sr-only"> receipts</span>')
-		expect(html).toContain('min-h-8 shrink-0 items-center gap-1 rounded-[12px] pr-2 pl-2.5 text-xs')
+		expect(html).toContain('data-variant="ghost-primary" data-size="sm"')
 		expect(html.indexOf('dashboard-receipts-view-all')).toBeLessThan(html.indexOf('dashboard-receipt-t1'))
 	})
 
@@ -226,7 +213,8 @@ describe('section cards', () => {
 		const groups = renderToStaticMarkup(createElement(GroupsSectionCard, { groups: [] }))
 
 		expect(receipts).toContain('data-testid="dashboard-receipts-empty"')
-		expect(receipts).toContain('h-8 w-auto rounded-[12px] px-3 text-xs font-semibold md:h-11 md:px-4.5 md:text-sm')
+		expect(receipts).toContain('data-size="primary"')
+		expect(receipts).toContain('w-auto')
 		expect(receipts).toContain('No receipts yet')
 		expect(receipts.indexOf('No receipts yet')).toBeLessThan(receipts.indexOf('Upload Receipt'))
 		expect(groups.indexOf('No groups yet')).toBeLessThan(groups.indexOf('data-testid="create-group-button"'))

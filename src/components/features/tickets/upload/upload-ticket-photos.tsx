@@ -5,7 +5,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { Add01Icon, Alert02Icon, Cancel01Icon, Loading03Icon, Upload06Icon } from '@hugeicons/core-free-icons'
 
 import { MAX_TICKET_IMAGE_MB } from '@/lib/config/limits'
-import { cn } from '@/utils'
+import { Button } from '@/components/ui/button'
 
 import { rejectionMessage } from './helpers/classify-photo'
 import type { PhotoPreview, PhotoRejection } from './hooks/use-photo-picker'
@@ -20,9 +20,6 @@ interface Props {
 	onRemove: (id: string) => void
 	onDismissRejection: (id: string) => void
 }
-
-const DROP_TILE =
-	'flex w-full flex-col items-center justify-center gap-2 rounded-[16px] border-2 border-dashed border-slate-300 text-center transition-colors hover:border-blue-400 hover:bg-blue-50/50 focus-visible:border-blue-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 disabled:pointer-events-none disabled:opacity-50 dark:border-border dark:hover:bg-muted'
 
 /** The photo field of the upload form: the way in (click or drop), the photos chosen, and what was left out and why. */
 export function UploadTicketPhotos({ previews, rejections, max, uploading, onAdd, onRemove, onDismissRejection }: Props) {
@@ -53,7 +50,7 @@ export function UploadTicketPhotos({ previews, rejections, max, uploading, onAdd
 							key={photo.id}
 							className='relative aspect-[3/4]'
 						>
-							<div className='size-full overflow-hidden rounded-[12px] bg-slate-100 dark:bg-muted'>
+							<div className='size-full overflow-hidden rounded-xl bg-slate-100 dark:bg-muted'>
 								{/* eslint-disable-next-line @next/next/no-img-element -- a local object URL preview */}
 								<img
 									src={photo.url}
@@ -64,7 +61,7 @@ export function UploadTicketPhotos({ previews, rejections, max, uploading, onAdd
 							{uploading ? (
 								<span
 									aria-hidden='true'
-									className='absolute inset-0 flex items-center justify-center rounded-[12px] bg-slate-900/45 text-white'
+									className='absolute inset-0 flex items-center justify-center rounded-xl bg-slate-900/45 text-white'
 								>
 									<HugeiconsIcon
 										icon={Loading03Icon}
@@ -93,12 +90,15 @@ export function UploadTicketPhotos({ previews, rejections, max, uploading, onAdd
 					))}
 					{!full && !uploading ? (
 						<li className='aspect-[3/4]'>
-							<button
+							<Button
 								type='button'
 								onClick={() => inputRef.current?.click()}
 								onDrop={handleDrop}
 								onDragOver={event => event.preventDefault()}
-								className={cn(DROP_TILE, 'h-full text-sm font-semibold text-blue-700 dark:text-blue-400')}
+								variant='dropzone'
+								size='block'
+								rounded='2xl'
+								className='h-full w-full'
 							>
 								<HugeiconsIcon
 									icon={Add01Icon}
@@ -106,19 +106,22 @@ export function UploadTicketPhotos({ previews, rejections, max, uploading, onAdd
 									className='size-5'
 								/>
 								Add More
-							</button>
+							</Button>
 						</li>
 					) : null}
 				</ul>
 			) : (
-				<button
+				<Button
 					type='button'
 					onClick={() => inputRef.current?.click()}
 					onDrop={handleDrop}
 					onDragOver={event => event.preventDefault()}
-					className={cn(DROP_TILE, 'min-h-36 px-4 py-6')}
+					variant='dropzone'
+					size='block'
+					rounded='2xl'
+					className='min-h-36 w-full'
 				>
-					<span className='flex size-10 items-center justify-center rounded-[12px] bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300'>
+					<span className='flex size-10 items-center justify-center rounded-xl bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300'>
 						<HugeiconsIcon
 							icon={Upload06Icon}
 							strokeWidth={1.8}
@@ -135,7 +138,7 @@ export function UploadTicketPhotos({ previews, rejections, max, uploading, onAdd
 					<span className='max-w-[26ch] text-xs leading-normal text-slate-500 dark:text-muted-foreground'>
 						Up to {max} photos · PNG or JPG (no HEIC) · {MAX_TICKET_IMAGE_MB} MB each
 					</span>
-				</button>
+				</Button>
 			)}
 
 			{rejections.map(rejection => {
@@ -145,29 +148,31 @@ export function UploadTicketPhotos({ previews, rejections, max, uploading, onAdd
 						key={rejection.id}
 						role='alert'
 						data-testid='upload-ticket-rejection'
-						className='flex items-start gap-2.5 rounded-[12px] bg-red-50 py-3 pr-1.5 pl-3 text-red-900 dark:bg-red-950/60 dark:text-red-200'
+						className='flex items-start gap-2.5 rounded-xl bg-red-50 py-3 pr-1.5 pl-3 text-red-900 dark:bg-red-950/60 dark:text-red-200'
 					>
 						<HugeiconsIcon
 							icon={Alert02Icon}
 							strokeWidth={1.8}
-							className='mt-0.5 size-[18px] shrink-0 text-red-700 dark:text-red-400'
+							className='mt-0.5 size-4.5 shrink-0 text-red-700 dark:text-red-400'
 						/>
 						<div className='flex min-w-0 flex-1 flex-col gap-0.5'>
-							<span className='font-mono text-[13px] leading-snug font-semibold break-all'>{message.title}</span>
-							<span className='text-[13px] leading-snug'>{message.hint}</span>
+							<span className='font-mono text-xs leading-snug font-semibold break-all'>{message.title}</span>
+							<span className='text-xs leading-snug'>{message.hint}</span>
 						</div>
-						<button
+						<Button
 							type='button'
 							onClick={() => onDismissRejection(rejection.id)}
 							aria-label={`Dismiss message about ${rejection.name}`}
-							className='flex size-11 shrink-0 items-center justify-center rounded-[12px] text-red-700 hover:bg-red-100 focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:outline-none dark:text-red-300 dark:hover:bg-red-900/50'
+							variant='destructive-ghost'
+							size='icon-xl'
+							className='shrink-0'
 						>
 							<HugeiconsIcon
 								icon={Cancel01Icon}
 								strokeWidth={1.8}
 								className='size-4'
 							/>
-						</button>
+						</Button>
 					</div>
 				)
 			})}

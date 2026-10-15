@@ -1,6 +1,6 @@
 'use client'
 
-import { type ReactNode, useEffect, useState } from 'react'
+import { type ComponentProps, type ReactNode, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 
@@ -14,7 +14,7 @@ type Props = {
 }
 
 export default function AuthButtons({ signedOut }: Props) {
-	const [user, setUser] = useState<any>(null)
+	const [user, setUser] = useState<ComponentProps<typeof UserNav>['user'] | null>(null)
 	const [loading, setLoading] = useState(true)
 
 	useEffect(() => {
@@ -23,7 +23,7 @@ export default function AuthButtons({ signedOut }: Props) {
 		const getUser = async () => {
 			const { data } = await supabase.auth.getClaims()
 			const user = data?.claims
-			setUser(user)
+			setUser(user ?? null)
 			setLoading(false)
 		}
 
@@ -56,8 +56,10 @@ export default function AuthButtons({ signedOut }: Props) {
 				// Only show Sign Up when not authenticated
 				<div className='flex items-center gap-4'>
 					<Button
-						size={'sm'}
-						className='bg-primary text-primary-foreground hover:bg-primary/90'
+						size='sm'
+						rounded='md'
+						// The landing header keeps the lighter weight and the 4px corner it had before the app's A1 buttons.
+						weight='medium'
 					>
 						<Link
 							href='/auth/signup'

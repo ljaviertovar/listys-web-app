@@ -55,7 +55,7 @@ export default async function AccountPage() {
 								description='Core account metadata'
 							/>
 						</CardHeader>
-						<CardContent className='space-y-4'>
+						<CardContent space='stack'>
 							<div className='flex items-center justify-between gap-3 rounded-xl border border-border/70 bg-muted/20 p-3'>
 								<div className='flex items-center gap-2 text-sm text-muted-foreground'>
 									<HugeiconsIcon
@@ -120,7 +120,7 @@ export default async function AccountPage() {
 								description='Authentication and verification status'
 							/>
 						</CardHeader>
-						<CardContent className='space-y-4'>
+						<CardContent space='stack'>
 							<div className='rounded-xl border border-primary/20 bg-gradient-to-b from-primary/5 to-background p-3'>
 								<div className='flex items-center justify-between gap-2'>
 									<div className='flex items-center gap-2 text-sm font-medium'>

@@ -1,162 +1,62 @@
 'use client'
 
-import { useState, type ComponentProps, type ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { createGroup } from '@/lib/api/endpoints'
-import { createGroupSchema, type CreateGroupInput } from '@/lib/validations/group'
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { HugeiconsIcon } from '@hugeicons/react'
-import { PlusSignIcon, Loading03Icon } from '@hugeicons/core-free-icons'
 import { toast } from 'sonner'
+import { HugeiconsIcon } from '@hugeicons/react'
+import { PlusSignIcon } from '@hugeicons/core-free-icons'
 
-interface Props {
-	/** Lets a surface that already has a primary action demote this trigger to a secondary one. */
-	variant?: ComponentProps<typeof Button>['variant']
-	className?: string
-	/** Replaces the default plus icon and "New Group" label inside the trigger button. */
-	children?: ReactNode
-}
+import { Button, type ButtonProps } from '@/components/ui/button'
+import { CreateEntitySheet, type EntityEditValues } from '@/components/commons'
+import { createGroup } from '@/lib/api/endpoints'
 
-export function CreateGroupDialog({ variant, className, children }: Props = {}) {
-	const [open, setOpen] = useState(false)
-	const [loading, setLoading] = useState(false)
+/** The trigger is a regular `Button`: `size`, `variant`, `className`… go straight to it. `children` replaces the plus icon and "New Group" label. */
+type Props = ButtonProps
+
+/** "New Group": the sheet that creates a group of shopping lists. */
+export function CreateGroupDialog({ children, ...buttonProps }: Props = {}) {
 	const router = useRouter()
 
-	const {
-		register,
-		handleSubmit,
-		formState: { errors },
-		reset,
-	} = useForm<CreateGroupInput>({
-		resolver: zodResolver(createGroupSchema),
-	})
-
-	const onSubmit = async (data: CreateGroupInput) => {
-		setLoading(true)
-
+	const handleCreate = async ({ name, second }: EntityEditValues) => {
 		try {
-			const { error } = await createGroup(data)
-
+			const { error } = await createGroup({ name: name.trim(), description: second.trim() || undefined })
 			if (error) throw new Error(error)
-
 			toast.success('Group created successfully')
-			setOpen(false)
-			reset()
 			router.refresh()
 		} catch (err) {
-			const message = err instanceof Error ? err.message : 'Failed to create group'
-			toast.error(message)
-		} finally {
-			setLoading(false)
+			toast.error(err instanceof Error ? err.message : 'Failed to create group')
+			throw err
 		}
 	}
 
 	return (
-		<Dialog
-			open={open}
-			onOpenChange={isOpen => !loading && setOpen(isOpen)}
-		>
-			<DialogTrigger asChild>
+		<CreateEntitySheet
+			trigger={
 				<Button
-					variant={variant}
-					className={className ?? 'w-full'}
+					size='primary'
+					{...buttonProps}
 					data-testid='create-group-button'
 				>
 					{children ?? (
 						<>
 							<HugeiconsIcon
 								icon={PlusSignIcon}
-								strokeWidth={2}
+								strokeWidth={1.8}
 								data-icon='inline-start'
 							/>
 							New Group
 						</>
 					)}
 				</Button>
-			</DialogTrigger>
-			<DialogContent
-				onOpenAutoFocus={e => e.preventDefault()}
-				className='w-11/12'
-			>
-				<DialogHeader>
-					<DialogTitle className='truncate font-bold tracking-tight text-foreground'>Create New Group</DialogTitle>
-					<DialogDescription>Add a new group to organize your shopping lists</DialogDescription>
-				</DialogHeader>
-				<form onSubmit={handleSubmit(onSubmit)}>
-					<div className='space-y-4'>
-						<div className='space-y-2'>
-							<Label htmlFor='name'>
-								Name <span className='text-destructive'>*</span>
-							</Label>
-							<Input
-								id='name'
-								{...register('name')}
-								placeholder='e.g., Groceries, Household'
-								disabled={loading}
-								className='text-base'
-								required
-							/>
-							{errors.name && <p className='text-xs text-destructive'>{errors.name.message}</p>}
-						</div>
-						<div className='space-y-2'>
-							<Label htmlFor='description'>Description</Label>
-							<Textarea
-								id='description'
-								{...register('description')}
-								placeholder='Add a description for this group'
-								rows={3}
-								disabled={loading}
-								className='text-base'
-							/>
-							{errors.description && <p className='text-xs text-destructive'>{errors.description.message}</p>}
-						</div>
-						<p className='text-xs text-muted-foreground'>
-							<span className='text-destructive'>*</span> Required fields
-						</p>
-					</div>
-					<DialogFooter className='mt-6 gap-4 flex-row'>
-						<Button
-							type='button'
-							variant='outline'
-							onClick={() => setOpen(false)}
-							disabled={loading}
-							className='flex-1'
-						>
-							Cancel
-						</Button>
-						<Button
-							type='submit'
-							disabled={loading}
-							className='flex-1'
-							data-testid='submit-group-button'
-						>
-							{loading && (
-								<HugeiconsIcon
-									icon={Loading03Icon}
-									strokeWidth={2}
-									className='h-4 w-4 animate-spin'
-									data-icon='inline-start'
-								/>
-							)}
-							{loading ? 'Creating…' : 'Create'}
-						</Button>
-					</DialogFooter>
-				</form>
-			</DialogContent>
-		</Dialog>
+			}
+			title='Create New Group'
+			description='Add a new group to organize your shopping lists.'
+			namePlaceholder='e.g. Groceries, Household'
+			secondLabel='Description'
+			secondPlaceholder='Add a description for this group'
+			secondMax={500}
+			submitLabel='Create Group'
+			onCreate={handleCreate}
+			testId='create-group-sheet'
+		/>
 	)
 }

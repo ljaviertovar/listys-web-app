@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, type ComponentProps, type ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -15,7 +15,8 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
+import { Button, type ButtonProps } from '@/components/ui/button'
+import { cn } from '@/utils'
 
 // Lazy load UploadTicketForm since it contains heavy FileReader and image processing
 const UploadTicketForm = dynamic(
@@ -26,11 +27,8 @@ const UploadTicketForm = dynamic(
 	},
 )
 
-interface Props {
-	/** Lets a surface that already has a primary action demote this trigger to a secondary one. */
-	variant?: ComponentProps<typeof Button>['variant']
-	size?: ComponentProps<typeof Button>['size']
-	className?: string
+/** The default trigger is a regular `Button`: `size`, `variant`, `className`… go straight to it. */
+interface Props extends Omit<ButtonProps, 'children'> {
 	/** Text of the default trigger; "Upload Receipt" unless a surface asks for something more specific. */
 	label?: string
 	/**
@@ -47,14 +45,13 @@ interface Props {
 
 /** The upload form: a bottom sheet on phones and a centred dialog from `sm`. */
 export function UploadTicketDialog({
-	variant,
-	size,
 	className,
 	label = 'Upload Receipt',
 	trigger,
 	open: controlledOpen,
 	onOpenChange,
 	initialFiles,
+	...buttonProps
 }: Props = {}) {
 	const [ownOpen, setOwnOpen] = useState(false)
 	const router = useRouter()
@@ -75,9 +72,9 @@ export function UploadTicketDialog({
 				<DialogTrigger asChild>
 					{trigger ?? (
 						<Button
-							variant={variant}
-							size={size}
-							className={className ?? 'w-full'}
+							size='primary'
+							{...buttonProps}
+							className={cn('w-full', className)}
 						>
 							<HugeiconsIcon
 								icon={Upload06Icon}
@@ -94,24 +91,29 @@ export function UploadTicketDialog({
 				sheetOnPhones
 				data-testid='upload-ticket-dialog'
 				onOpenAutoFocus={e => e.preventDefault()}
-				className='gap-5 rounded-[28px] border-0 p-5 sm:max-w-[520px] sm:p-6 max-sm:pb-[max(1.5rem,env(safe-area-inset-bottom))]'
+				variant='sheet'
+				className='sm:max-w-[520px]'
 			>
-				<DialogHeader className='relative gap-1 pr-12 text-left'>
-					<DialogTitle className='font-display text-xl leading-[1.3] font-semibold tracking-[-0.015em] text-foreground'>
+				<DialogHeader variant='sheet'>
+					<DialogTitle variant='sheet'>
 						Upload Receipt
 					</DialogTitle>
-					<DialogDescription className='text-sm leading-normal text-slate-500 dark:text-muted-foreground'>
+					<DialogDescription variant='sheet'>
 						Upload photos of your shopping receipt. We&apos;ll extract the items automatically.
 					</DialogDescription>
-					<DialogClose
-						aria-label='Close'
-						className='absolute -top-1.5 -right-2 flex size-11 items-center justify-center rounded-[12px] text-slate-600 transition-colors hover:bg-[#E9ECF0] focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none dark:hover:bg-muted'
-					>
-						<HugeiconsIcon
-							icon={Cancel01Icon}
-							strokeWidth={1.8}
-							className='size-5'
-						/>
+					<DialogClose asChild>
+						<Button
+							aria-label='Close'
+							variant='quiet'
+							size='icon-xl'
+							className='absolute -top-1.5 -right-2'
+						>
+							<HugeiconsIcon
+								icon={Cancel01Icon}
+								strokeWidth={1.8}
+								className='size-5'
+							/>
+						</Button>
 					</DialogClose>
 				</DialogHeader>
 				<UploadTicketForm

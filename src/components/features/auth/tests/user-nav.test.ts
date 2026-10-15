@@ -27,7 +27,7 @@ describe('UserNav trigger', () => {
 		const html = render()
 
 		expect(html).toContain('>JT<')
-		expect(html).toContain('data-[state=open]:bg-[#E9ECF0]')
+		expect(html).toContain('data-[state=open]:bg-secondary')
 		expect(html).toContain('aria-expanded="false"')
 	})
 })

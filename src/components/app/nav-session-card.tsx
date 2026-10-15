@@ -19,13 +19,13 @@ export function NavSessionCard({ sessionId, name, progress, onNavigate }: Props)
 			href={`/shopping/${sessionId}`}
 			onClick={onNavigate}
 			data-testid='nav-active-session'
-			className='flex flex-col gap-2.5 rounded-[10px] bg-blue-50 p-3.5 text-foreground dark:bg-primary/10'
+			className='flex flex-col gap-2.5 rounded-lg bg-blue-50 p-3.5 text-foreground dark:bg-primary/10'
 		>
 			<span className='flex items-center justify-between gap-2'>
-				<span className='inline-flex items-center gap-1.5 text-[11px] leading-none font-semibold tracking-[0.08em] text-blue-700 uppercase dark:text-primary'>
+				<span className='inline-flex items-center gap-1.5 text-xs leading-none font-semibold tracking-[0.08em] text-blue-700 uppercase dark:text-primary'>
 					<span
 						aria-hidden='true'
-						className='size-[7px] rounded-full bg-green-500'
+						className='size-2 rounded-full bg-green-500'
 					/>
 					Shopping now
 				</span>
@@ -35,12 +35,12 @@ export function NavSessionCard({ sessionId, name, progress, onNavigate }: Props)
 					</span>
 				) : null}
 			</span>
-			<span className='truncate font-display text-[14.5px] leading-tight font-bold'>{name || 'Current shopping'}</span>
+			<span className='truncate font-display text-sm leading-tight font-bold'>{name || 'Current shopping'}</span>
 			<Progress
 				value={percent}
 				aria-label='Items collected in this shopping session'
-				className='h-1.5 bg-blue-100 dark:bg-primary/20'
-				indicatorClassName='bg-primary'
+				size='sm'
+				tone='soft'
 			/>
 		</Link>
 	)

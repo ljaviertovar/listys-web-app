@@ -10,14 +10,15 @@ import { DashboardRow } from './dashboard-row'
 import { DashboardSectionCard } from './dashboard-section-card'
 import { RowIcon } from './row-icon'
 import { pluralize, type GroupPreview } from './helpers/build-dashboard-model'
-import { EMPTY_STATE_ACTION, FOCUS_RING, START_ACTION } from './helpers/dashboard-styles'
 
 interface Props {
 	groups: GroupPreview[]
+	/** A shopping session is running, so no list can start another one: the "Start" buttons are not drawn. */
+	sessionActive?: boolean
 }
 
 /** Shopping List Groups: each group with the lists inside it, so the group → list → start path is visible at a glance. */
-export function GroupsSectionCard({ groups }: Props) {
+export function GroupsSectionCard({ groups, sessionActive = false }: Props) {
 	return (
 		<DashboardSectionCard
 			testId='dashboard-groups-card'
@@ -32,11 +33,11 @@ export function GroupsSectionCard({ groups }: Props) {
 					title='No groups yet.'
 					message='Create one for each store you shop at, like Walmart or Costco.'
 					action={
-						<CreateGroupDialog className={EMPTY_STATE_ACTION}>
+						<CreateGroupDialog>
 							<HugeiconsIcon
 								icon={PlusSignIcon}
 								strokeWidth={1.8}
-								className='size-[18px]'
+								className='size-4.5'
 							/>
 							New Group
 						</CreateGroupDialog>
@@ -78,7 +79,7 @@ export function GroupsSectionCard({ groups }: Props) {
 										/>
 										<Link
 											href={`/base-lists/${list.id}/edit`}
-											className={cn('-my-1.5 flex min-h-11 min-w-0 flex-1 items-center rounded-md text-sm text-slate-700 hover:underline dark:text-foreground/80', FOCUS_RING)}
+											className='-my-1.5 flex min-h-11 min-w-0 flex-1 items-center rounded-md text-sm text-slate-700 hover:underline dark:text-foreground/80 focus-ring'
 										>
 											<span>
 												{list.name} <span className='text-slate-400'>· {pluralize(list.itemsCount, 'item')}</span>
@@ -88,7 +89,10 @@ export function GroupsSectionCard({ groups }: Props) {
 											baseListId={list.id}
 											baseListName={list.name}
 											itemsCount={list.itemsCount}
-											className={START_ACTION}
+											sessionActive={sessionActive}
+											variant='secondary'
+											size='sm'
+											className='w-auto'
 										>
 											Start
 										</StartShoppingDialog>
@@ -100,7 +104,7 @@ export function GroupsSectionCard({ groups }: Props) {
 											href={`/shopping-lists/${group.id}/lists`}
 											className={cn(
 												'inline-flex min-h-9 items-center rounded-md text-sm font-medium text-slate-500 hover:text-blue-700 hover:underline',
-												FOCUS_RING,
+												'focus-ring',
 											)}
 										>
 											+ {group.hiddenListsCount} more in {group.name}

@@ -33,10 +33,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			variant='floating'
 			{...props}
 		>
-			<SidebarHeader className='bg-card p-2'>
+			<SidebarHeader>
 				<SidebarBrand />
 			</SidebarHeader>
-			<SidebarContent className='bg-card gap-3 p-2'>
+			<SidebarContent>
 				{SIDEBAR_DATA.navGroups.map(props => (
 					<NavGroup
 						key={props.title}
@@ -45,7 +45,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 					/>
 				))}
 			</SidebarContent>
-			<SidebarFooter className='bg-card gap-3 p-2'>
+			<SidebarFooter>
 				{activeSession ? (
 					<NavSessionCard
 						sessionId={activeSession.id}
@@ -53,7 +53,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 						progress={summary.progress}
 					/>
 				) : null}
-				<AppSidebarFooter className='p-0 px-2 pt-1 pb-1.5 text-[12.5px] text-slate-500' />
+				<AppSidebarFooter />
 			</SidebarFooter>
 		</Sidebar>
 	)

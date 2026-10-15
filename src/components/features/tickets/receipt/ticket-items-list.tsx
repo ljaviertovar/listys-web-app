@@ -1,18 +1,13 @@
 'use client'
 
 import { useMemo, useId } from 'react'
-import { HugeiconsIcon } from '@hugeicons/react'
-import { ArrowDown01Icon } from '@hugeicons/core-free-icons'
 
 import { Checkbox } from '@/components/ui/checkbox'
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
-import { FOCUS_RING } from '@/components/app/helpers/a1-surface'
-import { cn, formatCurrency } from '@/utils'
+import { CategorySection } from '@/components/commons'
+import { formatCurrency, formatItemName } from '@/utils'
 import type { TicketItem } from '@/types'
 
 import { groupTicketItems } from './helpers/group-ticket-items'
-import { getTicketCategoryIcon } from './helpers/ticket-category-icon'
-import { formatItemName } from './helpers/format-item-name'
 import type { TicketSelection } from './hooks/use-ticket-selection'
 import type { TicketItemGroup } from './helpers/group-ticket-items'
 
@@ -40,7 +35,7 @@ export function TicketItemsList({ items, selection, canSelect }: TicketItemsList
 							checked={checkAll}
 							onCheckedChange={selection.toggleAll}
 							aria-label='Select all items'
-							className='size-[22px] rounded-[7px] border-slate-400 bg-white dark:bg-transparent'
+							size='lg'
 						/>
 					</span>
 					<span
@@ -71,63 +66,31 @@ interface TicketCategorySectionProps {
 	defaultOpen: boolean
 }
 
-/** A category of the receipt that folds away: its icon and name, how many items it holds, and its rows on a soft surface. */
+/** A category of the receipt that folds away: its coloured icon and name, how many items it holds, and its rows on a soft surface. */
 export function TicketCategorySection({ group, selection, canSelect, defaultOpen }: TicketCategorySectionProps) {
 	const count = group.items.length
 
 	return (
-		<Collapsible
+		<CategorySection
+			category={group.key}
+			title={group.title}
+			count={`${count} ${count === 1 ? 'item' : 'items'}`}
 			defaultOpen={defaultOpen}
-			data-testid={`ticket-category-${group.key}`}
-			className='group/category border-t border-slate-100 pb-0 data-[state=open]:pb-2.5 dark:border-border'
+			testId={`ticket-category-${group.key}`}
 		>
-			<h3 className='m-0'>
-				<CollapsibleTrigger
-					className={cn(
-						'flex min-h-[52px] w-full items-center gap-3 rounded-[12px] text-left',
-						FOCUS_RING,
-					)}
-				>
-					<span className='flex size-8 shrink-0 items-center justify-center rounded-[10px] bg-[#EEF1F5] text-slate-600 dark:bg-muted dark:text-muted-foreground'>
-						<HugeiconsIcon
-							icon={getTicketCategoryIcon(group.key)}
-							strokeWidth={1.5}
-							className='size-[18px]'
+			<ul className='divide-y divide-slate-200/70 dark:divide-border'>
+				{group.items.map(item => (
+					<li key={item.id}>
+						<TicketItemRow
+							item={item}
+							canSelect={canSelect}
+							selected={selection.isSelected(item.id)}
+							onSelectToggle={selection.toggle}
 						/>
-					</span>
-					<span className='min-w-0 flex-1 truncate font-display text-[15px] leading-[1.3] font-semibold tracking-[-0.005em]'>
-						{group.title}
-					</span>
-					<span className='font-mono text-xs font-medium text-slate-500 tabular-nums dark:text-muted-foreground'>
-						{count} {count === 1 ? 'item' : 'items'}
-					</span>
-					<span
-						aria-hidden='true'
-						className='flex size-9 items-center justify-center text-slate-500'
-					>
-						<HugeiconsIcon
-							icon={ArrowDown01Icon}
-							strokeWidth={1.8}
-							className='size-[18px] transition-transform group-data-[state=closed]/category:-rotate-90 motion-reduce:transition-none'
-						/>
-					</span>
-				</CollapsibleTrigger>
-			</h3>
-			<CollapsibleContent>
-				<ul className='divide-y divide-slate-200/70 overflow-hidden rounded-2xl bg-[#F6F7F9] dark:divide-border dark:bg-muted/50'>
-					{group.items.map(item => (
-						<li key={item.id}>
-							<TicketItemRow
-								item={item}
-								canSelect={canSelect}
-								selected={selection.isSelected(item.id)}
-								onSelectToggle={selection.toggle}
-							/>
-						</li>
-					))}
-				</ul>
-			</CollapsibleContent>
-		</Collapsible>
+					</li>
+				))}
+			</ul>
+		</CategorySection>
 	)
 }
 
@@ -157,13 +120,13 @@ export function TicketItemRow({ item, canSelect = false, selected = false, onSel
 						checked={selected}
 						onCheckedChange={() => onSelectToggle?.(item.id)}
 						aria-label={name}
-						className='size-[22px] rounded-[7px] border-slate-400 bg-white dark:bg-transparent'
+						size='lg'
 					/>
 				</span>
 			) : null}
 			<span className='flex min-w-0 flex-1 flex-col items-start gap-1.5 pl-1 lg:contents'>
 				<span className='w-full truncate text-sm leading-[1.25] font-semibold lg:min-w-0 lg:flex-1'>{name}</span>
-				<span className='inline-flex h-[22px] items-center gap-1 rounded-[7px] bg-[#E9ECF0] px-2 text-xs leading-none font-medium text-slate-600 lg:shrink-0 dark:bg-muted dark:text-muted-foreground'>
+				<span className='inline-flex h-5.5 items-center gap-1 rounded-md bg-secondary px-2 text-xs leading-none font-medium text-slate-600 lg:shrink-0 dark:bg-muted dark:text-muted-foreground'>
 					<b className='font-mono font-semibold text-foreground tabular-nums'>{item.quantity ?? 1}</b>
 					{item.unit || 'unit'}
 				</span>

@@ -22,18 +22,18 @@ export function DashboardSkeleton() {
 			<span className='sr-only'>Loading your dashboard</span>
 			<div className='flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between'>
 				<div className='flex flex-col gap-2'>
-					<Skeleton className={cn('h-7 w-44 rounded-[8px]', LINE)} />
-					<Skeleton className={cn('h-[35px] w-72 max-w-full rounded-[8px]', LINE)} />
-					<Skeleton className={cn('h-5 w-full max-w-md rounded-[8px]', LINE)} />
+					<Skeleton className={cn('h-7 w-44 rounded-lg', LINE)} />
+					<Skeleton className={cn('h-9 w-72 max-w-full rounded-lg', LINE)} />
+					<Skeleton className={cn('h-5 w-full max-w-md rounded-lg', LINE)} />
 				</div>
-				<Skeleton className={cn('hidden h-11 w-44 rounded-[12px] lg:block', LINE)} />
+				<Skeleton className={cn('hidden h-11 w-44 rounded-xl lg:block', LINE)} />
 			</div>
 
 			<div className='grid items-stretch gap-6 lg:grid-cols-5'>
 				<Skeleton className={cn('h-[360px] rounded-3xl lg:col-span-3', LINE)} />
 				<div className='flex flex-col gap-3 lg:col-span-2'>
 					<div className='flex min-h-10 items-center'>
-						<Skeleton className={cn('h-5 w-24 rounded-[8px]', LINE)} />
+						<Skeleton className={cn('h-5 w-24 rounded-lg', LINE)} />
 					</div>
 					<Skeleton className={cn('h-[200px] rounded-3xl', CARD)} />
 				</div>
@@ -46,7 +46,7 @@ export function DashboardSkeleton() {
 						className={cn('flex flex-col gap-3', span)}
 					>
 						<div className='flex min-h-8 items-center md:min-h-10'>
-							<Skeleton className={cn('h-5 w-40 rounded-[8px]', LINE)} />
+							<Skeleton className={cn('h-5 w-40 rounded-lg', LINE)} />
 						</div>
 						<Skeleton className={cn('h-[260px] rounded-3xl', CARD)} />
 					</div>

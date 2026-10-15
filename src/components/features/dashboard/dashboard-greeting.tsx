@@ -37,13 +37,11 @@ export function DashboardGreeting({ name }: Props) {
 		>
 			{/* Always rendered so the page does not shift when the date resolves on the client. */}
 			<Badge
-				variant='pending'
+				// A white pill with a hairline ring, not a tinted one (design A1).
+				variant='outline'
+				size='lg'
 				data-testid='dashboard-date-badge'
-				className={cn(
-					// A white pill with a hairline ring, not a tinted one (design A1).
-					'h-7 gap-1.5 rounded-[8px] border-0 bg-card px-2.5 pl-2 text-[12.5px] text-slate-700 shadow-[0_0_0_1px_rgba(15,23,42,0.04),0_1px_2px_rgba(15,23,42,0.06)] dark:text-slate-200',
-					!now && 'invisible',
-				)}
+				className={cn(!now && 'invisible')}
 			>
 				<HugeiconsIcon
 					icon={Sun03Icon}
@@ -52,7 +50,7 @@ export function DashboardGreeting({ name }: Props) {
 				/>
 				{dateLabel || 'Today'}
 			</Badge>
-			<h1 className='font-display text-[30px] leading-[1.17] font-bold tracking-[-0.025em] text-balance md:text-[32px] lg:text-[34px]'>
+			<h1 className='font-display text-2xl leading-[1.17] font-bold tracking-tight text-balance md:text-3xl lg:text-4xl'>
 				{now ? `${greetingFor(now.getHours())}, ${name}` : `Hi, ${name}`}
 			</h1>
 			<p className='text-sm leading-normal text-slate-500 md:text-base dark:text-muted-foreground'>

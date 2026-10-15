@@ -21,7 +21,7 @@ export const Header = () => {
 			aria-hidden={isHidden}
 			inert={isHidden}
 			className={cn(
-				'absolute inset-x-0 top-0 z-50 flex h-15 items-center justify-between gap-2 border-b bg-card/88 pr-2 pl-4 backdrop-blur-lg backdrop-filter transition-[transform,box-shadow] duration-200 ease-[cubic-bezier(0.2,0,0,1)] motion-reduce:transition-none lg:static lg:h-16 lg:justify-start lg:gap-3 lg:border-b-0 lg:bg-[#F2F4F7] lg:pr-6 lg:pl-3 lg:backdrop-blur-none lg:dark:bg-sidebar',
+				'absolute inset-x-0 top-0 z-50 flex h-15 items-center justify-between gap-2 border-b bg-card/88 pr-2 pl-4 backdrop-blur-lg backdrop-filter transition-[transform,box-shadow] duration-200 ease-[cubic-bezier(0.2,0,0,1)] motion-reduce:transition-none lg:static lg:h-16 lg:justify-start lg:gap-3 lg:border-b-0 lg:bg-background lg:pr-6 lg:pl-3 lg:backdrop-blur-none lg:dark:bg-sidebar',
 				isHidden && '-translate-y-full pointer-events-none lg:translate-y-0 lg:pointer-events-auto',
 				isScrolled && 'shadow-sm lg:shadow-none',
 			)}
@@ -30,11 +30,14 @@ export const Header = () => {
 				data-testid='header-logo'
 				className='lg:hidden'
 			>
-				<Logo wordmarkClassName='font-display text-[19px] leading-none font-bold tracking-[-0.02em]' />
+				<Logo wordmarkClassName='font-display text-xl leading-none font-bold tracking-tight' />
 			</div>
 
 			<div className='hidden items-center gap-2 lg:flex'>
-				<SidebarTrigger className='size-9 rounded-[8px] text-foreground hover:bg-[#E9ECF0] hover:text-foreground dark:hover:bg-muted' />
+				<SidebarTrigger
+					size='icon'
+					rounded='lg'
+				/>
 				<span
 					aria-hidden='true'
 					className='mr-1.5 ml-0.5 h-4 w-px bg-slate-300 dark:bg-border'

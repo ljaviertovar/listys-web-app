@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation'
 
 import { PageHeader, PageContainer } from '@/components/app'
-import { SECONDARY_ACTION } from '@/components/app/helpers/a1-surface'
 import { TicketsList, UploadTicketDialog, type TicketsListItem } from '@/components/features/tickets'
 
 import { getTickets } from '@/lib/api/endpoints'
@@ -44,8 +43,8 @@ export default async function TicketsPage() {
 				{/* Phones upload from the tab bar's raised button, so this one only exists from `md`. */}
 				<div className='hidden md:block'>
 					<UploadTicketDialog
-						variant='outline'
-						className={SECONDARY_ACTION}
+						variant='secondary'
+						className='w-auto'
 					/>
 				</div>
 			</PageHeader>
@@ -54,7 +53,7 @@ export default async function TicketsPage() {
 				{error && (
 					<div
 						role='alert'
-						className='rounded-[12px] bg-destructive/10 p-4 text-sm text-destructive'
+						className='rounded-xl bg-destructive/10 p-4 text-sm text-destructive'
 					>
 						Error loading tickets: {error}
 					</div>

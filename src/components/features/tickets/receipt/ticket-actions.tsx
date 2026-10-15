@@ -7,7 +7,6 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { Delete02Icon, Refresh04Icon, Loading03Icon } from '@hugeicons/core-free-icons'
 
 import { Button } from '@/components/ui/button'
-import { cn } from '@/utils'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -21,9 +20,6 @@ import {
 } from '@/components/ui/alert-dialog'
 import { deleteTicket, retryTicketOCR } from '@/lib/api/endpoints'
 import type { Ticket } from '@/types'
-
-/** Full-width 48px actions of the receipt screen, 12px radius like every A1 control. */
-const ACTION_BUTTON = 'h-12 w-full rounded-[12px] font-display text-[15px] font-semibold'
 
 interface Props {
 	ticket: Ticket
@@ -103,13 +99,11 @@ export function TicketActions({ ticket, allowRetry = false }: Props) {
 		>
 			{showRetryButton && (
 				<Button
-					variant='outline'
+					variant='secondary'
+					size='primary'
 					onClick={handleRetry}
 					disabled={retrying}
-					className={cn(
-						ACTION_BUTTON,
-						'border-0 bg-[#E9ECF0] text-blue-700 shadow-none hover:bg-[#DEE2E8] dark:bg-muted dark:text-blue-300 dark:hover:bg-muted/80',
-					)}
+					className='w-full'
 				>
 					{retrying ? (
 						<HugeiconsIcon
@@ -132,8 +126,9 @@ export function TicketActions({ ticket, allowRetry = false }: Props) {
 			{(ticket.ocr_status !== 'processing' || isStuckProcessing) && (
 				<Button
 					variant='destructive-soft'
+					size='primary'
 					onClick={() => setShowDeleteDialog(true)}
-					className={ACTION_BUTTON}
+					className='w-full'
 				>
 					<HugeiconsIcon
 						icon={Delete02Icon}
@@ -150,14 +145,14 @@ export function TicketActions({ ticket, allowRetry = false }: Props) {
 			>
 				<AlertDialogContent size='sm'>
 					<AlertDialogHeader>
-						<AlertDialogMedia className='rounded-lg bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive'>
+						<AlertDialogMedia tone='destructive'>
 							<HugeiconsIcon
 								icon={Delete02Icon}
 								strokeWidth={2}
 								className='h-4 w-4'
 							/>
 						</AlertDialogMedia>
-						<AlertDialogTitle className='truncate font-bold tracking-tight text-foreground'>
+						<AlertDialogTitle variant='strong' className='truncate'>
 							Delete Receipt?
 						</AlertDialogTitle>
 						<AlertDialogDescription>{deleteWarningMessage}</AlertDialogDescription>

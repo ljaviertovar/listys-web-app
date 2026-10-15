@@ -16,7 +16,7 @@ describe('AppSidebar', () => {
 
 		expect(html).toContain('data-variant="floating"')
 		expect(html).toContain('data-slot="sidebar"')
-		expect(html).toContain('group-data-[variant=floating]:rounded-[12px]')
+		expect(html).toContain('group-data-[variant=floating]:rounded-xl')
 	})
 
 	it('opens with the brand, which links home', () => {
@@ -47,7 +47,7 @@ describe('AppSidebar', () => {
 
 		expect(entry('Receipts')?.[1]).toBe('true')
 		expect(entry('Dashboard')?.[1]).toBe('false')
-		expect(html).toContain('data-[active=true]:bg-[#E9ECF0]')
+		expect(html).toContain('data-[active=true]:bg-secondary')
 	})
 
 	it('ends with the author credit and no session card when no trip is running', () => {

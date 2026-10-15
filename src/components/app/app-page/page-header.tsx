@@ -33,7 +33,7 @@ function PageHeaderContent({ title, desc, children, variant = 'banner', back }: 
 							variant='screen'
 						/>
 					) : null}
-					<h1 className='font-display text-[30px] leading-[1.17] font-bold tracking-[-0.025em] text-balance md:text-[32px] lg:text-[34px]'>
+					<h1 className='font-display text-2xl leading-[1.17] font-bold tracking-tight text-balance md:text-3xl lg:text-4xl'>
 						{title}
 					</h1>
 					<p className='text-sm leading-normal text-slate-500 md:text-base dark:text-muted-foreground'>{desc}</p>

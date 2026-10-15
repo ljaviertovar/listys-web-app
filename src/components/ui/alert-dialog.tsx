@@ -60,7 +60,7 @@ function AlertDialogContent({
 				data-slot='alert-dialog-content'
 				data-size={size}
 				className={cn(
-					'data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 bg-card ring-foreground/5 gap-6 rounded-xl p-6 shadow-xl ring-1 duration-100 data-[size=default]:max-w-xs data-[size=sm]:max-w-xs data-[size=default]:sm:max-w-md group/alert-dialog-content fixed top-1/2 left-1/2 z-50 grid w-full -translate-x-1/2 -translate-y-1/2 outline-none overscroll-contain',
+					'data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 bg-card ring-foreground/5 gap-6 rounded-3xl p-6 shadow-xl ring-1 duration-100 data-[size=default]:max-w-xs data-[size=sm]:max-w-xs data-[size=default]:sm:max-w-md group/alert-dialog-content fixed top-1/2 left-1/2 z-50 grid w-full -translate-x-1/2 -translate-y-1/2 outline-none overscroll-contain',
 					className,
 				)}
 				{...props}
@@ -95,12 +95,14 @@ function AlertDialogFooter({ className, ...props }: React.ComponentProps<'div'>)
 	)
 }
 
-function AlertDialogMedia({ className, ...props }: React.ComponentProps<'div'>) {
+function AlertDialogMedia({ className, tone = 'default', ...props }: React.ComponentProps<'div'> & { tone?: 'default' | 'destructive' }) {
 	return (
 		<div
 			data-slot='alert-dialog-media'
+			data-tone={tone}
 			className={cn(
 				"bg-muted mb-2 inline-flex size-16 items-center justify-center rounded-full sm:group-data-[size=default]/alert-dialog-content:row-span-2 *:[svg:not([class*='size-'])]:size-8",
+				tone === 'destructive' && 'rounded-lg bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive',
 				className,
 			)}
 			{...props}
@@ -108,12 +110,18 @@ function AlertDialogMedia({ className, ...props }: React.ComponentProps<'div'>) 
 	)
 }
 
-function AlertDialogTitle({ className, ...props }: React.ComponentProps<typeof AlertDialogPrimitive.Title>) {
+function AlertDialogTitle({
+	className,
+	variant = 'default',
+	...props
+}: React.ComponentProps<typeof AlertDialogPrimitive.Title> & { variant?: 'default' | 'strong' }) {
 	return (
 		<AlertDialogPrimitive.Title
 			data-slot='alert-dialog-title'
+			data-variant={variant}
 			className={cn(
 				'text-lg font-medium sm:group-data-[size=default]/alert-dialog-content:group-has-data-[slot=alert-dialog-media]/alert-dialog-content:col-start-2',
+				variant === 'strong' && 'font-bold tracking-tight text-foreground',
 				className,
 			)}
 			{...props}

@@ -4,8 +4,8 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { ArrowLeft01Icon, ArrowRight01Icon, Cancel01Icon, LayoutTwoRowIcon } from '@hugeicons/core-free-icons'
 import type { KeyboardEvent } from 'react'
 
+import { Button } from '@/components/ui/button'
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
-import { cn } from '@/utils'
 
 import { TicketPhotoControls, TicketPhotoThumbs } from './ticket-photo-tools'
 import { TicketPhotoPane } from './ticket-photo-pane'
@@ -23,11 +23,7 @@ interface Props {
 	onCompare?: () => void
 }
 
-const DARK_BUTTON =
-	'inline-flex h-11 min-w-11 shrink-0 items-center justify-center gap-2 rounded-[12px] bg-white/12 px-3.5 font-display text-sm font-semibold text-white transition-colors hover:bg-white/20 focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:outline-none disabled:opacity-40 disabled:hover:bg-white/12'
 
-const ARROW_BUTTON =
-	'absolute top-1/2 hidden size-[52px] -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20 focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:outline-none disabled:opacity-30 lg:flex'
 
 /**
  * The receipt photo on its own, full screen: close and compare on top, the photo (pinch, double tap, wheel, drag, buttons) in the
@@ -52,6 +48,7 @@ export function TicketPhotoViewer({ open, onOpenChange, title, urls, view, error
 		>
 			<DialogContent
 				hideClose
+				variant='viewer'
 				data-testid='ticket-photo-viewer'
 				// Focus lands on the panel itself, not on the close button, so the arrow keys and + / - work at once without a ring on it.
 				onOpenAutoFocus={event => {
@@ -59,21 +56,27 @@ export function TicketPhotoViewer({ open, onOpenChange, title, urls, view, error
 					;(event.currentTarget as HTMLElement).focus()
 				}}
 				onKeyDown={handleKeyDown}
-				className='top-0 left-0 flex h-dvh max-w-none translate-x-0 translate-y-0 flex-col gap-0 rounded-none border-0 bg-[#0B1220] p-0 text-white data-[state=closed]:slide-out-to-left-0 data-[state=closed]:slide-out-to-top-0 data-[state=open]:slide-in-from-left-0 data-[state=open]:slide-in-from-top-0'
+				className='top-0 left-0 flex h-dvh max-w-none translate-x-0 translate-y-0 flex-col data-[state=closed]:slide-out-to-left-0 data-[state=closed]:slide-out-to-top-0 data-[state=open]:slide-in-from-left-0 data-[state=open]:slide-in-from-top-0'
 			>
-				<div className='flex h-15 shrink-0 items-center gap-2 px-2 lg:h-[72px] lg:px-5'>
-					<DialogClose
-						aria-label='Close Photo Viewer'
-						className={cn(DARK_BUTTON, 'w-11 px-0')}
-					>
-						<HugeiconsIcon
-							icon={Cancel01Icon}
-							strokeWidth={1.8}
-							className='size-5'
-						/>
+				<div className='flex h-15 shrink-0 items-center gap-2 px-2 lg:h-18 lg:px-5'>
+					<DialogClose asChild>
+						<Button
+							aria-label='Close Photo Viewer'
+							variant='on-dark'
+							size='icon-xl'
+						>
+							<HugeiconsIcon
+								icon={Cancel01Icon}
+								strokeWidth={1.8}
+								className='size-5'
+							/>
+						</Button>
 					</DialogClose>
 					<div className='flex min-w-0 flex-1 flex-col items-center gap-1 lg:flex-row lg:items-baseline lg:gap-3 lg:pl-1'>
-						<DialogTitle className='max-w-full truncate font-display text-[15px] leading-none font-bold tracking-normal text-white lg:text-base'>
+						<DialogTitle
+						variant='viewer'
+						className='max-w-full truncate'
+					>
 							{title}
 						</DialogTitle>
 						<span
@@ -84,18 +87,19 @@ export function TicketPhotoViewer({ open, onOpenChange, title, urls, view, error
 						</span>
 					</div>
 					{onCompare && urls.length > 0 ? (
-						<button
+						<Button
 							type='button'
 							onClick={onCompare}
-							className={DARK_BUTTON}
+							variant='on-dark'
+							size='xl'
 						>
 							<HugeiconsIcon
 								icon={LayoutTwoRowIcon}
 								strokeWidth={1.8}
-								className='size-[18px]'
+								className='size-4.5'
 							/>
 							Compare
-						</button>
+						</Button>
 					) : (
 						<span className='w-11 shrink-0' />
 					)}
@@ -118,7 +122,7 @@ export function TicketPhotoViewer({ open, onOpenChange, title, urls, view, error
 							wheelZoom
 						/>
 						{urls.length > 0 ? (
-							<span className='pointer-events-none absolute bottom-3.5 left-1/2 inline-flex h-[30px] -translate-x-1/2 items-center rounded-full bg-slate-900/80 px-3 font-sans text-[12.5px] leading-none font-semibold whitespace-nowrap text-slate-200'>
+							<span className='pointer-events-none absolute bottom-3.5 left-1/2 inline-flex h-7.5 -translate-x-1/2 items-center rounded-full bg-slate-900/80 px-3 font-sans text-xs leading-none font-semibold whitespace-nowrap text-slate-200'>
 								<span className='lg:hidden'>Pinch to zoom · Double-tap to fit</span>
 								<span className='hidden lg:inline'>
 									Scroll to zoom · Drag to pan{urls.length > 1 ? ' · ← → to switch photos' : ''}
@@ -127,32 +131,38 @@ export function TicketPhotoViewer({ open, onOpenChange, title, urls, view, error
 						) : null}
 						{urls.length > 1 ? (
 							<>
-								<button
+								<Button
 									type='button'
 									aria-label='Previous Photo'
 									disabled={view.index === 0}
 									onClick={view.previous}
-									className={cn(ARROW_BUTTON, 'left-8')}
+									variant='overlay'
+									size='icon-2xl'
+									rounded='full'
+									className='absolute top-1/2 left-8 hidden -translate-y-1/2 lg:flex'
 								>
 									<HugeiconsIcon
 										icon={ArrowLeft01Icon}
 										strokeWidth={1.8}
 										className='size-6'
 									/>
-								</button>
-								<button
+								</Button>
+								<Button
 									type='button'
 									aria-label='Next Photo'
 									disabled={view.index === urls.length - 1}
 									onClick={view.next}
-									className={cn(ARROW_BUTTON, 'right-8')}
+									variant='overlay'
+									size='icon-2xl'
+									rounded='full'
+									className='absolute top-1/2 right-8 hidden -translate-y-1/2 lg:flex'
 								>
 									<HugeiconsIcon
 										icon={ArrowRight01Icon}
 										strokeWidth={1.8}
 										className='size-6'
 									/>
-								</button>
+								</Button>
 							</>
 						) : null}
 					</div>

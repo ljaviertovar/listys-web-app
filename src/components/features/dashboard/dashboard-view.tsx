@@ -1,11 +1,9 @@
 import { UploadTicketDialog } from '@/components/features/tickets'
 import { cn } from '@/utils'
-import { SECONDARY_ACTION } from './helpers/dashboard-styles'
 import { ActiveSessionBanner } from './active-session-banner'
 import { DashboardGreeting } from './dashboard-greeting'
 import { GroupsSectionCard } from './groups-section-card'
 import { HistorySectionCard } from './history-section-card'
-import { MobileSessionBar } from './mobile-session-bar'
 import { NoSessionBanner } from './no-session-banner'
 import { ReceiptsSectionCard } from './receipts-section-card'
 import { UpNextList } from './up-next-list'
@@ -40,8 +38,8 @@ export function DashboardView({ model, firstName, isGuest = false, hasLists }: P
 				{showHeaderUpload ? (
 					// Phones upload from the tab bar's raised button, so this one only exists from `lg`.
 					<UploadTicketDialog
-						variant='outline'
-						className={cn(SECONDARY_ACTION, 'hidden lg:inline-flex')}
+						variant='secondary'
+						className='hidden w-auto lg:inline-flex'
 					/>
 				) : null}
 			</header>
@@ -70,7 +68,10 @@ export function DashboardView({ model, firstName, isGuest = false, hasLists }: P
 			</div>
 
 			<div className='grid items-stretch gap-5 sm:grid-cols-2 xl:grid-cols-3'>
-				<GroupsSectionCard groups={model.groups} />
+				<GroupsSectionCard
+					groups={model.groups}
+					sessionActive={model.activeSession !== null}
+				/>
 				<ReceiptsSectionCard receipts={model.receipts} />
 				{/* On two columns the third card takes the whole row instead of leaving a half-empty one. */}
 				<div className='sm:col-span-2 xl:col-span-1'>
@@ -78,8 +79,6 @@ export function DashboardView({ model, firstName, isGuest = false, hasLists }: P
 				</div>
 			</div>
 
-			{/* PageContainer's bottom padding clears the pill, which floats above the phone tab bar. */}
-			{model.activeSession ? <MobileSessionBar session={model.activeSession} /> : null}
 		</div>
 	)
 }

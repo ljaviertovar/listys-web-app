@@ -64,14 +64,13 @@ export function AssignTicketToGroupDialog({ ticketId, groups }: AssignTicketToGr
 			<AlertDialogTrigger asChild>
 				<Button
 					variant='outline'
-					className='border-amber-500 text-amber-600 hover:bg-amber-50'
 				>
 					Assign to Group
 				</Button>
 			</AlertDialogTrigger>
 			<AlertDialogContent>
 				<AlertDialogHeader>
-					<AlertDialogTitle className='truncate font-bold tracking-tight text-foreground'>
+					<AlertDialogTitle variant='strong' className='truncate'>
 						Assign Receipt to Group
 					</AlertDialogTitle>
 					<AlertDialogDescription>

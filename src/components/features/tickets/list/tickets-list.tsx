@@ -2,7 +2,6 @@ import Link from 'next/link'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ArrowRight01Icon, Invoice01Icon } from '@hugeicons/core-free-icons'
 
-import { CARD_SURFACE, FOCUS_RING } from '@/components/app/helpers/a1-surface'
 import { cn } from '@/utils'
 import { MAX_IMAGES_PER_TICKET, MAX_TICKET_IMAGE_MB } from '@/lib/config/limits'
 
@@ -78,24 +77,24 @@ export function TicketCard({ id, storeName, status, itemsCount, uploadedLabel }:
 			href={`/tickets/${id}`}
 			data-testid={`ticket-card-${id}`}
 			data-status={ticketStatus}
-			className={cn('group flex flex-col gap-3 p-4 transition-shadow hover:shadow-md', CARD_SURFACE, FOCUS_RING)}
+			className='group flex flex-col gap-2 p-3 transition-shadow hover:shadow-md rounded-3xl bg-card shadow-card focus-ring md:gap-3 md:p-4'
 		>
 			<div className='flex items-start gap-3'>
-				<span className='flex size-9 shrink-0 items-center justify-center rounded-[12px] bg-cyan-100 text-cyan-700 dark:bg-cyan-500/20 dark:text-cyan-300'>
+				<span className='flex size-9 shrink-0 items-center justify-center rounded-xl bg-cyan-100 text-cyan-700 dark:bg-cyan-500/20 dark:text-cyan-300'>
 					<HugeiconsIcon
 						icon={Invoice01Icon}
 						strokeWidth={1.5}
-						className='size-[18px]'
+						className='size-4.5'
 					/>
 				</span>
 				<div className='flex min-w-0 flex-1 flex-col gap-2'>
-					<div className='flex min-h-[26px] items-center justify-between gap-2'>
-						<h2 className='min-w-0 truncate font-display text-base leading-normal font-semibold tracking-[-0.005em]'>
+					<div className='flex min-h-6.5 items-center justify-between gap-2'>
+						<h2 className='min-w-0 truncate font-display text-base leading-normal font-semibold '>
 							{storeName || 'Store not recognized'}
 						</h2>
 						<TicketStatusChip status={ticketStatus} />
 					</div>
-					<p className='font-mono text-xs leading-[1.4] font-medium tracking-[0.01em] text-slate-500 tabular-nums dark:text-muted-foreground'>
+					<p className='font-mono text-xs leading-[1.4] font-medium text-slate-500 tabular-nums dark:text-muted-foreground'>
 						{uploadedLabel}
 					</p>
 				</div>
@@ -127,9 +126,9 @@ export function TicketsEmptyState() {
 		<section
 			data-testid='tickets-empty-state'
 			aria-labelledby='tickets-empty-title'
-			className={cn('flex flex-col items-center gap-4 px-6 py-8 text-center md:gap-5 md:py-16', CARD_SURFACE)}
+			className='flex flex-col items-center gap-4 px-6 py-8 text-center md:gap-5 md:py-16 rounded-3xl bg-card shadow-card'
 		>
-			<span className='flex size-16 items-center justify-center rounded-[20px] bg-cyan-100 text-cyan-700 md:size-[72px] dark:bg-cyan-950 dark:text-cyan-300'>
+			<span className='flex size-16 items-center justify-center rounded-3xl bg-cyan-100 text-cyan-700 md:size-18 dark:bg-cyan-950 dark:text-cyan-300'>
 				<HugeiconsIcon
 					icon={Invoice01Icon}
 					strokeWidth={1.5}
@@ -139,7 +138,7 @@ export function TicketsEmptyState() {
 			<div className='flex flex-col gap-1'>
 				<h2
 					id='tickets-empty-title'
-					className='font-display text-lg leading-[1.3] font-bold tracking-[-0.01em]'
+					className='font-display text-lg leading-[1.3] font-bold '
 				>
 					No receipts yet
 				</h2>
@@ -147,8 +146,8 @@ export function TicketsEmptyState() {
 					Upload your first receipt to get started.
 				</p>
 			</div>
-			<UploadTicketDialog className='h-12 w-auto rounded-[12px] px-7 font-semibold' />
-			<p className='font-mono text-[11.5px] leading-[1.3] font-medium tracking-[0.01em] text-slate-500 dark:text-muted-foreground'>
+			<UploadTicketDialog className='w-auto' />
+			<p className='font-mono text-xs leading-[1.3] font-medium text-slate-500 dark:text-muted-foreground'>
 				1–{MAX_IMAGES_PER_TICKET} photos · PNG or JPG · {MAX_TICKET_IMAGE_MB} MB each
 			</p>
 		</section>

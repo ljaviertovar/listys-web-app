@@ -2,7 +2,7 @@ import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
 
-import { MobileTabBar } from '@/components/app/mobile-tab-bar'
+import { MobileTabBar, isListsSection } from '@/components/app/mobile-tab-bar'
 
 let pathname = '/dashboard'
 // The raised upload button opens the receipt dialog, which reads the App Router.
@@ -19,7 +19,8 @@ describe('MobileTabBar', () => {
 		expect(html).toContain('lg:hidden')
 		expect(html).toContain('fixed inset-x-0 bottom-0')
 		expect(html).toContain('min-h-11 flex-col items-center justify-start gap-1')
-		expect(html).toContain('-mt-5 size-12')
+		expect(html).toContain('data-size="icon-2xl"')
+		expect(html).toContain('-mt-5')
 	})
 
 	it('links the four destinations in design order, with the upload action raised in the middle', () => {
@@ -49,8 +50,22 @@ describe('MobileTabBar', () => {
 		const html = render()
 		const tab = (id: string) => html.match(new RegExp(`<a[^>]*data-testid="mobile-tab-${id}"[^>]*>`))?.[0] ?? ''
 
-		expect(tab('dashboard')).toContain('bg-[#E9ECF0]')
-		expect(tab('tickets')).not.toContain('bg-[#E9ECF0]')
+		expect(tab('dashboard')).toContain('bg-secondary')
+		expect(tab('tickets')).not.toContain('bg-secondary')
+	})
+
+	it('keeps Lists current while a list or a shopping session is open', () => {
+		expect(isListsSection('/base-lists/l1/edit')).toBe(true)
+		expect(isListsSection('/shopping/s1')).toBe(true)
+		expect(isListsSection('/shopping-history')).toBe(false)
+		expect(isListsSection('/shopping-lists')).toBe(false)
+
+		pathname = '/base-lists/l1/edit'
+		expect(render()).toMatch(/aria-current="page"[^>]*data-testid="mobile-tab-shopping-lists"/)
+		pathname = '/shopping/s1'
+		expect(render()).toMatch(/aria-current="page"[^>]*data-testid="mobile-tab-shopping-lists"/)
+		pathname = '/shopping-history'
+		expect(render()).toMatch(/aria-current="page"[^>]*data-testid="mobile-tab-shopping-history"/)
 	})
 
 	it('marks nothing as current on a page that is not one of the four', () => {

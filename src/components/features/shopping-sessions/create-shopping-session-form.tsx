@@ -56,7 +56,6 @@ export function CreateShoppingSessionForm({ baseListId, defaultName }: Props) {
 					placeholder='Enter shopping session name'
 					required
 					disabled={loading}
-					className='text-base'
 				/>
 			</div>
 

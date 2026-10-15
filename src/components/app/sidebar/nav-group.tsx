@@ -23,23 +23,13 @@ import { NavCountPill } from '../nav-count-pill'
 import Link from 'next/link'
 import { ReactNode } from 'react'
 
-/*
- * Design A1 desktop: 36px entries on one line with an 18px icon, an 8px radius and a quiet slate hover. The icon is slate and
- * turns blue with the text on the current page, which sits on the secondary-button surface (#E9ECF0) with semibold blue text,
- * the same treatment as the phone tab bar.
- */
-const SIDEBAR_ITEM_STYLES =
-	'h-9 gap-2 rounded-[8px] px-2 text-sm font-normal whitespace-nowrap text-slate-700 transition-colors duration-150 hover:bg-slate-100 hover:text-foreground [&_svg]:size-[18px] [&_svg]:text-slate-500 hover:[&_svg]:text-slate-700 data-[active=true]:[&_svg]:text-blue-700 dark:text-foreground/80 dark:hover:bg-muted data-[active=true]:bg-[#E9ECF0] data-[active=true]:font-semibold data-[active=true]:text-blue-700 data-[active=true]:hover:bg-[#DEE2E8] data-[active=true]:hover:text-blue-700 dark:data-[active=true]:bg-muted dark:data-[active=true]:text-blue-300'
-const SIDEBAR_SUB_ITEM_STYLES =
-	'rounded-[8px] text-slate-700 transition-colors duration-150 hover:bg-slate-100 hover:text-foreground data-[active=true]:bg-[#E9ECF0] data-[active=true]:font-semibold data-[active=true]:text-blue-700'
-
 export function NavGroup({ title, items, counts }: NavGroup & { counts?: Record<string, NavCount> }) {
 	const href = `${usePathname()}?${useSearchParams().toString()}`
 
 	return (
-		<SidebarGroup className='gap-0.5 p-0'>
-			<SidebarGroupLabel className='h-9 rounded-none px-2 text-sm font-semibold text-foreground'>{title}</SidebarGroupLabel>
-			<SidebarMenu className='gap-px px-1.5'>
+		<SidebarGroup>
+			<SidebarGroupLabel>{title}</SidebarGroupLabel>
+			<SidebarMenu>
 				{items.map(item => {
 					const key = `${item.title}-${item.url}`
 
@@ -67,7 +57,7 @@ export function NavGroup({ title, items, counts }: NavGroup & { counts?: Record<
 }
 
 const NavBadge = ({ children }: { children: ReactNode }) => (
-	<Badge className='rounded-full px-1 py-0 text-xs'>{children}</Badge>
+	<Badge>{children}</Badge>
 )
 
 const SidebarMenuLink = ({ item, href, count }: { item: NavLink; href: string; count?: NavCount }) => {
@@ -77,7 +67,6 @@ const SidebarMenuLink = ({ item, href, count }: { item: NavLink; href: string; c
 			<SidebarMenuButton
 				asChild
 				isActive={checkIsActive(href, item)}
-				className={SIDEBAR_ITEM_STYLES}
 			>
 				<Link
 					href={item.url}
@@ -114,7 +103,7 @@ const SidebarMenuCollapsible = ({ item, href }: { item: NavCollapsible; href: st
 		>
 			<SidebarMenuItem>
 				<CollapsibleTrigger asChild>
-					<SidebarMenuButton className={SIDEBAR_ITEM_STYLES}>
+					<SidebarMenuButton>
 						{item.icon && (
 							<HugeiconsIcon
 								icon={item.icon}
@@ -134,7 +123,6 @@ const SidebarMenuCollapsible = ({ item, href }: { item: NavCollapsible; href: st
 								<SidebarMenuSubButton
 									asChild
 									isActive={checkIsActive(href, subItem)}
-									className={SIDEBAR_SUB_ITEM_STYLES}
 								>
 									<Link
 										href={subItem.url}

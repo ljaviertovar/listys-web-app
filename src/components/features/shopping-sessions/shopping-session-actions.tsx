@@ -1,62 +1,153 @@
 'use client'
 
 import { useState } from 'react'
-import { CompleteSessionButton } from './complete-session-button'
-import { CompleteSessionAlert } from './complete-session-alert'
-import { CancelSessionButton } from './cancel-session-button'
-import { AddItemDialogBaseList } from '@/components/app'
-import { ShareListDialog } from '@/components/features/sharing'
+import { HugeiconsIcon } from '@hugeicons/react'
+import { ArrowDown01Icon, ArrowUp01Icon, Cancel01Icon, CheckmarkCircle02Icon, ShoppingCart02Icon, Tick02Icon } from '@hugeicons/core-free-icons'
 
-interface Props {
+import { Button } from '@/components/ui/button'
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { ABOVE_MOBILE_TAB_BAR } from '@/components/app/helpers/mobile-tab-bar-layout'
+import { cn } from '@/utils'
+
+import { CancelSessionSheet } from './cancel-session-sheet'
+import { CompleteSessionSheet } from './complete-session-sheet'
+
+interface ShoppingSessionActionsProps {
 	sessionId: string
-	progress: number
-	baseListId?: string
-	baseListName?: string
+	checked: number
+	total: number
+	/** Only the owner of the list can complete or cancel its session. */
 	isOwner?: boolean
 }
 
-export function ShoppingSessionActions({ sessionId, progress, baseListId, baseListName, isOwner = false }: Props) {
-	const [alertOpen, setAlertOpen] = useState(false)
+/**
+ * What ends a shopping session. Phones get one small floating "Actions" button above the tab bar that opens its two
+ * options; from `lg` they are two buttons beside the title. Both open the same sheets.
+ */
+export function ShoppingSessionActions({ sessionId, checked, total, isOwner = false }: ShoppingSessionActionsProps) {
+	const [menuOpen, setMenuOpen] = useState(false)
+	const [completeOpen, setCompleteOpen] = useState(false)
+	const [cancelOpen, setCancelOpen] = useState(false)
+
+	if (!isOwner) return null
 
 	return (
 		<>
-			<div className='flex flex-col items-center gap-3 w-full'>
-				{isOwner && (
-					<div className='flex items-center gap-2 w-full sm:w-auto flex-1'>
-						<CancelSessionButton sessionId={sessionId} />
-						<CompleteSessionButton onOpenAlert={() => setAlertOpen(true)} />
-					</div>
-				)}
-
-				<div className='flex items-center gap-2 w-full'>
-					<AddItemDialogBaseList
-						context='shopping-session'
-						sessionId={sessionId}
-						showLabel
-						className='flex-1'
+			<div
+				data-testid='session-actions-inline'
+				className='hidden items-center gap-2 lg:flex'
+			>
+				<Button
+					size='primary'
+					variant='destructive-soft'
+					onClick={() => setCancelOpen(true)}
+				>
+					<HugeiconsIcon
+						icon={Cancel01Icon}
+						strokeWidth={1.8}
+						aria-hidden='true'
+						className='size-4.5'
 					/>
-					{baseListId && isOwner && (
-						<ShareListDialog
-							baseListId={baseListId}
-							listName={baseListName ?? ''}
-							isOwner={isOwner}
-							className='flex-1 gap-2'
-						/>
-					)}
-				</div>
+					Cancel Shopping
+				</Button>
+				<Button
+					size='primary'
+					onClick={() => setCompleteOpen(true)}
+				>
+					<HugeiconsIcon
+						icon={Tick02Icon}
+						strokeWidth={1.8}
+						aria-hidden='true'
+						className='size-4.5'
+					/>
+					Complete Shopping
+				</Button>
 			</div>
 
-			<CompleteSessionAlert
-				title={progress === 100 ? '🎉 All items checked!' : 'Complete Shopping Session?'}
-				description={
-					progress === 100
-						? 'You have checked all items in your shopping list. Would you like to complete this shopping session?'
-						: 'You still have unchecked items. Are you sure you want to complete this shopping session?'
-				}
+			<div
+				data-testid='session-actions-floating'
+				className={cn('fixed right-4 z-40 mb-4 lg:hidden', ABOVE_MOBILE_TAB_BAR)}
+			>
+				<DropdownMenu
+					open={menuOpen}
+					onOpenChange={setMenuOpen}
+				>
+					<DropdownMenuTrigger asChild>
+						<Button
+							type='button'
+							data-testid='session-actions-button'
+							variant='floating'
+							size='lg'
+						>
+							<HugeiconsIcon
+								icon={ShoppingCart02Icon}
+								strokeWidth={1.5}
+								aria-hidden='true'
+								className='size-4.5'
+							/>
+							Actions
+							<HugeiconsIcon
+								icon={menuOpen ? ArrowDown01Icon : ArrowUp01Icon}
+								strokeWidth={1.8}
+								aria-hidden='true'
+								className='size-4'
+							/>
+						</Button>
+					</DropdownMenuTrigger>
+					<DropdownMenuContent
+						side='top'
+						align='end'
+						sideOffset={8}
+						variant='menu'
+						className='w-58'
+					>
+						<DropdownMenuItem
+							onSelect={() => setCompleteOpen(true)}
+							size='touch'
+						>
+							<HugeiconsIcon
+								icon={CheckmarkCircle02Icon}
+								strokeWidth={1.6}
+								aria-hidden='true'
+								className='size-5'
+							/>
+							Complete Shopping
+						</DropdownMenuItem>
+						<DropdownMenuSeparator />
+						<DropdownMenuItem
+							onSelect={() => setCancelOpen(true)}
+							variant='destructive'
+							size='touch'
+						>
+							<HugeiconsIcon
+								icon={Cancel01Icon}
+								strokeWidth={1.8}
+								aria-hidden='true'
+								className='size-5'
+							/>
+							Cancel Shopping
+						</DropdownMenuItem>
+					</DropdownMenuContent>
+				</DropdownMenu>
+			</div>
+
+			<CompleteSessionSheet
 				sessionId={sessionId}
-				progress={progress}
-				open={alertOpen}
-				onOpenChange={setAlertOpen}
+				checked={checked}
+				total={total}
+				open={completeOpen}
+				onOpenChange={setCompleteOpen}
+			/>
+			<CancelSessionSheet
+				sessionId={sessionId}
+				open={cancelOpen}
+				onOpenChange={setCancelOpen}
 			/>
 		</>
 	)

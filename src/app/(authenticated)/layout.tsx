@@ -2,7 +2,7 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 
 import { SidebarProvider } from '@/components/ui/sidebar'
-import { AppSidebar, Header, MobileTabBar } from '@/components/app'
+import { ActiveSessionBar, AppSidebar, Header, MobileTabBar } from '@/components/app'
 
 import { createClient } from '@/lib/supabase/server'
 
@@ -25,7 +25,7 @@ export default async function AuthenticatedLayout({ children }: { children: Reac
 			<SidebarProvider
 				defaultOpen={defaultOpen}
 				// The page ground also shows around the floating sidebar, so it is set here and not only on <main>.
-				className='relative h-dvh overflow-hidden bg-[#F2F4F7] dark:bg-sidebar'
+				className='relative h-dvh overflow-hidden'
 			>
 				<div className='hidden lg:block'>
 					<AppSidebar />
@@ -43,8 +43,12 @@ export default async function AuthenticatedLayout({ children }: { children: Reac
 					<Header />
 					{/* scroll-pb keeps a focused control clear of the pinned bottom bars (the dashboard's phone session bar is 72px+). */}
 					{/* The page ground of design A1 (#F2F4F7); the dark theme keeps its own sidebar token. */}
-					<main className='flex-1 scroll-pb-24 overflow-y-auto bg-[#F2F4F7] pt-15 dark:bg-sidebar lg:pt-0'>
-						<div className='flex flex-col min-h-full'>{children}</div>
+					<main className='flex-1 scroll-pb-24 overflow-y-auto bg-background pt-15 dark:bg-sidebar lg:pt-0'>
+						<div className='flex flex-col min-h-full'>
+							{children}
+							{/* Phones: the way back to a running shopping session, on every screen but its own. */}
+							<ActiveSessionBar />
+						</div>
 					</main>
 					<MobileTabBar />
 				</div>

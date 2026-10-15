@@ -6,10 +6,8 @@ import { ActiveShoppingBadge } from '@/components/app'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
-import { cn } from '@/utils'
 import { HeroCollaborators } from './hero-collaborators'
 import { HeroSurface } from './hero-surface'
-import { FOCUS_RING, HERO_CTA } from './helpers/dashboard-styles'
 import { pluralize, type ActiveSessionSummary } from './helpers/build-dashboard-model'
 
 interface Props {
@@ -28,12 +26,12 @@ export function ActiveSessionBanner({ session, isGuest = false }: Props) {
 			testId='dashboard-active-session-banner'
 			labelledBy='dashboard-active-session-title'
 		>
-			<div className='flex w-full max-w-xl flex-col gap-4 px-[22px] pt-40 md:pt-6 pb-[26px] sm:p-8 md:gap-[18px] md:px-10 md:py-9'>
+			<div className='flex w-full max-w-xl flex-col gap-4 px-5.5 pt-40 md:pt-6 pb-6.5 sm:p-8 md:gap-4.5 md:px-10 md:py-9'>
 				<div className='flex flex-wrap items-center gap-2.5'>
 					<ActiveShoppingBadge
 						tone='on-dark'
 						label='Shopping now'
-						className='h-auto gap-[7px] border-0 bg-white/12 px-[11px] py-[5px] text-[12.5px] leading-[1.2] [&>span:first-child]:size-[7px]'
+						size='hero'
 					/>
 					{origin ? <span className='line-clamp-2 text-sm leading-tight text-slate-300'>{origin}</span> : null}
 				</div>
@@ -41,7 +39,7 @@ export function ActiveSessionBanner({ session, isGuest = false }: Props) {
 				<div className='flex flex-col gap-2'>
 					<h2
 						id='dashboard-active-session-title'
-						className='font-display text-[30px] leading-[1.17] font-bold tracking-[-0.025em] text-balance md:text-[32px]'
+						className='font-display text-xl leading-[1.17] font-bold tracking-tight text-balance md:text-3xl'
 					>
 						{session.name}
 					</h2>
@@ -56,39 +54,36 @@ export function ActiveSessionBanner({ session, isGuest = false }: Props) {
 					<Progress
 						value={session.progress}
 						aria-label='Items collected in this shopping session'
-						className='h-2 bg-white/15'
-						indicatorClassName='bg-linear-to-r from-blue-400 to-blue-500'
+						size='md'
+						tone='on-dark'
 					/>
-					<span className='font-mono text-xs leading-[1.3] font-medium tracking-[0.01em] text-slate-300 tabular-nums'>
+					<span className='font-mono text-xs leading-[1.3] font-medium text-slate-300 tabular-nums'>
 						{session.checked} of {pluralize(session.total, 'item')} · {session.progress}%
 					</span>
 				</div>
 
 				<Button
 					asChild
-					size='xl'
-					rounded='xl'
-					className={cn('mt-1 w-full md:w-auto', HERO_CTA)}
+					variant='hero'
+					size='2xl'
+					className='mt-1 w-full md:w-auto md:self-start'
 				>
 					<Link
 						href={`/shopping/${session.id}`}
 						data-testid='dashboard-continue-shopping'
-						className={FOCUS_RING}
+						className='focus-ring'
 					>
 						Continue Shopping
 						<HugeiconsIcon
 							icon={ArrowRight02Icon}
 							strokeWidth={2}
-							className='size-[18px]'
+							className='size-4.5'
 						/>
 					</Link>
 				</Button>
 
 				{isGuest ? (
-					<Badge
-						variant='pending'
-						className='w-fit gap-2'
-					>
+					<Badge variant='pending'>
 						<HugeiconsIcon
 							icon={UserStar02Icon}
 							className='size-3'

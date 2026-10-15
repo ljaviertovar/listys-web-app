@@ -1,3 +1,4 @@
+import type { ComponentProps } from 'react'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getGroup, getShoppingHistory } from '@/lib/api/endpoints'
@@ -6,6 +7,9 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { ShoppingBasket01Icon } from '@hugeicons/core-free-icons'
 import { HistorySessionCard } from '@/components/features/shopping-sessions'
 import { BackLink, PageHeader, PageContainer } from '@/components/app'
+
+/** A history row as the card takes it; the history endpoint is not typed yet. */
+type HistorySession = ComponentProps<typeof HistorySessionCard>['session'] & { base_list?: { group?: { id?: string } | null } | null }
 
 export default async function GroupHistoryPage({ params }: { params: Promise<{ groupId: string }> }) {
 	const { groupId } = await params
@@ -28,7 +32,7 @@ export default async function GroupHistoryPage({ params }: { params: Promise<{ g
 	}
 
 	// Filter sessions for this specific group
-	const sessions = allSessions?.filter((session: any) => session.base_list?.group?.id === groupId) || []
+	const sessions = allSessions?.filter((session: HistorySession) => session.base_list?.group?.id === groupId) || []
 
 	return (
 		<>
@@ -50,7 +54,11 @@ export default async function GroupHistoryPage({ params }: { params: Promise<{ g
 
 				{sessions.length === 0 ? (
 					<Card className='flex min-h-100 flex-col items-center justify-center'>
-						<CardContent className='flex flex-col items-center space-y-4 pt-6'>
+						<CardContent
+							space='stack'
+							inset='top'
+							className='flex flex-col items-center'
+						>
 							<HugeiconsIcon
 								icon={ShoppingBasket01Icon}
 								strokeWidth={1.5}
@@ -59,14 +67,14 @@ export default async function GroupHistoryPage({ params }: { params: Promise<{ g
 							<div className='text-center'>
 								<h3 className='text-lg font-semibold'>No shopping history yet</h3>
 								<p className='text-sm text-muted-foreground'>
-									Complete shopping sessions from this group's lists to see them here
+									Complete shopping sessions from this group&apos;s lists to see them here
 								</p>
 							</div>
 						</CardContent>
 					</Card>
 				) : (
 					<div className='grid gap-4'>
-						{sessions.map((session: any) => (
+						{sessions.map((session: HistorySession) => (
 							<HistorySessionCard
 								key={session.id}
 								session={session}

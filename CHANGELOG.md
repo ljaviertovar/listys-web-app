@@ -2,6 +2,86 @@
 
 ## Unreleased
 
+- Phone sizes below `md`. `Button size='primary'` is the primary action of a screen, sheet or form: `lg` (40px) below `md` and the library's
+  `xl` (44px) from `md` up. It replaces `xl` on the toolbar actions (New Group, New Base List, Share, Add Item, Upload), Start Shopping, the confirm
+  and submit buttons of the sheets and forms, Copy Link, Create Link and the empty and error call to action of the dashboard. The page headings
+  are 24px below `md` (30px from `md`), the hero and session titles 20px below `md` (30px from `md`), and receipt and group cards use `p-3 gap-2`
+  below `md`. Desktop values are unchanged. The back link, the viewer controls and the avatar keep their sizes.
+- Container spacing is theme, not layout. `CardHeader spacing` (`tight`), `CardContent space` (`snug`, `stack`) and `inset` (`top`, `compact`),
+  `DialogHeader variant='sheet'`, `DialogFooter variant` (`inline`, `sheet`), `Collapsible variant='section'` and the A1 defaults of
+  `SidebarContent`, `SidebarFooter`, `SidebarGroup` and `SidebarMenu` replace the `space-y-4`, `gap-3`, `pt-6`, `px-4`, `pb-2` and `p-2` strings
+  that settings, history, sign-in/up, the sidebar, the sheets and the category sections passed; the guard now flags them. `Button` gained the
+  `avatar` size (the account trigger, a circle that becomes a pill from `lg`) and a `weight` prop (the landing header's lighter label), so the two
+  allowlist entries for them are gone. `Button size='xl'` is the library's own again (`h-11 px-6 text-base`; the previous pass had changed it to
+  `px-4`, `text-sm`). Because two xl buttons no longer fit side by side at 390px, the confirm footers of `ConfirmSheet` (also the complete and cancel
+  session sheets) and of the Start Shopping sheet use `DialogFooter variant='sheet'`: stacked with the primary on top below `sm`, two columns
+  from `sm`. The scanner moved to `src/test/native-props-scan.cjs` because `scripts/` is git-ignored and the guard could not run from a clean
+  clone. The padding of the `RadioGroup` in the merge dialog no longer stacks `space-y-3` on top of its own `gap-3`.
+- The "shadcn-native first" rule now reaches every part of the library components and every wrapper, and the guard no longer depends on a
+  hand-written component list. `src/test/native-props-scan.cjs` reads the sources with the TypeScript compiler API and finds the wrappers
+  by itself (also wrappers of wrappers); it follows classes through `cn()`, templates, ternaries, constants (imported ones too) and any
+  `*ClassName` prop, and it flags `buttonVariants()` outside `ui`, hand-styled native `button`/`input`/`textarea`/`select`, links dressed as
+  buttons, classes on the child of an `asChild` component, wrappers that take `ButtonProps` and drop them, and `size`/`variant`/`rounded`
+  written after `{...props}`. The audit found 105 places (the old guard saw about a dozen): they now go through new native variants.
+  `Button` gained `quiet`, `quiet-destructive`, `destructive-ghost`, `ghost-primary`, `floating`, `on-dark`, `viewer`, `overlay` and
+  `dropzone`, the `block` size and the `3xl` radius; `DialogContent`/`DialogTitle`/`DialogDescription` have `sheet`, `strong` and `viewer`
+  variants, `AlertDialogTitle` `strong` and `AlertDialogMedia` `tone`; `DropdownMenuContent` has `menu` and `account`, its items `touch`,
+  `row` and `action` sizes, its label `identity` and its separator `solid`; `Checkbox` has `size` (`lg` = 22px), `Progress` `size`, `tone` and
+  `complete` (no more `indicatorClassName`), `Avatar` sizes up to `2xl`, `ring` and a fallback `tone`, `Card` title and description
+  variants, `Badge` a `hero` size, `CollapsibleTrigger` a `row` variant and `Label` is the semibold form label by default. The sidebar
+  entries, group label and provider carry the A1 look as their default; `--sidebar` is the card white. Tests: `native-props-guard.test.ts`
+  rebuilt on the scanner (with fixtures proving each class of mistake is caught) and behaviour tests for every variant above and for each
+  wrapper it derives. Visible changes: menu items in the sessions menu are 44px (were 48), the arrows over the photo viewer are 48 (were
+  52), "View All" is 32px at every width, the compare dialog's Done button uses the primary fill, and labels without their own class keep the
+  20px line height.
+- The app's design now rides on shadcn's own props instead of className constants. `Button` has a native scale (`xs` 24, `sm` 32,
+  `default` 36, `lg` 40, `xl` 44, `2xl` 52 and the matching icon sizes), a 12px default radius, the Plus Jakarta label and the
+  variants the A1 screens need (`secondary` is the grey button with blue text, `destructive` the red confirm, plus `success-soft`,
+  `hero` and `fab`); `Input`, `Textarea` and `SelectTrigger` carry the borderless field look with a `size` (`lg` = 44px); `Card` is
+  the 24px borderless surface with `size`, `variant` and `interactive`; `Badge` has the status tints and a `lg` size. Because call sites no
+  longer pass `h-`, `px-` or `rounded-` classes, `size` and `variant` now obey: wrappers such as `CreateGroupDialog`,
+  `CreateBaseListDialog`, `ShareListDialog`, `AddItemSheet`, `StartShoppingDialog` and `UploadTicketDialog` accept the `Button` props
+  and default to `size='xl'` (`AddItemSheet` lost its `emphasis` prop: pass `variant`). The 48px actions and fields are now 44px, the hero
+  call to action is 52px at every width, and `--radius` is 8px (so `rounded-xl` is the 12px of controls).
+- Theme tokens replace literals: `--background` is the `#F2F4F7` page ground, `--secondary` / `--secondary-hover` / `--secondary-foreground` the
+  grey button, `--muted` `#F6F7F9`, `--destructive` red-600, `--color-ink` the receipt viewer's dark surface, plus `shadow-card`,
+  `shadow-field`, `shadow-premium`, `shadow-glow` and `shadow-fab`. Arbitrary pixel and hex utilities in the app were converted to the
+  Tailwind scale and these tokens (text 13/13.5px are now `text-xs`/`text-sm`, titles 32/34px `text-3xl`/`text-4xl`).
+- Removed: `components/app/helpers/a1-surface.ts` (`A1_ACTION`, `A1_SECONDARY`, `A1_DANGER`, `A1_TOOLBAR_BUTTON`, `SECONDARY_ACTION`,
+  `FIELD_CONTROL`, `FIELD_AREA`, `CARD_SURFACE`, `FOCUS_RING`, `ROW_HOVER`), `features/dashboard/helpers/dashboard-styles.ts`,
+  the unused `ActiveShopping` card and the global `.premium-card`, `.hero-mesh`, `.tabular-nums` and `.scan-line` rules. The keyboard
+  focus ring is the `focus-ring` utility in `globals.css`.
+- The landing page's own CSS moved to `src/app/(marketing)/marketing.css`, which also holds the `.marketing` scope that restores the white
+  page, the light secondary and the 6px radius there, so the landing keeps its look under the new app tokens. New guard
+  `src/test/native-props-guard.test.ts` fails when a `Button`, `Input`, `Textarea`, `SelectTrigger`, `Card` or `Badge` gets size, spacing,
+  radius, colour or typography classes; `AGENTS.md` documents the rule ("shadcn-native first").
+
+- The Lists section follows the approved phone designs: groups, the lists of a group, a list's items, sharing, starting a shopping and the
+  shopping session itself. Groups and lists are 24px cards with a tile, one line of description, a `...` menu (Edit and Delete) and a
+  `View Details` / `View Items` footer; the creation button moves to the toolbar under the title (the pinned bottom bar that fought the
+  tab bar's button is gone), the first-use state is one card with its own button, `loading.tsx` draws a skeleton, rename happens in the
+  card ("Name is required" under the field) and every create, edit, delete, share and confirm flow is a bottom sheet on phones
+  (`SheetDialog`, `ConfirmSheet`). A list's items are one card with a collapsible section per category (the coloured icon on a grey
+  tile, the name as a capitalised 12px caption, a mono count), rows with a quantity chip and a `...` menu, an inline `Edit Item` form,
+  `Add Item` as a sheet with field errors, and a delete that offers `Undo` (it adds the item again: the API has no restore). `Start
+  Shopping` is the primary action under the list's title (disabled when the list is empty) and is not drawn at all while a shopping
+  session is active, on the list and on the dashboard, because only one can run. The share sheet shows a read-only link with `Copy Link`
+  / `Link Copied`, `Regenerate`, `Revoke` (it asks first) and the collaborators with a role chip and a confirmation before removing one.
+  The shopping session has a `Shopping` chip, a progress card, `done/total` per category, `Share` and `Add Item`, and one small floating
+  `Actions` button (a menu with `Complete Shopping` and `Cancel Shopping`) above the tab bar instead of the pinned bar; `Complete` says
+  how many items are left or, with all ticked, reads "All Items Checked" with an icon instead of the emoji, and both it and `Cancel` are
+  sheets. From `lg` the two actions sit beside the title and the content is capped at 768px.
+- New active-session bar (`ActiveSessionBar`, `SessionBar`): on phones, a dark 48px bar above the tab bar with the trip's ring, name,
+  "n of m · p%" and `Continue`, shown on every screen except the session's own. It replaces the dashboard-only pill (`MobileSessionBar`
+  is gone) and is smaller (it was 72px); the receipt selection bar stacks above it. Lists stays the current tab on a list and on a
+  session. `tickets/receipt/helpers/ticket-category-icon.ts` moved to `commons/category-section` and now also gives each category its
+  own colour, so receipts and lists share one category section; category names there are the capitalised caption too.
+- Shared pieces for forms and cards: `components/commons` gains `SheetDialog`, `ConfirmSheet`, `FormField`, `EntityCard`,
+  `EntityEditCard`, `CreateEntitySheet`, `EntityCardSkeleton`, `ListToolbar`, `EmptyStateCard`, `CategorySection` and `RowMenu`;
+  `features/list-items` holds the item forms (`AddItemSheet`, `ItemEditForm`, `ItemQuantityChip`); `formatItemName` and a generic
+  `groupByCategory` live in `utils`. Removed: `EditGroupDialog` (unused), `AddItemDialogBaseList`, `ActionsItemFormBaseList`,
+  `CompleteSessionAlert`, `CompleteSessionButton`, `CancelSessionButton` and the sharing utils for badges and empty states.
+
 - Receipt status chips no longer look like a secondary button: they are 22px pills tinted with their status (Pending slate, Processing
   amber, Completed green, Failed red) with a 12px icon and an 11.5px / 600 label, instead of 26px grey chips with an 8px radius, and the
   receipt card's icon tile is 36px with an 18px icon (it was 48px with a 24px icon), the size of the dashboard's receipt rows.
