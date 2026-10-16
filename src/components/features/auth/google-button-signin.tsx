@@ -23,6 +23,9 @@ export default function GoogleButtonSignin({ typeSubmit, callbackUrl }: Props) {
 				provider: 'google',
 				options: {
 					redirectTo: `${window.location.origin}/auth/callback?next=${callbackUrl || '/dashboard'}`,
+					queryParams: {
+						prompt: 'select_account',
+					},
 				},
 			})
 			if (error) {
