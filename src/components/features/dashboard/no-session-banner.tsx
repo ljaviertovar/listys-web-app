@@ -94,7 +94,7 @@ export function NoSessionBanner({ quickStart, startTarget, lastTrip, hasLists }:
 				{!hasLists ? (
 					<UploadTicketDialog
 						variant='hero'
-						size='2xl'
+						size='primary'
 						className='mt-1 w-full md:w-auto md:self-start'
 					/>
 				) : startTarget ? (
@@ -103,7 +103,7 @@ export function NoSessionBanner({ quickStart, startTarget, lastTrip, hasLists }:
 						baseListName={startTarget.name}
 						itemsCount={startTarget.itemsCount}
 						variant='hero'
-						size='2xl'
+						size='primary'
 						className='mt-1 w-full md:w-auto md:self-start'
 					>
 						Start Shopping
@@ -117,7 +117,7 @@ export function NoSessionBanner({ quickStart, startTarget, lastTrip, hasLists }:
 					<Button
 						asChild
 						variant='hero'
-						size='2xl'
+						size='primary'
 						className='mt-1 w-full md:w-auto md:self-start'
 					>
 						<Link

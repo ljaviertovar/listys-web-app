@@ -91,7 +91,7 @@ export function TicketPhotoViewer({ open, onOpenChange, title, urls, view, error
 							type='button'
 							onClick={onCompare}
 							variant='on-dark'
-							size='xl'
+							size='primary'
 						>
 							<HugeiconsIcon
 								icon={LayoutTwoRowIcon}

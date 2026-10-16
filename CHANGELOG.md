@@ -6,7 +6,7 @@
   `xl` (44px) from `md` up. It replaces `xl` on the toolbar actions (New Group, New Base List, Share, Add Item, Upload), Start Shopping, the confirm
   and submit buttons of the sheets and forms, Copy Link, Create Link and the empty and error call to action of the dashboard. The page headings
   are 24px below `md` (30px from `md`), the hero and session titles 20px below `md` (30px from `md`), and receipt and group cards use `p-3 gap-2`
-  below `md`. Desktop values are unchanged. The back link, the viewer controls and the avatar keep their sizes.
+  below `md`. Desktop values are unchanged. The screen back link (`BackLink` `screen`) uses `primary` too: 40px and 14px on phones, the library's xl from `md`. The viewer controls and the avatar keep their sizes.
 - Container spacing is theme, not layout. `CardHeader spacing` (`tight`), `CardContent space` (`snug`, `stack`) and `inset` (`top`, `compact`),
   `DialogHeader variant='sheet'`, `DialogFooter variant` (`inline`, `sheet`), `Collapsible variant='section'` and the A1 defaults of
   `SidebarContent`, `SidebarFooter`, `SidebarGroup` and `SidebarMenu` replace the `space-y-4`, `gap-3`, `pt-6`, `px-4`, `pb-2` and `p-2` strings

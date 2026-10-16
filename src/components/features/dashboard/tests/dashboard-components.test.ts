@@ -120,7 +120,7 @@ describe('NoSessionBanner', () => {
 
 		expect(html).toContain('Start with a receipt')
 		expect(html).toContain('Upload Receipt')
-		expect(html).toContain('data-size="2xl"')
+		expect(html).toContain('data-size="primary"')
 		expect(html).toContain('data-variant="hero"')
 		expect(html).not.toContain('Your lists')
 		expect(html).not.toContain('Last shopping session')
