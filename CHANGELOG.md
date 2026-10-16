@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Changed
+- New components are now built from the Design system v2 canvas artifact. `AGENTS.md` has a "Design System v2" rule, and `docs/design/DESIGN.md` links the "Listys - System Design" artifact and its two v2 boards as the source.
 - Shopping history cards read "Completed on <date>" and show the session total on the same line; the mockups and the code agree.
 - The Add Items to List dialog is a bottom sheet on phones, with a secondary Cancel, a primary "Add N Items" that stays disabled until a list is chosen, and a primary "Create Group" in the no-groups state.
 
