@@ -10,7 +10,7 @@ meta:
   productSource: "docs/prd/PRD-v2.md"
   implementationSource: "src/app/globals.css and application-owned components"
   status: "Target canonical; implementation gaps are listed in section 11"
-  designSource: "Canvas artifact 'Listys dashboard': Design system v2 (artboards 1/2 and 2/2) and the A1 / A1 mobile boards"
+  designSource: "Canvas artifact 'Listys - System Design' (https://claude.ai/artifact/XAzqD9iuotfD7udDqiVwhn): Design system v2 (boards Design-system-v2 1/2 and Design-system-v2-b 2/2) and the A1 / A1 mobile boards"
 
 colors:
   ink: "#0F172A"
@@ -302,6 +302,12 @@ components:
 partially aligned; section 11 records the migration work without redefining the target around accidental implementation
 details. Its visual values follow the **Design system v2** canvas ("soft surfaces", artboards 1/2 and 2/2) and the A1 and
 A1 mobile dashboard boards; where the product has not caught up, the gap is listed in section 11.4.
+
+**Source canvas:** the "Listys - System Design" artifact (https://claude.ai/artifact/XAzqD9iuotfD7udDqiVwhn), boards
+`Design-system-v2` (1/2: tokens, native shadcn scale, buttons, forms, cards) and `Design-system-v2-b` (2/2: feedback,
+navigation, data, mobile A1). Every new component is built from these boards (rule in `AGENTS.md`, "Design System v2").
+When a board and this document disagree, the board wins for the target look and this document is updated in the same
+change.
 
 **Product premise:** Listys turns receipts into reusable household memory. A receipt is an input signal, not the final
 product; the lasting object is a shopping list that becomes easier to use after every trip.
