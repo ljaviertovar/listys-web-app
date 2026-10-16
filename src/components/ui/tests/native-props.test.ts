@@ -35,7 +35,7 @@ const HEIGHTS = {
 	default: 'h-9',
 	lg: 'h-10',
 	xl: 'h-11',
-	primary: 'h-10',
+	primary: 'h-9',
 	'2xl': 'h-13',
 	icon: 'size-9',
 	'icon-xs': 'size-6',
@@ -76,10 +76,10 @@ describe('Button', () => {
 		expect(buttonVariants({ size: 'lg' }).split(/\s+/)).not.toContain('text-base')
 	})
 
-	it('primary is lg below md and the library xl from md up', () => {
+	it('primary is default below md and the library xl from md up', () => {
 		const classes = buttonVariants({ size: 'primary' }).split(/\s+/)
 
-		expect(classes).toEqual(expect.arrayContaining(['h-10', 'px-4', 'md:h-11', 'md:px-6', 'md:text-base']))
+		expect(classes).toEqual(expect.arrayContaining(['h-9', 'px-3', 'md:h-11', 'md:px-6', 'md:text-base']))
 		expect(classes).not.toContain('h-11')
 		expect(classes).not.toContain('text-base')
 	})

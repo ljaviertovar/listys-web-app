@@ -132,7 +132,7 @@ export function TicketNoItems() {
 				/>
 			</span>
 			<div className='flex flex-col items-center gap-1.5'>
-				<h3 className='font-display text-lg leading-[1.3] font-bold '>No items detected</h3>
+				<h3 className='font-display text-base leading-[1.3] font-bold md:text-lg'>No items detected</h3>
 				<p className='max-w-[300px] text-sm leading-normal text-slate-500 dark:text-muted-foreground'>
 					We could not find products in this receipt image. Try with a clearer photo and good lighting.
 				</p>

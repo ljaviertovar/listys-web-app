@@ -126,7 +126,7 @@ export function TicketsEmptyState() {
 		<section
 			data-testid='tickets-empty-state'
 			aria-labelledby='tickets-empty-title'
-			className='flex flex-col items-center gap-4 px-6 py-8 text-center md:gap-5 md:py-16 rounded-3xl bg-card shadow-card'
+			className='flex flex-col items-center gap-4 p-3 text-center md:gap-5 md:p-4 md:py-16 rounded-3xl bg-card shadow-card'
 		>
 			<span className='flex size-16 items-center justify-center rounded-3xl bg-cyan-100 text-cyan-700 md:size-18 dark:bg-cyan-950 dark:text-cyan-300'>
 				<HugeiconsIcon

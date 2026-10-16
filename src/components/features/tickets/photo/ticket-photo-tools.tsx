@@ -77,7 +77,7 @@ export function TicketPhotoControls({ view, className }: TicketPhotoControlsProp
 					type='button'
 					onClick={view.fit}
 					variant='on-dark'
-					size='xl'
+					size='primary'
 				>
 					Fit
 				</Button>

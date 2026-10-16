@@ -24,7 +24,7 @@ export function EmptyStateCard({ icon, tone = 'blue', title, description, childr
 	return (
 		<section
 			data-testid={testId}
-			className='flex flex-col items-center gap-4 px-5 py-8 text-center rounded-3xl bg-card shadow-card'
+			className='flex flex-col items-center gap-4 p-3 text-center md:p-4 rounded-3xl bg-card shadow-card'
 		>
 			<span className={cn('flex size-14 items-center justify-center rounded-2xl', TONES[tone])}>
 				<HugeiconsIcon

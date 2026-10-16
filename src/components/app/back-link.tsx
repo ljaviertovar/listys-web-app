@@ -11,7 +11,7 @@ import { ArrowLeft01Icon } from '@hugeicons/core-free-icons'
 interface Props {
 	href: string
 	label: string
-	/** `screen` is the A1 header link: 44px target, slate text, no extra margin; it sits above a screen title. */
+	/** `screen` is the A1 header link: a `primary` size (40px on phones, 44px from md), slate text, no extra margin; it sits above a screen title. */
 	variant?: 'inline' | 'screen'
 }
 
@@ -21,8 +21,8 @@ function BackLinkContent({ href, label, variant = 'inline' }: Props) {
 			<Button
 				asChild
 				variant='quiet'
-				size='xl'
-				className='-ml-2 w-fit pr-3 pl-1.5'
+				size='primary'
+				className='-ml-2 w-fit'
 			>
 				<Link
 					href={href}

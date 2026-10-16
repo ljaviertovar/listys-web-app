@@ -1,14 +1,16 @@
 import type { ComponentProps } from 'react'
 import { redirect } from 'next/navigation'
 
-import { Card, CardContent } from '@/components/ui/card'
+import { HugeiconsIcon } from '@hugeicons/react'
+import { ShoppingCart02Icon } from '@hugeicons/core-free-icons'
+
+import { Card } from '@/components/ui/card'
 
 import { PageHeader, PageContainer } from '@/components/app'
 import { GroupCard } from '@/components/features/shopping-lists'
 
 import { getGroupsWithHistory } from '@/lib/api/endpoints'
 import { createClient } from '@/lib/supabase/server'
-import { FolderSearch2 } from 'lucide-react'
 
 export default async function HistoryPage() {
 	const supabase = await createClient()
@@ -25,6 +27,8 @@ export default async function HistoryPage() {
 	return (
 		<>
 			<PageHeader
+				variant='screen'
+				back={{ href: '/dashboard', label: 'Back to Dashboard' }}
 				title='Shopping History'
 				desc='View your past shopping sessions by group'
 			/>
@@ -35,24 +39,18 @@ export default async function HistoryPage() {
 				)}
 
 				{!groups || groups.length === 0 ? (
-					<Card
-						className='flex min-h-100 flex-col items-center justify-center'
-						size='sm'
-					>
-						<CardContent
-							inset='top'
-							className='flex w-full max-w-md flex-col items-center text-center'
-						>
-							<div className='flex h-16 w-16 items-center justify-center text-primary'>
-								<FolderSearch2 className='h-12 w-12' />
-							</div>
-							<div className='mt-1'>
-								<h3 className='text-xl font-semibold tracking-tight'>No shopping history yet</h3>
-								<p className='mt-2 text-sm text-muted-foreground'>
+					<Card size='tight'>
+						<div className='flex min-h-[152px] flex-col items-center justify-center gap-3 px-0.5 pt-2.5 pb-0.5 text-center'>
+							<span className='flex size-14 shrink-0 items-center justify-center rounded-2xl bg-green-100 text-green-700' aria-hidden='true'>
+								<HugeiconsIcon icon={ShoppingCart02Icon} strokeWidth={1.5} className='size-6.5' />
+							</span>
+							<div className='flex flex-col gap-1.5'>
+								<h3 className='text-base font-semibold tracking-tight'>No shopping history yet</h3>
+								<p className='mx-auto max-w-[280px] text-sm leading-[1.55] text-slate-500'>
 									Complete your first shopping session to start building your history.
 								</p>
 							</div>
-						</CardContent>
+						</div>
 					</Card>
 				) : (
 					<div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3'>

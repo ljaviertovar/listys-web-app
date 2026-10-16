@@ -222,7 +222,7 @@ components:
     backgroundColor: "{colors.primary}"
     textColor: "{colors.paper}"
     rounded: "{rounded.control}"
-    height: "44px (xl, the library's own; primary below md is lg 40px)"
+    height: "44px (xl, the library's own; primary below md is default 36px)"
     padding: "0 24px"
   button-hero:
     backgroundColor: "{colors.primary}"
@@ -467,7 +467,7 @@ are self-hosted and layout shifts are controlled.
 | Marketing heading | `750 clamp(32px, 4vw, 48px)/1.1`, `-.035em` | Landing sections |
 | h1 (screen title) | `700 36px/1.11`, `-.03em` | Authenticated page heading; 24px (`text-2xl`, `/1.17`, `-.025em`) below `md`, 30px (`text-3xl`) from `md`, 36px (`lg:text-4xl`) on desktop |
 | h2 | `700 30px/1.17`, `-.025em` | Hero and session titles: 20px (`text-xl`) below `md`, 30px (`text-3xl`) from `md`, never above the page h1 |
-| h3 | `700 24px/1.25`, `-.02em` | Session and list names |
+| h3 | `700 16px/1.25` below `md`, `700 18px/1.25` from `md`, `-.02em` | Session and list names, card titles |
 | h4 (section title) | `600 20px/1.33`, `-.015em` | Section titles and "Up Next" from `md`; the dashboard sets them at `/1.39`, `-.01em`. On phones they are `h2` elements set at the h6 size (`600 16px/1.5`, `-.005em`) |
 | h5 | `600 18px/1.39`, `-.01em` | Sub-sections |
 | h6 (card title) | `600 16px/1.5`, `-.005em` | Groups, lists, receipts, history cards |
@@ -712,11 +712,11 @@ descriptions, badges, toasts and list or receipt data keep sentence case.
 | `default` | 36px | 0 12px, 14px / 600, 6px gap (the default size; dense rows and secondary actions) |
 | `lg` | 40px | 0 16px, 14px / 600 |
 | `xl` | 44px | 0 24px, 16px / 600 (the library's own xl; toolbars and sheet footers from `md`) |
-| `primary` | 40px below `md`, 44px from `md` | The primary action of a screen, sheet or form: `lg` on phones, `xl` from `md` (see section 11.5) |
+| `primary` | 36px below `md`, 44px from `md` | The primary action of a screen, sheet or form: `default` on phones, `xl` from `md` (see section 11.5) |
 | `2xl` (hero) | 52px | 0 28px, Plus Jakarta Sans 700 16px, 10px gap, 18px icon |
 | Icon only | 36 to 48px | 18px icon; the raised tab-bar action is 48x48 with a 16px radius |
 
-Touch: `primary` for the main action of a screen (`lg` on phones, `xl` from `md`); `default` for other buttons; `sm` only inside dense rows that provide a 44px hit area.
+Touch: `primary` for the main action of a screen (`default` on phones, `xl` from `md`); `default` for other buttons; `sm` only inside dense rows that provide a 44px hit area.
 The visual height is not the hit area: every control keeps at least a 44x44px target (section 10.2).
 
 The **hero call to action** and the **raised tab-bar action** carry a highlight layer: a top-lit gradient, white at 18-20%
@@ -1023,7 +1023,7 @@ links or meaningful glyphs on light surfaces.
 
 - Interactive targets are at least 44×44px in shopping, upload, and mobile navigation flows. A control may look smaller
   (`sm` 32px, `default` 36px) only when its row or padding supplies a 44px hit area. The documented compact controls below `md`
-  are the "View All" links (32px) and the "Start" pills (32px); the primary action of a screen is `primary` (40px below `md`, 44px from `md`), and the empty-state button is `primary` too; the "Start" pills (32px) and the quick-start chips (36px) are
+  are the "View All" links (32px) and the "Start" pills (32px); the primary action of a screen is `primary` (36px below `md`, 44px from `md`), and the empty-state button is `primary` too; the "Start" pills (32px) and the quick-start chips (36px) are
   compact at every width (section 6.5). They remain deliberate product decisions.
 - Keyboard focus uses a 2px action-blue ring with a 2px offset; do not remove it in favour of colour change alone.
 - Drag-and-drop always has a file-picker equivalent. Reordering always has a keyboard or menu alternative.
@@ -1208,7 +1208,7 @@ The design is implemented with shadcn's native props and Tailwind's own scale; a
 | Button `weight` | `default` semibold · `medium` (the landing header's lighter label) | `ui/button.tsx` |
 | Icon button `size` | `icon` 36 · `icon-xs` 24 · `icon-sm` 32 · `icon-lg` 40 · `icon-xl` 44 · `icon-2xl` 48 (raised tab-bar action) | `ui/button.tsx` |
 | Button `variant` | `default`, `secondary` (`--secondary`, blue text), `outline`, `ghost`, `destructive`, `destructive-soft`, `success-soft`, `hero` (glow, lift), `fab`, `link`; quiet row/icon actions `quiet`, `quiet-destructive`, `destructive-ghost`, `ghost-primary` (a blue text action such as "View All"), `floating` (the session Actions button); the dark viewer's `on-dark`, `viewer`, `overlay`; the drop target `dropzone` | `ui/button.tsx` |
-| Button `size` on phones | `primary`: the primary action of a screen, sheet or form. It is `lg` (40px, `px-4`, `gap-1.5`) below `md` and the library's own `xl` (44px, `px-6`, `text-base`) from `md` up; one size, two breakpoints, no hook. Every other button keeps its size on every width. The primary actions are the toolbar actions (New Group, New Base List, Share, Add Item, Upload), Start Shopping, the confirm and submit buttons of the sheets and forms, Copy Link and Create Link, and the call to action of the dashboard empty and error states | `ui/button.tsx` |
+| Button `size` on phones | `primary`: the primary action of a screen, sheet or form. It is `default` (36px, `px-3`, `gap-1.5`) below `md` and the library's own `xl` (44px, `px-6`, `text-base`) from `md` up; one size, two breakpoints, no hook. Every other button keeps its size on every width. The primary actions are the toolbar actions (New Group, New Base List, Share, Add Item, Upload), Start Shopping, the confirm and submit buttons of the sheets and forms, Copy Link and Create Link, and the call to action of the dashboard empty and error states | `ui/button.tsx` |
 | Title roles on phones | Below `md` the page heading (`h1`, the screen header and the dashboard greeting) is `text-2xl` (24px); from `md` it is `text-3xl` and `lg:text-4xl` as before. The hero and session title (the dashboard hero, the no-session banner) is `text-xl` (20px) below `md` and `text-3xl` from `md`. Card names stay `text-base`, metadata `text-xs`. Receipt and group cards use `p-3 gap-2` below `md` and `p-4 gap-3` from `md`; they are plain elements, not `Card`, so their padding is a responsive class on the element | `app/`, `components/` |
 | Button `size` (content height) | `block`: `h-auto`, several lines, 24px padding (drop targets) | `ui/button.tsx` |
 | Button `rounded` | `xl` by default (12px); `md`, `lg`, `2xl`, `3xl`, `full` | `ui/button.tsx` |
@@ -1245,6 +1245,11 @@ status chips are `Badge` variants. Menu items are 44px (the sessions menu drew 4
 drawn 52), "View All" is 32px at every width, and `Label` keeps the 20px line height of `text-sm`. Dark mode is deferred (11.4).
 
 ---
+
+### 11.6 History and Add Items to List (phones)
+
+- History: the group card reads `Completed on <date> · $total` (mono date, `text-xs`), with the footer count and a `View Details` link. The empty state is one card with the folder icon.
+- Add Items to List is a bottom sheet below `md` (`DialogContent sheetOnPhones`). Cancel is `variant='secondary'`; Add is `size='primary'` and reads `Add N Items`, disabled until a list is chosen in the existing-list mode. The no-groups state offers one primary `Create Group` button.
 
 ## 12. Do and don't
 
