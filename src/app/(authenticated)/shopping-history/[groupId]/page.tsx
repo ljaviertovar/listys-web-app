@@ -2,11 +2,11 @@ import type { ComponentProps } from 'react'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getGroup, getShoppingHistory } from '@/lib/api/endpoints'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card } from '@/components/ui/card'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ShoppingBasket01Icon } from '@hugeicons/core-free-icons'
 import { HistorySessionCard } from '@/components/features/shopping-sessions'
-import { BackLink, PageHeader, PageContainer } from '@/components/app'
+import { PageHeader, PageContainer } from '@/components/app'
 
 /** A history row as the card takes it; the history endpoint is not typed yet. */
 type HistorySession = ComponentProps<typeof HistorySessionCard>['session'] & { base_list?: { group?: { id?: string } | null } | null }
@@ -37,15 +37,12 @@ export default async function GroupHistoryPage({ params }: { params: Promise<{ g
 	return (
 		<>
 			<PageHeader
+				variant='screen'
 				title={group.name}
 				desc={group.description || 'Shopping history for this group'}
+				back={{ href: '/shopping-history', label: 'Back to Shopping History' }}
 			/>
 			<PageContainer>
-				<BackLink
-					href='/shopping-history'
-					label='Back to Shopping History'
-				/>
-
 				{sessionsError && (
 					<div className='rounded-lg bg-destructive/10 p-4 text-sm text-destructive'>
 						Error loading history: {sessionsError}
@@ -53,24 +50,18 @@ export default async function GroupHistoryPage({ params }: { params: Promise<{ g
 				)}
 
 				{sessions.length === 0 ? (
-					<Card className='flex min-h-100 flex-col items-center justify-center'>
-						<CardContent
-							space='stack'
-							inset='top'
-							className='flex flex-col items-center'
-						>
-							<HugeiconsIcon
-								icon={ShoppingBasket01Icon}
-								strokeWidth={1.5}
-								className='h-16 w-16 text-muted-foreground'
-							/>
-							<div className='text-center'>
-								<h3 className='text-lg font-semibold'>No shopping history yet</h3>
-								<p className='text-sm text-muted-foreground'>
+					<Card size='tight'>
+						<div className='flex min-h-[152px] flex-col items-center justify-center gap-3 px-0.5 pt-2.5 pb-0.5 text-center'>
+							<span className='flex size-14 shrink-0 items-center justify-center rounded-2xl bg-green-100 text-green-700' aria-hidden='true'>
+								<HugeiconsIcon icon={ShoppingBasket01Icon} strokeWidth={1.5} className='size-6.5' />
+							</span>
+							<div className='flex flex-col gap-1.5'>
+								<h3 className='text-base font-semibold tracking-tight'>No shopping history yet</h3>
+								<p className='mx-auto max-w-[280px] text-sm leading-[1.55] text-slate-500'>
 									Complete shopping sessions from this group&apos;s lists to see them here
 								</p>
 							</div>
-						</CardContent>
+						</div>
 					</Card>
 				) : (
 					<div className='grid gap-4'>

@@ -152,10 +152,11 @@ export function MergeToBaseListDialog({ open, onOpenChange, ticketId, selectedIt
 		>
 			<DialogContent
 				onOpenAutoFocus={e => e.preventDefault()}
-				className='w-11/12 sm:max-w-125'
+				sheetOnPhones
+				className='sm:max-w-125'
 			>
 				<DialogHeader>
-					<DialogTitle variant='strong' className='truncate'>Add Items to List</DialogTitle>
+					<DialogTitle variant='sheet'>Add Items to List</DialogTitle>
 					<DialogDescription>
 						Add {selectedItemIds.length} selected item{selectedItemIds.length !== 1 ? 's' : ''} to a shopping list.
 					</DialogDescription>
@@ -184,10 +185,11 @@ export function MergeToBaseListDialog({ open, onOpenChange, ticketId, selectedIt
 						</div>
 						<Button
 							asChild
-							variant='link'
+							size='primary'
+							className='w-full'
 							onClick={() => onOpenChange(false)}
 						>
-							<Link href='/shopping-lists'>Start by Creating a Group</Link>
+							<Link href='/shopping-lists'>Create Group</Link>
 						</Button>
 					</div>
 				) : (
@@ -205,7 +207,7 @@ export function MergeToBaseListDialog({ open, onOpenChange, ticketId, selectedIt
 									setSelectedBaseListId('')
 								}}
 							>
-								<SelectTrigger>
+								<SelectTrigger size='lg'>
 									<SelectValue placeholder='Select a group' />
 								</SelectTrigger>
 								<SelectContent>
@@ -258,7 +260,7 @@ export function MergeToBaseListDialog({ open, onOpenChange, ticketId, selectedIt
 										value={selectedBaseListId}
 										onValueChange={setSelectedBaseListId}
 									>
-										<SelectTrigger>
+										<SelectTrigger size='lg'>
 											<SelectValue placeholder='Select a shopping list' />
 										</SelectTrigger>
 										<SelectContent>
@@ -298,7 +300,8 @@ export function MergeToBaseListDialog({ open, onOpenChange, ticketId, selectedIt
 						<div className='w-full flex justify-between gap-4 pt-2'>
 							<Button
 								type='button'
-								variant='outline'
+								variant='secondary'
+								size='primary'
 								onClick={() => onOpenChange(false)}
 								className='flex-1'
 							>
@@ -306,7 +309,8 @@ export function MergeToBaseListDialog({ open, onOpenChange, ticketId, selectedIt
 							</Button>
 							<Button
 								type='submit'
-								disabled={loading}
+								size='primary'
+								disabled={loading || (mode === 'existing' && !selectedBaseListId)}
 								className='flex-1'
 							>
 								{loading ? (
@@ -319,7 +323,7 @@ export function MergeToBaseListDialog({ open, onOpenChange, ticketId, selectedIt
 										Adding…
 									</>
 								) : (
-									<>Add</>
+									<>Add {selectedItemIds.length} Item{selectedItemIds.length !== 1 ? 's' : ''}</>
 								)}
 							</Button>
 						</div>

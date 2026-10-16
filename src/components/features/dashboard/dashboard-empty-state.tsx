@@ -22,9 +22,9 @@ export function DashboardEmptyState({ testId, icon, tone, title, message, action
 	return (
 		<div
 			data-testid={testId}
-			className='flex flex-1 items-center justify-center'
+			className='flex flex-1 flex-col'
 		>
-			<div className='flex min-h-[172px] w-full flex-col items-center justify-center pt-5 pb-2 text-center'>
+			<div className='flex min-h-[172px] w-full flex-1 flex-col items-center justify-center text-center'>
 				<RowIcon
 					icon={icon}
 					tone={tone}

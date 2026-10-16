@@ -12,7 +12,7 @@ interface Props {
 
 /**
  * Shared shell of the three dashboard sections (design A1): the title and its "View all" link sit above a white card
- * that holds the rows. Cards stretch to the tallest sibling so a row of sections stays level, and lift a little on hover.
+ * that holds the rows. Cards stretch to the tallest sibling so a row of sections stays level. Only the links react to hover: the card body is not clickable.
  */
 export function DashboardSectionCard({ testId, title, viewAll, children }: Props) {
 	return (
@@ -32,7 +32,6 @@ export function DashboardSectionCard({ testId, title, viewAll, children }: Props
 			</div>
 			<Card
 				size='tight'
-				interactive
 				className='flex-1'
 			>
 				{children}

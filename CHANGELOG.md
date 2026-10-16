@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+- Shopping history cards read "Completed on <date>" and show the session total on the same line; the mockups and the code agree.
+- The Add Items to List dialog is a bottom sheet on phones, with a secondary Cancel, a primary "Add N Items" that stays disabled until a list is chosen, and a primary "Create Group" in the no-groups state.
+
 ## Unreleased
 
 - Phone sizes below `md`. `Button size='primary'` is the primary action of a screen, sheet or form: `lg` (40px) below `md` and the library's
