@@ -49,6 +49,15 @@ const buttonVariants = cva(
           "text-red-700 shadow-none hover:bg-red-100 focus-visible:ring-red-500 dark:text-red-300 dark:hover:bg-red-950",
         // A text action in the primary colour (the "View All" link of a section): transparent until hovered.
         "ghost-primary": "text-blue-700 shadow-none hover:bg-secondary dark:text-blue-400",
+        // One option of a segmented switch (the sign-in / sign-up control): quiet slate until it is the current page, then a raised white tab.
+        segment:
+          "text-slate-600 shadow-none hover:text-foreground aria-[current=page]:bg-card aria-[current=page]:text-foreground aria-[current=page]:shadow-xs dark:text-muted-foreground",
+        // A quiet action over a dark photo (the "Back to Home" link of the phone auth header): white text, a faint wash on hover.
+        "quiet-on-dark":
+          "text-slate-50 shadow-none hover:bg-white/15 focus-visible:ring-2 focus-visible:ring-blue-400",
+        // A white action over a dark photo: ink text on a white fill.
+        inverse:
+          "bg-white text-slate-900 shadow-none hover:bg-slate-100 focus-visible:ring-2 focus-visible:ring-blue-400",
         // A white button with the menu shadow that floats over a page (the session Actions button).
         floating: "bg-card text-blue-700 shadow-menu hover:bg-card dark:text-blue-300",
         // The dark photo viewer: translucent white controls, the darker plate over a photo, and the round arrows.
@@ -71,6 +80,8 @@ const buttonVariants = cva(
         lg: "h-10 gap-1.5 px-4 has-data-[icon=inline-end]:pr-3 has-data-[icon=inline-start]:pl-3",
         // The native xl of the library: the touch height of the app (screen toolbars, sheet and form footers, 44px).
         xl: "h-11 gap-2 px-6 text-base has-data-[icon=inline-end]:pr-4 has-data-[icon=inline-start]:pl-4",
+        // The 44px touch height with the 14px label of a link-like action (segmented switch, header link on a phone).
+        touch: "h-11 gap-1.5 px-3 has-data-[icon=inline-end]:pr-2.5 has-data-[icon=inline-start]:pl-2.5",
         // Primary action: the library's `default` size below md and `lg` from md up.
         primary:
           "h-9 gap-1.5 px-3 has-data-[icon=inline-end]:pr-2.5 has-data-[icon=inline-start]:pl-2.5 md:h-10 md:gap-1.5 md:px-4 md:has-data-[icon=inline-end]:pr-3 md:has-data-[icon=inline-start]:pl-3",
