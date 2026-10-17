@@ -3,16 +3,20 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { GoogleIcon, Loading03Icon } from '@hugeicons/core-free-icons'
+import { Loading03Icon } from '@hugeicons/core-free-icons'
 
 import { Button } from '@/components/ui/button'
+
+import { GoogleGlyph } from './google-glyph'
 
 interface Props {
 	typeSubmit: 'signin' | 'signup'
 	callbackUrl?: string
+	/** The email form is submitting: both ways in wait for it. */
+	disabled?: boolean
 }
 
-export default function GoogleButtonSignin({ typeSubmit, callbackUrl }: Props) {
+export default function GoogleButtonSignin({ typeSubmit, callbackUrl, disabled = false }: Props) {
 	const [isLoading, setIsLoading] = useState(false)
 	const supabase = createClient()
 
@@ -41,8 +45,9 @@ export default function GoogleButtonSignin({ typeSubmit, callbackUrl }: Props) {
 	return (
 		<Button
 			type='button'
-			disabled={isLoading}
-			size='primary'
+			disabled={isLoading || disabled}
+			variant='outline'
+			size='xl'
 			className='w-full'
 			onClick={handleGoogleSignIn}
 		>
@@ -53,10 +58,7 @@ export default function GoogleButtonSignin({ typeSubmit, callbackUrl }: Props) {
 					className='animate-spin'
 				/>
 			) : (
-				<HugeiconsIcon
-					icon={GoogleIcon}
-					strokeWidth={2}
-				/>
+				<GoogleGlyph />
 			)}{' '}
 			{typeSubmit === 'signup' ? 'Sign Up with Google' : 'Sign In with Google'}
 		</Button>

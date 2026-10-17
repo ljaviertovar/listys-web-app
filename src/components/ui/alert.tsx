@@ -10,6 +10,8 @@ const alertVariants = cva(
 			variant: {
 				default: 'bg-card text-card-foreground',
 				destructive: 'text-destructive bg-card *:[svg]:text-current',
+				// A failed action reported at the top of a form: soft red wash, no border, red-700 text.
+				'destructive-soft': 'rounded-xl border-transparent bg-red-50 px-3.5 font-medium text-red-700 dark:bg-red-950/60 dark:text-red-300 *:[svg]:text-current',
 				info: 'border-blue-500/60 bg-blue-500/10 text-blue-700 dark:text-blue-400 *:[svg]:text-blue-700 dark:*:[svg]:text-blue-400',
 				warning:
 					'border-amber-500/60 bg-amber-500/10 text-amber-700 dark:text-amber-400 *:[svg]:text-amber-700 dark:*:[svg]:text-amber-400',

@@ -49,7 +49,7 @@ export function BaseListItems({ baseListId, items, isLocked = false }: BaseListI
 		<section
 			aria-label='Items by category'
 			data-testid='base-list-items-card'
-			className='px-4 pt-1 rounded-3xl bg-card shadow-card'
+			className='rounded-3xl bg-card px-3 pt-1 shadow-card md:px-4'
 		>
 			{groups.map((group, index) => (
 				<CategorySection

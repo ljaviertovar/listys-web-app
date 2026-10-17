@@ -9,6 +9,10 @@ interface FormFieldProps {
 	/** Id of the control the label belongs to. */
 	htmlFor: string
 	label: ReactNode
+	/** A control next to the label on the right, such as the "Forgot Password?" link. */
+	labelAction?: ReactNode
+	/** Help that stays under the control until there is an error to show in its place. */
+	hint?: ReactNode
 	required?: boolean
 	error?: string | null
 	children: ReactNode
@@ -18,25 +22,34 @@ interface FormFieldProps {
 }
 
 /** A labelled control of an A1 form with its validation message under it: a red alert icon and the text, never colour alone. */
-export function FormField({ htmlFor, label, required = false, error, children, testId, className }: FormFieldProps) {
+export function FormField({ htmlFor, label, labelAction, hint, required = false, error, children, testId, className }: FormFieldProps) {
+	const labelNode = (
+		<Label htmlFor={htmlFor}>
+			{label}
+			{required ? (
+				<span
+					aria-hidden='true'
+					className='text-destructive'
+				>
+					*
+				</span>
+			) : null}
+		</Label>
+	)
+
 	return (
 		<div
 			data-testid={testId}
 			className={cn('flex flex-col gap-2', className)}
 		>
-			<Label
-				htmlFor={htmlFor}
-			>
-				{label}
-				{required ? (
-					<span
-						aria-hidden='true'
-						className='text-destructive'
-					>
-						*
-					</span>
-				) : null}
-			</Label>
+			{labelAction ? (
+				<div className='flex items-center justify-between gap-3'>
+					{labelNode}
+					{labelAction}
+				</div>
+			) : (
+				labelNode
+			)}
 			{children}
 			{error ? (
 				<p
@@ -51,6 +64,13 @@ export function FormField({ htmlFor, label, required = false, error, children, t
 						className='size-3.5 shrink-0'
 					/>
 					{error}
+				</p>
+			) : hint ? (
+				<p
+					id={`${htmlFor}-hint`}
+					className='text-xs leading-[1.3] text-slate-500 dark:text-muted-foreground'
+				>
+					{hint}
 				</p>
 			) : null}
 		</div>

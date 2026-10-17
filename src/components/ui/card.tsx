@@ -14,7 +14,7 @@ function Card({
 }: React.ComponentProps<'div'> & {
 	/** `compact`, `tight` and `flush` drop the gap between the parts of the card and shrink its padding (a card of list rows). */
 	size?: 'default' | 'sm' | 'compact' | 'tight' | 'flush'
-	variant?: 'default' | 'premium' | 'accent' | 'ghost' | 'glass'
+	variant?: 'default' | 'premium' | 'accent' | 'ghost'
 	layout?: 'default' | 'horizontal'
 	side?: 'left' | 'right'
 	/** Lifts the shadow on hover: a card that holds rows or links to somewhere. */
@@ -40,8 +40,6 @@ function Card({
 					'border border-muted-foreground/10 shadow-premium ring-1 ring-slate-200/60 hover:shadow-xl hover:shadow-primary/5 dark:ring-slate-800/60',
 				variant === 'accent' && 'border border-primary/30 bg-primary/5',
 				variant === 'ghost' && 'bg-transparent border-dashed border-2',
-				// Frosted panel of the auth pages.
-				variant === 'glass' && 'border border-border/40 bg-card/80 shadow-2xl backdrop-blur-xl',
 				className,
 			)}
 			{...props}
@@ -64,22 +62,13 @@ function CardBanner({ className, ...props }: React.ComponentProps<'div'>) {
 	)
 }
 
-function CardHeader({
-	className,
-	spacing = 'default',
-	...props
-}: React.ComponentProps<'div'> & {
-	/** `tight` pulls the content closer under the header (a standalone card: sign-in, sign-up). */
-	spacing?: 'default' | 'tight'
-}) {
+function CardHeader({ className, ...props }: React.ComponentProps<'div'>) {
 	return (
 		<div
 			data-slot='card-header'
-			data-spacing={spacing}
 			className={cn(
-				'gap-2 rounded-t-lg px-6 group-data-[size=sm]/card:px-4 [.border-b]:pb-6 group-data-[size=sm]/card:[.border-b]:pb-4 group/card-header @container/card-header grid auto-rows-min items-start has-data-[slot=card-action]:grid-cols-[1fr_auto] has-data-[slot=card-description]:grid-rows-[auto_auto]',
+				'gap-2 rounded-t-lg px-3 md:px-4 [.border-b]:pb-6 group-data-[size=sm]/card:[.border-b]:pb-4 group/card-header @container/card-header grid auto-rows-min items-start has-data-[slot=card-action]:grid-cols-[1fr_auto] has-data-[slot=card-description]:grid-rows-[auto_auto]',
 				'group-data-[layout=horizontal]/card:md:p-8 group-data-[layout=horizontal]/card:md:pb-0',
-				spacing === 'tight' && 'pb-2',
 				className,
 			)}
 			{...props}
@@ -147,8 +136,8 @@ function CardContent({
 }: React.ComponentProps<'div'> & {
 	/** The rhythm between the children: `snug` is a 12px gap (a flex column), `stack` puts 16px between stacked blocks. */
 	space?: 'default' | 'snug' | 'stack'
-	/** `top` adds the 24px the card has above a content that has no header; `compact` narrows the sides to 16px. */
-	inset?: 'default' | 'top' | 'compact'
+	/** `compact` keeps the responsive card-side inset. */
+	inset?: 'default' | 'compact'
 }) {
 	return (
 		<div
@@ -156,11 +145,10 @@ function CardContent({
 			data-space={space}
 			data-inset={inset}
 			className={cn(
-				'px-6 group-data-[size=sm]/card:px-4',
+				'px-3 md:px-4',
 				space === 'snug' && 'gap-3',
 				space === 'stack' && 'space-y-4',
-				inset === 'top' && 'pt-6',
-				inset === 'compact' && 'px-4',
+				inset === 'compact' && 'px-3 md:px-4',
 				'group-data-[layout=horizontal]/card:flex-1 group-data-[layout=horizontal]/card:flex group-data-[layout=horizontal]/card:flex-col group-data-[layout=horizontal]/card:md:p-8',
 				className,
 			)}
@@ -174,7 +162,7 @@ function CardFooter({ className, ...props }: React.ComponentProps<'div'>) {
 		<div
 			data-slot='card-footer'
 			className={cn(
-				'rounded-b-lg px-6 group-data-[size=sm]/card:px-4 [.border-t]:pt-6 group-data-[size=sm]/card:[.border-t]:pt-4 flex items-center',
+				'rounded-b-lg px-3 md:px-4 [.border-t]:pt-6 group-data-[size=sm]/card:[.border-t]:pt-4 flex items-center',
 				'group-data-[layout=horizontal]/card:md:p-8 group-data-[layout=horizontal]/card:md:pt-0',
 				className,
 			)}

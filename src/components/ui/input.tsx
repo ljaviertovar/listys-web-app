@@ -13,8 +13,13 @@ const inputVariants = cva(
 				// Touch height of the app's forms (44px).
 				lg: 'h-11 rounded-2xl px-3.5 text-base md:text-sm',
 			},
+			// Room for a 44px control laid over the end of the field (the show-password toggle).
+			adornment: {
+				none: '',
+				end: 'pr-13',
+			},
 		},
-		defaultVariants: { size: 'default' },
+		defaultVariants: { size: 'default', adornment: 'none' },
 	},
 )
 
@@ -22,6 +27,7 @@ function Input({
 	className,
 	type,
 	size = 'default',
+	adornment = 'none',
 	...props
 }: Omit<React.ComponentProps<'input'>, 'size'> & VariantProps<typeof inputVariants>) {
 	return (
@@ -29,7 +35,7 @@ function Input({
 			type={type}
 			data-slot='input'
 			data-size={size}
-			className={cn(inputVariants({ size }), className)}
+			className={cn(inputVariants({ size, adornment }), className)}
 			{...props}
 		/>
 	)

@@ -99,7 +99,7 @@ export function TicketPhotoPanel({ urls, count, view, error, onOpenFullScreen }:
 		<section
 			data-testid='ticket-photo-panel'
 			aria-label={count === 1 ? 'Receipt photo' : 'Receipt photos'}
-			className='flex flex-col gap-3 p-4 rounded-3xl bg-card shadow-card'
+			className='flex flex-col gap-3 rounded-3xl bg-card p-3 shadow-card md:p-4'
 		>
 			<div className='flex items-center gap-3'>
 				<span className='flex size-10 shrink-0 items-center justify-center rounded-xl bg-cyan-100 text-cyan-700 dark:bg-cyan-950 dark:text-cyan-300'>

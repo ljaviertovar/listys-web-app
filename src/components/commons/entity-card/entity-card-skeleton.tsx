@@ -6,7 +6,7 @@ export function EntityCardSkeleton({ testId }: { testId: string }) {
 		<div
 			data-testid={testId}
 			aria-hidden='true'
-			className='flex flex-col gap-3 p-4 rounded-3xl bg-card shadow-card'
+			className='flex flex-col gap-3 rounded-3xl bg-card p-3 shadow-card md:p-4'
 		>
 			<div className='flex items-center gap-3'>
 				<Skeleton className='size-9 rounded-xl' />

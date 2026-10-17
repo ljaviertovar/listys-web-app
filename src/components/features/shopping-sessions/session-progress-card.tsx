@@ -17,7 +17,7 @@ export function SessionProgressCard({ checked, total, isCompleted = false }: Ses
 		<section
 			aria-label='Shopping progress'
 			data-testid='session-progress-card'
-			className='flex flex-col gap-3 p-4 rounded-3xl bg-card shadow-card'
+			className='flex flex-col gap-3 rounded-3xl bg-card p-3 shadow-card md:p-4'
 		>
 			<div className='flex items-end justify-between gap-2'>
 				<div className='flex flex-col gap-1'>

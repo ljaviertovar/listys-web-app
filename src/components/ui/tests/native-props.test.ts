@@ -6,7 +6,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { Badge } from '@/components/ui/badge'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card'
 import { Collapsible } from '@/components/ui/collapsible'
 import { SidebarContent, SidebarFooter, SidebarGroup, SidebarMenu } from '@/components/ui/sidebar'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -36,6 +36,7 @@ const HEIGHTS = {
 	lg: 'h-10',
 	xl: 'h-11',
 	primary: 'h-9',
+	'hero-action': 'h-10',
 	'2xl': 'h-13',
 	icon: 'size-9',
 	'icon-xs': 'size-6',
@@ -76,12 +77,24 @@ describe('Button', () => {
 		expect(buttonVariants({ size: 'lg' }).split(/\s+/)).not.toContain('text-base')
 	})
 
-	it('primary is default below md and the library xl from md up', () => {
+	it('primary is default below md and the library lg from md up', () => {
 		const classes = buttonVariants({ size: 'primary' }).split(/\s+/)
 
-		expect(classes).toEqual(expect.arrayContaining(['h-9', 'px-3', 'md:h-11', 'md:px-6', 'md:text-base']))
+		expect(classes).toEqual(expect.arrayContaining(['h-9', 'px-3', 'md:h-10', 'md:px-4']))
 		expect(classes).not.toContain('h-11')
-		expect(classes).not.toContain('text-base')
+		expect(classes).not.toContain('md:text-base')
+	})
+
+	it('default is the library lg from md up', () => {
+		const classes = buttonVariants({ size: 'default' }).split(/\s+/)
+
+		expect(classes).toEqual(expect.arrayContaining(['h-9', 'px-3', 'md:h-10', 'md:px-4']))
+	})
+
+	it('hero action is lg on phones and xl from md up', () => {
+		const classes = buttonVariants({ size: 'hero-action' }).split(/\s+/)
+
+		expect(classes).toEqual(expect.arrayContaining(['h-10', 'px-4', 'md:h-11', 'md:px-6', 'md:text-base']))
 	})
 
 	it('has an avatar size that is a circle on phones and a pill from lg, and a weight for the landing header', () => {
@@ -166,6 +179,13 @@ describe('fields and surfaces take their size from props', () => {
 		expect(classOf(base, 'i')).toEqual(expect.arrayContaining(['h-9', 'rounded-xl', 'shadow-field']))
 		expect(classOf(lg, 'i')).toEqual(expect.arrayContaining(['h-11', 'rounded-2xl', 'shadow-field']))
 		expect(classOf(lg, 'i')).not.toContain('h-9')
+	})
+
+	it('Input: `adornment="end"` leaves room for a 44px control over the end of the field', () => {
+		const adorned = classOf(renderToStaticMarkup(h(Input, { size: 'lg', adornment: 'end', 'data-testid': 'i' })), 'i')
+
+		expect(adorned).toEqual(expect.arrayContaining(['h-11', 'shadow-field', 'pr-13']))
+		expect(classOf(renderToStaticMarkup(h(Input, { 'data-testid': 'i' })), 'i')).not.toContain('pr-13')
 	})
 
 	it('Textarea carries the same field surface', () => {
@@ -264,22 +284,24 @@ describe('the variants that replaced per-call classes', () => {
 		expect(buttonVariants({ variant: 'dropzone', size: 'block' })).toEqual(expect.stringContaining('border-dashed'))
 		expect(buttonVariants({ size: 'block' })).toContain('h-auto')
 	})
+
+	it('Button has the segment, quiet-on-dark and inverse variants and a 44px touch size for the auth screens', () => {
+		expect(buttonVariants({ variant: 'segment' })).toContain('aria-[current=page]:bg-card')
+		expect(buttonVariants({ variant: 'quiet-on-dark' })).toContain('text-slate-50')
+		expect(buttonVariants({ variant: 'inverse' })).toContain('bg-white')
+		expect(buttonVariants({ size: 'touch' })).toEqual(expect.stringContaining('h-11'))
+		expect(buttonVariants({ size: 'touch' })).not.toContain('text-base')
+	})
 })
 
 describe('container spacing is theme: it comes from variants', () => {
-	it('CardHeader `spacing="tight"` pulls the content up under it', () => {
-		expect(classOf(renderToStaticMarkup(h(CardHeader, { 'data-testid': 'x' })), 'x')).not.toContain('pb-2')
-		expect(classOf(renderToStaticMarkup(h(CardHeader, { spacing: 'tight', 'data-testid': 'x' })), 'x')).toContain('pb-2')
-	})
-
-	it('CardContent has `space` (snug / stack) and `inset` (top / compact)', () => {
+	it('CardContent has `space` (snug / stack) and `inset` (compact)', () => {
 		const at = (props: Record<string, unknown>) => classOf(renderToStaticMarkup(h(CardContent, { 'data-testid': 'x', ...props })), 'x')
 
 		expect(at({})).not.toEqual(expect.arrayContaining(['space-y-4']))
 		expect(at({ space: 'snug' })).toContain('gap-3')
 		expect(at({ space: 'stack' })).toContain('space-y-4')
-		expect(at({ inset: 'top' })).toContain('pt-6')
-		expect(at({ inset: 'compact' })).toContain('px-4')
+		expect(at({ inset: 'compact' })).toEqual(expect.arrayContaining(['px-3', 'md:px-4']))
 		expect(at({ inset: 'compact' })).not.toContain('px-6')
 	})
 

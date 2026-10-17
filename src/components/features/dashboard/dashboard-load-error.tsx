@@ -19,7 +19,7 @@ export function DashboardLoadError() {
 		<div
 			role='alert'
 			data-testid='dashboard-load-error'
-			className='flex flex-col items-start gap-4 rounded-3xl border border-red-200 bg-red-50 p-5 md:p-8 dark:border-red-500/30 dark:bg-red-500/10'
+			className='flex flex-col items-start gap-4 rounded-3xl border border-red-200 bg-red-50 p-3 md:p-4 dark:border-red-500/30 dark:bg-red-500/10'
 		>
 			<span className='flex size-12 items-center justify-center rounded-2xl bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400'>
 				<HugeiconsIcon

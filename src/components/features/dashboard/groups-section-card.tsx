@@ -70,7 +70,7 @@ export function GroupsSectionCard({ groups, sessionActive = false }: Props) {
 									<li
 										key={list.id}
 										data-testid={`dashboard-list-${list.id}`}
-										className='flex items-center gap-2.5 border-l-2 border-slate-200 px-2 py-1.5 dark:border-border'
+										className='flex items-center gap-2.5 rounded-[14px] border-l-2 border-slate-200 px-2 py-1.5 transition-colors duration-150 hover:bg-background dark:border-border dark:hover:bg-muted'
 									>
 										<RowIcon
 											icon={ListViewIcon}

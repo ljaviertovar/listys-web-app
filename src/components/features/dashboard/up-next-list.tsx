@@ -55,7 +55,7 @@ export function UpNextList({ items }: Props) {
 										href={item.href}
 										data-testid={`dashboard-up-next-${item.kind}`}
 										className={cn(
-											'flex min-h-16 items-center gap-3 rounded-xl px-3 py-2.5 transition-colors duration-150',
+											'flex min-h-16 items-center gap-3 rounded-[18px] bg-muted/70 px-3 py-2.5 transition-colors duration-150 dark:bg-muted/50',
 											'hover:bg-background dark:hover:bg-muted',
 											'focus-ring',
 										)}
