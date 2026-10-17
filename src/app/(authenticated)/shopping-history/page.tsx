@@ -40,9 +40,16 @@ export default async function HistoryPage() {
 
 				{!groups || groups.length === 0 ? (
 					<Card size='tight'>
-						<div className='flex min-h-[152px] flex-col items-center justify-center gap-3 px-0.5 pt-2.5 pb-0.5 text-center'>
-							<span className='flex size-14 shrink-0 items-center justify-center rounded-2xl bg-green-100 text-green-700' aria-hidden='true'>
-								<HugeiconsIcon icon={ShoppingCart02Icon} strokeWidth={1.5} className='size-6.5' />
+						<div className='flex min-h-[152px] flex-col items-center justify-center gap-3 px-0.5 text-center'>
+							<span
+								className='flex size-14 shrink-0 items-center justify-center rounded-2xl bg-green-100 text-green-700'
+								aria-hidden='true'
+							>
+								<HugeiconsIcon
+									icon={ShoppingCart02Icon}
+									strokeWidth={1.5}
+									className='size-6.5'
+								/>
 							</span>
 							<div className='flex flex-col gap-1.5'>
 								<h3 className='text-base font-semibold tracking-tight'>No shopping history yet</h3>

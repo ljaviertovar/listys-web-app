@@ -9,7 +9,7 @@ interface Props {
 
 export default function CardHeaderContent({ icon, title, description }: Props) {
 	return (
-		<div className='flex gap-2 items-center p-4 pt-0'>
+		<div className='flex items-center gap-2'>
 			<div className='flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/5 border border-primary/10 transition-colors group-hover:bg-primary/10'>
 				<HugeiconsIcon
 					icon={icon}

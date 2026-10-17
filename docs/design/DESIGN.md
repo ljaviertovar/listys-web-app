@@ -679,10 +679,10 @@ a failed request must not look like an empty account. The photo behind the heroe
 | --- | --- | --- |
 | Page title | 24px (`text-2xl`) | 30px (`text-3xl`) from `md`, 36px (`lg:text-4xl`) on desktop |
 | Hero and session title | 20px (`text-xl`) | 30px (`text-3xl`) from `md` |
-| Primary action (`size='primary'`) | 40px, 14px | 44px, 16px from `md` (`xl`) |
-| Hero button | 52px; new-account "Upload receipt" 44px | 52px |
+| Primary action (`size='primary'`) | 36px, 14px (`default`) | 40px, 14px from `md` (`lg`) |
+| Hero button | 52px; hero card action 40px (`lg`) | 52px; hero card action 44px (`xl`) |
 | Quick-start chips | 36px / 12.5px | 36px / 12.5px |
-| Empty-state button | `primary`, 40px / 14px | `primary`, 44px / 16px |
+| Empty-state button | `primary`, 36px / 14px | `primary`, 40px / 14px |
 | "View All" | 32px / 12px | 40px / 14px |
 | Header | 60px | 64px (`lg`) |
 | Tab bar and session pill | Shown | Hidden (`lg`) |
@@ -715,14 +715,15 @@ descriptions, badges, toasts and list or receipt data keep sentence case.
 | Size | Height | Padding and label |
 | --- | --- | --- |
 | `sm` | 32px | 0 14px, 13px, 6px gap |
-| `default` | 36px | 0 12px, 14px / 600, 6px gap (the default size; dense rows and secondary actions) |
+| `default` | 36px below `md`, 40px from `md` | 0 12px, then 0 16px from `md`; 14px / 600, 6px gap (the default size) |
 | `lg` | 40px | 0 16px, 14px / 600 |
 | `xl` | 44px | 0 24px, 16px / 600 (the library's own xl; toolbars and sheet footers from `md`) |
-| `primary` | 36px below `md`, 44px from `md` | The primary action of a screen, sheet or form: `default` on phones, `xl` from `md` (see section 11.5) |
+| `primary` | 36px below `md`, 40px from `md` | The primary action of a screen, sheet or form: `default` on phones, `lg` from `md` (see section 11.5) |
+| `hero-action` | 40px below `md`, 44px from `md` | The dashboard hero card action: `lg` on phones, `xl` from `md` |
 | `2xl` (hero) | 52px | 0 28px, Plus Jakarta Sans 700 16px, 10px gap, 18px icon |
 | Icon only | 36 to 48px | 18px icon; the raised tab-bar action is 48x48 with a 16px radius |
 
-Touch: `primary` for the main action of a screen (`default` on phones, `xl` from `md`); `default` for other buttons; `sm` only inside dense rows that provide a 44px hit area.
+Touch: standard buttons use `default` (36px) below `md` and `lg` (40px) from `md`; `primary` follows the same responsive sizing for main actions. Use `sm` only inside dense rows that provide a 44px hit area.
 The visual height is not the hit area: every control keeps at least a 44x44px target (section 10.2).
 
 The **hero call to action** and the **raised tab-bar action** carry a highlight layer: a top-lit gradient, white at 18-20%
@@ -1214,14 +1215,14 @@ The design is implemented with shadcn's native props and Tailwind's own scale; a
 | Button `weight` | `default` semibold · `medium` (the landing header's lighter label) | `ui/button.tsx` |
 | Icon button `size` | `icon` 36 · `icon-xs` 24 · `icon-sm` 32 · `icon-lg` 40 · `icon-xl` 44 · `icon-2xl` 48 (raised tab-bar action) | `ui/button.tsx` |
 | Button `variant` | `default`, `secondary` (`--secondary`, blue text), `outline`, `ghost`, `destructive`, `destructive-soft`, `success-soft`, `hero` (glow, lift), `fab`, `link`; quiet row/icon actions `quiet`, `quiet-destructive`, `destructive-ghost`, `ghost-primary` (a blue text action such as "View All"), `floating` (the session Actions button); the dark viewer's `on-dark`, `viewer`, `overlay`; the drop target `dropzone` | `ui/button.tsx` |
-| Button `size` on phones | `primary`: the primary action of a screen, sheet or form. It is `default` (36px, `px-3`, `gap-1.5`) below `md` and the library's own `xl` (44px, `px-6`, `text-base`) from `md` up; one size, two breakpoints, no hook. Every other button keeps its size on every width. The primary actions are the toolbar actions (New Group, New Base List, Share, Add Item, Upload), Start Shopping, the confirm and submit buttons of the sheets and forms, Copy Link and Create Link, and the call to action of the dashboard empty and error states | `ui/button.tsx` |
+| Button `size` on phones | Standard buttons use the library's `default` (36px, `px-3`, `gap-1.5`) below `md` and `lg` (40px, `px-4`, `gap-1.5`) from `md` up. `primary` uses the same scale for the main action of a screen, sheet or form. The dashboard hero card action uses `hero-action`: `lg` (40px) on phones and `xl` (44px) from `md`. `sm`, icon, hero and content-driven sizes keep their own scale. One size, two breakpoints, no hook | `ui/button.tsx` |
 | Title roles on phones | Below `md` the page heading (`h1`, the screen header and the dashboard greeting) is `text-2xl` (24px); from `md` it is `text-3xl` and `lg:text-4xl` as before. The hero and session title (the dashboard hero, the no-session banner) is `text-xl` (20px) below `md` and `text-3xl` from `md`. Card names stay `text-base`, metadata `text-xs`. Receipt and group cards use `p-3 gap-2` below `md` and `p-4 gap-3` from `md`; they are plain elements, not `Card`, so their padding is a responsive class on the element | `app/`, `components/` |
 | Button `size` (content height) | `block`: `h-auto`, several lines, 24px padding (drop targets) | `ui/button.tsx` |
 | Button `rounded` | `xl` by default (12px); `md`, `lg`, `2xl`, `3xl`, `full` | `ui/button.tsx` |
 | Link that looks like a button | `<Button asChild variant size><Link/></Button>`; never `buttonVariants()` or hand-set classes on `Link` (back link, "View All", the shortcut chips, the session bar's Continue) | call sites |
 | Field `size` | `default` 36 (`rounded-xl`) · `lg` 44 (`rounded-2xl`, the 16px of the form fields); borderless on `bg-card` with `shadow-field`; invalid: a `--destructive` ring | `ui/input.tsx`, `ui/textarea.tsx`, `ui/select.tsx` |
 | Card | `rounded-3xl` (24px), `shadow-card`, no border; `size` `compact` / `tight` / `flush` for cards of rows; `variant` `premium`, `accent`, `ghost`, `glass`; `interactive` lifts the shadow | `ui/card.tsx` |
-| Card parts | `CardHeader spacing` `default` · `tight` (8px under it, standalone cards); `CardContent space` `default` · `snug` (12px gap in a flex column) · `stack` (16px between stacked blocks) and `inset` `default` · `top` (24px above a content with no header) · `compact` (16px sides) | `ui/card.tsx` |
+| Card parts | `CardHeader spacing` `default` · `tight` (8px under it, standalone cards); card sides use 12px below `md` and 16px from `md`; `CardContent space` `default` · `snug` (12px gap in a flex column) · `stack` (16px between stacked blocks) and `inset` `default` · `top` (24px above a content with no header) · `compact` (responsive card-side inset) | `ui/card.tsx` |
 | Badge | 22px (`h-5.5`), `text-xs`; `variant` `completed`, `failed`, `processing`, `pending`, `neutral`, `outline`, `on-dark`; `size` `lg` | `ui/badge.tsx` |
 | Dialog, sheet | `rounded-3xl`; on phones the sheet is `rounded-t-3xl`. `DialogContent variant` `sheet` (the A1 form panel: 20px gap, 20/24px padding, no border, safe-area bottom) or `viewer` (dark full screen); `DialogTitle variant` `sheet` / `strong` / `viewer`; `DialogDescription variant` `sheet`; `AlertDialogTitle variant` `strong`; `AlertDialogMedia tone` `destructive`. `DialogHeader variant='sheet'` (left-aligned, 4px gap, room for the close button) and `DialogFooter variant` `inline` (one row, 12px gap) or `sheet` (two actions stacked with the primary on top below `sm`, two equal columns from `sm`: the confirm of every sheet, because two xl buttons with 24px padding do not fit side by side at 390px). Closing is `<DialogClose asChild><Button variant='quiet' size='icon-xl'>` | `ui/dialog.tsx`, `ui/alert-dialog.tsx` |
 | Menus | `DropdownMenuContent variant` `menu` (a row or action menu: 16px radius, `shadow-menu`) or `account` (24px radius, `shadow-menu-lg`); `DropdownMenuItem size` `touch` (44px, display face) · `row` (52px link row) · `action` (filled secondary row, e.g. Sign Out) and `variant='destructive'`; `DropdownMenuLabel variant='identity'`; `DropdownMenuSeparator variant='solid'` | `ui/dropdown-menu.tsx` |

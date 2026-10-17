@@ -10,7 +10,7 @@ interface Props {
 
 export default function CardFooterContent({ count, coutLabel, linkText }: Props) {
 	return (
-		<CardFooter className='px-4'>
+		<CardFooter>
 			<div className='w-full flex items-baseline justify-between border-t border-border/40 pt-2'>
 				<div className='flex items-baseline gap-1'>
 					<span className='text-lg font-bold text-foreground tabular-nums tracking-tight'>{count}</span>

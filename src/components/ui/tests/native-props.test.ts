@@ -36,6 +36,7 @@ const HEIGHTS = {
 	lg: 'h-10',
 	xl: 'h-11',
 	primary: 'h-9',
+	'hero-action': 'h-10',
 	'2xl': 'h-13',
 	icon: 'size-9',
 	'icon-xs': 'size-6',
@@ -76,12 +77,24 @@ describe('Button', () => {
 		expect(buttonVariants({ size: 'lg' }).split(/\s+/)).not.toContain('text-base')
 	})
 
-	it('primary is default below md and the library xl from md up', () => {
+	it('primary is default below md and the library lg from md up', () => {
 		const classes = buttonVariants({ size: 'primary' }).split(/\s+/)
 
-		expect(classes).toEqual(expect.arrayContaining(['h-9', 'px-3', 'md:h-11', 'md:px-6', 'md:text-base']))
+		expect(classes).toEqual(expect.arrayContaining(['h-9', 'px-3', 'md:h-10', 'md:px-4']))
 		expect(classes).not.toContain('h-11')
-		expect(classes).not.toContain('text-base')
+		expect(classes).not.toContain('md:text-base')
+	})
+
+	it('default is the library lg from md up', () => {
+		const classes = buttonVariants({ size: 'default' }).split(/\s+/)
+
+		expect(classes).toEqual(expect.arrayContaining(['h-9', 'px-3', 'md:h-10', 'md:px-4']))
+	})
+
+	it('hero action is lg on phones and xl from md up', () => {
+		const classes = buttonVariants({ size: 'hero-action' }).split(/\s+/)
+
+		expect(classes).toEqual(expect.arrayContaining(['h-10', 'px-4', 'md:h-11', 'md:px-6', 'md:text-base']))
 	})
 
 	it('has an avatar size that is a circle on phones and a pill from lg, and a weight for the landing header', () => {
@@ -279,7 +292,7 @@ describe('container spacing is theme: it comes from variants', () => {
 		expect(at({ space: 'snug' })).toContain('gap-3')
 		expect(at({ space: 'stack' })).toContain('space-y-4')
 		expect(at({ inset: 'top' })).toContain('pt-6')
-		expect(at({ inset: 'compact' })).toContain('px-4')
+		expect(at({ inset: 'compact' })).toEqual(expect.arrayContaining(['px-3', 'md:px-4']))
 		expect(at({ inset: 'compact' })).not.toContain('px-6')
 	})
 

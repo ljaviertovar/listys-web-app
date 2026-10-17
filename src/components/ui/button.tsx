@@ -67,13 +67,16 @@ const buttonVariants = cva(
         xs: "h-6 gap-1 px-2.5 text-xs has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2 [&_svg:not([class*='size-'])]:size-3",
         sm: "h-8 gap-1 px-3 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
         default:
-          "h-9 gap-1.5 px-3 has-data-[icon=inline-end]:pr-2.5 has-data-[icon=inline-start]:pl-2.5",
+          "h-9 gap-1.5 px-3 has-data-[icon=inline-end]:pr-2.5 has-data-[icon=inline-start]:pl-2.5 md:h-10 md:px-4 md:has-data-[icon=inline-end]:pr-3 md:has-data-[icon=inline-start]:pl-3",
         lg: "h-10 gap-1.5 px-4 has-data-[icon=inline-end]:pr-3 has-data-[icon=inline-start]:pl-3",
         // The native xl of the library: the touch height of the app (screen toolbars, sheet and form footers, 44px).
         xl: "h-11 gap-2 px-6 text-base has-data-[icon=inline-end]:pr-4 has-data-[icon=inline-start]:pl-4",
-        // Primary action: the `default` size below md (36px) and the library's own `xl` from md up (44px, px-6, text-base).
+        // Primary action: the library's `default` size below md and `lg` from md up.
         primary:
-          "h-9 gap-1.5 px-3 has-data-[icon=inline-end]:pr-2.5 has-data-[icon=inline-start]:pl-2.5 md:h-11 md:gap-2 md:px-6 md:text-base md:has-data-[icon=inline-end]:pr-4 md:has-data-[icon=inline-start]:pl-4",
+          "h-9 gap-1.5 px-3 has-data-[icon=inline-end]:pr-2.5 has-data-[icon=inline-start]:pl-2.5 md:h-10 md:gap-1.5 md:px-4 md:has-data-[icon=inline-end]:pr-3 md:has-data-[icon=inline-start]:pl-3",
+        // The dashboard hero action steps up from the native lg to xl at the tablet breakpoint.
+        "hero-action":
+          "h-10 gap-1.5 px-4 has-data-[icon=inline-end]:pr-3 has-data-[icon=inline-start]:pl-3 md:h-11 md:gap-2 md:px-6 md:text-base md:has-data-[icon=inline-end]:pr-4 md:has-data-[icon=inline-start]:pl-4",
         // Hero call to action (52px).
         "2xl": "h-13 gap-2.5 px-7 text-base has-data-[icon=inline-end]:pr-5 has-data-[icon=inline-start]:pl-5",
         // Content decides the height: a drop target or any block-shaped action that holds several lines.

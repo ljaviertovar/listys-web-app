@@ -71,7 +71,7 @@ export function EntityEditCard({
 			data-testid={testId}
 			onSubmit={handleSubmit(submit)}
 			noValidate
-			className='flex flex-col gap-4 p-4 rounded-3xl bg-card shadow-card'
+			className='flex flex-col gap-4 rounded-3xl bg-card p-3 shadow-card md:p-4'
 		>
 			<h2 className='font-display text-base leading-[1.5] font-semibold '>{title}</h2>
 			<FormField
