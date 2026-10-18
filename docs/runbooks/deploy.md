@@ -1,45 +1,49 @@
-# Deploy Runbook
+# Deploy runbook
 
-## Purpose
+This procedure covers the web app and Supabase dependencies. Repository evidence does not establish the live hosting
+provider, target project, CI deployment or release owner.
+[Open question: record approved staging/production targets, release owner, secret store and backup/restore owner.]
 
-Procedure for deploying the Listys application to staging or production.
+## Prepare a release
 
-## Prerequisites
+1. Select the reviewed commit; confirm target and release owner. Preserve unrelated local changes.
+2. Install from `pnpm-lock.yaml` with `pnpm install --frozen-lockfile`.
+3. Run `pnpm lint`, `pnpm typecheck`, `pnpm test:ci`, `pnpm verify:limits-reference` and `pnpm build`. Record actual
+   results. Do not run Playwright until the [E2E blocker](../contributing/CONTRIBUTING.md#playwright-boundary) is resolved.
+4. Verify web configuration against the [setup guide](../../README.md). Check presence and target identity without
+   logging values. Confirm Auth site/redirect URLs; set `NEXT_PUBLIC_SITE_URL` when testing experimental invitations.
+5. Verify the selected OCR Edge Function is deployed to the same Supabase target with its provider secret in that
+   runtime. A web deployment does not deploy functions or their secrets.
 
-- Credentials with access to the project (hosting provider, secrets manager, Supabase).
-- CI configured (GitHub Actions or another system) with environment variables.
+## Database and storage gate
 
-## Steps (manual)
+Before **any** migration, inspect affected SQL, triggers, functions and foreign keys for direct/indirect record removal
+or destructive rewrites. Never run a blanket push/reset to start the app or tests. Potentially destructive migrations
+require explicit user confirmation under AGENTS.md. Review historical migrations too when provisioning a fresh target;
+this documentation audit applied none.
 
-1. Update the `main` branch: `git fetch && git checkout main && git pull`.
-2. Run local tests and the linter:
+Record the reviewed migration set, target identity, compatible application versions and backup/recovery plan before
+the approved migration process. Verify Storage bucket/policies, RLS and required RPCs in the target. Experimental
+collaboration additionally needs the shared-list, realtime-publication and collaborator-policy migrations; their
+presence in the repository does not prove deployment.
 
-```bash
-pnpm install
-pnpm test
-pnpm lint
-```
+## Publish and check
 
-3. Build the application:
+Publish through the confirmed hosting platform. `pnpm start` serves a built Next.js app for a suitable server deployment.
+If the environment uses Vercel, follow its approved preview/production process; automatic deployment is unverified.
 
-```bash
-pnpm build
-```
+With a test account and synthetic data in the intended environment:
 
-4. Publish the artifact according to the platform (Vercel or self-hosted). For Vercel, create a release and enable the automatic deployment.
+- Check `GET /api/health`: `200`/`ok` means its API/database checks passed; `503`/`degraded` means at least one failed.
+  It does not check OCR providers, Storage or realtime delivery.
+- Verify sign-in, protected navigation, group/list creation, shopping start/completion and history.
+- Upload a synthetic receipt through `POST /api/v1/tickets`; follow its status to completion or a controlled failure.
+  A `202` response alone does not validate OCR completion.
+- For an experimental collaboration release, check acceptance, removal and realtime with separate test accounts.
+- Inspect redacted application/function logs and clean up only fixtures created for this release check.
 
-5. Verify Supabase migrations: review `supabase/migrations` and apply them in the target environment through CI tooling or manually.
+## Recovery
 
-6. Post-deployment checks:
-
-- Smoke test: sign in, create a base list, and upload a receipt (happy path).
-- Review Edge Function logs and the OCR queue.
-
-## Rollback
-
-- On Vercel: revert to the previous version from the dashboard.
-- For the database: prepare rollback migrations and execute them carefully.
-
-## Contacts
-
-- Team: @dev-team
+Redeploy the previous compatible web artifact through the hosting platform. Do not automatically reverse migrations
+or reset Supabase: app rollback and data recovery are separate operations. Data restoration or destructive operations
+need a reviewed backup/recovery procedure and explicit authorization. Use the [incident runbook](incidents.md).

@@ -1,72 +1,27 @@
-# Data limits and validation rules
+# Validation contracts
 
-This document summarizes validation limits used across server actions and Zod schemas to prevent abuse (including DoS-style oversized payloads).
+This directory owns runtime Zod input schemas. Canonical business-limit values live in
+[`src/lib/config/limits.ts`](../config/limits.ts); the [limits reference](../../../docs/reference/limits.md) is checked by
+`pnpm verify:limits-reference`. Do not maintain a second value table here.
 
-- **Source of truth for configurable limits:** `src/lib/config/limits.ts`
-- **Last verified against commit:** `0c82a96`
+| Module | Responsibility |
+| --- | --- |
+| `auth.ts` | Email/password form input. |
+| `group.ts` | Group names and descriptions. |
+| `base-list.ts` | Base-list metadata and item fields. |
+| `shopping-session.ts` | Session creation, updates, completion and item fields. |
+| `ticket.ts` | UI upload schema, selected-item merge and create-list input. |
+| `sharing.ts` | Experimental invite options and identifiers. |
+| `api/common.ts` | Common UUID route params and session-status query input. |
 
-## Configurable limits (`src/lib/config/limits.ts`)
+Route Handlers use `src/lib/api/zod.ts` for JSON/params/query parsing; services also validate domain input. Nested item
+creation gets its parent ID from the path. See the [API v1 reference](../../../docs/reference/api-v1.md) for endpoint
+shapes, limits and observed statuses.
 
-| Constant | Value | Where it is used |
-| --- | ---: | --- |
-| `MAX_GROUPS_PER_USER` | 10 | Group creation limit in `createShoppingList` |
-| `MAX_ITEMS_PER_BASE_LIST` | 250 | Base list item cap in `createBaseListItem`, `mergeTicketItemsToBaseList`, `createBaseListFromTicket`, and shopping-session sync checks |
-| `MAX_TICKET_ITEMS_MERGE` | 200 | Ticket merge/create-from-ticket payload limits (`mergeTicketItemsSchema`, `createBaseListFromTicketSchema`) |
-| `MAX_SYNC_ITEMS` | 250 | Config-level cap intended for shopping-session sync safeguards |
-| `MAX_IMAGES_PER_TICKET` | 5 | Upload payload limit in `uploadTicketSchema` |
+Current exceptions matter: schemas are generally non-strict Zod objects, and ticket upload's service performs manual
+file checks rather than applying the complete UI upload schema. Do not claim every external field is fully validated
+or unknown writes rejected solely because a schema exists. Response DTO validation is separate and remains a
+[documented gap](../../../docs/reference/implementation-status.md#audit-findings-and-follow-up).
 
-## Domain-specific limits
-
-### Groups
-
-- Maximum groups per user: **10**.
-- Enforced by: `createShoppingList`.
-- Rationale: keeps free-tier usage bounded and avoids unbounded group growth.
-
-### Base lists
-
-- Maximum items per base list: **250**.
-- Enforced by: `createBaseListItem`, `mergeTicketItemsToBaseList`, `createBaseListFromTicket`, and `syncSessionToBaseList` capacity checks.
-- Protection: prevents both manual and batch operations from exceeding list capacity.
-
-### Ticket operations
-
-- Maximum selected items per merge operation: **200**.
-- Maximum selected items when creating a base list from a ticket: **200**.
-- Maximum uploaded images per ticket: **5**.
-- Enforced by: `mergeTicketItemsSchema`, `createBaseListFromTicketSchema`, and `uploadTicketSchema`.
-
-### Shopping session sync
-
-- Configured sync cap (`MAX_SYNC_ITEMS`): **250**.
-- Additional safety check in `syncSessionToBaseList`: **500** (hard-coded backstop currently in action implementation).
-- Base list capacity still applies: synced result cannot exceed **250** items in the destination base list.
-
-## Field-level validation limits (Zod)
-
-### String lengths
-
-| Field | Max length |
-| --- | ---: |
-| Group names | 100 |
-| Base list names | 100 |
-| Shopping session names | 100 |
-| Item names | 200 |
-| Notes | 500 |
-| General notes | 1000 |
-| Unit | 20 |
-| Category | 50 |
-| Store name | 100 |
-
-### Numeric rules
-
-- `quantity`: minimum **0.1**, maximum **99**, increments of **0.1**.
-- `total_amount`: must be positive.
-- `sort_order`: integer.
-
-## Security and reliability notes
-
-- Validation is performed server-side; client input is never trusted.
-- Zod schemas provide runtime validation and typed inputs.
-- Server actions validate `unknown` payloads before business logic.
-- Array and collection limits reduce memory and processing abuse risk.
+Tests belong in this module's `tests/` folder. Keep server input untrusted and add only schemas needed by actual flows;
+follow [AGENTS.md](../../../AGENTS.md) for validation and security requirements.

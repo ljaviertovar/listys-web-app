@@ -5,6 +5,14 @@
 **Status:** Implementation‑ready PRD (MVP v2)  
 **Scope:** Single‑user (per account), mobile-first receipt capture, Supabase-first architecture.
 
+**Documentation review (2026-10-17):** this document is the MVP requirement baseline, not a completion report.
+The product owner confirmed that collaboration remains experimental and outside the MVP. See
+[implementation status](../reference/implementation-status.md) for implemented behavior and acceptance gaps, and
+the [API v1 reference](../reference/api-v1.md) for current routes and response shapes. API examples and planned
+migrations below capture the v2 planning context; the canonical receipt upload is now `POST /api/v1/tickets` (`202`
+with a `data` envelope). SLOs/KPIs below are targets, not verified production results. No new product version is
+created by this technical documentation reconciliation.
+
 ---
 
 ## 1. Product Overview

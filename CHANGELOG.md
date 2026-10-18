@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Changed
+- Reconcile documentation with repository evidence: make `docs/README.md` the topic index, add implementation/API and data-handling references, correct pnpm setup and OCR secret placement, and update contribution/deployment/incident guidance. Preserve PRD v2 as the MVP baseline and identify collaboration as experimental per the 2026-10-17 product decision. Record remaining API, E2E, concurrency and operational gaps without claiming they are fixed.
 - Sign in and sign up follow the Design system v2 "Auth" boards (B desktop, C mobile): a mode switch (Sign In / Create Account), a photo panel with an invitation to register, a phone header with the form on a rising white sheet, filled 44px fields with a show/hide password toggle, field errors from Zod (React Hook Form) and a soft-red alert for server errors. New `Button` variants `segment`, `quiet-on-dark` and `inverse` and size `touch`, `Input` `adornment`, `Alert` `destructive-soft`, and `FormField` `hint` and `labelAction`. Removed the frosted `Card variant='glass'`, `CardHeader spacing` and `CardContent inset='top'`, which only the old auth pages used.
 - New components are now built from the Design system v2 canvas artifact. `AGENTS.md` has a "Design System v2" rule, and `docs/design/DESIGN.md` links the "Listys - System Design" artifact and its two v2 boards as the source.
 - Shopping history cards read "Completed on <date>" and show the session total on the same line; the mockups and the code agree.

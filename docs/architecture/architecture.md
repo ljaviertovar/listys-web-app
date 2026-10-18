@@ -6,8 +6,9 @@ this document explains why those boundaries exist and how they interact.
 
 ## Product and Platform Summary
 
-Listys is a mobile-first Next.js SaaS for reusable shopping lists, collaborative shopping sessions, purchase history,
-and receipt OCR. Supabase is the system of record for authentication, relational data, protected receipt storage, and
+Listys is a mobile-first Next.js SaaS for reusable shopping lists, shopping sessions, purchase history, and receipt OCR.
+Shared lists and collaborative shopping are experimental and excluded from the MVP, as confirmed on 2026-10-17.
+Supabase is the system of record for authentication, relational data, protected receipt storage, and
 OCR Edge Functions.
 
 ### Runtime stack
@@ -15,7 +16,7 @@ OCR Edge Functions.
 - **Web runtime:** Next.js 16 App Router, React 19, and TypeScript.
 - **Route boundaries:** `(marketing)` for the public experience and `(authenticated)` for protected application routes.
 - **Authentication:** Supabase Auth, exposed through the sign-in, sign-up, and OAuth callback routes under `src/app/auth/`.
-  The supported provider contract is governed by `AGENTS.md` and must not be expanded without an explicit product decision.
+  Email/password and Google OAuth are implemented; the password-reset route is incomplete.
 - **Persistence:** Supabase Postgres with Row Level Security (RLS). Current server services access Supabase directly; a
   Prisma layer is not part of the current repository structure.
 - **File storage:** Supabase Storage for receipt images, protected by user-scoped paths and server-side authorization.
@@ -24,7 +25,8 @@ OCR Edge Functions.
 - **Client-only state:** Zustand for active shopping-session state and other browser state; React providers are kept in
   `src/providers/`.
 - **Feedback and interaction:** Sonner for notifications and Framer Motion for selected marketing/auth interactions.
-- **Verification:** Vitest for unit/integration tests and Playwright for end-to-end tests.
+- **Verification:** Vitest in a Node environment and tracked Playwright infrastructure. E2E execution is blocked by
+  reset/credential policy gaps; see the [contribution guide](../contributing/CONTRIBUTING.md#playwright-boundary).
 
 ## Architectural Boundaries
 
@@ -37,8 +39,8 @@ The application is organized around ownership boundaries rather than technical l
 | Authenticated UI shell | `src/components/app/` | Sidebar, header, page containers, active-session UI, and other authenticated structure. |
 | Feature UI | `src/components/features/<domain>/` | Domain behavior for auth, base lists, sharing, shopping lists, shopping sessions, tickets, and PWA features. |
 | Shared UI | `src/components/commons/` and `src/components/ui/` | `commons/` contains app-owned neutral components; `ui/` contains library primitives and thin wrappers without feature behavior. |
-| Server mutations and domain operations | `src/actions/` and `src/lib/server/services/` | Server Actions for server-bound UI mutations and reusable server services shared by Server Actions and API handlers. |
-| Public HTTP contract | `src/app/api/v1/` | Versioned REST resources and domain actions. Parsing, DTO mapping, status codes, and error envelopes are enforced at this boundary. |
+| Server mutations and domain operations | `src/actions/` and `src/lib/server/services/` | Server Actions and API domain services currently have separate implementations; shared schemas/RPCs do not eliminate duplicated business logic. |
+| Public HTTP contract | `src/app/api/v1/` | Versioned REST resources and domain actions. Input parsing and shared error envelopes; explicit DTOs, pagination and complete response contracts remain gaps. |
 | Platform adapters | `src/lib/supabase/`, `src/lib/api/`, `src/lib/config/`, `src/lib/validations/` | Runtime-specific Supabase clients, HTTP helpers, limits/provider configuration, and Zod schemas. |
 | Client state and shared code | `src/stores/`, `src/providers/`, `src/hooks/`, `src/types/`, `src/utils/`, `src/data/` | Browser state, context providers, shared hooks, domain types, pure helpers, and static constants. |
 
@@ -51,37 +53,44 @@ introduced, update both documents in the same change.
 
 - Authorization is enforced server-side and in Postgres RLS; client visibility is never treated as permission.
 - Middleware protects the request path, while `(authenticated)/layout.tsx` re-checks the session as defense in depth.
-- Server Actions and API handlers call domain services instead of accepting raw client objects as database writes.
+- API handlers call domain services. Existing Server Actions access Supabase directly and duplicate some service
+  behavior; consolidating these paths remains follow-up work.
 - Service-role Supabase access remains server-only and is never exposed to browser bundles or response payloads.
-- Receipt storage is user-scoped, and ticket/list/session queries must preserve the authenticated user's ownership boundary.
+- Receipt storage is user-scoped. Queries must preserve owner boundaries or explicitly authorized experimental
+  collaborator scope. Service-role operations need application checks because that client bypasses RLS.
 
 ### Validation and resiliency
 
 - Route params, query params, request bodies, form data, and external provider responses are untrusted input.
-- Zod schemas in `src/lib/validations/` parse input before domain services perform side effects.
+- Zod schemas validate domain JSON input. Multipart upload currently uses manual file checks without applying the
+  full upload schema; a schema file does not establish uniform validation.
 - Business limits are centralized in `src/lib/config/limits.ts` and reused by UI, services, and API boundaries.
 - Mutations expose loading and failure states; OCR failures persist an actionable status/error and support retry.
 - API errors use the shared `src/lib/api/http.ts` contract with machine-readable codes and request IDs where applicable.
 
 ### Data modeling
 
-- Domain tables include timestamps and are protected by RLS.
+- Migrations define lifecycle timestamps and RLS. Timestamp fields vary; not every table has both timestamp columns.
 - Foreign-key behavior is explicit: dependent records use `ON DELETE CASCADE`; optional ticket relationships use
   `ON DELETE SET NULL` where the domain permits an orphaned ticket.
 - Lifecycle fields use explicit statuses, especially for shopping sessions and OCR processing.
-- Constraints, transactions, and database functions enforce invariants that must remain correct under concurrent requests.
+- Constraints and RPCs support integrity. Some orchestration paths perform separate writes; the
+  [implementation reference](../reference/implementation-status.md) records concurrency and atomicity gaps.
 
 ## HTTP API Policy
 
 ### Canonical contract
 
 The public application API is versioned under `/api/v1/...`. New public endpoints must not be added below an unversioned
-`/api/` path. The canonical handlers use the following response shapes:
+`/api/` path. The handlers generally use the following response shapes:
 
 - Single resources and successful actions: `{ "data": ... }`.
 - Errors: `{ "error": { "code": ..., "message": ..., "details": ..., "request_id": ... } }`.
-- Successful creates return `201`; successful no-body deletes return `204`; invalid input, authorization failures,
-  conflicts, missing resources, and dependency failures use their corresponding HTTP status codes.
+- Most creates return `201`; upload returns `202`; create-list-from-ticket currently returns `200`. No-body deletes
+  return `204`; several dependency failures currently map to `500`.
+
+The [API reference](../reference/api-v1.md) records routes, schemas, statuses and compatibility. Full DTO allowlists,
+pagination, OpenAPI/equivalent response schemas, idempotency keys, conditional updates and rate limiting remain gaps.
 
 ### Resource and action routing
 
@@ -145,7 +154,7 @@ src/
 │   └── validations/         # Shared Zod and API schemas
 ├── providers/               # React context providers
 ├── stores/                  # Zustand stores and their local tests
-├── test/                    # Shared Vitest/Testing Library setup
+├── test/                    # Shared Vitest setup and source-inspection guards
 ├── types/                   # Domain and generated database types
 ├── utils/                   # Generic helpers and local tests
 └── proxy.ts                 # Authentication proxy (middleware) entry point
@@ -169,20 +178,20 @@ boundaries; the marketing and authenticated shells are deliberately separate.
 ### 2. Feature and shared UI layer
 
 `src/components/features/` owns domain-specific UI. `src/components/app/` owns authenticated structure and local shell
-modules such as active-session, add-item, app-card, and app-page. `src/components/marketing/` owns the public surface.
+modules such as active-session, sidebar, app-card, and app-page. `src/components/marketing/` owns the public surface.
 `src/components/commons/` is reserved for neutral app-owned reuse, while `src/components/ui/` remains behavior-light.
 
 ### 3. Server mutation and service layer
 
-Server Actions in `src/actions/` support server-bound UI flows. Reusable operations live in
-`src/lib/server/services/`, so API handlers and Server Actions share authorization, validation, transaction, and error
-behavior instead of duplicating domain logic.
+Server Actions in `src/actions/` support server-bound UI flows and query Supabase directly. Route Handlers call the
+parallel domain implementations in `src/lib/server/services/`. These paths share schemas and some database RPCs but
+are not one consolidated service layer. Do not assume an API fix also updates the equivalent Server Action.
 
 ### 4. Versioned API layer
 
 `src/app/api/v1/` exposes the HTTP contract for groups, base lists, shopping sessions, sharing, tickets, and maintenance
 operations. `src/lib/api/` provides request parsing, response envelopes, endpoint clients, and API authentication helpers.
-API handlers explicitly map validated DTOs to services and do not pass raw request data to persistence.
+Handlers parse inputs before services; several services still return database-shaped results rather than explicit DTOs.
 
 ### 5. Supabase platform layer
 
@@ -199,9 +208,27 @@ needed to reflect session or list-item changes without making the database an un
 
 Unit/integration tests live with their owning domain module's `tests/` folder or the established local test folder.
 Shared setup lives in `src/test/`; Playwright specs live in top-level `e2e/`. Tests must use isolated fixtures and must
-not reset or destructively migrate shared Supabase data.
+not reset or destructively migrate shared Supabase data. Existing E2E broad cleanup violates this boundary and must
+be corrected before routine execution.
 
 ## Primary Data Flows
+
+```mermaid
+flowchart LR
+    Browser[Browser UI] --> Web[Next.js routes and services]
+    Web --> Auth[Supabase Auth]
+    Web --> DB[(Postgres and RLS)]
+    Web --> Storage[Receipt Storage]
+    Web -->|Fetch dispatch| OCR[Selected OCR Edge Function]
+    OCR --> AI[Gemini or OpenAI]
+    OCR --> DB
+    DB -->|Realtime with RLS| Browser
+```
+
+The current schema includes owner groups, base lists/items, shopping sessions/items, and tickets/items. Experimental
+sharing adds collaborators, invite links and session participants. Migration files describe intended database state;
+this audit did not verify a live installation. The PRD ERD is a requirements model; migrations/generated types and
+the [implementation reference](../reference/implementation-status.md) qualify what exists.
 
 ### Authenticated domain request
 
@@ -219,7 +246,8 @@ not reset or destructively migrate shared Supabase data.
 1. The client submits one to five images to `POST /api/v1/tickets`.
 2. The API validates the multipart form, uploads images to the protected `tickets` bucket, and creates a ticket with
    `ocr_status = pending`.
-3. The OCR Edge Function marks the ticket `processing`, sends images to the configured provider, deduplicates extracted
+3. A non-awaited fetch dispatch invokes the configured OCR function; no durable queue is established by this code.
+   The function marks the ticket `processing`, sends images to the provider, deduplicates extracted
    items, and writes `ticket_items`.
 4. The function marks the ticket `completed` with `total_items`, or `failed` with `ocr_error`.
 5. The UI reads status from `GET /api/v1/tickets/{ticketId}/status` and may invoke `retry-ocr` after a failure.
@@ -231,20 +259,21 @@ not reset or destructively migrate shared Supabase data.
 1. A user starts a session from a base list through the Server Action or `/api/v1/shopping-sessions`.
 2. The service clones the base-list items into session items, preserving a snapshot for the historical purchase.
 3. The UI updates item state through the service/API boundary and receives realtime updates where configured.
-4. Completion records status, optional amount and notes, and optionally synchronizes selected changes back to the base list.
+4. Completion records status, optional amount and notes, then optionally invokes the sync RPC. A sync failure can
+   leave the session completed because these are separate writes.
 5. Completed sessions remain available to the user's history queries.
 
-## Invariants
+## Required invariants
 
 These rules must remain true across UI, Server Actions, API handlers, services, and database policies:
 
-1. A caller cannot read or mutate another user's data, directly or through a related parent resource.
+1. A caller can only access owned data or the explicitly permitted experimental collaborator scope.
 2. A user has at most one active shopping session at a time.
 3. Business limits are enforced server-side, including group count, base-list item count, ticket image count, and merge size.
 4. OCR status transitions are explicit; failed processing does not appear as completed data and can only be retried through an
    authorized operation.
-5. Deleting parent entities follows the documented cascade/nullability rules and must not leave inaccessible ticket images
-   or dangling domain references.
+5. Deleting parents must preserve documented cascade/nullability rules and avoid dangling references/images.
+   Current receipt Storage cleanup can fail independently; this requirement is not a verified guarantee.
 
 ## Security Model
 
@@ -283,6 +312,7 @@ These rules must remain true across UI, Server Actions, API handlers, services, 
 
 - [`project-structure.md`](./project-structure.md): exact file/folder placement and component-bucket rules.
 - [`AGENTS.md`](../../AGENTS.md): mandatory API, security, validation, testing, and migration policies.
-- [`docs/README.md`](../README.md): product feature inventory and domain reference.
+- [`docs/README.md`](../README.md): documentation index and topic ownership.
+- [`implementation-status.md`](../reference/implementation-status.md): behavior, experimental scope and remaining gaps.
 - [`docs/runbooks/deploy.md`](../runbooks/deploy.md): deployment procedure.
 - [`docs/runbooks/incidents.md`](../runbooks/incidents.md): incident response procedure.

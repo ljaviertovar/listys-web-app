@@ -1,35 +1,52 @@
 # Contributing
 
-Thanks for contributing to Listys. These are the basic collaboration guidelines.
+Use the [root setup guide](../../README.md) for development. [PRD v2](../prd/PRD-v2.md) governs the MVP; collaboration
+is experimental. [AGENTS.md](../../AGENTS.md) owns engineering constraints and the
+[project structure](../architecture/project-structure.md) owns placement rules.
 
-## Local development
-
-1. Clone the repository and install dependencies:
-
-```bash
-pnpm install
-```
-
-2. Run linters and tests before opening a PR:
+## Verification before a PR
 
 ```bash
 pnpm lint
-pnpm test
+pnpm typecheck
+pnpm test:ci
+pnpm verify:limits-reference
+pnpm build
 ```
 
-3. Use the following branch prefixes: `feat/`, `fix/`, `chore/`, `hotfix/`.
+`pnpm test` starts Vitest watch mode. `pnpm test:critical` covers actions, API routes, lib, stores and utilities.
+Vitest uses the Node environment and includes `src/**/*.test.ts`; component-named tests do not establish rendered
+browser coverage. Inspect their assertions before claiming UI validation.
 
-## Pull Requests
+Run corresponding tests for modified features and add missing application-owned behavior coverage under AGENTS.md.
+Unchanged third-party primitives do not need duplicate tests. Appearance changes also require local Chrome DevTools
+inspection and mobile/desktop screenshots against Design system v2. Documentation-only changes need link, evidence,
+terminology, command and diff checks; they do not require a new browser test.
 
-- Title: use Conventional Commits (for example, `feat(tickets): add multi-image upload`).
-- Include a change description, issue reference, and testing steps.
-- Add tests when applicable.
+## Playwright boundary
 
-## Code and quality
+The intended suite entry point is `npx playwright test` (also `pnpm test:e2e`), with interactive checks through
+Playwright CLI. The tracked configuration loads `.env.test.local`, uses Chromium, and starts `pnpm dev` on port 3000.
 
-- Strict TypeScript: avoid `any` unless there is a documented justification.
-- Server-side validation for all new input.
+**Current execution blocker:** `e2e/helpers/db-reset.ts` deletes table-wide data and global teardown calls `fullReset()`.
+Credential helpers read ordinary app/Supabase variables instead of required `E2E_SUPABASE_*` inputs. Dedicated-project
+checks do not make broad cleanup comply with repository policy. Do not run the suite as routine verification until
+cleanup is fixture-scoped and credential handling is corrected. Never reset shared data, target production, embed
+default credentials, mock Supabase in E2E or run destructive migrations through tests. See the
+[audit finding](../reference/implementation-status.md#audit-findings-and-follow-up).
 
-## Reporting bugs
+Existing tracked `e2e/` and `scripts/` files remain versioned although `.gitignore` matches those folders. Check tracking
+explicitly when adding infrastructure: new files there may be silently ignored.
 
-- Open an issue with reproduction steps, environment details, and logs when applicable.
+## Git and review
+
+- Use `feat/`, `fix/`, `chore/` or `hotfix/` branches and Conventional Commit PR titles.
+- Describe the problem, resulting behavior, verification and limitations. Link an issue when one exists.
+- `pre-commit` invokes lint-staged then the critical suite; `pre-push` invokes typecheck. Local hooks are not proof of CI.
+  No tracked `.github/workflows` pipeline was found in this audit.
+- Follow the repository secret-scan requirement before committing. No dedicated scanner command/configuration was
+  found; identify the approved scanner instead of claiming that check passed. Never print secret values.
+- Update the canonical documentation owner in the same change; see the [index](../README.md).
+
+Bug reports need reproduction steps, expected/actual behavior, environment and redacted evidence. Keep real receipts,
+signed image URLs, invite tokens, cookies and credentials out of public issues.
