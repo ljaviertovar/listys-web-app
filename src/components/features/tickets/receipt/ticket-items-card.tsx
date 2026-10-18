@@ -65,7 +65,7 @@ export function TicketItemsCard({ ticketId, items, status, ocrError, selection, 
 		<section
 			data-testid='ticket-items-card'
 			aria-labelledby='ticket-items-title'
-			className='px-3.5 pt-4 pb-1.5 rounded-3xl bg-card shadow-card'
+			className='rounded-3xl bg-card p-3 shadow-card md:p-4'
 		>
 			<div className='flex items-center gap-3 px-0.5'>
 				<span className='flex size-10 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300'>

@@ -69,15 +69,14 @@ function StatusNote({ status, itemsCount }: { status: TicketStatus; itemsCount: 
 /** A receipt in the list: who it is, when it was uploaded, its status chip and one line about where it stands. */
 export function TicketCard({ id, storeName, status, itemsCount, uploadedLabel }: TicketCardProps) {
 	const ticketStatus = toTicketStatus(status)
-	// Only a receipt that has finished (or failed) has details worth a labelled link; the others keep the whole card as the link.
+	// Only a receipt that has finished (or failed) has details worth a labelled link.
 	const showDetails = ticketStatus === 'completed' || ticketStatus === 'failed'
 
 	return (
-		<Link
-			href={`/tickets/${id}`}
+		<article
 			data-testid={`ticket-card-${id}`}
 			data-status={ticketStatus}
-			className='group flex flex-col gap-2 p-3 transition-shadow hover:shadow-md rounded-3xl bg-card shadow-card focus-ring md:gap-3 md:p-4'
+			className='flex flex-col gap-2 rounded-3xl bg-card p-3 shadow-card md:gap-3 md:p-4'
 		>
 			<div className='flex items-start gap-3'>
 				<span className='flex size-9 shrink-0 items-center justify-center rounded-xl bg-cyan-100 text-cyan-700 dark:bg-cyan-500/20 dark:text-cyan-300'>
@@ -106,17 +105,22 @@ export function TicketCard({ id, storeName, status, itemsCount, uploadedLabel }:
 					itemsCount={itemsCount ?? 0}
 				/>
 				{showDetails ? (
-					<span className='inline-flex min-h-8 shrink-0 items-center gap-1 font-display text-sm font-semibold text-blue-700 dark:text-blue-400'>
+					<Link
+						href={`/tickets/${id}`}
+						data-testid={`ticket-details-${id}`}
+						className='group/ticket-details inline-flex min-h-8 shrink-0 items-center gap-1 rounded-lg font-display text-sm font-semibold text-blue-700 focus-ring dark:text-blue-400'
+					>
 						View Details
 						<HugeiconsIcon
 							icon={ArrowRight01Icon}
 							strokeWidth={2}
-							className='size-4 transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none'
+							aria-hidden='true'
+							className='size-4 transition-transform group-hover/ticket-details:translate-x-0.5 motion-reduce:transition-none'
 						/>
-					</span>
+					</Link>
 				) : null}
 			</div>
-		</Link>
+		</article>
 	)
 }
 
@@ -126,7 +130,7 @@ export function TicketsEmptyState() {
 		<section
 			data-testid='tickets-empty-state'
 			aria-labelledby='tickets-empty-title'
-			className='flex flex-col items-center gap-4 p-3 text-center md:gap-5 md:p-4 md:py-16 rounded-3xl bg-card shadow-card'
+			className='flex flex-col items-center gap-4 rounded-3xl bg-card p-3 text-center shadow-card md:gap-5 md:p-4'
 		>
 			<span className='flex size-16 items-center justify-center rounded-3xl bg-cyan-100 text-cyan-700 md:size-18 dark:bg-cyan-950 dark:text-cyan-300'>
 				<HugeiconsIcon

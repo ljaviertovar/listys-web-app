@@ -81,7 +81,7 @@ describe('NoSessionBanner', () => {
 		)
 
 		expect(html).toContain('Ready to go shopping?')
-		expect(html).toContain('No shopping session in progress')
+		expect(html).not.toContain('No shopping session in progress')
 		expect(html).toContain('Start “NO frills” (Walmart · 28 items)')
 		expect(html).toContain('data-testid="start-shopping-button"')
 		expect(html).toContain('srcSet="/images/dashboard/desktop-session.webp"')

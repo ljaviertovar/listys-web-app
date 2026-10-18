@@ -21,7 +21,12 @@ export function DashboardRow({ href, title, meta, monoMeta = false, leading, tra
 		<Link
 			href={href}
 			data-testid={testId}
-			className={cn('flex items-center gap-3 rounded-[14px] px-2 py-2.5 transition-colors duration-150', 'hover:bg-background dark:hover:bg-muted', 'focus-ring', className)}
+			className={cn(
+				'flex items-center gap-3 rounded-[14px] px-2 py-2.5 transition-colors duration-150',
+				'hover:bg-background dark:hover:bg-muted',
+				'focus-ring',
+				className,
+			)}
 		>
 			{leading}
 			<span className='flex min-w-0 flex-1 flex-col gap-1'>

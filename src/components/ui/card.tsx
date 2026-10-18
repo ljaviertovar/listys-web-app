@@ -29,11 +29,11 @@ function Card({
 			data-side={side}
 			className={cn(
 				'group/card flex flex-col overflow-hidden rounded-3xl border-0 bg-card text-sm text-card-foreground shadow-card transition-all duration-300 dark:border dark:shadow-none',
-				layout === 'default' && 'gap-6 py-6',
+				layout === 'default' && 'gap-6 py-3 md:py-4',
 				layout === 'horizontal' && 'p-0 gap-0 md:flex-row',
-				size === 'compact' && 'gap-0 py-4',
-				size === 'tight' && 'gap-0 p-2.5',
-				size === 'flush' && 'gap-0 p-1.5',
+				size === 'compact' && 'gap-0 py-3 md:py-4',
+				size === 'tight' && 'gap-0 p-3 md:p-4',
+				size === 'flush' && 'gap-0 p-3 md:p-4',
 				interactive && 'hover:shadow-card-hover',
 				'has-data-[slot=card-banner]:p-0',
 				variant === 'premium' &&

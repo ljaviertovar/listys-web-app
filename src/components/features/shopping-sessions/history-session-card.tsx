@@ -47,7 +47,7 @@ export function HistorySessionCard({ session, href }: Props) {
 			size='tight'
 			data-testid={`history-card-${session.id}`}
 		>
-			<div className='flex flex-col gap-3 p-0.5'>
+			<div className='flex flex-col gap-3'>
 				<div className='flex items-center gap-3'>
 					<span
 						aria-hidden='true'
@@ -77,7 +77,7 @@ export function HistorySessionCard({ session, href }: Props) {
 					</span>
 					<Link
 						href={href ?? `/shopping/${session.id}`}
-						className='inline-flex min-h-11 items-center gap-0.5 py-0 pr-1 pl-3 font-display text-sm font-semibold text-blue-700'
+						className='inline-flex items-center gap-0.5 py-0 pr-1 pl-3 font-display text-sm font-semibold text-blue-700'
 					>
 						View Details
 						<HugeiconsIcon

@@ -46,7 +46,7 @@ export function ShoppingSessionItems({ items, isCompleted = false }: ShoppingSes
 		<section
 			aria-label='Items by category'
 			data-testid='session-items-card'
-			className='rounded-3xl bg-card px-3 pt-1 shadow-card md:px-4'
+			className='rounded-3xl bg-card p-3 shadow-card md:p-4'
 		>
 			{groups.map((group, index) => {
 				const done = group.items.filter(item => item.checked).length

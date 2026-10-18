@@ -22,7 +22,7 @@ export function TicketSummaryCard({ ticket, itemsCount, pricedItemsCount, total 
 		<section
 			data-testid='ticket-summary-card'
 			aria-label='Receipt summary'
-			className={cn('flex flex-col px-3 pb-4 md:px-4', noItems ? 'pt-4' : 'pt-2', 'rounded-3xl bg-card shadow-card')}
+			className='flex flex-col rounded-3xl bg-card p-3 shadow-card md:p-4'
 		>
 			{showTotals ? (
 				<>

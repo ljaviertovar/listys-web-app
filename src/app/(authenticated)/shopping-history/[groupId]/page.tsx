@@ -53,7 +53,7 @@ export default async function GroupHistoryPage({ params }: { params: Promise<{ g
 
 				{sessions.length === 0 ? (
 					<Card size='tight'>
-						<div className='flex min-h-[152px] flex-col items-center justify-center gap-3 px-0.5 pt-2.5 pb-0.5 text-center'>
+						<div className='flex min-h-[152px] flex-col items-center justify-center gap-3 text-center'>
 							<span
 								className='flex size-14 shrink-0 items-center justify-center rounded-2xl bg-green-100 text-green-700'
 								aria-hidden='true'
