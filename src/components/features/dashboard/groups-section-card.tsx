@@ -63,7 +63,11 @@ export function GroupsSectionCard({ groups, sessionActive = false }: Props) {
 										size='sm'
 									/>
 								}
-								trailing={<span className='text-xs text-slate-500 dark:text-muted-foreground'>{pluralize(group.listsCount, 'list')}</span>}
+								trailing={
+									<span className='text-xs text-slate-500 dark:text-muted-foreground'>
+										{pluralize(group.listsCount, 'list')}
+									</span>
+								}
 							/>
 							<ul className='ml-6 flex flex-col gap-0.5'>
 								{group.lists.map(list => (
@@ -79,7 +83,7 @@ export function GroupsSectionCard({ groups, sessionActive = false }: Props) {
 										/>
 										<Link
 											href={`/base-lists/${list.id}/edit`}
-											className='-my-1.5 flex min-h-11 min-w-0 flex-1 items-center rounded-md text-sm text-slate-700 hover:underline dark:text-foreground/80 focus-ring'
+											className='-my-1.5 flex min-h-11 min-w-0 flex-1 items-center rounded-md text-sm text-slate-700  dark:text-foreground/80 focus-ring'
 										>
 											<span>
 												{list.name} <span className='text-slate-400'>· {pluralize(list.itemsCount, 'item')}</span>

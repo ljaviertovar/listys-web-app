@@ -47,11 +47,13 @@ describe('TicketStatusChip', () => {
 })
 
 describe('TicketCard', () => {
-	it('links the whole card to the receipt and shows who, when and the status', () => {
+	it('keeps the card itself plain and links its View Details action to the receipt', () => {
 		const html = card('completed')
 
 		expect(html).toContain('href="/tickets/t1"')
+		expect(html).toContain('data-testid="ticket-details-t1"')
 		expect(html).toContain('data-testid="ticket-card-t1"')
+		expect(html).toMatch(/<article[^>]*data-testid="ticket-card-t1"/)
 		expect(html).toContain('Walmart')
 		expect(html).toContain('Uploaded 19 Feb 2026 · 09:42')
 		expect(html).toContain('Completed')
@@ -78,9 +80,11 @@ describe('TicketCard', () => {
 		const processing = card('processing')
 
 		expect(pending).toContain('Waiting in line to be read')
+		expect(pending).not.toContain('href="/tickets/t1"')
 		expect(pending).not.toContain('View Details')
 		expect(processing).toContain('Reading your receipt...')
 		expect(processing).toContain('role="progressbar"')
+		expect(processing).not.toContain('href="/tickets/t1"')
 		expect(processing).not.toContain('View Details')
 	})
 

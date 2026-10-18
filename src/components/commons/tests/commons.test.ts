@@ -105,14 +105,15 @@ describe('EntityCard', () => {
 			}),
 		)
 
-	it('makes the title a link that stretches over the whole card and keeps the menu above it', () => {
+	it('makes only the footer action a link and keeps the menu independently interactive', () => {
 		const html = card()
 
 		expect(html).toContain('data-testid="group-card-g1"')
 		expect(html).toContain('href="/shopping-lists/g1/lists"')
-		expect(html).toContain('after:absolute after:inset-0')
+		expect(html).toMatch(/<h2[^>]*>Walmart<\/h2>/)
+		expect(html).not.toContain('after:absolute after:inset-0')
 		expect(html).toContain('aria-label="More options for Walmart"')
-		expect(html).toContain('relative z-10')
+		expect(html).not.toContain('relative z-10')
 		expect(html).toContain('View Details')
 	})
 

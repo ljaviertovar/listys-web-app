@@ -85,7 +85,7 @@ export function StartShoppingDialog({
 			onOpenChange={next => !loading && setOpen(next)}
 			trigger={
 				<Button
-					size='primary'
+					size='lg'
 					{...buttonProps}
 					disabled={buttonProps.disabled || isEmpty}
 					className={cn('w-full', className)}
@@ -142,11 +142,12 @@ export function StartShoppingDialog({
 					<span>Only one shopping session can be active at a time.</span>
 				</div>
 			</div>
-			<DialogFooter variant='sheet'>
+			<DialogFooter variant='inline'>
 				<Button
 					size='primary'
 					type='button'
 					variant='secondary'
+					className='flex-1'
 					onClick={() => setOpen(false)}
 					disabled={loading}
 				>
@@ -155,6 +156,7 @@ export function StartShoppingDialog({
 				<Button
 					size='primary'
 					type='button'
+					className='flex-1'
 					onClick={handleConfirm}
 					disabled={loading || isEmpty}
 					data-testid='confirm-start-shopping'

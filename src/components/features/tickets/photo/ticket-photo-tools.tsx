@@ -14,7 +14,6 @@ interface TicketPhotoControlsProps {
 	className?: string
 }
 
-
 /** Zoom out, the zoom level, zoom in, rotate and fit: the same controls under the full-screen photo and over the side panel's. */
 export function TicketPhotoControls({ view, className }: TicketPhotoControlsProps) {
 	return (
@@ -77,7 +76,7 @@ export function TicketPhotoControls({ view, className }: TicketPhotoControlsProp
 					type='button'
 					onClick={view.fit}
 					variant='on-dark'
-					size='primary'
+					size='icon-xl'
 				>
 					Fit
 				</Button>
@@ -98,14 +97,22 @@ interface TicketPhotoThumbsProps {
 }
 
 /** The strip of a photo with several shots (under it on a phone, a column beside it from `lg`): 48px targets, the current one ringed and marked for screen readers. */
-export function TicketPhotoThumbs({ urls, current, onSelect, className, layout = 'responsive', tone = 'dark' }: TicketPhotoThumbsProps) {
+export function TicketPhotoThumbs({
+	urls,
+	current,
+	onSelect,
+	className,
+	layout = 'responsive',
+	tone = 'dark',
+}: TicketPhotoThumbsProps) {
 	return (
 		<ul
 			data-testid='ticket-photo-thumbs'
 			aria-label='Receipt photos'
 			className={cn(
 				'flex shrink-0 items-center gap-3 overflow-x-auto px-4 pt-2.5 pb-0.5',
-				layout === 'responsive' && 'lg:w-28 lg:flex-col lg:justify-start lg:overflow-x-hidden lg:overflow-y-auto lg:px-4 lg:py-2',
+				layout === 'responsive' &&
+					'lg:w-28 lg:flex-col lg:justify-start lg:overflow-x-hidden lg:overflow-y-auto lg:px-4 lg:py-2',
 				className,
 			)}
 		>

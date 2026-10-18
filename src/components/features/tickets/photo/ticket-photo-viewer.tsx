@@ -23,8 +23,6 @@ interface Props {
 	onCompare?: () => void
 }
 
-
-
 /**
  * The receipt photo on its own, full screen: close and compare on top, the photo (pinch, double tap, wheel, drag, buttons) in the
  * middle, the strip of shots when there are several (underneath on a phone, down the left side from `lg`), and the zoom, rotate and
@@ -74,9 +72,9 @@ export function TicketPhotoViewer({ open, onOpenChange, title, urls, view, error
 					</DialogClose>
 					<div className='flex min-w-0 flex-1 flex-col items-center gap-1 lg:flex-row lg:items-baseline lg:gap-3 lg:pl-1'>
 						<DialogTitle
-						variant='viewer'
-						className='max-w-full truncate'
-					>
+							variant='viewer'
+							className='max-w-full truncate'
+						>
 							{title}
 						</DialogTitle>
 						<span
@@ -105,8 +103,8 @@ export function TicketPhotoViewer({ open, onOpenChange, title, urls, view, error
 					)}
 				</div>
 				<DialogDescription className='sr-only'>
-					Pinch, scroll or double tap to zoom the receipt photo. Use the buttons below to zoom, rotate or fit it, and the arrow keys
-					to switch photos.
+					Pinch, scroll or double tap to zoom the receipt photo. Use the buttons below to zoom, rotate or fit it, and
+					the arrow keys to switch photos.
 				</DialogDescription>
 
 				<div className='flex min-h-0 flex-1 flex-col lg:flex-row'>

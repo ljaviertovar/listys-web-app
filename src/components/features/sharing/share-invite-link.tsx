@@ -125,7 +125,7 @@ export function ShareInviteLink({ link, isLoading, isGenerating, onGenerate, onR
 							role='alertdialog'
 							aria-labelledby='share-revoke-title'
 							data-testid='share-revoke-confirm'
-							className='flex flex-col gap-3 rounded-3xl bg-red-50 p-3.5 text-red-900 dark:bg-red-950/40 dark:text-red-200'
+							className='flex flex-col gap-3 rounded-3xl bg-red-50 p-3 text-red-900 md:p-4 dark:bg-red-950/40 dark:text-red-200'
 						>
 							<div className='flex items-start gap-3'>
 								<HugeiconsIcon

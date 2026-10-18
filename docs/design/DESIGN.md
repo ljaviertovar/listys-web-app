@@ -252,7 +252,7 @@ components:
     backgroundColor: "{colors.paper}"
     textColor: "{colors.ink}"
     rounded: "{rounded.card}"
-    padding: "20px"
+    padding: "12px (phones), 16px (md and up)"
   input:
     backgroundColor: "{colors.paper}"
     textColor: "{colors.ink}"
@@ -274,7 +274,7 @@ components:
     backgroundColor: "{colors.paper}"
     textColor: "{colors.ink}"
     rounded: "{rounded.card}"
-    padding: "{spacing.5}"
+    padding: "12px (phones), 16px (md and up)"
   app-header:
     backgroundColor: "rgba(255, 255, 255, 0.88)"
     textColor: "{colors.ink}"
@@ -644,16 +644,16 @@ the shell in `src/components/app/mobile-tab-bar.tsx`.
 shopping" for a running session, "Start shopping" for the most overdue list, or "Upload receipt" for an account without
 lists (44px on phones, 52px from `md`). A running trip shows the "Shopping now" chip, the group and list, a progress bar
 (8px, white 16% track, `#60A5FA` to `#3B82F6` fill) with `n of m items - p%` in mono, and the collaborators (24px initials
-on pastel blue, pink and green, overlapping by 7px, with a 2px near-black ring). Without a session the hero shows the "No
-shopping session in progress" chip, the quick-start list shortcuts (36px high at every width) and the last trip
-in mono. A new account sees only the title "Start with a receipt", its explanation, the button and a mono note.
+on pastel blue, pink and green, overlapping by 7px, with a 2px near-black ring). Without a session the hero omits a status
+chip, then shows the quick-start list shortcuts (36px high at every width) and the last trip in mono. A new account sees only
+the title "Start with a receipt", its explanation, the button and a mono note.
 
 **Sections** (Shopping List Groups, Receipts, Shopping History):
 
 | Piece | Spec |
 | --- | --- |
 | Title row | `h2` 20px / 600 / 1.39 / `-.01em` and, on the right, a "View All" ghost link (blue 700, 600, 12px radius, hover `#E9ECF0`) 12px above the card. 32px high with a 12px label on phones; 40px and 14px from `md` |
-| Card | White, 24px radius, 10px padding, `raised` shadow, no border; the shadow deepens on hover |
+| Card | White, 24px radius, 12px padding on phones and 16px from `md`, `raised` shadow, no border; the shadow deepens on hover |
 | Row | 12px radius, `10 8` padding, 12px gap, 36px icon tile (12px radius) in the 100-level tint (the same fill "Up Next" uses), 14px / 600 title, mono 12px / 500 metadata in `muted` (may wrap), hover `#F2F4F7` |
 | Tile tints | Groups `#DBEAFE` / `#1D4ED8`, receipts `#CFFAFE` / `#0E7490`, history `#DCFCE7` / `#15803D` (the 100-level fill with the 700-level icon, as in "Up Next" and the tab bar); 24px tile (8px radius) for lists, 32px (10px radius) for groups |
 | Group and lists | A group row plus its lists, indented 24px with a 2px `#E2E8F0` rule; each list ends in a grey "Start" button (32px, `#E9ECF0`, 12px radius, 13px / 600). Preview: two groups of up to three lists |
@@ -661,7 +661,7 @@ in mono. A new account sees only the title "Start with a receipt", its explanati
 | History | Mono 13.5px / 600 total on the right. Preview: three trips |
 | Empty | Minimum 172px, a 56px tile (16px radius) in the 100-level tint (blue `#DBEAFE` / `#1D4ED8`, cyan `#CFFAFE` / `#0E7490`, green `#DCFCE7` / `#15803D`), a two-line 13.5px explanation in `muted` (max 280px) and one primary button ("New group", "Upload Receipt"; History has none). The button is 32px with a 12px label on phones and 44px with 14px from `md` |
 
-**Up Next.** One white card (24px radius, 6px padding) of up to three rows: 64px high, 14px radius, a 40px tile (12px
+**Up Next.** One white card (24px radius, 12px padding on phones and 16px from `md`) of up to three rows: 64px high, 14px radius, a 40px tile (12px
 radius, 100-level tint with 700 icon: amber for a receipt waiting, red for one that failed, blue for a list not shopped for
 a while), a 14px / 600 title, a 12.5px `muted` detail, an 18px chevron in `faint`, and `divider` rules inset 64px left and
 12px right. The whole row is the link; the title has no "View All". Hover is `#F2F4F7` without lifting. The stacked variant
@@ -798,8 +798,8 @@ merchant name (Jakarta 600 16) beside the status chip, and the upload date and t
 separates one line about where the receipt stands: `Waiting in line to be read` (pending), a progress bar and `Reading your
 receipt...` (processing, no invented percentage), `Couldn’t read this receipt` in red with `View Details` (failed), or the item
 count in mono with `View Details` (completed). Merchant name is the title even when OCR returns none; use “Store not
-recognized,” not “Unknown.” The entire card links to detail; action menus must stop propagation and remain separately
-focusable.
+recognized,” not “Unknown.” Completed and failed receipts show a `View Details` link in the footer; only that link opens the
+detail page. Pending and processing cards have no detail link, and the card body is not interactive.
 
 From `md` the grid is two columns (three from `xl`) and ends with a dashed `Upload Another Receipt` tile that opens the upload form; photos dropped on it
 arrive already chosen (`UploadAnotherTile`). The empty state is one 24px card with a 64px (72px from `md`) cyan tile, `No receipts yet`, the one primary `Upload Receipt` button (48px) and the
@@ -841,10 +841,10 @@ The Lists section (design boards "Lists mobile") has four screens built from one
 (`EntityCard`, `EntityEditCard`, `CreateEntitySheet`, `ConfirmSheet`, `ListToolbar`, `EmptyStateCard`, `CategorySection`, `RowMenu`).
 
 - **Groups and lists.** After the A1 header, a toolbar row: the mono count ("3 groups") at the left and the screen's one creation
-  action at the right (`New Group`, `New Base List`: 44px, 12px radius, primary). A card (24px radius, borderless, 16px padding) holds a
+  action at the right (`New Group`, `New Base List`: 44px, 12px radius, primary). A card (24px radius, borderless, 12px padding on phones and 16px from `md`) holds a
   36px blue tile (the 100-level fill, 700-level icon), the name (Plus Jakarta 16px / 600), one line of description or notes with an
   ellipsis, and a `...` menu of 44px with Edit and Delete (Delete in red). Below a hairline, the count in mono ("2 lists", "No lists
-  yet") and a blue `View Details` / `View Items` link. The whole card is the link (the title stretches over it); the menu sits above it.
+  yet") and a blue `View Details` / `View Items` link. Only the footer link opens the group or list; the title and card body are not interactive, and the menu remains independent.
   One column below `sm`, two from `sm`, three from `xl`.
 - **Edit in place.** `Edit Group` / `Edit List` swaps the card for a form on the same surface: `Name *` (a 48px field) and
   `Description` / `Notes` (a field that grows), then `Cancel` and `Save` side by side. An empty name shows "Name is required" under the
@@ -1222,7 +1222,7 @@ The design is implemented with shadcn's native props and Tailwind's own scale; a
 | Button `rounded` | `xl` by default (12px); `md`, `lg`, `2xl`, `3xl`, `full` | `ui/button.tsx` |
 | Link that looks like a button | `<Button asChild variant size><Link/></Button>`; never `buttonVariants()` or hand-set classes on `Link` (back link, "View All", the shortcut chips, the session bar's Continue) | call sites |
 | Field `size` | `default` 36 (`rounded-xl`) · `lg` 44 (`rounded-2xl`, the 16px of the form fields); borderless on `bg-card` with `shadow-field`; invalid: a `--destructive` ring | `ui/input.tsx`, `ui/textarea.tsx`, `ui/select.tsx` |
-| Card | `rounded-3xl` (24px), `shadow-card`, no border; `size` `compact` / `tight` / `flush` for cards of rows; `variant` `premium`, `accent`, `ghost`, `glass`; `interactive` lifts the shadow | `ui/card.tsx` |
+| Card | `rounded-3xl` (24px), `shadow-card`, no border; 12px padding on phones and 16px from `md`; `size` `compact` / `tight` / `flush` keeps that inset for compact row cards; `variant` `premium`, `accent`, `ghost`, `glass`; `interactive` lifts the shadow | `ui/card.tsx` |
 | Card parts | `CardHeader spacing` `default` · `tight` (8px under it, standalone cards); card sides use 12px below `md` and 16px from `md`; `CardContent space` `default` · `snug` (12px gap in a flex column) · `stack` (16px between stacked blocks) and `inset` `default` · `top` (24px above a content with no header) · `compact` (responsive card-side inset) | `ui/card.tsx` |
 | Badge | 22px (`h-5.5`), `text-xs`; `variant` `completed`, `failed`, `processing`, `pending`, `neutral`, `outline`, `on-dark`; `size` `lg` | `ui/badge.tsx` |
 | Dialog, sheet | `rounded-3xl`; on phones the sheet is `rounded-t-3xl`. `DialogContent variant` `sheet` (the A1 form panel: 20px gap, 20/24px padding, no border, safe-area bottom) or `viewer` (dark full screen); `DialogTitle variant` `sheet` / `strong` / `viewer`; `DialogDescription variant` `sheet`; `AlertDialogTitle variant` `strong`; `AlertDialogMedia tone` `destructive`. `DialogHeader variant='sheet'` (left-aligned, 4px gap, room for the close button) and `DialogFooter variant` `inline` (one row, 12px gap) or `sheet` (two actions stacked with the primary on top below `sm`, two equal columns from `sm`: the confirm of every sheet, because two xl buttons with 24px padding do not fit side by side at 390px). Closing is `<DialogClose asChild><Button variant='quiet' size='icon-xl'>` | `ui/dialog.tsx`, `ui/alert-dialog.tsx` |

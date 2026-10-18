@@ -201,12 +201,13 @@ describe('fields and surfaces take their size from props', () => {
 		expect(classOf(html, 's')).toContain('data-[size=lg]:h-11')
 	})
 
-	it('Card is the A1 surface by default and `size` drops its padding for a card of rows', () => {
+	it('Card uses responsive 12/16px padding and keeps the same inset across row sizes', () => {
 		const base = classOf(renderToStaticMarkup(h(Card, { 'data-testid': 'c' })), 'c')
 		const tight = classOf(renderToStaticMarkup(h(Card, { size: 'tight', 'data-testid': 'c' })), 'c')
 
 		expect(base).toEqual(expect.arrayContaining(['rounded-3xl', 'border-0', 'shadow-card']))
-		expect(tight).toEqual(expect.arrayContaining(['gap-0', 'p-2.5']))
+		expect(base).toEqual(expect.arrayContaining(['py-3', 'md:py-4']))
+		expect(tight).toEqual(expect.arrayContaining(['gap-0', 'p-3', 'md:p-4']))
 	})
 
 	it('Badge: status variants and a `lg` size replace the one-off classes', () => {

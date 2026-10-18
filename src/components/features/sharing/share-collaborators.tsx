@@ -72,7 +72,7 @@ export function ShareCollaborators({ collaborators, isOwner, isLoading, onRemove
 									<div
 										role='alertdialog'
 										aria-label={`Remove ${name}?`}
-										className='flex flex-col gap-3 rounded-3xl bg-red-50 p-3.5 text-red-900 dark:bg-red-950/40 dark:text-red-200'
+										className='flex flex-col gap-3 rounded-3xl bg-red-50 p-3 text-red-900 md:p-4 dark:bg-red-950/40 dark:text-red-200'
 									>
 										<div className='flex items-start gap-3'>
 											<InitialsAvatar

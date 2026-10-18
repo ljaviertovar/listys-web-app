@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowRight02Icon } from '@hugeicons/core-free-icons'
+import { ArrowRight02Icon, ShoppingCart02Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 
 import { StartShoppingDialog } from '@/components/features/base-lists'
@@ -36,14 +36,6 @@ export function NoSessionBanner({ quickStart, startTarget, lastTrip, hasLists }:
 			labelledBy='dashboard-no-session-title'
 		>
 			<div className='flex w-full max-w-xl flex-col gap-4 px-5.5 pt-40 pb-6.5 sm:p-8 md:gap-4.5 md:px-10 md:py-9'>
-				{/* Someone with no lists has never had a session, so saying there is none adds nothing: the hero just asks for a receipt. */}
-				{hasLists ? (
-					<span className='inline-flex w-fit items-center gap-2 rounded-full bg-white/12 px-3 py-1.5 text-xs leading-[1.2] font-semibold text-slate-200'>
-						<span className='size-2 rounded-full bg-slate-400' />
-						No shopping session in progress
-					</span>
-				) : null}
-
 				<div className='flex flex-col gap-2'>
 					<h2
 						id='dashboard-no-session-title'
@@ -106,12 +98,12 @@ export function NoSessionBanner({ quickStart, startTarget, lastTrip, hasLists }:
 						size='hero-action'
 						className='mt-1 w-full md:w-auto md:self-start'
 					>
-						Start Shopping
 						<HugeiconsIcon
-							icon={ArrowRight02Icon}
-							strokeWidth={2}
-							className='size-4.5'
+							icon={ShoppingCart02Icon}
+							strokeWidth={1.5}
+							aria-hidden='true'
 						/>
+						Start Shopping
 					</StartShoppingDialog>
 				) : (
 					<Button

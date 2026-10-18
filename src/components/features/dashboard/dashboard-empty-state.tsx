@@ -32,12 +32,12 @@ export function DashboardEmptyState({ testId, icon, tone, title, message, action
 					emphasis='medium'
 					className='mb-2'
 				/>
-				<p className='max-w-[280px] p-2 text-sm leading-[1.55] text-slate-500 dark:text-muted-foreground'>
+				<p className='max-w-[280px] py-2 text-sm leading-[1.55] text-slate-500 dark:text-muted-foreground'>
 					{title}
 					<br />
 					{message}
 				</p>
-				{action ? <div className='flex justify-center px-2 pt-1 pb-2'>{action}</div> : null}
+				{action ? <div className='flex justify-center pt-1 pb-2'>{action}</div> : null}
 			</div>
 		</div>
 	)

@@ -32,7 +32,7 @@ export function TicketPhotoRow({ count, thumbnailUrl, onOpen }: TicketPhotoRowPr
 			data-testid='ticket-photo-row'
 			aria-label={`View receipt ${plural}, ${count} ${plural}`}
 			className={cn(
-				'group flex min-h-[100px] w-full items-center gap-3.5 p-3 text-left transition-colors hover:bg-slate-50 dark:hover:bg-muted',
+				'group flex min-h-[100px] w-full items-center gap-3.5 p-3 text-left transition-colors hover:bg-slate-50 dark:hover:bg-muted md:p-4',
 				'rounded-3xl bg-card shadow-card',
 				'focus-ring',
 			)}
