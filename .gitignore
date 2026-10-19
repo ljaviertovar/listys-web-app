@@ -59,6 +59,7 @@ e2e/fixtures/*.png
 
 # Playwright mcp
 .playwright-mcp
+.playwright-cli
 /e2e
 /scripts
 /output
