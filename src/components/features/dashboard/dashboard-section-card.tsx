@@ -21,7 +21,7 @@ export function DashboardSectionCard({ testId, title, viewAll, children }: Props
 			aria-labelledby={`${testId}-title`}
 			className='flex h-full min-w-0 flex-col gap-3'
 		>
-			<div className='flex items-center gap-3'>
+			<div className='flex min-h-10 items-center gap-3'>
 				<h2
 					id={`${testId}-title`}
 					className='min-w-0 flex-1 font-display text-base leading-normal font-semibold md:text-xl md:leading-[1.39] '

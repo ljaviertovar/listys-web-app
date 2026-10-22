@@ -14,7 +14,7 @@ interface Props {
 function PageContainerContent({ children, className }: Props) {
 	return (
 		<div className={cn('flex-1 flex flex-col', MOBILE_TAB_BAR_CLEARANCE, 'lg:pb-20', className)}>
-			<div className='container mx-auto max-w-7xl space-y-6 p-4 md:p-6 lg:p-8'>{children}</div>
+			<div className='container mx-auto max-w-7xl space-y-6 p-4 pb-8 md:p-6 lg:p-8'>{children}</div>
 		</div>
 	)
 }

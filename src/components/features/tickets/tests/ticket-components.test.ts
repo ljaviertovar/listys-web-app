@@ -226,8 +226,9 @@ describe('TicketSelectionBar', () => {
 		expect(html).toContain('aria-live="polite"')
 		expect(html).toContain('>3</b> selected')
 		expect(html).toContain('$19.79')
-		expect(html).toContain('Clear Selection')
+		expect(html).toContain('>Clear<')
 		expect(html).toContain('Add to a List')
+		expect(html).toContain('bg-slate-900')
 	})
 })
 
@@ -246,6 +247,16 @@ describe('TicketItemsList', () => {
 		expect(html).toContain('$3.45')
 		expect(html).toContain('Select all items to add to a list')
 		expect(html).not.toMatch(/[🍎🥖🥬]/u)
+	})
+
+	it('opens every category of a long receipt', () => {
+		const many: TicketItem[] = Array.from({ length: 15 }, (_, index) => ({
+			id: `m${index}`, ticket_id: 't', name: `ITEM ${index}`, category: `Category ${String.fromCharCode(65 + index)}`, price: 1, quantity: 1, unit: 'unit', created_at: null, normalized_name: null,
+		}))
+		const html = renderToStaticMarkup(createElement(TicketItemsList, { items: many, selection: selection(), canSelect: true }))
+
+		expect(html).toContain('Item 0')
+		expect(html).toContain('Item 14')
 	})
 
 	it('shows how many are ticked and a dash when only some are', () => {

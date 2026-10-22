@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import { AddItemSheet } from '@/components/features/list-items'
 import { ShareListDialog } from '@/components/features/sharing'
 import {
+	STARTED_SESSION_PARAM,
 	SessionProgressCard,
 	ShoppingSessionActions,
 	ShoppingSessionItems,
@@ -20,6 +21,7 @@ import type { ShoppingSessionWithItems } from '@/types'
 type SearchParams = {
 	from?: string | string[]
 	groupId?: string | string[]
+	started?: string | string[]
 }
 
 export default async function ShoppingRunPage({
@@ -35,6 +37,8 @@ export default async function ShoppingRunPage({
 	const originGroupId = Array.isArray(resolvedSearchParams.groupId)
 		? resolvedSearchParams.groupId[0]
 		: resolvedSearchParams.groupId
+	// Only the visit that follows starting the session; the items clear it from the URL once shown.
+	const justStarted = [resolvedSearchParams[STARTED_SESSION_PARAM]].flat()[0] === '1'
 	const supabase = await createClient()
 	const {
 		data: { user },
@@ -137,6 +141,7 @@ export default async function ShoppingRunPage({
 					<ShoppingSessionItems
 						items={items}
 						isCompleted={isCompleted}
+						startCollapsed={justStarted && !isCompleted}
 					/>
 				</div>
 			</PageContainer>

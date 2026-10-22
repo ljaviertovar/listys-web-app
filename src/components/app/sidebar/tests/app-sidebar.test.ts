@@ -47,7 +47,7 @@ describe('AppSidebar', () => {
 
 		expect(entry('Receipts')?.[1]).toBe('true')
 		expect(entry('Dashboard')?.[1]).toBe('false')
-		expect(html).toContain('data-[active=true]:bg-secondary')
+		expect(html).toContain('data-[active=true]:bg-accent')
 	})
 
 	it('ends with the author credit and no session card when no trip is running', () => {

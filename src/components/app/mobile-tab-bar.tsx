@@ -30,10 +30,10 @@ function Tab({ item, isActive }: { item: (typeof MOBILE_TAB_ITEMS)[number]; isAc
 			className={cn(
 				'flex min-h-14 flex-col items-center justify-start gap-1 rounded-xl pt-2 text-xs leading-none transition-colors',
 				'focus-ring',
-				// The current tab sits on the secondary-button surface (#E9ECF0) with blue text, like any selected option.
+				// The current tab takes the highlight of the menu items (accent surface and text).
 				isActive
-					? 'bg-secondary font-semibold text-blue-700 dark:bg-muted dark:text-blue-300'
-					: 'font-medium text-slate-500 hover:text-foreground',
+					? 'bg-accent font-semibold text-accent-foreground'
+					: 'font-medium text-slate-500 hover:bg-accent hover:text-accent-foreground',
 			)}
 		>
 			<HugeiconsIcon

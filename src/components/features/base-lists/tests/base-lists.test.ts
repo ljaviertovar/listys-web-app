@@ -86,13 +86,13 @@ describe('BaseListItems', () => {
 		expect(html).toMatch(/<button[^>]*disabled=""[^>]*data-testid="base-list-item-i1-menu"/)
 	})
 
-	it('folds all but the first categories of a long list', () => {
+	it('opens every category, however long the list is', () => {
 		const many = Array.from({ length: 13 }, (_, index) => item({ id: `i${index}`, name: `Item ${index}`, category: `Category ${String.fromCharCode(65 + index)}` }))
 		const html = renderToStaticMarkup(createElement(BaseListItems, { baseListId: 'l1', items: many }))
 
 		expect(html).toContain('Item 0')
-		expect(html).toContain('Item 1')
-		expect(html).not.toContain('Item 2<')
+		expect(html).toContain('Item 2<')
+		expect(html).toContain('Item 12<')
 	})
 
 	it('invites the first item when the list is empty', () => {

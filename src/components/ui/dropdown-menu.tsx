@@ -85,8 +85,8 @@ function DropdownMenuGroup({ ...props }: React.ComponentProps<typeof DropdownMen
 const dropdownMenuItemSizes = {
 	default: '',
 	touch: 'min-h-11 cursor-pointer font-display font-semibold',
-	row: 'min-h-13 gap-3 rounded-xl px-2.5 py-2 focus:bg-background dark:focus:bg-muted',
-	action: 'mx-0.5 mb-0.5 min-h-11 justify-center gap-2 rounded-xl bg-secondary font-display font-semibold hover:bg-secondary-hover focus:bg-secondary-hover dark:bg-muted dark:focus:bg-muted/70',
+	row: 'min-h-13 gap-3 rounded-xl px-2.5 py-2',
+	action: 'mx-0.5 mb-0.5 min-h-11 justify-center gap-2 rounded-xl bg-secondary font-display font-semibold dark:bg-muted',
 }
 
 function DropdownMenuItem({

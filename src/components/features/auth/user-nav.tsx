@@ -29,8 +29,8 @@ interface Props {
 }
 
 // Keep Dashboard, Profile and Account available in the account menu at every breakpoint.
-// Each row is a grey icon tile and a regular 14px title (design A1 mobile).
-const MENU_ROW_TILE = 'bg-background text-slate-600 dark:bg-muted dark:text-muted-foreground'
+// Each row is a bare icon and a regular 14px title: no tile behind the icon.
+const MENU_ROW_ICON = 'text-slate-600 dark:text-muted-foreground'
 const MENU_URLS = ['/dashboard', '/settings/profile', '/settings/account']
 const MENU_LINKS = USER_NAV_ITEMS.filter(item => MENU_URLS.includes(item.url))
 
@@ -39,7 +39,7 @@ function RowTile({ icon, className }: { icon: IconSvgElement; className: string 
 	return (
 		<span
 			aria-hidden='true'
-			className={cn('flex size-9 shrink-0 items-center justify-center rounded-xl', className)}
+			className={cn('flex size-9 shrink-0 items-center justify-center', className)}
 		>
 			<HugeiconsIcon
 				icon={icon}
@@ -151,7 +151,7 @@ export function UserNav({ user }: Props) {
 									{item.icon ? (
 										<RowTile
 											icon={item.icon}
-											className={MENU_ROW_TILE}
+											className={MENU_ROW_ICON}
 										/>
 									) : null}
 									<span className='text-sm leading-[1.2] font-normal'>{item.title}</span>

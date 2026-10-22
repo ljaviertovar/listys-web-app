@@ -4,6 +4,7 @@ export {
   getCategoryIcon,
   getCategoryTone,
 } from "./category-section/helpers/category-style";
+export { ActionLink } from "./action-link/action-link";
 export { EmptyStateCard } from "./empty-state/empty-state-card";
 export { DetailsList, type DetailsListItem } from "./details-list/details-list";
 export { CreateEntitySheet } from "./entity-card/create-entity-sheet";

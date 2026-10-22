@@ -17,10 +17,6 @@ interface TicketItemsListProps {
 	canSelect: boolean
 }
 
-/** A receipt this short is read in one go; longer ones open only their first categories so the page does not run for screens. */
-const OPEN_ALL_UP_TO = 12
-const OPEN_FIRST_WHEN_LONG = 2
-
 /** "Select all" and the receipt's items by category. Controlled by the caller's selection, so the page and the compare view agree. */
 export function TicketItemsList({ items, selection, canSelect }: TicketItemsListProps) {
 	const groups = useMemo(() => groupTicketItems(items), [items])
@@ -46,13 +42,12 @@ export function TicketItemsList({ items, selection, canSelect }: TicketItemsList
 					</span>
 				</label>
 			) : null}
-			{groups.map((group, index) => (
+			{groups.map(group => (
 				<TicketCategorySection
 					key={group.key}
 					group={group}
 					selection={selection}
 					canSelect={canSelect}
-					defaultOpen={items.length <= OPEN_ALL_UP_TO || index < OPEN_FIRST_WHEN_LONG}
 				/>
 			))}
 		</div>
@@ -63,11 +58,10 @@ interface TicketCategorySectionProps {
 	group: TicketItemGroup
 	selection: TicketSelection
 	canSelect: boolean
-	defaultOpen: boolean
 }
 
 /** A category of the receipt that folds away: its coloured icon and name, how many items it holds, and its rows on a soft surface. */
-export function TicketCategorySection({ group, selection, canSelect, defaultOpen }: TicketCategorySectionProps) {
+export function TicketCategorySection({ group, selection, canSelect }: TicketCategorySectionProps) {
 	const count = group.items.length
 
 	return (
@@ -75,7 +69,6 @@ export function TicketCategorySection({ group, selection, canSelect, defaultOpen
 			category={group.key}
 			title={group.title}
 			count={`${count} ${count === 1 ? 'item' : 'items'}`}
-			defaultOpen={defaultOpen}
 			testId={`ticket-category-${group.key}`}
 		>
 			<ul className='divide-y divide-slate-200/70 dark:divide-border'>

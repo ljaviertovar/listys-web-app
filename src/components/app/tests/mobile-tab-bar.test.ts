@@ -47,13 +47,13 @@ describe('MobileTabBar', () => {
 		expect(render()).not.toMatch(/aria-current="page"[^>]*data-testid="mobile-tab-dashboard"/)
 	})
 
-	it('puts the current tab on the secondary-button surface and leaves the others flat', () => {
+	it('puts the current tab on the accent surface and leaves the others flat', () => {
 		pathname = '/dashboard'
 		const html = render()
 		const tab = (id: string) => html.match(new RegExp(`<a[^>]*data-testid="mobile-tab-${id}"[^>]*>`))?.[0] ?? ''
 
-		expect(tab('dashboard')).toContain('bg-secondary')
-		expect(tab('tickets')).not.toContain('bg-secondary')
+		expect(tab('dashboard')).toContain('bg-accent')
+		expect(tab('tickets')).not.toContain(' bg-accent ')
 	})
 
 	it('keeps Lists current while a list or a shopping session is open', () => {

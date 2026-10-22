@@ -1,8 +1,4 @@
-import Link from 'next/link'
-import { ArrowRight01Icon } from '@hugeicons/core-free-icons'
-import { HugeiconsIcon } from '@hugeicons/react'
-
-import { Button } from '@/components/ui/button'
+import { ActionLink } from '@/components/commons'
 
 interface Props {
 	href: string
@@ -11,28 +7,17 @@ interface Props {
 	testId: string
 }
 
-/** The "View all" link at the right of every section title: compact on phones, 40px from tablet width. */
+/** The "View all" link at the right of every section title. */
 export function ViewAllLink({ href, noun, testId }: Props) {
 	return (
-		<Button
-			asChild
-			variant='ghost-primary'
-			size='link-action'
+		<ActionLink
+			href={href}
+			testId={testId}
 			className='shrink-0'
 		>
-			<Link
-				href={href}
-				data-testid={testId}
-			>
-				<span>
-					View All<span className='sr-only'> {noun}</span>
-				</span>
-				<HugeiconsIcon
-					icon={ArrowRight01Icon}
-					strokeWidth={2}
-					className='size-4'
-				/>
-			</Link>
-		</Button>
+			<span>
+				View All<span className='sr-only'> {noun}</span>
+			</span>
+		</ActionLink>
 	)
 }
