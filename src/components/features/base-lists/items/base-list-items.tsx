@@ -16,10 +16,6 @@ interface BaseListItemsProps {
 	isLocked?: boolean
 }
 
-/** A list this short is read in one go; longer ones open only their first categories so the page does not run for screens. */
-const OPEN_ALL_UP_TO = 12
-const OPEN_FIRST_WHEN_LONG = 2
-
 function BaseListLockedNotice() {
 	return (
 		<p
@@ -71,7 +67,6 @@ export function BaseListItems({ baseListId, items, isLocked = false }: BaseListI
 					category={group.key}
 					title={group.title}
 					count={`${group.items.length} ${group.items.length === 1 ? 'item' : 'items'}`}
-					defaultOpen={items.length <= OPEN_ALL_UP_TO || index < OPEN_FIRST_WHEN_LONG}
 					className={index === 0 ? 'border-t-0' : undefined}
 					testId={`base-list-category-${group.key}`}
 				>

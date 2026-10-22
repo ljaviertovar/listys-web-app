@@ -37,6 +37,7 @@ const HEIGHTS = {
 	xl: 'h-11',
 	primary: 'h-10',
 	'link-action': 'h-10',
+	'link-inline': 'min-h-8',
 	'hero-action': 'h-10',
 	'2xl': 'h-13',
 	icon: 'size-9',

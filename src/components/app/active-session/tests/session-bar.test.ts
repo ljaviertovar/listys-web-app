@@ -27,8 +27,8 @@ describe('SessionBar', () => {
 		expect(html).toContain('lg:hidden')
 		expect(html).toContain('fixed inset-x-0 z-30')
 		expect(html).toContain('bottom-[calc(3.75rem+max(1.125rem,env(safe-area-inset-bottom)))]')
-		expect(html).toContain('h-12')
-		expect(html).toContain('rounded-2xl bg-slate-900')
+		expect(html).toContain('py-2.5 pr-2.5 pl-4')
+		expect(html).toContain('rounded-3xl bg-slate-900')
 		expect(html).toContain('size-7')
 	})
 

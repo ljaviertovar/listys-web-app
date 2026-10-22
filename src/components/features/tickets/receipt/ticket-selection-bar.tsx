@@ -1,10 +1,10 @@
 'use client'
 
-import { HugeiconsIcon } from '@hugeicons/react'
-import { AddToListIcon } from '@hugeicons/core-free-icons'
-
 import { Button } from '@/components/ui/button'
-import { ABOVE_MOBILE_SESSION_BAR, ABOVE_MOBILE_UPLOAD_BUTTON } from '@/components/app/helpers/mobile-tab-bar-layout'
+import {
+	ABOVE_MOBILE_ACTION_BAR,
+	ABOVE_MOBILE_ACTION_BAR_WITH_SESSION,
+} from '@/components/app/helpers/mobile-tab-bar-layout'
 import { useActiveSessionStore } from '@/stores/active-session'
 import { cn, formatCurrency } from '@/utils'
 
@@ -32,9 +32,9 @@ export function TicketSelectionBar({ count, total, onClear, onAdd, placement = '
 			role='region'
 			aria-label='Selection actions'
 			className={cn(
-				'fixed inset-x-3 z-40 flex items-center gap-2 rounded-3xl bg-card py-2.5 pr-2.5 pl-4 shadow-[0_0_0_1px_rgba(15,23,42,0.06),0_16px_32px_-12px_rgba(15,23,42,0.35)]',
-				hasSessionBar ? ABOVE_MOBILE_SESSION_BAR : ABOVE_MOBILE_UPLOAD_BUTTON,
-				'lg:z-10 lg:rounded-t-none lg:border-t lg:border-slate-100 lg:px-5 lg:py-3 lg:shadow-none dark:lg:border-border',
+				'fixed inset-x-3 z-40 flex items-center gap-2 rounded-3xl bg-slate-900 py-2.5 pr-2.5 pl-4 text-white shadow-[0_16px_32px_-12px_rgba(15,23,42,0.5)]',
+				hasSessionBar ? ABOVE_MOBILE_ACTION_BAR_WITH_SESSION : ABOVE_MOBILE_ACTION_BAR,
+				'lg:z-10 lg:rounded-t-none lg:px-5 lg:py-3 lg:shadow-none',
 				placement === 'card'
 					? 'lg:sticky lg:inset-x-0 lg:bottom-0 lg:-mx-3.5 lg:-mb-1.5 lg:mt-2 lg:rounded-b-3xl'
 					: 'lg:static lg:m-0 lg:shrink-0 lg:rounded-none',
@@ -47,28 +47,23 @@ export function TicketSelectionBar({ count, total, onClear, onAdd, placement = '
 				>
 					<b className='font-mono font-semibold tabular-nums'>{count}</b> selected
 				</span>
-				<span className='font-mono text-xs leading-[1.2] font-medium text-slate-500 tabular-nums dark:text-muted-foreground'>
+				<span className='font-mono text-xs leading-[1.2] font-medium text-slate-300 tabular-nums'>
 					{formatCurrency(total)}
 				</span>
 			</div>
 			<Button
 				type='button'
-				variant='ghost'
-				size='primary'
+				variant='quiet-on-dark'
+				size='sm'
 				onClick={onClear}
 			>
-				Clear Selection
+				Clear
 			</Button>
 			<Button
 				type='button'
-				size='primary'
+				size='sm'
 				onClick={onAdd}
 			>
-				<HugeiconsIcon
-					icon={AddToListIcon}
-					strokeWidth={1.8}
-					className='size-4.5'
-				/>
 				Add to a List
 			</Button>
 		</div>

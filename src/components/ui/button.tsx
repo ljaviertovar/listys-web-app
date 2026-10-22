@@ -42,8 +42,9 @@ const buttonVariants = cva(
 				// A destructive icon action that is not filled until hovered (remove a photo).
 				'destructive-ghost':
 					'text-red-700 shadow-none hover:bg-red-100 focus-visible:ring-red-500 dark:text-red-300 dark:hover:bg-red-950',
-				// A text action in the primary colour (the "View All" link of a section): transparent until hovered.
-				'ghost-primary': 'text-blue-700 shadow-none hover:bg-secondary dark:text-blue-400',
+				// A text action in the primary colour ("View Details", "View All"): no wash on hover, its arrow nudges right instead.
+				'ghost-primary':
+					'text-blue-700 shadow-none dark:text-blue-400 [&_svg]:transition-transform hover:[&_svg]:translate-x-0.5 motion-reduce:[&_svg]:transition-none',
 				// One option of a segmented switch (the sign-in / sign-up control): quiet slate until it is the current page, then a raised white tab.
 				segment:
 					'text-slate-600 shadow-none hover:text-foreground aria-[current=page]:bg-card aria-[current=page]:text-foreground aria-[current=page]:shadow-xs dark:text-muted-foreground',
@@ -81,7 +82,9 @@ const buttonVariants = cva(
 					'h-10 gap-1.5 px-3 has-data-[icon=inline-end]:pr-2.5 has-data-[icon=inline-start]:pl-2.5 md:h-11 md:gap-1.5 md:px-4 md:has-data-[icon=inline-end]:pr-3 md:has-data-[icon=inline-start]:pl-3',
 				// Link actions follow the same compact mobile height while retaining their link-specific padding.
 				'link-action': 'h-10 gap-1.5 px-3 has-data-[icon=inline-end]:pr-2.5 has-data-[icon=inline-start]:pl-2.5 md:h-11 md:gap-1.5 md:px-3',
-				'mobile-action': 'h-11 min-w-0 gap-1 px-1.5 text-xs leading-tight whitespace-normal',
+				// A text link with no padding of its own, so it sits flush with the edge of the row it ends ("View Details").
+					'link-inline': 'min-h-8 gap-1 px-0',
+					'mobile-action': 'h-11 min-w-0 gap-1 px-1.5 text-xs leading-tight whitespace-normal',
 				// The dashboard hero action steps up from the native lg to xl at the tablet breakpoint.
 				'hero-action':
 					'h-10 gap-1.5 px-4 has-data-[icon=inline-end]:pr-3 has-data-[icon=inline-start]:pl-3 md:h-11 md:gap-2 md:px-6 md:text-base md:has-data-[icon=inline-end]:pr-4 md:has-data-[icon=inline-start]:pl-4',

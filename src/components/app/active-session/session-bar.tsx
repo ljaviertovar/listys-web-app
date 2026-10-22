@@ -15,7 +15,7 @@ export interface SessionBarProps {
 }
 
 /**
- * Phones only (design A1 mobile): a dark 48px bar floating above the tab bar that leads back to the running shopping
+ * Phones only (design A1 mobile): a dark bar, styled like the receipt selection bar, floating above the tab bar that leads back to the running shopping
  * session from any other screen. The whole bar is the link; "Continue" only borrows the primary button's look. The raised
  * upload button overlaps its lower edge, so the bar sits just under its z-index.
  */
@@ -31,7 +31,7 @@ export function SessionBar({ id, name, progress }: SessionBarProps) {
 			<Link
 				href={`/shopping/${id}`}
 				className={cn(
-					'flex h-12 items-center gap-2.5 rounded-2xl bg-slate-900 py-1.5 pr-1.5 pl-2.5 text-white shadow-[0_10px_22px_-14px_rgba(15,23,42,0.6)]',
+					'flex items-center gap-2 rounded-3xl bg-slate-900 py-2.5 pr-2.5 pl-4 text-white shadow-[0_16px_32px_-12px_rgba(15,23,42,0.5)]',
 					'focus-ring',
 				)}
 			>
@@ -64,7 +64,7 @@ export function SessionBar({ id, name, progress }: SessionBarProps) {
 					<span className='absolute top-0 right-0 size-2 rounded-full border-[1.5px] border-slate-900 bg-green-400' />
 				</span>
 				<span className='flex min-w-0 flex-1 flex-col gap-0.5'>
-					<span className='truncate font-display text-xs leading-[1.2] font-bold'>{name}</span>
+					<span className='truncate text-sm leading-[1.2] font-semibold'>{name}</span>
 					<span className='font-mono text-xs leading-[1.2] text-slate-300 tabular-nums'>
 						{progress ? `${progress.checked} of ${progress.total} · ${percent}%` : 'In progress'}
 					</span>
@@ -73,7 +73,6 @@ export function SessionBar({ id, name, progress }: SessionBarProps) {
 				<Button
 					asChild
 					size='sm'
-					rounded='lg'
 				>
 					<span>
 						Continue<span className='sr-only'> Shopping</span>

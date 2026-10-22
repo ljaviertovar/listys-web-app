@@ -53,6 +53,19 @@ describe('ShoppingSessionItems', () => {
 		expect(html).toContain('Neilson 2% Milk')
 	})
 
+	it('opens its categories by default and folds them only on the visit that follows starting the session', () => {
+		const items = [item({ id: 'a', name: 'Apples', category: 'Produce' }), item({ id: 'b', name: 'Yogurt', category: 'Dairy' })]
+
+		const open = renderToStaticMarkup(createElement(ShoppingSessionItems, { items }))
+		const folded = renderToStaticMarkup(createElement(ShoppingSessionItems, { items, startCollapsed: true }))
+
+		expect(open).toContain('Apples')
+		expect(open).toContain('Yogurt')
+		expect(folded).toContain('data-testid="session-category-Produce"')
+		expect(folded).not.toContain('Apples')
+		expect(folded).not.toContain('Yogurt')
+	})
+
 	it('strikes through what is in the cart and keeps what is left at the top of its category', () => {
 		const html = renderToStaticMarkup(createElement(ShoppingSessionItems, { items: [item({ id: 'done', name: 'Done', checked: true }), item({ id: 'todo', name: 'Todo', sort_order: 5 })] }))
 

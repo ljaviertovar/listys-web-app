@@ -9,6 +9,7 @@ import { InformationCircleIcon, Loading03Icon, ShoppingCart02Icon } from '@hugei
 import { Button, type ButtonProps } from '@/components/ui/button'
 import { DialogFooter } from '@/components/ui/dialog'
 import { SheetDialog } from '@/components/commons'
+import { startedSessionHref } from '@/components/features/shopping-sessions'
 import { createShoppingSession } from '@/lib/api/endpoints'
 import useActiveSessionStore from '@/stores/active-session'
 import { cn } from '@/utils'
@@ -60,7 +61,7 @@ export function StartShoppingDialog({
 			if (data?.id) {
 				// Update store optimistically
 				setActiveSession({ id: data.id, name: data.name })
-				router.push(`/shopping/${data.id}`)
+				router.push(startedSessionHref(data.id))
 				// Keep the sheet open with the spinner until navigation completes
 			} else {
 				router.refresh()

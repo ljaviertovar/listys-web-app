@@ -1,7 +1,7 @@
-import Link from 'next/link'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { ArrowRight01Icon, Invoice01Icon } from '@hugeicons/core-free-icons'
+import { Invoice01Icon } from '@hugeicons/core-free-icons'
 
+import { ActionLink } from '@/components/commons'
 import { cn } from '@/utils'
 import { MAX_IMAGES_PER_TICKET, MAX_TICKET_IMAGE_MB } from '@/lib/config/limits'
 
@@ -105,19 +105,13 @@ export function TicketCard({ id, storeName, status, itemsCount, uploadedLabel }:
 					itemsCount={itemsCount ?? 0}
 				/>
 				{showDetails ? (
-					<Link
+					<ActionLink
 						href={`/tickets/${id}`}
-						data-testid={`ticket-details-${id}`}
-						className='group/ticket-details inline-flex min-h-8 shrink-0 items-center gap-1 rounded-lg font-display text-sm font-semibold text-blue-700 focus-ring dark:text-blue-400'
+						testId={`ticket-details-${id}`}
+						className='shrink-0'
 					>
 						View Details
-						<HugeiconsIcon
-							icon={ArrowRight01Icon}
-							strokeWidth={2}
-							aria-hidden='true'
-							className='size-4 transition-transform group-hover/ticket-details:translate-x-0.5 motion-reduce:transition-none'
-						/>
-					</Link>
+					</ActionLink>
 				) : null}
 			</div>
 		</article>

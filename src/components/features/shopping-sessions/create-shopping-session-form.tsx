@@ -7,6 +7,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { createShoppingSession } from '@/lib/api/endpoints'
 
+import { startedSessionHref } from './helpers/started-session'
+
 interface Props {
 	baseListId: string
 	defaultName: string
@@ -32,7 +34,7 @@ export function CreateShoppingSessionForm({ baseListId, defaultName }: Props) {
 			if (createError) throw new Error(createError)
 			if (!data) throw new Error('Failed to create shopping session')
 
-			router.push(`/shopping/${data.id}`)
+			router.push(startedSessionHref(data.id))
 		} catch (err) {
 			setError(err instanceof Error ? err.message : 'Failed to create shopping session')
 		} finally {

@@ -205,7 +205,7 @@ describe('section cards', () => {
 		expect(html).not.toContain('Upload Receipt')
 		expect(html).toContain('data-testid="dashboard-receipts-view-all"')
 		expect(html).toContain('View All<span class="sr-only"> receipts</span>')
-		expect(html).toContain('data-variant="ghost-primary" data-size="link-action"')
+		expect(html).toContain('data-variant="ghost-primary" data-size="link-inline"')
 		expect(html.indexOf('dashboard-receipts-view-all')).toBeLessThan(html.indexOf('dashboard-receipt-t1'))
 	})
 

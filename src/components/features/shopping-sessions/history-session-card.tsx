@@ -1,11 +1,10 @@
 'use client'
 
-import Link from 'next/link'
-import { ArrowRight01Icon, ShoppingCart02Icon } from '@hugeicons/core-free-icons'
+import { ShoppingCart02Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 
+import { ActionLink } from '@/components/commons'
 import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { formatCurrency, formatDate, formatTime } from '@/utils'
 
 interface Session {
@@ -80,12 +79,9 @@ export function HistorySessionCard({ session, href }: Props) {
 							</span>
 						</span>
 					)}
-					<Button asChild variant='ghost-primary' size='link-action' className='w-fit shrink-0'>
-						<Link href={href ?? `/shopping/${session.id}`} aria-label={`View details for ${session.name}`}>
-							View Details
-							<HugeiconsIcon icon={ArrowRight01Icon} strokeWidth={2} aria-hidden='true' className='size-4' />
-						</Link>
-					</Button>
+					<ActionLink href={href ?? `/shopping/${session.id}`} aria-label={`View details for ${session.name}`} className='shrink-0'>
+						View Details
+					</ActionLink>
 				</div>
 			</div>
 		</Card>

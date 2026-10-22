@@ -448,8 +448,8 @@ const sidebarMenuButtonVariants = cva(
 	{
 		variants: {
 			variant: {
-				// Design A1: a slate entry that turns blue on the secondary surface while it is the current page.
-				default: 'font-normal whitespace-nowrap text-slate-700 transition-colors duration-150 hover:bg-slate-100 hover:text-foreground [&_svg]:size-4.5 [&_svg]:text-slate-500 hover:[&_svg]:text-slate-700 data-[active=true]:[&_svg]:text-blue-700 dark:text-foreground/80 dark:hover:bg-muted data-[active=true]:bg-secondary data-[active=true]:font-semibold data-[active=true]:text-blue-700 data-[active=true]:hover:bg-secondary-hover data-[active=true]:hover:text-blue-700 dark:data-[active=true]:bg-muted dark:data-[active=true]:text-blue-300',
+				// A slate entry that takes the highlight of the menu items (accent surface, accent text) on hover and while it is the current page.
+				default: 'font-normal whitespace-nowrap text-slate-700 transition-colors duration-150 hover:bg-accent hover:text-accent-foreground [&_svg]:size-4.5 [&_svg]:text-slate-500 hover:[&_svg]:text-accent-foreground data-[active=true]:[&_svg]:text-accent-foreground dark:text-foreground/80 data-[active=true]:bg-accent data-[active=true]:font-semibold data-[active=true]:text-accent-foreground data-[active=true]:hover:bg-accent data-[active=true]:hover:text-accent-foreground',
 				outline:
 					'bg-background hover:bg-sidebar-active hover:text-sidebar-active-foreground shadow-[0_0_0_1px_hsl(var(--sidebar-border))] hover:shadow-[0_0_0_1px_hsl(var(--sidebar-active))]',
 			},
@@ -639,7 +639,7 @@ function SidebarMenuSubButton({
 			data-size={size}
 			data-active={isActive}
 			className={cn(
-				'text-slate-700 ring-sidebar-ring hover:text-foreground active:bg-sidebar-active active:text-sidebar-active-foreground [&>svg]:text-sidebar-active-foreground h-7 gap-2 rounded-lg px-2 transition-colors duration-150 hover:bg-slate-100 data-[active=true]:bg-secondary data-[active=true]:font-semibold data-[active=true]:text-blue-700 focus-visible:ring-2 data-[size=md]:text-sm data-[size=sm]:text-xs [&>svg]:size-4 flex min-w-0 -translate-x-px items-center overflow-hidden outline-hidden group-data-[collapsible=icon]:hidden disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:shrink-0',
+				'text-slate-700 ring-sidebar-ring active:bg-accent active:text-accent-foreground [&>svg]:text-accent-foreground h-7 gap-2 rounded-lg px-2 transition-colors duration-150 hover:bg-accent hover:text-accent-foreground data-[active=true]:bg-accent data-[active=true]:font-semibold data-[active=true]:text-accent-foreground focus-visible:ring-2 data-[size=md]:text-sm data-[size=sm]:text-xs [&>svg]:size-4 flex min-w-0 -translate-x-px items-center overflow-hidden outline-hidden group-data-[collapsible=icon]:hidden disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:shrink-0',
 				className,
 			)}
 			{...props}

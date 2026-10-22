@@ -1,11 +1,10 @@
 'use client'
 
-import Link from 'next/link'
 import type { Ref } from 'react'
-import { Button } from '@/components/ui/button'
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react'
-import { ArrowRight01Icon, Delete02Icon, Edit02Icon } from '@hugeicons/core-free-icons'
+import { Delete02Icon, Edit02Icon } from '@hugeicons/core-free-icons'
 
+import { ActionLink } from '../action-link/action-link'
 import { RowMenu } from '../row-menu/row-menu'
 
 interface EntityCardProps {
@@ -97,12 +96,9 @@ export function EntityCard({
 						</>
 					)}
 				</span>
-				<Button asChild variant='ghost-primary' size='link-action' className='w-fit shrink-0'>
-					<Link href={href} aria-label={`${linkLabel} in ${title}`}>
-						{linkLabel}
-						<HugeiconsIcon icon={ArrowRight01Icon} strokeWidth={2} aria-hidden='true' className='size-4' />
-					</Link>
-				</Button>
+				<ActionLink href={href} aria-label={`${linkLabel} in ${title}`} className='shrink-0'>
+					{linkLabel}
+				</ActionLink>
 			</div>
 		</article>
 	)

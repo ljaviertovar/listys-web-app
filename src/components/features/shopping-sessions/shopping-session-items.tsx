@@ -1,17 +1,20 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { TaskAdd01Icon } from '@hugeicons/core-free-icons'
 
 import { CategorySection, EmptyStateCard } from '@/components/commons'
 import { groupByCategory } from '@/utils'
 import type { ShoppingSessionItem } from '@/types'
 
+import { STARTED_SESSION_PARAM } from './helpers/started-session'
 import { ShoppingSessionItemRow } from './shopping-session-item-row'
 
 interface ShoppingSessionItemsProps {
 	items: ShoppingSessionItem[]
 	isCompleted?: boolean
+	/** Fold every category: only the first visit after the session is started. Later renders keep what the user opened or closed. */
+	startCollapsed?: boolean
 }
 
 /** Unticked items first inside a category, so what is left to buy stays at the top; each group keeps the list's own order. */
@@ -23,8 +26,16 @@ function sortForShopping(items: ShoppingSessionItem[]) {
 }
 
 /** The items of a session in one card, a collapsible category each with how many are in the cart ("1/2"). */
-export function ShoppingSessionItems({ items, isCompleted = false }: ShoppingSessionItemsProps) {
+export function ShoppingSessionItems({ items, isCompleted = false, startCollapsed = false }: ShoppingSessionItemsProps) {
 	const groups = useMemo(() => groupByCategory(sortForShopping(items)), [items])
+
+	// The flag only describes this first visit: dropping it from the URL (no navigation) makes a reload or a later visit open the categories.
+	useEffect(() => {
+		if (!startCollapsed) return
+		const url = new URL(window.location.href)
+		url.searchParams.delete(STARTED_SESSION_PARAM)
+		window.history.replaceState(window.history.state, '', url)
+	}, [startCollapsed])
 
 	if (items.length === 0) {
 		return (
@@ -58,6 +69,7 @@ export function ShoppingSessionItems({ items, isCompleted = false }: ShoppingSes
 						title={group.title}
 						count={`${done}/${group.items.length}`}
 						complete={done === group.items.length}
+						defaultOpen={!startCollapsed}
 						className={index === 0 ? 'border-t-0' : undefined}
 						testId={`session-category-${group.key}`}
 					>
