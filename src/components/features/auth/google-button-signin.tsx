@@ -14,9 +14,11 @@ interface Props {
 	callbackUrl?: string
 	/** The email form is submitting: both ways in wait for it. */
 	disabled?: boolean
+	onError?: () => void
+	testId?: string
 }
 
-export default function GoogleButtonSignin({ typeSubmit, callbackUrl, disabled = false }: Props) {
+export default function GoogleButtonSignin({ typeSubmit, callbackUrl, disabled = false, onError, testId = `google-${typeSubmit}-button` }: Props) {
 	const [isLoading, setIsLoading] = useState(false)
 	const supabase = createClient()
 
@@ -34,13 +36,18 @@ export default function GoogleButtonSignin({ typeSubmit, callbackUrl, disabled =
 			})
 			if (error) {
 				console.error('Error signing in with Google:', error.message)
+				onError?.()
 				setIsLoading(false)
 			}
 		} catch (error) {
 			console.error('Unexpected error:', error)
+			onError?.()
 			setIsLoading(false)
 		}
 	}
+	const buttonLabel = isLoading
+		? typeSubmit === 'signup' ? 'Opening Google sign-up…' : 'Opening Google sign-in…'
+		: typeSubmit === 'signup' ? 'Sign Up with Google' : 'Sign In with Google'
 
 	return (
 		<Button
@@ -48,6 +55,8 @@ export default function GoogleButtonSignin({ typeSubmit, callbackUrl, disabled =
 			disabled={isLoading || disabled}
 			variant='outline'
 			size='xl'
+			data-testid={testId}
+			aria-busy={isLoading}
 			className='w-full'
 			onClick={handleGoogleSignIn}
 		>
@@ -55,12 +64,12 @@ export default function GoogleButtonSignin({ typeSubmit, callbackUrl, disabled =
 				<HugeiconsIcon
 					icon={Loading03Icon}
 					strokeWidth={2}
-					className='animate-spin'
+					className='animate-spin motion-reduce:animate-none'
 				/>
 			) : (
 				<GoogleGlyph />
 			)}{' '}
-			{typeSubmit === 'signup' ? 'Sign Up with Google' : 'Sign In with Google'}
+			{buttonLabel}
 		</Button>
 	)
 }

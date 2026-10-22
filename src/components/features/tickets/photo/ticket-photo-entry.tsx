@@ -2,6 +2,7 @@
 
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ArrowExpand01Icon, Image02Icon } from '@hugeicons/core-free-icons'
+import type { Ref } from 'react'
 
 import { cn } from '@/utils'
 import { Button } from '@/components/ui/button'
@@ -16,17 +17,19 @@ interface TicketPhotoRowProps {
 	/** Signed URL of the first photo, when it has loaded. */
 	thumbnailUrl: string | undefined
 	onOpen: () => void
+	triggerRef?: Ref<HTMLButtonElement>
 }
 
 /**
  * The way into the receipt photo, right under the title so it is never buried below the item list: a thumbnail, how many
  * photos there are and one 44px control. The whole row is the button.
  */
-export function TicketPhotoRow({ count, thumbnailUrl, onOpen }: TicketPhotoRowProps) {
+export function TicketPhotoRow({ count, thumbnailUrl, onOpen, triggerRef }: TicketPhotoRowProps) {
 	const plural = count === 1 ? 'photo' : 'photos'
 
 	return (
 		<button
+			ref={triggerRef}
 			type='button'
 			onClick={onOpen}
 			data-testid='ticket-photo-row'
@@ -87,6 +90,7 @@ interface TicketPhotoPanelProps {
 	view: PhotoView
 	error?: string | null
 	onOpenFullScreen: () => void
+	triggerRef?: Ref<HTMLButtonElement>
 }
 
 /**
@@ -94,7 +98,7 @@ interface TicketPhotoPanelProps {
  * controls over it, the strip of shots when there are several, and a way into the full-screen viewer. The page keeps it in view while
  * the long list scrolls. Phones use the one-line `TicketPhotoRow` instead.
  */
-export function TicketPhotoPanel({ urls, count, view, error, onOpenFullScreen }: TicketPhotoPanelProps) {
+export function TicketPhotoPanel({ urls, count, view, error, onOpenFullScreen, triggerRef }: TicketPhotoPanelProps) {
 	return (
 		<section
 			data-testid='ticket-photo-panel'
@@ -113,6 +117,7 @@ export function TicketPhotoPanel({ urls, count, view, error, onOpenFullScreen }:
 					{count === 1 ? 'Receipt Photo' : 'Receipt Photos'}
 				</h2>
 				<Button
+					ref={triggerRef}
 					type='button'
 					onClick={onOpenFullScreen}
 					variant='secondary'

@@ -39,7 +39,7 @@ export function AuthHero({ mode }: { mode: AuthMode }) {
 			/>
 
 			<div className='relative flex min-h-11 items-center justify-between lg:hidden'>
-				<Logo wordmarkClassName={WORDMARK_CLASS_NAME} />
+				<Logo testId='auth-hero-logo' wordmarkClassName={WORDMARK_CLASS_NAME} />
 				<AuthBackLink tone='dark-surface' />
 			</div>
 			<div className='relative lg:hidden'>

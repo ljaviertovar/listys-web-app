@@ -69,10 +69,19 @@ describe('classifyPhoto', () => {
 		expect(classifyPhoto(file('ok.jpg', 'image/jpeg', 2 * 1024 * 1024))).toBe('ok')
 	})
 
+	it('only accepts JPEG or PNG files, allowing a missing MIME type when the extension is supported', () => {
+		expect(classifyPhoto(file('photo.png', 'image/png'))).toBe('ok')
+		expect(classifyPhoto(file('photo.jpg', ''))).toBe('ok')
+		expect(classifyPhoto(file('notes.txt', 'text/plain'))).toBe('format')
+		expect(classifyPhoto(file('photo.jpg', 'text/plain'))).toBe('format')
+		expect(classifyPhoto(file('photo.txt', 'image/jpeg'))).toBe('format')
+	})
+
 	it('says which file failed and how to fix it', () => {
 		const heic = rejectionMessage('IMG_2043.heic', 'format')
 		expect(heic.title).toContain('IMG_2043.heic')
 		expect(heic.hint).toContain('JPG or PNG')
+		expect(rejectionMessage('notes.txt', 'format').hint).toContain('Choose a JPG or PNG image')
 		expect(rejectionMessage('big.jpg', 'size').hint).toContain('10 MB')
 	})
 })

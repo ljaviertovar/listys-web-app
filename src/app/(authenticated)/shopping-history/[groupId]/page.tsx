@@ -7,6 +7,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { ShoppingBasket01Icon } from '@hugeicons/core-free-icons'
 import { HistorySessionCard } from '@/components/features/shopping-sessions'
 import { PageHeader, PageContainer } from '@/components/app'
+import { RetryableError } from '@/components/commons'
 
 /** A history row as the card takes it; the history endpoint is not typed yet. */
 type HistorySession = ComponentProps<typeof HistorySessionCard>['session'] & {
@@ -45,13 +46,13 @@ export default async function GroupHistoryPage({ params }: { params: Promise<{ g
 				back={{ href: '/shopping-history', label: 'Back to Shopping History' }}
 			/>
 			<PageContainer>
-				{sessionsError && (
-					<div className='rounded-lg bg-destructive/10 p-4 text-sm text-destructive'>
-						Error loading history: {sessionsError}
-					</div>
-				)}
-
-				{sessions.length === 0 ? (
+				{sessionsError ? (
+					<RetryableError
+						message='We couldn’t load this group’s shopping history.'
+						href={`/shopping-history/${groupId}`}
+						testId='group-history-load-error'
+					/>
+				) : sessions.length === 0 ? (
 					<Card size='tight'>
 						<div className='flex min-h-[152px] flex-col items-center justify-center gap-3 text-center'>
 							<span

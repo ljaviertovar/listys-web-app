@@ -37,7 +37,17 @@
     "*.tsx",
     "*.mts",
     ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts"
+    ".next/dev/types/**/*.ts",
+    ".next-codex/types/**/*.ts",
+    ".next-codex/dev/types/**/*.ts",
+    ".next-codex-ljw-20261019/types/**/*.ts",
+    ".next-codex-ljw-20261019/dev/types/**/*.ts",
+    ".next-codex-browser-session/types/**/*.ts",
+    ".next-codex-browser-session/dev/types/**/*.ts",
+    ".codex-preview-20261019-1636/types/**/*.ts",
+    ".codex-preview-20261019-1636/dev/types/**/*.ts",
+    ".codex-preview-login/types/**/*.ts",
+    ".codex-preview-login/dev/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",

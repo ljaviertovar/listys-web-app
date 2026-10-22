@@ -58,7 +58,7 @@ const sidebar = {
 
 export default function HeaderMobile() {
 	const pathname = usePathname()
-	const containerRef = useRef(null)
+	const containerRef = useRef<HTMLElement>(null)
 	const { height } = useDimensions(containerRef)
 	const [isOpen, toggleOpen] = useCycle(false, true)
 	const scrollPosition = useScrollPosition()
@@ -79,7 +79,7 @@ export default function HeaderMobile() {
 					/>
 				</div>
 				<div className='absolute left-1/2 z-20 -translate-x-1/2'>
-					<Logo />
+					<Logo testId='marketing-mobile-header-logo' />
 				</div>
 				<div className='pointer-events-auto z-30 flex min-w-[40px] items-center justify-end'>
 					<AuthButtons />
@@ -186,16 +186,6 @@ const MenuToggle = ({ toggle, isOpen }: { toggle: () => void; isOpen: boolean })
 	</button>
 )
 
-const Path = (props: any) => (
-	<motion.path
-		fill='transparent'
-		strokeWidth='2'
-		stroke='currentColor'
-		strokeLinecap='round'
-		{...props}
-	/>
-)
-
 const MenuItem = ({ className, children }: { className?: string; children?: ReactNode }) => {
 	return (
 		<motion.li
@@ -276,16 +266,19 @@ const variants = {
 	},
 }
 
-const useDimensions = (ref: any) => {
-	const dimensions = useRef({ width: 0, height: 0 })
+const useDimensions = (ref: React.RefObject<HTMLElement | null>) => {
+	const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
 
 	useEffect(() => {
-		if (ref.current) {
-			dimensions.current.width = ref.current.offsetWidth
-			dimensions.current.height = ref.current.offsetHeight
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
+		const element = ref.current
+		if (!element) return
+
+		const measure = () => setDimensions({ width: element.offsetWidth, height: element.offsetHeight })
+		const observer = new ResizeObserver(measure)
+		observer.observe(element)
+
+		return () => observer.disconnect()
 	}, [ref])
 
-	return dimensions.current
+	return dimensions
 }

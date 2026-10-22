@@ -1,9 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
-	AlertCircleIcon,
 	Copy01Icon,
 	Delete02Icon,
 	Link01Icon,
@@ -14,6 +13,7 @@ import {
 
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
+import { ConfirmSheet } from '@/components/commons'
 import { cn } from '@/utils'
 import type { InviteLinkWithUrl } from '@/types'
 
@@ -31,12 +31,19 @@ export function ShareInviteLink({ link, isLoading, isGenerating, onGenerate, onR
 	const [copied, setCopied] = useState(false)
 	const [confirmingRevoke, setConfirmingRevoke] = useState(false)
 	const [revoking, setRevoking] = useState(false)
+	const createLinkRef = useRef<HTMLButtonElement>(null)
+	const hadLink = useRef(Boolean(link))
 
 	useEffect(() => {
 		if (!copied) return
 		const timer = setTimeout(() => setCopied(false), 2000)
 		return () => clearTimeout(timer)
 	}, [copied])
+
+	useEffect(() => {
+		if (hadLink.current && !link && !isLoading) createLinkRef.current?.focus()
+		hadLink.current = Boolean(link)
+	}, [isLoading, link])
 
 	const copy = async () => {
 		if (!link) return
@@ -76,6 +83,7 @@ export function ShareInviteLink({ link, isLoading, isGenerating, onGenerate, onR
 				<Skeleton className='h-12 w-full rounded-2xl' />
 			) : !link ? (
 				<Button
+					ref={createLinkRef}
 					size='primary'
 					onClick={onGenerate}
 					disabled={isGenerating}
@@ -120,90 +128,53 @@ export function ShareInviteLink({ link, isLoading, isGenerating, onGenerate, onR
 						/>
 						<span aria-live='polite'>{copied ? 'Link Copied' : 'Copy Link'}</span>
 					</Button>
-					{confirmingRevoke ? (
-						<div
-							role='alertdialog'
-							aria-labelledby='share-revoke-title'
-							data-testid='share-revoke-confirm'
-							className='flex flex-col gap-3 rounded-3xl bg-red-50 p-3 text-red-900 md:p-4 dark:bg-red-950/40 dark:text-red-200'
+					<div className='grid grid-cols-2 gap-3'>
+						<Button
+							size='primary'
+							variant='secondary'
+							onClick={onGenerate}
+							disabled={isGenerating}
+							data-testid='share-regenerate-link'
 						>
-							<div className='flex items-start gap-3'>
-								<HugeiconsIcon
-									icon={AlertCircleIcon}
-									strokeWidth={1.6}
-									aria-hidden='true'
-									className='mt-px size-5 shrink-0'
-								/>
-								<div className='flex flex-col gap-1'>
-									<p
-										id='share-revoke-title'
-										className='text-sm leading-[1.3] font-semibold'
-									>
-										Revoke this link?
-									</p>
-									<p className='text-sm leading-normal'>
-										Nobody can join with it anymore. People who already joined keep their access until you remove them. You can
-										create a new link at any time.
-									</p>
-								</div>
-							</div>
-							<div className='grid grid-cols-2 gap-3'>
-								<Button
-									size='primary'
-									type='button'
-									variant='secondary'
-									onClick={() => setConfirmingRevoke(false)}
-									disabled={revoking}
-								>
-									Cancel
-								</Button>
-								<Button
-									size='primary'
-									variant='destructive'
-									type='button'
-									onClick={revoke}
-									disabled={revoking}
-									data-testid='share-revoke-confirm-button'
-								>
-									{revoking ? 'Revoking…' : 'Revoke Link'}
-								</Button>
-							</div>
-						</div>
-					) : (
-						<div className='grid grid-cols-2 gap-3'>
-							<Button
-								size='primary'
-								variant='secondary'
-								onClick={onGenerate}
-								disabled={isGenerating}
-								data-testid='share-regenerate-link'
-							>
-								<HugeiconsIcon
-									icon={Refresh04Icon}
-									strokeWidth={1.8}
-									aria-hidden='true'
-									className={cn('size-4.5', isGenerating && 'animate-spin motion-reduce:animate-none')}
-								/>
-								Regenerate
-							</Button>
-							<Button
-								size='primary'
-								variant='destructive-soft'
-								onClick={() => setConfirmingRevoke(true)}
-								data-testid='share-revoke-link'
-							>
-								<HugeiconsIcon
-									icon={Delete02Icon}
-									strokeWidth={1.8}
-									aria-hidden='true'
-									className='size-4.5'
-								/>
-								Revoke
-							</Button>
-						</div>
-					)}
+							<HugeiconsIcon
+								icon={Refresh04Icon}
+								strokeWidth={1.8}
+								aria-hidden='true'
+								className={cn('size-4.5', isGenerating && 'animate-spin motion-reduce:animate-none')}
+							/>
+							Regenerate
+						</Button>
+						<Button
+							size='primary'
+							variant='destructive-soft'
+							onClick={() => setConfirmingRevoke(true)}
+							data-testid='share-revoke-link'
+						>
+							<HugeiconsIcon
+								icon={Delete02Icon}
+								strokeWidth={1.8}
+								aria-hidden='true'
+								className='size-4.5'
+							/>
+							Revoke
+						</Button>
+					</div>
 				</>
 			)}
+			{link ? (
+				<ConfirmSheet
+					open={confirmingRevoke}
+					onOpenChange={next => !revoking && setConfirmingRevoke(next)}
+					title='Revoke this link?'
+					description='Nobody can join with it anymore. People who already joined keep their access until you remove them. You can create a new link at any time.'
+					confirmLabel='Revoke Link'
+					loadingLabel='Revoking…'
+					tone='danger'
+					loading={revoking}
+					onConfirm={revoke}
+					testId='share-revoke-confirm'
+				/>
+			) : null}
 		</section>
 	)
 }

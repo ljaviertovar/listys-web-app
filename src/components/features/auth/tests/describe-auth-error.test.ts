@@ -3,14 +3,16 @@ import { describe, expect, it } from 'vitest'
 import { describeAuthError } from '../helpers/describe-auth-error'
 
 describe('describeAuthError', () => {
-	it('turns the Supabase credentials error into a sentence that says what to repair', () => {
-		expect(describeAuthError('Invalid login credentials', 'fallback')).toBe(
-			'Invalid login credentials. Check your email and password, then try again.',
-		)
+	it('gives an actionable message for invalid credentials without revealing account state', () => {
+		expect(describeAuthError('Invalid login credentials', 'fallback')).toBe('We couldn’t sign you in. Check your details and try again.')
 	})
 
-	it('passes other messages through and falls back when there is none', () => {
-		expect(describeAuthError('User already registered', 'fallback')).toBe('User already registered')
-		expect(describeAuthError(undefined, 'An error occurred during sign in')).toBe('An error occurred during sign in')
+	it('uses a safe fallback for provider and unknown errors', () => {
+		expect(describeAuthError('provider internal error with account@example.test', 'We couldn’t sign you in. Try again.')).toBe(
+			'We couldn’t sign you in. Try again.',
+		)
+		expect(describeAuthError(undefined, 'We couldn’t create your account. Try again.')).toBe(
+			'We couldn’t create your account. Try again.',
+		)
 	})
 })

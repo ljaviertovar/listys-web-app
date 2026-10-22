@@ -161,6 +161,7 @@ describe('DashboardView', () => {
 		)
 
 		expect(html).toContain('dashboard-active-session-banner')
+		expect(html).toContain('max-lg:pb-6')
 		expect(html).not.toContain('dashboard-mobile-session-bar')
 		expect(html).not.toContain('dashboard-no-session-banner')
 	})
@@ -204,7 +205,7 @@ describe('section cards', () => {
 		expect(html).not.toContain('Upload Receipt')
 		expect(html).toContain('data-testid="dashboard-receipts-view-all"')
 		expect(html).toContain('View All<span class="sr-only"> receipts</span>')
-		expect(html).toContain('data-variant="ghost-primary" data-size="sm"')
+		expect(html).toContain('data-variant="ghost-primary" data-size="link-action"')
 		expect(html.indexOf('dashboard-receipts-view-all')).toBeLessThan(html.indexOf('dashboard-receipt-t1'))
 	})
 
@@ -245,6 +246,18 @@ describe('section cards', () => {
 		expect(html).toMatch(/text-red-700[^>]*>.*Failed/)
 		expect(html).toMatch(/text-amber-700[^>]*>.*Processing/)
 		expect(html).not.toContain('data-slot="badge"')
+	})
+
+	it('keeps long receipt names and details available to read in dashboard rows', () => {
+		const title = 'A synthetic receipt name long enough to wrap across several lines on a narrow phone'
+		const meta = '20 Oct · 18 items extracted from this receipt with additional descriptive detail'
+		const html = renderToStaticMarkup(createElement(ReceiptsSectionCard, { receipts: [{ id: 'long', title, meta, status: 'completed' }] }))
+
+		expect(html).toContain(title)
+		expect(html).toContain(meta)
+		expect(html).toContain('break-words')
+		expect(html).not.toContain('line-clamp-2')
+		expect(html).not.toContain('truncate text-sm leading-[1.3]')
 	})
 
 	it('starts a list from a short "Start" pill that still says which list it starts', () => {

@@ -1,6 +1,8 @@
 'use client'
 
 import Link from 'next/link'
+import type { Ref } from 'react'
+import { Button } from '@/components/ui/button'
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react'
 import { ArrowRight01Icon, Delete02Icon, Edit02Icon } from '@hugeicons/core-free-icons'
 
@@ -12,7 +14,7 @@ interface EntityCardProps {
 	title: string
 	description?: string | null
 	/** How many things the card holds, with the words that name them; the card reads "No <emptyLabel> yet" at zero. */
-	count: number
+	count: number | null
 	unit: { one: string; many: string }
 	emptyLabel: string
 	/** Text of the link in the footer ("View Details", "View Items"). */
@@ -27,6 +29,7 @@ interface EntityCardProps {
 		onDelete: () => void
 		disabled?: boolean
 	}
+	menuTriggerRef?: Ref<HTMLButtonElement>
 	testId: string
 }
 
@@ -44,6 +47,7 @@ export function EntityCard({
 	emptyLabel,
 	linkLabel,
 	menu,
+	menuTriggerRef,
 	testId,
 }: EntityCardProps) {
 	return (
@@ -51,7 +55,7 @@ export function EntityCard({
 			data-testid={testId}
 			className='flex flex-col gap-2 rounded-3xl bg-card p-3 shadow-card md:gap-3 md:p-4'
 		>
-			<div className='flex items-center gap-3'>
+			<div className='flex items-start gap-3'>
 				<span className='flex size-9 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300'>
 					<HugeiconsIcon
 						icon={icon}
@@ -61,14 +65,15 @@ export function EntityCard({
 					/>
 				</span>
 				<div className='flex min-w-0 flex-1 flex-col'>
-					<h2 className='truncate font-display text-base leading-[1.5] font-semibold'>{title}</h2>
+					<h2 className='break-words font-display text-base leading-[1.5] font-semibold'>{title}</h2>
 					{description ? (
-						<p className='truncate text-sm leading-[1.4] text-slate-500 dark:text-muted-foreground'>{description}</p>
+						<p className='break-words text-sm leading-[1.4] text-slate-500 dark:text-muted-foreground'>{description}</p>
 					) : null}
 				</div>
 				{menu ? (
 					<RowMenu
 						label={menu.label}
+						triggerRef={menuTriggerRef}
 						disabled={menu.disabled}
 						testId={`${testId}-menu`}
 						className='-mr-2'
@@ -81,7 +86,9 @@ export function EntityCard({
 			</div>
 			<div className='flex items-center justify-between gap-3 border-t border-slate-100 pt-3 dark:border-border'>
 				<span className='text-xs leading-none text-slate-500 dark:text-muted-foreground'>
-					{count === 0 ? (
+					{count === null ? (
+						'Count unavailable'
+					) : count === 0 ? (
 						`No ${emptyLabel} yet`
 					) : (
 						<>
@@ -90,18 +97,12 @@ export function EntityCard({
 						</>
 					)}
 				</span>
-				<Link
-					href={href}
-					className='group/entity-link inline-flex items-center gap-0.5 rounded-lg px-1 font-display text-sm font-semibold text-blue-700 focus-ring dark:text-blue-300'
-				>
-					{linkLabel}
-					<HugeiconsIcon
-						icon={ArrowRight01Icon}
-						strokeWidth={2}
-						aria-hidden='true'
-						className='size-4 transition-transform group-hover/entity-link:translate-x-0.5'
-					/>
-				</Link>
+				<Button asChild variant='ghost-primary' size='link-action' className='w-fit shrink-0'>
+					<Link href={href} aria-label={`${linkLabel} in ${title}`}>
+						{linkLabel}
+						<HugeiconsIcon icon={ArrowRight01Icon} strokeWidth={2} aria-hidden='true' className='size-4' />
+					</Link>
+				</Button>
 			</div>
 		</article>
 	)

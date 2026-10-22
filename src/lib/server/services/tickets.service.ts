@@ -84,7 +84,7 @@ export async function mergeTicketItemsToBaseList(data: unknown) {
     throw new ApiServiceError(400, ErrorCode.BAD_REQUEST, 'No items to merge')
   }
 
-  const { data: mergeSummary, error: mergeError } = await (supabase as any).rpc('merge_ticket_items_to_base_list', {
+  const { data: mergeSummary, error: mergeError } = await supabase.rpc('merge_ticket_items_to_base_list', {
     p_ticket_id: ticket_id,
     p_base_list_id: base_list_id,
     p_item_ids: selectedItemIds,

@@ -18,7 +18,7 @@ describe('GET /api/v1/shopping-sessions', () => {
   })
 
   it('returns active session when status=active', async () => {
-    mockedGetActiveShoppingSession.mockResolvedValueOnce({ id: 'session-active' } as any)
+    mockedGetActiveShoppingSession.mockResolvedValueOnce({ id: 'session-active' } as never)
 
     const response = await GET(new Request('http://localhost/api/v1/shopping-sessions?status=active'))
     const body = await response.json()
@@ -30,7 +30,7 @@ describe('GET /api/v1/shopping-sessions', () => {
   })
 
   it('returns completed sessions when status=completed', async () => {
-    mockedGetShoppingHistory.mockResolvedValueOnce([{ id: 'session-1' }] as any)
+    mockedGetShoppingHistory.mockResolvedValueOnce([{ id: 'session-1' }] as never)
 
     const response = await GET(new Request('http://localhost/api/v1/shopping-sessions?status=completed'))
     const body = await response.json()

@@ -27,6 +27,9 @@ export default async function AuthenticatedLayout({ children }: { children: Reac
 				// The page ground also shows around the floating sidebar, so it is set here and not only on <main>.
 				className='relative h-dvh overflow-hidden'
 			>
+				<a href='#main-content' className='focus-ring fixed top-2 left-2 z-[100] -translate-y-20 rounded-lg bg-card px-4 py-3 font-medium text-foreground shadow-lg focus:translate-y-0'>
+					Skip to main content
+				</a>
 				<div className='hidden lg:block'>
 					<AppSidebar />
 				</div>
@@ -43,7 +46,7 @@ export default async function AuthenticatedLayout({ children }: { children: Reac
 					<Header />
 					{/* scroll-pb keeps a focused control clear of the pinned bottom bars (the dashboard's phone session bar is 72px+). */}
 					{/* The page ground of design A1 (#F2F4F7); the dark theme keeps its own sidebar token. */}
-					<main className='flex-1 scroll-pb-24 overflow-y-auto bg-background pt-15 dark:bg-sidebar lg:pt-0'>
+					<main id='main-content' tabIndex={-1} className='flex-1 scroll-pb-24 overflow-y-auto bg-background pt-15 focus:outline-none dark:bg-sidebar lg:pt-0'>
 						<div className='flex flex-col min-h-full'>
 							{children}
 							{/* Phones: the way back to a running shopping session, on every screen but its own. */}

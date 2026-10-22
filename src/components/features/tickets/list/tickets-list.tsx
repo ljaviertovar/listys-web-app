@@ -38,7 +38,7 @@ function StatusNote({ status, itemsCount }: { status: TicketStatus; itemsCount: 
 				>
 					<span className='block h-full w-2/5 animate-pulse rounded-full bg-blue-600 motion-reduce:animate-none' />
 				</span>
-				<span className={NOTE}>Reading your receipt...</span>
+				<span className={NOTE}>Reading your receipt…</span>
 			</div>
 		)
 	}
@@ -61,7 +61,7 @@ function StatusNote({ status, itemsCount }: { status: TicketStatus; itemsCount: 
 					className='size-4 shrink-0'
 				/>
 			) : null}
-			{status === 'failed' ? 'Couldn’t read this receipt' : 'Waiting in line to be read'}
+			{status === 'failed' ? 'Couldn’t read this receipt' : 'Your receipt is uploaded and waiting to be read.'}
 		</span>
 	)
 }
@@ -174,7 +174,7 @@ export function TicketsList({ tickets }: TicketsListProps) {
 	return (
 		<ul
 			data-testid='tickets-list'
-			className='grid gap-4 sm:grid-cols-2 lg:gap-6 xl:grid-cols-3'
+			className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:gap-6 xl:grid-cols-3'
 		>
 			{tickets.map(ticket => (
 				<li key={ticket.id}>

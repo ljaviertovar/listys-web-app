@@ -14,6 +14,12 @@ export function isHeic(file: PhotoLike): boolean {
 
 export function classifyPhoto(file: PhotoLike): PhotoVerdict {
 	if (isHeic(file)) return 'format'
+
+	const type = file.type.toLowerCase()
+	const supportedExtension = /\.(jpe?g|png)$/i.test(file.name)
+	const supportedMime = !type || type === 'image/jpeg' || type === 'image/png'
+	if (!supportedExtension || !supportedMime) return 'format'
+
 	if (file.size > MAX_BYTES) return 'size'
 	return 'ok'
 }
@@ -23,7 +29,9 @@ export function rejectionMessage(name: string, verdict: Exclude<PhotoVerdict, 'o
 	return verdict === 'format'
 		? {
 				title: `${name} can’t be used`,
-				hint: 'HEIC photos aren’t supported yet. Export it as JPG or PNG and add it again.',
+				hint: isHeic({ name, type: '', size: 0 })
+					? 'HEIC photos aren’t supported yet. Export it as JPG or PNG and add it again.'
+					: 'Choose a JPG or PNG image and add it again.',
 			}
 		: {
 				title: `${name} is too large`,

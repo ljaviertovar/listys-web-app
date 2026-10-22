@@ -18,7 +18,7 @@ export async function mergeTicketItemsToBaseList(data: { ticket_id: string } & R
 
   if (res.error) return { error: res.error }
 
-  return res.data ?? { success: true, new_count: 0, updated_count: 0, skipped_count: 0 }
+  return res.data ?? { success: true }
 }
 
 export async function createBaseListFromTicket(data: { ticket_id: string } & Record<string, unknown>) {

@@ -27,6 +27,7 @@ describe('GroupsList', () => {
 
 		expect(html).toContain('data-testid="groups-empty-state"')
 		expect(html).toContain('No groups yet')
+		expect(html).toContain('Keep related base lists together, for example by store or household.')
 		expect(html).toContain('data-testid="create-group-button"')
 		expect(html).not.toContain('groups-toolbar')
 	})
@@ -41,19 +42,42 @@ describe('GroupCard', () => {
 		expect(html).toContain('href="/shopping-lists/g1/lists"')
 		expect(html).toMatch(/>2<\/b> lists</)
 		expect(html).toContain('aria-label="More options for Walmart"')
-		expect(html).toContain('View Details')
+		expect(html).toContain('>View Lists<')
+		expect(html).toContain('aria-label="View Lists in Walmart"')
 	})
 
 	it('reads "No lists yet" for an empty group', () => {
 		expect(render({ group: group({ base_lists: [{ count: 0 }] }) })).toContain('No lists yet')
 	})
 
-	it('is read-only in the history: it counts shoppings, links to the history and has no menu', () => {
+	it('distinguishes an unknown list count from a known empty group', () => {
+		expect(render({ group: group({ base_lists: undefined }) })).toContain('Count unavailable')
+		expect(render({ group: group({ base_lists: [] }) })).toContain('No lists yet')
+	})
+
+	it('uses singular and plural names for shopping history counts', () => {
+		const one = render({ history: true, group: group({ completed_runs_count: 1 }) })
+		const none = render({ history: true, group: group({ completed_runs_count: 0 }) })
+
+		expect(one).toMatch(/>1<\/b> shopping session</)
+		expect(none).toContain('No shopping sessions yet')
+	})
+
+	it('names the history destination and has no menu on read-only history cards', () => {
 		const html = render({ history: true, group: group({ completed_runs_count: 3 }) })
 
 		expect(html).toContain('href="/shopping-history/g1"')
-		expect(html).toMatch(/>3<\/b> shoppings</)
+		expect(html).toMatch(/>3<\/b> shopping sessions</)
+		expect(html).toContain('aria-label="View History in Walmart"')
 		expect(html).not.toContain('More options')
+	})
+
+	it('keeps long group titles and descriptions readable without truncating them', () => {
+		const html = render({ group: group({ name: 'Household groceries for the summer cabin', description: 'Pantry staples, shared meals, and supplies for each visit.' }) })
+
+		expect(html).toContain('Household groceries for the summer cabin')
+		expect(html).toContain('Pantry staples, shared meals, and supplies for each visit.')
+		expect(html).not.toContain('truncate')
 	})
 })
 

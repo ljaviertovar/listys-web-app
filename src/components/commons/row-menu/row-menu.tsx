@@ -1,6 +1,7 @@
 'use client'
 
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react'
+import type { Ref } from 'react'
 import { MoreHorizontalIcon } from '@hugeicons/core-free-icons'
 
 import { Button } from '@/components/ui/button'
@@ -22,15 +23,17 @@ interface RowMenuProps {
 	disabled?: boolean
 	testId: string
 	className?: string
+	triggerRef?: Ref<HTMLButtonElement>
 }
 
 /** The "⋯" menu of a card or a row: one 44px target that holds its edit and delete actions instead of two cramped icons. */
-export function RowMenu({ label, actions, disabled = false, testId, className }: RowMenuProps) {
+export function RowMenu({ label, actions, disabled = false, testId, className, triggerRef }: RowMenuProps) {
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
 				<Button
 					type='button'
+					ref={triggerRef}
 					aria-label={label}
 					disabled={disabled}
 					data-testid={testId}

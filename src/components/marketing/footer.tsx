@@ -11,20 +11,6 @@ const COLUMNS = [
 			{ label: 'FAQ', href: '/#faq' },
 		],
 	},
-	{
-		title: 'Company',
-		links: [
-			{ label: 'About', href: '#' },
-			{ label: 'Contact', href: '#' },
-		],
-	},
-	{
-		title: 'Legal',
-		links: [
-			{ label: 'Privacy Policy', href: '#' },
-			{ label: 'Terms of Service', href: '#' },
-		],
-	},
 ]
 
 /** Marketing footer. */
@@ -35,7 +21,7 @@ export default function Footer() {
 			className='section-divider bg-white pt-12 pb-[34px]'
 		>
 			<Shell>
-				<div className='grid grid-cols-1 gap-8 sm:grid-cols-[2fr_1fr_1fr_1fr]'>
+				<div className='grid grid-cols-1 gap-8 sm:grid-cols-[2fr_1fr]'>
 					<div>
 						<Brand />
 						<p className='mt-3 max-w-[26em] text-sm leading-[1.6] text-slate-500'>

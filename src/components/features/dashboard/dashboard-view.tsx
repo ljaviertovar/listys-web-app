@@ -1,4 +1,5 @@
 import { UploadTicketDialog } from '@/components/features/tickets'
+import { MOBILE_DASHBOARD_SESSION_CLEARANCE } from '@/components/app'
 import { cn } from '@/utils'
 import { ActiveSessionBanner } from './active-session-banner'
 import { DashboardGreeting } from './dashboard-greeting'
@@ -30,8 +31,8 @@ export function DashboardView({ model, firstName, isGuest = false, hasLists }: P
 	return (
 		<div
 			data-testid='dashboard-view'
-			// Top space of the design's 20px: +4px on phones, and 12px less than the page gutter from `lg`. Phones also keep room under the page for the floating session pill.
-			className={cn('flex flex-col gap-6 pt-1 selection:bg-blue-200 selection:text-blue-950 md:gap-8 md:pt-0 lg:-mt-3 lg:gap-9', model.activeSession && 'max-lg:pb-[4.5rem]')}
+			// Top space of the design's 20px: +4px on phones, and 12px less than the page gutter from `lg`.
+			className={cn('flex flex-col gap-6 pt-1 selection:bg-blue-200 selection:text-blue-950 md:gap-8 md:pt-0 lg:-mt-3 lg:gap-9', model.activeSession && MOBILE_DASHBOARD_SESSION_CLEARANCE)}
 		>
 			<header className='flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between'>
 				<DashboardGreeting name={firstName} />

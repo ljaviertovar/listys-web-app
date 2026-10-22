@@ -11,6 +11,9 @@ import { rejectionMessage } from './helpers/classify-photo'
 import type { PhotoPreview, PhotoRejection } from './hooks/use-photo-picker'
 
 interface Props {
+	inputId: string
+	descriptionId: string
+	errorId?: string
 	previews: PhotoPreview[]
 	rejections: PhotoRejection[]
 	max: number
@@ -22,10 +25,11 @@ interface Props {
 }
 
 /** The photo field of the upload form: the way in (click or drop), the photos chosen, and what was left out and why. */
-export function UploadTicketPhotos({ previews, rejections, max, uploading, onAdd, onRemove, onDismissRejection }: Props) {
+export function UploadTicketPhotos({ inputId, descriptionId, errorId, previews, rejections, max, uploading, onAdd, onRemove, onDismissRejection }: Props) {
 	const inputRef = useRef<HTMLInputElement>(null)
 	const hasPhotos = previews.length > 0
 	const full = previews.length >= max
+	const describedBy = [descriptionId, errorId].filter(Boolean).join(' ')
 
 	const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
 		if (event.target.files && event.target.files.length > 0) onAdd(event.target.files)
@@ -43,6 +47,9 @@ export function UploadTicketPhotos({ previews, rejections, max, uploading, onAdd
 			data-testid='upload-ticket-photos'
 			className='flex flex-col gap-3'
 		>
+			<p id={descriptionId} className='sr-only'>
+				Up to {max} photos · PNG or JPG (no HEIC) · {MAX_TICKET_IMAGE_MB} MB each
+			</p>
 			{hasPhotos ? (
 				<ul className='grid grid-cols-3 gap-3'>
 					{previews.map((photo, index) => (
@@ -98,6 +105,7 @@ export function UploadTicketPhotos({ previews, rejections, max, uploading, onAdd
 								variant='dropzone'
 								size='block'
 								rounded='2xl'
+								aria-describedby={describedBy}
 								className='h-full w-full'
 							>
 								<HugeiconsIcon
@@ -119,6 +127,7 @@ export function UploadTicketPhotos({ previews, rejections, max, uploading, onAdd
 					variant='dropzone'
 					size='block'
 					rounded='2xl'
+					aria-describedby={describedBy}
 					className='min-h-36 w-full'
 				>
 					<span className='flex size-10 items-center justify-center rounded-xl bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300'>
@@ -178,6 +187,7 @@ export function UploadTicketPhotos({ previews, rejections, max, uploading, onAdd
 			})}
 
 			<input
+				id={inputId}
 				ref={inputRef}
 				type='file'
 				accept='image/png,image/jpeg'
@@ -185,6 +195,9 @@ export function UploadTicketPhotos({ previews, rejections, max, uploading, onAdd
 				onChange={handleChange}
 				className='hidden'
 				aria-label='Upload receipt images'
+				aria-required='true'
+				aria-invalid={errorId ? true : undefined}
+			aria-describedby={describedBy}
 			/>
 		</div>
 	)

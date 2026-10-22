@@ -16,7 +16,7 @@ describe('POST /api/v1/shopping-sessions/:sessionId/cancel (deprecated)', () => 
   })
 
   it('returns deprecation headers and success payload', async () => {
-    mockedCancelShoppingSession.mockResolvedValueOnce({ success: true } as any)
+    mockedCancelShoppingSession.mockResolvedValueOnce({ success: true } as never)
 
     const response = await POST(new Request('http://localhost/api/v1/shopping-sessions/' + SESSION_ID + '/cancel'), {
       params: Promise.resolve({ sessionId: SESSION_ID }),

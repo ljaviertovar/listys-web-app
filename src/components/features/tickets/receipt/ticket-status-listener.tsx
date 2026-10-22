@@ -83,9 +83,11 @@ export function TicketStatusListener({ ticketId, initialStatus }: TicketStatusLi
 	}, [ticketId, initialStatus, router])
 
 	return (
-		<TicketStatusChip
-			status={status}
-			testId='ticket-status-listener'
-		/>
+		<span data-testid='ticket-status-announcement' role='status' aria-live='polite' aria-atomic='true'>
+			<TicketStatusChip
+				status={status}
+				testId='ticket-status-listener'
+			/>
+		</span>
 	)
 }

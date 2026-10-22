@@ -19,7 +19,7 @@ describe('PATCH /api/v1/tickets/:ticketId', () => {
   })
 
   it('updates ticket group_id', async () => {
-    mockedUpdateTicket.mockResolvedValueOnce({ id: TICKET_ID, group_id: GROUP_ID } as any)
+    mockedUpdateTicket.mockResolvedValueOnce({ id: TICKET_ID, group_id: GROUP_ID } as never)
 
     const response = await PATCH(
       new Request('http://localhost/api/v1/tickets/' + TICKET_ID, {

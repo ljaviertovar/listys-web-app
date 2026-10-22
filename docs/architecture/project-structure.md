@@ -1,8 +1,8 @@
 # Project Structure
 
 Listys uses a domain-oriented Next.js App Router structure. The application is a Supabase-backed SaaS for reusable
-shopping lists, collaborative shopping sessions, purchase history, and receipt OCR. The tree below documents the
-current repository and the intended placement for new code.
+shopping lists, shopping sessions, purchase history, and receipt OCR. Collaboration exists experimentally outside
+the MVP. The tree below documents the current repository and intended placement for new code.
 
 Generated directories such as `.next/`, `test-results/`, `playwright-report/`, and coverage output are intentionally
 omitted from this document.
@@ -20,6 +20,14 @@ omitted from this document.
 │   ├── prd/
 │   │   ├── PRD-v1.md                     # Historical product scope
 │   │   └── PRD-v2.md                     # Current product requirements
+│   ├── privacy/
+│   │   └── taste-profile.md              # Data handling evidence and unresolved privacy decisions
+│   ├── reference/
+│   │   ├── api-v1.md                     # Route inventory, schemas, compatibility and contract gaps
+│   │   ├── implementation-status.md      # Observed features, experimental scope and audit findings
+│   │   └── limits.md                     # Values derived from the business-limit constants
+│   ├── contributing/
+│   │   └── CONTRIBUTING.md               # Human verification and contribution workflow
 │   ├── runbooks/
 │   │   ├── deploy.md                     # Deployment procedures
 │   │   └── incidents.md                  # Incident response procedures
@@ -27,16 +35,19 @@ omitted from this document.
 │   └── tooling-delegation.md             # Skill and tooling selection policy
 ├── e2e/                                  # Versioned Playwright specs; generated results/reports remain ignored
 ├── openspec/                             # Specifications and planned changes
+│   ├── config.yaml                       # Local OpenSpec schema configuration
+│   ├── specs/                            # Durable capability specifications
+│   └── changes/                          # Planned changes and archive
 ├── package.json                          # Runtime dependencies and development commands
 ├── playwright.config.ts                  # End-to-end test configuration
 ├── public/
 │   ├── icons/pwa/                        # PWA icons and platform-specific assets
 │   ├── images/                           # Static application images
 │   ├── offline.html                      # Offline fallback document
+│   ├── sw.js                             # Service worker and static-asset cache
 │   └── listys-logo.*                     # Public brand assets
 ├── scripts/                              # Maintenance, diagnostics, and code-generation scripts
 ├── src/
-│   ├── test/                             # Shared Vitest/Testing Library setup and fixtures
 │   ├── actions/                          # Server Actions organized by domain
 │   ├── app/
 │   │   ├── (authenticated)/              # Protected routes and authenticated application shell
@@ -57,11 +68,11 @@ omitted from this document.
 │   │   └── manifest.ts                   # PWA manifest metadata
 │   ├── components/
 │   │   ├── app/                          # Authenticated application shell (sidebar, topbar, main)
-│   │   ├── commons/                      # Truly shared components, the locale switcher, and app-owned icons
+│   │   ├── commons/                      # Shared cards, sheets, fields, list structure and brand
 │   │   ├── features/                     # Main-application feature components by domain
 │   │   ├── marketing/                    # Public shell (header, footer, nav)
 │   │   │   └── landing-page/             # Landing-page sections and landing-only primitives
-│   │   └── ui/                           # Reusable shadcn/Radix/Magic UI primitives
+│   │   └── ui/                           # Reusable shadcn/Radix/Base UI primitives
 │   ├── data/
 │   │   └── constants/                     # Static application constants
 │   ├── hooks/                             # Shared React hooks
@@ -75,7 +86,7 @@ omitted from this document.
 │   │   └── validations/                   # Shared Zod schemas and API schemas
 │   ├── providers/                         # React context providers
 │   ├── stores/                            # Zustand stores for client-only state
-│   ├── test/                              # Shared Vitest and Testing Library setup
+│   ├── test/                              # Shared Vitest setup, mocks and source-inspection guards
 │   ├── types/                             # Shared domain and generated database types
 │   │   ├── database.types.ts
 │   │   ├── navigation.ts
@@ -98,11 +109,11 @@ omitted from this document.
 
 | Bucket       | Holds                                                                                            | Examples                                                  |
 | ------------ | ------------------------------------------------------------------------------------------------ | --------------------------------------------------------- |
-| `ui/`        | shadcn/Radix primitives and their thin local wrappers, with no feature behavior                  | `button.tsx`, `custom/checkbox-group-custom.tsx`          |
-| `commons/`   | Presentational pieces shared by two or more unrelated domains, plus every application-owned icon | `status-check.tsx`, `locale-switcher.tsx`, `icons/`       |
+| `ui/`        | shadcn/Radix/Base UI primitives and thin local wrappers, without feature behavior                  | `button.tsx`, `checkbox.tsx`, `dialog.tsx`          |
+| `commons/`   | Neutral presentation shared across domains and application-owned brand elements | `entity-card/`, `sheet-dialog/`, `logo.tsx`       |
 | `features/`  | Main-application feature components, one folder per domain                                       | `features/auth/`, `features/base-lists/`, `features/tickets/` |
 | `marketing/` | The public shell and public pages                                                                | `header.tsx`, `footer.tsx`, `landing-page/`               |
-| `app/`       | The authenticated application shell                                                              | `app-sidebar.tsx`, `app-topbar.tsx`, `app-main.tsx`       |
+| `app/`       | The authenticated application shell                                                              | `sidebar/`, `header.tsx`, `app-page/`, `active-session/`       |
 
 A component belongs to the narrowest bucket that still covers all of its consumers. Brand elements and neutral
 presentational pieces belong in `commons/`; landing-only sections stay in `marketing/landing-page/`; authenticated
@@ -147,16 +158,17 @@ compose a primitive to add domain behavior, but that behavior belongs outside `s
   `(authenticated)/layout.tsx` renders the authenticated shell behind its session guard. A new route group brings its
   own shell and data boundary.
 - Keep shadcn/Radix primitives in `src/components/ui/` and avoid adding feature behavior to those files.
-- Use route groups such as `(marketing)` and `(app)` to express ownership without changing public URLs.
+- Use the existing `(marketing)` and `(authenticated)` route groups to express ownership without changing public URLs.
 - Organize Server Actions by domain and keep secrets or external API calls in server-only modules.
 - Put reusable Zod schemas in `src/lib/validations/` and export their inferred TypeScript types.
 - Put infrastructure clients in `src/lib/<service>/` and identify the runtime in the filename, such as `client.ts`.
 - Follow the barrel policy in `AGENTS.md`: when a domain or folder exposes more than two public modules, add a flat
   `index.ts`/`index.tsx` that exports only its public surface and import through it. A module's own siblings still import
   each other directly; the barrel is the boundary for outside consumers.
-- Co-locate feature-specific CSS modules with the component that consumes them; keep only global CSS in `src/app/`.
-  Next's file-based icon/manifest metadata (`favicon.ico`, `manifest.ts`) must remain at the root `app/` segment by
-  framework convention.
+- Use Tailwind and shared component variants/tokens first, as AGENTS.md requires. Global tokens live in
+  `src/app/globals.css`; landing-only CSS exceptions live in `src/app/(marketing)/marketing.css`. Do not introduce
+  CSS modules as a parallel styling system. Next's file-based icon/manifest metadata (`favicon.ico`, `manifest.ts`)
+  remains at the root `app/` segment by framework convention.
 - Put every test in the `tests/` folder of the domain/module it belongs to (e.g.
   `components/features/tickets/tests/ticket-actions.test.ts`, `lib/validations/tests/ticket.test.ts`),
   not loose next to the file under test, and keep shared test-environment setup in `src/test/`. Playwright specs are the

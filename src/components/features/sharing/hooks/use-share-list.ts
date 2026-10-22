@@ -24,19 +24,23 @@ export function useShareList({ baseListId, isOwner, initialCollaborators = [], i
 
 	const load = () => {
 		startTransition(async () => {
-			const [collabRes, linksRes] = await Promise.all([
-				fetch(`/api/v1/base-lists/${baseListId}/collaborators`),
-				isOwner ? fetch(`/api/v1/base-lists/${baseListId}/invites`) : Promise.resolve(null),
-			])
+			try {
+				const [collabRes, linksRes] = await Promise.all([
+					fetch(`/api/v1/base-lists/${baseListId}/collaborators`),
+					isOwner ? fetch(`/api/v1/base-lists/${baseListId}/invites`) : Promise.resolve(null),
+				])
 
-			if (collabRes.ok) {
+				if (!collabRes.ok || (isOwner && !linksRes?.ok)) throw new Error('Sharing details unavailable')
+
 				const { data } = await collabRes.json()
 				setCollaborators(data ?? [])
-			}
 
 			if (linksRes?.ok) {
 				const { data } = await linksRes.json()
 				setInviteLinks(data ?? [])
+			}
+			} catch {
+				toast.error('Could not load sharing details', { description: 'Check your connection and try again.' })
 			}
 		})
 	}
@@ -57,33 +61,39 @@ export function useShareList({ baseListId, isOwner, initialCollaborators = [], i
 
 			const { data } = await res.json()
 			setInviteLinks([data]) // replace all — only one active link at a time
+		} catch {
+			toast.error('Failed to generate link', { description: 'Check your connection and try again.' })
 		} finally {
 			setIsGenerating(false)
 		}
 	}
 
 	const revokeLink = async (inviteId: string) => {
-		const res = await fetch(`/api/v1/base-lists/${baseListId}/invites/${inviteId}`, { method: 'DELETE' })
+		try {
+			const res = await fetch(`/api/v1/base-lists/${baseListId}/invites/${inviteId}`, { method: 'DELETE' })
 
-		if (!res.ok) {
-			toast.error('Failed to revoke link')
+			if (!res.ok) throw new Error('Request failed')
+
+			setInviteLinks(prev => prev.filter(link => link.id !== inviteId))
+			return true
+		} catch {
+			toast.error('Failed to revoke link', { description: 'Check your connection and try again.' })
 			return false
 		}
-
-		setInviteLinks(prev => prev.filter(link => link.id !== inviteId))
-		return true
 	}
 
 	const removeCollaborator = async (userId: string) => {
-		const res = await fetch(`/api/v1/base-lists/${baseListId}/collaborators/${userId}`, { method: 'DELETE' })
+		try {
+			const res = await fetch(`/api/v1/base-lists/${baseListId}/collaborators/${userId}`, { method: 'DELETE' })
 
-		if (!res.ok) {
-			toast.error('Failed to remove collaborator')
+			if (!res.ok) throw new Error('Request failed')
+
+			setCollaborators(prev => prev.filter(collaborator => collaborator.user_id !== userId))
+			return true
+		} catch {
+			toast.error('Failed to remove collaborator', { description: 'Check your connection and try again.' })
 			return false
 		}
-
-		setCollaborators(prev => prev.filter(collaborator => collaborator.user_id !== userId))
-		return true
 	}
 
 	return { collaborators, inviteLinks, isLoading, isGenerating, load, generateLink, revokeLink, removeCollaborator }

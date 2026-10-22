@@ -62,6 +62,17 @@ describe('ShoppingSessionItems', () => {
 		expect(html).toContain('aria-label="Mark Todo as collected"')
 	})
 
+	it('keeps long product names and notes available to read without truncating the row', () => {
+		const name = 'Extra-long product name with a flavor and package size that needs several lines to read completely'
+		const notes = 'Look for the unsweetened version in the back aisle, and check the larger package size before choosing.'
+		const html = renderToStaticMarkup(createElement(ShoppingSessionItems, { items: [item({ name, notes })] }))
+
+		expect(html).toContain(name)
+		expect(html).toContain(notes)
+		expect(html).not.toContain('line-clamp-2')
+		expect(html).toContain('data-testid="session-item-i1"')
+	})
+
 	it('is read-only for a finished session: no checkbox and no menu', () => {
 		const html = renderToStaticMarkup(createElement(ShoppingSessionItems, { items: [item({ checked: true })], isCompleted: true }))
 
@@ -85,6 +96,8 @@ describe('ShoppingSessionActions', () => {
 		expect(html).toContain('fixed right-4')
 		expect(html).toContain('lg:hidden')
 		expect(html).toContain('data-testid="session-actions-button"')
+		const actionsButton = html.match(/<button(?=[^>]*data-testid="session-actions-button")[^>]*>/)?.[0] ?? ''
+		expect(actionsButton).toContain('h-11')
 		expect(html).toContain('Actions')
 		expect(html).toContain('data-testid="session-actions-inline"')
 		expect(html).toContain('Cancel Shopping')

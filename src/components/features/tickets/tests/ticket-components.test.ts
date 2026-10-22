@@ -6,14 +6,17 @@ import type { Ticket, TicketItem } from '@/types'
 
 import { TicketCard, TicketsEmptyState, TicketsList } from '../list/tickets-list'
 import { TicketItemsList } from '../receipt/ticket-items-list'
-import { TicketNoItems } from '../receipt/ticket-items-card'
+import { TicketItemsCard, TicketNoItems, TicketProcessingError } from '../receipt/ticket-items-card'
 import { TicketSelectionBar } from '../receipt/ticket-selection-bar'
 import { TicketPhotoControls, TicketPhotoThumbs } from '../photo/ticket-photo-tools'
 import { TicketPhotoPanel, TicketPhotoRow } from '../photo/ticket-photo-entry'
+import { applyPhotoViewerShortcut } from '../photo/ticket-photo-viewer'
 import { TicketStatusChip } from '../ticket-status-chip'
+import { TicketStatusListener } from '../receipt/ticket-status-listener'
 import { TicketSummaryCard } from '../receipt/ticket-summary-card'
 import { UploadAnotherTile } from '../upload/upload-another-tile'
 import { UploadTicketPhotos } from '../upload/upload-ticket-photos'
+import { UploadTicketProgress } from '../upload/upload-ticket-form'
 import type { PhotoView } from '../photo/hooks/use-photo-view'
 import type { TicketSelection } from '../receipt/hooks/use-ticket-selection'
 
@@ -34,15 +37,40 @@ const card = (status: string | null, itemsCount: number | null = 19) =>
 describe('TicketStatusChip', () => {
 	it('names the status in words, never by colour alone', () => {
 		for (const [status, label] of [
-			['pending', 'Pending'],
-			['processing', 'Processing'],
-			['completed', 'Completed'],
+			['pending', 'Waiting to Read'],
+			['processing', 'Reading Receipt'],
+			['completed', 'Ready to Review'],
 			['failed', 'Failed'],
 		] as const) {
 			const html = renderToStaticMarkup(createElement(TicketStatusChip, { status }))
 			expect(html).toContain(`data-status="${status}"`)
 			expect(html).toContain(label)
 		}
+	})
+})
+
+describe('TicketStatusListener', () => {
+	it('announces status changes politely and atomically', () => {
+		const html = renderToStaticMarkup(createElement(TicketStatusListener, { ticketId: 't1', initialStatus: 'processing' }))
+
+		expect(html).toContain('data-testid="ticket-status-announcement"')
+		expect(html).toContain('role="status"')
+		expect(html).toContain('aria-live="polite"')
+		expect(html).toContain('aria-atomic="true"')
+		expect(html).toContain('Reading Receipt')
+	})
+})
+
+describe('UploadTicketProgress', () => {
+	it('announces the upload without inventing a percentage or completed photo count', () => {
+		const html = renderToStaticMarkup(createElement(UploadTicketProgress, { photoCount: 2 }))
+
+		expect(html).toContain('data-testid="upload-ticket-progress"')
+		expect(html).toContain('role="progressbar"')
+		expect(html).toContain('aria-label="Uploading receipt"')
+		expect(html).toContain('Uploading 2 photos')
+		expect(html).not.toContain('aria-valuenow')
+		expect(html).not.toContain('%')
 	})
 })
 
@@ -56,7 +84,7 @@ describe('TicketCard', () => {
 		expect(html).toMatch(/<article[^>]*data-testid="ticket-card-t1"/)
 		expect(html).toContain('Walmart')
 		expect(html).toContain('Uploaded 19 Feb 2026 · 09:42')
-		expect(html).toContain('Completed')
+		expect(html).toContain('Ready to Review')
 	})
 
 	it('shows the item count and "View Details" once the receipt is read', () => {
@@ -79,11 +107,12 @@ describe('TicketCard', () => {
 		const pending = card('pending')
 		const processing = card('processing')
 
-		expect(pending).toContain('Waiting in line to be read')
+		expect(pending).toContain('Your receipt is uploaded and waiting to be read.')
 		expect(pending).not.toContain('href="/tickets/t1"')
 		expect(pending).not.toContain('View Details')
-		expect(processing).toContain('Reading your receipt...')
+		expect(processing).toContain('Reading your receipt…')
 		expect(processing).toContain('role="progressbar"')
+		expect(processing).not.toContain('aria-valuenow')
 		expect(processing).not.toContain('href="/tickets/t1"')
 		expect(processing).not.toContain('View Details')
 	})
@@ -112,6 +141,7 @@ describe('TicketsList', () => {
 		const html = renderToStaticMarkup(createElement(TicketsList, { tickets: [ticket, { ...ticket, id: 't2', storeName: 'Costco' }] }))
 
 		expect(html).toContain('data-testid="tickets-list"')
+		expect(html).toMatch(/class="[^"]*\bgrid-cols-1\b[^"]*\bsm:grid-cols-2\b/)
 		expect(html).toContain('data-testid="ticket-card-t1"')
 		expect(html).toContain('data-testid="ticket-card-t2"')
 		expect(html).toMatch(/<li class="hidden md:block"><button[^>]*data-testid="upload-another-tile"/)
@@ -193,9 +223,10 @@ describe('TicketSelectionBar', () => {
 
 		expect(html).toContain('role="region"')
 		expect(html).toContain('aria-label="Selection actions"')
+		expect(html).toContain('aria-live="polite"')
 		expect(html).toContain('>3</b> selected')
 		expect(html).toContain('$19.79')
-		expect(html).toContain('Clear')
+		expect(html).toContain('Clear Selection')
 		expect(html).toContain('Add to a List')
 	})
 })
@@ -245,6 +276,8 @@ describe('UploadTicketPhotos', () => {
 			createElement(UploadTicketPhotos, {
 				previews: [],
 				rejections: [],
+				inputId: 'test-upload-photos',
+				descriptionId: 'test-upload-description',
 				max: 5,
 				uploading: false,
 				onAdd: noop,
@@ -259,6 +292,8 @@ describe('UploadTicketPhotos', () => {
 
 		expect(html).toContain('Choose Photos')
 		expect(html).toContain('Up to 5 photos · PNG or JPG (no HEIC) · 10 MB each')
+		expect(html).toContain('id="test-upload-description"')
+		expect(html).toContain('aria-describedby="test-upload-description"')
 	})
 
 	it('lists the photos with a remove control each and an Add More tile while there is room', () => {
@@ -310,11 +345,42 @@ describe('TicketNoItems', () => {
 
 		expect(html).toContain('data-testid="ticket-no-items"')
 		expect(html).toContain('No items detected')
-		expect(html).toContain('We could not find products in this receipt image.')
+		expect(html).toContain('We couldn’t find items in this receipt.')
+		expect(html).toContain('Upload a new receipt with a clearer photo, or read this receipt again.')
 		expect(html).toContain('bg-amber-100')
 		expect(html).toContain('aria-label="Tips for a clearer photo"')
 		expect(html).toContain('Lay the receipt flat')
 		expect(html).toContain('Fit the whole receipt in the frame.')
+	})
+})
+
+describe('TicketItemsCard status feedback', () => {
+	const render = (status: 'pending' | 'processing') => renderToStaticMarkup(createElement(TicketItemsCard, {
+		ticketId: 't1',
+		items: [],
+		status,
+		selection: selection(),
+	}))
+
+	it('announces waiting and reading without fabricated progress values', () => {
+		const pending = render('pending')
+		const processing = render('processing')
+
+		expect(pending).toContain('role="status"')
+		expect(pending).toContain('Your receipt is uploaded and waiting to be read.')
+		expect(processing).toContain('role="status"')
+		expect(processing).toContain('Reading your receipt…')
+		expect(processing).not.toContain('aria-valuenow')
+		expect(processing).not.toContain('%')
+	})
+})
+
+describe('TicketProcessingError', () => {
+	it('has a semantic root for the failed extraction state', () => {
+		const html = renderToStaticMarkup(createElement(TicketProcessingError))
+
+		expect(html).toContain('data-testid="ticket-processing-error"')
+		expect(html).toContain('Failed to Process Receipt')
 	})
 })
 
@@ -326,7 +392,7 @@ describe('TicketSummaryCard', () => {
 	it('closes a read receipt with the item count, the total and a soft-red delete', () => {
 		const html = render()
 
-		expect(html).toContain('Calculated total')
+		expect(html).toContain('Extracted Item Total')
 		expect(html).toContain('$159.24')
 		expect(html).toContain('Delete Receipt')
 		expect(html).not.toContain('Upload a Clearer Photo')
@@ -334,24 +400,35 @@ describe('TicketSummaryCard', () => {
 	})
 
 	it('says how much of the receipt the total covers when some items have no price', () => {
-		expect(render({ pricedItemsCount: 25 })).toContain('Calculated using 25 of 28 items with price.')
+		expect(render({ pricedItemsCount: 25 })).toContain('Based on prices found for 25 of 28 items.')
+	})
+
+	it('keeps a real zero total distinct from partial price coverage', () => {
+		const allZero = render({ itemsCount: 2, pricedItemsCount: 2, total: 0 })
+		const partlyPricedZero = render({ itemsCount: 2, pricedItemsCount: 1, total: 0 })
+
+		expect(allZero).toContain('$0.00')
+		expect(allZero).not.toContain('Based on prices found for')
+		expect(partlyPricedZero).toContain('$0.00')
+		expect(partlyPricedZero).toContain('Based on prices found for 1 of 2 items.')
+		expect(partlyPricedZero).toContain('This may differ from the total printed on your receipt.')
 	})
 
 	it('offers a better photo, another read and then delete when nothing was detected', () => {
 		const html = render({ itemsCount: 0, pricedItemsCount: 0, total: 0 })
 
 		expect(html).not.toContain('Calculated total')
-		expect(html.indexOf('Upload a Clearer Photo')).toBeGreaterThan(-1)
-		expect(html.indexOf('Try Again')).toBeGreaterThan(html.indexOf('Upload a Clearer Photo'))
-		expect(html.indexOf('Delete Receipt')).toBeGreaterThan(html.indexOf('Try Again'))
+		expect(html.indexOf('Upload a New Receipt')).toBeGreaterThan(-1)
+		expect(html.indexOf('Read Receipt Again')).toBeGreaterThan(html.indexOf('Upload a New Receipt'))
+		expect(html.indexOf('Delete Receipt')).toBeGreaterThan(html.indexOf('Read Receipt Again'))
 	})
 
-	it('offers Retry, not Try Again, for a receipt that failed', () => {
+	it('labels the retry action by its outcome for a receipt that failed', () => {
 		const html = render({ ticket: ticket({ ocr_status: 'failed' }), itemsCount: 0, pricedItemsCount: 0, total: 0 })
 
-		expect(html).toContain('Retry')
+		expect(html).toContain('Read Receipt Again')
 		expect(html).not.toContain('Try Again')
-		expect(html).not.toContain('Upload a Clearer Photo')
+		expect(html).not.toContain('Upload a New Receipt')
 	})
 })
 
@@ -395,6 +472,30 @@ describe('TicketPhotoPanel', () => {
 		expect(html).toContain('Receipt Photos')
 		expect(html).toContain('data-testid="ticket-photo-thumbs"')
 		expect(html).toContain('1 / 3')
+	})
+})
+
+describe('Photo viewer keyboard commands', () => {
+	it('moves between photos and applies zoom shortcuts', () => {
+		const next = vi.fn()
+		const previous = vi.fn()
+		const zoomIn = vi.fn()
+		const zoomOut = vi.fn()
+		const fit = vi.fn()
+		const view = photoView({ count: 3, next, previous, zoomIn, zoomOut, fit })
+
+		expect(applyPhotoViewerShortcut('ArrowRight', view)).toBe(true)
+		expect(applyPhotoViewerShortcut('ArrowLeft', view)).toBe(true)
+		expect(applyPhotoViewerShortcut('+', view)).toBe(true)
+		expect(applyPhotoViewerShortcut('=', view)).toBe(true)
+		expect(applyPhotoViewerShortcut('-', view)).toBe(true)
+		expect(applyPhotoViewerShortcut('0', view)).toBe(true)
+		expect(applyPhotoViewerShortcut('Escape', view)).toBe(false)
+		expect(next).toHaveBeenCalledOnce()
+		expect(previous).toHaveBeenCalledOnce()
+		expect(zoomIn).toHaveBeenCalledTimes(2)
+		expect(zoomOut).toHaveBeenCalledOnce()
+		expect(fit).toHaveBeenCalledOnce()
 	})
 })
 

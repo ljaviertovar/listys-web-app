@@ -2,35 +2,26 @@ import {
 	AnalyticsUpIcon,
 	ArtificialIntelligence02Icon,
 	Camera01Icon,
-	CheckmarkBadge01Icon,
 	Share02Icon,
 	ShoppingCart02Icon,
-	ViewIcon,
 } from '@hugeicons/core-free-icons'
-
-export const TRUST_STATS = [
-	{ stat: '99%', label: 'OCR accuracy', icon: ViewIcon },
-	{ stat: '10+', label: 'Shared groups', icon: Share02Icon },
-	{ stat: '250', label: 'Items per list', icon: ShoppingCart02Icon },
-	{ stat: '4.9/5', label: 'App store rating', icon: CheckmarkBadge01Icon },
-]
 
 export const PROCESS_STEPS = [
 	{
 		title: 'Snap your receipts',
-		desc: 'Upload up to 5 photos per scan. We\'ll magically extract all your items, quantities, and prices in seconds—no typing required.',
+		desc: 'Upload up to 5 photos at once, then review the items Listys reads from your receipts.',
 		icon: Camera01Icon,
 		badge: 'Capture',
 	},
 	{
-		title: 'Build your master lists',
-		desc: 'Save your scanned items into reusable base lists. Listys quietly learns your habits, remembering what you buy and how much it costs.',
+		title: 'Choose what to keep',
+		desc: 'Compare the extracted items with your receipt and choose what to add to a reusable base list.',
 		icon: ArtificialIntelligence02Icon,
 		badge: 'Organize',
 	},
 	{
 		title: 'Shop smarter next time',
-		desc: 'Start a shopping trip from your list. Listys automatically sorts items based on what you buy most, making your grocery run faster than ever.',
+		desc: 'Start a shopping session from your base list, check items off as you shop, and decide whether to update the list when you finish.',
 		icon: ShoppingCart02Icon,
 		badge: 'Shop',
 	},
@@ -57,7 +48,7 @@ export const PREVIEW_BY_STEP = [
 export const FEATURE_CARDS = [
 	{
 		title: 'AI receipt extraction',
-		desc: 'Turn messy receipts into editable items, quantities, and prices.',
+		desc: 'Compare the extracted items with your receipt, then choose which items to add to a list.',
 		icon: ArtificialIntelligence02Icon,
 	},
 	{

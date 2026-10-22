@@ -3,7 +3,6 @@ import {
   createSupabaseMock,
   sequentialFrom,
   TEST_UUID,
-  TEST_UUID_2,
 } from '@/test/helpers'
 
 vi.mock('@/lib/supabase/server', () => ({

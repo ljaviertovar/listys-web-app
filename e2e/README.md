@@ -1,315 +1,54 @@
 # E2E Integration Tests
 
-Tests de integración End-to-End usando Playwright para validar flujos críticos de la aplicación con Supabase real.
-
-## Estructura
-
-```
-e2e/
-├── fixtures/
-│   ├── auth.setup.ts          # Fixture para páginas autenticadas
-│   └── images/                # Imágenes de prueba para tickets
-├── helpers/
-│   ├── index.ts               # Barrel export
-│   ├── supabase-client.ts     # Clientes Supabase para tests
-│   ├── db-reset.ts            # Limpieza de DB entre tests
-│   └── seed-data.ts           # Helpers para crear data de prueba
-└── specs/
-    ├── rls-security.spec.ts   # 🔴 P1: Tests de seguridad RLS
-    ├── ticket-ocr.spec.ts     # 🔴 P1: Pipeline OCR completo
-    ├── shopping-session.spec.ts # 🔴 P1: Ciclo de vida de sesiones
-    └── concurrency.spec.ts    # 🔴 P1: Race conditions y constraints
-```
-
-## Tests Críticos Implementados (Prioridad 1)
-
-### 🔴 RLS Security (`rls-security.spec.ts`)
-
-**Por qué es crítico:** Previene data leakage entre usuarios, valida que Row Level Security funciona correctamente.
-
-**Cobertura:**
-
-- ✅ Usuario B no puede leer grupos de Usuario A
-- ✅ Usuario B no puede actualizar listas de Usuario A
-- ✅ Usuario B no puede insertar items en listas de Usuario A
-- ✅ Usuario B no puede eliminar grupos de Usuario A
-- ✅ Usuario B no puede leer sesiones/tickets de Usuario A
-- ✅ RPC merge valida ownership correctamente
-- ✅ Cliente no autenticado no puede acceder a ningún dato
-
-### 🔴 OCR Pipeline (`ticket-ocr.spec.ts`)
-
-**Por qué es crítico:** Valida el flujo completo de upload → Storage → Edge Function → OCR → DB. Es el core feature de la app.
-
-**Cobertura:**
-
-- ✅ Upload de imagen → OCR → items extraídos
-- ✅ Multi-image upload crea un solo ticket
-- ✅ Merge de items a base list actualiza enrichment fields
-- ✅ Re-merge incrementa `purchase_count`
-- ✅ Fallos de OCR setean estado `failed` con error message
-
-### 🔴 Shopping Session (`shopping-session.spec.ts`)
-
-**Por qué es crítico:** Valida el flujo principal de compra, ordering dinámico, y sync transaccional.
-
-**Cobertura:**
-
-- ✅ Sesión creada con ordering por `purchase_count` + `last_purchased_at`
-- ✅ Completar sesión con sync actualiza base list (quantities, enrichment)
-- ✅ Sesión sin sync no modifica base list
-- ✅ Cancelar sesión permite crear nueva activa
-- ✅ Categories y custom fields se preservan
-
-### 🔴 Concurrent Operations (`concurrency.spec.ts`)
-
-**Por qué es crítico:** Previene race conditions, data corruption, y valida constraints DB.
-
-**Cobertura:**
-
-- ✅ Solo 1 sesión activa por usuario (constraint enforcement)
-- ✅ Merge concurrente no crea duplicados (unique constraint)
-- ✅ Creación concurrente de grupos con mismo nombre falla
-- ✅ Updates concurrentes mantienen consistencia (documentado)
-- ✅ Merge respeta `MAX_ITEMS_PER_BASE_LIST` bajo concurrencia
-- ✅ Unique constraint previene nombres duplicados en mismo grupo
-
-## Setup
-
-### Prerequisitos
-
-1. **Supabase Project**: Proyecto activo con credenciales configuradas
-2. **Environment Variables**: Archivo `.env.test.local` con:
-
-   ```bash
-   NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-   SUPABASE_SERVICE_ROLE_KEY=your-service-role-key  # Para test helpers
-   E2E_ALLOW_DB_RESET=true  # Required to allow destructive test cleanup
-   E2E_TEST_PROJECT_REF=your-test-project-ref  # Must match NEXT_PUBLIC_SUPABASE_URL ref
-   ```
-
-⚠️ **Safety guard:** E2E cleanup will fail intentionally unless both `E2E_ALLOW_DB_RESET=true`
-and `E2E_TEST_PROJECT_REF` are set and match the current Supabase project ref.
-
-3. **Playwright Browsers**:
-   ```bash
-   npx playwright install chromium
-   ```
-
-### Instalación
-
-Ya instalado como parte del proyecto. Si necesitas reinstalar:
-
-```bash
-pnpm add -D @playwright/test
-npx playwright install
-```
-
-## Ejecutar Tests
-
-### Todos los tests E2E
-
-```bash
-pnpm test:e2e
-```
-
-### UI Mode (debugging interactivo)
-
-```bash
-pnpm test:e2e:ui
-```
-
-### Headed Mode (ver el browser)
-
-```bash
-pnpm test:e2e:headed
-```
-
-### Debug Mode (paso a paso)
-
-```bash
-pnpm test:e2e:debug
-```
-
-### Test específico
-
-```bash
-pnpm test:e2e rls-security
-pnpm test:e2e ticket-ocr
-pnpm test:e2e shopping-session
-pnpm test:e2e concurrency
-```
-
-### Con filtros
-
-```bash
-# Solo tests con "User B" en el nombre
-pnpm test:e2e -g "User B"
-
-# Solo test de merge
-pnpm test:e2e -g "merge"
-```
-
-## Estrategia de Testing
-
-### Local vs Staging
-
-**Opción A: Supabase Local (Recomendado para CI)**
-
-```bash
-npx supabase init
-npx supabase db reset  # Aplica migrations
-npx supabase start     # Inicia Docker containers
-```
-
-Pros: Rápido, aislado, sin costos  
-Cons: Setup inicial complejo
-
-**Opción B: Staging Project**
-
-- Usar proyecto Supabase dedicado para tests
-- Configurar en `.env.test.local`
-
-Pros: Matches prod config  
-Cons: Cleanup manual, costos
-
-### Cleanup
-
-Cada test ejecuta:
-
-- `beforeEach`: `resetDatabase()` + `cleanTestUsers()`
-- `afterEach`: `resetDatabase()` + `cleanTestUsers()`
-
-Esto garantiza aislamiento entre tests.
-
-**Manual cleanup** (si tests fallan mid-execution):
-
-```typescript
-import { fullReset } from './e2e/helpers'
-await fullReset()
-```
-
-## Debugging
-
-### Ver trace de tests fallidos
-
-```bash
-npx playwright show-report
-```
-
-### Ver screenshots
-
-Los screenshots de tests fallidos se guardan en `test-results/`
-
-### Logs de Supabase
-
-Habilitar logs verbosos en helpers:
-
-```typescript
-const supabase = createTestClient()
-supabase.auth.setDebug(true)
-```
-
-## CI/CD
-
-### GitHub Actions (ejemplo)
-
-```yaml
-name: E2E Tests
-on: [push, pull_request]
-
-jobs:
-  e2e:
-    runs-on: ubuntu-latest
-    env:
-      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
-      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
-
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'pnpm'
-
-      - run: pnpm install
-      - run: npx playwright install --with-deps chromium
-      - run: pnpm test:e2e
-
-      - uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: playwright-report
-          path: playwright-report/
-```
-
-## Próximos Pasos (Prioridad 2 y 3)
-
-### 🟡 Prioridad 2: Edge Cases
-
-- [ ] OCR retry logic
-- [ ] Limit enforcement exhaustivo
-- [ ] Multi-image deduplication
-- [ ] Storage cleanup on failure
-
-### 🟢 Prioridad 3: User Flows
-
-- [ ] Auth flow completo (sign up → email → first session)
-- [ ] History → reuse flow
-- [ ] Delete cascade validation
-- [ ] UI smoke tests
-
-## Troubleshooting
-
-### "NEXT_PUBLIC_SUPABASE_URL not configured"
-
-Verifica que `.env.local` existe y contiene las variables.
-
-### Tests timeout en OCR
-
-Edge Functions pueden tardar. Aumentar timeout:
-
-```typescript
-test(
-	'upload ticket',
-	async ({ page }) => {
-		// ...
-	},
-	{ timeout: 60000 },
-) // 60 segundos
-```
-
-### RLS tests fallan
-
-Verifica que las policies están aplicadas:
-
-```sql
-SELECT * FROM pg_policies WHERE tablename = 'groups';
-```
-
-### Duplicate key errors
-
-Si cleanup falla, ejecuta manual reset:
-
-```bash
-npx tsx -e "import('./e2e/helpers').then(m => m.fullReset())"
-```
-
-## Contribuir
-
-Al agregar nuevos tests:
-
-1. Agregar en `e2e/specs/[feature].spec.ts`
-2. Usar helpers de `e2e/helpers` para setup
-3. Siempre hacer cleanup en `beforeEach`/`afterEach`
-4. Documentar por qué el test es crítico
-5. Usar emails con prefijo `test-` para facilitar cleanup
-
-## Referencias
-
-- [Playwright Docs](https://playwright.dev)
-- [Supabase Testing](https://supabase.com/docs/guides/testing)
-- [RLS Policies](https://supabase.com/docs/guides/auth/row-level-security)
+La infraestructura de Playwright está versionada y usa Supabase real. Este documento describe su estado; la política
+de pruebas vive en [AGENTS.md](../AGENTS.md) y la guía de verificación en
+[CONTRIBUTING.md](../docs/contributing/CONTRIBUTING.md#playwright-boundary).
+
+## Bloqueo de ejecución actual
+
+La revisión del 2026-10-17 encontró que `helpers/db-reset.ts` elimina datos de tablas completas y que
+`global-teardown.ts` llama a `fullReset()`. Los clientes leen variables ordinarias de la aplicación en vez de los
+inputs `E2E_SUPABASE_*` exigidos por AGENTS.md. Las comprobaciones de proyecto dedicado no convierten esos borrados
+globales en limpieza de fixtures aislados.
+
+No ejecutar la suite, los helpers de reset ni migraciones destructivas como parte de una verificación rutinaria hasta
+corregir esos puntos. No usar producción ni datos compartidos; no introducir credenciales predeterminadas en el código
+ni sustituir Supabase por mocks en E2E. Este cambio documental no modifica la infraestructura de pruebas.
+
+## Inventario
+
+| Ruta | Responsabilidad |
+| --- | --- |
+| `../playwright.config.ts` | Chromium, servidor web en puerto 3000, setup/teardown y reportes. |
+| `global-setup.ts` / `global-teardown.ts` | Carga/comprobación del entorno y limpieza global existente. |
+| `fixtures/auth.setup.ts` | Preparación de autenticación. |
+| `helpers/` | Clientes Supabase, creación de datos y limpieza actual. |
+| `specs/rls-security.spec.ts` | Escenarios de acceso entre usuarios y RPCs. |
+| `specs/ticket-ocr.spec.ts` | Escenarios OCR, extracción y merge. |
+| `specs/shopping-session.spec.ts` | Ciclo de compra, orden y sincronización. |
+| `specs/concurrency.spec.ts` | Concurrencia y restricciones. |
+| `specs/shared-lists.spec.ts` | Colaboración experimental, fuera del MVP. |
+| `ui/` | Flujos de interfaz: auth, listas, compras, recibos y landing. |
+
+La existencia de escenarios no demuestra que hayan pasado ni que todos los requisitos estén implementados.
+Aunque `.gitignore` coincide con `e2e/`, los archivos ya versionados siguen en Git; verificar el seguimiento de nuevos
+archivos antes de asumir que estarán presentes en un clon limpio.
+
+## Entorno y comandos después de corregir el bloqueo
+
+La configuración actual carga `.env.test.local`, se bloquea si falta y utiliza `PLAYWRIGHT_TEST_BASE_URL` o
+`http://localhost:3000`. El servidor configurado arranca con `pnpm dev` en el puerto 3000. No copiar credenciales a
+documentación ni habilitar el reset amplio para sortear los bloqueos.
+
+La entrada de ejecución prevista es `npx playwright test`; los scripts `pnpm test:e2e`, `pnpm test:e2e:ui`,
+`pnpm test:e2e:headed` y `pnpm test:e2e:debug` están en `package.json`. Su existencia no elimina el bloqueo anterior.
+No se encontró una pipeline CI versionada que ejecute estas suites.
+
+## Mantenimiento
+
+Sustituir los resets globales por fixtures identificables y limpieza limitada a los datos creados por cada prueba;
+alinear credenciales con `E2E_SUPABASE_*` y validar que ningún test pueda apuntar a producción. Una vez corregido,
+actualizar esta guía y ejecutar los flujos relevantes con `npx playwright test`.
+
+Los reportes, trazas y capturas pueden contener información privada. Usar datos sintéticos y revisar los artefactos
+antes de compartirlos. No publicar cookies, tokens, URLs firmadas ni fotos reales de recibos.

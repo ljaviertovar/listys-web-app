@@ -35,7 +35,8 @@ const HEIGHTS = {
 	default: 'h-9',
 	lg: 'h-10',
 	xl: 'h-11',
-	primary: 'h-9',
+	primary: 'h-10',
+	'link-action': 'h-10',
 	'hero-action': 'h-10',
 	'2xl': 'h-13',
 	icon: 'size-9',
@@ -77,12 +78,31 @@ describe('Button', () => {
 		expect(buttonVariants({ size: 'lg' }).split(/\s+/)).not.toContain('text-base')
 	})
 
-	it('primary is default below md and the library lg from md up', () => {
+	it('primary is 40px on phones and 44px from md up', () => {
 		const classes = buttonVariants({ size: 'primary' }).split(/\s+/)
 
-		expect(classes).toEqual(expect.arrayContaining(['h-9', 'px-3', 'md:h-10', 'md:px-4']))
-		expect(classes).not.toContain('h-11')
+		expect(classes).toEqual(expect.arrayContaining(['h-10', 'px-3', 'md:h-11', 'md:px-4']))
 		expect(classes).not.toContain('md:text-base')
+	})
+
+	it('link actions are 40px on phones and 44px from md up', () => {
+		const classes = buttonVariants({ size: 'link-action' }).split(/\s+/)
+
+		expect(classes).toEqual(expect.arrayContaining(['h-10', 'px-3', 'md:h-11']))
+	})
+
+	it('forwards the link action size to its child anchor', () => {
+		const html = renderToStaticMarkup(h(Button, { asChild: true, size: 'link-action' }, h('a', { href: '/', 'data-testid': 'link-action' }, 'Open')))
+		const classes = classOf(html, 'link-action')
+
+		expect(classes).toEqual(expect.arrayContaining(['h-10', 'md:h-11']))
+	})
+
+	it('forwards the primary size to its child anchor', () => {
+		const html = renderToStaticMarkup(h(Button, { asChild: true, size: 'primary' }, h('a', { href: '/', 'data-testid': 'primary-link' }, 'Open')))
+		const classes = classOf(html, 'primary-link')
+
+		expect(classes).toEqual(expect.arrayContaining(['h-10', 'md:h-11']))
 	})
 
 	it('default is the library lg from md up', () => {
@@ -121,6 +141,9 @@ describe('Button', () => {
 		expect(buttonVariants({ variant: 'fab' })).toContain('shadow-fab')
 		expect(buttonVariants({ variant: 'success-soft' })).toContain('bg-green-100')
 		expect(buttonVariants({ variant: 'destructive' })).toContain('bg-destructive')
+		expect(buttonVariants({})).not.toContain('from-white/20')
+		expect(buttonVariants({ variant: 'hero' })).toContain('from-white/20')
+		expect(buttonVariants({ variant: 'fab' })).toContain('from-white/20')
 	})
 })
 
@@ -205,7 +228,7 @@ describe('fields and surfaces take their size from props', () => {
 		const base = classOf(renderToStaticMarkup(h(Card, { 'data-testid': 'c' })), 'c')
 		const tight = classOf(renderToStaticMarkup(h(Card, { size: 'tight', 'data-testid': 'c' })), 'c')
 
-		expect(base).toEqual(expect.arrayContaining(['rounded-3xl', 'border-0', 'shadow-card']))
+		expect(base).toEqual(expect.arrayContaining(['rounded-3xl', 'border-0', 'shadow-card', 'transition-shadow', 'motion-reduce:transition-none']))
 		expect(base).toEqual(expect.arrayContaining(['py-3', 'md:py-4']))
 		expect(tight).toEqual(expect.arrayContaining(['gap-0', 'p-3', 'md:p-4']))
 	})
@@ -243,6 +266,8 @@ describe('the variants that replaced per-call classes', () => {
 		expect(dark).toContain('bg-white/15')
 		expect(dark).toContain('from-blue-400')
 		expect(done).toContain('bg-green-500')
+		expect(sm).toContain('transition-transform')
+		expect(sm).toContain('motion-reduce:transition-none')
 	})
 
 	it('Avatar sizes reach the 96px portrait, with an optional ring, and the fallback has tones', () => {
@@ -284,6 +309,9 @@ describe('the variants that replaced per-call classes', () => {
 		expect(buttonVariants({ variant: 'destructive-ghost' })).toContain('text-red-700')
 		expect(buttonVariants({ variant: 'dropzone', size: 'block' })).toEqual(expect.stringContaining('border-dashed'))
 		expect(buttonVariants({ size: 'block' })).toContain('h-auto')
+		expect(buttonVariants({})).not.toContain('from-white/20')
+		expect(buttonVariants({ variant: 'hero' })).toContain('from-white/20')
+		expect(buttonVariants({ variant: 'fab' })).toContain('from-white/20')
 	})
 
 	it('Button has the segment, quiet-on-dark and inverse variants and a 44px touch size for the auth screens', () => {

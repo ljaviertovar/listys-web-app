@@ -4,6 +4,8 @@ import { useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useActiveSessionStore } from '@/stores/active-session'
 
+type SessionRow = { id: string; name: string; status: string }
+
 export function ActiveSessionProvider({ children }: { children: React.ReactNode }) {
 	const setActiveSession = useActiveSessionStore(s => s.setActiveSession)
 	const clearActiveSession = useActiveSessionStore(s => s.clearActiveSession)
@@ -36,12 +38,12 @@ export function ActiveSessionProvider({ children }: { children: React.ReactNode 
 						{ event: '*', schema: 'public', table: 'shopping_sessions', filter: `user_id=eq.${user.id}` },
 						payload => {
 							try {
-								const newRow = (payload as any).new
-								const oldRow = (payload as any).old
+								const newRow: Partial<SessionRow> | undefined = payload.new
+								const oldRow: Partial<SessionRow> | undefined = payload.old
 
 								// INSERT or UPDATE -> if status is active, set it
 								if (newRow && newRow.status === 'active') {
-									setActiveSession({ id: newRow.id, name: newRow.name })
+									setActiveSession({ id: newRow.id as string, name: newRow.name as string })
 									return
 								}
 

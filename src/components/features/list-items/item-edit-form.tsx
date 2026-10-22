@@ -1,6 +1,6 @@
 'use client'
 
-import { useId, useState } from 'react'
+import { useEffect, useId, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -39,6 +39,11 @@ export function ItemEditForm({ item, onSubmit, onCancel }: ItemEditFormProps) {
 			notes: item.notes ?? '',
 		},
 	})
+	const { setFocus } = form
+
+	useEffect(() => {
+		setFocus('name')
+	}, [setFocus])
 
 	const submit = async (values: ItemFormValues) => {
 		setLoading(true)
@@ -87,7 +92,7 @@ export function ItemEditForm({ item, onSubmit, onCancel }: ItemEditFormProps) {
 							className='size-4 animate-spin motion-reduce:animate-none'
 						/>
 					) : null}
-					{loading ? 'Saving…' : 'Save'}
+					{loading ? 'Saving Changes…' : 'Save Changes'}
 				</Button>
 			</div>
 		</form>

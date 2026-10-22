@@ -23,7 +23,7 @@ interface TicketItemsCardProps {
 	footer?: ReactNode
 }
 
-function ItemsBody({ items, status, ocrError, selection }: Omit<TicketItemsCardProps, 'ticketId'>) {
+function ItemsBody({ items, status, selection }: Omit<TicketItemsCardProps, 'ticketId'>) {
 	if (status === 'pending' || status === 'processing') {
 		return (
 			<div className='flex flex-col items-center justify-center py-12'>
@@ -36,14 +36,14 @@ function ItemsBody({ items, status, ocrError, selection }: Omit<TicketItemsCardP
 					role='status'
 					className='mt-4 text-sm text-muted-foreground'
 				>
-					{status === 'pending' ? 'Waiting to process...' : 'Extracting items from receipt...'}
+					{status === 'pending' ? 'Your receipt is uploaded and waiting to be read.' : 'Reading your receipt…'}
 				</p>
 			</div>
 		)
 	}
 
 	if (status === 'failed') {
-		return <TicketProcessingError error={ocrError} />
+		return <TicketProcessingError />
 	}
 
 	if (items.length === 0) {
@@ -134,7 +134,7 @@ export function TicketNoItems() {
 			<div className='flex flex-col items-center gap-1.5'>
 				<h3 className='font-display text-base leading-[1.3] font-bold md:text-lg'>No items detected</h3>
 				<p className='max-w-[300px] text-sm leading-normal text-slate-500 dark:text-muted-foreground'>
-					We could not find products in this receipt image. Try with a clearer photo and good lighting.
+					We couldn’t find items in this receipt. Upload a new receipt with a clearer photo, or read this receipt again.
 				</p>
 			</div>
 			<ul
@@ -161,16 +161,12 @@ export function TicketNoItems() {
 	)
 }
 
-interface TicketProcessingErrorProps {
-	error?: string | null
-}
-
-export function TicketProcessingError(_props: TicketProcessingErrorProps) {
+export function TicketProcessingError() {
 	const errorTitle = 'Failed to Process Receipt'
 	const errorMessage = 'Unable to extract items from this receipt.'
 
 	return (
-		<div className='py-8'>
+		<div data-testid='ticket-processing-error' className='py-8'>
 			<Alert variant='warning'>
 				<HugeiconsIcon
 					icon={SpamIcon}
@@ -183,7 +179,7 @@ export function TicketProcessingError(_props: TicketProcessingErrorProps) {
 						<p className='font-medium'>What you can do:</p>
 						<ul className='list-inside list-disc space-y-1 text-muted-foreground'>
 							<li>Try uploading a clearer, high-resolution image</li>
-							<li>Make sure the image format is PNG, JPEG, GIF, or WebP</li>
+							<li>Use a PNG or JPEG image</li>
 							<li>Ensure the receipt text is clearly visible and not blurry</li>
 							<li>Avoid images with heavy shadows or reflections</li>
 						</ul>

@@ -24,6 +24,21 @@ describe('BaseListsList', () => {
 		expect(html).toContain('data-testid="create-base-list-button"')
 		expect(html).toContain('href="/base-lists/l1/edit"')
 		expect(html).toContain('View Items')
+		expect(html).toContain('aria-label="View Items in Items for Dinner"')
+	})
+
+	it('keeps long list titles and notes available in the card', () => {
+		const html = renderToStaticMarkup(
+			createElement(BaseListsList, {
+				groupId: 'g1',
+				groupName: 'Walmart',
+				baseLists: [list({ name: 'Supplies for the whole family on the road', notes: 'Food, first aid, and practical supplies for our long weekend trip.' })],
+			}),
+		)
+
+		expect(html).toContain('Supplies for the whole family on the road')
+		expect(html).toContain('Food, first aid, and practical supplies for our long weekend trip.')
+		expect(html).not.toContain('truncate')
 	})
 
 	it('leaves out the list that is being shopped', () => {
@@ -66,6 +81,8 @@ describe('BaseListItems', () => {
 	it('disables the row menus while the list is being shopped', () => {
 		const html = renderToStaticMarkup(createElement(BaseListItems, { baseListId: 'l1', items: [item({})], isLocked: true }))
 
+		expect(html).toContain('data-testid="base-list-locked-notice"')
+		expect(html).toContain('Make changes in that session, or finish it to edit this base list.')
 		expect(html).toMatch(/<button[^>]*disabled=""[^>]*data-testid="base-list-item-i1-menu"/)
 	})
 
@@ -84,6 +101,14 @@ describe('BaseListItems', () => {
 		expect(html).toContain('data-testid="base-list-empty-state"')
 		expect(html).toContain('No items yet')
 		expect(html).toContain('data-testid="add-item-button-base-list"')
+	})
+
+	it('explains why an empty list cannot be edited during a shopping session', () => {
+		const html = renderToStaticMarkup(createElement(BaseListItems, { baseListId: 'l1', items: [], isLocked: true }))
+
+		expect(html).toContain('data-testid="base-list-locked-notice"')
+		expect(html).toContain('A shopping session is using this list.')
+		expect(html).toContain('disabled=""')
 	})
 })
 

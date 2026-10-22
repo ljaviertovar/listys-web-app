@@ -1,6 +1,7 @@
 'use client'
 
 import type { ReactNode } from 'react'
+import { useId } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { AlertCircleIcon, Loading03Icon } from '@hugeicons/core-free-icons'
 
@@ -49,11 +50,17 @@ export function ConfirmSheet({
 	onConfirm,
 	testId,
 }: ConfirmSheetProps) {
+	const descriptionId = useId()
+	const consequenceId = useId()
 	return (
 		<SheetDialog
 			open={open}
 			onOpenChange={next => !loading && onOpenChange(next)}
 			title={title}
+			ariaDescribedBy={[
+				description ? descriptionId : null,
+				consequence ? consequenceId : null,
+			].filter(Boolean).join(' ') || undefined}
 			role='alertdialog'
 			testId={testId}
 		>
@@ -62,12 +69,13 @@ export function ConfirmSheet({
 					<div className='flex items-center gap-3.5'>
 						{media}
 						{description ? (
-							<p className='text-sm leading-normal text-slate-600 dark:text-muted-foreground'>{description}</p>
+							<p id={descriptionId} className='text-sm leading-normal text-slate-600 dark:text-muted-foreground'>{description}</p>
 						) : null}
 					</div>
 				) : null}
 				{consequence ? (
 					<div
+						id={consequenceId}
 						role='note'
 						className='flex items-start gap-3 rounded-2xl bg-red-50 px-3.5 py-3 text-sm leading-normal text-red-900 dark:bg-red-950/40 dark:text-red-200'
 					>

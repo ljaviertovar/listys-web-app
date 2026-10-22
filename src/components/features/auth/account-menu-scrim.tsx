@@ -12,7 +12,7 @@ export function AccountMenuScrim() {
 		<div
 			aria-hidden='true'
 			data-testid='account-menu-scrim'
-			className='fixed inset-x-0 top-15 bottom-0 z-[45] bg-slate-900/40 duration-150 animate-in fade-in-0 lg:hidden'
+			className='fixed inset-x-0 top-15 bottom-0 z-[45] bg-slate-900/40 duration-150 animate-in fade-in-0 motion-reduce:animate-none motion-reduce:duration-0 lg:hidden'
 		/>,
 		document.body,
 	)

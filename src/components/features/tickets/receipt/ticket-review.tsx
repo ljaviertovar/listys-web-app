@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, type ReactNode } from 'react'
+import { useRef, useState, type ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 
 import type { TicketItem } from '@/types'
@@ -37,6 +37,8 @@ export function TicketReview({ ticketId, title, imagePaths, items, status, ocrEr
 	const selection = useTicketSelection(items)
 	const photos = useTicketImageUrls(imagePaths)
 	const view = usePhotoView(photos.urls.length)
+	const mobilePhotoTriggerRef = useRef<HTMLButtonElement>(null)
+	const desktopPhotoTriggerRef = useRef<HTMLButtonElement>(null)
 	const [viewerOpen, setViewerOpen] = useState(false)
 	const [compareOpen, setCompareOpen] = useState(false)
 	const [mergeOpen, setMergeOpen] = useState(false)
@@ -48,6 +50,17 @@ export function TicketReview({ ticketId, title, imagePaths, items, status, ocrEr
 	const openCompare = () => {
 		setViewerOpen(false)
 		setCompareOpen(true)
+	}
+	const handleCompareOpenChange = (open: boolean) => {
+		setCompareOpen(open)
+		if (!open) {
+			window.setTimeout(() => {
+				const trigger = window.matchMedia('(min-width: 64rem)').matches
+					? desktopPhotoTriggerRef.current
+					: mobilePhotoTriggerRef.current
+				trigger?.focus()
+			}, 0)
+		}
 	}
 
 	const handleMergeSuccess = (baseListId: string) => {
@@ -71,6 +84,7 @@ export function TicketReview({ ticketId, title, imagePaths, items, status, ocrEr
 						count={imagePaths.length}
 						thumbnailUrl={photos.urls[0]}
 						onOpen={() => setViewerOpen(true)}
+						triggerRef={mobilePhotoTriggerRef}
 					/>
 				</div>
 			) : null}
@@ -105,6 +119,7 @@ export function TicketReview({ ticketId, title, imagePaths, items, status, ocrEr
 							view={view}
 							error={photos.error}
 							onOpenFullScreen={() => setViewerOpen(true)}
+						triggerRef={desktopPhotoTriggerRef}
 						/>
 					</div>
 				) : null}
@@ -123,7 +138,7 @@ export function TicketReview({ ticketId, title, imagePaths, items, status, ocrEr
 			{canCompare ? (
 				<TicketCompareDialog
 					open={compareOpen}
-					onOpenChange={setCompareOpen}
+					onOpenChange={handleCompareOpenChange}
 					title={title}
 					urls={photos.urls}
 					view={view}

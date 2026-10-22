@@ -8,6 +8,7 @@ describe('PageHeader', () => {
 	it('keeps the white band with a bottom border by default', () => {
 		const html = renderToStaticMarkup(createElement(PageHeader, { title: 'Lists', desc: 'Your lists' }))
 
+		expect(html).toContain('data-testid="page-header"')
 		expect(html).toContain('border-b bg-card')
 		expect(html).not.toContain('data-variant="screen"')
 	})

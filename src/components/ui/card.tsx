@@ -28,7 +28,7 @@ function Card({
 			data-layout={layout}
 			data-side={side}
 			className={cn(
-				'group/card flex flex-col overflow-hidden rounded-3xl border-0 bg-card text-sm text-card-foreground shadow-card transition-all duration-300 dark:border dark:shadow-none',
+				'group/card flex flex-col overflow-hidden rounded-3xl border-0 bg-card text-sm text-card-foreground shadow-card transition-shadow duration-300 motion-reduce:transition-none dark:border dark:shadow-none',
 				layout === 'default' && 'gap-6 py-3 md:py-4',
 				layout === 'horizontal' && 'p-0 gap-0 md:flex-row',
 				size === 'compact' && 'gap-0 py-3 md:py-4',

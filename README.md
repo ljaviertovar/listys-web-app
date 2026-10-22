@@ -1,77 +1,61 @@
 # Listys Web App
 
-Listys is a SaaS application for organizing shopping: it lets users create base lists, start shopping sessions, and process receipts with OCR to turn them into reusable items. This `README.md` is a quick-start guide; extended documentation lives in [`docs/README.md`](docs/README.md).
+Listys turns receipt photos into reusable shopping lists, supports shopping sessions, and keeps purchase history.
+The MVP requirements are in [PRD v2](docs/prd/PRD-v2.md). Shared lists and collaborative shopping are experimental
+and remain outside the MVP.
 
-## Stack
+## Stack and requirements
 
-- Next.js (App Router) + TypeScript
-- Supabase (Auth, Postgres + RLS, Storage, Edge Functions)
-- Tailwind CSS + shadcn/ui
-- React Hook Form + Zod
-- zustand
+- Next.js 16.1.0, React 19, TypeScript, Tailwind CSS v4, and shadcn/ui.
+- Supabase Auth, Postgres with RLS, Storage, Realtime, and OCR Edge Functions. Current services use Supabase directly,
+  without Prisma.
+- React Hook Form, Zod, and Zustand.
+- Node.js 20.9 or newer and pnpm. The dependency lockfile is `pnpm-lock.yaml`.
+- A provisioned Supabase development environment; Docker if running Supabase locally.
 
-## Requirements
+## Local development
 
-- Node.js 20+
-- npm 10+
-- A Supabase project and configuration
+1. Install dependencies with `pnpm install`.
+2. Create an ignored `.env.local` using the variable names below. Obtain values from the intended environment's
+   approved secret store; do not copy production credentials into development.
+3. Use an existing development database with the required migrations, Storage bucket, Auth configuration, and
+   selected OCR function. Provisioning requires the review in the [deployment runbook](docs/runbooks/deploy.md);
+   starting the web app does not provision Supabase.
+4. Run `pnpm dev` and open `http://localhost:3000`.
 
-## Quick Start (5 minutes)
+| Variable | Runtime and purpose |
+| --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL` | Web app: Supabase endpoint. |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Web app: public client key. |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server only: OCR dispatch and privileged invite acceptance. |
+| `PROCESS_TICKET_OCR_PROVIDER` | Server: `gemini` (default) or `openai`. |
+| `NEXT_PUBLIC_SITE_URL` | Absolute origin for experimental invite links; defaults to localhost when omitted. |
+| `NEXT_PUBLIC_APP_URL` | Optional server-side API-client origin fallback; incoming request headers take precedence. |
+| `NEXT_PUBLIC_PWA_DEV` | Optional: `true` enables service-worker registration in development. |
 
-1. Install dependencies:
+Provider secrets belong in the selected **Supabase Edge Function environment**, rather than only in `.env.local`:
+`GEMINI_API_KEY` for `process-ticket-ocr-gemini`, or `OPENAI_API_KEY` for `process-ticket-ocr-openai`.
+Those functions also read `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` in their own runtime.
 
-   ```bash
-   npm install
-   ```
-
-2. Create `.env.local` with the minimum variables:
-
-   ```bash
-   NEXT_PUBLIC_SUPABASE_URL=...
-   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=...
-   SUPABASE_SERVICE_ROLE_KEY=...
-   ```
-
-   Optional provider-specific OCR variables:
-
-   ```bash
-   PROCESS_TICKET_OCR_PROVIDER=gemini
-   OPENAI_API_KEY=...
-   ```
-
-3. If applicable, initialize and start local Supabase:
-
-   ```bash
-   npx supabase start
-   npx supabase db push
-   ```
-
-4. Start development:
-
-   ```bash
-   npm run dev
-   ```
-
-5. Open `http://localhost:3000`.
-
-## Essential commands
+## Verification
 
 ```bash
-npm run dev
-npm run build
-npm run lint
-tsc --noEmit
+pnpm lint
+pnpm typecheck
+pnpm test:ci
+pnpm verify:limits-reference
+pnpm build
 ```
 
-## Documentation Map
+`pnpm test` starts Vitest watch mode; `pnpm test:critical` runs the critical server/shared-logic subset.
+Playwright infrastructure exists, but its current reset and credential handling conflict with repository policy.
+Review the [contribution guide](docs/contributing/CONTRIBUTING.md) before E2E execution.
 
-- Main documentation: [`docs/README.md`](docs/README.md)
-- Product requirements: [`docs/prd/PRD-v2.md`](docs/prd/PRD-v2.md)
-- Architecture: [`docs/architecture/architecture.md`](docs/architecture/architecture.md)
-- Runbooks: [`docs/runbooks/`](docs/runbooks/)
-- Agent guidance: [`AGENTS.md`](AGENTS.md)
-- Contribution guide: [`docs/contributing/CONTRIBUTING.md`](docs/contributing/CONTRIBUTING.md)
+## Documentation
 
----
-
-For technical details, deployment, diagrams, or operational procedures, see [`/docs`](docs/README.md).
+- [Documentation index and topic ownership](docs/README.md)
+- [Implemented behavior, MVP gaps, and audit findings](docs/reference/implementation-status.md)
+- [Architecture](docs/architecture/architecture.md) and [repository structure](docs/architecture/project-structure.md)
+- [Design system v2 HTML](docs/design/listys-design-system-v2.html) and its [written specification](docs/design/DESIGN.md)
+- [Deployment](docs/runbooks/deploy.md), [incidents](docs/runbooks/incidents.md), and [data handling](docs/privacy/taste-profile.md)
+- [Agent engineering rules](AGENTS.md) and [tooling workflow](docs/tooling-delegation.md)

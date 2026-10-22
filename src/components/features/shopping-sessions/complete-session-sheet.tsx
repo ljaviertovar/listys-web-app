@@ -63,7 +63,7 @@ export function CompleteSessionSheet({ sessionId, checked, total, open, onOpenCh
 		<ConfirmSheet
 			open={open}
 			onOpenChange={onOpenChange}
-			title={allChecked ? 'All Items Checked' : 'Complete Shopping Session?'}
+			title={allChecked ? 'Ready to Complete Shopping?' : 'Complete Shopping?'}
 			media={
 				allChecked ? (
 					<span className='flex size-12 shrink-0 items-center justify-center rounded-2xl bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300'>
@@ -78,17 +78,16 @@ export function CompleteSessionSheet({ sessionId, checked, total, open, onOpenCh
 			}
 			description={
 				allChecked ? (
-					'Everything on the list is in the cart. Complete the session to save it to your history.'
+					'All items are checked. Complete shopping to save this session to your history.'
 				) : (
 					<>
-						You still have <b className='font-mono font-semibold text-foreground'>{unchecked}</b> unchecked{' '}
-						{unchecked === 1 ? 'item' : 'items'}. Are you sure you want to complete this shopping session?
+						<b className='font-mono font-semibold text-foreground'>{unchecked}</b> {unchecked === 1 ? 'item is' : 'items are'} still unchecked. Complete shopping and save the items you collected to your history?
 					</>
 				)
 			}
 			cancelLabel='Continue Shopping'
-			confirmLabel='Complete Session'
-			loadingLabel='Completing…'
+			confirmLabel='Complete Shopping'
+			loadingLabel='Completing Shopping…'
 			loading={loading}
 			onConfirm={handleComplete}
 			testId='complete-session-sheet'
@@ -108,9 +107,9 @@ export function CompleteSessionSheet({ sessionId, checked, total, open, onOpenCh
 					/>
 				</span>
 				<span className='flex flex-col gap-1 pt-2.5 pb-2'>
-					<span className='text-sm leading-[1.3] font-semibold'>Sync changes back to base list</span>
+					<span className='text-sm leading-[1.3] font-semibold'>Update the Base List</span>
 					<span className='text-xs leading-[1.45] text-slate-500 dark:text-muted-foreground'>
-						Updates quantities and adds the items you created while shopping to your original base list.
+						Apply this session’s changes to your reusable list.
 					</span>
 				</span>
 			</label>

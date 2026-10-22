@@ -7,6 +7,7 @@ import { ShoppingCart02Icon } from '@hugeicons/core-free-icons'
 import { Card } from '@/components/ui/card'
 
 import { PageHeader, PageContainer } from '@/components/app'
+import { RetryableError } from '@/components/commons'
 import { GroupCard } from '@/components/features/shopping-lists'
 
 import { getGroupsWithHistory } from '@/lib/api/endpoints'
@@ -34,11 +35,9 @@ export default async function HistoryPage() {
 			/>
 
 			<PageContainer>
-				{error && (
-					<div className='rounded-lg bg-destructive/10 p-4 text-sm text-destructive'>Error loading groups: {error}</div>
-				)}
-
-				{!groups || groups.length === 0 ? (
+				{error ? (
+					<RetryableError message='We couldn’t load your shopping history.' href='/shopping-history' testId='history-load-error' />
+				) : !groups || groups.length === 0 ? (
 					<Card size='tight'>
 						<div className='flex min-h-[152px] flex-col items-center justify-center gap-3 text-center'>
 							<span
