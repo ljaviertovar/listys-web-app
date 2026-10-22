@@ -20,11 +20,11 @@ Las pantallas existentes SHALL permitir completar sus interacciones de interfaz 
 
 ### Requirement: Touch targets remain operable
 
-Las acciones independientes en los flujos móviles de compra, subida y navegación SHALL ofrecer un área activable de al menos 44×44 CSS px, incluso cuando su representación visual sea compacta. Los objetivos expandidos MUST evitar intersecciones con controles adyacentes y MUST disponer de nombres que identifiquen su acción y contexto.
+Las acciones independientes de compra, subida y navegación SHALL tener un nombre accesible y un área activable de al menos 44×44 CSS px, sin solaparse con controles adyacentes. Excepción aprobada por el usuario: los tamaños compartidos `primary` y `link-action` miden 40px de alto en móvil y no son targets expandidos; los demás controles conservan 44×44 px.
 
 #### Scenario: Compact visual control
 
-- **WHEN** el usuario toca el borde del área de un enlace compacto o un botón de una fila
+- **WHEN** el usuario toca el borde del área de un enlace compacto o un botón de una fila que no usa los tamaños exceptuados `primary` o `link-action`
 - **THEN** el área activable alcanza el tamaño mínimo de producto y activa únicamente ese control
 
 #### Scenario: Upload controls on a phone
@@ -56,18 +56,27 @@ La navegación inferior, subida, sesión activa, selección de recibos, acciones
 - **WHEN** el usuario carga el recibo de prueba en un entorno de prueba a 320–430 CSS px y la extracción existente termina
 - **THEN** puede reconocer la subida y el procesamiento, revisar los artículos extraídos y alcanzar la acción existente para añadir la selección a una lista, con controles y mensajes accesibles y sin contenido tapado por overlays
 
-### Requirement: Primary shopping action is explicit
+### Requirement: Shared primary and link action sizes
 
-La pantalla de compra activa SHALL ofrecer una acción móvil principal explícita para completar la compra y un acceso secundario diferenciado para cancelarla. Ambas MUST conservar las condiciones de disponibilidad y permisos existentes y MUST presentar sus confirmaciones sin ejecutar la operación al abrirlas.
+Los tamaños compartidos `Button size='primary'` y `Button size='link-action'` SHALL medir 40 CSS px de alto por debajo de `md` y 44 CSS px desde `md`. El CTA compacto de marketing (`ButtonLink size='sm'`) SHALL seguir las mismas alturas. Los enlaces que se presentan como acciones SHALL usar `link-action`; los consumidores MUST conservar las variantes compartidas sin overrides locales de apariencia.
+
+#### Scenario: Responsive primary buttons and action links
+
+- **WHEN** un botón primario, link de acción o CTA compacto se muestra en móvil y después en `md` o más
+- **THEN** su altura es 40 CSS px en móvil y 44 CSS px desde `md`, con su semántica de botón o enlace intacta
+
+### Requirement: Shopping actions remain grouped on mobile
+
+La pantalla de compra activa SHALL conservar un único botón móvil “Actions” que abre un menú con las acciones claramente diferenciadas “Complete Shopping” y “Cancel Shopping”. Cada opción MUST conservar las condiciones de disponibilidad y permisos existentes, ofrecer un target de al menos 44×44 CSS px y abrir su confirmación sin ejecutar la operación al seleccionarla. En escritorio SHALL conservar los dos controles inline existentes.
 
 #### Scenario: Shopping owner opens completion
 
-- **WHEN** el propietario activa la acción principal de completar
+- **WHEN** el propietario activa “Actions” y elige completar
 - **THEN** se abre la confirmación con el número de pendientes y la opción actual de actualización de la lista base, sin completar todavía la sesión
 
 #### Scenario: Shopping cancellation
 
-- **WHEN** el usuario abre la cancelación y elige seguir comprando
+- **WHEN** el usuario abre “Actions”, elige cancelar y después elige seguir comprando
 - **THEN** se cierra la confirmación y la sesión conserva su estado
 
 ### Requirement: Dialog focus and containment

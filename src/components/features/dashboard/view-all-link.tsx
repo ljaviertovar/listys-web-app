@@ -17,7 +17,7 @@ export function ViewAllLink({ href, noun, testId }: Props) {
 		<Button
 			asChild
 			variant='ghost-primary'
-			size='sm'
+			size='link-action'
 			className='shrink-0'
 		>
 			<Link

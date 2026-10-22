@@ -82,7 +82,7 @@ describe('getTickets', () => {
 // ────────────────────────────────────
 describe('mergeTicketItemsToBaseList', () => {
   it('returns error when no items selected for merge', async () => {
-    const supabase = setupMock()
+    setupMock()
 
     const result = await mergeTicketItemsToBaseList({
       ticket_id: TEST_UUID,
@@ -93,7 +93,7 @@ describe('mergeTicketItemsToBaseList', () => {
   })
 
   it('calls merge RPC and returns counts on success', async () => {
-    const supabase = setupMock({
+    setupMock({
       rpcResults: {
         merge_ticket_items_to_base_list: {
           data: { new_count: 3, updated_count: 1, skipped_count: 0 },
@@ -119,7 +119,7 @@ describe('mergeTicketItemsToBaseList', () => {
   })
 
   it('returns error when RPC fails', async () => {
-    const supabase = setupMock({
+    setupMock({
       rpcResults: {
         merge_ticket_items_to_base_list: { data: null, error: { message: 'RPC error' } },
       },
@@ -284,7 +284,7 @@ describe('markStuckTicketsAsFailed', () => {
   })
 
   it('returns error when RPC fails', async () => {
-    const supabase = setupMock({
+    setupMock({
       rpcResults: { mark_stuck_tickets_as_failed: { data: null, error: { message: 'RPC error' } } },
     })
 

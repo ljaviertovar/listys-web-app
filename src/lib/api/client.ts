@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any -- legacy client: callers rely on the loose default payload type */
 import type { ApiError, ApiSuccess } from '@/lib/api/http'
 
 export type LegacyResult<T = any> = {

@@ -28,10 +28,13 @@ describe('AuthScreen', () => {
 		expect(html).toContain('Welcome back')
 		expect(html).toContain('Sign In with Google')
 		expect(html).toContain('Sign In with Email')
-		expect(html).toContain('Forgot Password?')
+		expect(html).not.toContain('Forgot Password?')
 		expect(html).toContain('data-testid="auth-hero-cta"')
 		expect(html).toContain('Create Your Account')
 		expect(html).not.toContain('Must be at least 6 characters long')
+		expect(html).toContain('autoComplete="current-password"')
+		expect(html).toContain('aria-label="Show password"')
+		expect(html).toContain('aria-pressed="false"')
 	})
 
 	it('sign up: asks for a 6 character password and lists what the account gives instead of a button', () => {
@@ -41,6 +44,7 @@ describe('AuthScreen', () => {
 		expect(html).toContain('Create Account with Email')
 		expect(html).toContain('Must be at least 6 characters long')
 		expect(html).toContain('Share lists with your household')
+		expect(html).toContain('autoComplete="new-password"')
 		expect(html).not.toContain('data-testid="auth-hero-cta"')
 		expect(html).not.toContain('Forgot Password?')
 	})
@@ -54,10 +58,10 @@ describe('AuthScreen', () => {
 		}
 	})
 
-	it('links the terms and privacy pages and the way back home', () => {
+	it('keeps placeholder legal destinations out and links the way back home', () => {
 		const html = screen('signin')
-		expect(html).toContain('href="/terms"')
-		expect(html).toContain('href="/privacy"')
+		expect(html).not.toContain('href="/terms"')
+		expect(html).not.toContain('href="/privacy"')
 		expect(html).toContain('data-testid="auth-back-link"')
 	})
 })

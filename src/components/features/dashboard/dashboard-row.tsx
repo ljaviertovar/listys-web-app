@@ -32,7 +32,7 @@ export function DashboardRow({ href, title, meta, monoMeta = false, leading, tra
 			<span className='flex min-w-0 flex-1 flex-col gap-1'>
 				<span
 					title={title}
-					className='truncate text-sm leading-[1.3] font-semibold text-foreground'
+					className='break-words text-sm leading-[1.3] font-semibold text-foreground'
 				>
 					{title}
 				</span>
@@ -40,7 +40,7 @@ export function DashboardRow({ href, title, meta, monoMeta = false, leading, tra
 					<span
 						className={cn(
 							'text-slate-500 dark:text-muted-foreground',
-							monoMeta ? 'line-clamp-2 font-mono text-xs leading-normal font-medium ' : 'text-sm leading-[1.5]',
+							monoMeta ? 'break-words font-mono text-xs leading-normal font-medium ' : 'break-words text-sm leading-[1.5]',
 						)}
 					>
 						{meta}

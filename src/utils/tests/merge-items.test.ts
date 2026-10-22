@@ -51,8 +51,8 @@ describe('mergeItems', () => {
   })
 
   it('handles null/undefined quantity as 0', () => {
-    const base: MergeableItem[] = [{ name: 'Salt', quantity: null as any, unit: 'kg' }]
-    const tickets: MergeableItem[] = [{ name: 'salt', quantity: undefined as any, unit: 'kg' }]
+    const base: MergeableItem[] = [{ name: 'Salt', quantity: null as never, unit: 'kg' }]
+    const tickets: MergeableItem[] = [{ name: 'salt', quantity: undefined as never, unit: 'kg' }]
     const result = mergeItems(base, tickets)
     expect(result).toHaveLength(1)
     expect(result[0].quantity).toBe(0)

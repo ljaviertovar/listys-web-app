@@ -292,25 +292,26 @@ export function HeroSection() {
 								id='spark'
 								className='size-[13px] shrink-0 text-amber-500'
 							/>
-							Receipt to smart list in seconds
+							Receipt to reusable list
 						</div>
 						<h1 className='mt-5 max-w-[18ch] text-[clamp(44px,7vw,76px)] leading-none font-extrabold tracking-[-0.035em] text-slate-900 text-balance'>
 							Never write the same shopping list twice.
 						</h1>
 						<p className='mt-6 max-w-[39em] text-[clamp(18px,1.8vw,20px)] leading-[1.55] font-medium text-slate-600'>
-							Photograph a receipt you already have. Listys turns it into a list your household can reuse, share, and
-							check off in the aisle.
+							Photograph a receipt you already have. Listys reads the items so you can review them and choose what to add to
+							a reusable list.
 						</p>
 						<div className='mt-7 flex flex-wrap items-center justify-center gap-3'>
 							<ButtonLink
 								size='xl'
+								variant='hero'
 								href='/auth/signup'
 							>
 								Create Free Account <Icon id='arr' />
 							</ButtonLink>
 						</div>
 						<ul className='mt-5 flex flex-wrap justify-center gap-x-5 gap-y-2'>
-							{['Free to get started', 'No credit card required', 'Works for any store'].map(point => (
+							{['Free to get started', 'No credit card required', 'Use a clear receipt photo'].map(point => (
 								<li
 									key={point}
 									className='flex items-center gap-2 text-sm text-slate-500'
@@ -325,7 +326,7 @@ export function HeroSection() {
 						</ul>
 					</div>
 
-					<div className='relative mx-auto flex min-h-[610px] w-[min(680px,100vw)] items-start justify-center'>
+					<div className='relative mx-auto flex min-h-[610px] w-[min(680px,100%)] items-start justify-center'>
 						<div className='absolute top-5 left-1/2 w-[min(270px,68vw)] -translate-x-[76%] opacity-95 min-[630px]:top-7 min-[630px]:left-[calc(50%_-_307px)] min-[630px]:w-[270px] min-[630px]:translate-x-0'>
 							<div className='drop-shadow-[0_20px_30px_rgba(15,23,42,0.16)] min-[1100px]:-rotate-3'>
 								<div className='receipt-torn relative rounded-t-[10px] bg-white px-[18px] pt-5 pb-[24px] font-mono text-[11.5px] leading-[1.7] text-slate-700'>

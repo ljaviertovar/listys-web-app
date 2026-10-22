@@ -10,7 +10,7 @@ meta:
   productSource: "docs/prd/PRD-v2.md"
   implementationSource: "src/app/globals.css and application-owned components"
   status: "Target canonical; implementation gaps are listed in section 11"
-  designSource: "Canvas artifact 'Listys - System Design' (https://claude.ai/artifact/XAzqD9iuotfD7udDqiVwhn): Design system v2 (boards Design-system-v2 1/2 and Design-system-v2-b 2/2) and the A1 / A1 mobile boards"
+  designSource: "docs/design/listys-design-system-v2.html (canonical visual reference; four sections covering foundations, controls, feedback/navigation/data, and product patterns/mobile A1)"
 
 colors:
   ink: "#0F172A"
@@ -222,7 +222,7 @@ components:
     backgroundColor: "{colors.primary}"
     textColor: "{colors.paper}"
     rounded: "{rounded.control}"
-    height: "44px (xl, the library's own; primary below md is default 36px)"
+    height: "44px (xl, the library's own; primary is 40px on phones by product decision)"
     padding: "0 24px"
   button-hero:
     backgroundColor: "{colors.primary}"
@@ -286,7 +286,7 @@ components:
     rounded: "12px"
   mobile-tab-bar:
     backgroundColor: "{colors.paper}"
-    height: "80.5px plus the safe-area inset when larger than 18px"
+    height: "78px plus the safe-area inset when larger than 18px"
   session-pill:
     backgroundColor: "{colors.ink}"
     textColor: "{colors.paper}"
@@ -298,16 +298,16 @@ components:
 
 ## Overview
 
-**Status:** Target canonical. This document owns Listys' visual language and interaction treatment. The current product is
-partially aligned; section 11 records the migration work without redefining the target around accidental implementation
-details. Its visual values follow the **Design system v2** canvas ("soft surfaces", artboards 1/2 and 2/2) and the A1 and
-A1 mobile dashboard boards; where the product has not caught up, the gap is listed in section 11.4.
+**Status:** Target canonical. The [Design system v2 HTML](listys-design-system-v2.html) is the canonical visual source for
+new and redesigned interfaces. This document is its written specification and code mapping: it records interaction
+rules, implementation details, and gaps without redefining the target around accidental implementation details. The
+current product is partially aligned; section 11.4 records the migration work. When the HTML and this document disagree,
+the HTML wins for the target look and this document is updated in the same change. See the development rule in
+[`AGENTS.md`](../../AGENTS.md#design-system-v2-source-for-new-components).
 
-**Source canvas:** the "Listys - System Design" artifact (https://claude.ai/artifact/XAzqD9iuotfD7udDqiVwhn), boards
-`Design-system-v2` (1/2: tokens, native shadcn scale, buttons, forms, cards) and `Design-system-v2-b` (2/2: feedback,
-navigation, data, mobile A1). Every new component is built from these boards (rule in `AGENTS.md`, "Design System v2").
-When a board and this document disagree, the board wins for the target look and this document is updated in the same
-change.
+**Visual source:** [`listys-design-system-v2.html`](listys-design-system-v2.html), with four navigable sections covering
+foundations and typography, buttons/chips/forms/cards, feedback/navigation/data, and product patterns/mobile A1. Inspect
+the relevant examples before implementation and visual validation.
 
 **Product premise:** Listys turns receipts into reusable household memory. A receipt is an input signal, not the final
 product; the lasting object is a shopping list that becomes easier to use after every trip.
@@ -604,10 +604,10 @@ their original content. On completed sessions, the screen becomes a record: dest
 dot), a progress card (24px radius; "Collected", "1 of 4 items" and the percentage in mono at 24px, blue and green at 100%, over an
 8px bar), a row of two secondary buttons (`Share`, `Add Item`) and one card with a collapsible section per category (section 7.7).
 The count at the right of each category is `done/total` in mono and turns green when the category is complete. The session's own
-actions are one small floating `Actions` button (40px, white, blue label, a cart icon and a chevron) at the bottom right above the tab
-bar, away from the raised upload button. It opens a menu with `Complete Shopping` and, apart, `Cancel Shopping` in red. From `lg` the
-button is replaced by two buttons beside the title (`Cancel Shopping` soft red, `Complete Shopping` primary) and the content is capped at
-768px. The session bar of section 6.5 is not shown here: this screen is where it leads.
+actions sit above the tab bar, away from the raised upload button: `Complete Shopping` is the primary action and `Cancel Shopping` is a
+separate destructive-soft action. Both are explicit, 44px controls on phones so completion does not hide behind a generic menu. From `lg`
+the actions sit beside the title (`Cancel Shopping` soft red, `Complete Shopping` primary) and the content is capped at 768px. The session
+bar of section 6.5 is not shown here: this screen is where it leads.
 
 `Complete Shopping` opens a sheet (section 7.12): with items still unticked it says how many ("You still have 3 unchecked items…"); with
 all of them ticked its title is "All Items Checked" and a green stroke icon replaces any celebratory emoji. Both offer "Sync changes
@@ -627,7 +627,7 @@ that were bought, without checkboxes or menus.
 
 ### 6.5 Dashboard and phone shell (design A1)
 
-The dashboard and the phone shell follow the A1 and A1 mobile boards of the canvas. Their values take precedence over the
+The dashboard and the phone shell follow the A1 desktop and mobile patterns in the [Design system v2 HTML](listys-design-system-v2.html). Their values take precedence over the
 generic scale on this surface. They are expressed with the native props and tokens of `src/components/ui/` (section 11.5) and
 the shell in `src/components/app/mobile-tab-bar.tsx`.
 
@@ -679,11 +679,11 @@ a failed request must not look like an empty account. The photo behind the heroe
 | --- | --- | --- |
 | Page title | 24px (`text-2xl`) | 30px (`text-3xl`) from `md`, 36px (`lg:text-4xl`) on desktop |
 | Hero and session title | 20px (`text-xl`) | 30px (`text-3xl`) from `md` |
-| Primary action (`size='primary'`) | 36px, 14px (`default`) | 40px, 14px from `md` (`lg`) |
+| Primary action (`size='primary'`) | 40px by product decision | 44px from `md` |
 | Hero button | 52px; hero card action 40px (`lg`) | 52px; hero card action 44px (`xl`) |
 | Quick-start chips | 36px / 12.5px | 36px / 12.5px |
-| Empty-state button | `primary`, 36px / 14px | `primary`, 40px / 14px |
-| "View All" | 32px / 12px | 40px / 14px |
+| Empty-state button | `primary`, 40px / 14px | `primary`, 44px / 14px |
+| "View All" | 40px / 14px | 44px / 14px |
 | Header | 60px | 64px (`lg`) |
 | Tab bar and session pill | Shown | Hidden (`lg`) |
 | Header "Upload Receipt" | Hidden | Shown (`lg`) |
@@ -718,13 +718,14 @@ descriptions, badges, toasts and list or receipt data keep sentence case.
 | `default` | 36px below `md`, 40px from `md` | 0 12px, then 0 16px from `md`; 14px / 600, 6px gap (the default size) |
 | `lg` | 40px | 0 16px, 14px / 600 |
 | `xl` | 44px | 0 24px, 16px / 600 (the library's own xl; toolbars and sheet footers from `md`) |
-| `primary` | 36px below `md`, 40px from `md` | The primary action of a screen, sheet or form: `default` on phones, `lg` from `md` (see section 11.5) |
+| `primary` | 40px below `md`, 44px from `md` | The primary action of a screen, sheet or form; compact mobile height is a product decision (see section 11.5) |
+| `link-action` | 40px below `md`, 44px from `md` | A link rendered as a button action; follows the compact mobile height |
 | `hero-action` | 40px below `md`, 44px from `md` | The dashboard hero card action: `lg` on phones, `xl` from `md` |
 | `2xl` (hero) | 52px | 0 28px, Plus Jakarta Sans 700 16px, 10px gap, 18px icon |
 | Icon only | 36 to 48px | 18px icon; the raised tab-bar action is 48x48 with a 16px radius |
 
-Touch: standard buttons use `default` (36px) below `md` and `lg` (40px) from `md`; `primary` follows the same responsive sizing for main actions. Use `sm` only inside dense rows that provide a 44px hit area.
-The visual height is not the hit area: every control keeps at least a 44x44px target (section 10.2).
+Touch: standard buttons use `default` (36px) below `md` and `lg` (40px) from `md`; `primary` and link actions are 40px on phones and 44px from `md`. The marketing `ButtonLink` compact CTA follows the same responsive height. Use `sm` only inside dense rows that provide a 44px hit area.
+Most controls keep at least a 44x44px target (section 10.2). The mobile `primary` and `link-action` sizes are explicit 40px product exceptions; they do not claim an expanded hit area.
 
 The **hero call to action** and the **raised tab-bar action** carry a highlight layer: a top-lit gradient, white at 18-20%
 fading to transparent, over `#2563EB`, with the blue glow shadow (`hero-cta`) and, for the hero, a 1px lift on hover. They
@@ -837,7 +838,7 @@ A receipt that was read but has no items (completed, 0 items found) keeps its it
 
 ### 7.7 Group and base-list card
 
-The Lists section (design boards "Lists mobile") has four screens built from one set of pieces in `components/commons`
+The Lists section (the "Lists mobile" pattern in the design reference) has four screens built from one set of pieces in `components/commons`
 (`EntityCard`, `EntityEditCard`, `CreateEntitySheet`, `ConfirmSheet`, `ListToolbar`, `EmptyStateCard`, `CategorySection`, `RowMenu`).
 
 - **Groups and lists.** After the A1 header, a toolbar row: the mono count ("3 groups") at the left and the screen's one creation
@@ -889,18 +890,18 @@ The active sidebar item sits on the secondary-button surface (`#E9ECF0`) with bl
 solid-blue block. Entries are 36px high on one line with an 8px radius, an 18px icon (slate; blue on the current page) and a
 14px label (inactive `#334155`, 400; current 600); counts are 22px chips. Group titles are 14px semibold ink, not uppercase.
 
-Below `lg` the sidebar is replaced by a bottom tab bar (approved design "A1 mobile"): five equal slots, Dashboard, Lists, a
+Below `lg` the sidebar is replaced by a bottom tab bar (the "A1 mobile" pattern): five equal slots, Dashboard, Lists, a
 raised 48px **Upload Receipt** button (`fab`, `icon-2xl`, 16px radius) in the middle, Receipts and History.
 
 | Piece | Spec |
 | --- | --- |
 | Bar | White, a hairline on top and a soft upward shadow; padding `4 8 18` (the bottom grows to the device's safe-area inset when larger); pinned to the bottom edge of the screen; hidden from `lg` |
-| Content clearance | The scrolling content carries a bottom padding equal to the bar's height (80.5px) so its last row stays reachable; surfaces pinned to the bottom edge sit above it (`ABOVE_MOBILE_TAB_BAR` in `src/components/app/helpers/mobile-tab-bar-layout.ts`) |
-| Tab | Height follows its content (44px minimum hit area, `min-h-11`), so every tab is the same height and the bar never changes height; 24px icon at stroke 1.5, 12px label (`text-xs`), 12px radius |
+| Content clearance | The scrolling content carries a bottom padding equal to the bar's height (78px plus any safe-area inset beyond 18px) so its last row stays reachable; surfaces pinned to the bottom edge sit above it (`ABOVE_MOBILE_TAB_BAR` in `src/components/app/helpers/mobile-tab-bar-layout.ts`) |
+| Tab | 56px high (`min-h-14`), with a 24px icon at stroke 1.5, a 12px label (`text-xs`), and 12px radius; all five slots keep the same height |
 | Current tab | `#E9ECF0` surface, `#1D4ED8` text and weight 600, with no extra marker (`aria-current="page"`); inactive tabs are `slate-500`, weight 500. Lists stays current on a list and on a shopping session, whose paths start with `/base-lists` and `/shopping/` |
 | Raised action | 58x58, 16px radius, primary with the highlight layer, a 6px white ring plus the blue glow, 24px above the bar edge, 26px icon, `aria-label` "Upload a receipt" |
 
-The desktop sidebar follows the A1 desktop board (the shadcn floating sidebar): a white card with a 12px radius and a
+The desktop sidebar follows the "A1 desktop" pattern (the shadcn floating sidebar): a white card with a 12px radius and a
 hairline ring, 240px wide inside 8px margins on the page ground. It opens with the brand (the Listys mark at 32px, "Listys" in
 Jakarta 600 14 and "Reuse lists. Shop together." in 12px muted, a 64px block that links home), then the three groups (Shopping,
 Management, Settings), each with its title and its entries inset by 6px. Receipts carry an amber count pill (how many are still
@@ -1030,7 +1031,7 @@ links or meaningful glyphs on light surfaces.
 
 - Interactive targets are at least 44×44px in shopping, upload, and mobile navigation flows. A control may look smaller
   (`sm` 32px, `default` 36px) only when its row or padding supplies a 44px hit area. The documented compact controls below `md`
-  are the "View All" links (32px) and the "Start" pills (32px); the primary action of a screen is `primary` (36px below `md`, 44px from `md`), and the empty-state button is `primary` too; the "Start" pills (32px) and the quick-start chips (36px) are
+  are the "View All" links (32px) and the "Start" pills (32px); the primary action of a screen is `primary` (40px below `md`, 44px from `md`), and the empty-state button is `primary` too; the "Start" pills (32px) and the quick-start chips (36px) are
   compact at every width (section 6.5). They remain deliberate product decisions.
 - Keyboard focus uses a 2px action-blue ring with a 2px offset; do not remove it in favour of colour change alone.
 - Drag-and-drop always has a file-picker equivalent. Reordering always has a keyboard or menu alternative.
@@ -1165,28 +1166,32 @@ These are remaining implementation notes, not permission for two systems:
    arbitrary radius or hex. The marketing root restores the pre-A1 values for the landing page. Still open: `--border`/`--input` as
    hairlines and the sidebar tokens.
 2. **Buttons (done, see 11.5):** `ui/button.tsx` carries the sizes (24, 32, 36, 40, 44 and 52px), the 12px radius, the Plus Jakarta
-   label and the `secondary`, `destructive`, `destructive-soft`, `success-soft`, `hero` and `fab` variants. Still open: the tertiary
-   variant, and the highlight layer is still on every primary instead of only the hero and the raised action.
-3. **Canvas boards:** the boards and the design system still draw the labels of buttons and links in sentence case ("View all",
+   label and the `secondary`, `destructive`, `destructive-soft`, `success-soft`, `hero` and `fab` variants. The highlight layer is
+   limited to the hero CTA and raised tab action; standard primary buttons and the lower-page marketing CTA stay flat. The tertiary
+   variant remains open.
+3. **HTML reference examples:** the visual reference draws the labels of buttons and links in sentence case ("View all",
    "Start shopping", "Sign out", "New group"); the code follows the Title Case rule of section 7.1. They also still draw "View all" at 40px and the empty-state buttons at 44px, the new-account
    hero button at 52px, and an "Up Next" "View all" link; this document and the code use the compact phone sizes and no
    "Up Next" link. The "Invite family" row of "Up Next" is not produced by the dashboard model, and the quick-start chips
-   exclude the list the hero button starts (the boards show all lists).
+   exclude the list the hero button starts (the HTML examples show all lists).
 3a. **Lists:** the Lists screens implement the phone designs (groups, lists, items, share, start, session, session bar) and degrade on desktop to the
    same toolbar and cards, with the items and the session capped at 768px. Gaps: `Undo` after deleting an item adds it again (new id) because the API has no restore;
-   units show as stored (`l`, `unit`) where the boards draw `L`; "Revoke" keeps the existing behaviour (people who joined keep access until removed) and says so;
+   units show as stored (`l`, `unit`) where the HTML examples draw `L`; "Revoke" keeps the existing behaviour (people who joined keep access until removed) and says so;
    the toast of `Undo` appears at the top (`Toaster` position) and not above the tab bar; and the session bar needs a second request for its count when the page changes.
 3b. **Receipts:** the receipt screens implement the phone and desktop designs. Gaps: the upload form shows an indeterminate progress line, not the
-   per-photo progress ("1 of 2 photos uploaded") of the mockups, because the photos go up in one request; and the receipt list has no filter or search.
-3c. **Authentication:** sign in and sign up implement the "Auth" boards of the canvas (B desktop, C mobile; `features/auth/`): a white panel with the form beside a photo panel from `lg`, and the photo header with the form on a white sheet below it. Each mode uses its own 1280px banner (`public/images/auth/signin-banner.webp` or `signup-banner.webp`). The mode switch is a segmented `Button variant='segment' size='touch'` pair of links; fields are the white `Input size='lg'` of the other forms. Gaps: "Forgot Password?" links to `/auth/reset-password`, which does not exist yet; labels keep the app's 20px line height where the boards draw 17px (the form is 3px taller per label); desktop fields are 14px where the boards draw 15px; the submit button keeps the highlight layer of every primary (gap 2); "Back to Home" is slate, the boards draw it in ink.
-4. **Dark mode:** `Card` is the 24px borderless surface everywhere now; v2 dark values are not defined in the canvas and the new
+   per-photo progress ("1 of 2 photos uploaded") of the HTML examples, because the photos go up in one request; and the receipt list has no filter or search.
+3c. **Authentication:** sign in and sign up implement the existing Auth desktop/mobile references (`features/auth/`): a white panel with the form beside a photo panel from `lg`, and the photo header with the form on a white sheet below it. Each mode uses its own 1280px banner (`public/images/auth/signin-banner.webp` or `signup-banner.webp`). The mode switch is a segmented `Button variant='segment' size='touch'` pair of links; fields are the white `Input size='lg'` of the other forms. Gaps: labels keep the app's 20px line height where the reference draws 17px (the form is 3px taller per label); desktop fields are 14px where the reference draws 15px; "Back to Home" is slate, the reference draws it in ink. Recovery and legal links stay out of the UI until their destinations and approved content exist.
+3d. **Active-session actions:** by product decision, phones keep one floating 44px `Actions` trigger with separate `Complete Shopping`
+   and `Cancel Shopping` menu items, each with a 44px target; both open the existing owner-checked confirmation sheets. From `lg`, the
+   two actions remain inline beside the title.
+4. **Dark mode:** `Card` is the 24px borderless surface everywhere now; v2 dark values are not defined in the HTML and the new
    tokens (`--secondary-hover`, shadows) only keep dark mode valid, so it is deferred until it is reviewed.
 5. **Colour discipline:** marketing, authentication, shopping categories, and statuses use independent violet, pink, green,
    amber, sky, and slate utilities. Consolidate them into the semantic palette above.
-6. **Marketing motion:** `hero-mesh`, floating elements, pulsing arrows, and the looping scan line exceed the target motion
-   rules. Keep one receipt-to-list transformation and remove ambient loops.
-8. **Claims:** current marketing constants include “99% OCR accuracy” and “4.9/5 App store rating.” Remove them unless a
-   maintained evidence source exists.
+6. **Marketing motion:** `hero-mesh`, floating elements, pulsing arrows, and the scan line exceed the target motion rules. The scan now
+   plays once and settles; audit the remaining ambient effects before changing their established landing-page composition.
+8. **Claims:** unsupported OCR-accuracy, universal-store compatibility and review/rating claims have been removed from the visible
+   marketing copy. Reintroduce a measured claim only with a maintained evidence source.
 9. **Radius/elevation:** the roles of section 5.1 map onto the native radius scale (11.5); marketing keeps its own 6px base.
 10. **Icons:** Hugeicons and Lucide coexist. Standardize feature by feature, never by replacing icons without reviewing
    optical size and accessible labels.
@@ -1200,7 +1205,8 @@ These are remaining implementation notes, not permission for two systems:
     Mock-up internals on the landing page (the receipt paper, the phone screen, the list rows) keep their own small illustrative
     sizes and are not part of the scale.
 13. **Copy:** product UI and documentation mix “ticket,” “receipt,” “shopping run,” and “shopping session.” User-facing
-   English uses `receipt` and `shopping session`; internal legacy names may remain until safely migrated.
+   English uses `receipt` and `shopping session`; internal legacy names may remain until safely migrated. Profile and Account describe
+   the sign-in method in plain language and wrap long values on phones.
 
 Migrate one vertical flow at a time: primitives and tokens, app shell, active shopping, receipts/OCR, lists and history,
 authentication, then marketing. Each flow should be visually complete in light/dark and mobile/desktop before the next begins.
@@ -1216,7 +1222,8 @@ The design is implemented with shadcn's native props and Tailwind's own scale; a
 | Button `weight` | `default` semibold · `medium` (the landing header's lighter label) | `ui/button.tsx` |
 | Icon button `size` | `icon` 36 · `icon-xs` 24 · `icon-sm` 32 · `icon-lg` 40 · `icon-xl` 44 · `icon-2xl` 48 (raised tab-bar action) | `ui/button.tsx` |
 | Button `variant` | `default`, `secondary` (`--secondary`, blue text), `outline`, `ghost`, `destructive`, `destructive-soft`, `success-soft`, `hero` (glow, lift), `fab`, `link`; quiet row/icon actions `quiet`, `quiet-destructive`, `destructive-ghost`, `ghost-primary` (a blue text action such as "View All"), `floating` (the session Actions button); the dark viewer's `on-dark`, `viewer`, `overlay`; the drop target `dropzone` | `ui/button.tsx` |
-| Button `size` on phones | Standard buttons use the library's `default` (36px, `px-3`, `gap-1.5`) below `md` and `lg` (40px, `px-4`, `gap-1.5`) from `md` up. `primary` uses the same scale for the main action of a screen, sheet or form. The dashboard hero card action uses `hero-action`: `lg` (40px) on phones and `xl` (44px) from `md`. `sm`, icon, hero and content-driven sizes keep their own scale. One size, two breakpoints, no hook | `ui/button.tsx` |
+| Button `size` on phones | Standard buttons use the library's `default` (36px, `px-3`, `gap-1.5`) below `md` and `lg` (40px, `px-4`, `gap-1.5`) from `md` up. `primary` and `link-action` are 40px on phones by product decision and 44px from `md`; `mobile-action` remains 44px for mobile session controls. The dashboard hero card action uses `hero-action`: `lg` (40px) on phones and `xl` (44px) from `md`. `sm`, icon, hero and content-driven sizes keep their own scale. One size, two breakpoints, no hook | `ui/button.tsx` |
+| Marketing `ButtonLink` compact CTA | `size='sm'` is 40px below `md` and 44px from `md`, matching shared primary actions; do not add a phone-only 44px minimum-height override | `marketing/landing-page/commons/button-link.tsx` |
 | Title roles on phones | Below `md` the page heading (`h1`, the screen header and the dashboard greeting) is `text-2xl` (24px); from `md` it is `text-3xl` and `lg:text-4xl` as before. The hero and session title (the dashboard hero, the no-session banner) is `text-xl` (20px) below `md` and `text-3xl` from `md`. Card names stay `text-base`, metadata `text-xs`. Receipt and group cards use `p-3 gap-2` below `md` and `p-4 gap-3` from `md`; they are plain elements, not `Card`, so their padding is a responsive class on the element | `app/`, `components/` |
 | Button `size` (content height) | `block`: `h-auto`, several lines, 24px padding (drop targets) | `ui/button.tsx` |
 | Button `rounded` | `xl` by default (12px); `md`, `lg`, `2xl`, `3xl`, `full` | `ui/button.tsx` |
@@ -1247,7 +1254,7 @@ they come from the variants above, and the guard flags `space-y-4`, `gap-3` or `
 with their reason in `src/test/native-props-allowlist.ts` (five custom interactive surfaces: the receipt-photo card row, the photo
 thumbnails, the remove-photo hit area, the session bar and the tab-bar tab).
 
-Differences from the boards that follow from the scale: form fields and sheet actions are 44px instead of 48 (xl carries `px-6` and 16px text, so the confirm footers of the sheets stack), the hero call to
+Differences from the HTML examples that follow from the scale: form fields and sheet actions are 44px instead of 48 (xl carries `px-6` and 16px text, so the confirm footers of the sheets stack), primary buttons are 40px on phones by product decision, the hero call to
 action is 52px at every width, the dashboard's Start pills and empty-state buttons use the standard sizes, and the date pill and
 status chips are `Badge` variants. Menu items are 44px (the sessions menu drew 48), the arrows over the photo viewer are 48 (`icon-2xl`,
 drawn 52), "View All" is 32px at every width, and `Label` keeps the 20px line height of `text-sm`. Dark mode is deferred (11.4).

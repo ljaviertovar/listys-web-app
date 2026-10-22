@@ -2,7 +2,8 @@ import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
 
-import { AddItemSheet, ItemQuantityChip, itemFormSchema, unitOptions } from '@/components/features/list-items'
+import { AddItemSheet, ItemEditForm, ItemQuantityChip, itemFormSchema, unitOptions } from '@/components/features/list-items'
+import { AddItemForm } from '../add-item-form'
 
 // The add form reads the App Router when it is opened; the sheet is closed here.
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }) }))
@@ -67,5 +68,34 @@ describe('AddItemSheet', () => {
 		const html = renderToStaticMarkup(createElement(AddItemSheet, { target: { context: 'shopping-session', sessionId: 's1' } }))
 
 		expect(html).toContain('data-testid="add-item-button-shopping-session"')
+	})
+})
+
+describe('AddItemForm', () => {
+	it('uses Done when there is no draft and explains why a locked list cannot change', () => {
+		const empty = renderToStaticMarkup(
+			createElement(AddItemForm, { target: { context: 'base-list', baseListId: 'l1' }, onCancel: () => {} }),
+		)
+		const locked = renderToStaticMarkup(
+			createElement(AddItemForm, { target: { context: 'base-list', baseListId: 'l1' }, isLocked: true, onCancel: () => {} }),
+		)
+
+		expect(empty).toContain('>Done</button>')
+		expect(locked).toContain('A shopping session is using this list. Make changes in that session, or finish it to edit this base list.')
+	})
+})
+
+describe('ItemEditForm', () => {
+	it('labels the save action by its effect', () => {
+		const html = renderToStaticMarkup(
+			createElement(ItemEditForm, {
+				item: { id: 'item-1', name: 'Orange Juice', quantity: 1, unit: 'pcs' },
+				onSubmit: async () => {},
+				onCancel: () => {},
+			}),
+		)
+
+		expect(html).toContain('Save Changes')
+		expect(html).not.toMatch(/>Save<\/button>/)
 	})
 })

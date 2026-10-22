@@ -1,8 +1,8 @@
-/** Turns a Supabase auth error into a sentence that says what to repair; unknown messages pass through unchanged. */
+/** Maps known auth errors to a useful repair and keeps provider details out of user-facing copy. */
 export function describeAuthError(message: string | undefined, fallback: string): string {
 	if (!message) return fallback
 	if (/invalid login credentials/i.test(message)) {
-		return 'Invalid login credentials. Check your email and password, then try again.'
+		return 'We couldn’t sign you in. Check your details and try again.'
 	}
-	return message
+	return fallback
 }

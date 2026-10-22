@@ -27,7 +27,7 @@ La sesión de Google acabó en Vercel incluso al iniciar el OAuth desde la app l
 
 ### 1. Orden mobile first y alcance por flujos
 
-Se acepta primero a 320×568, 390×844 y 430×932. La comprobación de altura reducida usa 390×568; tablet 768×1024 y escritorio 1280×900 son controles de compatibilidad posteriores. La anchura emulada no demuestra teclado virtual, touch, VoiceOver, Safari ni áreas seguras físicas: esas validaciones tienen filas propias en [verification.md](verification.md).
+Se acepta primero a 320×568, 390×844 y 430×932. La comprobación de altura reducida usa 390×568; tablet 768×1024 y escritorio 1280×900 son controles de compatibilidad posteriores. Por decisión del usuario, las validaciones que requieren otro dispositivo físico (teclado virtual, cámara, touch/gestos y VoiceOver/TalkBack móvil) quedan fuera de alcance; el resto de viewports y safe areas se verifica en el navegador local cuando su emulación está disponible. El resize no se presenta como validación física.
 
 Orden de aplicación: primitivas y foco → shell/barras → compra activa → recibos → grupos/listas/historial → cuenta/auth → marketing/offline. Cada lote termina con sus casos móviles antes de ampliar a escritorio. Se conserva el layout de escritorio existente salvo ajustes necesarios para evitar regresiones.
 
@@ -37,7 +37,7 @@ Alternativa descartada: pulir escritorio y comprimirlo después; no representa e
 
 Mantener superficies paper/canvas, acción azul, scan cyan solo para lectura/transformación, Jakarta/Inter y mono para datos. Antes de editar, consultar las secciones 6–10 de `DESIGN.md` y el board correspondiente si está disponible. Reutilizar componentes instalados antes de crear otro patrón.
 
-La fidelidad al board no exime contraste, foco, semántica ni tamaño táctil. El documento v2 permite algunos controles compactos y exige simultáneamente objetivos táctiles de 44 px. Se conserva la apariencia compacta únicamente si el área real activable alcanza 44×44 px sin pisar controles vecinos; si eso no es viable, usar un tamaño táctil compartido. No afirmar que 32/36 px viola automáticamente WCAG 2.2 AA: el mínimo WCAG y sus excepciones son distintos del requisito de producto de 44 px.
+La fidelidad al board no exime contraste, foco ni semántica. El objetivo general de Listys es 44×44 px, con una excepción de producto solicitada por el usuario: los tamaños compartidos `primary` y `link-action` miden 40 px de alto en móvil y 44 px desde `md`. No se les atribuye un hit area expandido de 44 px. Los demás controles táctiles mantienen el objetivo general y no deben solaparse. No afirmar que 32/36 px viola automáticamente WCAG 2.2 AA: el mínimo WCAG y sus excepciones son distintos del requisito de producto de 44 px.
 
 Cambiar mediante variantes/props/tokens de `ui/`, no mediante apariencia en `className` de cada consumidor. Los componentes de app deben seguir exponiendo identificadores semánticos estables; los reutilizables con significado variable aceptan `testId`. La implementación actualizará `DESIGN.md`, incluidas 11.4/11.5, cuando cambie una excepción documentada; este paquete no lo modifica.
 
@@ -47,7 +47,7 @@ Alternativa descartada: mantener cada detalle del dibujo aunque perjudique al us
 
 Auditar juntas tab bar, FAB de subida, barra de sesión, selección OCR, acciones de compra y toaster. Corregir en `mobile-tab-bar-layout.ts`, variantes compartidas y reservas de los contenedores, en lugar de sumar offsets distintos por pantalla. La barra de sesión no puede cruzarse con el FAB ni la selección ocultar la última fila. El foco desplazado debe quedar dentro de la zona visible entre header y barras.
 
-En compra, sustituir el acceso genérico «Actions» por una acción principal explícita «Complete Shopping» accesible directamente desde abajo; mantener «Cancel Shopping» como secundaria mediante el patrón de confirmación existente. No cambiar los handlers ni las condiciones de propietario.
+En compra móvil, conservar el único botón flotante «Actions» y sus opciones separadas «Complete Shopping» y «Cancel Shopping». Las opciones mantienen targets táctiles de 44×44 px y abren sus confirmaciones existentes sin ejecutar la operación al seleccionarlas. Mantener los dos controles actuales junto al título en escritorio; no cambiar handlers ni permisos del propietario.
 
 Alternativa descartada: añadir otra barra permanente sin revisar las ya presentes; aumentaría la congestión en teléfonos de poca altura.
 

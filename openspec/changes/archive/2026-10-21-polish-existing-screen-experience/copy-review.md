@@ -1,6 +1,6 @@
 # Revisión de copy
 
-Propuestas para la primera iteración; no se han aplicado. Inglés de producto, explicación en español. Los ejemplos de cantidad se pluralizan con los datos actuales; no son valores fijos. El catálogo cubre tanto mensajes visibles como textos hallados en código, con procedencia en `audit.md`.
+Catálogo de copy de la primera iteración. Inglés de producto, explicación en español. Los ejemplos de cantidad se pluralizan con los datos actuales; no son valores fijos. El catálogo cubre tanto mensajes visibles como textos hallados en código, con procedencia en `audit.md`; los cambios aplicados y pendientes se registran en `tasks.md` y `verification.md`.
 
 | ID | Contexto y texto actual | Texto propuesto | Motivo / condición |
 | --- | --- | --- | --- |
@@ -21,7 +21,7 @@ Propuestas para la primera iteración; no se han aplicado. Inglés de producto, 
 | C15 | Grupo: “View Details” | “View Lists”, con nombre accesible “View Lists in [group]”. | La acción abre sus listas; distinguir de historial. |
 | C16 | Lista: “View Items” | Conservar, con nombre accesible “View Items in [list]”. | Destino reconocible también fuera del contexto visual. |
 | C17 | Lista bloqueada: “This list is locked because it is being shopped right now.” | “A shopping session is using this list. Make changes in that session, or finish it to edit this base list.” | Explica el motivo y una salida existente. Presentar un enlace de continuación solo cuando ya se dispone del destino. |
-| C18 | Compra móvil: botón “Actions” | Acción principal “Complete Shopping”; secundaria “Cancel Shopping”. | El usuario identifica el siguiente paso sin abrir un menú genérico. |
+| C18 | Compra móvil: botón “Actions” | Conservar el trigger “Actions”; dentro del menú, “Complete Shopping” y “Cancel Shopping” permanecen como opciones separadas y con targets táctiles suficientes. | Mantiene el control móvil existente y permite distinguir las consecuencias antes de abrir su confirmación. |
 | C19 | Compra: trigger “Complete Shopping”, confirmación “Complete Session”, carga “Completing…” | “Complete Shopping” → “Complete Shopping?” → “Completing Shopping…” | Una sola acción y vocabulario estable. Mantener el título de éxito cuando todo está marcado, sin afirmar que ya se guardó. |
 | C20 | Confirmación con pendientes: pregunta genérica | “2 items are still unchecked. Complete shopping and save the items you collected to your history?” | Describe lo que se guarda según la vista histórica actual; comprobar contra el contrato, no cambiar qué se persiste. |
 | C21 | Sync: “Sync changes back to base list” | “Update the Base List” y “Apply this session’s changes to your reusable list.” | Evita prometer qué campos concretos cambian sin verificar la RPC. Mantener el checkbox y su valor por defecto actual. |

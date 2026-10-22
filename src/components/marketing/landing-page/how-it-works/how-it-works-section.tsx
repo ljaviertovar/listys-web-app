@@ -22,7 +22,7 @@ const STEPS: Step[] = [
 		points: [
 			'Up to five photos in a single upload',
 			'Extraction runs while you do something else',
-			'Nothing is saved until you have looked at it',
+			'Review extracted items before adding them to a base list',
 		],
 		flip: true,
 		visual: (
@@ -38,11 +38,11 @@ const STEPS: Step[] = [
 	{
 		num: '02',
 		title: 'Keep it as a list you reuse',
-		lede: 'You see every line before anything saves. Then it merges into a base list — the object you actually keep — matching repeats by name so one thing never becomes two rows.',
+		lede: 'Review the extracted items, then choose what to add to a base list. Repeated items merge by name so they don’t create duplicate rows.',
 		points: [
-			'Every name, quantity and price stays editable',
+			'Compare extracted items with your receipt before adding them',
 			'Repeats merge by name instead of stacking up',
-			'We aim for 99% accuracy on a legible receipt',
+			'Choose which items to add to a new or existing list',
 		],
 		visual: (
 			<Image

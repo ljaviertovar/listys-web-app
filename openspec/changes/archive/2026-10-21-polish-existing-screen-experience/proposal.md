@@ -4,7 +4,7 @@ Las pantallas existentes de Listys necesitan una pasada de preparación visual p
 
 ## What Changes
 
-- Priorizar **mobile first**: diseñar y aceptar primero a 320, 390 y 430 px; verificar alturas reducidas, teclado virtual, áreas seguras y expansión del texto; conservar la compatibilidad de tablet y escritorio.
+- Priorizar **mobile first**: diseñar y aceptar primero a 320, 390 y 430 px; verificar alturas reducidas, safe areas emulables y expansión del texto; conservar la compatibilidad de tablet y escritorio. Las comprobaciones que requieren otro dispositivo físico (teclado virtual, cámara, touch/gestos y VoiceOver/TalkBack móvil) quedan fuera de alcance por decisión del usuario.
 - Pulir shell, dashboard, grupos, listas base, compra activa, historial, recibos/OCR, visores, compartir, autenticación, perfil, cuenta y fallback offline existentes. Incluir sus formularios, menús, hojas, confirmaciones y estados de carga, vacío, error, bloqueo y solo lectura.
 - Corregir nombres accesibles, relaciones de formulario, foco, navegación por teclado, regiones de estado, enlaces y botones, jerarquía de encabezados y objetivos táctiles. Mantener las acciones de compra visibles y libres de las barras fijas.
 - Revisar copy con ejemplos antes/después y comprobar cada promesa contra la acción disponible: grupo frente a lista compartida, seleccionar frente a editar, cancelar frente a cerrar, total extraído frente a total pagado, subida frente a lectura.
@@ -32,4 +32,4 @@ Ninguna: `openspec/specs/` no contiene capacidades publicadas que haya que modif
 - El fixture no se modificará ni se incluirá en capturas compartidas. En esta revisión se envió después de confirmar con el usuario que el proyecto Supabase remoto era de pruebas y verificar que la app desplegada usaba el mismo proyecto configurado localmente. El frontend ejecutado fue Vercel; por tanto, la evidencia no certifica el árbol local sin cambios ni autoriza futuras escrituras a producción.
 - Sin cambios de APIs, esquemas, RLS, OAuth, persistencia, sincronización, OCR o reglas de negocio; sin migraciones, resets, despliegues ni nuevas dependencias por defecto. Los problemas que requieran esos cambios se derivan a la segunda iteración.
 - La sesión facilitada aterrizó en Vercel después de Google OAuth. La evidencia autenticada corresponde a ese despliegue; la revisión estática corresponde al árbol local con cambios previos. No se presume igualdad de versiones ni se certifica producción antes de aplicar y validar los ajustes sobre el mismo build.
-- Entrega actual: propuesta, diseño, delta specs, tareas y anexos de auditoría/copy/verificación. La implementación queda para una solicitud posterior.
+- La propuesta se implementa por lotes trazados en `tasks.md`; las decisiones aceptadas sobre tamaños de acción móvil y el menú «Actions» quedan especificadas en diseño y en la delta spec. El estado de aplicación y la evidencia pendiente se registran en `verification.md`.

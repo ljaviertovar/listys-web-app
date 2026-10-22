@@ -83,7 +83,7 @@ export function ShoppingSessionActions({ sessionId, checked, total, isOwner = fa
 							type='button'
 							data-testid='session-actions-button'
 							variant='floating'
-							size='lg'
+							size='xl'
 						>
 							<HugeiconsIcon
 								icon={ShoppingCart02Icon}

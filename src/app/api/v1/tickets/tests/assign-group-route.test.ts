@@ -17,7 +17,7 @@ describe('POST /api/v1/tickets/:ticketId/assign-group (deprecated)', () => {
   })
 
   it('returns deprecation headers and success payload', async () => {
-    mockedAssignTicketToGroup.mockResolvedValueOnce({ success: true } as any)
+    mockedAssignTicketToGroup.mockResolvedValueOnce({ success: true } as never)
 
     const response = await POST(
       new Request('http://localhost/api/v1/tickets/' + TICKET_ID + '/assign-group', {

@@ -40,14 +40,14 @@ export default function AuthButtons({ signedOut }: Props) {
 
 	if (loading) {
 		return (
-			<div className='flex justify-end gap-4'>
+			<div data-testid='site-auth-actions' className='flex justify-end gap-4'>
 				<Skeleton className='h-9 w-9 rounded-full' />
 			</div>
 		)
 	}
 
 	return (
-		<div className='flex justify-end gap-4'>
+		<div data-testid='site-auth-actions' className='flex justify-end gap-4'>
 			{user ? (
 				<UserNav user={user} />
 			) : signedOut ? (
@@ -56,17 +56,13 @@ export default function AuthButtons({ signedOut }: Props) {
 				// Only show Sign Up when not authenticated
 				<div className='flex items-center gap-4'>
 					<Button
+						asChild
 						size='primary'
 						rounded='md'
 						// The landing header keeps the lighter weight and the 4px corner it had before the app's A1 buttons.
 						weight='medium'
 					>
-						<Link
-							href='/auth/signup'
-							className='flex items-center gap-2'
-						>
-							Get Started
-						</Link>
+						<Link href='/auth/signup'>Get Started</Link>
 					</Button>
 				</div>
 			)}

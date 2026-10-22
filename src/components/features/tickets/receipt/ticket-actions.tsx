@@ -23,7 +23,7 @@ import type { Ticket } from '@/types'
 
 interface Props {
 	ticket: Ticket
-	/** A receipt that finished without items can be read again too: it shows "Try Again" like a failed one shows "Retry". */
+	/** A receipt that finished without items can be read again too. */
 	allowRetry?: boolean
 }
 
@@ -38,21 +38,20 @@ export function TicketActions({ ticket, allowRetry = false }: Props) {
 		try {
 			const { error } = await deleteTicket(ticket.id)
 			if (error) {
-				toast.error('Failed to delete receipt', {
-					description: error,
+				toast.error('Could not delete receipt', {
+					description: 'Check your connection and try again.',
 				})
 				return
 			}
-			toast.success('Receipt deleted successfully')
+			toast.success('Receipt deleted')
 			router.push('/tickets')
 		} catch (err) {
 			console.error('Failed to delete ticket:', err)
-			toast.error('Failed to delete receipt', {
-				description: err instanceof Error ? err.message : 'An unexpected error occurred',
+			toast.error('Could not delete receipt', {
+				description: 'Check your connection and try again.',
 			})
 		} finally {
 			setDeleting(false)
-			setShowDeleteDialog(false)
 		}
 	}
 
@@ -61,28 +60,26 @@ export function TicketActions({ ticket, allowRetry = false }: Props) {
 		try {
 			const { error } = await retryTicketOCR(ticket.id)
 			if (error) {
-				toast.error('Failed to retry OCR', {
-					description: error,
+				toast.error('Could not read receipt again', {
+					description: 'Check your connection and try again.',
 				})
 				return
 			}
-			toast.success('OCR processing started', {
-				description: 'The receipt is being reprocessed. This may take a few moments.',
-			})
+			toast.success('Reading receipt again')
 			router.refresh()
 		} catch (err) {
 			console.error('Failed to retry OCR:', err)
-			toast.error('Failed to retry OCR', {
-				description: err instanceof Error ? err.message : 'An unexpected error occurred',
+			toast.error('Could not read receipt again', {
+				description: 'Check your connection and try again.',
 			})
 		} finally {
 			setRetrying(false)
 		}
 	}
 
-	// Show retry/reprocess button for failed or pending tickets (do NOT show while processing)
+	// Allow a new read for failed or pending tickets (do NOT show while processing).
 	const showRetryButton = ticket.ocr_status === 'failed' || ticket.ocr_status === 'pending' || allowRetry
-	const retryButtonLabel = allowRetry ? 'Try Again' : ticket.ocr_status === 'failed' ? 'Retry' : 'Reprocess'
+	const retryButtonLabel = 'Read Receipt Again'
 
 	// For stuck tickets in processing state, show delete button with a warning
 	// (ocr_attempts will be set by the auto-fail function if truly stuck)
@@ -109,7 +106,7 @@ export function TicketActions({ ticket, allowRetry = false }: Props) {
 						<HugeiconsIcon
 							icon={Loading03Icon}
 							strokeWidth={2}
-							className='mr-2 h-4 w-4 animate-spin'
+							className='mr-2 h-4 w-4 animate-spin motion-reduce:animate-none'
 						/>
 					) : (
 						<HugeiconsIcon
@@ -118,7 +115,7 @@ export function TicketActions({ ticket, allowRetry = false }: Props) {
 							className='mr-2 h-4 w-4'
 						/>
 					)}
-					{retrying ? 'Processing…' : retryButtonLabel}
+					{retrying ? 'Starting…' : retryButtonLabel}
 				</Button>
 			)}
 
@@ -170,7 +167,7 @@ export function TicketActions({ ticket, allowRetry = false }: Props) {
 									<HugeiconsIcon
 										icon={Loading03Icon}
 										strokeWidth={2}
-										className='h-4 w-4 animate-spin'
+										className='h-4 w-4 animate-spin motion-reduce:animate-none'
 									/>
 									Deleting…
 								</>

@@ -343,24 +343,24 @@ to re-verify before trusting the stylesheet.
 
 ### Design System v2 (source for new components)
 
-The **Design system v2** is the visual source of truth for every new or redesigned component. It lives in the
-"Listys - System Design" canvas artifact (boards `Design-system-v2` 1/2: tokens, native shadcn scale, buttons, forms and
-cards; `Design-system-v2-b` 2/2: feedback, navigation, data and mobile A1). Its link and the written specification derived
-from it are in [docs/design/DESIGN.md](docs/design/DESIGN.md).
+The **Design system v2** is the visual source of truth for every new or redesigned component. Its canonical visual
+reference is the local [design system HTML](docs/design/listys-design-system-v2.html), which contains four sections for
+foundations and typography, controls and cards, feedback/navigation/data, and product patterns/mobile A1. The written
+specification and implementation mapping are in [docs/design/DESIGN.md](docs/design/DESIGN.md).
 
-- Before designing or writing a new component, read the matching section of `docs/design/DESIGN.md` and, when the
-  section does not settle a detail, the v2 board itself (Artifact `read` with path `project/Design-system-v2.dc.html` or
-  `project/Design-system-v2-b.dc.html`). Match its tokens, radii, surfaces, type scale, sizes, variants, states and
-  copy rules; do not invent values or follow another board when it conflicts with v2.
+- Before designing or writing a new component, read the matching section of `docs/design/DESIGN.md` and inspect the
+  relevant examples in `docs/design/listys-design-system-v2.html`. Match its tokens, radii, surfaces, type scale, sizes,
+  variants, states and copy rules; do not invent values or follow another design reference when it conflicts with v2.
 - Express the design through the shared layer (theme tokens in `src/app/globals.css`, and variants and sizes in
   `src/components/ui/`), as the Styling rules above require. When v2 draws something no existing variant or token can
   express, add the variant or token there and reuse it by name.
-- If the code, `docs/design/DESIGN.md` and the v2 artifact disagree, the artifact wins for the target look: update
-  `docs/design/DESIGN.md` (and its section 11.4 gaps) in the same change instead of silently diverging. If the artifact
-  is silent (for example dark mode), follow `docs/design/DESIGN.md` and record the gap there.
-- When no v2 board covers the component, derive it from the closest v2 pattern, then say which pattern was used when
+- If the code or `docs/design/DESIGN.md` disagrees with the HTML, the HTML wins for the target look: update
+  `docs/design/DESIGN.md` (and its section 11.4 gaps) in the same change instead of silently diverging. If the HTML is
+  silent (for example dark mode), follow `docs/design/DESIGN.md` and record the gap there.
+- When no HTML example covers the component, derive it from the closest v2 pattern, then say which pattern was used when
   reporting the change. Do not ship a one-off look.
-- The visual check in "Testing Expectations" compares the result against the v2 board, not only against the request.
+- The visual check in "Testing Expectations" compares the result against the relevant section of
+  `docs/design/listys-design-system-v2.html`, not only against the request.
 
 ### Component Reusability
 
@@ -525,8 +525,8 @@ The full structure and rules are defined in [docs/architecture/project-structure
 
 - Cover critical application-owned logic and behavior.
 - For every component change that affects appearance, start the application locally and use Chrome DevTools to open
-  the browser and validate the rendered result against the proposed design (the Design system v2 board that applies, when
-  one does). Capture screenshots at the relevant mobile
+  the browser and validate the rendered result against the proposed design (the relevant section of
+  `docs/design/listys-design-system-v2.html`, when applicable). Capture screenshots at the relevant mobile
   and desktop viewports; inspect the live HTML/DOM structure, applied classes, computed styles and element dimensions.
   Check typography, colours, spacing, alignment, sizing, responsive layout and relevant visual states. Fix discrepancies
   and repeat the visual check before finishing. Reading TSX or passing behavioral tests alone does not validate appearance.
@@ -563,8 +563,8 @@ The full tooling and delegation policy is defined in [docs/tooling-delegation.md
 - [docs/README.md](docs/README.md) is the documentation index and topic-ownership map.
 - [docs/contributing/CONTRIBUTING.md](docs/contributing/CONTRIBUTING.md) defines the human contribution and verification
   workflow.
-- [docs/design/DESIGN.md](docs/design/DESIGN.md) owns the visual language and links the Design system v2 canvas
-  artifact it is derived from.
+- [docs/design/listys-design-system-v2.html](docs/design/listys-design-system-v2.html) is the canonical visual reference;
+  [docs/design/DESIGN.md](docs/design/DESIGN.md) owns the written rules, implementation mapping, and documented gaps.
 - Keep this file authoritative for automated-contributor engineering constraints; link to canonical product,
   architecture, operational, and contribution documents instead of duplicating their requirements.
 - Update affected canonical documentation in the same change whenever governed behavior changes.

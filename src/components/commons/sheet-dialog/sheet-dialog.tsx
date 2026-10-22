@@ -1,6 +1,6 @@
 'use client'
 
-import type { ReactNode } from 'react'
+import { useRef, type ReactNode } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Cancel01Icon } from '@hugeicons/core-free-icons'
 
@@ -14,6 +14,7 @@ import {
 	DialogTrigger,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
+import { useDialogFocus } from '@/hooks'
 import { cn } from '@/utils'
 
 interface SheetDialogProps {
@@ -31,6 +32,8 @@ interface SheetDialogProps {
 	className?: string
 	/** Lets a form focus its first field itself; by default nothing is focused so a phone keyboard does not jump up. */
 	autoFocus?: boolean
+	descriptionId?: string
+	ariaDescribedBy?: string
 }
 
 /**
@@ -48,7 +51,11 @@ export function SheetDialog({
 	testId,
 	className,
 	autoFocus = false,
+	descriptionId,
+	ariaDescribedBy,
 }: SheetDialogProps) {
+	const titleRef = useRef<HTMLHeadingElement>(null)
+	const { onOpenAutoFocus, onCloseAutoFocus } = useDialogFocus(titleRef, { autoFocus })
 	return (
 		<Dialog
 			open={open}
@@ -59,22 +66,22 @@ export function SheetDialog({
 				hideClose
 				sheetOnPhones
 				role={role}
+				aria-describedby={ariaDescribedBy}
 				data-testid={testId}
-				onOpenAutoFocus={autoFocus ? undefined : e => e.preventDefault()}
+				onOpenAutoFocus={onOpenAutoFocus}
+				onCloseAutoFocus={onCloseAutoFocus}
 				variant='sheet'
 				className={cn('sm:max-w-[520px]', className)}
 			>
 				<DialogHeader variant='sheet'>
-					<DialogTitle variant='sheet'>
+					<DialogTitle ref={titleRef} tabIndex={-1} variant='sheet'>
 						{title}
 					</DialogTitle>
 					{description ? (
-						<DialogDescription variant='sheet'>
+						<DialogDescription id={descriptionId} variant='sheet'>
 							{description}
 						</DialogDescription>
-					) : (
-						<DialogDescription className='sr-only'>{typeof title === 'string' ? title : 'Dialog'}</DialogDescription>
-					)}
+					) : null}
 					<DialogClose asChild>
 						<Button
 							aria-label='Close'

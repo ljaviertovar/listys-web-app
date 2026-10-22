@@ -68,7 +68,7 @@ export function AddItemForm({ target, isLocked = false, onCancel }: AddItemFormP
 					role='note'
 					className='rounded-2xl bg-slate-100 px-3.5 py-3 text-sm leading-normal text-slate-600 dark:bg-muted dark:text-muted-foreground'
 				>
-					This list is locked because it is being shopped right now.
+					A shopping session is using this list. Make changes in that session, or finish it to edit this base list.
 				</p>
 			) : null}
 			<ItemFields
@@ -88,7 +88,7 @@ export function AddItemForm({ target, isLocked = false, onCancel }: AddItemFormP
 					onClick={onCancel}
 					disabled={loading}
 				>
-					Cancel
+					{form.formState.isDirty ? 'Cancel' : 'Done'}
 				</Button>
 				<Button
 					size='primary'

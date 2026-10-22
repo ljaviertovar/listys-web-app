@@ -53,8 +53,8 @@ export function SharedListsShowcaseSection() {
 		>
 			<SharedListsBanner />
 
-			<div className='mt-5 grid gap-6 min-[900px]:mt-8 min-[900px]:gap-8 min-[1040px]:grid-cols-[minmax(0,300px)_minmax(0,1fr)] min-[1040px]:items-center min-[1040px]:gap-14'>
-				<div>
+			<div className='mt-5 grid min-w-0 grid-cols-1 gap-6 min-[900px]:mt-8 min-[900px]:gap-8 min-[1040px]:grid-cols-[minmax(0,300px)_minmax(0,1fr)] min-[1040px]:items-center min-[1040px]:gap-14'>
+				<div className='min-w-0'>
 					<div className='flex flex-col gap-[10px] min-[900px]:gap-[14px]'>
 						{POINTS.map(point => (
 							<div
@@ -74,8 +74,8 @@ export function SharedListsShowcaseSection() {
 					</div>
 				</div>
 
-				<div>
-					<div className='grid items-start gap-[18px] min-[700px]:grid-cols-[1fr_112px_1fr] min-[700px]:gap-0'>
+				<div className='min-w-0'>
+					<div className='grid min-w-0 grid-cols-1 items-start gap-[18px] min-[700px]:grid-cols-[minmax(0,1fr)_112px_minmax(0,1fr)] min-[700px]:gap-0'>
 						<DeviceCard device={DEVICES[0]} />
 						<div className='dashed-link relative flex items-center justify-center py-[10px] min-[700px]:self-center min-[700px]:py-0'>
 							<span className='relative z-[2] flex items-center gap-[7px] rounded-full border border-violet-600/[0.35] bg-violet-50 px-[13px] py-[7px] font-mono text-[11px] tracking-[.1em] whitespace-nowrap text-violet-600 uppercase'>
@@ -90,14 +90,14 @@ export function SharedListsShowcaseSection() {
 						aria-label='Recent list activity'
 						data-testid='activity-toast-stack'
 						role='list'
-						className='mx-auto mt-[18px] grid w-fit max-w-full gap-2'
+						className='mx-auto mt-[18px] grid w-full min-w-0 max-w-full gap-2'
 					>
 						{FEED.map(entry => (
 							<div
 								key={entry.who}
 								data-testid={`activity-toast-${entry.initials.toLowerCase()}`}
 								role='listitem'
-								className='flex min-h-[48px] items-center gap-3 rounded-xl border border-slate-200 bg-white px-3.5 py-[10px] text-[13px] text-slate-700 shadow-sm'
+								className='flex min-h-[48px] min-w-0 items-center gap-3 rounded-xl border border-slate-200 bg-white px-3.5 py-[10px] text-[13px] text-slate-700 shadow-sm'
 							>
 								<span className='flex size-6 shrink-0 items-center justify-center rounded-full bg-violet-600 font-mono text-[8.5px] font-semibold text-white'>
 									{entry.initials}

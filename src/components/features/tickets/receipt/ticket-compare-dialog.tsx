@@ -6,6 +6,7 @@ import { Add01Icon, ArrowLeft01Icon, ArrowRight01Icon, Cancel01Icon, MinusSignIc
 
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
+import { useDialogFocus } from '@/hooks'
 import { useMediaQuery } from '@/hooks/use-media-query'
 import type { TicketItem } from '@/types'
 
@@ -43,6 +44,8 @@ export function TicketCompareDialog({ open, onOpenChange, title, urls, view, ite
 	const [split, setSplit] = useState<number | null>(null)
 	const sideBySide = useMediaQuery('(min-width: 64rem)')
 	const containerRef = useRef<HTMLDivElement>(null)
+	const titleRef = useRef<HTMLHeadingElement>(null)
+	const { onOpenAutoFocus, onCloseAutoFocus } = useDialogFocus(titleRef)
 
 	const clampSplit = (value: number) => Math.min(MAX_SPLIT, Math.max(MIN_SPLIT, value))
 	const defaultSplit = sideBySide ? 0.6 : 0.38
@@ -64,7 +67,8 @@ export function TicketCompareDialog({ open, onOpenChange, title, urls, view, ite
 				hideClose
 				variant='viewer'
 				data-testid='ticket-compare-dialog'
-				onOpenAutoFocus={event => event.preventDefault()}
+				onOpenAutoFocus={onOpenAutoFocus}
+				onCloseAutoFocus={onCloseAutoFocus}
 				className='top-0 left-0 flex h-dvh max-w-none translate-x-0 translate-y-0 flex-col data-[state=closed]:slide-out-to-left-0 data-[state=closed]:slide-out-to-top-0 data-[state=open]:slide-in-from-left-0 data-[state=open]:slide-in-from-top-0'
 			>
 				<div className='flex h-15 shrink-0 items-center gap-2 px-2 lg:h-18 lg:px-5'>
@@ -82,7 +86,7 @@ export function TicketCompareDialog({ open, onOpenChange, title, urls, view, ite
 						</Button>
 					</DialogClose>
 					<div className='flex min-w-0 flex-1 items-baseline justify-center gap-3 lg:justify-start lg:pl-1'>
-						<DialogTitle variant='viewer'>
+						<DialogTitle ref={titleRef} tabIndex={-1} variant='viewer'>
 							Compare
 						</DialogTitle>
 						<span className='hidden truncate font-mono text-xs leading-none font-medium text-slate-400 tabular-nums lg:inline'>
@@ -202,7 +206,7 @@ export function TicketCompareDialog({ open, onOpenChange, title, urls, view, ite
 							else return
 							event.preventDefault()
 						}}
-						className='-mb-px flex h-7 shrink-0 cursor-row-resize touch-none items-center justify-center rounded-t-3xl bg-card focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none lg:mb-0 lg:-mr-px lg:h-auto lg:w-4 lg:cursor-col-resize lg:rounded-none'
+						className='-mb-px flex h-11 shrink-0 cursor-row-resize touch-none items-center justify-center rounded-t-3xl bg-card focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none lg:mb-0 lg:-mr-px lg:h-auto lg:w-4 lg:cursor-col-resize lg:rounded-none'
 					>
 						<span className='block h-1.5 w-10 rounded-full bg-slate-300 lg:h-10 lg:w-1.5' />
 					</div>

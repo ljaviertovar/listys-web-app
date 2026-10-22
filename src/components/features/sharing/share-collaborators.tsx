@@ -6,6 +6,7 @@ import { UserRemove01Icon } from '@hugeicons/core-free-icons'
 
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
+import { ConfirmSheet } from '@/components/commons'
 import { cn } from '@/utils'
 import type { CollaboratorWithProfile } from '@/types'
 
@@ -19,7 +20,7 @@ interface ShareCollaboratorsProps {
 	onRemove: (userId: string) => Promise<boolean>
 }
 
-/** The people who can open the list, with their role; the owner removes one after a confirmation in the row itself. */
+/** The people who can open the list, with their role; the owner removes one after a confirmation. */
 export function ShareCollaborators({ collaborators, isOwner, isLoading, onRemove }: ShareCollaboratorsProps) {
 	const [confirmingId, setConfirmingId] = useState<string | null>(null)
 	const [removing, setRemoving] = useState(false)
@@ -68,83 +69,56 @@ export function ShareCollaborators({ collaborators, isOwner, isLoading, onRemove
 								data-testid={`share-collaborator-${collaborator.user_id}`}
 								className='py-1.5'
 							>
-								{confirming ? (
-									<div
-										role='alertdialog'
-										aria-label={`Remove ${name}?`}
-										className='flex flex-col gap-3 rounded-3xl bg-red-50 p-3 text-red-900 md:p-4 dark:bg-red-950/40 dark:text-red-200'
-									>
-										<div className='flex items-start gap-3'>
-											<InitialsAvatar
-												initials={collaborator.avatar_initials}
-												seed={collaborator.user_id}
+								<div className='flex min-h-14 items-center gap-3'>
+									<InitialsAvatar
+										initials={collaborator.avatar_initials}
+										seed={collaborator.user_id}
+									/>
+									<div className='flex min-w-0 flex-1 flex-col items-start gap-1'>
+										<span className='w-full truncate text-sm leading-[1.3] font-semibold'>{name}</span>
+										<span
+											className={cn(
+												'inline-flex h-5.5 items-center rounded-full px-2 text-xs leading-none font-semibold',
+												collaborator.role === 'owner'
+													? 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300'
+													: 'bg-slate-100 text-slate-700 dark:bg-muted dark:text-foreground',
+											)}
+										>
+											{formatCollaboratorRole(collaborator.role)}
+										</span>
+									</div>
+									{isOwner && collaborator.role !== 'owner' ? (
+										<Button
+											type='button'
+											aria-label={`Remove ${name}`}
+											onClick={() => setConfirmingId(collaborator.user_id)}
+											variant='quiet-destructive'
+											size='icon-xl'
+											className='shrink-0'
+										>
+											<HugeiconsIcon
+												icon={UserRemove01Icon}
+												strokeWidth={1.6}
+												aria-hidden='true'
+												className='size-5'
 											/>
-											<div className='flex min-w-0 flex-col gap-1'>
-												<p className='truncate text-sm leading-[1.3] font-semibold'>Remove {name}?</p>
-												<p className='text-sm leading-normal'>
-													Access to this list ends right away. They can join again with the link.
-												</p>
-											</div>
-										</div>
-										<div className='grid grid-cols-2 gap-3'>
-											<Button
-												size='primary'
-												type='button'
-												variant='secondary'
-												disabled={removing}
-												onClick={() => setConfirmingId(null)}
-											>
-												Cancel
-											</Button>
-											<Button
-												size='primary'
-												variant='destructive'
-												type='button'
-												disabled={removing}
-												onClick={() => remove(collaborator.user_id)}
-											>
-												{removing ? 'Removing…' : 'Remove'}
-											</Button>
-										</div>
-									</div>
-								) : (
-									<div className='flex min-h-14 items-center gap-3'>
-										<InitialsAvatar
-											initials={collaborator.avatar_initials}
-											seed={collaborator.user_id}
-										/>
-										<div className='flex min-w-0 flex-1 flex-col items-start gap-1'>
-											<span className='w-full truncate text-sm leading-[1.3] font-semibold'>{name}</span>
-											<span
-												className={cn(
-													'inline-flex h-5.5 items-center rounded-full px-2 text-xs leading-none font-semibold',
-													collaborator.role === 'owner'
-														? 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300'
-														: 'bg-slate-100 text-slate-700 dark:bg-muted dark:text-foreground',
-												)}
-											>
-												{formatCollaboratorRole(collaborator.role)}
-											</span>
-										</div>
-										{isOwner && collaborator.role !== 'owner' ? (
-											<Button
-												type='button'
-												aria-label={`Remove ${name}`}
-												onClick={() => setConfirmingId(collaborator.user_id)}
-												variant='quiet-destructive'
-												size='icon-xl'
-												className='shrink-0'
-											>
-												<HugeiconsIcon
-													icon={UserRemove01Icon}
-													strokeWidth={1.6}
-													aria-hidden='true'
-													className='size-5'
-												/>
-											</Button>
-										) : null}
-									</div>
-								)}
+										</Button>
+									) : null}
+								</div>
+								{isOwner && collaborator.role !== 'owner' ? (
+									<ConfirmSheet
+										open={confirming}
+										onOpenChange={next => !removing && setConfirmingId(next ? collaborator.user_id : null)}
+										title={`Remove ${name}?`}
+										description='Access to this list ends right away. They can join again with the link.'
+										confirmLabel='Remove'
+										loadingLabel='Removing…'
+										tone='danger'
+										loading={removing}
+										onConfirm={() => remove(collaborator.user_id)}
+										testId={`share-remove-collaborator-${collaborator.user_id}`}
+									/>
+								) : null}
 							</li>
 						)
 					})}

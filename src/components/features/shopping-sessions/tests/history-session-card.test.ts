@@ -30,4 +30,24 @@ describe('HistorySessionCard', () => {
 		expect(html).toContain('Purchased Items')
 		expect(html).toContain('View Details')
 	})
+
+	it('shows a known zero separately from an unknown purchased count', () => {
+		const knownZero = renderToStaticMarkup(createElement(HistorySessionCard, { session: { ...session, purchased_count: 0 } }))
+		const unknown = renderToStaticMarkup(
+			createElement(HistorySessionCard, { session: { ...session, purchased_count: null, total_items: null } }),
+		)
+
+		expect(knownZero).toContain('>0</b>')
+		expect(knownZero).toContain('Purchased Items')
+		expect(unknown).toContain('Item count unavailable')
+		expect(unknown).not.toContain('>0</b>')
+	})
+
+	it('formats a known zero amount but omits an unknown amount', () => {
+		const knownZero = renderToStaticMarkup(createElement(HistorySessionCard, { session: { ...session, total_amount: 0 } }))
+		const unknown = renderToStaticMarkup(createElement(HistorySessionCard, { session: { ...session, total_amount: null } }))
+
+		expect(knownZero).toContain('$0.00')
+		expect(unknown).not.toContain('$0.00')
+	})
 })

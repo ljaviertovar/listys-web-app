@@ -16,7 +16,7 @@ the implementation reference describes repository evidence. Neither establishes 
 | Find code and decide where new files belong | [Project structure](architecture/project-structure.md) |
 | Find REST routes, schemas, and compatibility behavior | [API v1 reference](reference/api-v1.md) |
 | Check business limits | [Limits reference](reference/limits.md), derived from `src/lib/config/limits.ts` |
-| Design or visually validate a component | [Design system v2](design/DESIGN.md), including canvas links and section 11.4 gaps |
+| Design or visually validate a component | [Design system v2 HTML](design/listys-design-system-v2.html) and its [written specification](design/DESIGN.md), including section 11.4 gaps |
 | Understand account, receipt, sharing and browser data | [Privacy and data handling](privacy/taste-profile.md) |
 | Develop, verify, or submit changes | [Contribution guide](contributing/CONTRIBUTING.md) |
 | Deploy or recover service | [Deploy runbook](runbooks/deploy.md) and [incident runbook](runbooks/incidents.md) |

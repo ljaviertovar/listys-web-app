@@ -39,19 +39,13 @@ function BackLinkContent({ href, label, variant = 'inline' }: Props) {
 		)
 	}
 
-	return (
-		<Link
-			href={href}
-			data-testid='back-link'
-			className='group mb-4 flex w-fit items-center text-sm text-accent-foreground transition-colors hover:text-primary md:mb-6'
-		>
-			<HugeiconsIcon
-				icon={ArrowLeft01Icon}
-				strokeWidth={2}
-				className='h-4 w-4 transition-transform group-hover:-translate-x-1'
-			/>
-			{label}
-		</Link>
+		return (
+			<Button asChild variant='quiet' size='link-action' className='group mb-4 -ml-3 w-fit md:mb-6'>
+			<Link href={href} data-testid='back-link'>
+				<HugeiconsIcon icon={ArrowLeft01Icon} strokeWidth={2} className='size-4 transition-transform group-hover:-translate-x-1' />
+				{label}
+			</Link>
+		</Button>
 	)
 }
 

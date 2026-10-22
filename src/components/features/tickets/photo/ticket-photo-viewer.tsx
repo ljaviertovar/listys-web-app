@@ -30,12 +30,7 @@ interface Props {
  */
 export function TicketPhotoViewer({ open, onOpenChange, title, urls, view, error, onCompare }: Props) {
 	const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-		if (event.key === 'ArrowRight') view.next()
-		else if (event.key === 'ArrowLeft') view.previous()
-		else if (event.key === '+' || event.key === '=') view.zoomIn()
-		else if (event.key === '-') view.zoomOut()
-		else if (event.key === '0') view.fit()
-		else return
+		if (!applyPhotoViewerShortcut(event.key, view)) return
 		event.preventDefault()
 	}
 
@@ -181,4 +176,14 @@ export function TicketPhotoViewer({ open, onOpenChange, title, urls, view, error
 			</DialogContent>
 		</Dialog>
 	)
+}
+
+export function applyPhotoViewerShortcut(key: string, view: PhotoView): boolean {
+	if (key === 'ArrowRight') view.next()
+	else if (key === 'ArrowLeft') view.previous()
+	else if (key === '+' || key === '=') view.zoomIn()
+	else if (key === '-') view.zoomOut()
+	else if (key === '0') view.fit()
+	else return false
+	return true
 }

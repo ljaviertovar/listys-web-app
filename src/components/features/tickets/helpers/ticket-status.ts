@@ -12,9 +12,9 @@ interface TicketStatusMeta {
 }
 
 export const TICKET_STATUS_META: Record<TicketStatus, TicketStatusMeta> = {
-	pending: { label: 'Pending', icon: null, tone: 'bg-slate-100 text-slate-700 dark:bg-muted dark:text-foreground' },
-	processing: { label: 'Processing', icon: Clock01Icon, tone: 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300' },
-	completed: { label: 'Completed', icon: CheckmarkCircle02Icon, tone: 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300' },
+	pending: { label: 'Waiting to Read', icon: null, tone: 'bg-slate-100 text-slate-700 dark:bg-muted dark:text-foreground' },
+	processing: { label: 'Reading Receipt', icon: Clock01Icon, tone: 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300' },
+	completed: { label: 'Ready to Review', icon: CheckmarkCircle02Icon, tone: 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300' },
 	failed: { label: 'Failed', icon: CancelCircleIcon, tone: 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-300' },
 }
 

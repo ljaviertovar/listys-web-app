@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, type ReactNode } from 'react'
+import { useRef, useState, type ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -16,6 +16,7 @@ import {
 	DialogTrigger,
 } from '@/components/ui/dialog'
 import { Button, type ButtonProps } from '@/components/ui/button'
+import { useDialogFocus } from '@/hooks'
 import { cn } from '@/utils'
 
 // Lazy load UploadTicketForm since it contains heavy FileReader and image processing
@@ -23,7 +24,11 @@ const UploadTicketForm = dynamic(
 	() => import('./upload-ticket-form').then(mod => ({ default: mod.UploadTicketForm })),
 	{
 		ssr: false,
-		loading: () => <div className='py-8 text-center text-sm text-muted-foreground'>Loading upload form...</div>,
+		loading: () => (
+			<div role='status' aria-live='polite' data-testid='upload-ticket-form-loading' className='py-8 text-center text-sm text-muted-foreground'>
+				Preparing receipt upload…
+			</div>
+		),
 	},
 )
 
@@ -54,6 +59,8 @@ export function UploadTicketDialog({
 	...buttonProps
 }: Props = {}) {
 	const [ownOpen, setOwnOpen] = useState(false)
+	const titleRef = useRef<HTMLHeadingElement>(null)
+	const { onOpenAutoFocus, onCloseAutoFocus } = useDialogFocus(titleRef)
 	const router = useRouter()
 	const open = controlledOpen ?? ownOpen
 	const setOpen = onOpenChange ?? setOwnOpen
@@ -90,12 +97,13 @@ export function UploadTicketDialog({
 				hideClose
 				sheetOnPhones
 				data-testid='upload-ticket-dialog'
-				onOpenAutoFocus={e => e.preventDefault()}
+				onOpenAutoFocus={onOpenAutoFocus}
+				onCloseAutoFocus={onCloseAutoFocus}
 				variant='sheet'
 				className='sm:max-w-[520px]'
 			>
 				<DialogHeader variant='sheet'>
-					<DialogTitle variant='sheet'>
+					<DialogTitle ref={titleRef} tabIndex={-1} variant='sheet'>
 						Upload Receipt
 					</DialogTitle>
 					<DialogDescription variant='sheet'>

@@ -14,7 +14,7 @@ type Feature = {
 const FEATURES: Feature[] = [
 	{
 		title: 'Receipts in, items out',
-		body: 'Upload up to five photos at once. Every line stays editable.',
+		body: 'Upload up to five photos at once. Compare the extracted items with your receipt, then choose what to add.',
 		fragTitle: 'Receipts',
 		fragMeta: '3 uploaded today',
 		content: (

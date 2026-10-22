@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -24,8 +24,27 @@ interface Props {
 	initialFiles?: File[]
 }
 
+export function UploadTicketProgress({ photoCount }: { photoCount: number }) {
+	return (
+		<div data-testid='upload-ticket-progress' className='flex flex-col gap-2'>
+			<span role='progressbar' aria-label='Uploading receipt' className='block h-1.5 overflow-hidden rounded-full bg-slate-200'>
+				<span className='block h-full w-2/5 animate-pulse rounded-full bg-blue-600 motion-reduce:animate-none' />
+			</span>
+			<div className='flex items-center justify-between text-xs text-slate-500'>
+				<span className='font-mono font-medium tabular-nums'>
+					Uploading {photoCount} {photoCount === 1 ? 'photo' : 'photos'}
+				</span>
+				<span>Keep this window open</span>
+			</div>
+		</div>
+	)
+}
+
 export function UploadTicketForm({ onSuccess, initialFiles }: Props) {
 	const router = useRouter()
+	const storeNameId = useId()
+	const photosId = useId()
+	const photosDescriptionId = useId()
 	const [loading, setLoading] = useState(false)
 	const { previews, rejections, addFiles, removePhoto, dismissRejection } = usePhotoPicker(MAX_IMAGES_PER_TICKET)
 
@@ -80,19 +99,20 @@ export function UploadTicketForm({ onSuccess, initialFiles }: Props) {
 			const result = await response.json()
 
 			if (!response.ok) {
-				throw new Error(result.error || 'Upload failed')
+				throw new Error('We couldn’t upload your receipt. Check your connection and try again.')
 			}
 
-			// Navigate immediately to the receipt page showing `pending` status
 			const ticketId = result?.ticketId || result?.data?.id || result?.id || null
-			toast.success('Receipt uploaded — redirecting...')
+			toast.success('Receipt uploaded', {
+				description: ticketId ? 'Opening your receipt…' : 'You can review its progress in your receipts.',
+			})
 			onSuccess?.()
 			if (ticketId) {
 				router.push(`/tickets/${ticketId}`)
 			}
 		} catch (err) {
-			const message = err instanceof Error ? err.message : 'Failed to upload receipt'
-			toast.error(message)
+			console.error('Failed to upload receipt:', err)
+			toast.error('Could not upload receipt', { description: 'Check your connection and try again.' })
 		} finally {
 			setLoading(false)
 		}
@@ -105,26 +125,30 @@ export function UploadTicketForm({ onSuccess, initialFiles }: Props) {
 			className='flex flex-col gap-5'
 		>
 			<div className='flex flex-col gap-2'>
-				<Label
-					htmlFor='store_name'
-				>
-					Name <span className='text-destructive'>*</span>
+					<Label htmlFor={storeNameId}>
+						Store or Receipt Name <span aria-hidden='true' className='text-destructive'>*</span>
 				</Label>
 				<Input
-					id='store_name'
+						id={storeNameId}
 					{...register('store_name')}
-					placeholder='e.g. Walmart, Grocery Store'
+						placeholder='e.g. Grocery Store'
 					disabled={loading}
 					aria-invalid={errors.store_name ? true : undefined}
+						aria-required='true'
+						aria-describedby={errors.store_name ? `${storeNameId}-error` : `${storeNameId}-hint`}
 					size='lg'
 				/>
-				{errors.store_name && <p className='text-sm text-destructive'>{errors.store_name.message}</p>}
+					{errors.store_name ? (
+						<p id={`${storeNameId}-error`} role='alert' className='text-sm text-destructive'>{errors.store_name.message}</p>
+					) : (
+						<p id={`${storeNameId}-hint`} className='text-xs leading-normal text-muted-foreground'>Use a name you’ll recognize, such as Grocery Store.</p>
+					)}
 			</div>
 
 			<div className='flex flex-col gap-2'>
 				<div className='flex items-center justify-between'>
-					<Label>
-						Photos <span className='text-destructive'>*</span>
+					<Label htmlFor={photosId}>
+						Photos <span aria-hidden='true' className='text-destructive'>*</span>
 					</Label>
 					<span
 						aria-live='polite'
@@ -135,6 +159,9 @@ export function UploadTicketForm({ onSuccess, initialFiles }: Props) {
 				</div>
 
 				<UploadTicketPhotos
+						inputId={photosId}
+					descriptionId={photosDescriptionId}
+						errorId={errors.files ? `${photosId}-error` : undefined}
 					previews={previews}
 					rejections={rejections}
 					max={MAX_IMAGES_PER_TICKET}
@@ -143,7 +170,7 @@ export function UploadTicketForm({ onSuccess, initialFiles }: Props) {
 					onRemove={removePhoto}
 					onDismissRejection={dismissRejection}
 				/>
-				{errors.files && <p className='text-sm text-destructive'>{errors.files.message}</p>}
+				{errors.files && <p id={`${photosId}-error`} role='alert' className='text-sm text-destructive'>{errors.files.message}</p>}
 
 				{previews.length > 1 && !loading ? (
 					<p className='text-xs leading-normal text-slate-500'>
@@ -153,24 +180,7 @@ export function UploadTicketForm({ onSuccess, initialFiles }: Props) {
 			</div>
 
 			{loading ? (
-				<div
-					data-testid='upload-ticket-progress'
-					className='flex flex-col gap-2'
-				>
-					<span
-						role='progressbar'
-						aria-label='Uploading receipt'
-						className='block h-1.5 overflow-hidden rounded-full bg-slate-200'
-					>
-						<span className='block h-full w-2/5 animate-pulse rounded-full bg-blue-600 motion-reduce:animate-none' />
-					</span>
-					<div className='flex items-center justify-between text-xs text-slate-500'>
-						<span className='font-mono font-medium tabular-nums'>
-							Uploading {previews.length} {previews.length === 1 ? 'photo' : 'photos'}
-						</span>
-						<span>Keep this window open</span>
-					</div>
-				</div>
+				<UploadTicketProgress photoCount={previews.length} />
 			) : null}
 
 			{/* On a phone the buttons take the full width under the note; from `sm` the note sits left and the buttons right. */}
@@ -203,10 +213,10 @@ export function UploadTicketForm({ onSuccess, initialFiles }: Props) {
 									strokeWidth={2}
 									className='size-4 animate-spin motion-reduce:animate-none'
 								/>
-								Uploading…
+								Uploading Receipt…
 							</>
 						) : (
-							'Upload'
+							'Upload Receipt'
 						)}
 					</Button>
 				</DialogFooter>

@@ -66,7 +66,7 @@ export async function createShoppingSession(data: unknown) {
   }
 
   if (baseList.items && baseList.items.length > 0) {
-    const orderedItems = [...baseList.items].sort((a: Record<string, unknown>, b: Record<string, unknown>) => {
+    const orderedItems = [...baseList.items].sort((a, b) => {
       const purchaseA = Number(a.purchase_count ?? 0)
       const purchaseB = Number(b.purchase_count ?? 0)
       if (purchaseA !== purchaseB) return purchaseB - purchaseA
@@ -78,7 +78,7 @@ export async function createShoppingSession(data: unknown) {
       return Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0)
     })
 
-    const items = orderedItems.map((item: Record<string, unknown>, index: number) => ({
+    const items = orderedItems.map((item, index) => ({
       shopping_session_id: shoppingSession.id,
       name: item.name,
       quantity: item.quantity,
@@ -89,7 +89,7 @@ export async function createShoppingSession(data: unknown) {
       checked: false,
     }))
 
-    const { error: itemsError } = await (supabase as any).from('shopping_session_items').insert(items)
+    const { error: itemsError } = await supabase.from('shopping_session_items').insert(items)
 
     if (itemsError) {
       throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, itemsError.message)
@@ -160,7 +160,7 @@ export async function completeShoppingSession(id: string, data: unknown) {
   }
 
   if (validation.data.sync_to_base) {
-    const { error: syncError } = await (supabase as any).rpc('sync_shopping_session_to_base_list', {
+    const { error: syncError } = await supabase.rpc('sync_shopping_session_to_base_list', {
       p_session_id: id,
       p_max_items: MAX_ITEMS_PER_BASE_LIST,
     })

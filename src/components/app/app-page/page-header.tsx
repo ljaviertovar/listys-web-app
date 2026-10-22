@@ -36,7 +36,7 @@ function PageHeaderContent({ title, desc, children, variant = 'banner', back }: 
 					<h1 className='font-display text-2xl leading-[1.17] font-bold tracking-tight text-balance md:text-3xl lg:text-4xl'>
 						{title}
 					</h1>
-					<p className='text-sm leading-normal text-slate-500 md:text-base dark:text-muted-foreground'>{desc}</p>
+					<div className='text-sm leading-normal text-slate-500 md:text-base dark:text-muted-foreground'>{desc}</div>
 				</div>
 				{children}
 			</header>
@@ -44,11 +44,11 @@ function PageHeaderContent({ title, desc, children, variant = 'banner', back }: 
 	}
 
 	return (
-		<header className='w-full border-b bg-card'>
+		<header data-testid='page-header' className='w-full border-b bg-card'>
 			<div className='w-full max-w-7xl m-auto flex items-center justify-between align-center gap-4 px-4 py-3 md:px-6 lg:px-8 lg:py-4'>
 				<div className='space-y-0.5'>
 					<h1 className='text-lg font-bold tracking-tight md:text-2xl truncate w-full max-w-[25ch]'>{title}</h1>
-					<p className='text-sm text-muted-foreground md:text-base tabular-nums'>{desc}</p>
+				<div className='text-sm text-muted-foreground md:text-base tabular-nums'>{desc}</div>
 				</div>
 			</div>
 			<div className='w-full max-w-7xl m-auto md:px-6 md:pb-3 lg:px-8 lg:pb-4'>{children}</div>

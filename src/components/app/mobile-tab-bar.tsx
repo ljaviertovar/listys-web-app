@@ -28,7 +28,7 @@ function Tab({ item, isActive }: { item: (typeof MOBILE_TAB_ITEMS)[number]; isAc
 			data-testid={`mobile-tab-${item.url.slice(1)}`}
 			data-active={isActive}
 			className={cn(
-				'flex min-h-11 flex-col items-center justify-start gap-1 rounded-xl pt-1.5 pb-1.5 text-xs leading-none transition-colors',
+				'flex min-h-14 flex-col items-center justify-start gap-1 rounded-xl pt-2 text-xs leading-none transition-colors',
 				'focus-ring',
 				// The current tab sits on the secondary-button surface (#E9ECF0) with blue text, like any selected option.
 				isActive
@@ -40,7 +40,7 @@ function Tab({ item, isActive }: { item: (typeof MOBILE_TAB_ITEMS)[number]; isAc
 				icon={item.icon}
 				strokeWidth={1.5}
 				aria-hidden='true'
-				className='size-5'
+				className='size-6'
 			/>
 			<span>{item.title}</span>
 		</Link>
@@ -66,7 +66,7 @@ export function MobileTabBar() {
 		<nav
 			aria-label='Main'
 			data-testid='mobile-tab-bar'
-			className='fixed inset-x-0 bottom-0 z-40 grid shrink-0 grid-cols-5 items-start bg-card px-2 pt-1 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-[0_-1px_0_rgba(15,23,42,0.06),0_-12px_24px_-22px_rgba(15,23,42,0.4)] lg:hidden'
+			className='fixed inset-x-0 bottom-0 z-40 grid shrink-0 grid-cols-5 items-start bg-card px-2 pt-1 pb-[max(1.125rem,env(safe-area-inset-bottom))] shadow-[0_-1px_0_rgba(15,23,42,0.06),0_-12px_24px_-22px_rgba(15,23,42,0.4)] lg:hidden'
 		>
 			{tab(dashboard)}
 			{tab(lists)}

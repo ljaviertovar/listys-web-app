@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 
 import { PageContainer, PageHeader } from '@/components/app'
+import { RetryableError } from '@/components/commons'
 import { BaseListsList } from '@/components/features/base-lists'
 
 import { getBaseListsByGroup } from '@/lib/api/endpoints'
@@ -53,21 +54,18 @@ export default async function BaseListsPage({ params }: { params: Promise<{ grou
 			/>
 
 			<PageContainer>
-				{error && (
-					<div
-						role='alert'
-						className='rounded-xl bg-destructive/10 p-4 text-sm text-destructive'
-					>
-						Error loading lists: {error}
-					</div>
-				)}
-
-				<BaseListsList
+				{error ? (
+					<RetryableError
+						message='We couldn’t load the lists in this group.'
+						href={`/shopping-lists/${groupId}/lists`}
+						testId='base-lists-load-error'
+					/>
+				) : <BaseListsList
 					groupId={groupId}
 					groupName={group?.name || 'this group'}
 					baseLists={baseListsWithCount}
 					activeBaseListId={activeSession?.base_list_id}
-				/>
+				/>}
 			</PageContainer>
 		</>
 	)

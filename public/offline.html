@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Listys Offline</title>
+    <!-- This static fallback has to work without the app bundle or generated Tailwind stylesheet. -->
     <style>
       :root {
         color-scheme: light;
@@ -14,17 +15,18 @@
         display: grid;
         place-items: center;
         font-family: Inter, system-ui, -apple-system, sans-serif;
-        background: #f8fafc;
+        padding: 24px;
+        box-sizing: border-box;
+        background: #f2f4f7;
         color: #0f172a;
       }
       .card {
-        max-width: 420px;
-        border: 1px solid #e2e8f0;
-        border-radius: 12px;
+        width: min(100%, 420px);
+        border-radius: 20px;
         background: #ffffff;
-        padding: 24px;
+        padding: 28px 24px;
         text-align: center;
-        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px -12px rgba(15, 23, 42, 0.16);
       }
       h1 {
         margin: 0 0 12px;
@@ -36,14 +38,32 @@
         line-height: 1.5;
         color: #334155;
       }
+      a {
+        display: inline-flex;
+        min-height: 44px;
+        align-items: center;
+        justify-content: center;
+        margin-top: 20px;
+        border-radius: 12px;
+        background: #2563eb;
+        padding: 0 20px;
+        color: #ffffff;
+        font-weight: 600;
+        text-decoration: none;
+      }
+      a:focus-visible {
+        outline: 2px solid #1d4ed8;
+        outline-offset: 3px;
+      }
     </style>
   </head>
   <body>
     <main class="card">
-      <h1>You are offline</h1>
+      <h1>You’re Offline</h1>
       <p>
-        Listys is not available right now. Reconnect to continue syncing your shopping data.
+        Reconnect to load Listys and check the latest changes to your lists.
       </p>
+      <a href="/">Try again</a>
     </main>
   </body>
 </html>

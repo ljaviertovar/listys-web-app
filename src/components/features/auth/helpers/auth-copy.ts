@@ -9,7 +9,6 @@ interface AuthCopy {
 	dividerLabel: string
 	submitLabel: string
 	submittingLabel: string
-	termsLead: string
 	hero: {
 		headline: string
 		body: string
@@ -28,7 +27,6 @@ export const AUTH_COPY: Record<AuthMode, AuthCopy> = {
 		dividerLabel: 'Or continue with email',
 		submitLabel: 'Sign In with Email',
 		submittingLabel: 'Signing In…',
-		termsLead: 'By clicking continue, you agree to our',
 		hero: {
 			headline: 'Your next shop is already half planned.',
 			body: 'Your lists, receipts and history are waiting. New here? Create an account and turn your first receipt into a list you can reuse on every trip.',
@@ -42,7 +40,6 @@ export const AUTH_COPY: Record<AuthMode, AuthCopy> = {
 		dividerLabel: 'Or register with email',
 		submitLabel: 'Create Account with Email',
 		submittingLabel: 'Creating Account…',
-		termsLead: 'By signing up, you agree to our',
 		hero: {
 			headline: 'Turn your next receipt into a smarter list.',
 			body: 'Snap a photo, get your items back, and shop from a list that learns with every trip. Create your account to start.',

@@ -19,7 +19,7 @@ export function GroupsList({ groups }: GroupsListProps) {
 			<EmptyStateCard
 				icon={FolderSearchIcon}
 				title='No groups yet'
-				description='Create one group for each store you shop at, like Walmart or Costco, and keep its lists together.'
+				description='Keep related base lists together, for example by store or household.'
 				testId='groups-empty-state'
 			>
 				<CreateGroupDialog />

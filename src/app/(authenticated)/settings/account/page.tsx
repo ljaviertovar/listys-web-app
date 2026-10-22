@@ -1,17 +1,16 @@
 import { redirect } from 'next/navigation'
-import { HugeiconsIcon } from '@hugeicons/react'
 import {
-	SecurityCheckIcon,
 	UserAccountIcon,
 	Calendar01Icon,
 	LinkBackwardIcon,
-	Shield01Icon,
 	Mail01Icon,
+	Shield01Icon,
 } from '@hugeicons/core-free-icons'
 
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { BackLink, PageHeader, PageContainer, CardHeaderContent } from '@/components/app'
+import { PageHeader, PageContainer, CardHeaderContent } from '@/components/app'
+import { DetailsList } from '@/components/commons'
 
 import { createClient } from '@/lib/supabase/server'
 import { formatDate, formatTime } from '@/utils'
@@ -34,79 +33,33 @@ export default async function AccountPage() {
 	return (
 		<>
 			<PageHeader
+				variant='screen'
+				back={{ href: '/dashboard', label: 'Back to Dashboard' }}
 				title='Account'
-				desc='Security and account metadata'
+				desc='Sign-in and account details'
 			/>
 
 			<PageContainer>
-				<BackLink
-					href='/dashboard'
-					label='Back to Dashboard'
-				/>
-
 				<div className='grid gap-4 lg:grid-cols-2'>
 					<Card
 						size='sm'
 					>
 						<CardHeader>
 							<CardHeaderContent
-								icon={UserAccountIcon}
+								icon={Shield01Icon}
 								title='Account Information'
-								description='Core account metadata'
+								description='Sign-in provider and account dates'
 							/>
 						</CardHeader>
-						<CardContent space='stack'>
-							<div className='flex items-center justify-between gap-3 rounded-xl border border-border/70 bg-muted/20 p-3'>
-								<div className='flex items-center gap-2 text-sm text-muted-foreground'>
-									<HugeiconsIcon
-										icon={UserAccountIcon}
-										strokeWidth={2}
-										className='h-4 w-4'
-									/>
-									User ID
-								</div>
-								<code className='max-w-[55%] truncate text-xs font-medium'>{user.id}</code>
-							</div>
-
-							<div className='flex items-center justify-between gap-3 rounded-xl border border-border/70 bg-muted/20 p-3'>
-								<div className='flex items-center gap-2 text-sm text-muted-foreground'>
-									<HugeiconsIcon
-										icon={LinkBackwardIcon}
-										strokeWidth={2}
-										className='h-4 w-4'
-									/>
-									Sign-in provider
-								</div>
-								<span className='text-sm font-medium capitalize'>{provider}</span>
-							</div>
-
-							<div className='flex items-center justify-between gap-3 rounded-xl border border-border/70 bg-muted/20 p-3'>
-								<div className='flex items-center gap-2 text-sm text-muted-foreground'>
-									<HugeiconsIcon
-										icon={Calendar01Icon}
-										strokeWidth={2}
-										className='h-4 w-4'
-									/>
-									Last sign in
-								</div>
-								<span className='text-sm font-medium'>
-									{lastSignIn ? `${formatDate(lastSignIn)} at ${formatTime(lastSignIn)}` : 'Unknown'}
-								</span>
-							</div>
-
-							<div className='flex items-center justify-between gap-3 rounded-xl border border-border/70 bg-muted/20 p-3'>
-								<div className='flex items-center gap-2 text-sm text-muted-foreground'>
-									<HugeiconsIcon
-										icon={Calendar01Icon}
-										strokeWidth={2}
-										className='h-4 w-4'
-									/>
-									Created at
-								</div>
-								<span className='text-sm font-medium'>
-									{accountCreatedAt ? `${formatDate(accountCreatedAt)} at ${formatTime(accountCreatedAt)}` : 'Unknown'}
-								</span>
-							</div>
+						<CardContent>
+							<DetailsList
+								testId='account-information-details'
+								items={[
+									{ label: 'Sign-in Provider', value: <span className='capitalize'>{provider}</span>, icon: LinkBackwardIcon },
+									{ label: 'Last sign in', value: lastSignIn ? `${formatDate(lastSignIn)} at ${formatTime(lastSignIn)}` : 'Unknown', icon: Calendar01Icon },
+									{ label: 'Account created', value: accountCreatedAt ? `${formatDate(accountCreatedAt)} at ${formatTime(accountCreatedAt)}` : 'Unknown', icon: Calendar01Icon },
+								]}
+							/>
 						</CardContent>
 					</Card>
 
@@ -115,47 +68,20 @@ export default async function AccountPage() {
 					>
 						<CardHeader>
 							<CardHeaderContent
-								icon={Shield01Icon}
+								icon={UserAccountIcon}
 								title='Security'
-								description='Authentication and verification status'
+								description='Email verification status'
 							/>
 						</CardHeader>
 						<CardContent space='stack'>
-							<div className='rounded-xl border border-primary/20 bg-gradient-to-b from-primary/5 to-background p-3'>
-								<div className='flex items-center justify-between gap-2'>
-									<div className='flex items-center gap-2 text-sm font-medium'>
-										<HugeiconsIcon
-											icon={SecurityCheckIcon}
-											strokeWidth={2}
-											className='h-4 w-4'
-										/>
-										Email confirmation
-									</div>
-									<Badge variant={isVerified ? 'completed' : 'pending'}>{isVerified ? 'Verified' : 'Pending'}</Badge>
-								</div>
-								<p className='mt-2 text-sm text-muted-foreground'>
-									{isVerified ? 'Your email address is confirmed.' : 'Your email address is not confirmed yet.'}
-								</p>
-							</div>
-
-							<div className='rounded-xl border border-border/70 bg-muted/20 p-3'>
-								<div className='flex items-center gap-2 text-sm font-medium'>
-									<HugeiconsIcon
-										icon={Mail01Icon}
-										strokeWidth={2}
-										className='h-4 w-4'
-									/>
-									Primary email
-								</div>
-								<p className='mt-1 text-sm font-medium'>{user.email || 'Unknown'}</p>
-							</div>
-
-							<div className='rounded-xl border border-border/70 bg-muted/20 p-3'>
-								<p className='text-sm font-medium'>Manage authentication</p>
-								<p className='mt-1 text-sm text-muted-foreground'>
-									Password, magic link, and external provider controls are managed by Supabase Auth.
-								</p>
-							</div>
+							<DetailsList
+								testId='account-security-details'
+								items={[
+									{ label: 'Email confirmation', value: <Badge variant={isVerified ? 'completed' : 'pending'}>{isVerified ? 'Verified' : 'Pending'}</Badge> },
+									{ label: 'Email', value: user.email || 'Unknown', icon: Mail01Icon },
+								]}
+							/>
+							<p className='text-sm text-muted-foreground'>Your profile photo comes from your sign-in provider.</p>
 						</CardContent>
 					</Card>
 				</div>

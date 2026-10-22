@@ -56,6 +56,6 @@ Review the [contribution guide](docs/contributing/CONTRIBUTING.md) before E2E ex
 - [Documentation index and topic ownership](docs/README.md)
 - [Implemented behavior, MVP gaps, and audit findings](docs/reference/implementation-status.md)
 - [Architecture](docs/architecture/architecture.md) and [repository structure](docs/architecture/project-structure.md)
-- [Design system v2](docs/design/DESIGN.md)
+- [Design system v2 HTML](docs/design/listys-design-system-v2.html) and its [written specification](docs/design/DESIGN.md)
 - [Deployment](docs/runbooks/deploy.md), [incidents](docs/runbooks/incidents.md), and [data handling](docs/privacy/taste-profile.md)
 - [Agent engineering rules](AGENTS.md) and [tooling workflow](docs/tooling-delegation.md)

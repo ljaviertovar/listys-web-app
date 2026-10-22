@@ -28,7 +28,7 @@ export async function createShoppingSession(data: unknown) {
   }
 
   // Check if user already has an active shopping session
-  const { data: existingSession, error: checkError } = await supabase
+  const { data: existingSession } = await supabase
     .from('shopping_sessions')
     .select('id')
     .eq('user_id', user.id)
@@ -79,7 +79,7 @@ export async function createShoppingSession(data: unknown) {
 
   // Copy items from base list using dynamic ordering from enrichment fields.
   if (baseList.items && baseList.items.length > 0) {
-    const orderedItems = [...baseList.items].sort((a: any, b: any) => {
+    const orderedItems = [...baseList.items].sort((a, b) => {
       const purchaseA = Number(a?.purchase_count ?? 0)
       const purchaseB = Number(b?.purchase_count ?? 0)
       if (purchaseA !== purchaseB) return purchaseB - purchaseA
@@ -91,7 +91,7 @@ export async function createShoppingSession(data: unknown) {
       return Number(a?.sort_order ?? 0) - Number(b?.sort_order ?? 0)
     })
 
-    const items = orderedItems.map((item: any, index: number) => ({
+    const items = orderedItems.map((item, index) => ({
       shopping_session_id: shoppingSession.id,
       name: item.name,
       quantity: item.quantity,
@@ -197,7 +197,7 @@ export async function completeShoppingSession(id: string, data: unknown) {
 
   // Sync to base list if requested
   if (validation.data.sync_to_base) {
-    const { error: syncError } = await (supabase as any).rpc(
+    const { error: syncError } = await supabase.rpc(
       'sync_shopping_session_to_base_list',
       {
         p_session_id: id,
@@ -310,11 +310,10 @@ export async function getShoppingHistory() {
 
   // Count checked items for each session
   const sessionsWithCount = sessions?.map(session => {
-    const checkedItems = Array.isArray(session.shopping_session_items)
-      ? session.shopping_session_items.filter((item: { checked: boolean | null }) => item.checked === true)
+    const { shopping_session_items: sessionItems, ...sessionData } = session
+    const checkedItems = Array.isArray(sessionItems)
+      ? sessionItems.filter((item: { checked: boolean | null }) => item.checked === true)
       : []
-
-    const { shopping_session_items, ...sessionData } = session
 
     return {
       ...sessionData,

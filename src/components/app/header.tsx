@@ -30,7 +30,7 @@ export const Header = () => {
 				data-testid='header-logo'
 				className='lg:hidden'
 			>
-				<Logo wordmarkClassName='font-display text-xl leading-none font-bold tracking-tight' />
+				<Logo testId='application-header-logo' wordmarkClassName='font-display text-xl leading-none font-bold tracking-tight' />
 			</div>
 
 			<div className='hidden items-center gap-2 lg:flex'>

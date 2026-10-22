@@ -57,7 +57,7 @@ export function TicketSelectionBar({ count, total, onClear, onAdd, placement = '
 				size='primary'
 				onClick={onClear}
 			>
-				Clear
+				Clear Selection
 			</Button>
 			<Button
 				type='button'

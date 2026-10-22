@@ -1,7 +1,7 @@
 import Link from 'next/link'
 
 import { Button } from '@/components/ui/button'
-import { ABOVE_MOBILE_TAB_BAR } from '@/components/app/helpers/mobile-tab-bar-layout'
+import { ABOVE_MOBILE_UPLOAD_BUTTON } from '@/components/app/helpers/mobile-tab-bar-layout'
 import { cn } from '@/utils'
 
 const RING_RADIUS = 15
@@ -26,7 +26,7 @@ export function SessionBar({ id, name, progress }: SessionBarProps) {
 	return (
 		<div
 			data-testid='active-session-bar'
-			className={cn('fixed inset-x-0 z-30 px-3 pb-2 lg:hidden', ABOVE_MOBILE_TAB_BAR)}
+			className={cn('fixed inset-x-0 z-30 px-3 pb-2 lg:hidden', ABOVE_MOBILE_UPLOAD_BUTTON)}
 		>
 			<Link
 				href={`/shopping/${id}`}

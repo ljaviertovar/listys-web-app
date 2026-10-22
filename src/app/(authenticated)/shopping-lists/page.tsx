@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 
 import { PageContainer, PageHeader } from '@/components/app'
 import { GroupsList } from '@/components/features/shopping-lists'
+import { RetryableError } from '@/components/commons'
 
 import { createClient } from '@/lib/supabase/server'
 
@@ -29,16 +30,11 @@ export default async function GroupsPage() {
 			/>
 
 			<PageContainer>
-				{error && (
-					<div
-						role='alert'
-						className='rounded-xl bg-destructive/10 p-4 text-sm text-destructive'
-					>
-						Error loading groups: {error}
-					</div>
+				{error ? (
+					<RetryableError message='We couldn’t load your groups.' href='/shopping-lists' testId='groups-load-error' />
+				) : (
+					<GroupsList groups={groups ?? []} />
 				)}
-
-				<GroupsList groups={groups ?? []} />
 			</PageContainer>
 		</>
 	)

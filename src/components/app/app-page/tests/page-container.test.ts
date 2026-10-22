@@ -8,7 +8,7 @@ describe('PageContainer', () => {
 	it('reserves the mobile tab bar height, safe area and a final content gap', () => {
 		const html = renderToStaticMarkup(createElement(PageContainer, null, 'Page content'))
 
-		expect(html).toContain('pb-[calc(4.5rem+max(1.125rem,env(safe-area-inset-bottom)))]')
+		expect(html).toContain('max-lg:pb-[calc(3.75rem+max(1.125rem,env(safe-area-inset-bottom)))]')
 		expect(html).toContain('lg:pb-20')
 	})
 })

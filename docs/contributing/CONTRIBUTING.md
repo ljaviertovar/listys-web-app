@@ -2,7 +2,8 @@
 
 Use the [root setup guide](../../README.md) for development. [PRD v2](../prd/PRD-v2.md) governs the MVP; collaboration
 is experimental. [AGENTS.md](../../AGENTS.md) owns engineering constraints and the
-[project structure](../architecture/project-structure.md) owns placement rules.
+[project structure](../architecture/project-structure.md) owns placement rules. For visual work, use the canonical
+[Design system v2 HTML](../design/listys-design-system-v2.html) with its [written specification](../design/DESIGN.md).
 
 ## Verification before a PR
 
@@ -20,8 +21,8 @@ browser coverage. Inspect their assertions before claiming UI validation.
 
 Run corresponding tests for modified features and add missing application-owned behavior coverage under AGENTS.md.
 Unchanged third-party primitives do not need duplicate tests. Appearance changes also require local Chrome DevTools
-inspection and mobile/desktop screenshots against Design system v2. Documentation-only changes need link, evidence,
-terminology, command and diff checks; they do not require a new browser test.
+inspection and mobile/desktop screenshots against the relevant sections of the Design system v2 HTML. Documentation-only
+changes need link, evidence, terminology, command and diff checks; they do not require a new browser test.
 
 ## Playwright boundary
 

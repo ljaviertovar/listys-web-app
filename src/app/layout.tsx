@@ -30,7 +30,7 @@ import { ActiveSessionInit } from '@/components/app'
 export const metadata: Metadata = {
 	title: 'Listys - Smart Shopping List Manager',
 	description:
-		'Manage your shopping lists with AI-powered receipt processing. Transform photos into organized lists instantly.',
+		'Review items read from your receipts and choose what to add to reusable shopping lists.',
 	keywords: [
 		'shopping list',
 		'grocery app',
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
 		locale: 'en_US',
 		url: 'https://listys.app',
 		title: 'Listys - Smart Shopping List Manager',
-		description: 'Transform receipts into organized shopping lists with AI. Save time and track spending.',
+		description: 'Review items read from your receipts and choose what to add to a reusable shopping list.',
 		siteName: 'Listys',
 		images: [
 			{
@@ -59,7 +59,7 @@ export const metadata: Metadata = {
 	twitter: {
 		card: 'summary_large_image',
 		title: 'Listys - Smart Shopping List Manager',
-		description: 'Transform receipts into organized shopping lists with AI.',
+		description: 'Read items from receipts, review them, and choose what to add to reusable shopping lists.',
 		images: ['/og-image.jpg'],
 		creator: '@listysapp',
 	},

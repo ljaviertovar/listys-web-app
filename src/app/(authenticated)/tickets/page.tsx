@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
-
 import { PageHeader, PageContainer } from '@/components/app'
+import { RetryableError } from '@/components/commons'
 import { TicketsList, UploadTicketDialog, type TicketsListItem } from '@/components/features/tickets'
 
 import { getTickets } from '@/lib/api/endpoints'
@@ -50,16 +50,9 @@ export default async function TicketsPage() {
 			</PageHeader>
 
 			<PageContainer>
-				{error && (
-					<div
-						role='alert'
-						className='rounded-xl bg-destructive/10 p-4 text-sm text-destructive'
-					>
-						Error loading tickets: {error}
-					</div>
-				)}
-
-				<TicketsList tickets={listItems} />
+				{error ? (
+					<RetryableError message='We couldn’t load your receipts.' href='/tickets' testId='receipts-load-error' />
+				) : <TicketsList tickets={listItems} />}
 			</PageContainer>
 		</>
 	)

@@ -31,12 +31,12 @@ export function TicketSummaryCard({ ticket, itemsCount, pricedItemsCount, total 
 						<b className='font-mono font-semibold text-foreground tabular-nums'>{itemsCount}</b>
 					</div>
 					<div className='flex min-h-12 items-center justify-between border-t border-slate-100 text-sm font-semibold dark:border-border'>
-						<span>Calculated total</span>
+						<span>Extracted Item Total</span>
 						<b className='font-mono text-xl leading-none font-bold tabular-nums'>{formatCurrency(total)}</b>
 					</div>
 					{pricedItemsCount < itemsCount ? (
 						<p className='pb-2 text-xs leading-normal text-slate-500 dark:text-muted-foreground'>
-							Calculated using {pricedItemsCount} of {itemsCount} items with price.
+							Based on prices found for {pricedItemsCount} of {itemsCount} items. This may differ from the total printed on your receipt.
 						</p>
 					) : null}
 				</>
@@ -44,7 +44,7 @@ export function TicketSummaryCard({ ticket, itemsCount, pricedItemsCount, total 
 			<div className={cn('flex flex-col gap-2', showTotals && 'mt-2')}>
 				{noItems ? (
 					<UploadTicketDialog
-						label='Upload a Clearer Photo'
+						label='Upload a New Receipt'
 						className='w-full'
 					/>
 				) : null}

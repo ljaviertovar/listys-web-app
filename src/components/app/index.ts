@@ -2,7 +2,7 @@
 export { default as BackLink } from './back-link'
 export { Header } from './header'
 export { MobileTabBar } from './mobile-tab-bar'
-export { ABOVE_MOBILE_TAB_BAR } from './helpers/mobile-tab-bar-layout'
+export { ABOVE_MOBILE_TAB_BAR, MOBILE_DASHBOARD_SESSION_CLEARANCE, MOBILE_TAB_BAR_CLEARANCE } from './helpers/mobile-tab-bar-layout'
 export { default as AppLoading } from './app-loading'
 export { AppSidebar } from './sidebar/app-sidebar'
 export * from './app-page'

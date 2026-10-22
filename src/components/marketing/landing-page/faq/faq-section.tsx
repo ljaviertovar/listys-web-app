@@ -2,12 +2,12 @@ const FAQS = [
 	{
 		question: 'Do I have to retype my list every week?',
 		answer:
-			'No. Photograph a receipt once and its items become a base list you keep. Next week you start from that list instead of a blank one, and every new receipt fills in a little more of it.',
+			'No. Review the items from a receipt and choose what to add to a reusable base list. Start your next shopping session from that list.',
 	},
 	{
 		question: 'What happens when the scan gets something wrong?',
 		answer:
-			'You catch it. Extracted items land in a review screen before anything is saved — change a name, fix a quantity, delete a line that should not be there. We aim for 99% accuracy on a legible receipt; the review step covers the rest.',
+			'You can compare the extracted items with your receipt, then choose what to add to a base list.',
 	},
 	{
 		question: 'What is a shopping session?',
@@ -17,7 +17,7 @@ const FAQS = [
 	{
 		question: 'Can my household share a list?',
 		answer:
-			'Yes. Invite them to a group and you all see the same list at the same time. When someone ticks off milk in the aisle, it is ticked for everyone, so nobody comes home with a second carton.',
+			'Yes. Share a base list using its invite link. The link gives access to that list and the shopping session started from it.',
 	},
 	{
 		question: 'What does it cost?',

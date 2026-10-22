@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -58,7 +57,9 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
 			setServerError(
 				describeAuthError(
 					error instanceof Error ? error.message : undefined,
-					isSignUp ? 'An error occurred during registration' : 'An error occurred during sign in',
+					isSignUp
+						? 'We couldn’t create your account. Check your details and try again.'
+						: 'We couldn’t sign you in. Check your connection and try again.',
 				),
 			)
 		}
@@ -98,6 +99,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
 				typeSubmit={mode}
 				callbackUrl='/dashboard'
 				disabled={isSubmitting}
+				onError={() => setServerError('We couldn’t open Google sign-in. Try again.')}
 			/>
 
 			<div className='flex items-center gap-3'>
@@ -128,16 +130,6 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
 				<FormField
 					htmlFor='password'
 					label='Password'
-					labelAction={
-						isSignUp ? undefined : (
-							<Link
-								href='/auth/reset-password'
-								className='font-display text-xs font-semibold text-blue-700 hover:underline'
-							>
-								Forgot Password?
-							</Link>
-						)
-					}
 					hint={isSignUp ? `Must be at least ${MIN_PASSWORD_LENGTH} characters long` : undefined}
 					error={errors.password?.message}
 					testId='auth-password-field'
@@ -174,23 +166,6 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
 				)}
 			</Button>
 
-			<p className='text-center text-xs leading-normal text-slate-500'>
-				{copy.termsLead}{' '}
-				<Link
-					href='/terms'
-					className='font-medium text-foreground underline'
-				>
-					Terms of Service
-				</Link>{' '}
-				and{' '}
-				<Link
-					href='/privacy'
-					className='font-medium text-foreground underline'
-				>
-					Privacy Policy
-				</Link>
-				.
-			</p>
 		</form>
 	)
 }

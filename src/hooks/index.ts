@@ -1,4 +1,5 @@
 export { useIsMobile } from './use-mobile'
+export { useDialogFocus } from './use-dialog-focus'
 export { useMediaQuery } from './use-media-query'
 export { useScrollPosition } from './use-scroll-position'
 export { reducer, toast, useToast } from './use-toast'

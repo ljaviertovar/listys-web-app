@@ -102,7 +102,7 @@ export async function mergeTicketItemsToBaseList(data: unknown) {
     return { error: 'No items to merge' }
   }
 
-  const { data: mergeSummary, error: mergeError } = await (supabase as any).rpc(
+  const { data: mergeSummary, error: mergeError } = await supabase.rpc(
     'merge_ticket_items_to_base_list',
     {
       p_ticket_id: ticket_id,
@@ -244,12 +244,12 @@ export async function deleteTicket(id: string) {
 
   if (ticket && typeof ticket === 'object' && !('code' in ticket)) {
     // Handle new multi-image format (image_paths array)
-    if ((ticket as any).image_paths && Array.isArray((ticket as any).image_paths)) {
-      imagesToDelete.push(...(ticket as any).image_paths)
+    if (ticket.image_paths && Array.isArray(ticket.image_paths)) {
+      imagesToDelete.push(...ticket.image_paths)
     }
     // Handle legacy single image format (image_path)
-    else if ((ticket as any).image_path) {
-      imagesToDelete.push((ticket as any).image_path)
+    else if (ticket.image_path) {
+      imagesToDelete.push(ticket.image_path)
     }
   }
 
@@ -305,8 +305,8 @@ export async function retryTicketOCR(id: string) {
   }
 
   const imagePaths: string[] =
-    Array.isArray((ticket as any).image_paths) && (ticket as any).image_paths.length > 0
-      ? (ticket as any).image_paths
+    Array.isArray(ticket.image_paths) && ticket.image_paths.length > 0
+      ? ticket.image_paths
       : ticket.image_path
         ? [ticket.image_path]
         : []

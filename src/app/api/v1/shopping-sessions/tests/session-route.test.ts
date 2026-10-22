@@ -18,7 +18,7 @@ describe('DELETE /api/v1/shopping-sessions/:sessionId', () => {
   })
 
   it('cancels session and returns 204', async () => {
-    mockedCancelShoppingSession.mockResolvedValueOnce({ success: true } as any)
+    mockedCancelShoppingSession.mockResolvedValueOnce({ success: true } as never)
 
     const response = await DELETE(new Request('http://localhost/api/v1/shopping-sessions/' + SESSION_ID), {
       params: Promise.resolve({ sessionId: SESSION_ID }),

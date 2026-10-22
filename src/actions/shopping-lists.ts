@@ -191,9 +191,9 @@ export async function getGroupsWithHistory() {
 
   // For each group, count completed shopping runs
   const groupsWithHistory = await Promise.all(
-    groups.map(async (group: any) => {
+    groups.map(async (group) => {
       const baseListIds = Array.isArray(group.base_lists)
-        ? group.base_lists.map((bl: any) => bl.id).filter(Boolean)
+        ? group.base_lists.map((bl) => bl.id).filter(Boolean)
         : []
 
       let completedRunsCount = 0
