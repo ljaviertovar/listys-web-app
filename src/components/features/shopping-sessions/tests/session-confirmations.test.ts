@@ -51,7 +51,7 @@ describe('shopping session confirmations', () => {
 		const html = renderComplete(1, 4)
 
 		expect(html).toMatch(/<b[^>]*>3<\/b> items are still unchecked/)
-		expect(html).toContain('save the items you collected to your history?')
+		expect(html).toContain('save the items you collected to your history and your list? Unchecked items stay in your list.')
 		expect(html).toContain('Continue Shopping')
 		expect(html).toContain('Complete Shopping')
 		expect(html).toContain('data-loading-label="Completing Shopping…"')
@@ -61,14 +61,20 @@ describe('shopping session confirmations', () => {
 		expect(renderComplete(2, 3)).toMatch(/<b[^>]*>1<\/b> item is still unchecked/)
 	})
 
-	it('shows the ready state and keeps Base List sync on by default when all items are checked', () => {
+	it('shows the ready state and says the trip updates the history and the list', () => {
 		const html = renderComplete(4, 4)
 
 		expect(html).toContain('Ready to Complete Shopping?')
-		expect(html).toContain('All items are checked.')
-		expect(html).toContain('Update the Base List')
-		expect(html).toContain('Apply this session’s changes to your reusable list.')
-		expect(html).toContain('aria-checked="true"')
+		expect(html).toContain('All items are checked. Complete shopping to save this trip to your history and update your list.')
+	})
+
+	it.each([[4, 4], [1, 4]])('offers no way to skip updating the base list (%i of %i checked)', (checked, total) => {
+		const html = renderComplete(checked, total)
+
+		expect(html).not.toContain('Update the Base List')
+		expect(html).not.toContain('complete-session-sync')
+		expect(html).not.toContain('role="checkbox"')
+		expect(html).not.toContain('aria-checked')
 	})
 
 	it('explains that cancellation discards the session and keeps the non-destructive choice clear', () => {

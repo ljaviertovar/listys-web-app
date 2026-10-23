@@ -4,8 +4,8 @@ import { useState } from 'react'
 import { Delete02Icon, Edit02Icon } from '@hugeicons/core-free-icons'
 
 import { RowMenu } from '@/components/commons'
-import { ItemEditForm, ItemQuantityChip } from '@/components/features/list-items'
-import { formatItemName } from '@/utils'
+import { AveragePrice, ItemEditForm, ItemQuantityChip } from '@/components/features/list-items'
+import { formatItemName, isUsablePrice } from '@/utils'
 import type { BaseListItem } from '@/types'
 
 import { useBaseListItemActions } from './hooks/use-base-list-item-actions'
@@ -16,7 +16,10 @@ interface BaseListItemRowProps {
 	isLocked?: boolean
 }
 
-/** One item of a base list: its quantity chip, name and note, and a "⋯" menu. Editing swaps the row for the form in place. */
+/**
+ * One item of a base list: its quantity chip, name, the average price when the list knows one, its note, and a "⋯" menu.
+ * Editing swaps the row for the form in place.
+ */
 export function BaseListItemRow({ item, isLocked = false }: BaseListItemRowProps) {
 	const [editing, setEditing] = useState(false)
 	const { save, remove } = useBaseListItemActions(item)
@@ -46,7 +49,15 @@ export function BaseListItemRow({ item, isLocked = false }: BaseListItemRowProps
 			/>
 			<span className='flex min-w-0 flex-1 flex-col gap-0.5'>
 				<span className='truncate text-sm leading-[1.3] font-semibold'>{name}</span>
-				{item.notes ? <span className='truncate text-xs leading-[1.3] text-slate-500 dark:text-muted-foreground'>{item.notes}</span> : null}
+				{item.notes || isUsablePrice(item.average_price) ? (
+					<span className='flex min-w-0 items-center gap-2'>
+						<AveragePrice
+							price={item.average_price}
+							testId={`base-list-item-${item.id}-average-price`}
+						/>
+						{item.notes ? <span className='min-w-0 truncate text-xs leading-[1.3] text-slate-500 dark:text-muted-foreground'>{item.notes}</span> : null}
+					</span>
+				) : null}
 			</span>
 			<RowMenu
 				label={`More options for ${name}`}

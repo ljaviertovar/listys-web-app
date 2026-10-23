@@ -6,10 +6,12 @@ import { AddItemSheet } from '@/components/features/list-items'
 import { ShareListDialog } from '@/components/features/sharing'
 import {
 	STARTED_SESSION_PARAM,
+	SessionEstimate,
 	SessionProgressCard,
 	ShoppingSessionActions,
 	ShoppingSessionItems,
 	ShoppingSessionRealtimeListener,
+	buildSessionPriceEstimate,
 } from '@/components/features/shopping-sessions'
 
 import { getShoppingSession } from '@/actions'
@@ -77,6 +79,14 @@ export default async function ShoppingRunPage({
 		backLabel = `Back to ${group?.name || 'Group Lists'}`
 	}
 
+	// The estimate only exists while the trip runs; a finished session shows what was bought, not a guess.
+	// Read-only: it never writes a price. The list's own RLS decides what a collaborator can read.
+	const { data: knownPrices } =
+		!isCompleted && baseListId
+			? await supabase.from('base_list_items').select('normalized_name, average_price').eq('base_list_id', baseListId)
+			: { data: null }
+	const priceEstimate = isCompleted ? null : buildSessionPriceEstimate(runWithItems.items, knownPrices ?? [])
+
 	// A finished session only shows what was bought.
 	const items = isCompleted ? runWithItems.items.filter(item => item.checked === true) : runWithItems.items
 	const checkedCount = runWithItems.items.filter(item => item.checked).length
@@ -118,6 +128,14 @@ export default async function ShoppingRunPage({
 						/>
 					)}
 
+					{priceEstimate ? (
+						<SessionEstimate
+							total={priceEstimate.total}
+							pricedCount={priceEstimate.pricedCount}
+							itemCount={priceEstimate.itemCount}
+						/>
+					) : null}
+
 					{isCompleted ? null : (
 						<div
 							data-testid='session-toolbar'
@@ -141,6 +159,7 @@ export default async function ShoppingRunPage({
 					<ShoppingSessionItems
 						items={items}
 						isCompleted={isCompleted}
+						priceByItemId={priceEstimate ? Object.fromEntries(priceEstimate.priceByItemId) : undefined}
 						startCollapsed={justStarted && !isCompleted}
 					/>
 				</div>

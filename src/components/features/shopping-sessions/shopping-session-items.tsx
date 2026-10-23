@@ -13,6 +13,8 @@ import { ShoppingSessionItemRow } from './shopping-session-item-row'
 interface ShoppingSessionItemsProps {
 	items: ShoppingSessionItem[]
 	isCompleted?: boolean
+	/** Average price of each item the list knows a price for, by session item id; a finished session passes none. */
+	priceByItemId?: Record<string, number>
 	/** Fold every category: only the first visit after the session is started. Later renders keep what the user opened or closed. */
 	startCollapsed?: boolean
 }
@@ -26,7 +28,7 @@ function sortForShopping(items: ShoppingSessionItem[]) {
 }
 
 /** The items of a session in one card, a collapsible category each with how many are in the cart ("1/2"). */
-export function ShoppingSessionItems({ items, isCompleted = false, startCollapsed = false }: ShoppingSessionItemsProps) {
+export function ShoppingSessionItems({ items, isCompleted = false, priceByItemId, startCollapsed = false }: ShoppingSessionItemsProps) {
 	const groups = useMemo(() => groupByCategory(sortForShopping(items)), [items])
 
 	// The flag only describes this first visit: dropping it from the URL (no navigation) makes a reload or a later visit open the categories.
@@ -79,6 +81,7 @@ export function ShoppingSessionItems({ items, isCompleted = false, startCollapse
 									<ShoppingSessionItemRow
 										item={item}
 										isCompleted={isCompleted}
+										averagePrice={priceByItemId?.[item.id]}
 									/>
 								</li>
 							))}

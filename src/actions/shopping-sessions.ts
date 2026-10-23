@@ -8,7 +8,8 @@ import {
   updateShoppingSessionItemSchema,
   createShoppingSessionItemSchema,
 } from '@/lib/validations/shopping-session'
-import { MAX_ITEMS_PER_BASE_LIST } from '@/lib/config/limits'
+import { ApiServiceError } from '@/lib/api/http'
+import { completeSessionViaRpc } from '@/lib/server/services/complete-session-rpc'
 import { revalidatePath } from 'next/cache'
 
 export async function createShoppingSession(data: unknown) {
@@ -165,53 +166,18 @@ export async function completeShoppingSession(id: string, data: unknown) {
     return { error: validation.error.issues[0].message }
   }
 
-  // Get shopping session with items
-  const { data: shoppingSession, error: sessionError } = await supabase
-    .from('shopping_sessions')
-    .select(`
-      *,
-      items:shopping_session_items(*)
-    `)
-    .eq('id', id)
-    .eq('user_id', user.id)
-    .single()
-
-  if (sessionError || !shoppingSession) {
-    return { error: 'Shopping run not found' }
-  }
-
-  // Update shopping session status
-  const { error: updateError } = await supabase
-    .from('shopping_sessions')
-    .update({
-      status: 'completed',
-      completed_at: new Date().toISOString(),
-      ...validation.data,
-    })
-    .eq('id', id)
-    .eq('user_id', user.id)
-
-  if (updateError) {
-    return { error: updateError.message }
-  }
-
-  // Sync to base list if requested
-  if (validation.data.sync_to_base) {
-    const { error: syncError } = await supabase.rpc(
-      'sync_shopping_session_to_base_list',
-      {
-        p_session_id: id,
-        p_max_items: MAX_ITEMS_PER_BASE_LIST,
-      }
-    )
-
-    if (syncError) return { error: 'Run completed but sync failed: ' + syncError.message }
+  let sync
+  try {
+    sync = await completeSessionViaRpc(supabase, id, validation.data)
+  } catch (error) {
+    if (error instanceof ApiServiceError) return { error: error.message }
+    throw error
   }
 
   revalidatePath('/dashboard')
   revalidatePath('/shopping-history')
   revalidatePath(`/shopping/${id}`)
-  return { success: true }
+  return { success: true, sync }
 }
 
 export async function getActiveShoppingSession() {

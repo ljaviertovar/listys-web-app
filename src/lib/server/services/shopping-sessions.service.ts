@@ -7,7 +7,7 @@ import {
   updateShoppingSessionItemSchema,
   createShoppingSessionItemSchema,
 } from '@/lib/validations/shopping-session'
-import { MAX_ITEMS_PER_BASE_LIST } from '@/lib/config/limits'
+import { completeSessionViaRpc } from '@/lib/server/services/complete-session-rpc'
 
 export async function createShoppingSession(data: unknown) {
   const { supabase, user } = await createAuthenticatedClient()
@@ -124,53 +124,16 @@ export async function updateShoppingSession(id: string, data: unknown) {
 }
 
 export async function completeShoppingSession(id: string, data: unknown) {
-  const { supabase, user } = await createAuthenticatedClient()
+  const { supabase } = await createAuthenticatedClient()
 
   const validation = completeShoppingSessionSchema.safeParse(data)
   if (!validation.success) {
     throw new ApiServiceError(422, ErrorCode.VALIDATION_ERROR, validation.error.issues[0]?.message ?? 'Invalid payload')
   }
 
-  const { data: shoppingSession, error: sessionError } = await supabase
-    .from('shopping_sessions')
-    .select(`
-      *,
-      items:shopping_session_items(*)
-    `)
-    .eq('id', id)
-    .eq('user_id', user.id)
-    .single()
+  const sync = await completeSessionViaRpc(supabase, id, validation.data)
 
-  if (sessionError || !shoppingSession) {
-    throw new ApiServiceError(404, ErrorCode.NOT_FOUND, 'Shopping run not found')
-  }
-
-  const { error: updateError } = await supabase
-    .from('shopping_sessions')
-    .update({
-      status: 'completed',
-      completed_at: new Date().toISOString(),
-      ...validation.data,
-    })
-    .eq('id', id)
-    .eq('user_id', user.id)
-
-  if (updateError) {
-    throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, updateError.message)
-  }
-
-  if (validation.data.sync_to_base) {
-    const { error: syncError } = await supabase.rpc('sync_shopping_session_to_base_list', {
-      p_session_id: id,
-      p_max_items: MAX_ITEMS_PER_BASE_LIST,
-    })
-
-    if (syncError) {
-      throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'Run completed but sync failed: ' + syncError.message)
-    }
-  }
-
-  return { success: true }
+  return { success: true, sync }
 }
 
 export async function getActiveShoppingSession() {

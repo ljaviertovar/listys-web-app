@@ -19,6 +19,7 @@ vi.mock('@/lib/api/endpoints', () => ({
 vi.mock('@/components/features/list-items', async () => {
 	const React = await import('react')
 	return {
+		AveragePrice: () => null,
 		ItemEditForm: () => null,
 		ItemQuantityChip: () => React.createElement('span'),
 	}

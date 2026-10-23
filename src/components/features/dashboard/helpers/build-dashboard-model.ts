@@ -121,6 +121,8 @@ export interface DashboardModel {
 	quickStart: QuickStartList[]
 	/** The list the hero starts: the most overdue one, else the first with items. Null when no list has items. */
 	startTarget: QuickStartList | null
+	/** The only list of the account when it has no items yet (a new user's Pantry): the hero sends them to fill it. */
+	addItemsTarget: { id: string; name: string } | null
 	lastTrip: { listName: string; dateLabel: string; total: number | null } | null
 }
 
@@ -313,6 +315,9 @@ export function buildDashboardModel({
 	const overdue = findMostOverdueList(trips, baseLists, now)
 	const startTarget = overdue ? toQuickStart(overdue.list) : (quickStart[0] ?? null)
 
+	const onlyList = baseLists.length === 1 ? baseLists[0] : null
+	const addItemsTarget = onlyList && itemsCountOf(onlyList) === 0 ? { id: onlyList.id, name: onlyList.name } : null
+
 	const latest = trips[0]
 
 	return {
@@ -324,6 +329,7 @@ export function buildDashboardModel({
 		upNext: buildUpNext(tickets, trips, baseLists, groups, now),
 		quickStart,
 		startTarget,
+		addItemsTarget,
 		lastTrip: latest
 			? {
 					listName: latest.base_list?.name ?? latest.name,

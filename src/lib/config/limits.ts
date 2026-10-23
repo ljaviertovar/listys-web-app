@@ -23,7 +23,7 @@ export const MAX_GROUPS_PER_USER = 10 // Maximum number of shopping list groups 
  * 2. MAX_SYNC_ITEMS (250):
  *    - Matches MAX_ITEMS_PER_BASE_LIST to prevent inconsistent states
  *    - Allows syncing shopping sessions back to base lists without exceeding limit
- *    - Prevents the scenario: list with 250 items → sync fails → user confusion
+ *    - Completing a session never fails on a full list: new items that do not fit are skipped and reported
  *
  * 3. MAX_TICKET_ITEMS_MERGE (200):
  *    - Lower than base list limit (most receipts have <100 items)

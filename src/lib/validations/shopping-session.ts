@@ -5,17 +5,23 @@ export const createShoppingSessionSchema = z.object({
   name: z.string().min(1, 'Name is required').max(100),
 })
 
+export const COMPLETE_SESSION_ONLY_MESSAGE = 'A shopping session can only be completed with the complete operation.'
+
 export const updateShoppingSessionSchema = z.object({
   name: z.string().min(1, 'Name is required').max(100).optional(),
-  status: z.enum(['active', 'completed']).optional(),
+  // Completion must go through the complete operation so the trip always updates the base list.
+  status: z
+    .enum(['active', 'completed'])
+    .refine(status => status !== 'completed', COMPLETE_SESSION_ONLY_MESSAGE)
+    .optional(),
   total_amount: z.number().positive().optional(),
-  sync_to_base: z.boolean().optional(),
   general_notes: z.string().max(1000).optional(),
 })
 
 export const completeShoppingSessionSchema = z.object({
   total_amount: z.number().positive().optional(),
-  sync_to_base: z.boolean().default(false),
+  // Deprecated in API v1: accepted so older clients keep working, but ignored. Completion always syncs.
+  sync_to_base: z.boolean().optional(),
   general_notes: z.string().max(1000).optional(),
 })
 

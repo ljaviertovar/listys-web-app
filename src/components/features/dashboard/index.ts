@@ -1,3 +1,4 @@
+export { DashboardContent } from './dashboard-content'
 export { DashboardLoadError } from './dashboard-load-error'
 export { DashboardSkeleton } from './dashboard-skeleton'
 export { DashboardView } from './dashboard-view'

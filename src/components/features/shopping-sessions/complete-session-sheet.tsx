@@ -1,15 +1,16 @@
 'use client'
 
-import { useEffect, useId, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { CheckmarkCircle02Icon } from '@hugeicons/core-free-icons'
 
-import { Checkbox } from '@/components/ui/checkbox'
 import { ConfirmSheet } from '@/components/commons'
 import { completeShoppingSession } from '@/lib/api/endpoints'
 import { useActiveSessionStore } from '@/stores/active-session'
+
+import { listFullMessage } from './helpers/list-full-message'
 
 interface CompleteSessionSheetProps {
 	sessionId: string
@@ -21,12 +22,11 @@ interface CompleteSessionSheetProps {
 
 /**
  * Completing a shopping session. With items still unticked it says how many, so the user can go back; with all of them
- * ticked it offers to save the trip. Either way it asks whether to sync the changes back to the base list (on by default).
+ * ticked it offers to save the trip. Completing always saves the checked items to the history and the base list: there is
+ * no option to skip it.
  */
 export function CompleteSessionSheet({ sessionId, checked, total, open, onOpenChange }: CompleteSessionSheetProps) {
-	const syncId = useId()
 	const [loading, setLoading] = useState(false)
-	const [syncToBase, setSyncToBase] = useState(true)
 	const router = useRouter()
 	const clearActiveSession = useActiveSessionStore(s => s.clearActiveSession)
 
@@ -44,8 +44,10 @@ export function CompleteSessionSheet({ sessionId, checked, total, open, onOpenCh
 	const handleComplete = async () => {
 		setLoading(true)
 		try {
-			const { error } = await completeShoppingSession(sessionId, { sync_to_base: syncToBase })
+			const { data, error } = await completeShoppingSession(sessionId, {})
 			if (error) throw new Error(error)
+			const fullMessage = listFullMessage(data?.sync?.over_limit_count ?? 0)
+			if (fullMessage) toast.info(fullMessage)
 			// Clear store optimistically
 			clearActiveSession()
 			onOpenChange(false)
@@ -78,10 +80,10 @@ export function CompleteSessionSheet({ sessionId, checked, total, open, onOpenCh
 			}
 			description={
 				allChecked ? (
-					'All items are checked. Complete shopping to save this session to your history.'
+					'All items are checked. Complete shopping to save this trip to your history and update your list.'
 				) : (
 					<>
-						<b className='font-mono font-semibold text-foreground'>{unchecked}</b> {unchecked === 1 ? 'item is' : 'items are'} still unchecked. Complete shopping and save the items you collected to your history?
+						<b className='font-mono font-semibold text-foreground'>{unchecked}</b> {unchecked === 1 ? 'item is' : 'items are'} still unchecked. Complete shopping and save the items you collected to your history and your list? Unchecked items stay in your list.
 					</>
 				)
 			}
@@ -91,28 +93,6 @@ export function CompleteSessionSheet({ sessionId, checked, total, open, onOpenCh
 			loading={loading}
 			onConfirm={handleComplete}
 			testId='complete-session-sheet'
-		>
-			<label
-				htmlFor={syncId}
-				data-testid='complete-session-sync'
-				className='flex cursor-pointer items-start gap-1 rounded-2xl bg-muted py-1 pr-3.5 dark:bg-muted'
-			>
-				<span className='flex size-11 shrink-0 items-center justify-center'>
-					<Checkbox
-						id={syncId}
-						checked={syncToBase}
-						onCheckedChange={value => setSyncToBase(value === true)}
-						disabled={loading}
-						size='lg'
-					/>
-				</span>
-				<span className='flex flex-col gap-1 pt-2.5 pb-2'>
-					<span className='text-sm leading-[1.3] font-semibold'>Update the Base List</span>
-					<span className='text-xs leading-[1.45] text-slate-500 dark:text-muted-foreground'>
-						Apply this session’s changes to your reusable list.
-					</span>
-				</span>
-			</label>
-		</ConfirmSheet>
+		/>
 	)
 }

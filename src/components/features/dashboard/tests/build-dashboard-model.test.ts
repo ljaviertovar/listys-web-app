@@ -83,6 +83,22 @@ describe('buildDashboardModel', () => {
 		expect(build().startTarget).toMatchObject({ name: 'NO frills', groupName: 'Walmart', itemsCount: 28 })
 	})
 
+	it('points the hero at the only list when it is empty, like a new account’s Pantry', () => {
+		const pantry = { id: 'p1', name: 'Pantry', group_id: 'g0', items: [{ count: 0 }] }
+		const model = build({ groups: [{ id: 'g0', name: 'My Lists', description: null, base_lists: [{ count: 1 }] }], baseLists: [pantry] })
+
+		expect(model.addItemsTarget).toEqual({ id: 'p1', name: 'Pantry' })
+		expect(model.startTarget).toBeNull()
+		expect(model.quickStart).toEqual([])
+		expect(model.groups[0]).toMatchObject({ name: 'My Lists', listsCount: 1, lists: [{ name: 'Pantry', itemsCount: 0 }] })
+	})
+
+	it('has no add-items target once the only list has items or the account has several lists', () => {
+		expect(build({ baseLists: [noFrills] }).addItemsTarget).toBeNull()
+		expect(build({ baseLists: [bulk, { ...bulk, id: 'l9', name: 'Other' }] }).addItemsTarget).toBeNull()
+		expect(build({ baseLists: [] }).addItemsTarget).toBeNull()
+	})
+
 	it('flags a processed receipt that is not in a list yet', () => {
 		const model = build({
 			tickets: [

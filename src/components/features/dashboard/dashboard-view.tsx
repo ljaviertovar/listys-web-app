@@ -56,6 +56,7 @@ export function DashboardView({ model, firstName, isGuest = false, hasLists }: P
 						<NoSessionBanner
 							quickStart={model.quickStart}
 							startTarget={model.startTarget}
+							addItemsTarget={model.addItemsTarget}
 							lastTrip={model.lastTrip}
 							hasLists={hasLists}
 						/>

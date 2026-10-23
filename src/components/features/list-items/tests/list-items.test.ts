@@ -2,7 +2,7 @@ import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
 
-import { AddItemSheet, ItemEditForm, ItemQuantityChip, itemFormSchema, unitOptions } from '@/components/features/list-items'
+import { AddItemSheet, AveragePrice, ItemEditForm, ItemQuantityChip, itemFormSchema, unitOptions } from '@/components/features/list-items'
 import { AddItemForm } from '../add-item-form'
 
 // The add form reads the App Router when it is opened; the sheet is closed here.
@@ -97,5 +97,30 @@ describe('ItemEditForm', () => {
 
 		expect(html).toContain('Save Changes')
 		expect(html).not.toMatch(/>Save<\/button>/)
+	})
+})
+
+describe('AveragePrice', () => {
+	it('shows the amount as an average with its own test id', () => {
+		const html = renderToStaticMarkup(createElement(AveragePrice, { price: 3.49 }))
+
+		expect(html).toContain('data-testid="item-average-price"')
+		expect(html).toContain('$3.49')
+		expect(html).toContain('avg')
+		expect(html).toContain('Average price')
+		expect(html).toContain('font-mono')
+	})
+
+	it('takes the test id of its place so one row can be told from another', () => {
+		const html = renderToStaticMarkup(createElement(AveragePrice, { price: 12, testId: 'base-list-item-1-average-price' }))
+
+		expect(html).toContain('data-testid="base-list-item-1-average-price"')
+		expect(html).toContain('$12.00')
+	})
+
+	it.each([null, undefined, 0, -3, Number.NaN])('draws nothing for %s, never a $0', price => {
+		const html = renderToStaticMarkup(createElement(AveragePrice, { price }))
+
+		expect(html).toBe('')
 	})
 })

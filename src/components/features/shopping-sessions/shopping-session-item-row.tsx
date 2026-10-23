@@ -5,7 +5,7 @@ import { Delete02Icon, Edit02Icon } from '@hugeicons/core-free-icons'
 
 import { Checkbox } from '@/components/ui/checkbox'
 import { ConfirmSheet, RowMenu } from '@/components/commons'
-import { ItemEditForm, ItemQuantityChip } from '@/components/features/list-items'
+import { AveragePrice, ItemEditForm, ItemQuantityChip } from '@/components/features/list-items'
 import { cn, formatItemName } from '@/utils'
 import type { ShoppingSessionItem } from '@/types'
 
@@ -15,13 +15,15 @@ interface ShoppingSessionItemRowProps {
 	item: ShoppingSessionItem
 	/** A finished session is only read: nothing is ticked, edited or deleted. */
 	isCompleted?: boolean
+	/** The list's average price for this item, when it has one. */
+	averagePrice?: number | null
 }
 
 /**
  * One item of a shopping session: a 44px checkbox target, its name (struck through once it is in the cart), its quantity
- * chip and note, and a "⋯" menu. Editing swaps the row for the form in place.
+ * chip, the list's average price when known, its note, and a "⋯" menu. Editing swaps the row for the form in place.
  */
-export function ShoppingSessionItemRow({ item, isCompleted = false }: ShoppingSessionItemRowProps) {
+export function ShoppingSessionItemRow({ item, isCompleted = false, averagePrice = null }: ShoppingSessionItemRowProps) {
 	const checkboxId = useId()
 	const rowRef = useRef<HTMLDivElement>(null)
 	const returnFocusToMenu = useRef(false)
@@ -95,6 +97,10 @@ export function ShoppingSessionItemRow({ item, isCompleted = false }: ShoppingSe
 							quantity={item.quantity}
 							unit={item.unit}
 							muted={checked}
+						/>
+						<AveragePrice
+							price={averagePrice}
+							testId={`session-item-${item.id}-average-price`}
 						/>
 						{item.notes ? (
 							<span className='min-w-0 break-words text-xs leading-[1.3] text-slate-600 dark:text-muted-foreground'>{item.notes}</span>

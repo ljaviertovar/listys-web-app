@@ -115,6 +115,24 @@ describe('NoSessionBanner', () => {
 		expect(html).not.toContain('start-shopping-button')
 	})
 
+	it('sends an account whose only list is the empty Pantry straight to add items, never to a start button', () => {
+		const html = renderToStaticMarkup(
+			createElement(NoSessionBanner, {
+				quickStart: [],
+				startTarget: null,
+				addItemsTarget: { id: 'p1', name: 'Pantry' },
+				hasLists: true,
+				lastTrip: null,
+			}),
+		)
+
+		expect(html).toContain('Your list “Pantry” has no items yet. Add some, or upload a receipt, and it is ready to shop.')
+		expect(html).toContain('href="/base-lists/p1/edit"')
+		expect(html).toContain('Add Items')
+		expect(html).not.toContain('Open Your Lists')
+		expect(html).not.toContain('start-shopping-button')
+	})
+
 	it('points a new user at a receipt instead of an empty list picker', () => {
 		const html = renderToStaticMarkup(createElement(NoSessionBanner, { quickStart: [], startTarget: null, hasLists: false, lastTrip: null }))
 
@@ -184,6 +202,18 @@ describe('DashboardView', () => {
 		const running = renderToStaticMarkup(createElement(GroupsSectionCard, { groups, sessionActive: true }))
 		expect(running).toContain('dashboard-list-l1')
 		expect(running).not.toContain('start-shopping-button')
+	})
+
+	it('shows the default group with an empty Pantry as a list that cannot be started yet', () => {
+		const groups = [{ id: 'g0', name: 'My Lists', description: null, listsCount: 1, lists: [{ id: 'p1', name: 'Pantry', itemsCount: 0 }], hiddenListsCount: 0 }]
+
+		const html = renderToStaticMarkup(createElement(GroupsSectionCard, { groups }))
+
+		expect(html).toContain('data-testid="dashboard-list-p1"')
+		expect(html).toContain('Pantry')
+		expect(html).toContain('0 items')
+		expect(html).not.toContain('No groups yet.')
+		expect(html).toMatch(/data-testid="start-shopping-button"[^>]*disabled|disabled[^>]*data-testid="start-shopping-button"/)
 	})
 
 	it('nests each group’s lists under it and offers an empty-state for sections without data', () => {
