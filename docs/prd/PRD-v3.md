@@ -28,9 +28,10 @@ v3 therefore:
 - **Removes groups from the experience** and starts every user with a single "Pantry" list.
 - **Makes the store a first-class signal:** extracted from the receipt, normalized into "My stores", and learned
   per item, so a single master list already knows where each thing is usually bought — `Milk · [No Frills]`.
-- **Lets a session focus on one store** ("I'm going to No Frills today") while the rest waits for the next stop.
-- **Closes the loop with the receipt:** the receipt that ends a trip completes the session, fills the total and real
-  prices, and records the store.
+- **Keeps the trip simple:** a session is the whole list. The user ticks what they collect and never has to say which
+  store they are in. Stores enter afterwards, through the receipts.
+- **Closes the loop with the receipts:** the receipts that end a trip — one per store visited, or just one — complete
+  the session, fill the total and real prices, and record each store.
 
 ---
 
@@ -43,9 +44,9 @@ v3 therefore:
 | Sync on completion | Optional `sync_to_base` toggle | Always on; no toggle |
 | Store | Free-text `store_name`, typed manually, required | Extracted by OCR, matched to a normalized **store**, confirmed in review |
 | Item ↔ store | Not modeled | Per-item store statistics + usual-store tag (auto or manual) |
-| Session scope | Whole list | Whole list, or filtered to one store |
+| Session scope | Whole list | Whole list; no store is chosen during the trip (stores come from receipts) |
 | Active sessions | One per user | One per base list (see §8, FR-12) |
-| Receipt ↔ session | Unrelated flows | Receipt can complete the active/recent session |
+| Receipt ↔ session | Unrelated flows | One or more receipts (one per store visited) complete the active/recent session |
 | Price memory | `average_price` stored, not shown | Shown per item; per-store price comparison |
 | Terminology | receipt, base list, shopping session, **group**, item | receipt, base list, shopping session, **store**, item |
 
@@ -69,7 +70,7 @@ roommates. Shops weekly or every two weeks at 2–3 stores. Uses a phone in the 
 
 - "My list should already be there, in the order I shop."
 - "Tell me where I usually buy each thing."
-- "Today I'm only going to one store — show me what I get there."
+- "I tick what I collect wherever I am; a receipt per store afterwards should be enough."
 - "I don't want to organize anything."
 
 **Secondary persona — the multi-purpose buyer** (small business, second home, office supplies). May keep several
@@ -96,8 +97,9 @@ lists. Served by plain multiple lists in v3; dedicated "spaces" are a non-goal (
 
 1. A new user reaches a usable list and a first session without creating any container.
 2. Every base item can show where it is usually bought, learned from receipts and editable.
-3. A session can be scoped to one store without splitting the master list.
-4. A receipt uploaded after a trip completes that trip with real prices and total.
+3. A trip covers the whole list without asking for a store up front; each store's receipt, uploaded afterwards,
+   assigns its items and prices to that store.
+4. The receipts uploaded after a trip (one per store, or just one) complete it with real prices and total.
 5. Price memory is visible per item and comparable across stores.
 
 **Non-Goals (v3)**
@@ -117,16 +119,17 @@ flowchart LR
   R["Receipt<br/>(photos)"] -->|OCR + review| S["Store<br/>(My stores)"]
   R -->|OCR + review| I["Base list items<br/>(Pantry)"]
   S -->|item × store stats| I
-  I -->|clone, optional store filter| SS["Shopping session"]
+  I -->|clone, whole list| SS["Shopping session"]
   SS -->|complete: always sync| I
-  R -->|reconcile| SS
+  R -->|reconcile, 1..n receipts per session| SS
 ```
 
 - **Base list** — the household's reusable master list (default: "Pantry").
 - **Store** — a normalized place the user buys from, owned by the user, with aliases.
 - **Item × store statistics** — how often, how recently, and at what price an item was bought at each store.
 - **Usual store tag** — the store shown next to an item; `auto` (derived) or `manual` (user-set).
-- **Shopping session** — a trip; optionally scoped to one store.
+- **Shopping session** — a trip over the whole list. It has no store of its own; it ends with zero or more receipts,
+  one per store visited.
 
 ---
 
@@ -183,11 +186,11 @@ and the link is remembered as an alias for future receipts.
 *Acceptance:* a remembered alias is applied automatically on the next receipt; matching never merges items without
 the review step.
 
-### Phase 4 — Store tags and store-scoped sessions
+### Phase 4 — Store tags and shared-list sessions
 
 **FR-10: Item × store statistics.**  
-Each merge or completed session with a known store updates per-item, per-store purchase count, last price and last
-purchased date.
+Each reviewed receipt with a known store updates per-item, per-store purchase count, last price and last purchased
+date. Statistics come only from receipts: a trip without a receipt does not feed them.
 
 **FR-11: Usual-store tag (auto / manual).**  
 Each base item shows its usual store. `auto` tags follow the statistics (most frequent, weighted by recency;
@@ -196,22 +199,26 @@ is bought at more than one store, the item can show "also at …".
 *Acceptance:* items without data show no tag (not an error); switching a tag to `manual` freezes it; clearing it
 returns the item to `auto`.
 
-**FR-12: Store-scoped session and session limits.**  
-Starting a session offers an optional store. A store-scoped session lists that store's items first and keeps the rest
-in a collapsed "other stores / untagged" section. The selected store is recorded on the session, so trips without a
-receipt still feed store statistics. The one-active-session-per-user rule becomes one active session per base list, so
-collaborators and multi-store trips are not blocked.  
-*Acceptance:* unchecked items stay in the base list for the next trip; the session records `store_id`; two users of a
-shared list never get two competing active sessions on that list.
+**FR-12: One active session per list.**  
+A session covers the whole list and never asks for a store: the user ticks what they collect, in any store. Items
+keep their usual-store tag as information only (FR-11); the list can be filtered by store, but that does not change
+what the session contains. The one-active-session-per-user rule becomes one active session per base list, so
+collaborators and multi-store trips are not blocked. On a shared list, a second person joins the running session
+instead of starting a competing one, and sees the other person's checks live.  
+*Acceptance:* the start-shopping flow has no store step; unchecked items stay in the base list for the next trip; a
+session has no store of its own; two users of a shared list never get two competing active sessions on that list.
 
 ### Phase 5 — Close the loop
 
-**FR-13: Receipt completes the session.**  
-Uploading a receipt while a session is active, or shortly after one was completed, offers to attach it to that
-session. After OCR and review, the receipt fills the session total, real prices and store; receipt lines that match no
-checked item can be added as purchased.  
-*Acceptance:* attaching is always confirmed by the user; a receipt attaches to at most one session; reconciliation is
-transactional and idempotent.
+**FR-13: Receipts complete the session.**  
+When a trip is completed the user is invited to upload its receipts: one per store visited, or just the one for the
+store they went to. Uploading a receipt while a session is active, or shortly after one was completed, offers to
+attach it to that session. After OCR and review, each receipt gives the session its real prices and its part of the
+total, and records its store; receipt lines that match no checked item can be added as purchased. A session can have
+several receipts; an item is assigned to the store of the receipt it appears on.  
+*Acceptance:* attaching is always confirmed by the user; a receipt belongs to at most one session, and a receipt
+already attached elsewhere says so; a session's total is the sum of its receipts and is shown next to the estimate;
+receipts can be added later from History within the attach window; reconciliation is transactional and idempotent.
 
 **FR-14: Price comparison by store.**  
 An item shows its last price at each store where it was bought, highlighting the cheapest known store.  
@@ -235,12 +242,12 @@ defined in each phase's OpenSpec change.
 
 - `stores` — `id`, `user_id`, `name`, `normalized_name`, `aliases`, timestamps; unique `(user_id, normalized_name)`.
 - `tickets.store_id` → `stores` (keep `store_name` as the raw extracted text).
-- `shopping_sessions.store_id` → `stores` (nullable).
 - `base_list_item_store_stats` — `base_list_item_id`, `store_id`, `purchase_count`, `last_price`,
   `last_purchased_at`, timestamps; unique `(base_list_item_id, store_id)`.
 - `base_list_items.usual_store_id` (nullable) and `usual_store_source` (`auto` | `manual`).
 - Item alias storage for cross-store matching (FR-9).
-- `tickets.shopping_session_id` (nullable, unique) for FR-13.
+- `tickets.shopping_session_id` (nullable, not unique: several receipts per session, one session per receipt) for
+  FR-13. Sessions get no store column.
 - `groups`: unchanged; one implicit default group per user.
 
 ---
@@ -256,7 +263,7 @@ defined in each phase's OpenSpec change.
 
 - Share of base items with a usual-store tag after 4 receipts.
 - Share of auto tags the user overrides (a high rate means the derivation rule is wrong).
-- Share of completed sessions with an attached receipt.
+- Share of completed sessions with at least one attached receipt.
 - Store auto-match rate during receipt review.
 
 ---
@@ -268,7 +275,8 @@ defined in each phase's OpenSpec change.
 - **Tags that feel arbitrary** → minimum-evidence threshold, "also at …" for split items, manual override that sticks.
 - **Existing users lose their mental model of groups** → flat view shows all lists; group names can be kept as part of
   the list name during the transition; no data removed.
-- **Trips without receipts** → store chosen at session start feeds the statistics.
+- **Trips without receipts** → they do not feed store statistics or spend figures, and the product says so (the
+  dashboard counts receipts only); the completion step invites the user to add them, now or later.
 - **Shared-list contention** → active-session limit scoped per list (FR-12).
 - **OCR cost** → store and total extraction use the existing OCR call; no extra provider request.
 
@@ -278,7 +286,8 @@ defined in each phase's OpenSpec change.
 
 1. Auto-tag rule: minimum purchases and recency window before an item gets a store tag.
 2. Time window in which a receipt can still attach to a completed session (FR-13).
-3. Should a store-scoped session hide other-store items entirely or show them collapsed (proposed: collapsed)?
+3. When one trip has receipts from two stores and the same item is on both, how do the statistics treat it
+   (proposed: each receipt feeds its own store; the usual-store tag follows the statistics as usual)?
 4. Migration of existing multi-group users: keep group names as list prefixes, or as an internal label only?
 5. Is a per-store item order (aisle order learned from check-off sequence) worth a later phase?
 
