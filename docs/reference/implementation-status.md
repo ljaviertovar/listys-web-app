@@ -9,8 +9,8 @@ Reviewed on 2026-10-17 against the working tree. This document owns observed beh
 | --- | --- | --- |
 | Authentication | Email/password registration/sign-in, Google OAuth, callback exchange, sign-out and protected layouts. Password reset links to an unimplemented route. | [`auth/`](../../src/app/auth/), [`auth-form.tsx`](../../src/components/features/auth/auth-form.tsx), [`proxy.ts`](../../src/proxy.ts) |
 | Dashboard | Next-trip/active-session views, groups and lists, receipts, history, loading and error states. | [`dashboard/page.tsx`](../../src/app/(authenticated)/dashboard/page.tsx), [`build-dashboard-model.ts`](../../src/components/features/dashboard/helpers/build-dashboard-model.ts) |
-| Groups and lists | CRUD, duplicate-name checks, notes, quantities/categories/order and reusable shopping templates. | [`groups.service.ts`](../../src/lib/server/services/groups.service.ts), [`base-lists.service.ts`](../../src/lib/server/services/base-lists.service.ts) |
-| Shopping | Owner starts a nonempty base list; items clone in purchase-count, recency, sort-order sequence. Check/edit/add/delete, complete with amount/notes and optional sync, or cancel. The service checks for an existing active session. | [`shopping-sessions.service.ts`](../../src/lib/server/services/shopping-sessions.service.ts) |
+| Groups and lists | CRUD, duplicate-name checks, notes, quantities/categories/order and reusable shopping templates. A user with no list gets a default "Pantry" list in an implicit "My Lists" group on the first dashboard visit. | [`groups.service.ts`](../../src/lib/server/services/groups.service.ts), [`base-lists.service.ts`](../../src/lib/server/services/base-lists.service.ts), [`default-pantry.service.ts`](../../src/lib/server/services/default-pantry.service.ts) |
+| Shopping | Owner starts a nonempty base list; items clone in purchase-count, recency, sort-order sequence. Check/edit/add/delete, complete with amount/notes (completion always applies the checked items to the base list, atomically), or cancel. The service checks for an existing active session. Base-list rows and the running session show average prices and an estimated total when known. | [`shopping-sessions.service.ts`](../../src/lib/server/services/shopping-sessions.service.ts), [`complete-session-rpc.ts`](../../src/lib/server/services/complete-session-rpc.ts), [`session-estimate.tsx`](../../src/components/features/shopping-sessions/session-estimate.tsx) |
 | History | Completed sessions globally/by group, totals and detail navigation. No service/action for creating a list from a completed session was found. | [`shopping-history/`](../../src/app/(authenticated)/shopping-history/), [`session service`](../../src/lib/server/services/shopping-sessions.service.ts) |
 | Receipts | Multi-photo upload, OCR, status/errors, manual retry, viewer/compare, selection, merge/create list, group assignment, deletion with attempted image cleanup. No extracted-item editing endpoint was found. | [`tickets.service.ts`](../../src/lib/server/services/tickets.service.ts), [`tickets/`](../../src/components/features/tickets/) |
 | Enrichment | Normalized names and purchase-memory fields are defined in migrations; existing-list merge uses an RPC. Session ordering reads enrichment fields. | [`enrichment migration`](../../supabase/migrations/20260214000000_prd_v2_enrichment_and_transactions.sql), [`ticket service`](../../src/lib/server/services/tickets.service.ts) |
@@ -70,9 +70,60 @@ The [API reference](api-v1.md) owns compatibility details; [limits](limits.md) o
 | --- | --- |
 | Review/edit extracted items | Review, selection and merge exist; editing OCR items is absent from the inspected UI/API. |
 | History creates a base list with provenance | History/detail views exist; no `createBaseListFromSession` was found in actions or services. |
-| Transactional completion and sync | Sync uses an RPC, but the service marks completion first. Sync failure can leave a completed session. |
+| Transactional completion and sync | Closed by PRD v3 Phase 1: `complete_shopping_session` completes the session and syncs the list in one transaction, so a failure leaves the session active ([`migration`](../../supabase/migrations/20261023000000_pantry_defaults_and_session_completion.sql)). Verified against the linked project with a rollback-only script, see below. |
 | Idempotent merge and bounded automatic retries | Merge RPC/attempt fields do not establish request-level idempotency or exponential retries. Gemini checks a three-attempt cap; OpenAI increments attempts without the same cap, and the web retry service does not enforce it. See [`Gemini`](../../supabase/functions/process-ticket-ocr-gemini/index.ts), [`OpenAI`](../../supabase/functions/process-ticket-ocr-openai/index.ts) and [`retry service`](../../src/lib/server/services/tickets.service.ts). |
 | Performance, retention, conversion and reliability targets | PRD goals remain targets; production measurements and telemetry were not verified. |
+
+## PRD v3 Phase 1 delivered
+
+[PRD v3](../prd/PRD-v3.md) Phase 1 is specified in the OpenSpec change `pantry-defaults-and-price-memory` and implemented as follows.
+
+| Requirement | Observed behavior | Evidence |
+| --- | --- | --- |
+| FR-1 always sync | The completion sheet has no sync option; `POST /api/v1/shopping-sessions/{id}/complete` ignores `sync_to_base` and always applies checked items in one transaction, once per distinct item and trip. A repeated completion returns `409`; a full list skips the new items that do not fit and reports them; `PATCH` rejects `status: "completed"`. | [`complete-session-rpc.ts`](../../src/lib/server/services/complete-session-rpc.ts), [`complete-session-sheet.tsx`](../../src/components/features/shopping-sessions/complete-session-sheet.tsx), [`migration`](../../supabase/migrations/20261023000000_pantry_defaults_and_session_completion.sql), [API reference](api-v1.md#compatibility-and-migration) |
+| FR-2 default Pantry | `ensure_default_pantry` creates the default group and "Pantry" once for a user who owns no list; it is awaited before the dashboard reads. A user with lists is untouched and gets no default group yet. | [`dashboard-content.tsx`](../../src/components/features/dashboard/dashboard-content.tsx), [`default-pantry.service.ts`](../../src/lib/server/services/default-pantry.service.ts) |
+| FR-3 average price | Base-list and session rows show `average_price` when it is above zero; the running session shows an estimated total and how many items are priced. Nothing is written. | [`average-price.tsx`](../../src/components/features/list-items/average-price.tsx), [`session-estimate.tsx`](../../src/components/features/shopping-sessions/session-estimate.tsx), [`build-session-price-estimate.ts`](../../src/components/features/shopping-sessions/helpers/build-session-price-estimate.ts) |
+
+Verification: the migration was applied to the linked Supabase project (a test project, with the user's approval) with
+`supabase db query --linked`, because the remote migration history uses other versions for the shared-lists migrations and
+`supabase db push` refuses to run until that history is repaired. The version `20261023000000` was recorded; the divergent
+history was left as it was. [`pantry-and-session-completion.sql`](../../supabase/verification/pantry-and-session-completion.sql)
+runs 29 checks inside a transaction that always rolls back (all passed). Not verified: two truly simultaneous first calls
+(that guarantee rests on the partial unique index) and the Playwright specs (no validated local Supabase). The layouts were
+checked in Chromium at 320, 390 and 1280 px with fixed fixtures on a temporary route (since deleted).
+
+Signed-in check (2026-10-23, the owner's Google account, against the linked project, driven through Chrome over CDP with
+`e2e/data-test/test-receipt.jpg`): the account already had lists, so no default group was created (as specified); the receipt
+was uploaded and read (18 items); a list was created from it and then the receipt was merged into that list, after which all 18
+rows showed their average price; a session started from the list showed "Estimated total · Based on 18 of 18 items with a known
+price · $81.15", equal to the sum of the stored averages; the completion sheet had no sync option; completing with 3 of 18
+items checked left those 3 at `purchase_count` 3 and the other 15 at 2, with the session `completed` and `sync_to_base` true;
+repeating `/complete` returned `409` and `PATCH` with `status: "completed"` returned `422`.
+
+Second signed-in check, with a brand-new account without lists (same day): the first dashboard load created exactly one default
+group "My Lists" and one empty "Pantry" (hero "Add Items", Start disabled, empty list with a next step); three reloads and six
+parallel dashboard renders created nothing more. Items added by hand showed no price and no `$0`; a session from a priced-less list
+showed no estimate card. Completing a trip with an item added mid-trip added it to the list as new (`purchase_count` 1) and raised
+the checked ones. After merging the receipt into the Pantry (22 items, 18 priced) a session showed "Based on 18 of 22 items with a
+known price · $81.15", then "19 of 23 · $86.14" after adding an item with the name of a priced one. Completing with two session
+items of the same name checked counted one purchase (1 to 2, not 3) and kept the list at 22 items. A finished session shows no
+estimate and no prices. No horizontal scroll at 320 and 390 px (rows 64 px in the list, 68 px in a session), and the price rows and
+the estimate card read correctly in dark mode. After deleting the Pantry and reloading, it was not recreated (the dashboard shows
+"Start with a receipt" and the default group remains). The skipped-items toast was checked by simulating only the `/complete`
+response (`over_limit_count: 2`); the database side of a full list is covered by the rollback-only script. Not exercised: two truly
+simultaneous first sign-ins and the collaborator view of a shared session.
+
+Known limits introduced or exposed by this phase:
+
+- `average_price` is a running mean weighted by `purchase_count`, and `purchase_count` also grows for purchases without a price, so an
+  item bought several times without price and later with one shows a low average. The estimate adds averages without multiplying by
+  the session quantity. A purchases-with-price counter would fix the first; both are open questions in the change design.
+- Creating a new list from a receipt does not copy the receipt prices into `average_price` (only merging a receipt into an
+  existing list does), so a list created that way shows no prices until a receipt is merged into it. This predates Phase 1 and
+  limits how soon FR-3 becomes visible; copying the prices on creation is a candidate follow-up.
+- Accounts that already had lists have no default group. The phase that hides groups must decide how they get one.
+- The default group occupies one of the ten group slots ([limits](limits.md)).
+- Direct `GET /api/v1/shopping-sessions/{id}` still returns database rows; the estimate is computed by the page, not the API.
 
 ## Audit findings and follow-up
 
@@ -84,7 +135,7 @@ These are remaining application/operational tasks; the documentation update does
 | High | Several APIs return selected database rows; collections lack pagination metadata/links; write schemas generally strip unknown fields. | [`http.ts`](../../src/lib/api/http.ts), [`group service`](../../src/lib/server/services/groups.service.ts), [`base-list service`](../../src/lib/server/services/base-lists.service.ts), [`group schemas`](../../src/lib/validations/group.ts). Add DTOs and bounded contracts to meet AGENTS.md. |
 | High | Unexpected errors can expose `error.message`; services often include database messages. | [`http.ts`](../../src/lib/api/http.ts). Sanitize outward errors and add safe structured server logs. Request IDs alone are not a complete observability system. |
 | High | No complete OpenAPI/equivalent response schema, request idempotency/conditional-update mechanism or application rate-limit implementation was found. | [`API reference`](api-v1.md), [`handlers`](../../src/app/api/v1/), [`helpers`](../../src/lib/api/). Treat these as follow-up requirements. |
-| High | Completion/sync, session cloning and invite use-count updates involve separate writes. | [`session service`](../../src/lib/server/services/shopping-sessions.service.ts), [`sharing service`](../../src/lib/server/services/sharing.service.ts). Verify concurrency/failure recovery before claiming atomicity. |
+| High | Session cloning and invite use-count updates involve separate writes (completion and sync are now one transaction). | [`session service`](../../src/lib/server/services/shopping-sessions.service.ts), [`sharing service`](../../src/lib/server/services/sharing.service.ts). Verify concurrency/failure recovery before claiming atomicity. |
 | High | Server Actions and HTTP services duplicate domain implementations instead of consistently sharing one service layer. | [`actions/`](../../src/actions/), [`services/`](../../src/lib/server/services/). Consolidate behavior or verify both paths when fixing validation, authorization and business rules. |
 | Medium | Three deprecated v1 aliases still advertise the already-passed 2026-09-30 sunset. | [Compatibility inventory](api-v1.md#compatibility-and-migration). Agree the migration/removal plan before changing routes or dates. |
 | Medium | Password reset and two PRD journeys remain incomplete; production SLOs are unverified. | Acceptance gaps above and [design gaps](../design/DESIGN.md#114-current-implementation-gaps). |

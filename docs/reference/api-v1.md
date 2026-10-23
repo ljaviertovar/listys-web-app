@@ -53,8 +53,8 @@ strings. The inventory maps directly to [`src/app/api/v1/`](../../src/app/api/v1
 | `/base-lists/{baseListId}/items` | POST | Create an item; list ID comes from the path. |
 | `/base-list-items/{itemId}` | PATCH, DELETE | Update/delete an item. |
 | `/shopping-sessions` | GET, POST | History/default completed read, or create session. `?status=active` returns active-session data instead. |
-| `/shopping-sessions/{sessionId}` | GET, PATCH, DELETE | Read/update a session; DELETE invokes cancellation. |
-| `/shopping-sessions/{sessionId}/complete` | POST | Complete and optionally sync to the base list. |
+| `/shopping-sessions/{sessionId}` | GET, PATCH, DELETE | Read/update a session; DELETE invokes cancellation. PATCH cannot set `status` to `completed`. |
+| `/shopping-sessions/{sessionId}/complete` | POST | Complete the session and always apply its checked items to the base list, in one database transaction. |
 | `/shopping-sessions/{sessionId}/items` | POST | Create a session item. |
 | `/shopping-session-items/{itemId}` | PATCH, DELETE | Update/delete a session item. |
 | `/shopping-sessions/active` | GET | Deprecated alias; see compatibility table. |
@@ -86,7 +86,8 @@ before invoking them. This audit did not execute them.
 | List create/update | Create requires UUID `group_id`, `name` 1–100; `notes` nullable/optional up to 500. PATCH accepts name/notes. | [`base-list.ts`](../../src/lib/validations/base-list.ts) |
 | Item create/update | Name up to 200, quantity 0.1–99 in 0.1 steps, optional unit/notes/category. Path determines parent on nested POST. | [`base-list.ts`](../../src/lib/validations/base-list.ts), [`shopping-session.ts`](../../src/lib/validations/shopping-session.ts) |
 | Session create | UUID `base_list_id`, `name` 1–100. | [`shopping-session.ts`](../../src/lib/validations/shopping-session.ts) |
-| Session complete | Optional positive `total_amount`, `general_notes` up to 1000, `sync_to_base` defaults false. | [`shopping-session.ts`](../../src/lib/validations/shopping-session.ts) |
+| Session update (PATCH) | Optional `name` 1–100, `status` (only `active`; `completed` returns `422` and points to the complete operation), positive `total_amount`, `general_notes` up to 1000. `sync_to_base` is stripped. | [`shopping-session.ts`](../../src/lib/validations/shopping-session.ts) |
+| Session complete | Optional positive `total_amount`, `general_notes` up to 1000. `sync_to_base` is deprecated: accepted with any boolean, ignored, completion always syncs. | [`shopping-session.ts`](../../src/lib/validations/shopping-session.ts) |
 | Ticket upload | Multipart repeated `files`: 1–5 images, each at most 10 MiB. Service reads optional `group_id` and `store_name`; UI requires a store name, but the service does not apply the full upload Zod schema. | [`uploadTicket`](../../src/lib/server/services/tickets.service.ts), [`UI schema`](../../src/lib/validations/ticket.ts) |
 | Ticket group PATCH | `{ "group_id": "UUID" }` or `{ "group_id": null }`; field optional. | [`ticket handler`](../../src/app/api/v1/tickets/[ticketId]/route.ts) |
 | Merge items | UUID `base_list_id`, 1–200 `items` entries containing UUID `id` and boolean `merge`; path ticket ID takes precedence. | [`ticket schemas`](../../src/lib/validations/ticket.ts), [`merge handler`](../../src/app/api/v1/tickets/[ticketId]/merge-to-base-list/route.ts) |
@@ -107,6 +108,16 @@ Examples contain no real identifiers or credentials. See [limits](limits.md) for
 | `GET /api/v1/shopping-sessions/active` | `GET /api/v1/shopping-sessions?status=active` | Deprecated headers are emitted. |
 | `POST /api/v1/shopping-sessions/{sessionId}/cancel` | `DELETE /api/v1/shopping-sessions/{sessionId}` | Deprecated POST returns `{ "data": { "success": true } }`; DELETE returns `204`. |
 | `POST /api/v1/tickets/{ticketId}/assign-group` | `PATCH /api/v1/tickets/{ticketId}` | Deprecated body uses `groupId`; successor uses `group_id` and accepts null. |
+| `sync_to_base` field of `POST /api/v1/shopping-sessions/{sessionId}/complete` | None: completion always syncs | Deprecated since PRD v3 Phase 1 (2026-10-23). The field is still accepted but ignored, so a client sending `false` now gets the sync as well. No `Deprecation`/`Sunset` headers are emitted for a field. Clients should stop sending it. Introduce a new major version before reinstating an opt-out. |
+
+Session completion contract: `POST /api/v1/shopping-sessions/{sessionId}/complete` returns `200` with
+`{ "data": { "success": true, "sync": { "new_count": 0, "updated_count": 0, "skipped_count": 0, "over_limit_count": 0 } } }`.
+`over_limit_count` is the part of `skipped_count` that did not fit in the list (a full list never blocks completion);
+clients must ignore unknown fields. A session that is not active returns `409 CONFLICT` without effects, which makes a
+repeated request safe; a session of another user returns `404 NOT_FOUND`; any other failure returns `500 INTERNAL_ERROR`
+with a generic message and leaves the session active. Source:
+[`complete-session-rpc.ts`](../../src/lib/server/services/complete-session-rpc.ts) and the
+[migration](../../supabase/migrations/20261023000000_pantry_defaults_and_session_completion.sql).
 
 The three deprecated v1 aliases emit `Deprecation: true`, `Sunset: Wed, 30 Sep 2026 23:59:59 GMT`, and a successor `Link`.
 They still exist after that advertised sunset as of this review. [Open question: agree a revised compatibility/removal

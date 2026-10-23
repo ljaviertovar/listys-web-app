@@ -602,16 +602,19 @@ their original content. On completed sessions, the screen becomes a record: dest
 
 **Phone layout (design "Lists mobile · Sesión de compra").** Under the A1 header come the `Shopping` chip (22px, green, with the pulsing
 dot), a progress card (24px radius; "Collected", "1 of 4 items" and the percentage in mono at 24px, blue and green at 100%, over an
-8px bar), a row of two secondary buttons (`Share`, `Add Item`) and one card with a collapsible section per category (section 7.7).
+8px bar), the estimate card when the list knows prices (below), a row of two secondary buttons (`Share`, `Add Item`) and one card with a
+collapsible section per category (section 7.7).
 The count at the right of each category is `done/total` in mono and turns green when the category is complete. The session's own
 actions sit above the tab bar, away from the raised upload button: `Complete Shopping` is the primary action and `Cancel Shopping` is a
 separate destructive-soft action. Both are explicit, 44px controls on phones so completion does not hide behind a generic menu. From `lg`
 the actions sit beside the title (`Cancel Shopping` soft red, `Complete Shopping` primary) and the content is capped at 768px. The session
 bar of section 6.5 is not shown here: this screen is where it leads.
 
-`Complete Shopping` opens a sheet (section 7.12): with items still unticked it says how many ("You still have 3 unchecked items…"); with
-all of them ticked its title is "All Items Checked" and a green stroke icon replaces any celebratory emoji. Both offer "Sync changes
-back to base list", ticked by default, and the buttons `Continue Shopping` and `Complete Session`. `Cancel Shopping` opens a sheet that
+`Complete Shopping` opens a sheet (section 7.12): with items still unticked it says how many ("3 items are still unchecked…") and that
+the unchecked ones stay in the list; with all of them ticked its title is "Ready to Complete Shopping?" and a green stroke icon replaces
+any celebratory emoji. Both say that the checked items are saved to the history and the list, because completing always updates the base
+list: the sheet has no option to skip it. It offers `Continue Shopping` and `Complete Shopping`. If the list was full and some new items
+did not fit, a toast tells how many were not saved. `Cancel Shopping` opens a sheet that
 says the session is discarded, is not saved to the history and cannot be undone, with `Keep Shopping` and a red `Cancel Shopping`.
 Only the owner of the list sees these actions. A finished session shows `Completed`, a `Purchased` progress card and only the items
 that were bought, without checkboxes or menus.
@@ -645,8 +648,11 @@ shopping" for a running session, "Start shopping" for the most overdue list, or 
 lists (44px on phones, 52px from `md`). A running trip shows the "Shopping now" chip, the group and list, a progress bar
 (8px, white 16% track, `#60A5FA` to `#3B82F6` fill) with `n of m items - p%` in mono, and the collaborators (24px initials
 on pastel blue, pink and green, overlapping by 7px, with a 2px near-black ring). Without a session the hero omits a status
-chip, then shows the quick-start list shortcuts (36px high at every width) and the last trip in mono. A new account sees only
-the title "Start with a receipt", its explanation, the button and a mono note.
+chip, then shows the quick-start list shortcuts (36px high at every width) and the last trip in mono. An account with no list sees only
+the title "Start with a receipt", its explanation, the button and a mono note. A new account is not that case any more: it starts with the
+default "Pantry" list inside the implicit "My Lists" group, so its hero reads "Ready to go shopping?", says that the list has no items yet
+and offers `Add Items` (the list's editor) while the header and the tab bar keep `Upload`; `Start Shopping` stays hidden until the list has
+items.
 
 **Sections** (Shopping List Groups, Receipts, Shopping History):
 
@@ -871,6 +877,13 @@ label toggles the item, a ticked item is struck through and grey with its chip f
 accessible name say it too), and its menu is the same. `Add Item` is a sheet with name, quantity, unit, category and notes; its errors
 read "Name is required" and "Must be above 0" under the field. Realtime updates must not animate or reorder while the user is editing
 that row.
+
+**Average price and estimate (derived from the receipt row; the HTML has no example).** A list row and a session row show the item's
+average price on their second line, before the note: the amount in mono (`font-mono`, semibold, tabular numerals, foreground colour) followed
+by a quiet "avg" in `slate-500` at 12px, with "Average price" for assistive technology (`AveragePrice`). An item without a price shows nothing,
+never "$0.00". While a session runs, the `SessionEstimate` card sits under the progress card with the same 24px radius and surface: "Estimated
+total" and "Based on 3 of 12 items with a known price" at the left, the amount in mono 24px at the right. It is hidden when no item has a price
+and on a finished session, and it is never worded as what was paid.
 
 ### 7.9 Progress
 
@@ -1206,6 +1219,13 @@ These are remaining implementation notes, not permission for two systems:
     menu and several dialogs use 10px, 13px, 13.5px and 15px values outside the scale; IBM Plex Mono still loads weight 400.
     Mock-up internals on the landing page (the receipt paper, the phone screen, the list rows) keep their own small illustrative
     sizes and are not part of the scale.
+12a. **Price display (PRD v3 Phase 1):** `AveragePrice` and `SessionEstimate` have no example in the HTML reference; they were derived from the
+    receipt row (mono tabular price, section 7.4/7.6) and the progress card (section 7.9) and need a design review. The "avg" caption is drawn at
+    12px in `slate-500`, and amounts use the fixed `en-US`/USD formatter of `formatCurrency` (section 10.4 asks for locale-aware formatters).
+    The estimate adds average line amounts without multiplying by the session quantity.
+12b. **Default Pantry (PRD v3 Phase 1):** the HTML reference still draws a new account as the empty "Start with a receipt" dashboard. The code
+    gives a new account the default "Pantry" list, so the hero, the "Shopping List Groups" card ("My Lists" › "Pantry · 0 items") and the lists
+    screens show an empty list instead. Update the reference when the phase that hides groups lands.
 13. **Copy:** product UI and documentation mix “ticket,” “receipt,” “shopping run,” and “shopping session.” User-facing
    English uses `receipt` and `shopping session`; internal legacy names may remain until safely migrated. Profile and Account describe
    the sign-in method in plain language and wrap long values on phones.

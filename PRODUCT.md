@@ -32,7 +32,10 @@ itself. The receipt is a signal, not the product; the durable object is a list t
   line before anything is saved.
 - Merge: extracted items go into a new base list or merge into an existing one, de-duplicated by normalized name.
 - Shop: a shopping session is cloned from a base list so the original stays intact; items are checked off live, grouped
-  by category, with visible progress; on completion the session can optionally sync changes back into the base list.
+  by category, with visible progress; completing a session always saves the checked items into the base list, so
+  every trip teaches the list (there is no option to skip it).
+- Start: a new account begins with a base list called "Pantry", so the first receipt, item or trip needs no container
+  to be created first.
 - Share: a household group can hold a shared list and a shared shopping session, so several people see the same state.
 - Mobile-first and frequently offline-ish: a PWA used in-store, one-handed, on a phone.
 
@@ -42,8 +45,13 @@ itself. The receipt is a signal, not the product; the durable object is a list t
   CRUD, per-item enrichment (`purchase_count`, `first_seen_at`, `last_purchased_at`, `average_price`,
   `normalized_name`), shopping sessions with dynamic ordering and progress, shopping history, groups/invites and shared
   shopping sessions with collaborators.
+- Price memory is visible as plain facts: a base item shows its average price (labelled "avg") when receipts gave it
+  one, and a running session shows an estimated total that says how many items it covers. Nothing is shown without data
+  and an estimate is never worded as an amount paid.
 - Auth is Google OAuth only. There is one account tier; no paid plans, pricing page, or billing exists.
-- Terminology that must stay stable: **receipt**, **base list**, **shopping session**, **group**, **item**.
+- Terminology that must stay stable: **receipt**, **base list**, **shopping session**, **group**, **item**. PRD-v3
+  ([`docs/prd/PRD-v3.md`](docs/prd/PRD-v3.md)) moves the vocabulary to **store** in place of **group** as its later
+  phases ship; **group** stays the visible word until the phase that hides groups lands.
 - Explicitly not built: predictive restock alerts or notifications, analytics dashboards, POS integrations.
 - PRD-v2 lists real-time multi-user collaboration as an MVP non-goal; the codebase has since shipped sharing and shared
   sessions. Sharing is real and may be shown; it is not the lead promise.
