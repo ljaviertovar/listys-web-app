@@ -236,6 +236,7 @@ export type Database = {
           created_at: string | null
           description: string | null
           id: string
+          is_default: boolean
           name: string
           updated_at: string | null
           user_id: string
@@ -244,6 +245,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           id?: string
+          is_default?: boolean
           name: string
           updated_at?: string | null
           user_id: string
@@ -252,6 +254,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           id?: string
+          is_default?: boolean
           name?: string
           updated_at?: string | null
           user_id?: string
@@ -485,6 +488,24 @@ export type Database = {
           deleted_count: number
           total_size_bytes: number
         }[]
+      }
+      complete_shopping_session: {
+        Args: {
+          p_general_notes?: string
+          p_max_items?: number
+          p_session_id: string
+          p_total_amount?: number
+        }
+        Returns: {
+          new_count: number
+          over_limit_count: number
+          skipped_count: number
+          updated_count: number
+        }[]
+      }
+      ensure_default_pantry: {
+        Args: { p_group_name: string; p_list_name: string }
+        Returns: boolean
       }
       get_orphaned_storage_images: {
         Args: never
