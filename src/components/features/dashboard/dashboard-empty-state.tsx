@@ -7,7 +7,7 @@ interface Props {
 	testId: string
 	icon: IconSvgElement
 	tone: 'primary' | 'ocr' | 'success'
-	/** First sentence, set on its own line ("No groups yet."). */
+	/** First sentence, set on its own line ("No lists yet."). */
 	title: string
 	message: string
 	/** The one next step for this section, when there is one (History has none). */

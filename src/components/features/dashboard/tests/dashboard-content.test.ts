@@ -1,7 +1,7 @@
 import { isValidElement } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { getActiveShoppingSession, getBaseLists, getGroups, getShoppingHistory, getTickets } from '@/lib/api/endpoints'
+import { getActiveShoppingSession, getBaseLists, getShoppingHistory, getTickets } from '@/lib/api/endpoints'
 import { ensureDefaultPantry } from '@/lib/server/services/default-pantry.service'
 
 import { DashboardContent } from '../dashboard-content'
@@ -14,7 +14,6 @@ vi.mock('@/lib/supabase/server', () => ({
 vi.mock('@/lib/server/services/default-pantry.service', () => ({ ensureDefaultPantry: vi.fn() }))
 vi.mock('@/lib/api/endpoints', async importOriginal => ({
 	...(await importOriginal<typeof import('@/lib/api/endpoints')>()),
-	getGroups: vi.fn(),
 	getBaseLists: vi.fn(),
 	getTickets: vi.fn(),
 	getShoppingHistory: vi.fn(),
@@ -24,7 +23,6 @@ vi.mock('@/lib/api/endpoints', async importOriginal => ({
 const ok = (data: unknown) => ({ data, error: null }) as never
 
 function mockReads(baseLists: unknown[] = []) {
-	vi.mocked(getGroups).mockResolvedValue(ok([]))
 	vi.mocked(getBaseLists).mockResolvedValue(ok(baseLists))
 	vi.mocked(getTickets).mockResolvedValue(ok([]))
 	vi.mocked(getShoppingHistory).mockResolvedValue(ok([]))
@@ -38,7 +36,7 @@ describe('DashboardContent', () => {
 	})
 
 	it('provisions the default Pantry before it reads the lists', async () => {
-		mockReads([{ id: 'list-1', name: 'Pantry', group_id: 'group-1', items: [{ count: 0 }] }])
+		mockReads([{ id: 'list-1', name: 'Pantry', items: [{ count: 0 }] }])
 
 		await DashboardContent()
 
@@ -49,7 +47,7 @@ describe('DashboardContent', () => {
 
 	it('shows the lists that exist when provisioning created nothing or failed', async () => {
 		vi.mocked(ensureDefaultPantry).mockResolvedValue(false)
-		mockReads([{ id: 'list-1', name: 'Pantry', group_id: 'group-1', items: [{ count: 0 }] }])
+		mockReads([{ id: 'list-1', name: 'Pantry', items: [{ count: 0 }] }])
 
 		const element = await DashboardContent()
 

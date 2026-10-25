@@ -21,7 +21,7 @@ interface Props {
 }
 
 function describeList(list: NonNullable<Props['startTarget']>) {
-	return [list.groupName, pluralize(list.itemsCount, 'item')].filter(Boolean).join(' · ')
+	return pluralize(list.itemsCount, 'item')
 }
 
 /**

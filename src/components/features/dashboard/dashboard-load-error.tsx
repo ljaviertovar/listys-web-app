@@ -31,7 +31,7 @@ export function DashboardLoadError() {
 			<div className='flex max-w-xl flex-col gap-2'>
 				<h1 className='font-display text-2xl leading-[1.25] font-bold tracking-tight'>We couldn’t load your dashboard</h1>
 				<p className='text-base leading-[1.6] text-muted-foreground'>
-					Something went wrong while fetching your groups, receipts or shopping sessions. Nothing was changed. Check your
+					Something went wrong while fetching your lists, receipts or shopping sessions. Nothing was changed. Check your
 					connection and try again.
 				</p>
 			</div>

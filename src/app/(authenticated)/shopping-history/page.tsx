@@ -8,12 +8,17 @@ import { Card } from '@/components/ui/card'
 
 import { PageHeader, PageContainer } from '@/components/app'
 import { RetryableError } from '@/components/commons'
-import { GroupCard } from '@/components/features/shopping-lists'
+import { HistoryListFilter, HistorySessionCard, buildHistoryView } from '@/components/features/shopping-sessions'
 
-import { getGroupsWithHistory } from '@/lib/api/endpoints'
+import { getBaseLists, getShoppingHistory } from '@/lib/api/endpoints'
 import { createClient } from '@/lib/supabase/server'
 
-export default async function HistoryPage() {
+type HistorySession = ComponentProps<typeof HistorySessionCard>['session'] & { base_list_id: string | null }
+
+type SearchParams = { list?: string | string[] }
+
+export default async function HistoryPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
+	const { list } = await searchParams
 	const supabase = await createClient()
 	const {
 		data: { user },
@@ -23,7 +28,14 @@ export default async function HistoryPage() {
 		redirect('/auth/signin')
 	}
 
-	const { data: groups, error } = await getGroupsWithHistory()
+	const [historyResult, listsResult] = await Promise.all([getShoppingHistory(), getBaseLists()])
+	const loadFailed = Boolean(historyResult.error || listsResult.error)
+
+	const view = buildHistoryView({
+		trips: (historyResult.data ?? []) as HistorySession[],
+		lists: listsResult.data ?? [],
+		listParam: Array.isArray(list) ? list[0] : list,
+	})
 
 	return (
 		<>
@@ -31,13 +43,17 @@ export default async function HistoryPage() {
 				variant='screen'
 				back={{ href: '/dashboard', label: 'Back to Dashboard' }}
 				title='Shopping History'
-				desc='View your past shopping sessions by group'
+				desc='Every trip you have completed, newest first'
 			/>
 
 			<PageContainer>
-				{error ? (
-					<RetryableError message='We couldn’t load your shopping history.' href='/shopping-history' testId='history-load-error' />
-				) : !groups || groups.length === 0 ? (
+				{loadFailed ? (
+					<RetryableError
+						message='We couldn’t load your shopping history.'
+						href='/shopping-history'
+						testId='history-load-error'
+					/>
+				) : view.options.length === 0 && view.trips.length === 0 ? (
 					<Card size='tight'>
 						<div className='flex min-h-[152px] flex-col items-center justify-center gap-3 text-center'>
 							<span
@@ -59,14 +75,23 @@ export default async function HistoryPage() {
 						</div>
 					</Card>
 				) : (
-					<div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3'>
-						{groups.map((group: ComponentProps<typeof GroupCard>['group']) => (
-							<GroupCard
-								key={group.id}
-								group={group}
-								history={true}
-							/>
-						))}
+					<div className='flex flex-col gap-4'>
+						<HistoryListFilter
+							options={view.options}
+							selectedListId={view.selectedListId}
+						/>
+						<div
+							data-testid='history-trips'
+							className='grid gap-4'
+						>
+							{view.trips.map(session => (
+								<HistorySessionCard
+									key={session.id}
+									session={session}
+									href={`/shopping/${session.id}?from=history${view.selectedListId ? `&list=${view.selectedListId}` : ''}`}
+								/>
+							))}
+						</div>
 					</div>
 				)}
 			</PageContainer>

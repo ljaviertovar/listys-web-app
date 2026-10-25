@@ -20,7 +20,6 @@ import { Textarea } from '@/components/ui/textarea'
 import { CreateBaseListDialog, StartShoppingDialog } from '@/components/features/base-lists'
 import { AddItemSheet } from '@/components/features/list-items'
 import { ShareListDialog } from '@/components/features/sharing'
-import { CreateGroupDialog } from '@/components/features/shopping-lists'
 import { UploadTicketDialog } from '@/components/features/tickets'
 
 /** `createElement` with loosely typed props, so the tests can pass `data-*` attributes to any component. */
@@ -150,8 +149,7 @@ describe('Button', () => {
 
 describe('wrappers around a Button hand its props through', () => {
 	const triggers = {
-		'new group': { render: (props: Record<string, unknown>) => h(CreateGroupDialog, props), testId: 'create-group-button' },
-		'new base list': { render: (props: Record<string, unknown>) => h(CreateBaseListDialog, { groupId: 'g1', ...props }), testId: 'create-base-list-button' },
+		'new base list': { render: (props: Record<string, unknown>) => h(CreateBaseListDialog, props), testId: 'create-base-list-button' },
 		'share': { render: (props: Record<string, unknown>) => h(ShareListDialog, { baseListId: 'l1', listName: 'Dinner', isOwner: true, ...props }), testId: 'share-list-button' },
 		'add item': { render: (props: Record<string, unknown>) => h(AddItemSheet, { target: { context: 'base-list', baseListId: 'l1' }, ...props }), testId: 'add-item-button-base-list' },
 		'start shopping': { render: (props: Record<string, unknown>) => h(StartShoppingDialog, { baseListId: 'l1', baseListName: 'Dinner', itemsCount: 3, ...props }), testId: 'start-shopping-button' },
@@ -171,7 +169,7 @@ describe('wrappers around a Button hand its props through', () => {
 			scan: () => { wrappers: { name: string; takesButtonProps: boolean }[] }
 		}
 		const derived = scan().wrappers.filter(w => w.takesButtonProps).map(w => w.name)
-		const covered = ['CreateGroupDialog', 'CreateBaseListDialog', 'ShareListDialog', 'AddItemSheet', 'StartShoppingDialog', 'UploadTicketDialog']
+		const covered = ['CreateBaseListDialog', 'ShareListDialog', 'AddItemSheet', 'StartShoppingDialog', 'UploadTicketDialog']
 
 		expect([...derived].sort()).toEqual([...covered].sort())
 	}, 60_000)

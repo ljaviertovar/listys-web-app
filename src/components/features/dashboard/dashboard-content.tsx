@@ -1,5 +1,5 @@
 import { ensureDefaultPantry } from '@/lib/server/services/default-pantry.service'
-import { getActiveShoppingSession, getBaseLists, getGroups, getShoppingHistory, getTickets } from '@/lib/api/endpoints'
+import { getActiveShoppingSession, getBaseLists, getShoppingHistory, getTickets } from '@/lib/api/endpoints'
 import { createClient } from '@/lib/supabase/server'
 
 import { DashboardLoadError } from './dashboard-load-error'
@@ -23,10 +23,9 @@ export async function DashboardContent() {
 	await ensureDefaultPantry()
 
 	const supabase = await createClient()
-	const [userResult, groupsResult, baseListsResult, ticketsResult, historyResult, activeSessionResult] =
+	const [userResult, baseListsResult, ticketsResult, historyResult, activeSessionResult] =
 		await Promise.all([
 			supabase.auth.getUser(),
-			getGroups(),
 			getBaseLists(),
 			getTickets(),
 			getShoppingHistory(),
@@ -34,7 +33,7 @@ export async function DashboardContent() {
 		])
 
 	// A failed request must not be shown as an empty account: with no data the page would invite the user to start from scratch.
-	if ([groupsResult, baseListsResult, ticketsResult, historyResult, activeSessionResult].some(result => result.error)) {
+	if ([baseListsResult, ticketsResult, historyResult, activeSessionResult].some(result => result.error)) {
 		return <DashboardLoadError />
 	}
 
@@ -43,7 +42,6 @@ export async function DashboardContent() {
 	const baseLists = baseListsResult.data ?? []
 
 	const model = buildDashboardModel({
-		groups: groupsResult.data ?? [],
 		baseLists,
 		tickets: ticketsResult.data ?? [],
 		trips: historyResult.data ?? [],

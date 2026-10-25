@@ -1,4 +1,4 @@
-import { apiDelete, apiGet, apiPatch, apiPost } from '@/lib/api/client'
+import { apiDelete, apiGet, apiPost } from '@/lib/api/client'
 import type { Ticket } from '@/types/tickets'
 
 export async function getTickets() {
@@ -37,10 +37,6 @@ export async function retryTicketOCR(id: string) {
 
 export async function markStuckTicketsAsFailed() {
   return apiPost('/api/v1/tickets/maintenance/mark-stuck-as-failed')
-}
-
-export async function assignTicketToGroup(ticketId: string, groupId: string) {
-  return apiPatch(`/api/v1/tickets/${ticketId}`, { group_id: groupId })
 }
 
 export async function getOrphanedStorageImages() {

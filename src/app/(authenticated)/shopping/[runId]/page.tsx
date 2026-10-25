@@ -12,6 +12,7 @@ import {
 	ShoppingSessionItems,
 	ShoppingSessionRealtimeListener,
 	buildSessionPriceEstimate,
+	resolveSessionBackLink,
 } from '@/components/features/shopping-sessions'
 
 import { getShoppingSession } from '@/actions'
@@ -22,7 +23,7 @@ import type { ShoppingSessionWithItems } from '@/types'
 
 type SearchParams = {
 	from?: string | string[]
-	groupId?: string | string[]
+	list?: string | string[]
 	started?: string | string[]
 }
 
@@ -36,9 +37,7 @@ export default async function ShoppingRunPage({
 	const { runId } = await params
 	const resolvedSearchParams = await searchParams
 	const origin = Array.isArray(resolvedSearchParams.from) ? resolvedSearchParams.from[0] : resolvedSearchParams.from
-	const originGroupId = Array.isArray(resolvedSearchParams.groupId)
-		? resolvedSearchParams.groupId[0]
-		: resolvedSearchParams.groupId
+	const originListId = Array.isArray(resolvedSearchParams.list) ? resolvedSearchParams.list[0] : resolvedSearchParams.list
 	// Only the visit that follows starting the session; the items clear it from the URL once shown.
 	const justStarted = [resolvedSearchParams[STARTED_SESSION_PARAM]].flat()[0] === '1'
 	const supabase = await createClient()
@@ -57,27 +56,15 @@ export default async function ShoppingRunPage({
 	}
 
 	const runWithItems = shoppingSession as ShoppingSessionWithItems & {
-		base_list?: { group_id?: string | null; name?: string | null; user_id?: string | null } | null
+		base_list?: { name?: string | null; user_id?: string | null } | null
 	}
 	const isCompleted = runWithItems.status === 'completed'
 
 	const baseListId = runWithItems.base_list_id
 	const baseListName = runWithItems.base_list?.name ?? runWithItems.name
 	const isListOwner = runWithItems.base_list?.user_id === user.id
-	const groupId = runWithItems.base_list?.group_id
 
-	const { data: group } = groupId ? await supabase.from('groups').select('name').eq('id', groupId).single() : { data: null }
-
-	let backHref = '/shopping-history'
-	let backLabel = 'Back to Shopping History'
-
-	if (origin === 'history-group' && originGroupId) {
-		backHref = `/shopping-history/${originGroupId}`
-		backLabel = 'Back to Group History'
-	} else if (groupId) {
-		backHref = `/shopping-lists/${groupId}/lists`
-		backLabel = `Back to ${group?.name || 'Group Lists'}`
-	}
+	const { href: backHref, label: backLabel } = resolveSessionBackLink(origin, originListId)
 
 	// The estimate only exists while the trip runs; a finished session shows what was bought, not a guess.
 	// Read-only: it never writes a price. The list's own RLS decides what a collaborator can read.

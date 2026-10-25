@@ -2,7 +2,7 @@ import { ActionLink } from '@/components/commons'
 
 interface Props {
 	href: string
-	/** What "all" refers to ("groups"); only read aloud, so each link has its own accessible name. */
+	/** What "all" refers to ("lists"); only read aloud, so each link has its own accessible name. */
 	noun: string
 	testId: string
 }

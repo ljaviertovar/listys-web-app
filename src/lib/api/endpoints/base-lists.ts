@@ -21,10 +21,6 @@ export async function getBaseLists() {
   return apiGet('/api/v1/base-lists')
 }
 
-export async function getBaseListsByGroup(groupId: string) {
-  return apiGet(`/api/v1/groups/${groupId}/base-lists`)
-}
-
 export async function createBaseListItem(data: { base_list_id: string } & Record<string, unknown>) {
   const { base_list_id, ...payload } = data
   return apiPost(`/api/v1/base-lists/${base_list_id}/items`, payload)

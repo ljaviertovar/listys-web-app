@@ -18,7 +18,7 @@ interface Props {
 
 /** Hero of the dashboard while a shopping session is running: where you are, how far along, and one way back in. */
 export function ActiveSessionBanner({ session, isGuest = false }: Props) {
-	const origin = [session.groupName, session.listName].filter(Boolean).join(' › ')
+	const origin = session.listName
 	const isShared = session.collaborators.length > 0
 
 	return (

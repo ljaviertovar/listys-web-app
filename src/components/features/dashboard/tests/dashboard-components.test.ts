@@ -5,9 +5,9 @@ import { describe, expect, it, vi } from 'vitest'
 import { DashboardView, buildDashboardModel } from '@/components/features/dashboard'
 import { ActiveSessionBanner } from '@/components/features/dashboard/active-session-banner'
 import { DashboardLoadError } from '@/components/features/dashboard/dashboard-load-error'
-import { GroupsSectionCard } from '@/components/features/dashboard/groups-section-card'
 import { HistorySectionCard } from '@/components/features/dashboard/history-section-card'
 import { HeroSurface } from '@/components/features/dashboard/hero-surface'
+import { ListsSectionCard } from '@/components/features/dashboard/lists-section-card'
 import { NoSessionBanner } from '@/components/features/dashboard/no-session-banner'
 import { ReceiptsSectionCard } from '@/components/features/dashboard/receipts-section-card'
 import { UpNextList } from '@/components/features/dashboard/up-next-list'
@@ -19,7 +19,6 @@ vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn(), refresh: 
 const session: ActiveSessionSummary = {
 	id: 's1',
 	name: 'Items for Dinner',
-	groupName: 'Walmart',
 	listName: 'NO frills',
 	total: 19,
 	checked: 3,
@@ -28,13 +27,14 @@ const session: ActiveSessionSummary = {
 	collaborators: [],
 }
 
-const quickStart = [{ id: 'l1', name: 'NO frills', groupName: 'Walmart', itemsCount: 28 }]
-const otherList = { id: 'l2', name: 'Weekly Groceries', groupName: 'Costco', itemsCount: 12 }
+const quickStart = [{ id: 'l1', name: 'NO frills', itemsCount: 28 }]
+const otherList = { id: 'l2', name: 'Weekly Groceries', itemsCount: 12 }
+
+const listsOf = (items: Array<{ id: string; name: string; itemsCount: number }>, hiddenCount = 0) => ({ items, hiddenCount })
 
 function modelWith(overrides: Partial<Parameters<typeof buildDashboardModel>[0]> = {}) {
 	return buildDashboardModel({
-		groups: [{ id: 'g1', name: 'Walmart', description: null, base_lists: [{ count: 1 }] }],
-		baseLists: [{ id: 'l1', name: 'NO frills', group_id: 'g1', items: [{ count: 28 }] }],
+		baseLists: [{ id: 'l1', name: 'NO frills', items: [{ count: 28 }] }],
 		tickets: [],
 		trips: [],
 		activeSession: null,
@@ -43,11 +43,12 @@ function modelWith(overrides: Partial<Parameters<typeof buildDashboardModel>[0]>
 }
 
 describe('ActiveSessionBanner', () => {
-	it('shows where the trip is from, how far along it is and a way to continue', () => {
+	it('shows which list the trip is from, how far along it is and a way to continue', () => {
 		const html = renderToStaticMarkup(createElement(ActiveSessionBanner, { session }))
 
 		expect(html).toContain('data-testid="dashboard-active-session-banner"')
-		expect(html).toContain('Walmart › NO frills')
+		expect(html).toContain('NO frills')
+		expect(html).not.toContain('›')
 		expect(html).toContain('Items for Dinner')
 		expect(html).toContain('3 items in the cart, 16 to go')
 		expect(html).toContain('3 of 19 items · 16%')
@@ -82,7 +83,7 @@ describe('NoSessionBanner', () => {
 
 		expect(html).toContain('Ready to go shopping?')
 		expect(html).not.toContain('No shopping session in progress')
-		expect(html).toContain('Start “NO frills” (Walmart · 28 items)')
+		expect(html).toContain('Start “NO frills” (28 items)')
 		expect(html).toContain('data-testid="start-shopping-button"')
 		expect(html).toContain('srcSet="/images/dashboard/desktop-session.webp"')
 		expect(html).toContain('%2Fimages%2Fdashboard%2Fmobile-session.webp')
@@ -173,7 +174,7 @@ describe('DashboardView', () => {
 				firstName: 'Javier',
 				hasLists: true,
 				model: modelWith({
-					activeSession: { id: 's1', name: 'Items for Dinner', base_list_id: 'l1', base_list: { group_id: 'g1', name: 'NO frills' }, items: [{ checked: true }, { checked: false }] },
+					activeSession: { id: 's1', name: 'Items for Dinner', base_list_id: 'l1', base_list: { name: 'NO frills' }, items: [{ checked: true }, { checked: false }] },
 				}),
 			}),
 		)
@@ -188,39 +189,39 @@ describe('DashboardView', () => {
 		const html = renderToStaticMarkup(createElement(DashboardView, { firstName: 'Javier', hasLists: true, model: modelWith() }))
 
 		expect(html).toContain('dashboard-no-session-banner')
-		expect(html).toContain('data-testid="dashboard-groups-card"')
+		expect(html).toContain('data-testid="dashboard-lists-card"')
+		expect(html).not.toContain('dashboard-groups-card')
 		expect(html).toContain('data-testid="dashboard-receipts-card"')
 		expect(html).toContain('data-testid="dashboard-history-card"')
 		expect(html).toContain('Hi, Javier')
 	})
 
 	it('does not offer Start on any list while a shopping session is running', () => {
-		const groups = [{ id: 'g1', name: 'Walmart', description: null, listsCount: 1, lists: [{ id: 'l1', name: 'NO frills', itemsCount: 28 }], hiddenListsCount: 0 }]
+		const lists = listsOf([{ id: 'l1', name: 'NO frills', itemsCount: 28 }])
 
-		expect(renderToStaticMarkup(createElement(GroupsSectionCard, { groups }))).toContain('start-shopping-button')
+		expect(renderToStaticMarkup(createElement(ListsSectionCard, { lists }))).toContain('start-shopping-button')
 
-		const running = renderToStaticMarkup(createElement(GroupsSectionCard, { groups, sessionActive: true }))
+		const running = renderToStaticMarkup(createElement(ListsSectionCard, { lists, sessionActive: true }))
 		expect(running).toContain('dashboard-list-l1')
 		expect(running).not.toContain('start-shopping-button')
 	})
 
-	it('shows the default group with an empty Pantry as a list that cannot be started yet', () => {
-		const groups = [{ id: 'g0', name: 'My Lists', description: null, listsCount: 1, lists: [{ id: 'p1', name: 'Pantry', itemsCount: 0 }], hiddenListsCount: 0 }]
-
-		const html = renderToStaticMarkup(createElement(GroupsSectionCard, { groups }))
+	it('shows an empty Pantry as a list that cannot be started yet', () => {
+		const html = renderToStaticMarkup(createElement(ListsSectionCard, { lists: listsOf([{ id: 'p1', name: 'Pantry', itemsCount: 0 }]) }))
 
 		expect(html).toContain('data-testid="dashboard-list-p1"')
 		expect(html).toContain('Pantry')
 		expect(html).toContain('0 items')
-		expect(html).not.toContain('No groups yet.')
+		expect(html).not.toContain('No lists yet.')
 		expect(html).toMatch(/data-testid="start-shopping-button"[^>]*disabled|disabled[^>]*data-testid="start-shopping-button"/)
 	})
 
-	it('nests each group’s lists under it and offers an empty-state for sections without data', () => {
+	it('lists the lists flat, with no group level, and offers an empty-state for sections without data', () => {
 		const html = renderToStaticMarkup(createElement(DashboardView, { firstName: 'Javier', hasLists: true, model: modelWith() }))
 
-		expect(html).toContain('data-testid="dashboard-group-g1"')
 		expect(html).toContain('data-testid="dashboard-list-l1"')
+		// Only what the user reads: the markup itself carries Tailwind `group` classes.
+		expect(html.replace(/<[^>]*>/g, ' ')).not.toMatch(/group/i)
 		expect(html).toContain('No receipts yet')
 		expect(html).toContain('No shopping sessions yet')
 	})
@@ -241,15 +242,15 @@ describe('section cards', () => {
 
 	it('offers the first step inside each empty card, below the copy', () => {
 		const receipts = renderToStaticMarkup(createElement(ReceiptsSectionCard, { receipts: [] }))
-		const groups = renderToStaticMarkup(createElement(GroupsSectionCard, { groups: [] }))
+		const lists = renderToStaticMarkup(createElement(ListsSectionCard, { lists: listsOf([]) }))
 
 		expect(receipts).toContain('data-testid="dashboard-receipts-empty"')
 		expect(receipts).toContain('data-size="primary"')
 		expect(receipts).toContain('w-auto')
 		expect(receipts).toContain('No receipts yet')
 		expect(receipts.indexOf('No receipts yet')).toBeLessThan(receipts.indexOf('Upload Receipt'))
-		expect(groups.indexOf('No groups yet')).toBeLessThan(groups.indexOf('data-testid="create-group-button"'))
-		expect(groups).toContain('New Group')
+		expect(lists.indexOf('No lists yet')).toBeLessThan(lists.indexOf('data-testid="create-base-list-button"'))
+		expect(lists).toContain('New Base List')
 	})
 
 	it('titles each card with a real heading that names the card', () => {
@@ -292,9 +293,7 @@ describe('section cards', () => {
 
 	it('starts a list from a short "Start" pill that still says which list it starts', () => {
 		const html = renderToStaticMarkup(
-			createElement(GroupsSectionCard, {
-				groups: [{ id: 'g1', name: 'Walmart', description: null, listsCount: 1, lists: [{ id: 'l1', name: 'NO frills', itemsCount: 28 }], hiddenListsCount: 0 }],
-			}),
+			createElement(ListsSectionCard, { lists: listsOf([{ id: 'l1', name: 'NO frills', itemsCount: 28 }]) }),
 		)
 
 		expect(html).toContain('aria-label="Start shopping NO frills"')
@@ -303,17 +302,25 @@ describe('section cards', () => {
 		expect(html).toContain('· 28 items')
 	})
 
-	it('does not show the create-group button when groups already exist', () => {
-		const groups = renderToStaticMarkup(
-			createElement(GroupsSectionCard, { groups: [{ id: 'g1', name: 'Walmart', description: null, listsCount: 0, lists: [], hiddenListsCount: 0 }] }),
-		)
+	it('does not show the create button once there are lists, and points to the rest when some do not fit', () => {
+		const html = renderToStaticMarkup(createElement(ListsSectionCard, { lists: listsOf([{ id: 'l1', name: 'NO frills', itemsCount: 3 }], 2) }))
 
-		expect(groups).not.toContain('create-group-button')
+		expect(html).not.toContain('create-base-list-button')
+		expect(html).toContain('+ 2 more')
+		expect(html).toContain('href="/shopping-lists"')
+	})
+
+	it('names the section “Shopping Lists” and links its View all to the lists screen', () => {
+		const html = renderToStaticMarkup(createElement(ListsSectionCard, { lists: listsOf([{ id: 'l1', name: 'NO frills', itemsCount: 3 }]) }))
+
+		expect(html).toMatch(/<h2[^>]*>Shopping Lists<\/h2>/)
+		expect(html).toContain('data-testid="dashboard-lists-view-all"')
+		expect(html).toContain('href="/shopping-lists"')
 	})
 
 	it('gives the three empty states the same height, with History carrying no action', () => {
 		const html = [
-			renderToStaticMarkup(createElement(GroupsSectionCard, { groups: [] })),
+			renderToStaticMarkup(createElement(ListsSectionCard, { lists: listsOf([]) })),
 			renderToStaticMarkup(createElement(ReceiptsSectionCard, { receipts: [] })),
 			renderToStaticMarkup(createElement(HistorySectionCard, { trips: [] })),
 		].join('')
@@ -324,7 +331,7 @@ describe('section cards', () => {
 })
 
 describe('an account without data', () => {
-	const emptyModel = () => buildDashboardModel({ groups: [], baseLists: [], tickets: [], trips: [], activeSession: null })
+	const emptyModel = () => buildDashboardModel({ baseLists: [], tickets: [], trips: [], activeSession: null })
 	const emptyView = () => renderToStaticMarkup(createElement(DashboardView, { firstName: 'Javier', hasLists: false, model: emptyModel() }))
 
 	it('keeps the full layout of design A1: the hero that asks for a receipt and the three empty cards', () => {
@@ -334,16 +341,16 @@ describe('an account without data', () => {
 		expect(html).toContain('Start with a receipt')
 		expect(html).not.toContain('No shopping session in progress')
 		expect(html).toContain('1–5 photos · you review every item before it is saved')
-		expect(html).toContain('data-testid="dashboard-groups-empty"')
+		expect(html).toContain('data-testid="dashboard-lists-empty"')
 		expect(html).toContain('data-testid="dashboard-receipts-empty"')
 		expect(html).toContain('data-testid="dashboard-history-empty"')
 		expect(html).not.toContain('dashboard-first-steps')
 	})
 
-	it('offers the first step in the groups and receipts cards, and none in History', () => {
+	it('offers the first step in the lists and receipts cards, and none in History', () => {
 		const html = emptyView()
 
-		expect(html).toContain('data-testid="create-group-button"')
+		expect(html).toContain('data-testid="create-base-list-button"')
 		// The hero's button and the Receipts card's; a header one would repeat the hero's.
 		expect(html.match(/Upload Receipt/g)).toHaveLength(2)
 		expect(html.match(/min-h-\[172px\]/g)).toHaveLength(3)
@@ -352,7 +359,7 @@ describe('an account without data', () => {
 	it('gives each section its title row with a View all link, filled or empty', () => {
 		const html = emptyView()
 
-		expect(html).toContain('data-testid="dashboard-groups-view-all"')
+		expect(html).toContain('data-testid="dashboard-lists-view-all"')
 		expect(html).toContain('data-testid="dashboard-receipts-view-all"')
 		expect(html).toContain('data-testid="dashboard-history-view-all"')
 	})
@@ -399,9 +406,7 @@ describe('HeroSurface', () => {
 describe('the start button', () => {
 	it('names the list it starts, so repeated buttons are told apart', () => {
 		const html = renderToStaticMarkup(
-			createElement(GroupsSectionCard, {
-				groups: [{ id: 'g1', name: 'Walmart', description: null, listsCount: 1, lists: [{ id: 'l1', name: 'NO frills', itemsCount: 3 }], hiddenListsCount: 0 }],
-			}),
+			createElement(ListsSectionCard, { lists: listsOf([{ id: 'l1', name: 'NO frills', itemsCount: 3 }]) }),
 		)
 
 		expect(html).toContain('aria-label="Start shopping NO frills"')

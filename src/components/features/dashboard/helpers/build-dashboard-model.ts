@@ -1,3 +1,5 @@
+import { buildListDisplayNames } from '@/utils'
+
 /**
  * Pure view-model for the dashboard. Every number and sentence the dashboard shows is derived here from the
  * records the API already returns, so the components stay presentational and nothing on screen is invented.
@@ -5,17 +7,10 @@
 
 type OcrStatus = 'pending' | 'processing' | 'completed' | 'failed' | null
 
-export interface DashboardGroupInput {
-	id: string
-	name: string
-	description: string | null
-	base_lists?: { count: number }[]
-}
-
 export interface DashboardBaseListInput {
 	id: string
 	name: string
-	group_id: string
+	created_at?: string | null
 	items?: { count: number }[]
 }
 
@@ -35,7 +30,7 @@ export interface DashboardTripInput {
 	total_amount: number | null
 	completed_at: string | null
 	purchased_count?: number
-	base_list: { name: string; group: { id: string; name: string } | null } | null
+	base_list: { name: string } | null
 }
 
 export interface DashboardActiveSessionInput {
@@ -43,12 +38,11 @@ export interface DashboardActiveSessionInput {
 	name: string
 	base_list_id: string
 	items?: { checked: boolean | null }[]
-	base_list?: { group_id?: string | null; name?: string | null } | null
+	base_list?: { name?: string | null } | null
 	collaborators?: { initials: string; display_name?: string | null }[]
 }
 
 export interface DashboardModelInput {
-	groups: DashboardGroupInput[]
 	baseLists: DashboardBaseListInput[]
 	tickets: DashboardTicketInput[]
 	trips: DashboardTripInput[]
@@ -59,7 +53,6 @@ export interface DashboardModelInput {
 export interface ActiveSessionSummary {
 	id: string
 	name: string
-	groupName: string | null
 	listName: string | null
 	total: number
 	checked: number
@@ -68,13 +61,11 @@ export interface ActiveSessionSummary {
 	collaborators: { initials: string; display_name?: string | null }[]
 }
 
-export interface GroupPreview {
+export interface ListPreview {
 	id: string
+	/** The name the screen uses: lists that share a name read "Weekly" and "Weekly (2)". */
 	name: string
-	description: string | null
-	listsCount: number
-	lists: { id: string; name: string; itemsCount: number }[]
-	hiddenListsCount: number
+	itemsCount: number
 }
 
 export interface ReceiptPreview {
@@ -89,7 +80,7 @@ export interface TripPreview {
 	name: string
 	meta: string
 	total: number | null
-	/** The group's history page; trips are browsed per group. */
+	/** Trips are browsed on the one history screen. */
 	href: string
 }
 
@@ -106,14 +97,14 @@ export interface UpNextItem {
 export interface QuickStartList {
 	id: string
 	name: string
-	groupName: string | null
 	itemsCount: number
 }
 
 export interface DashboardModel {
-	counts: { groups: number; receipts: number; trips: number }
+	counts: { receipts: number; trips: number }
 	activeSession: ActiveSessionSummary | null
-	groups: GroupPreview[]
+	/** A few of the user's lists, flat: there is no group level any more. */
+	lists: { items: ListPreview[]; hiddenCount: number }
 	receipts: ReceiptPreview[]
 	trips: TripPreview[]
 	upNext: UpNextItem[]
@@ -126,8 +117,7 @@ export interface DashboardModel {
 	lastTrip: { listName: string; dateLabel: string; total: number | null } | null
 }
 
-const MAX_GROUPS_PREVIEW = 2
-const MAX_LISTS_PER_GROUP = 3
+const MAX_LISTS_PREVIEW = 5
 const MAX_RECEIPTS_PREVIEW = 3
 const MAX_TRIPS_PREVIEW = 3
 const MAX_UP_NEXT = 3
@@ -159,19 +149,17 @@ function itemsCountOf(list: DashboardBaseListInput) {
 
 function buildActiveSession(
 	session: DashboardActiveSessionInput | null,
-	groups: DashboardGroupInput[],
+	listNames: Map<string, string>,
 ): ActiveSessionSummary | null {
 	if (!session) return null
 
 	const total = session.items?.length ?? 0
 	const checked = session.items?.filter(item => item.checked === true).length ?? 0
-	const groupName = groups.find(group => group.id === session.base_list?.group_id)?.name ?? null
 
 	return {
 		id: session.id,
 		name: session.name || 'Current shopping',
-		groupName,
-		listName: session.base_list?.name ?? null,
+		listName: listNames.get(session.base_list_id) ?? session.base_list?.name ?? null,
 		total,
 		checked,
 		remaining: Math.max(total - checked, 0),
@@ -180,22 +168,15 @@ function buildActiveSession(
 	}
 }
 
-function buildGroups(groups: DashboardGroupInput[], baseLists: DashboardBaseListInput[]): GroupPreview[] {
-	return groups.slice(0, MAX_GROUPS_PREVIEW).map(group => {
-		const lists = baseLists.filter(list => list.group_id === group.id)
-		return {
-			id: group.id,
-			name: group.name,
-			description: group.description,
-			listsCount: lists.length,
-			lists: lists.slice(0, MAX_LISTS_PER_GROUP).map(list => ({
-				id: list.id,
-				name: list.name,
-				itemsCount: itemsCountOf(list),
-			})),
-			hiddenListsCount: Math.max(lists.length - MAX_LISTS_PER_GROUP, 0),
-		}
-	})
+function buildLists(baseLists: DashboardBaseListInput[], listNames: Map<string, string>) {
+	return {
+		items: baseLists.slice(0, MAX_LISTS_PREVIEW).map(list => ({
+			id: list.id,
+			name: listNames.get(list.id) ?? list.name,
+			itemsCount: itemsCountOf(list),
+		})),
+		hiddenCount: Math.max(baseLists.length - MAX_LISTS_PREVIEW, 0),
+	}
 }
 
 function ticketTitle(ticket: DashboardTicketInput) {
@@ -218,19 +199,14 @@ function buildReceipts(tickets: DashboardTicketInput[]): ReceiptPreview[] {
 	})
 }
 
-function buildTrips(trips: DashboardTripInput[]): TripPreview[] {
-	return trips.slice(0, MAX_TRIPS_PREVIEW).map(trip => {
-		const listName = trip.base_list?.name ?? trip.name
-		const groupName = trip.base_list?.group?.name
-		const date = formatShortDate(trip.completed_at)
-		return {
-			id: trip.id,
-			name: listName,
-			meta: [groupName, date].filter(Boolean).join(' · '),
-			total: trip.total_amount,
-			href: trip.base_list?.group ? `/shopping-history/${trip.base_list.group.id}` : '/shopping-history',
-		}
-	})
+function buildTrips(trips: DashboardTripInput[], listNames: Map<string, string>): TripPreview[] {
+	return trips.slice(0, MAX_TRIPS_PREVIEW).map(trip => ({
+		id: trip.id,
+		name: listNames.get(trip.base_list_id) ?? trip.base_list?.name ?? trip.name,
+		meta: formatShortDate(trip.completed_at),
+		total: trip.total_amount,
+		href: '/shopping-history',
+	}))
 }
 
 /** The list that has been shopped before, not within the last STALE_LIST_DAYS, and has items to buy; the longest wait first. */
@@ -254,7 +230,7 @@ function buildUpNext(
 	tickets: DashboardTicketInput[],
 	trips: DashboardTripInput[],
 	baseLists: DashboardBaseListInput[],
-	groups: DashboardGroupInput[],
+	listNames: Map<string, string>,
 	now: Date,
 ): UpNextItem[] {
 	const items: UpNextItem[] = []
@@ -265,7 +241,7 @@ function buildUpNext(
 			id: `receipt-waiting-${waiting.id}`,
 			kind: 'receipt-waiting',
 			title: `${pluralize(waiting.total_items ?? 0, 'item')} from “${ticketTitle(waiting)}” ${waiting.total_items === 1 ? 'is' : 'are'} waiting`,
-			detail: 'Add them to a list in one of your groups',
+			detail: 'Add them to one of your lists',
 			href: `/tickets/${waiting.id}`,
 		})
 	}
@@ -284,12 +260,12 @@ function buildUpNext(
 	const stale = findMostOverdueList(trips, baseLists, now)
 
 	if (stale) {
-		const groupName = groups.find(group => group.id === stale.list.group_id)?.name
+		const listName = listNames.get(stale.list.id) ?? stale.list.name
 		items.push({
 			id: `list-stale-${stale.list.id}`,
 			kind: 'list-stale',
-			title: `${stale.list.name}: last shopped ${pluralize(stale.days, 'day')} ago`,
-			detail: [groupName, `${pluralize(itemsCountOf(stale.list), 'item')} ready`].filter(Boolean).join(' · '),
+			title: `${listName}: last shopped ${pluralize(stale.days, 'day')} ago`,
+			detail: `${pluralize(itemsCountOf(stale.list), 'item')} ready`,
 			href: `/base-lists/${stale.list.id}/edit`,
 		})
 	}
@@ -298,17 +274,17 @@ function buildUpNext(
 }
 
 export function buildDashboardModel({
-	groups,
 	baseLists,
 	tickets,
 	trips,
 	activeSession,
 	now = new Date(),
 }: DashboardModelInput): DashboardModel {
+	const listNames = buildListDisplayNames(baseLists)
+	const nameOf = (list: DashboardBaseListInput) => listNames.get(list.id) ?? list.name
 	const toQuickStart = (list: DashboardBaseListInput): QuickStartList => ({
 		id: list.id,
-		name: list.name,
-		groupName: groups.find(group => group.id === list.group_id)?.name ?? null,
+		name: nameOf(list),
 		itemsCount: itemsCountOf(list),
 	})
 	const quickStart = baseLists.filter(list => itemsCountOf(list) > 0).slice(0, MAX_QUICK_START).map(toQuickStart)
@@ -316,23 +292,23 @@ export function buildDashboardModel({
 	const startTarget = overdue ? toQuickStart(overdue.list) : (quickStart[0] ?? null)
 
 	const onlyList = baseLists.length === 1 ? baseLists[0] : null
-	const addItemsTarget = onlyList && itemsCountOf(onlyList) === 0 ? { id: onlyList.id, name: onlyList.name } : null
+	const addItemsTarget = onlyList && itemsCountOf(onlyList) === 0 ? { id: onlyList.id, name: nameOf(onlyList) } : null
 
 	const latest = trips[0]
 
 	return {
-		counts: { groups: groups.length, receipts: tickets.length, trips: trips.length },
-		activeSession: buildActiveSession(activeSession, groups),
-		groups: buildGroups(groups, baseLists),
+		counts: { receipts: tickets.length, trips: trips.length },
+		activeSession: buildActiveSession(activeSession, listNames),
+		lists: buildLists(baseLists, listNames),
 		receipts: buildReceipts(tickets),
-		trips: buildTrips(trips),
-		upNext: buildUpNext(tickets, trips, baseLists, groups, now),
+		trips: buildTrips(trips, listNames),
+		upNext: buildUpNext(tickets, trips, baseLists, listNames, now),
 		quickStart,
 		startTarget,
 		addItemsTarget,
 		lastTrip: latest
 			? {
-					listName: latest.base_list?.name ?? latest.name,
+					listName: listNames.get(latest.base_list_id) ?? latest.base_list?.name ?? latest.name,
 					dateLabel: formatShortDate(latest.completed_at),
 					total: latest.total_amount,
 				}

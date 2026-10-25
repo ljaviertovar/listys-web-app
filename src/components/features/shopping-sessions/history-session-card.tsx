@@ -26,7 +26,7 @@ interface Props {
 }
 
 /**
- * A completed session in a group's history (design: Mobile historial grupo). The card is plain; only "View Details" is a link,
+ * A completed trip in the shopping history (design: Mobile historial). The card is plain; only "View Details" is a link,
  * so the rest of the card does not react to taps or hover.
  */
 export function HistorySessionCard({ session, href }: Props) {

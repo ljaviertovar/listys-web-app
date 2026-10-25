@@ -47,7 +47,7 @@ const session = (status: 'active' | 'completed') => ({
 	name: 'Weekly trip',
 	status,
 	base_list_id: 'list-1',
-	base_list: { group_id: 'g1', name: 'Pantry', user_id: 'user-1' },
+	base_list: { name: 'Pantry', user_id: 'user-1' },
 	items: [
 		{ id: 'i1', name: 'Milk', normalized_name: 'milk', checked: true },
 		{ id: 'i2', name: 'Bread', normalized_name: 'bread', checked: true },
@@ -55,7 +55,8 @@ const session = (status: 'active' | 'completed') => ({
 	],
 })
 
-const render = async () => renderToStaticMarkup(await ShoppingRunPage({ params: Promise.resolve({ runId: 'run-1' }), searchParams: Promise.resolve({}) }))
+const render = async (searchParams: Record<string, string> = {}) =>
+	renderToStaticMarkup(await ShoppingRunPage({ params: Promise.resolve({ runId: 'run-1' }), searchParams: Promise.resolve(searchParams) }))
 
 describe('shopping session page estimate', () => {
 	beforeEach(() => {
@@ -83,5 +84,40 @@ describe('shopping session page estimate', () => {
 		expect(html).not.toContain('Estimated total')
 		expect(html).toContain('data-prices="null"')
 		expect(mocks.baseListItemReads).toEqual([])
+	})
+})
+
+describe('shopping session page back link', () => {
+	beforeEach(() => {
+		vi.mocked(getShoppingSession).mockResolvedValue({ data: session('completed'), error: null } as never)
+	})
+
+	it('goes back to the history with the list it was narrowed to', async () => {
+		const html = await render({ from: 'history', list: 'list-1' })
+
+		expect(html).toContain('href="/shopping-history?list=list-1"')
+		expect(html).toContain('Back to Shopping History')
+	})
+
+	it('goes back to the whole history when it was not narrowed', async () => {
+		const html = await render({ from: 'history' })
+
+		expect(html).toContain('href="/shopping-history"')
+		expect(html).toContain('Back to Shopping History')
+	})
+
+	it('still understands the origin that links made before groups were hidden carry', async () => {
+		const html = await render({ from: 'history-group', groupId: 'old-group' })
+
+		expect(html).toContain('href="/shopping-history"')
+		expect(html).not.toContain('old-group')
+	})
+
+	it('goes to the lists, without any group wording, when it has no origin', async () => {
+		const html = await render()
+
+		expect(html).toContain('href="/shopping-lists"')
+		expect(html).toContain('Back to Lists')
+		expect(html.replace(/<[^>]*>/g, ' ')).not.toMatch(/group/i)
 	})
 })

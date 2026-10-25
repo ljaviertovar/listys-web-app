@@ -34,14 +34,4 @@ export const GUARD_ALLOWLIST: GuardException[] = [
 		tag: 'button',
 		reason: 'The remove control is a 44px hit area around a 24px dot drawn on the photo corner; the visible part is the inner span, not the button.',
 	},
-	{
-		file: 'components/app/active-session/session-bar.tsx',
-		tag: 'Link',
-		reason: 'The whole session bar is one link (ring, text, progress and a Continue button inside): a card-shaped link, not a button.',
-	},
-	{
-		file: 'components/app/mobile-tab-bar.tsx',
-		tag: 'Link',
-		reason: 'A tab of the bottom bar stacks an icon over its label inside a pill: a navigation item, not a Button.',
-	},
 ]

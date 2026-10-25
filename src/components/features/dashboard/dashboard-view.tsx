@@ -3,8 +3,8 @@ import { MOBILE_DASHBOARD_SESSION_CLEARANCE } from '@/components/app'
 import { cn } from '@/utils'
 import { ActiveSessionBanner } from './active-session-banner'
 import { DashboardGreeting } from './dashboard-greeting'
-import { GroupsSectionCard } from './groups-section-card'
 import { HistorySectionCard } from './history-section-card'
+import { ListsSectionCard } from './lists-section-card'
 import { NoSessionBanner } from './no-session-banner'
 import { ReceiptsSectionCard } from './receipts-section-card'
 import { UpNextList } from './up-next-list'
@@ -70,8 +70,8 @@ export function DashboardView({ model, firstName, isGuest = false, hasLists }: P
 			</div>
 
 			<div className='grid items-stretch gap-5 sm:grid-cols-2 xl:grid-cols-3'>
-				<GroupsSectionCard
-					groups={model.groups}
+				<ListsSectionCard
+					lists={model.lists}
 					sessionActive={model.activeSession !== null}
 				/>
 				<ReceiptsSectionCard receipts={model.receipts} />
