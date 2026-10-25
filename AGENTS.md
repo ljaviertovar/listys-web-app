@@ -413,9 +413,8 @@ Rules:
   contextual identifier, such as `profile-preferences-card` or `menu-selection-card`. The component forwards it to its root `data-testid`.
 - Repeated instances MUST use stable, contextual identifiers that distinguish them when a test needs to target one
   instance. Do not introduce generic hard-coded identifiers such as `card`, `section`, or `component`.
-- When adding or changing an application-owned component, update or add the relevant component test to query the
-  semantic `data-testid` when the component's parent container is part of the tested behavior. Apply the third-party
-  primitive exception in "Testing Expectations" below.
+- Tests that need to locate a component (E2E above all) query its semantic `data-testid`. A `data-testid` alone does
+  not justify a test: see "Testing Expectations" below for what is tested.
 
 Identification signals (check for these):
 
@@ -523,7 +522,17 @@ The full structure and rules are defined in [docs/architecture/project-structure
 
 ## Testing Expectations
 
-- Cover critical application-owned logic and behavior.
+- Cover critical application-owned logic and behavior. Prefer E2E and integration tests (Route Handlers, server
+  actions, services, pages that orchestrate data); write unit tests only for functions, business rules and critical
+  processes (validation, permissions, pricing, merging, state transitions, error handling).
+- Never test third-party code: no test for an external library added to the project (UI kits, icon sets such as
+  `@hugeicons/*`, Radix/shadcn, Zod, Zustand, Supabase clients…) nor for the framework in use (Next.js, React). Test
+  only what this repository adds on top of them; mock or stub third-party code at the boundary when a test needs it.
+- Do not write tests that assert appearance: Tailwind classes, colours, sizes, spacing, variants, icons, motion
+  classes or static copy. Appearance is validated visually (below). A rendered-component test is justified only when
+  it checks a behavior or rule — what is shown, hidden, enabled or disabled, ordered or called under a condition.
+- Do not duplicate coverage: when a helper's unit test covers a rule, the component or page using it needs at most
+  one test proving it is wired in.
 - For every component change that affects appearance, start the application locally and use Chrome DevTools to open
   the browser and validate the rendered result against the proposed design (the relevant section of
   `docs/design/listys-design-system-v2.html`, when applicable). Capture screenshots at the relevant mobile
@@ -546,9 +555,11 @@ The full structure and rules are defined in [docs/architecture/project-structure
 - Do not mock Supabase in E2E tests.
 - For every modified application-owned component/feature, always run the corresponding test(s) and fix failures
   before finishing.
-- If a modified application-owned component/feature has no test yet, create one unless the UI-library exception above
-  applies.
+- If a modified feature changes logic or behavior that no test covers, add one under the rules above. A purely
+  presentational change does not need a new test.
 - Keep unit tests to the minimum necessary; prefer integration tests and E2E tests whenever feasible.
+- The "shadcn-native first" source scan (`src/test/native-props-guard.test.ts`) is a code check, not a behavior test:
+  it runs with `pnpm check:native-props` (also in `pre-commit`), outside the default Vitest suite.
 
 ---
 

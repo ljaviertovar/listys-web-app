@@ -87,37 +87,14 @@ describe('shopping session page estimate', () => {
 	})
 })
 
+// The origin rules live in resolveSessionBackLink and are covered there; this checks the page hands them its search params.
 describe('shopping session page back link', () => {
-	beforeEach(() => {
-		vi.mocked(getShoppingSession).mockResolvedValue({ data: session('completed'), error: null } as never)
-	})
-
 	it('goes back to the history with the list it was narrowed to', async () => {
+		vi.mocked(getShoppingSession).mockResolvedValue({ data: session('completed'), error: null } as never)
+
 		const html = await render({ from: 'history', list: 'list-1' })
 
 		expect(html).toContain('href="/shopping-history?list=list-1"')
 		expect(html).toContain('Back to Shopping History')
-	})
-
-	it('goes back to the whole history when it was not narrowed', async () => {
-		const html = await render({ from: 'history' })
-
-		expect(html).toContain('href="/shopping-history"')
-		expect(html).toContain('Back to Shopping History')
-	})
-
-	it('still understands the origin that links made before groups were hidden carry', async () => {
-		const html = await render({ from: 'history-group', groupId: 'old-group' })
-
-		expect(html).toContain('href="/shopping-history"')
-		expect(html).not.toContain('old-group')
-	})
-
-	it('goes to the lists, without any group wording, when it has no origin', async () => {
-		const html = await render()
-
-		expect(html).toContain('href="/shopping-lists"')
-		expect(html).toContain('Back to Lists')
-		expect(html.replace(/<[^>]*>/g, ' ')).not.toMatch(/group/i)
 	})
 })
