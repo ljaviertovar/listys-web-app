@@ -503,6 +503,10 @@ export type Database = {
           updated_count: number
         }[]
       }
+      ensure_default_group: {
+        Args: { p_group_name: string }
+        Returns: string
+      }
       ensure_default_pantry: {
         Args: { p_group_name: string; p_list_name: string }
         Returns: boolean
