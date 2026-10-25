@@ -10,7 +10,7 @@ the implementation reference describes repository evidence. Neither establishes 
 | --- | --- |
 | Set up the web app and find commands | [Root README](../README.md) |
 | Understand MVP users, journeys, and acceptance criteria | [PRD v2](prd/PRD-v2.md) |
-| Read the product direction after the MVP and its phased plan | [PRD v3](prd/PRD-v3.md) — draft; it supersedes only the parts of PRD v2 it lists. Phase 1 is specified in the OpenSpec change `pantry-defaults-and-price-memory` |
+| Read the product direction after the MVP and its phased plan | [PRD v3](prd/PRD-v3.md) — draft; it supersedes only the parts of PRD v2 it lists. Phase 1 is specified in the OpenSpec change `pantry-defaults-and-price-memory` (archived) and Phase 2 (flat lists) in `flat-lists-hide-groups` |
 | Read the earlier product definition | [PRD v1](prd/PRD-v1.md) — historical |
 | See implemented features and unresolved gaps | [Implementation status](reference/implementation-status.md) |
 | Understand runtime boundaries, data flows, and security | [Architecture](architecture/architecture.md) |
@@ -29,8 +29,8 @@ the implementation reference describes repository evidence. Neither establishes 
 
 - **MVP:** receipt capture/OCR, reusable lists and enrichment, shopping sessions, and history, governed by PRD v2.
 - **Direction:** PRD v3 refines the MVP in phases. Phase 1 (always sync on completion, a default "Pantry" list, visible
-  average price and estimated total) changes behavior described in PRD v2; later phases (flat lists, stores) are not
-  built yet.
+  average price and estimated total) and Phase 2 (flat lists: groups hidden from the interface, history filtered by list)
+  change behavior described in PRD v2; later phases (stores) are not built yet.
 - **Experimental:** shared lists, invitations, collaborators, and collaborative realtime shopping. The product owner
   confirmed on 2026-10-17 that these remain outside the MVP.
 - **Planning:** `openspec/` holds specifications and planned changes; its local configuration uses `spec-driven`.

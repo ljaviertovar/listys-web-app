@@ -44,11 +44,11 @@ strings. The inventory maps directly to [`src/app/api/v1/`](../../src/app/api/v1
 
 | Path | Methods | Purpose |
 | --- | --- | --- |
-| `/groups` | GET, POST | List/create owner groups. |
+| `/groups` | GET, POST | List/create owner groups. Unchanged; the web app stopped using the `/groups*` endpoints in PRD v3 Phase 2 (groups are internal), and they stay for existing clients. |
 | `/groups/{groupId}` | GET, PATCH, DELETE | Read/update/delete a group. |
 | `/groups/{groupId}/base-lists` | GET | Lists in an owner group. |
 | `/groups/history` | GET | Groups with completed sessions; existing specialized read. |
-| `/base-lists` | GET, POST | List/create owner base lists. |
+| `/base-lists` | GET, POST | List the owner's base lists (name, notes, group, creation date, item count; ordered by name, then creation) / create one; `group_id` is optional on create. |
 | `/base-lists/{baseListId}` | GET, PATCH, DELETE | Read/update/delete a list; shared reads are experimental. |
 | `/base-lists/{baseListId}/items` | POST | Create an item; list ID comes from the path. |
 | `/base-list-items/{itemId}` | PATCH, DELETE | Update/delete an item. |
@@ -83,7 +83,7 @@ before invoking them. This audit did not execute them.
 | Operation | Shape and constraints | Runtime schema |
 | --- | --- | --- |
 | Group create/update | `name` 1–100 characters, `description` up to 500; fields optional on PATCH. | [`group.ts`](../../src/lib/validations/group.ts) |
-| List create/update | Create requires UUID `group_id`, `name` 1–100; `notes` nullable/optional up to 500. PATCH accepts name/notes. | [`base-list.ts`](../../src/lib/validations/base-list.ts) |
+| List create/update | Create requires `name` 1–100; `group_id` is an optional UUID (null is accepted): omitted, the list goes to the user's default group, created on first use; supplied, it must be a group of the caller (`404` otherwise, with no difference between a missing and a foreign group). `notes` nullable/optional up to 500. Names are unique per user, ignoring case, across all groups (`409` otherwise); saving a list under its own name, or changing only its case, is accepted. PATCH accepts name/notes. | [`base-list.ts`](../../src/lib/validations/base-list.ts) |
 | Item create/update | Name up to 200, quantity 0.1–99 in 0.1 steps, optional unit/notes/category. Path determines parent on nested POST. | [`base-list.ts`](../../src/lib/validations/base-list.ts), [`shopping-session.ts`](../../src/lib/validations/shopping-session.ts) |
 | Session create | UUID `base_list_id`, `name` 1–100. | [`shopping-session.ts`](../../src/lib/validations/shopping-session.ts) |
 | Session update (PATCH) | Optional `name` 1–100, `status` (only `active`; `completed` returns `422` and points to the complete operation), positive `total_amount`, `general_notes` up to 1000. `sync_to_base` is stripped. | [`shopping-session.ts`](../../src/lib/validations/shopping-session.ts) |
@@ -91,7 +91,7 @@ before invoking them. This audit did not execute them.
 | Ticket upload | Multipart repeated `files`: 1–5 images, each at most 10 MiB. Service reads optional `group_id` and `store_name`; UI requires a store name, but the service does not apply the full upload Zod schema. | [`uploadTicket`](../../src/lib/server/services/tickets.service.ts), [`UI schema`](../../src/lib/validations/ticket.ts) |
 | Ticket group PATCH | `{ "group_id": "UUID" }` or `{ "group_id": null }`; field optional. | [`ticket handler`](../../src/app/api/v1/tickets/[ticketId]/route.ts) |
 | Merge items | UUID `base_list_id`, 1–200 `items` entries containing UUID `id` and boolean `merge`; path ticket ID takes precedence. | [`ticket schemas`](../../src/lib/validations/ticket.ts), [`merge handler`](../../src/app/api/v1/tickets/[ticketId]/merge-to-base-list/route.ts) |
-| List from receipt | UUID `group_id`, `name` 1–100 and 1–200 UUID `item_ids`; path ticket ID takes precedence. | [`ticket schemas`](../../src/lib/validations/ticket.ts) |
+| List from receipt | `name` 1–100 and 1–200 UUID `item_ids`; optional `group_id` UUID with the same rules as list create (default group when omitted, `404` for a group that is not the caller's, `409` when the name is taken); the receipt is linked to the list and its group; path ticket ID takes precedence. | [`ticket schemas`](../../src/lib/validations/ticket.ts) |
 | Experimental invite | Optional `expires_in_days` integer 1–30 and `max_uses` integer 1–100. Empty JSON object is accepted. | [`sharing.ts`](../../src/lib/validations/sharing.ts) |
 
 Example creation request: `POST /api/v1/groups` with `Content-Type: application/json` and
@@ -109,6 +109,23 @@ Examples contain no real identifiers or credentials. See [limits](limits.md) for
 | `POST /api/v1/shopping-sessions/{sessionId}/cancel` | `DELETE /api/v1/shopping-sessions/{sessionId}` | Deprecated POST returns `{ "data": { "success": true } }`; DELETE returns `204`. |
 | `POST /api/v1/tickets/{ticketId}/assign-group` | `PATCH /api/v1/tickets/{ticketId}` | Deprecated body uses `groupId`; successor uses `group_id` and accepts null. |
 | `sync_to_base` field of `POST /api/v1/shopping-sessions/{sessionId}/complete` | None: completion always syncs | Deprecated since PRD v3 Phase 1 (2026-10-23). The field is still accepted but ignored, so a client sending `false` now gets the sync as well. No `Deprecation`/`Sunset` headers are emitted for a field. Clients should stop sending it. Introduce a new major version before reinstating an opt-out. |
+
+Lists without groups (PRD v3 Phase 2, 2026-10-24). Compatible changes inside v1, no new major version and no deprecation headers:
+
+- `group_id` is optional on `POST /api/v1/base-lists` and `POST /api/v1/tickets/{ticketId}/create-base-list`. Without it the
+  list is stored in the caller's implicit default group (`ensure_default_group`, created on first use, also for accounts
+  that already had lists). Clients that still send it keep working.
+- `GET /api/v1/base-lists` adds `notes` and `created_at`; the order is name, then creation date. Clients must ignore unknown fields.
+- A supplied `group_id` must belong to the caller: `404 NOT_FOUND` ("Group not found") for a group that is missing or someone
+  else's. Before this change the database did not check it, so a list could be inserted into another user's group.
+- The `409 CONFLICT` for a duplicate list name now applies across all of the caller's lists, not only within one group, and
+  `create-base-list` now checks the name too. Existing lists that share a name keep working and are never renamed.
+- `/groups*`, `PATCH /tickets/{ticketId}` with `group_id` and `GET /tickets` (still returning `group`) are unchanged.
+
+Source: [`default-group.service.ts`](../../src/lib/server/services/default-group.service.ts),
+[`find-list-by-name.ts`](../../src/lib/server/services/find-list-by-name.ts),
+[`base-lists.service.ts`](../../src/lib/server/services/base-lists.service.ts) and the
+[migration](../../supabase/migrations/20261024000000_ensure_default_group.sql).
 
 Session completion contract: `POST /api/v1/shopping-sessions/{sessionId}/complete` returns `200` with
 `{ "data": { "success": true, "sync": { "new_count": 0, "updated_count": 0, "skipped_count": 0, "over_limit_count": 0 } } }`.

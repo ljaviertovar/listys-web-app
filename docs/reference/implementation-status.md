@@ -8,11 +8,11 @@ Reviewed on 2026-10-17 against the working tree. This document owns observed beh
 | Area | Observed behavior | Evidence |
 | --- | --- | --- |
 | Authentication | Email/password registration/sign-in, Google OAuth, callback exchange, sign-out and protected layouts. Password reset links to an unimplemented route. | [`auth/`](../../src/app/auth/), [`auth-form.tsx`](../../src/components/features/auth/auth-form.tsx), [`proxy.ts`](../../src/proxy.ts) |
-| Dashboard | Next-trip/active-session views, groups and lists, receipts, history, loading and error states. | [`dashboard/page.tsx`](../../src/app/(authenticated)/dashboard/page.tsx), [`build-dashboard-model.ts`](../../src/components/features/dashboard/helpers/build-dashboard-model.ts) |
-| Groups and lists | CRUD, duplicate-name checks, notes, quantities/categories/order and reusable shopping templates. A user with no list gets a default "Pantry" list in an implicit "My Lists" group on the first dashboard visit. | [`groups.service.ts`](../../src/lib/server/services/groups.service.ts), [`base-lists.service.ts`](../../src/lib/server/services/base-lists.service.ts), [`default-pantry.service.ts`](../../src/lib/server/services/default-pantry.service.ts) |
+| Dashboard | Next-trip/active-session views, a flat "Shopping Lists" card (no group level), receipts, history, loading and error states. | [`dashboard/page.tsx`](../../src/app/(authenticated)/dashboard/page.tsx), [`build-dashboard-model.ts`](../../src/components/features/dashboard/helpers/build-dashboard-model.ts) |
+| Lists | CRUD on one flat lists screen (groups are not shown), notes, quantities/categories/order and reusable shopping templates. Names are unique per user across all lists, ignoring case; lists that already shared a name read "Weekly", "Weekly (2)" on screen. A user with no list gets a default "Pantry" list in an implicit "My Lists" group on the first dashboard visit, and every list created without a group goes to that group (created on first use). The `/groups*` API remains for existing clients. | [`groups.service.ts`](../../src/lib/server/services/groups.service.ts), [`base-lists.service.ts`](../../src/lib/server/services/base-lists.service.ts), [`default-pantry.service.ts`](../../src/lib/server/services/default-pantry.service.ts) |
 | Shopping | Owner starts a nonempty base list; items clone in purchase-count, recency, sort-order sequence. Check/edit/add/delete, complete with amount/notes (completion always applies the checked items to the base list, atomically), or cancel. The service checks for an existing active session. Base-list rows and the running session show average prices and an estimated total when known. | [`shopping-sessions.service.ts`](../../src/lib/server/services/shopping-sessions.service.ts), [`complete-session-rpc.ts`](../../src/lib/server/services/complete-session-rpc.ts), [`session-estimate.tsx`](../../src/components/features/shopping-sessions/session-estimate.tsx) |
-| History | Completed sessions globally/by group, totals and detail navigation. No service/action for creating a list from a completed session was found. | [`shopping-history/`](../../src/app/(authenticated)/shopping-history/), [`session service`](../../src/lib/server/services/shopping-sessions.service.ts) |
-| Receipts | Multi-photo upload, OCR, status/errors, manual retry, viewer/compare, selection, merge/create list, group assignment, deletion with attempted image cleanup. No extracted-item editing endpoint was found. | [`tickets.service.ts`](../../src/lib/server/services/tickets.service.ts), [`tickets/`](../../src/components/features/tickets/) |
+| History | Completed sessions on one screen, newest first, filtered by list (`?list=`), totals and detail navigation. No service/action for creating a list from a completed session was found. | [`shopping-history/`](../../src/app/(authenticated)/shopping-history/), [`session service`](../../src/lib/server/services/shopping-sessions.service.ts) |
+| Receipts | Multi-photo upload, OCR, status/errors, manual retry, viewer/compare, selection, merge/create list (no group choice), deletion with attempted image cleanup. No extracted-item editing endpoint was found. | [`tickets.service.ts`](../../src/lib/server/services/tickets.service.ts), [`tickets/`](../../src/components/features/tickets/) |
 | Enrichment | Normalized names and purchase-memory fields are defined in migrations; existing-list merge uses an RPC. Session ordering reads enrichment fields. | [`enrichment migration`](../../supabase/migrations/20260214000000_prd_v2_enrichment_and_transactions.sql), [`ticket service`](../../src/lib/server/services/tickets.service.ts) |
 | Account/profile | Read-only identity, provider, verification and account metadata; no account deletion or full export flow. | [`settings/`](../../src/app/(authenticated)/settings/) |
 | PWA | Manifest, install UI, service worker and offline fallback; no offline shopping mutation/sync implementation. | [`manifest.ts`](../../src/app/manifest.ts), [`pwa-register.tsx`](../../src/components/features/pwa/pwa-register.tsx), [`sw.js`](../../public/sw.js) |
@@ -44,8 +44,8 @@ Evidence: [`sharing service`](../../src/lib/server/services/sharing.service.ts),
 ## Routes and receipt processing
 
 Public pages: `/`, `/auth/signin`, `/auth/signup`; `/auth/callback` handles Auth callbacks.
-Protected pages: `/dashboard`, `/shopping-lists`, `/shopping-lists/{groupId}/lists`,
-`/base-lists/{baseListId}/edit`, `/shopping/{runId}`, `/shopping-history`, `/shopping-history/{groupId}`,
+Protected pages: `/dashboard`, `/shopping-lists` (`/shopping-lists/{groupId}/lists` redirects to it),
+`/base-lists/{baseListId}/edit`, `/shopping/{runId}`, `/shopping-history` (`/shopping-history/{groupId}` redirects to it),
 `/tickets`, `/tickets/{ticketId}`, `/settings/profile`, and `/settings/account`.
 `/profile` and `/account` redirect to settings. `/invite/{token}` is the experimental protected invite flow.
 
@@ -121,9 +121,50 @@ Known limits introduced or exposed by this phase:
 - Creating a new list from a receipt does not copy the receipt prices into `average_price` (only merging a receipt into an
   existing list does), so a list created that way shows no prices until a receipt is merged into it. This predates Phase 1 and
   limits how soon FR-3 becomes visible; copying the prices on creation is a candidate follow-up.
-- Accounts that already had lists have no default group. The phase that hides groups must decide how they get one.
+- Accounts that already had lists have no default group. Resolved in Phase 2: `ensure_default_group` creates it the first time a list is created without a group.
 - The default group occupies one of the ten group slots ([limits](limits.md)).
 - Direct `GET /api/v1/shopping-sessions/{id}` still returns database rows; the estimate is computed by the page, not the API.
+
+## PRD v3 Phase 2 delivered
+
+[PRD v3](../prd/PRD-v3.md) Phase 2 (flat lists) is specified in the OpenSpec change `flat-lists-hide-groups`. Groups still exist in the
+database and in the `/groups*` API; the web app no longer shows, asks for or creates them.
+
+| Requirement | Observed behavior | Evidence |
+| --- | --- | --- |
+| FR-4 groups removed from the UI | `/shopping-lists` shows every list of the account in one grid; creating a list, creating one from a receipt and merging a receipt never ask for a group (the merge sheet has one list selector, or only a name when there is no list). A list created without a group goes to the user's default group, which `ensure_default_group` creates on first use, so accounts that already had lists need no backfill. List names are unique per user, ignoring case and treating `%`/`_` literally; older lists that share a name read "Weekly", "Weekly (2)" on screen and keep their stored name. `/shopping-lists/{groupId}/lists` redirects to the lists screen. The menu counts lists, the marketing page no longer promises groups, and no group or list was deleted, moved or renamed. | [`shopping-lists/page.tsx`](../../src/app/(authenticated)/shopping-lists/page.tsx), [`default-group.service.ts`](../../src/lib/server/services/default-group.service.ts), [`find-list-by-name.ts`](../../src/lib/server/services/find-list-by-name.ts), [`build-list-display-names.ts`](../../src/utils/build-list-display-names.ts), [`merge-to-base-list-dialog.tsx`](../../src/components/features/tickets/add-to-list/merge-to-base-list-dialog.tsx), [`migration`](../../supabase/migrations/20261024000000_ensure_default_group.sql) |
+| FR-5 history by list | `/shopping-history` is one screen of completed trips, newest first, with a "Show trips from" select (lists that have trips, plus "All lists") backed by `?list=`; an unknown value reads as all lists. `/shopping-history/{groupId}` redirects to it. The session page goes back to the history (keeping the list) or to the lists, and still understands the old `from=history-group` origin. | [`shopping-history/page.tsx`](../../src/app/(authenticated)/shopping-history/page.tsx), [`build-history-view.ts`](../../src/components/features/shopping-sessions/helpers/build-history-view.ts), [`resolve-session-back-link.ts`](../../src/components/features/shopping-sessions/helpers/resolve-session-back-link.ts) |
+| FR-6 dashboard without group counts | The model has no group count or group names; the "Shopping Lists" card lists up to five lists flat with item count and Start, with "+ N more" to the lists screen. The dashboard no longer reads `/groups`. | [`build-dashboard-model.ts`](../../src/components/features/dashboard/helpers/build-dashboard-model.ts), [`lists-section-card.tsx`](../../src/components/features/dashboard/lists-section-card.tsx) |
+
+API v1 (compatible, see [API v1](api-v1.md#compatibility-and-migration)): `group_id` optional on list creation and on create-from-receipt; a supplied
+`group_id` must be the caller's (`404`; the database did not check it before); `GET /base-lists` adds `notes` and `created_at`; the duplicate-name
+`409` now applies across the account.
+
+Verification (2026-10-24): `pnpm typecheck` clean; `pnpm lint` reports 40 problems, the same count as before this phase and none in a file this
+change touches; `pnpm verify:limits-reference` passes; `pnpm test:ci` ran 583 tests with 582 passing, the one failure being the known stale
+allowlist entry in `src/test/native-props-guard.test.ts` (`session-bar.tsx`), unrelated. The migration was applied to the linked test project with the
+user's approval (counts before and after identical: 7 groups, 11 lists, 8 sessions, 1 default group; only its own version was recorded) and
+[`flat-lists-default-group.sql`](../../supabase/verification/flat-lists-default-group.sql) ran inside a transaction that always rolls back: 18/18 checks passed
+(an account with lists and no default group gets exactly one, repeats return the same one, `ensure_default_pantry` is unaffected, RLS, anonymous and invalid names).
+The layouts were checked in Chromium at 320, 390 and 1280 px on a temporary public route with fixed fixtures that never contacted Supabase (route deleted
+afterwards): no horizontal scroll in any of the nine views (flat lists with two same-named lists and a long title, empty lists, the dashboard with and without
+lists, the merge sheet with and without lists, the history with, without and narrowed by a filter); the filter is 44px high; the Start button in the
+dashboard card is 32px; no group wording in the app text.
+Not verified: dark mode, a signed-in session against real data (a list created on an account that has lists but no default group through the web UI, the
+redirects for foreign group ids, the history filter on real trips) and the E2E specs, which were updated but not run (no validated local Supabase). Two truly
+simultaneous first list creations rest on the partial unique index.
+
+Signed-in check (2026-10-24, the owner's account on the linked test project, driven through Chrome over CDP at 1280 px): the account had one group ("Walmart", not default) with 3 lists and no default group. Creating a list from the UI asked only for a name (the sheet has a name and notes, nothing else), opened the editor ("Back to Lists") and created exactly one default group "My Lists" holding it; "Walmart" and its 3 lists were untouched. Creating "fase2 test a" (other case) and "weekly grocery" (a list in "Walmart") was refused with "A list with this name already exists. Please choose a different name."; "Fase2 %" was created (no wildcard match); renaming "Fase2 Test A" to "FASE2 TEST A" was accepted. The lists screen, the dashboard, the history and the receipts screen contain no group wording; the menu entry read "Shopping Lists" with a "5" pill labelled "5 lists"; the old group URLs ended on `/shopping-lists` and `/shopping-history`. The history filter offered "All lists" plus the two lists with trips, narrowed to one trip with `?list=<id>`, the trip's back link returned to the same filter, "All lists" cleared it, and an unknown `list` value showed all trips. On a receipt, "Add to a List" opened a sheet with no group selector and one selector with all five lists; a repeated name in "Create new list" was refused with "You already have a list with this name. Choose another name."; creating "Fase2 From Receipt" with only a name made a list of 2 items in "My Lists" and linked the receipt to it (no second default group). The three test lists were deleted afterwards; the default group "My Lists" (empty) and the receipt's group link remain on the test account. Not checked: the duplicate-name twin case of legacy lists, mobile widths on the live account, dark mode and the E2E specs.
+
+Known limits introduced or exposed by this phase:
+
+- Same-named lists made before this phase are kept and only disambiguated on screen; names are unique per account only through application checks (read, then write), so two simultaneous creations with one name can still produce a twin.
+  A database constraint needs a product decision on those twins first.
+- The lists screen and the history are unpaginated; the history now joins what used to be split by group.
+- Deleting a list also deletes its shopping sessions (existing `ON DELETE CASCADE`), which removes those trips from the history. The confirmation says it removes the items and the sharing, not the trips.
+- The lists screen reads only the owner's lists, so people a list was shared with do not see it there (experimental sharing, unchanged).
+- The HTML design reference still draws group screens and has no history filter ([DESIGN.md §11.4](../design/DESIGN.md#114-current-implementation-gaps) items 12c).
+- PRD v3 open question 4 is decided as "keep names, hide the group": no prefix is added and no group name is shown.
 
 ## Audit findings and follow-up
 

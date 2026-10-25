@@ -12,29 +12,20 @@ test.describe('Shopping Lists E2E', () => {
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 })
   })
 
-  test('should create group → list → items flow', async ({ page }) => {
-    // Navigate to shopping lists
+  test('should create list → items flow without choosing a group', async ({ page }) => {
+    // Navigate to shopping lists: every list is on this one screen
     await page.goto(`${BASE_URL}/shopping-lists`)
+    await expect(page.locator('text=/group/i')).toHaveCount(0)
 
-    // Create new group
-    await page.click('button:has-text("New Group"), button:has-text("Create Group")')
-    await page.fill('input[name="name"], input[placeholder*="group"]', 'E2E Test Group')
-    await page.click('button[type="submit"]:has-text("Create"), button:has-text("Save")')
+    // Create a new list: only its name is asked for
+    await page.click('[data-testid="create-base-list-button"]')
+    await page.fill('input[name="name"]', 'E2E Test List')
+    await expect(page.locator('select[name="group_id"], select[name="groupId"]')).toHaveCount(0)
+    await page.click('button[type="submit"]:has-text("Create List")')
 
-    // Verify group created
-    await expect(page.locator('text=E2E Test Group')).toBeVisible({ timeout: 5000 })
-
-    // Create new list
-    await page.click('button:has-text("New List"), button:has-text("Create List")')
-    await page.fill('input[name="name"], input[placeholder*="list"]', 'E2E Test List')
-    await page.selectOption('select[name="group_id"], select[name="groupId"]', { label: 'E2E Test Group' })
-    await page.click('button[type="submit"]:has-text("Create"), button:has-text("Save")')
-
-    // Verify list created
-    await expect(page.locator('text=E2E Test List')).toBeVisible({ timeout: 5000 })
-
-    // Add items to list
-    await page.click('text=E2E Test List')
+    // The new list opens to add its items, and goes back to the lists screen
+    await expect(page).toHaveURL(/base-lists/, { timeout: 5000 })
+    await expect(page.locator('a:has-text("Back to Lists")')).toBeVisible()
 
     // Add first item
     await page.click('button:has-text("Add Item"), button:has-text("New Item")')
@@ -56,12 +47,24 @@ test.describe('Shopping Lists E2E', () => {
     await expect(page.locator('text=Milk')).toBeVisible()
   })
 
+  test('should reject a list name that another list already has', async ({ page }) => {
+    await page.goto(`${BASE_URL}/shopping-lists`)
+
+    // Same name, different case: names are unique across all of the user's lists
+    await page.click('[data-testid="create-base-list-button"]')
+    await page.fill('input[name="name"]', 'e2e test list')
+    await page.click('button[type="submit"]:has-text("Create List")')
+
+    await expect(page.locator('text=/already exists/i')).toBeVisible({ timeout: 5000 })
+    await expect(page.locator('text=/group/i')).toHaveCount(0)
+  })
+
   test('should edit and delete items', async ({ page }) => {
     await page.goto(`${BASE_URL}/shopping-lists`)
 
     // Assume we have a list from previous test or setup
     // Find and click on a list
-    await page.locator('text=E2E Test List, a[href*="/shopping-lists/"]').first().click()
+    await page.locator('a[href*="/base-lists/"]').first().click()
 
     // Edit an item
     await page.click('button[aria-label*="Edit"]:first-of-type, [data-testid="edit-item"]:first-of-type')
@@ -87,7 +90,7 @@ test.describe('Shopping Lists E2E', () => {
 
   test('should prevent duplicate item names in same list', async ({ page }) => {
     await page.goto(`${BASE_URL}/shopping-lists`)
-    await page.locator('text=E2E Test List, a[href*="/shopping-lists/"]').first().click()
+    await page.locator('a[href*="/base-lists/"]').first().click()
 
     // Add first item
     await page.click('button:has-text("Add Item"), button:has-text("New Item")')
@@ -110,7 +113,7 @@ test.describe('Shopping Lists E2E', () => {
 
   test('should validate required fields', async ({ page }) => {
     await page.goto(`${BASE_URL}/shopping-lists`)
-    await page.locator('text=E2E Test List, a[href*="/shopping-lists/"]').first().click()
+    await page.locator('a[href*="/base-lists/"]').first().click()
 
     // Try to add item without name
     await page.click('button:has-text("Add Item"), button:has-text("New Item")')

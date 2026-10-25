@@ -11,49 +11,24 @@ test.describe('Shopping Session E2E', () => {
     await page.click('button[type="submit"]')
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 })
 
-    // Create test data: group → list → items
+    // Create test data: list → items (there is no group to create first)
     await page.goto(`${BASE_URL}/shopping-lists`)
 
-    // Step 1: Create a group
-    const createGroupBtn = page.locator('[data-testid="create-group-button"]')
-    const groupBtnVisible = await createGroupBtn.isVisible({ timeout: 2000 }).catch(() => false)
-
-    if (groupBtnVisible) {
-      await createGroupBtn.click()
-      await page.fill('input[name="name"]', 'E2E Test Group')
-      await page.click('[data-testid="submit-group-button"]')
-      await page.waitForTimeout(1500)
-    }
-
-    // Step 2: Navigate into the group
-    await page.goto(`${BASE_URL}/shopping-lists`)
-    const groupCard = page.locator('[data-testid^="group-card-"]').first()
-    const hasGroup = await groupCard.isVisible({ timeout: 2000 }).catch(() => false)
-
-    if (hasGroup) {
-      await groupCard.click()
-      await page.waitForTimeout(1000)
-    }
-
-    // Step 3: Create a list within the group
-    const createListBtn = page.locator('[data-testid="create-list-button"]')
+    const createListBtn = page.locator('[data-testid="create-base-list-button"]').first()
     const listBtnVisible = await createListBtn.isVisible({ timeout: 2000 }).catch(() => false)
 
     if (listBtnVisible) {
       await createListBtn.click()
       await page.fill('input[name="name"]', 'E2E Test List')
-      await page.click('[data-testid="submit-list-button"]')
+      await page.click('button[type="submit"]:has-text("Create List")')
       await page.waitForTimeout(2000)
     }
   })
 
   test('should start shopping session from base list', async ({ page }) => {
-    // The list was created in beforeEach, now navigate back to the group
+    // The list was created in beforeEach: open it from the lists screen
     await page.goto(`${BASE_URL}/shopping-lists`)
-
-    // Click on the group card to enter
-    const groupCard = page.locator('[data-testid^="group-card-"]').first()
-    await groupCard.click()
+    await page.locator('a[href*="/base-lists/"]').first().click()
     await page.waitForTimeout(1000)
 
     // Find the list card and click "Start Shopping" button
@@ -125,6 +100,28 @@ test.describe('Shopping Session E2E', () => {
     // Should no longer see active session
     await page.goto(`${BASE_URL}/shopping`)
     await expect(page.locator('text=/no active.*session/i, button:has-text("Start Shopping")')).toBeVisible()
+  })
+
+  test('should filter the shopping history by list', async ({ page }) => {
+    await page.goto(`${BASE_URL}/shopping-history`)
+
+    // One screen with every trip and a filter that offers only lists with trips
+    const filter = page.locator('[data-testid="history-list-filter"]')
+    await expect(filter).toBeVisible()
+    await expect(page.locator('text=/group/i')).toHaveCount(0)
+
+    await filter.getByRole('combobox').click()
+    await page.getByRole('option').nth(1).click()
+    await expect(page).toHaveURL(/list=/)
+
+    // Back to every list removes the parameter
+    await filter.getByRole('combobox').click()
+    await page.getByRole('option', { name: 'All lists' }).click()
+    await expect(page).not.toHaveURL(/list=/)
+
+    // A saved link to the history of a group opens the same screen
+    await page.goto(`${BASE_URL}/shopping-history/00000000-0000-4000-8000-000000000000`)
+    await expect(page).toHaveURL(`${BASE_URL}/shopping-history`)
   })
 
   test('should view shopping history', async ({ page }) => {

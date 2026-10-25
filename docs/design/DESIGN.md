@@ -410,7 +410,7 @@ it must not become a multi-colour mesh.
 | `faint` | `#94A3B8` | Placeholders and non-essential annotations only |
 | `surface-secondary` | `#E9ECF0` | Input groups, skeleton and progress tracks, selected neutral rows |
 | `divider` | `#EEF0F3` | Row separators inside cards (inset), table row rules |
-| nested-list rule | `#E2E8F0` | The 2px rule beside a group's nested lists |
+| nested-list rule | `#E2E8F0` | The 2px rule beside nested rows (no screen nests lists any more; kept for the v2 HTML example) |
 | outline ring | `#D5DAE1` | The 1px inset ring of the outline button |
 
 Cards and rows do not use hairline borders. Field rings are the shadows in section 5.3. The legacy `#E2E8F0` and `#CBD5E1`
@@ -476,7 +476,7 @@ are self-hosted and layout shifts are controlled.
 | h3 | `700 16px/1.25` below `md`, `700 18px/1.25` from `md`, `-.02em` | Session and list names, card titles |
 | h4 (section title) | `600 20px/1.33`, `-.015em` | Section titles and "Up Next" from `md`; the dashboard sets them at `/1.39`, `-.01em`. On phones they are `h2` elements set at the h6 size (`600 16px/1.5`, `-.005em`) |
 | h5 | `600 18px/1.39`, `-.01em` | Sub-sections |
-| h6 (card title) | `600 16px/1.5`, `-.005em` | Groups, lists, receipts, history cards |
+| h6 (card title) | `600 16px/1.5`, `-.005em` | Lists, receipts, history cards |
 | Body large | `450 18px/1.65` | Marketing lead |
 | Body | `400 16px/1.75` | Default app and marketing copy |
 | Body small | `400 14px/1.5` | Secondary text, table cells, navigation and sidebar items |
@@ -506,7 +506,7 @@ only for avatars, switches and progress bars.
 | --- | --- | --- |
 | `checkbox` | `6px` | Checkbox |
 | `tag` | `8px` | Chips, the date pill, small tiles in lists |
-| `control` / `row` | `12px` | Buttons at every size, rows, menu items, icon tiles, avatars of groups and stores |
+| `control` / `row` | `12px` | Buttons at every size, rows, menu items, icon tiles, avatars of stores |
 | `field` | `16px` | Inputs, selects, one-time-code cells, the raised tab-bar action |
 | `panel` | `20px` | Action menus, the phone session pill |
 | `card` | `24px` | Cards, hero surfaces, upload areas |
@@ -645,27 +645,27 @@ the shell in `src/components/app/mobile-tab-bar.tsx`.
 
 **Hero.** A 24px-radius photo surface under the `hero-scrim`. One blue 52px button does the obvious thing: "Continue
 shopping" for a running session, "Start shopping" for the most overdue list, or "Upload receipt" for an account without
-lists (44px on phones, 52px from `md`). A running trip shows the "Shopping now" chip, the group and list, a progress bar
+lists (44px on phones, 52px from `md`). A running trip shows the "Shopping now" chip, the list, a progress bar
 (8px, white 16% track, `#60A5FA` to `#3B82F6` fill) with `n of m items - p%` in mono, and the collaborators (24px initials
 on pastel blue, pink and green, overlapping by 7px, with a 2px near-black ring). Without a session the hero omits a status
 chip, then shows the quick-start list shortcuts (36px high at every width) and the last trip in mono. An account with no list sees only
 the title "Start with a receipt", its explanation, the button and a mono note. A new account is not that case any more: it starts with the
-default "Pantry" list inside the implicit "My Lists" group, so its hero reads "Ready to go shopping?", says that the list has no items yet
+default "Pantry" list (kept in an implicit group the interface never shows), so its hero reads "Ready to go shopping?", says that the list has no items yet
 and offers `Add Items` (the list's editor) while the header and the tab bar keep `Upload`; `Start Shopping` stays hidden until the list has
 items.
 
-**Sections** (Shopping List Groups, Receipts, Shopping History):
+**Sections** (Shopping Lists, Receipts, Shopping History):
 
 | Piece | Spec |
 | --- | --- |
 | Title row | `h2` 20px / 600 / 1.39 / `-.01em` and, on the right, a "View All" `ActionLink` (blue 700, 600 14px, no fill and no horizontal padding; on hover its arrow nudges 2px right) 12px above the card. The link is `min-h-8` at every width and the title row is `min-h-10`, so it lines up with "Up Next", which has no link |
 | Card | White, 24px radius, 12px padding on phones and 16px from `md`, `raised` shadow, no border; the shadow deepens on hover |
 | Row | 12px radius, `10 8` padding, 12px gap, 36px icon tile (12px radius) in the 100-level tint (the same fill "Up Next" uses), 14px / 600 title, mono 12px / 500 metadata in `muted` (may wrap), hover `#F2F4F7` |
-| Tile tints | Groups `#DBEAFE` / `#1D4ED8`, receipts `#CFFAFE` / `#0E7490`, history `#DCFCE7` / `#15803D` (the 100-level fill with the 700-level icon, as in "Up Next" and the tab bar); 24px tile (8px radius) for lists, 32px (10px radius) for groups |
-| Group and lists | A group row plus its lists, indented 24px with a 2px `#E2E8F0` rule; each list ends in a grey "Start" button (32px, `#E9ECF0`, 12px radius, 13px / 600). Preview: two groups of up to three lists |
+| Tile tints | Lists `#DBEAFE` / `#1D4ED8`, receipts `#CFFAFE` / `#0E7490`, history `#DCFCE7` / `#15803D` (the 100-level fill with the 700-level icon, as in "Up Next" and the tab bar); 32px tile (the top-level row size of the v2 example) for lists |
+| Lists | One flat row per list (`ListsSectionCard`), the group level of the v2 example removed: the 32px tile, the name with `· N items`, and a grey "Start" button (32px, `#E9ECF0`, 12px radius, 13px / 600) at the end. Preview: up to five lists, then "+ N more" linking to the lists screen |
 | Receipt status | A 14px icon plus the word, Plus Jakarta Sans 700 12px, no chip: Completed `#15803D`, Processing `#B45309`, Failed `#B91C1C`; `divider` rules between rows (inset 8px). Preview: three receipts |
 | History | Mono 13.5px / 600 total on the right. Preview: three trips |
-| Empty | Minimum 172px, a 56px tile (16px radius) in the 100-level tint (blue `#DBEAFE` / `#1D4ED8`, cyan `#CFFAFE` / `#0E7490`, green `#DCFCE7` / `#15803D`), a two-line 13.5px explanation in `muted` (max 280px) and one primary button ("New group", "Upload Receipt"; History has none). The button is 32px with a 12px label on phones and 44px with 14px from `md` |
+| Empty | Minimum 172px, a 56px tile (16px radius) in the 100-level tint (blue `#DBEAFE` / `#1D4ED8`, cyan `#CFFAFE` / `#0E7490`, green `#DCFCE7` / `#15803D`), a two-line 13.5px explanation in `muted` (max 280px) and one primary button ("New Base List", "Upload Receipt"; History has none). The button is 32px with a 12px label on phones and 44px with 14px from `md` |
 
 **Up Next.** One white card (24px radius, 12px padding on phones and 16px from `md`) of up to three rows: 64px high, 14px radius, a 40px tile (12px
 radius, 100-level tint with 700 icon: amber for a receipt waiting, red for one that failed, blue for a list not shopped for
@@ -843,24 +843,24 @@ A receipt that was read but has no items (completed, 0 items found) keeps its it
 `No items detected` (Jakarta 700 18), the explanation and three tips for a clearer photo. Its action card offers `Upload a Clearer Photo` (primary),
 `Try Again` (secondary, reads the same photo again) and the soft-red `Delete Receipt`; there are no totals.
 
-### 7.7 Group and base-list card
+### 7.7 Base-list card
 
 The Lists section (the "Lists mobile" pattern in the design reference) has four screens built from one set of pieces in `components/commons`
 (`EntityCard`, `EntityEditCard`, `CreateEntitySheet`, `ConfirmSheet`, `ListToolbar`, `EmptyStateCard`, `CategorySection`, `RowMenu`).
 
-- **Groups and lists.** After the A1 header, a toolbar row: the mono count ("3 groups") at the left and the screen's one creation
-  action at the right (`New Group`, `New Base List`: 44px, 12px radius, primary). A card (24px radius, borderless, 12px padding on phones and 16px from `md`) holds a
+- **Lists.** The Lists screen shows every list of the account in one grid (there is no group level). After the A1 header, a toolbar row: the mono count ("3 lists") at the left and the screen's one creation
+  action at the right (`New Base List`: 44px, 12px radius, primary). Lists that share a stored name read `Weekly`, `Weekly (2)` (the older one keeps the plain name); only the display changes. A card (24px radius, borderless, 12px padding on phones and 16px from `md`) holds a
   36px blue tile (the 100-level fill, 700-level icon), the name (Plus Jakarta 16px / 600), one line of description or notes with an
   ellipsis, and a `...` menu of 44px with Edit and Delete (Delete in red). Below a hairline, the count in mono ("2 lists", "No lists
-  yet") and a blue `View Details` / `View Items` link. Only the footer link opens the group or list; the title and card body are not interactive, and the menu remains independent.
+  yet") and a blue `View Details` / `View Items` link. Only the footer link opens the list; the title and card body are not interactive, and the menu remains independent.
   One column below `sm`, two from `sm`, three from `xl`.
-- **Edit in place.** `Edit Group` / `Edit List` swaps the card for a form on the same surface: `Name *` (a 48px field) and
+- **Edit in place.** `Edit List` swaps the card for a form on the same surface: `Name *` (a 48px field) and
   `Description` / `Notes` (a field that grows), then `Cancel` and `Save` side by side. An empty name shows "Name is required" under the
   field with an alert icon and a red 2px ring.
 - **Create.** A bottom sheet on phones and a 520px dialog from `sm`: title, one line of help, the same fields, "* Required fields" and
-  `Cancel` / `Create Group` (`Create List`). The first-use state is one card with a blue tile, what is missing and the same action.
+  `Cancel` / `Create List`. The first-use state ("No lists yet") is one card with a blue tile, what is missing and the same action.
 - **Delete.** A sheet titled with the name ("Delete “Walmart”?") and a red box with the consequence (the lists and items that go with
-  it, the people who lose access, that it cannot be undone), then `Cancel` and a red `Delete Group` / `Delete List`.
+  it, the people who lose access, that it cannot be undone), then `Cancel` and a red `Delete List`.
 - **Loading.** `loading.tsx` draws the toolbar and three card shapes.
 - **Category section.** A list's items and a trip's items sit in one card; each category folds: a 32px grey tile with the category's
   own coloured icon (700 level: Bakery amber, Bulk Food orange, Dairy sky, Frozen teal, Meat red, Pantry purple, Produce green, Home
@@ -920,7 +920,7 @@ The desktop sidebar follows the "A1 desktop" pattern (the shadcn floating sideba
 hairline ring, 240px wide inside 8px margins on the page ground. It opens with the brand (the Listys mark at 32px, "Listys" in
 Jakarta 600 14 and "Reuse lists. Shop together." in 12px muted, a 64px block that links home), then the three groups (Shopping,
 Management, Settings), each with its title and its entries inset by 6px. Receipts carry an amber count pill (how many are still
-waiting for a list) and Shopping List Groups a neutral one (how many groups); a count of zero shows nothing. The foot holds the
+waiting for a list) and Shopping Lists a neutral one (how many lists); a count of zero shows nothing. The foot holds the
 running session as a card (10px radius, "Shopping now", `done/total`, a 6px progress bar) and the author credit. The sidebar has
 no icon mode: the trigger hides it entirely and the page takes the full width (the open state is kept in a cookie). The
 desktop top bar is 64px on the page ground, with no border: the sidebar trigger (36px, 8px radius), a 16px hairline and the
@@ -1161,7 +1161,7 @@ Apply all three variables to `<html>`. The global theme maps `font-sans` to Inte
 | Buttons, cards, badges, inputs, dialogs | `src/components/ui/` |
 | Header, sidebar, page shell, reusable app cards | `src/components/app/` |
 | Logo and domain-agnostic shared UI | `src/components/commons/` |
-| Group cards and group creation/editing | `src/components/features/shopping-lists/` |
+| List cards, creation and editing | `src/components/features/base-lists/` |
 | Base-list cards and item editing | `src/components/features/base-lists/` |
 | Active shopping rows, actions, and completion | `src/components/features/shopping-sessions/` |
 | Receipt upload, processing, review, and merge | `src/components/features/tickets/` |
@@ -1185,11 +1185,11 @@ These are remaining implementation notes, not permission for two systems:
    limited to the hero CTA and raised tab action; standard primary buttons and the lower-page marketing CTA stay flat. The tertiary
    variant remains open.
 3. **HTML reference examples:** the visual reference draws the labels of buttons and links in sentence case ("View all",
-   "Start shopping", "Sign out", "New group"); the code follows the Title Case rule of section 7.1. They also still draw the empty-state buttons at 44px, the new-account
+   "Start shopping", "Sign out", "New group" (the group example is obsolete since PRD v3 Phase 2); the code follows the Title Case rule of section 7.1. They also still draw the empty-state buttons at 44px, the new-account
    hero button at 52px, and an "Up Next" "View all" link; this document and the code use the compact phone sizes and no
    "Up Next" link. The "Invite family" row of "Up Next" is not produced by the dashboard model, and the quick-start chips
    exclude the list the hero button starts (the HTML examples show all lists).
-3a. **Lists:** the Lists screens implement the phone designs (groups, lists, items, share, start, session, session bar) and degrade on desktop to the
+3a. **Lists:** the Lists screens implement the phone designs (lists, items, share, start, session, session bar; the group screens of the HTML are no longer built) and degrade on desktop to the
    same toolbar and cards, with the items and the session capped at 768px. Gaps: `Undo` after deleting an item adds it again (new id) because the API has no restore;
    units show as stored (`l`, `unit`) where the HTML examples draw `L`; "Revoke" keeps the existing behaviour (people who joined keep access until removed) and says so;
    the toast of `Undo` appears at the top (`Toaster` position) and not above the tab bar; and the session bar needs a second request for its count when the page changes.
@@ -1224,8 +1224,13 @@ These are remaining implementation notes, not permission for two systems:
     12px in `slate-500`, and amounts use the fixed `en-US`/USD formatter of `formatCurrency` (section 10.4 asks for locale-aware formatters).
     The estimate adds average line amounts without multiplying by the session quantity.
 12b. **Default Pantry (PRD v3 Phase 1):** the HTML reference still draws a new account as the empty "Start with a receipt" dashboard. The code
-    gives a new account the default "Pantry" list, so the hero, the "Shopping List Groups" card ("My Lists" › "Pantry · 0 items") and the lists
-    screens show an empty list instead. Update the reference when the phase that hides groups lands.
+    gives a new account the default "Pantry" list, so the hero, the "Shopping Lists" card ("Pantry · 0 items") and the lists
+    screens show an empty list instead. Update the reference to show it.
+12c. **Flat lists (PRD v3 Phase 2):** the HTML reference still draws groups (the "Lists mobile" group screens, the nested "group and lists" dashboard
+    card and the group history). The app has no group level: the Lists screen is one grid of `EntityCard`s, the dashboard card (`ListsSectionCard`)
+    is the group row pattern at top level (32px tile, "Start" button), and the history is one list of session cards with a list filter. The filter
+    is the standard `Select` (`size='lg'`, 44px target) above the cards, derived from the receipt form selects because the HTML has no filter
+    example; it needs a design review. Same-named lists read `Weekly`, `Weekly (2)` on screen. Update the reference to drop the group screens.
 13. **Copy:** product UI and documentation mix “ticket,” “receipt,” “shopping run,” and “shopping session.” User-facing
    English uses `receipt` and `shopping session`; internal legacy names may remain until safely migrated. Profile and Account describe
    the sign-in method in plain language and wrap long values on phones.
@@ -1246,11 +1251,11 @@ The design is implemented with shadcn's native props and Tailwind's own scale; a
 | Button `variant` | `default`, `secondary` (`--secondary`, blue text), `outline`, `ghost`, `destructive`, `destructive-soft`, `success-soft`, `hero` (glow, lift), `fab`, `link`; quiet row/icon actions `quiet`, `quiet-destructive`, `destructive-ghost`, `ghost-primary` (a blue text action such as "View All": no fill on hover, its arrow nudges right), `floating` (the session Actions button); the dark viewer's `on-dark`, `viewer`, `overlay`; the drop target `dropzone` | `ui/button.tsx` |
 | Button `size` on phones | Standard buttons use the library's `default` (36px, `px-3`, `gap-1.5`) below `md` and `lg` (40px, `px-4`, `gap-1.5`) from `md` up. `primary` and `link-action` are 40px on phones by product decision and 44px from `md`; `mobile-action` remains 44px for mobile session controls. The dashboard hero card action uses `hero-action`: `lg` (40px) on phones and `xl` (44px) from `md`. `sm`, icon, hero and content-driven sizes keep their own scale. One size, two breakpoints, no hook | `ui/button.tsx` |
 | Marketing `ButtonLink` compact CTA | `size='sm'` is 40px below `md` and 44px from `md`, matching shared primary actions; do not add a phone-only 44px minimum-height override | `marketing/landing-page/commons/button-link.tsx` |
-| Title roles on phones | Below `md` the page heading (`h1`, the screen header and the dashboard greeting) is `text-2xl` (24px); from `md` it is `text-3xl` and `lg:text-4xl` as before. The hero and session title (the dashboard hero, the no-session banner) is `text-xl` (20px) below `md` and `text-3xl` from `md`. Card names stay `text-base`, metadata `text-xs`. Receipt and group cards use `p-3 gap-2` below `md` and `p-4 gap-3` from `md`; they are plain elements, not `Card`, so their padding is a responsive class on the element | `app/`, `components/` |
+| Title roles on phones | Below `md` the page heading (`h1`, the screen header and the dashboard greeting) is `text-2xl` (24px); from `md` it is `text-3xl` and `lg:text-4xl` as before. The hero and session title (the dashboard hero, the no-session banner) is `text-xl` (20px) below `md` and `text-3xl` from `md`. Card names stay `text-base`, metadata `text-xs`. Receipt and list cards use `p-3 gap-2` below `md` and `p-4 gap-3` from `md`; they are plain elements, not `Card`, so their padding is a responsive class on the element | `app/`, `components/` |
 | Button `size` (content height) | `block`: `h-auto`, several lines, 24px padding (drop targets) | `ui/button.tsx` |
 | Button `rounded` | `xl` by default (12px); `md`, `lg`, `2xl`, `3xl`, `full` | `ui/button.tsx` |
 | Link that looks like a button | `<Button asChild variant size><Link/></Button>`; never `buttonVariants()` or hand-set classes on `Link` (back link, the shortcut chips, the session bar's Continue) | call sites |
-| Action link | `ActionLink` (`Button asChild variant='ghost-primary' size='link-inline' rounded='lg'` plus the 16px arrow) is the one "View Details" / "View All" link: receipts, group and list cards, history, dashboard section titles | `commons/action-link/action-link.tsx` |
+| Action link | `ActionLink` (`Button asChild variant='ghost-primary' size='link-inline' rounded='lg'` plus the 16px arrow) is the one "View Details" / "View All" link: receipts, list cards, history, dashboard section titles | `commons/action-link/action-link.tsx` |
 | Field `size` | `default` 36 (`rounded-xl`) · `lg` 44 (`rounded-2xl`, the 16px of the form fields); borderless on `bg-card` with `shadow-field`; invalid: a `--destructive` ring | `ui/input.tsx`, `ui/textarea.tsx`, `ui/select.tsx` |
 | Card | `rounded-3xl` (24px), `shadow-card`, no border; 12px padding on phones and 16px from `md`; `size` `compact` / `tight` / `flush` keeps that inset for compact row cards; `variant` `premium`, `accent`, `ghost`; `interactive` lifts the shadow | `ui/card.tsx` |
 | Card parts | Card sides use 12px below `md` and 16px from `md`; `CardContent space` `default` · `snug` (12px gap in a flex column) · `stack` (16px between stacked blocks) and `inset` `default` · `compact` (responsive card-side inset) | `ui/card.tsx` |
@@ -1286,8 +1291,8 @@ drawn 52), "View All" is 32px at every width, and `Label` keeps the 20px line he
 
 ### 11.6 History and Add Items to List (phones)
 
-- History: the group card reads `Completed on <date> · $total` (mono date, `text-xs`), with the footer count and a `View Details` link. The empty state is one card with the folder icon.
-- Add Items to List is a bottom sheet below `md` (`DialogContent sheetOnPhones`). Cancel is `variant='secondary'`; Add is `size='primary'` and reads `Add N Items`, disabled until a list is chosen in the existing-list mode. The no-groups state offers one primary `Create Group` button.
+- History: one screen of session cards, newest first, with a `Show trips from` select above them (`Select size='lg'`: "All lists" plus the lists that have at least one trip; the choice is `?list=<id>` in the URL, and an unknown value reads as all lists). The session card reads `Completed on <date> · $total` (mono date, `text-xs`), with the footer count and a `View Details` link. The empty state is one card with the folder icon.
+- Add Items to List is a bottom sheet below `md` (`DialogContent sheetOnPhones`). Cancel is `variant='secondary'`; Add is `size='primary'` and reads `Add N Items`, disabled until a list is chosen in the existing-list mode. There is no group choice: one list selector (names of lists that share one read `Weekly`, `Weekly (2)`) or, to start a list, only its name. With no list yet the sheet shows a line ("You have no lists yet. Name one and these items will start it.") and the name field alone.
 
 ## 12. Do and don't
 
