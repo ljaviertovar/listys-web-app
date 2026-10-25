@@ -8,7 +8,7 @@ Definir textos coherentes, comprensibles y verificables para las acciones y esta
 
 ### Requirement: Consistent object and action names
 
-El copy visible SHALL distinguir receipt, base list, shopping session, group e item de forma coherente. El nombre de una acción MUST mantenerse reconocible entre disparador, confirmación, estado pendiente y resultado. Las acciones genéricas o iconos MUST tener nombres accesibles que expresen su propósito en contexto.
+El copy visible SHALL distinguir receipt, base list, shopping session e item de forma coherente y MUST NOT usar "group" para un contenedor de listas, porque la interfaz ya no tiene ese concepto. El nombre de una acción MUST mantenerse reconocible entre disparador, confirmación, estado pendiente y resultado. Las acciones genéricas o iconos MUST tener nombres accesibles que expresen su propósito en contexto.
 
 #### Scenario: Completing shopping
 
@@ -20,9 +20,14 @@ El copy visible SHALL distinguir receipt, base list, shopping session, group e i
 - **WHEN** el historial presenta cero, una o varias sesiones
 - **THEN** usa un nombre correcto del objeto y concordancia apropiada, sin “shoppings” ni plurales incorrectos
 
+#### Scenario: No container vocabulary
+
+- **WHEN** el usuario recorre listas, dashboard, historial, recibos, navegación y diálogos
+- **THEN** ningún texto visible ni etiqueta accesible nombra un grupo de listas; el lugar donde se organiza lo que compra es la lista base
+
 ### Requirement: Copy describes the available capability
 
-Las explicaciones y promesas SHALL corresponder a controles y resultados disponibles. MUST distinguir seleccionar de editar, una lista compartida de un grupo organizativo, guardar un recibo de añadir artículos a una lista y una nueva subida de reemplazar una foto existente. Ningún texto MUST prometer una función pendiente para evitar reconocer una limitación.
+Las explicaciones y promesas SHALL corresponder a controles y resultados disponibles. MUST distinguir seleccionar de editar, compartir una lista de gestionar otras listas, guardar un recibo de añadir artículos a una lista y una nueva subida de reemplazar una foto existente. Ningún texto MUST prometer una función pendiente para evitar reconocer una limitación.
 
 #### Scenario: Receipt review
 
@@ -32,12 +37,17 @@ Las explicaciones y promesas SHALL corresponder a controles y resultados disponi
 #### Scenario: Sharing explanation
 
 - **WHEN** el usuario lee cómo compartir
-- **THEN** entiende que el enlace da acceso a la lista que lo genera, sin inferir que comparte todo el grupo
+- **THEN** entiende que el enlace da acceso a la lista que lo genera, sin inferir que comparte sus otras listas
 
 #### Scenario: Upload after an empty extraction
 
 - **WHEN** una extracción vacía propone subir otra foto mediante el diálogo general
 - **THEN** el texto deja claro que se crea otra subida y no promete reemplazar la imagen del recibo actual
+
+#### Scenario: Organizing promise
+
+- **WHEN** el usuario lee la descripción de las listas o de la página pública
+- **THEN** el texto promete listas reutilizables y no una organización en grupos, carpetas o tiendas que la aplicación no ofrece
 
 ### Requirement: Receipt lifecycle states are distinct
 
@@ -58,7 +68,7 @@ El copy SHALL distinguir subida, espera, lectura, revisión y adición a una lis
 - **WHEN** el recibo se guarda y la interfaz navega a su revisión
 - **THEN** el mensaje de éxito confirma la subida y deja claro el destino de revisión sin describir como pendiente una redirección que ya ocurrió
 
-### Requirement: Consequences and scope are explicit
+### Requirement: Destructive and sync confirmations state their scope
 
 Las confirmaciones destructivas y los avisos de sincronización SHALL explicar su alcance usando hechos soportados por la operación actual. MUST diferenciar cerrar un diálogo, descartar un borrador, cancelar una compra, eliminar un objeto y limpiar una selección. Los textos MUST evitar prometer reversibilidad o conservación de datos que el flujo no garantiza.
 
@@ -67,10 +77,10 @@ Las confirmaciones destructivas y los avisos de sincronización SHALL explicar s
 - **WHEN** el usuario limpia una selección
 - **THEN** el nombre de la acción indica que desmarca la selección y no sugiere borrar los artículos o el recibo
 
-#### Scenario: Delete a group
+#### Scenario: Delete a list
 
-- **WHEN** se solicita eliminar un grupo
-- **THEN** la confirmación identifica el grupo, sus objetos afectados y la irreversibilidad según la operación existente antes de que se confirme
+- **WHEN** se solicita eliminar una lista
+- **THEN** la confirmación identifica la lista, cuántos ítems se van con ella, que las personas con quienes se comparte pierden el acceso y que no se puede deshacer, antes de que se confirme
 
 #### Scenario: Update the base list
 
