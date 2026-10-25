@@ -39,9 +39,8 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 	const baseListWithItems = baseList as BaseListWithItems
 	const items = baseListWithItems.items ?? []
 
-	// Parallelize group info and session queries
-	const [groupResult, activeSessionResult, anyActiveSessionResult] = await Promise.all([
-		supabase.from('groups').select('id, name').eq('id', baseListWithItems.group_id).single(),
+	// Parallelize the session queries
+	const [activeSessionResult, anyActiveSessionResult] = await Promise.all([
 		supabase
 			.from('shopping_sessions')
 			.select('id, name')
@@ -57,7 +56,6 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 			.maybeSingle(),
 	])
 
-	const { data: group } = groupResult
 	// This list is being shopped: it is locked until the session ends.
 	const isLocked = !!activeSessionResult.data
 	// Only one session can run at a time, so any of them hides "Start Shopping".
@@ -67,10 +65,7 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 		<>
 			<PageHeader
 				variant='screen'
-				back={{
-					href: `/shopping-lists/${baseListWithItems.group_id}/lists`,
-					label: `Back to ${group?.name || 'Shopping Lists'}`,
-				}}
+				back={{ href: '/shopping-lists', label: 'Back to Lists' }}
 				title={baseListWithItems.name}
 				desc='Manage items in this base list'
 			/>

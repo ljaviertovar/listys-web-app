@@ -1,9 +1,11 @@
 'use client'
 
-import { useCallback, useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { toast } from 'sonner'
 
-import { loadMergeListTargets, submitTicketItemsToList, type MergeMode } from '../helpers/merge-ticket-items'
+import { buildListDisplayNames } from '@/utils'
+
+import { loadMergeListTargets, modeForListCount, submitTicketItemsToList, type BaseList, type MergeMode } from '../helpers/merge-ticket-items'
 
 interface UseMergeToBaseListInput {
 	open: boolean
@@ -15,33 +17,52 @@ interface UseMergeToBaseListInput {
 
 export function useMergeToBaseList({ open, ticketId, selectedItemIds, onOpenChange, onSuccess }: UseMergeToBaseListInput) {
 	const [mode, setMode] = useState<MergeMode>('existing')
-	const [groups, setGroups] = useState<{ id: string; name: string }[]>([])
-	const [baseLists, setBaseLists] = useState<{ id: string; name: string; group_id: string }[]>([])
-	const [selectedGroupId, setSelectedGroupId] = useState('')
+	const [baseLists, setBaseLists] = useState<BaseList[]>([])
 	const [selectedBaseListId, setSelectedBaseListId] = useState('')
 	const [newListName, setNewListName] = useState('')
 	const [loading, setLoading] = useState(false)
-	const [loadingData, setLoadingData] = useState(true)
+	const [loaded, setLoaded] = useState(false)
+	const [loadFailed, setLoadFailed] = useState(false)
+	// Bumped by "Try Again" so the effect below reads the lists once more.
+	const [attempt, setAttempt] = useState(0)
 	const [error, setError] = useState<string | null>(null)
 
-	const loadData = useCallback(async () => {
-		setLoadingData(true)
-		setError(null)
-		try {
-			const targets = await loadMergeListTargets()
-			setGroups(targets.groups)
-			setBaseLists(targets.baseLists)
-			if (targets.groups.length > 0) setSelectedGroupId(current => current || targets.groups[0].id)
-		} catch {
-			setError('We couldn’t load your groups and lists. Close this window and try again.')
-		} finally {
-			setLoadingData(false)
-		}
-	}, [])
+	// Lists that share a name read "Weekly" and "Weekly (2)" so the user can tell them apart.
+	const listLabels = useMemo(() => buildListDisplayNames(baseLists), [baseLists])
 
+	// The state is only set once the request answers, never while the effect runs, so opening the dialog costs no extra render.
 	useEffect(() => {
-		if (open) void loadData()
-	}, [open, loadData])
+		if (!open) return
+		let cancelled = false
+
+		loadMergeListTargets()
+			.then(targets => {
+				if (cancelled) return
+				setBaseLists(targets.baseLists)
+				setMode(current => modeForListCount(targets.baseLists.length, current))
+				setLoadFailed(false)
+				setError(null)
+				setLoaded(true)
+			})
+			.catch(() => {
+				if (cancelled) return
+				setLoadFailed(true)
+				setError('We couldn’t load your lists. Close this window and try again.')
+			})
+
+		return () => {
+			cancelled = true
+		}
+	}, [open, attempt])
+
+	const loadData = () => {
+		setLoadFailed(false)
+		setLoaded(false)
+		setError(null)
+		setAttempt(current => current + 1)
+	}
+
+	const loadingData = open && !loaded && !loadFailed
 
 	const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault()
@@ -54,7 +75,6 @@ export function useMergeToBaseList({ open, ticketId, selectedItemIds, onOpenChan
 				ticketId,
 				selectedItemIds,
 				selectedBaseListId,
-				selectedGroupId,
 				newListName,
 			})
 
@@ -81,16 +101,15 @@ export function useMergeToBaseList({ open, ticketId, selectedItemIds, onOpenChan
 	return {
 		mode,
 		setMode,
-		groups,
 		baseLists,
-		selectedGroupId,
-		setSelectedGroupId,
+		listLabels,
 		selectedBaseListId,
 		setSelectedBaseListId,
 		newListName,
 		setNewListName,
 		loading,
 		loadingData,
+		loadFailed,
 		error,
 		setError,
 		loadData,

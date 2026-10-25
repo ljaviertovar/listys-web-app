@@ -31,7 +31,7 @@ describe('AppSidebar', () => {
 		const html = render()
 
 		;['Shopping', 'Management', 'Settings'].forEach(title => expect(html).toContain(`>${title}</div>`))
-		;['Dashboard', 'Shopping List Groups', 'Shopping History', 'Receipts', 'Profile', 'Account'].forEach(title =>
+		;['Dashboard', 'Shopping Lists', 'Shopping History', 'Receipts', 'Profile', 'Account'].forEach(title =>
 			expect(html).toContain(`<span>${title}</span>`),
 		)
 		const menu = html.slice(html.indexOf('data-sidebar="content"'), html.indexOf('data-sidebar="footer"'))

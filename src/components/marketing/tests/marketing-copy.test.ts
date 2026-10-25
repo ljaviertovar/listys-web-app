@@ -23,6 +23,16 @@ describe('marketing copy', () => {
 		expect(html).not.toContain('become a base list you keep')
 	})
 
+	it('does not promise to organize lists into groups, which the app no longer has', () => {
+		const text = [FaqSection, FeaturesSection, GetStartedSection]
+			.map(Component => renderToStaticMarkup(createElement(Component)).replace(/<[^>]*>/g, ' '))
+			.join(' ')
+
+		expect(text).not.toMatch(/\bgroups?\b/i)
+		expect(text).toContain('Keep a list for each need')
+		expect(JSON.stringify({ PROCESS_STEPS, FEATURE_CARDS })).not.toMatch(/\bgroups?\b/i)
+	})
+
 	it('removes unsupported speed, precision, and automatic-learning claims from shared copy', () => {
 		const sharedCopy = JSON.stringify({ PROCESS_STEPS, FEATURE_CARDS })
 

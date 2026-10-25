@@ -1,30 +1,50 @@
 import { describe, expect, it, vi } from 'vitest'
 
-import { loadMergeListTargets, submitTicketItemsToList } from '../helpers/merge-ticket-items'
+import { loadMergeListTargets, modeForListCount, submitTicketItemsToList } from '../helpers/merge-ticket-items'
 
 const input = {
 	mode: 'existing' as const,
 	ticketId: 'fixture-ticket',
 	selectedItemIds: ['fixture-item-1', 'fixture-item-2'],
 	selectedBaseListId: 'fixture-list',
-	selectedGroupId: 'fixture-group',
 	newListName: '',
 }
+
+describe('modeForListCount', () => {
+	it('goes straight to creating a list when the user has none', () => {
+		expect(modeForListCount(0, 'existing')).toBe('new')
+	})
+
+	it('keeps whatever the user picked when there are lists', () => {
+		expect(modeForListCount(3, 'existing')).toBe('existing')
+		expect(modeForListCount(3, 'new')).toBe('new')
+	})
+})
 
 describe('loadMergeListTargets', () => {
 	it('returns known empty fixture data without treating it as a request failure', async () => {
 		const targets = await loadMergeListTargets({
-			getGroups: vi.fn().mockResolvedValue({ data: [], error: undefined }),
 			getBaseLists: vi.fn().mockResolvedValue({ data: [], error: undefined }),
 		})
 
-		expect(targets).toEqual({ groups: [], baseLists: [] })
+		expect(targets).toEqual({ baseLists: [] })
 	})
 
-	it('rejects a failed group or list request so the UI can show its retry state', async () => {
+	it('returns every list of the user, with no group to pick first', async () => {
+		const lists = [
+			{ id: 'l1', name: 'Pantry', created_at: '2026-01-01T00:00:00Z', group_id: 'g1' },
+			{ id: 'l2', name: 'Costco', created_at: '2026-02-01T00:00:00Z', group_id: 'g2' },
+		]
+
+		const targets = await loadMergeListTargets({ getBaseLists: vi.fn().mockResolvedValue({ data: lists }) })
+
+		expect(targets.baseLists.map(list => list.id)).toEqual(['l1', 'l2'])
+		expect(targets).not.toHaveProperty('groups')
+	})
+
+	it('rejects a failed list request so the UI can show its retry state', async () => {
 		await expect(loadMergeListTargets({
-			getGroups: vi.fn().mockResolvedValue({ error: 'fixture failure' }),
-			getBaseLists: vi.fn().mockResolvedValue({ data: [], error: undefined }),
+			getBaseLists: vi.fn().mockResolvedValue({ error: 'fixture failure' }),
 		})).rejects.toThrow('Could not load lists')
 	})
 })
@@ -68,7 +88,7 @@ describe('submitTicketItemsToList', () => {
 		expect(create).not.toHaveBeenCalled()
 	})
 
-	it('creates a new list with a trimmed name and reports the selected item count', async () => {
+	it('creates a new list from the name alone, trimmed, and reports the selected item count', async () => {
 		const create = vi.fn().mockResolvedValue({ data: { id: 'fixture-created-list' } })
 		const merge = vi.fn()
 
@@ -76,12 +96,21 @@ describe('submitTicketItemsToList', () => {
 
 		expect(create).toHaveBeenCalledWith({
 			ticket_id: 'fixture-ticket',
-			group_id: 'fixture-group',
 			name: 'Pantry',
 			item_ids: ['fixture-item-1', 'fixture-item-2'],
 		})
+		expect(create.mock.calls[0][0]).not.toHaveProperty('group_id')
 		expect(merge).not.toHaveBeenCalled()
 		expect(result).toEqual({ kind: 'created', baseListId: 'fixture-created-list', itemCount: 2 })
+	})
+
+	it('asks for a name before creating a list', async () => {
+		const create = vi.fn()
+
+		const result = await submitTicketItemsToList({ ...input, mode: 'new', newListName: '   ' }, { merge: vi.fn(), create })
+
+		expect(result).toEqual({ kind: 'invalid', message: 'Enter a name for this list.' })
+		expect(create).not.toHaveBeenCalled()
 	})
 
 	it('returns the new-list error without claiming success when the API rejects it', async () => {
@@ -91,6 +120,15 @@ describe('submitTicketItemsToList', () => {
 		})
 
 		expect(result).toEqual({ kind: 'error', message: 'We couldn’t create your list. Try again.' })
+	})
+
+	it('tells the user when the name is already taken, without mentioning groups', async () => {
+		const result = await submitTicketItemsToList({ ...input, mode: 'new', newListName: 'Pantry' }, {
+			merge: vi.fn(),
+			create: vi.fn().mockResolvedValue({ error: 'A list with this name already exists.', errorCode: 'CONFLICT' }),
+		})
+
+		expect(result).toEqual({ kind: 'error', message: 'You already have a list with this name. Choose another name.' })
 	})
 
 	it('turns a rejected request into connection feedback', async () => {

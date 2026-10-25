@@ -1,7 +1,5 @@
 // Tickets components barrel export
-export { AssignTicketToGroupDialog } from './add-to-list/assign-ticket-to-group-dialog'
 export { TicketsList, type TicketsListItem } from './list/tickets-list'
-export { TicketsFilter } from './list/tickets-filter'
 export { TicketActions } from './receipt/ticket-actions'
 export { sumLineTotals } from './receipt/helpers/group-ticket-items'
 export { TicketReview } from './receipt/ticket-review'

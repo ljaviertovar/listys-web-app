@@ -2,7 +2,7 @@ import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
 
-import { BaseListItems, BaseListsList, StartShoppingDialog } from '@/components/features/base-lists'
+import { BaseListItems, BaseListsList, BaseListsSkeleton, StartShoppingDialog } from '@/components/features/base-lists'
 import type { BaseListItem, BaseListWithCount } from '@/types'
 
 import { toRestorePayload } from '../items/helpers/restore-item'
@@ -16,7 +16,7 @@ const item = (overrides: Partial<BaseListItem>) =>
 describe('BaseListsList', () => {
 	it('counts the lists, offers New Base List and links each card to its items', () => {
 		const html = renderToStaticMarkup(
-			createElement(BaseListsList, { groupId: 'g1', groupName: 'Walmart', baseLists: [list({}), list({ id: 'l2', name: 'Weekly Groceries', items_count: 12 })] }),
+			createElement(BaseListsList, { baseLists: [list({}), list({ id: 'l2', name: 'Weekly Groceries', items_count: 12 })] }),
 		)
 
 		expect(html).toContain('data-testid="base-lists-toolbar"')
@@ -27,11 +27,37 @@ describe('BaseListsList', () => {
 		expect(html).toContain('aria-label="View Items in Items for Dinner"')
 	})
 
+	it('shows every list in one grid, with no group wording', () => {
+		const html = renderToStaticMarkup(
+			createElement(BaseListsList, {
+				baseLists: [list({ group_id: 'g1' }), list({ id: 'l2', name: 'Costco', group_id: 'g2' }), list({ id: 'l3', name: 'Pantry', group_id: 'g3' })],
+			}),
+		)
+
+		expect(html).toContain('data-testid="base-lists-grid"')
+		expect(html.match(/data-testid="list-card-l\d"/g)).toHaveLength(3)
+		expect(html).not.toMatch(/group/i)
+	})
+
+	it('tells apart lists that share a name without touching the stored name', () => {
+		const html = renderToStaticMarkup(
+			createElement(BaseListsList, {
+				baseLists: [
+					list({ id: 'old', name: 'Weekly', created_at: '2026-01-01T00:00:00Z' }),
+					list({ id: 'new', name: 'Weekly', created_at: '2026-02-01T00:00:00Z' }),
+				],
+			}),
+		)
+
+		expect(html).toContain('Weekly (2)')
+		expect(html).toContain('aria-label="View Items in Weekly (2)"')
+		expect(html).toContain('aria-label="More options for Weekly (2)"')
+		expect(html).toContain('aria-label="View Items in Weekly"')
+	})
+
 	it('keeps long list titles and notes available in the card', () => {
 		const html = renderToStaticMarkup(
 			createElement(BaseListsList, {
-				groupId: 'g1',
-				groupName: 'Walmart',
 				baseLists: [list({ name: 'Supplies for the whole family on the road', notes: 'Food, first aid, and practical supplies for our long weekend trip.' })],
 			}),
 		)
@@ -43,7 +69,7 @@ describe('BaseListsList', () => {
 
 	it('leaves out the list that is being shopped', () => {
 		const html = renderToStaticMarkup(
-			createElement(BaseListsList, { groupId: 'g1', groupName: 'Walmart', baseLists: [list({}), list({ id: 'l2', name: 'Weekly Groceries' })], activeBaseListId: 'l1' }),
+			createElement(BaseListsList, { baseLists: [list({}), list({ id: 'l2', name: 'Weekly Groceries' })], activeBaseListId: 'l1' }),
 		)
 
 		expect(html).not.toContain('data-testid="list-card-l1"')
@@ -52,11 +78,22 @@ describe('BaseListsList', () => {
 	})
 
 	it('invites the first list with a card of its own and no toolbar', () => {
-		const html = renderToStaticMarkup(createElement(BaseListsList, { groupId: 'g1', groupName: 'Walmart', baseLists: [] }))
+		const html = renderToStaticMarkup(createElement(BaseListsList, { baseLists: [] }))
 
 		expect(html).toContain('data-testid="base-lists-empty-state"')
-		expect(html).toContain('No lists in Walmart yet')
+		expect(html).toContain('No lists yet')
+		expect(html).toContain('data-testid="create-base-list-button"')
 		expect(html).not.toContain('base-lists-toolbar')
+		expect(html).not.toMatch(/group/i)
+	})
+})
+
+describe('BaseListsSkeleton', () => {
+	it('draws the toolbar and three card shapes', () => {
+		const html = renderToStaticMarkup(createElement(BaseListsSkeleton))
+
+		expect(html).toContain('data-testid="base-lists-skeleton"')
+		expect(html.match(/data-testid="base-list-card-skeleton-/g)).toHaveLength(3)
 	})
 })
 

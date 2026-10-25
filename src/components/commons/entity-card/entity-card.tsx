@@ -18,9 +18,9 @@ interface EntityCardProps {
 	emptyLabel: string
 	/** Text of the link in the footer ("View Details", "View Items"). */
 	linkLabel: string
-	/** The "⋯" menu with edit and delete; a read-only card (a group of the history) passes none of these. */
+	/** The "⋯" menu with edit and delete; a read-only card passes none of these. */
 	menu?: {
-		/** Names the thing the menu belongs to: the group or list. */
+		/** Names the thing the menu belongs to: the list. */
 		label: string
 		editLabel: string
 		deleteLabel: string
@@ -33,7 +33,7 @@ interface EntityCardProps {
 }
 
 /**
- * A group or a list of the Lists section: an icon tile, its name and one line of description, a "⋯" menu, and a footer
+ * A list of the Lists section: an icon tile, its name and one line of description, a "⋯" menu, and a footer
  * with how much it holds. Only the footer action navigates, leaving the rest of the card available for other interactions.
  */
 export function EntityCard({

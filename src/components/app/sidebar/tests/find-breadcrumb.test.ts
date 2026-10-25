@@ -13,7 +13,7 @@ describe('findBreadcrumb', () => {
 	})
 
 	it('files pages below an entry under it', () => {
-		expect(find('/shopping-lists/abc/lists')).toEqual({ section: 'Shopping', page: 'Shopping List Groups' })
+		expect(find('/shopping-lists/abc/lists')).toEqual({ section: 'Shopping', page: 'Shopping Lists' })
 	})
 
 	it('does not match a different route that merely starts with the same letters', () => {

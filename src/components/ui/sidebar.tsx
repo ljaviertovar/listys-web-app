@@ -17,7 +17,7 @@ import { SidebarLeftIcon } from '@hugeicons/core-free-icons'
 
 const SIDEBAR_COOKIE_NAME = 'sidebar_state'
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
-// 17rem rather than shadcn's 16rem so "Shopping List Groups" and its count pill share one line.
+// 17rem rather than shadcn's 16rem so "Shopping Lists" and its count pill share one line.
 // 256px in total: the floating panel is 240px wide inside its 8px margins (design A1 desktop).
 const SIDEBAR_WIDTH = '16rem'
 const SIDEBAR_WIDTH_MOBILE = '18rem'

@@ -1,17 +1,17 @@
 import { PageContainer, PageHeader } from '@/components/app'
-import { GroupsSkeleton } from '@/components/features/shopping-lists'
+import { BaseListsSkeleton } from '@/components/features/base-lists'
 
-export default function GroupsLoading() {
+export default function ShoppingListsLoading() {
 	return (
 		<>
 			<PageHeader
 				variant='screen'
 				back={{ href: '/dashboard', label: 'Back to Dashboard' }}
-				title='Shopping List Groups'
-				desc='Organize your shopping lists into groups or stores. Eg: Groceries, Electronics, Walmart, etc.'
+				title='Shopping Lists'
+				desc='All your lists in one place. Start with the things you always buy.'
 			/>
 			<PageContainer>
-				<GroupsSkeleton />
+				<BaseListsSkeleton />
 			</PageContainer>
 		</>
 	)
