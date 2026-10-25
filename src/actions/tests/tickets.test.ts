@@ -180,7 +180,11 @@ describe('createBaseListFromTicket', () => {
     const supabase = setupMock()
     supabase.from = sequentialFrom({
       ticket_items: [{ data: [{ id: itemUUID, name: 'Milk', quantity: 1 }], error: null }],
-      base_lists: [{ data: newList, error: null }],
+      base_lists: [
+        { data: null, error: null }, // the name is free
+        { data: newList, error: null }, // insert
+      ],
+      groups: [{ data: { id: TEST_UUID_2 }, error: null }], // the user's own group
       base_list_items: [{ data: null, error: null }],
       tickets: [{ data: null, error: null }],
     })
@@ -192,6 +196,46 @@ describe('createBaseListFromTicket', () => {
       item_ids: [itemUUID],
     })
     expect(result.data).toEqual(newList)
+  })
+
+  it('needs no group: the list goes to the default group and the receipt records it', async () => {
+    const itemUUID = '00000001-0000-4000-a000-000000000001'
+    const newList = { id: 'new-list-id', name: 'From Ticket', group_id: 'default-group' }
+    const { supabase } = createSupabaseMock({ rpcResults: { ensure_default_group: { data: 'default-group', error: null } } })
+    mockedCreateClient.mockResolvedValue(supabase as unknown as Awaited<ReturnType<typeof createClient>>)
+    const ticketUpdate = vi.fn().mockReturnThis()
+    const tableBuilder = sequentialFrom({
+      ticket_items: [{ data: [{ id: itemUUID, name: 'Milk', quantity: 1 }], error: null }],
+      base_lists: [
+        { data: null, error: null },
+        { data: newList, error: null },
+      ],
+      base_list_items: [{ data: null, error: null }],
+      tickets: [{ data: null, error: null }],
+    })
+    supabase.from = vi.fn().mockImplementation((table: string) => {
+      const builder = tableBuilder(table)
+      if (table === 'tickets') builder.update = ticketUpdate
+      return builder
+    })
+
+    const result = await createBaseListFromTicket({ ticket_id: TEST_UUID, name: 'From Ticket', item_ids: [itemUUID] })
+
+    expect(result.data).toEqual(newList)
+    expect(ticketUpdate).toHaveBeenCalledWith({ base_list_id: 'new-list-id', group_id: 'default-group' })
+  })
+
+  it('rejects a name the user already uses and creates nothing', async () => {
+    const itemUUID = '00000001-0000-4000-a000-000000000001'
+    const supabase = setupMock()
+    supabase.from = sequentialFrom({
+      ticket_items: [{ data: [{ id: itemUUID, name: 'Milk', quantity: 1 }], error: null }],
+      base_lists: [{ data: { id: 'existing' }, error: null }],
+    })
+
+    const result = await createBaseListFromTicket({ ticket_id: TEST_UUID, name: 'Pantry', item_ids: [itemUUID] })
+
+    expect(result.error).toBe('A list with this name already exists. Please choose a different name.')
   })
 })
 

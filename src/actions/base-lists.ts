@@ -8,6 +8,8 @@ import {
   updateBaseListItemSchema,
 } from '@/lib/validations/base-list'
 import { MAX_ITEMS_PER_BASE_LIST } from '@/lib/config/limits'
+import { resolveListGroupId } from '@/lib/server/services/default-group.service'
+import { DUPLICATE_LIST_NAME_MESSAGE, findListByName, isSameListName } from '@/lib/server/services/find-list-by-name'
 import { revalidatePath } from 'next/cache'
 
 export async function createBaseList(data: unknown) {
@@ -26,24 +28,25 @@ export async function createBaseList(data: unknown) {
     return { error: validation.error.issues[0].message }
   }
 
-  // Check for duplicate base list name within the same group
-  const { data: existingList } = await supabase
-    .from('base_lists')
-    .select('id')
-    .eq('user_id', user.id)
-    .eq('group_id', validation.data.group_id)
-    .ilike('name', validation.data.name)
-    .maybeSingle()
+  if (await findListByName(supabase, user.id, validation.data.name)) {
+    return { error: DUPLICATE_LIST_NAME_MESSAGE }
+  }
 
-  if (existingList) {
-    return { error: 'A list with this name already exists in this group. Please choose a different name.' }
+  // After the name check, so a rejected name never creates the default group.
+  const { group_id: requestedGroupId, ...listFields } = validation.data
+  let groupId: string
+  try {
+    groupId = await resolveListGroupId(supabase, user.id, requestedGroupId)
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : 'We couldn’t create your list. Try again.' }
   }
 
   const { data: baseList, error } = await supabase
     .from('base_lists')
     .insert({
       user_id: user.id,
-      ...validation.data,
+      ...listFields,
+      group_id: groupId,
     })
     .select()
     .single()
@@ -53,7 +56,6 @@ export async function createBaseList(data: unknown) {
   }
 
   revalidatePath('/shopping-lists')
-  revalidatePath(`/shopping-lists/${validation.data.group_id}`)
   return { data: baseList }
 }
 
@@ -73,28 +75,19 @@ export async function updateBaseList(id: string, data: unknown) {
     return { error: validation.error.issues[0].message }
   }
 
-  // Check for duplicate base list name within the same group (excluding current list)
+  // Names are unique across the account, not per group.
   if (validation.data.name) {
-    // First get the current list to know its group_id
     const { data: currentList } = await supabase
       .from('base_lists')
-      .select('group_id')
+      .select('name')
       .eq('id', id)
       .eq('user_id', user.id)
       .single()
 
-    if (currentList) {
-      const { data: existingList } = await supabase
-        .from('base_lists')
-        .select('id')
-        .eq('user_id', user.id)
-        .eq('group_id', currentList.group_id)
-        .ilike('name', validation.data.name)
-        .neq('id', id)
-        .maybeSingle()
-
-      if (existingList) {
-        return { error: 'A list with this name already exists in this group. Please choose a different name.' }
+    // A missing list is answered by the update below.
+    if (currentList && !isSameListName(currentList.name, validation.data.name)) {
+      if (await findListByName(supabase, user.id, validation.data.name, id)) {
+        return { error: DUPLICATE_LIST_NAME_MESSAGE }
       }
     }
   }
@@ -185,31 +178,6 @@ export async function getBaseLists() {
     .select('id, name, group_id')
     .eq('user_id', user.id)
     .order('name', { ascending: true })
-
-  if (error) {
-    return { error: error.message }
-  }
-
-  return { data: baseLists }
-}
-
-export async function getBaseListsByGroup(groupId: string) {
-  const supabase = await createClient()
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    return { error: 'Unauthorized' }
-  }
-
-  const { data: baseLists, error } = await supabase
-    .from('base_lists')
-    .select('*, items:base_list_items(count)')
-    .eq('group_id', groupId)
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: false })
 
   if (error) {
     return { error: error.message }

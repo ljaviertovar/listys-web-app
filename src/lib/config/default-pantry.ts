@@ -2,5 +2,5 @@
 // Pantry is provisioned (see the `ensure_default_pantry` database function), so changing them only affects new accounts.
 export const DEFAULT_PANTRY_LIST_NAME = 'Pantry'
 
-// The group is an implicit container that a later phase hides from the interface.
+// The group is an implicit container the interface never shows: every list created without a group goes into it.
 export const DEFAULT_PANTRY_GROUP_NAME = 'My Lists'

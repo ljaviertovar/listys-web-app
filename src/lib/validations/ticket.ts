@@ -29,7 +29,8 @@ export const mergeTicketItemsSchema = z.object({
 
 export const createBaseListFromTicketSchema = z.object({
   ticket_id: z.string().uuid(),
-  group_id: z.string().uuid(),
+  // Optional since groups left the interface: without it the list goes to the user's default group.
+  group_id: z.string().uuid().nullish(),
   name: z.string().min(1, 'Name is required').max(100),
   item_ids: z
     .array(z.string().uuid())

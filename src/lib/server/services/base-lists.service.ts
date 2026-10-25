@@ -7,6 +7,8 @@ import {
   updateBaseListItemSchema,
 } from '@/lib/validations/base-list'
 import { MAX_ITEMS_PER_BASE_LIST } from '@/lib/config/limits'
+import { resolveListGroupId } from '@/lib/server/services/default-group.service'
+import { DUPLICATE_LIST_NAME_MESSAGE, findListByName, isSameListName } from '@/lib/server/services/find-list-by-name'
 
 export async function createBaseList(data: unknown) {
   const { supabase, user } = await createAuthenticatedClient()
@@ -16,21 +18,17 @@ export async function createBaseList(data: unknown) {
     throw new ApiServiceError(422, ErrorCode.VALIDATION_ERROR, validation.error.issues[0]?.message ?? 'Invalid payload')
   }
 
-  const { data: existingList } = await supabase
-    .from('base_lists')
-    .select('id')
-    .eq('user_id', user.id)
-    .eq('group_id', validation.data.group_id)
-    .ilike('name', validation.data.name)
-    .maybeSingle()
-
-  if (existingList) {
-    throw new ApiServiceError(409, ErrorCode.CONFLICT, 'A list with this name already exists in this group. Please choose a different name.')
+  if (await findListByName(supabase, user.id, validation.data.name)) {
+    throw new ApiServiceError(409, ErrorCode.CONFLICT, DUPLICATE_LIST_NAME_MESSAGE)
   }
+
+  // After the name check, so a rejected name never creates the default group.
+  const { group_id: requestedGroupId, ...listFields } = validation.data
+  const groupId = await resolveListGroupId(supabase, user.id, requestedGroupId)
 
   const { data: baseList, error } = await supabase
     .from('base_lists')
-    .insert({ user_id: user.id, ...validation.data })
+    .insert({ user_id: user.id, ...listFields, group_id: groupId })
     .select()
     .single()
 
@@ -52,23 +50,15 @@ export async function updateBaseList(id: string, data: unknown) {
   if (validation.data.name) {
     const { data: currentList } = await supabase
       .from('base_lists')
-      .select('group_id')
+      .select('name')
       .eq('id', id)
       .eq('user_id', user.id)
       .single()
 
-    if (currentList) {
-      const { data: existingList } = await supabase
-        .from('base_lists')
-        .select('id')
-        .eq('user_id', user.id)
-        .eq('group_id', currentList.group_id)
-        .ilike('name', validation.data.name)
-        .neq('id', id)
-        .maybeSingle()
-
-      if (existingList) {
-        throw new ApiServiceError(409, ErrorCode.CONFLICT, 'A list with this name already exists in this group. Please choose a different name.')
+    // A missing list is answered with 404 by the update below.
+    if (currentList && !isSameListName(currentList.name, validation.data.name)) {
+      if (await findListByName(supabase, user.id, validation.data.name, id)) {
+        throw new ApiServiceError(409, ErrorCode.CONFLICT, DUPLICATE_LIST_NAME_MESSAGE)
       }
     }
   }
@@ -128,9 +118,10 @@ export async function getBaseLists() {
 
   const { data: baseLists, error } = await supabase
     .from('base_lists')
-    .select('id, name, group_id, items:base_list_items(count)')
+    .select('id, name, notes, group_id, created_at, items:base_list_items(count)')
     .eq('user_id', user.id)
     .order('name', { ascending: true })
+    .order('created_at', { ascending: true })
 
   if (error) {
     throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, error.message)

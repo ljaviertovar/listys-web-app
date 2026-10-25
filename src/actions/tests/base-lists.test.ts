@@ -64,47 +64,103 @@ describe('createBaseList', () => {
     expect(result.error).toBeTruthy()
   })
 
-  it('rejects duplicate list name within group', async () => {
+  it('rejects a name already used by another list of the user, in any group', async () => {
     const supabase = setupMock()
     supabase.from = sequentialFrom({
       base_lists: [
-        { data: { id: 'existing' }, error: null }, // dedup finds match
+        { data: { id: 'existing' }, error: null }, // the name is taken
       ],
     })
 
-    const result = await createBaseList({ group_id: TEST_UUID, name: 'Existing' })
-    expect(result.error).toContain('already exists')
+    const result = await createBaseList({ name: 'Existing' })
+    expect(result.error).toBe('A list with this name already exists. Please choose a different name.')
+    expect(result.error).not.toMatch(/group/i)
+    expect(supabase.rpc).not.toHaveBeenCalled()
   })
 
-  it('creates list on happy path', async () => {
-    const newList = { id: 'new-id', name: 'Weekly', group_id: TEST_UUID }
-    const supabase = setupMock()
+  it('creates the list in the default group when no group is given', async () => {
+    const newList = { id: 'new-id', name: 'Weekly', group_id: 'default-group' }
+    const { supabase } = createSupabaseMock({ rpcResults: { ensure_default_group: { data: 'default-group', error: null } } })
+    mockedCreateClient.mockResolvedValue(supabase as unknown as Awaited<ReturnType<typeof createClient>>)
     supabase.from = sequentialFrom({
       base_lists: [
-        { data: null, error: null },      // dedup — no duplicate
-        { data: newList, error: null },    // insert
-      ],
-    })
-
-    const result = await createBaseList({ group_id: TEST_UUID, name: 'Weekly' })
-    expect(result.data).toEqual(newList)
-  })
-
-  it('creates list with notes on happy path', async () => {
-    const newList = { id: 'new-id-2', name: 'Weekly', group_id: TEST_UUID, notes: 'Family grocery list' }
-    const supabase = setupMock()
-    supabase.from = sequentialFrom({
-      base_lists: [
-        { data: null, error: null }, // dedup — no duplicate
+        { data: null, error: null }, // name is free
         { data: newList, error: null }, // insert
       ],
     })
 
-    const result = await createBaseList({
-      group_id: TEST_UUID,
-      name: 'Weekly',
-      notes: 'Family grocery list',
+    const result = await createBaseList({ name: 'Weekly' })
+
+    expect(result.data).toEqual(newList)
+    expect(supabase.rpc).toHaveBeenCalledWith('ensure_default_group', { p_group_name: 'My Lists' })
+  })
+
+  it('creates the list in an own group when one is given', async () => {
+    const newList = { id: 'new-id', name: 'Weekly', group_id: TEST_UUID }
+    const supabase = setupMock()
+    supabase.from = sequentialFrom({
+      base_lists: [
+        { data: null, error: null }, // name is free
+        { data: newList, error: null }, // insert
+      ],
+      groups: [{ data: { id: TEST_UUID }, error: null }], // the group is the user's own
     })
+
+    const result = await createBaseList({ group_id: TEST_UUID, name: 'Weekly' })
+    expect(result.data).toEqual(newList)
+    expect(supabase.rpc).not.toHaveBeenCalled()
+  })
+
+  it('refuses a group that is not the user\u2019s and creates nothing', async () => {
+    const supabase = setupMock()
+    const insertSpy = vi.fn()
+    supabase.from = vi.fn().mockImplementation((table: string) => {
+      const builder = sequentialFrom({
+        base_lists: [{ data: null, error: null }],
+        groups: [{ data: null, error: null }],
+      })(table)
+      if (table === 'base_lists') builder.insert = insertSpy
+      return builder
+    })
+
+    const result = await createBaseList({ group_id: TEST_UUID, name: 'Weekly' })
+    expect(result.error).toBe('Group not found')
+    expect(insertSpy).not.toHaveBeenCalled()
+  })
+
+  it('returns a generic error and creates nothing when the default group cannot be created', async () => {
+    const { supabase } = createSupabaseMock({
+      rpcResults: { ensure_default_group: { data: null, error: { message: 'permission denied "secret"', code: '42501' } } },
+    })
+    mockedCreateClient.mockResolvedValue(supabase as unknown as Awaited<ReturnType<typeof createClient>>)
+    const insertSpy = vi.fn()
+    supabase.from = vi.fn().mockImplementation(() => {
+      const builder = sequentialFrom({ base_lists: [{ data: null, error: null }] })('base_lists')
+      builder.insert = insertSpy
+      return builder
+    })
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    const result = await createBaseList({ name: 'Weekly' })
+
+    expect(result.error).toBe('We couldn\u2019t create your list. Try again.')
+    expect(JSON.stringify(result)).not.toContain('secret')
+    expect(insertSpy).not.toHaveBeenCalled()
+    consoleError.mockRestore()
+  })
+
+  it('creates list with notes on happy path', async () => {
+    const newList = { id: 'new-id-2', name: 'Weekly', group_id: 'default-group', notes: 'Family grocery list' }
+    const { supabase } = createSupabaseMock({ rpcResults: { ensure_default_group: { data: 'default-group', error: null } } })
+    mockedCreateClient.mockResolvedValue(supabase as unknown as Awaited<ReturnType<typeof createClient>>)
+    supabase.from = sequentialFrom({
+      base_lists: [
+        { data: null, error: null }, // name is free
+        { data: newList, error: null }, // insert
+      ],
+    })
+
+    const result = await createBaseList({ name: 'Weekly', notes: 'Family grocery list' })
 
     expect(result.data).toEqual(newList)
   })
@@ -227,8 +283,8 @@ describe('updateBaseList', () => {
     const supabase = setupMock()
     supabase.from = sequentialFrom({
       base_lists: [
-        { data: { group_id: TEST_UUID_2 }, error: null }, // get current list for dedup
-        { data: null, error: null }, // dedup no duplicate
+        { data: { name: 'Weekly' }, error: null }, // get current list
+        { data: null, error: null }, // the new name is free
         { data: updated, error: null }, // update
       ],
     })
@@ -238,6 +294,33 @@ describe('updateBaseList', () => {
       notes: 'Main grocery run',
     })
 
+    expect(result.data).toEqual(updated)
+  })
+
+  it('rejects a name used by another list of the user, whatever its group', async () => {
+    const supabase = setupMock()
+    supabase.from = sequentialFrom({
+      base_lists: [
+        { data: { name: 'Weekly' }, error: null }, // current list
+        { data: { id: 'other' }, error: null }, // another list already has the new name
+      ],
+    })
+
+    const result = await updateBaseList(TEST_UUID, { name: 'Costco' })
+    expect(result.error).toBe('A list with this name already exists. Please choose a different name.')
+  })
+
+  it('accepts saving the same name, or only changing its case, even when a legacy twin exists', async () => {
+    const updated = { id: TEST_UUID, name: 'weekly' }
+    const supabase = setupMock()
+    supabase.from = sequentialFrom({
+      base_lists: [
+        { data: { name: 'Weekly' }, error: null }, // current list
+        { data: updated, error: null }, // update: no duplicate lookup happens
+      ],
+    })
+
+    const result = await updateBaseList(TEST_UUID, { name: 'weekly' })
     expect(result.data).toEqual(updated)
   })
 

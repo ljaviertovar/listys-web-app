@@ -1,7 +1,8 @@
 import { z } from 'zod'
 
 export const createBaseListSchema = z.object({
-  group_id: z.string().uuid(),
+  // Optional since groups left the interface: without it the list goes to the user's default group.
+  group_id: z.string().uuid().nullish(),
   name: z.string().min(1, 'Name is required').max(100),
   notes: z.string().max(500).nullable().optional(),
 })

@@ -8,7 +8,7 @@
 /**
  * GROUPS LIMITS
  */
-export const MAX_GROUPS_PER_USER = 10 // Maximum number of shopping list groups a user can create
+export const MAX_GROUPS_PER_USER = 10 // Maximum number of groups a user can create through the API (the web app no longer creates groups)
 
 /**
  * BASE LISTS & SHOPPING SESSIONS LIMITS

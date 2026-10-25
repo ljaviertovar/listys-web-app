@@ -3,6 +3,8 @@ import { ApiServiceError, ErrorCode } from '@/lib/api/http'
 import { mergeTicketItemsSchema, createBaseListFromTicketSchema } from '@/lib/validations/ticket'
 import { MAX_IMAGES_PER_TICKET, MAX_ITEMS_PER_BASE_LIST } from '@/lib/config/limits'
 import { getOCRFunctionURL } from '@/lib/config/ocr'
+import { resolveListGroupId } from '@/lib/server/services/default-group.service'
+import { DUPLICATE_LIST_NAME_MESSAGE, findListByName } from '@/lib/server/services/find-list-by-name'
 import { z } from 'zod'
 
 export async function getTickets() {
@@ -112,7 +114,7 @@ export async function createBaseListFromTicket(data: unknown) {
     throw new ApiServiceError(422, ErrorCode.VALIDATION_ERROR, validation.error.issues[0]?.message ?? 'Invalid payload')
   }
 
-  const { ticket_id, group_id, name, item_ids } = validation.data
+  const { ticket_id, group_id: requestedGroupId, name, item_ids } = validation.data
 
   const { data: ticketItems, error: ticketError } = await supabase
     .from('ticket_items')
@@ -135,6 +137,12 @@ export async function createBaseListFromTicket(data: unknown) {
       `Cannot create list with ${ticketItems.length} items. Maximum allowed is ${MAX_ITEMS_PER_BASE_LIST} items per list.`
     )
   }
+
+  if (await findListByName(supabase, user.id, name)) {
+    throw new ApiServiceError(409, ErrorCode.CONFLICT, DUPLICATE_LIST_NAME_MESSAGE)
+  }
+
+  const group_id = await resolveListGroupId(supabase, user.id, requestedGroupId)
 
   const { data: baseList, error: createError } = await supabase
     .from('base_lists')

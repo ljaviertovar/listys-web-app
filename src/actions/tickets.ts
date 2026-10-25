@@ -5,6 +5,8 @@ import { mergeTicketItemsSchema, createBaseListFromTicketSchema } from '@/lib/va
 import { MAX_ITEMS_PER_BASE_LIST } from '@/lib/config/limits'
 import { revalidatePath } from 'next/cache'
 import { getOCRFunctionURL } from '@/lib/config/ocr'
+import { resolveListGroupId } from '@/lib/server/services/default-group.service'
+import { DUPLICATE_LIST_NAME_MESSAGE, findListByName } from '@/lib/server/services/find-list-by-name'
 
 export async function getTickets() {
   const supabase = await createClient()
@@ -148,7 +150,7 @@ export async function createBaseListFromTicket(data: unknown) {
     return { error: validation.error.issues[0].message }
   }
 
-  const { ticket_id, group_id, name, item_ids } = validation.data
+  const { ticket_id, group_id: requestedGroupId, name, item_ids } = validation.data
 
   // Get ticket items
   const { data: ticketItems, error: ticketError } = await supabase
@@ -170,6 +172,17 @@ export async function createBaseListFromTicket(data: unknown) {
     return {
       error: `Cannot create list with ${ticketItems.length} items. Maximum allowed is ${MAX_ITEMS_PER_BASE_LIST} items per list.`
     }
+  }
+
+  if (await findListByName(supabase, user.id, name)) {
+    return { error: DUPLICATE_LIST_NAME_MESSAGE }
+  }
+
+  let group_id: string
+  try {
+    group_id = await resolveListGroupId(supabase, user.id, requestedGroupId)
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : 'We couldn’t create your list. Try again.' }
   }
 
   // Create new base list
