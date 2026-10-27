@@ -52,12 +52,27 @@ Las explicaciones y promesas SHALL corresponder a controles y resultados disponi
 #### Scenario: Organizing promise
 
 - **WHEN** el usuario lee la descripción de las listas, de "My Stores" o de la página pública
-- **THEN** el texto promete listas reutilizables y el registro de las tiendas de sus recibos, sin prometer grupos, carpetas, listas por tienda ni etiquetas de tienda por artículo que la aplicación no ofrece
+- **THEN** el texto promete listas reutilizables, el registro de las tiendas de sus recibos y la tienda donde suele comprar cada artículo, sin prometer grupos, carpetas, listas separadas por tienda, comparación de precios entre tiendas ni etiquetas de tienda para quienes comparten una lista
 
 #### Scenario: Remembered match
 
 - **WHEN** la revisión muestra una línea que coincide por un vínculo recordado
 - **THEN** el texto dice que la coincidencia se recuerda de un recibo anterior y que puede cambiarse, sin presentarla como una detección automática segura
+
+#### Scenario: Usual store wording
+
+- **WHEN** el usuario ve o cambia la tienda habitual de un artículo
+- **THEN** el texto la presenta como la tienda donde suele comprarlo según sus compras o como la que eligió, y distingue una de otra, sin hablar de puntuaciones, predicciones ni certeza
+
+#### Scenario: Learning from a receipt without a store
+
+- **WHEN** el usuario añade a una lista artículos de un recibo sin tienda confirmada
+- **THEN** el diálogo indica que confirmar la tienda permite recordar dónde se compran, sin impedir añadir los artículos
+
+#### Scenario: Store-scoped trip
+
+- **WHEN** el usuario elige una tienda al empezar una compra o recorre una sesión con tienda
+- **THEN** el texto dice que los artículos de esa tienda van primero y que el resto sigue disponible en otra sección, sin afirmar que los demás artículos se quitaron de la lista
 
 ### Requirement: Receipt lifecycle states are distinct
 
