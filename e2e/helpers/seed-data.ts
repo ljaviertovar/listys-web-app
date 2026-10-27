@@ -157,3 +157,70 @@ export async function createCompleteSetup(options?: {
     items: items || [],
   }
 }
+
+/**
+ * Create a receipt that OCR has already read, with its lines, so receipt-review flows can run without the OCR provider.
+ */
+export async function createReadReceipt(
+  userId: string,
+  options: { storeName?: string | null; items: Array<{ name: string; quantity?: number; price?: number | null }> }
+) {
+  const supabase = createTestClient()
+
+  const { data: ticket, error } = await supabase
+    .from('tickets')
+    .insert({
+      user_id: userId,
+      ocr_status: 'completed',
+      image_path: `test-image-${Date.now()}.jpg`,
+      store_name: options.storeName ?? null,
+      total_items: options.items.length,
+      processed_at: new Date().toISOString(),
+    })
+    .select()
+    .single()
+
+  if (error || !ticket) {
+    throw new Error(`Failed to create receipt: ${error?.message}`)
+  }
+
+  const { data: items, error: itemsError } = await supabase
+    .from('ticket_items')
+    .insert(options.items.map(item => ({ ticket_id: ticket.id, name: item.name, quantity: item.quantity ?? 1, price: item.price ?? null })))
+    .select()
+
+  if (itemsError || !items) {
+    throw new Error(`Failed to create receipt lines: ${itemsError?.message}`)
+  }
+
+  return { ticket, items }
+}
+
+/**
+ * Create a store of a user with the alias of its own name, as create_store would (that function needs a signed-in caller).
+ */
+export async function createStore(userId: string, name: string) {
+  const supabase = createTestClient()
+
+  const { data: key, error: keyError } = await supabase.rpc('normalize_store_name', { input_text: name })
+  if (keyError || !key) {
+    throw new Error(`Failed to normalize store name: ${keyError?.message}`)
+  }
+
+  const { data: store, error } = await supabase
+    .from('stores')
+    .insert({ user_id: userId, name, normalized_name: key })
+    .select()
+    .single()
+
+  if (error || !store) {
+    throw new Error(`Failed to create store: ${error?.message}`)
+  }
+
+  const { error: aliasError } = await supabase.from('store_aliases').insert({ user_id: userId, store_id: store.id, alias_key: key })
+  if (aliasError) {
+    throw new Error(`Failed to create store alias: ${aliasError.message}`)
+  }
+
+  return store
+}

@@ -1,4 +1,4 @@
-import { buildListDisplayNames } from '@/utils'
+import { buildListDisplayNames, getReceiptStoreLabel } from '@/utils'
 
 /**
  * Pure view-model for the dashboard. Every number and sentence the dashboard shows is derived here from the
@@ -17,6 +17,8 @@ export interface DashboardBaseListInput {
 export interface DashboardTicketInput {
 	id: string
 	store_name: string | null
+	/** The store the user confirmed, when the receipt has one. */
+	store?: { name: string } | null
 	ocr_status: OcrStatus
 	total_items: number | null
 	created_at: string | null
@@ -180,7 +182,7 @@ function buildLists(baseLists: DashboardBaseListInput[], listNames: Map<string, 
 }
 
 function ticketTitle(ticket: DashboardTicketInput) {
-	return ticket.store_name?.trim() || 'Store not recognized'
+	return getReceiptStoreLabel(ticket)
 }
 
 function buildReceipts(tickets: DashboardTicketInput[]): ReceiptPreview[] {

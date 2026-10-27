@@ -154,6 +154,7 @@ export function TicketReview({ ticketId, title, imagePaths, items, status, ocrEr
 				onOpenChange={setMergeOpen}
 				ticketId={ticketId}
 				selectedItemIds={Array.from(selection.selectedIds)}
+				lines={items}
 				onSuccess={handleMergeSuccess}
 			/>
 		</div>

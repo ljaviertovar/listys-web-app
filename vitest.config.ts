@@ -17,7 +17,8 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     setupFiles: ['./src/test/setup.ts'],
-    include: ['src/**/*.test.ts'],
+    // Edge Function helpers that have no Deno imports are tested here too.
+    include: ['src/**/*.test.ts', 'supabase/functions/_shared/**/*.test.ts'],
     // A source scan, not a behaviour test: it runs through `pnpm check:native-props` (vitest.guards.config.ts).
     exclude: [...configDefaults.exclude, 'src/test/native-props-guard.test.ts'],
     coverage: {

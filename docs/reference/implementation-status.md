@@ -12,7 +12,7 @@ Reviewed on 2026-10-17 against the working tree. This document owns observed beh
 | Lists | CRUD on one flat lists screen (groups are not shown), notes, quantities/categories/order and reusable shopping templates. Names are unique per user across all lists, ignoring case; lists that already shared a name read "Weekly", "Weekly (2)" on screen. A user with no list gets a default "Pantry" list in an implicit "My Lists" group on the first dashboard visit, and every list created without a group goes to that group (created on first use). The `/groups*` API remains for existing clients. | [`groups.service.ts`](../../src/lib/server/services/groups.service.ts), [`base-lists.service.ts`](../../src/lib/server/services/base-lists.service.ts), [`default-pantry.service.ts`](../../src/lib/server/services/default-pantry.service.ts) |
 | Shopping | Owner starts a nonempty base list; items clone in purchase-count, recency, sort-order sequence. Check/edit/add/delete, complete with amount/notes (completion always applies the checked items to the base list, atomically), or cancel. The service checks for an existing active session. Base-list rows and the running session show average prices and an estimated total when known. | [`shopping-sessions.service.ts`](../../src/lib/server/services/shopping-sessions.service.ts), [`complete-session-rpc.ts`](../../src/lib/server/services/complete-session-rpc.ts), [`session-estimate.tsx`](../../src/components/features/shopping-sessions/session-estimate.tsx) |
 | History | Completed sessions on one screen, newest first, filtered by list (`?list=`), totals and detail navigation. No service/action for creating a list from a completed session was found. | [`shopping-history/`](../../src/app/(authenticated)/shopping-history/), [`session service`](../../src/lib/server/services/shopping-sessions.service.ts) |
-| Receipts | Multi-photo upload, OCR, status/errors, manual retry, viewer/compare, selection, merge/create list (no group choice), deletion with attempted image cleanup. No extracted-item editing endpoint was found. | [`tickets.service.ts`](../../src/lib/server/services/tickets.service.ts), [`tickets/`](../../src/components/features/tickets/) |
+| Receipts | Multi-photo upload (photos only; the store is read by OCR), OCR, status/errors, manual retry, viewer/compare, selection, store confirmation, merge/create list (no group choice) with a Review Matches step that links lines to existing items, deletion with attempted image cleanup. No extracted-item editing endpoint was found. | [`tickets.service.ts`](../../src/lib/server/services/tickets.service.ts), [`tickets/`](../../src/components/features/tickets/) |
 | Enrichment | Normalized names and purchase-memory fields are defined in migrations; existing-list merge uses an RPC. Session ordering reads enrichment fields. | [`enrichment migration`](../../supabase/migrations/20260214000000_prd_v2_enrichment_and_transactions.sql), [`ticket service`](../../src/lib/server/services/tickets.service.ts) |
 | Account/profile | Read-only identity, provider, verification and account metadata; no account deletion or full export flow. | [`settings/`](../../src/app/(authenticated)/settings/) |
 | PWA | Manifest, install UI, service worker and offline fallback; no offline shopping mutation/sync implementation. | [`manifest.ts`](../../src/app/manifest.ts), [`pwa-register.tsx`](../../src/components/features/pwa/pwa-register.tsx), [`sw.js`](../../public/sw.js) |
@@ -58,6 +58,18 @@ status reads and realtime. Retry clears existing extracted items before reproces
 [`ocr.ts`](../../src/lib/config/ocr.ts) selects Gemini by default or OpenAI when explicitly configured. Provider secrets
 belong in the function runtime; see the [setup guide](../../README.md). The older `process-ticket-ocr` function remains
 in the repository but is not selected by this configuration.
+
+Store name (PRD v3 Phase 3): both selected functions ask the **first photo's** request for the store name printed in
+the header, in the same provider call as its items (no extra request), and accept the answer as the old item array or
+as `{ "store_name", "items" }` ([`receipt-store.ts`](../../supabase/functions/_shared/receipt-store.ts), tested with
+Vitest). The name is cleaned (one line, no control characters, at most 100 characters) and written to
+`tickets.store_name` only when the receipt has none, so a name sent by an API client or read earlier is kept. A missing,
+unreadable or malformed name never fails the receipt; it stays without a name. Deploying the functions is a manual step
+(`supabase functions deploy process-ticket-ocr-gemini process-ticket-ocr-openai --use-api`, which bundles `_shared/` without
+Docker). On 2026-10-26 both were deployed to the linked test project (Gemini version 26, OpenAI version 3, `verify_jwt` unchanged at
+`true`). Checked the same day by uploading the repository's test receipt (`e2e/data-test/test-receipt.jpg`, a Metro receipt) through the
+web app with the Gemini provider: read in 11 s, 18 items (the receipt's own count), `store_name` "metro" from the logo; the store card offered
+"Save as New Store" with "Metro" proposed and saving confirmed it.
 
 Deletion attempts Storage API removal before deleting the ticket. Storage errors are logged and do not prevent database
 deletion, so orphaned images remain possible. The direct-storage deletion trigger was removed in the
@@ -165,6 +177,60 @@ Known limits introduced or exposed by this phase:
 - The lists screen reads only the owner's lists, so people a list was shared with do not see it there (experimental sharing, unchanged).
 - The HTML design reference still draws group screens and has no history filter ([DESIGN.md §11.4](../design/DESIGN.md#114-current-implementation-gaps) items 12c).
 - PRD v3 open question 4 is decided as "keep names, hide the group": no prefix is added and no group name is shown.
+
+## PRD v3 Phase 3 delivered
+
+[PRD v3](../prd/PRD-v3.md) Phase 3 (stores foundation) is specified in the OpenSpec change `stores-foundation`.
+
+| Requirement | Observed behavior | Evidence |
+| --- | --- | --- |
+| FR-7 store extraction | The upload sheet asks for photos only. The Gemini and OpenAI OCR functions ask the first photo's request for the header's store name (no extra provider request), accept the old item array or `{ store_name, items }`, clean the name and write `tickets.store_name` only when the receipt has none; a missing or malformed name never fails the receipt. `store_name` on upload stays optional and is validated (≤ 100). | [`receipt-store.ts`](../../supabase/functions/_shared/receipt-store.ts), [Gemini](../../supabase/functions/process-ticket-ocr-gemini/index.ts), [OpenAI](../../supabase/functions/process-ticket-ocr-openai/index.ts), [`upload-ticket-form.tsx`](../../src/components/features/tickets/upload/upload-ticket-form.tsx) |
+| FR-8 My Stores | `stores` and `store_aliases` are owner-only (RLS), names are normalized (case, accents, spaces, punctuation, `#123` and trailing 3+ digit branch numbers ignored) and every key resolves to one store. On a read receipt the store card proposes the matching store (one-tap `Confirm`), saves an unknown name as a new store or lets the user choose one; assigning a store teaches the raw name as its alias; it is optional. Receipts reference `store_id` (composite FK to a store of the same user). `/stores` lists stores with receipt counts and renames (the old name stays an alias) and merges them (receipts and names move, the source is removed, in one transaction). Receipt titles use the confirmed store. | [`stores.service.ts`](../../src/lib/server/services/stores.service.ts), [`ticket-store-card.tsx`](../../src/components/features/tickets/receipt/ticket-store-card.tsx), [`stores-list.tsx`](../../src/components/features/stores/stores-list.tsx), [`receipt-store-label.ts`](../../src/utils/receipt-store-label.ts), [migration](../../supabase/migrations/20261025000000_stores_foundation.sql) |
+| FR-9 cross-store item matching | Adding receipt lines to an existing list first reads `GET /tickets/{id}/matches`; when a line is new or matched by a remembered link, the sheet shows Review Matches, where a new line can be linked to an item of the list (search over the list's items) and a remembered match can be changed or undone. The merge applies the links, remembers them per list (`base_list_item_aliases`) and counts only created items against the list limit, in one transaction; a later receipt shows the remembered match before applying it. | [`merge-review.ts`](../../src/components/features/tickets/add-to-list/helpers/merge-review.ts), [`merge-review-step.tsx`](../../src/components/features/tickets/add-to-list/merge-review-step.tsx), [`tickets.service.ts`](../../src/lib/server/services/tickets.service.ts) |
+
+API v1 (compatible, see [API v1](api-v1.md#compatibility-and-migration)): new `/stores`, `/stores/{id}`, `/stores/{id}/merge` and
+`/tickets/{id}/matches`; `store_id` on `PATCH /tickets/{id}`; optional `links` on `merge-to-base-list`; receipt reads add `store` and
+`store_suggestion`; merge errors are mapped (`404`, `422`, `409 LIMIT_EXCEEDED`) instead of a raw `500`.
+
+Verification (2026-10-25/26): the migration was applied to the linked test project with the user's approval (counts before and after identical:
+11 tickets, 242 ticket items, 92 list items, 11 lists, 8 sessions, 8 groups; only its own version recorded; one merge function, no overload) and
+[`stores-foundation.sql`](../../supabase/verification/stores-foundation.sql) ran inside a transaction that always rolls back: 70/70 checks passed
+(normalization, create/duplicate/limit, rename, alias learning and re-pointing, merge, RLS and the composite FK, matching, links, alias undo and
+re-link, limit counting, anonymous calls). `pnpm test:ci` 449/449, `pnpm check:native-props`, `pnpm verify:limits-reference` and `pnpm typecheck`
+pass; `pnpm lint` reports 41 problems, all pre-existing and none on lines of this change. Layouts were measured in Chrome at 320, 390 and 1280 px on a
+temporary public route with fixed fixtures and stubbed API reads (deleted afterwards): no horizontal scroll at any width; store-card buttons 40px on
+phones and 44px from `md`; card menus 44×44; picker search 44px and rows 48px; Review Matches fits 320px, linking a line updates its row.
+Signed-in check (2026-10-26, the owner's account on the linked test project, Chrome at a 376–416 px phone width, user's approval): with no store at
+first, "Save as New Store", choosing a store (the raw name then suggests it), one-tap Confirm, the picker's Create row (a variant of an existing name
+reuses that store), Remove Store, adding items without a store ("Create new list" made "Fase3 Test"), same-name lines added without review, and
+renaming (old name keeps suggesting; a taken name offers to merge) and merging stores (receipts and names move) all behaved as specified, with no
+console errors and only the expected `409`s. It found five defects, fixed the same day and re-checked in that session: (1) confirming "Link to This
+Item" also submitted the Add Items sheet (React bubbles `submit` through portals), so links were never sent; now the link is applied, the linked item
+counts the purchase and price, no item is created, the next receipt shows the remembered match, and "Add as New" creates the item instead; (2) a list
+created from a receipt did not keep the lines' prices (older defect), now it starts each item's average price; (3) the store card and the My Stores
+sheets showed the old state with live buttons for about 3 s while the page refreshed, now they stay busy until the refresh is drawn; (4) reusing an
+existing store said "Store saved" and the picker offered to create variants of existing names, now it says the store was already there and matches
+names the way the database does; (5) the selection bar's buttons were 32px (older defect), now `primary` (40px on phones). Test data left on that
+account: the store "Fase3 Tienda A" with its aliases and three receipts, and the list "Fase3 Test" with six items.
+Visual check (2026-10-26, same session, phone 376 px and desktop 1568 px, against the v2 HTML served locally): the My Stores cards match the Lists
+cards (24px radius, 36px tile, title, 44px menu, mono count; their footer is shorter because a store has no link); the store card sits in the
+receipt's right column on desktop with the photo card's header pattern; the picker, the store name sheet and Review Matches are A1 sheets like the
+other forms, matching the v2 card and dialog sections; the sidebar highlights "My Stores" and the breadcrumb reads "Management › My Stores". One
+defect found and fixed: with only the current store, the picker said "No store matches this search." before any search; it now says there are no
+other stores and that a name can be typed. Dark mode was left out by the user's decision.
+Not verified: the `unrecognized` state with real data (no receipt without a raw name). The OpenAI function is deployed with the same change but
+out of scope: the product works with Gemini only for now (owner's decision, 2026-10-26) (not deployed: the running functions still behave as before, so new receipts arrive
+without a store name until they are), and the E2E specs, written but not run (no validated local Supabase).
+
+Known limits introduced by this phase:
+
+- No automatic or fuzzy suggestions: a differently named line is linked by hand once per list.
+- Stores cannot be deleted or split; a mistaken merge is undone only by renaming and reassigning receipts.
+- Restoring a deleted list item (`Undo`) creates a new item, so its remembered links are gone.
+- "Save as New Store" creates the store, then assigns it: if the second call fails, the store exists without the receipt and the card offers to retry the assignment.
+- The picker can only hide a "Create" row for names it can see; a name that is only another store's alias is still offered, and the server then reuses that store.
+- Branch numbers of 1–2 digits at the end of a name are kept ("Shop 24"), so such variants need an alias once.
+- The design reference has no store screens; the derived designs need review ([DESIGN.md §11.4](../design/DESIGN.md#114-current-implementation-gaps) item 12d).
 
 ## Audit findings and follow-up
 

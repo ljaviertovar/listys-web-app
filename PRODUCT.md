@@ -30,12 +30,18 @@ itself. The receipt is a signal, not the product; the durable object is a list t
 
 - Capture at home: 1–5 receipt photos per upload, OCR runs asynchronously, the user reviews and edits every extracted
   line before anything is saved.
-- Merge: extracted items go into a new base list or merge into an existing one, de-duplicated by normalized name.
+- Merge: extracted items go into a new base list or merge into an existing one, de-duplicated by normalized name. A line
+  that names a product differently from an item already in the list ("LECHE 2% 4L" for "2% Milk 4L") can be linked to
+  that item during review; the list remembers the link for later receipts and always shows it before applying it.
+- Store: the store is read from the receipt header (nothing to type at upload), matched to the user's own stores ("My
+  Stores", where "No Frills", "NOFRILLS" and "No Frills #3127" are one store) and confirmed with one tap, saved as a new
+  store, or skipped; confirming it is optional.
 - Shop: a shopping session is cloned from a base list so the original stays intact; items are checked off live, grouped
   by category, with visible progress; completing a session always saves the checked items into the base list, so
   every trip teaches the list (there is no option to skip it).
 - Start: a new account begins with a base list called "Pantry", so the first receipt, item or trip needs no container
-  to be created first. Lists are flat: all of them sit on one screen and none asks for a group, a folder or a store.
+  to be created first. Lists are flat: all of them sit on one screen and none asks for a group, a folder or a store (a
+  store describes where a receipt was bought, not where a list lives).
 - Share: a list can be shared with the household, and so can its shopping session, so several people see the same state.
 - Mobile-first and frequently offline-ish: a PWA used in-store, one-handed, on a phone.
 
@@ -49,9 +55,13 @@ itself. The receipt is a signal, not the product; the durable object is a list t
   one, and a running session shows an estimated total that says how many items it covers. Nothing is shown without data
   and an estimate is never worded as an amount paid.
 - Auth is Google OAuth only. There is one account tier; no paid plans, pricing page, or billing exists.
-- Terminology that must stay stable: **receipt**, **base list**, **shopping session**, **item**. **Group** is no longer
-  a visible word: PRD-v3 Phase 2 hides groups (the data keeps one implicit default group per user and any group an
-  account already had). PRD-v3 ([`docs/prd/PRD-v3.md`](docs/prd/PRD-v3.md)) adds **store** when its stores phase ships.
+- Stores (PRD-v3 Phase 3): receipts carry a normalized, user-owned store that can be renamed and merged in "My Stores".
+  Not built yet (later PRD-v3 phases): a usual-store tag per item, store-scoped shopping sessions, per-store prices, and
+  automatic or fuzzy item matching (links are always chosen by the user).
+- Terminology that must stay stable: **receipt**, **base list**, **shopping session**, **store**, **item**. **Store** is
+  only the place where something is bought, never a container of lists. **Group** is no longer a visible word: PRD-v3
+  Phase 2 hides groups (the data keeps one implicit default group per user and any group an account already had). See
+  [`docs/prd/PRD-v3.md`](docs/prd/PRD-v3.md).
 - Explicitly not built: predictive restock alerts or notifications, analytics dashboards, POS integrations.
 - PRD-v2 lists real-time multi-user collaboration as an MVP non-goal; the codebase has since shipped sharing and shared
   sessions. Sharing is real and may be shown; it is not the lead promise.

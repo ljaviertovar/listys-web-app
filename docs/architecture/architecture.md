@@ -225,7 +225,10 @@ flowchart LR
     DB -->|Realtime with RLS| Browser
 ```
 
-The current schema includes owner groups, base lists/items, shopping sessions/items, and tickets/items. Experimental
+The current schema includes owner groups, base lists/items, shopping sessions/items, tickets/items, and (PRD v3 Phase 3)
+owner stores with their aliases (every key that resolves to a store; `tickets.store_id` points to a store of the same
+user through a composite foreign key) and per-list item aliases (receipt-line names remembered as another name of an
+item). Experimental
 sharing adds collaborators, invite links and session participants. Migration files describe intended database state;
 this audit did not verify a live installation. The PRD ERD is a requirements model; migrations/generated types and
 the [implementation reference](../reference/implementation-status.md) qualify what exists.
@@ -247,12 +250,17 @@ the [implementation reference](../reference/implementation-status.md) qualify wh
 2. The API validates the multipart form, uploads images to the protected `tickets` bucket, and creates a ticket with
    `ocr_status = pending`.
 3. A non-awaited fetch dispatch invokes the configured OCR function; no durable queue is established by this code.
-   The function marks the ticket `processing`, sends images to the provider, deduplicates extracted
-   items, and writes `ticket_items`.
+   The function marks the ticket `processing`, sends images to the provider (the first image's request also reads the
+   store name from the header), deduplicates extracted items, and writes `ticket_items` and, when the ticket has none,
+   the raw `store_name`.
 4. The function marks the ticket `completed` with `total_items`, or `failed` with `ocr_error`.
 5. The UI reads status from `GET /api/v1/tickets/{ticketId}/status` and may invoke `retry-ocr` after a failure.
-6. The user chooses whether to merge items into an existing base list or create a new base list through the ticket action
-   endpoints.
+6. The receipt read proposes the store the raw name resolves to; the user may confirm it, save a new store or choose
+   another (`PATCH /api/v1/tickets/{ticketId}` with `store_id`, which also remembers the raw name as an alias).
+7. The user chooses whether to merge items into an existing base list or create a new base list through the ticket action
+   endpoints. Before merging into an existing list, `GET /api/v1/tickets/{ticketId}/matches` shows how each line matches
+   (same name, remembered alias, or new); the user's links travel with the merge, which applies them and remembers them in
+   one transaction.
 
 ### Shopping-session flow
 

@@ -1,13 +1,8 @@
-import { z } from 'zod'
-
 import { withApiHandler, success, noContent } from '@/lib/api/http'
 import { parseJsonBody, parseRouteParams } from '@/lib/api/zod'
 import { ticketIdParamsSchema } from '@/lib/validations/api/common'
+import { updateTicketSchema } from '@/lib/validations/ticket'
 import { deleteTicket, getTicket, updateTicket } from '@/lib/server/services/tickets.service'
-
-const updateTicketSchema = z.object({
-  group_id: z.string().uuid().nullable().optional(),
-})
 
 export async function GET(_: Request, { params }: { params: Promise<unknown> }) {
   return withApiHandler(async () => {

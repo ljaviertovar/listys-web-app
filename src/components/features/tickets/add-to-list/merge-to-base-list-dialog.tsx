@@ -12,16 +12,19 @@ import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useMergeToBaseList } from './hooks/use-merge-to-base-list'
+import { MergeReviewStep } from './merge-review-step'
 
 interface Props {
 	open: boolean
 	onOpenChange: (open: boolean) => void
 	ticketId: string
 	selectedItemIds: string[]
+	/** The receipt's lines, so Review Matches can name them. */
+	lines: Array<{ id: string; name: string }>
 	onSuccess: (baseListId: string) => void
 }
 
-export function MergeToBaseListDialog({ open, onOpenChange, ticketId, selectedItemIds, onSuccess }: Props) {
+export function MergeToBaseListDialog({ open, onOpenChange, ticketId, selectedItemIds, lines, onSuccess }: Props) {
 	const fieldId = useId()
 	const titleRef = useRef<HTMLHeadingElement>(null)
 	const { onOpenAutoFocus, onCloseAutoFocus } = useDialogFocus(titleRef)
@@ -41,9 +44,15 @@ export function MergeToBaseListDialog({ open, onOpenChange, ticketId, selectedIt
 		setError,
 		loadData,
 		handleSubmit,
-	} = useMergeToBaseList({ open, ticketId, selectedItemIds, onOpenChange, onSuccess })
+		step,
+		backToChoose,
+		review,
+	} = useMergeToBaseList({ open, ticketId, selectedItemIds, lines, onOpenChange, onSuccess })
 
 	const hasLists = baseLists.length > 0
+	const reviewing = step === 'review' && review.state.status === 'ready'
+	const listName = listLabels.get(selectedBaseListId) ?? baseLists.find(list => list.id === selectedBaseListId)?.name ?? ''
+	const itemsLabel = `${selectedItemIds.length} ${selectedItemIds.length === 1 ? 'Item' : 'Items'}`
 
 	return (
 		<Dialog
@@ -58,9 +67,11 @@ export function MergeToBaseListDialog({ open, onOpenChange, ticketId, selectedIt
 				className='sm:max-w-125'
 			>
 				<DialogHeader>
-					<DialogTitle ref={titleRef} tabIndex={-1} variant='sheet'>Add Items to a List</DialogTitle>
+					<DialogTitle ref={titleRef} tabIndex={-1} variant='sheet'>{reviewing ? 'Review Matches' : 'Add Items to a List'}</DialogTitle>
 					<DialogDescription>
-						Add {selectedItemIds.length} selected item{selectedItemIds.length !== 1 ? 's' : ''} to a shopping list.
+						{reviewing
+							? `Check how these items are added to “${listName}”. Nothing is added until you confirm.`
+							: `Add ${selectedItemIds.length} selected item${selectedItemIds.length !== 1 ? 's' : ''} to a shopping list.`}
 					</DialogDescription>
 				</DialogHeader>
 
@@ -85,7 +96,17 @@ export function MergeToBaseListDialog({ open, onOpenChange, ticketId, selectedIt
 						noValidate
 						className='space-y-8'
 					>
-						{hasLists ? (
+						{review.state.status === 'ready' && reviewing ? (
+							<MergeReviewStep
+								review={review.state.review}
+								listItems={review.state.listItems}
+								decisions={review.decisions}
+								onDecide={review.decide}
+								disabled={loading}
+							/>
+						) : null}
+
+						{reviewing ? null : hasLists ? (
 							<RadioGroup
 								value={mode}
 								onValueChange={(value: 'existing' | 'new') => {
@@ -114,7 +135,7 @@ export function MergeToBaseListDialog({ open, onOpenChange, ticketId, selectedIt
 							</p>
 						)}
 
-						{mode === 'existing' && hasLists ? (
+						{reviewing ? null : mode === 'existing' && hasLists ? (
 							<div className='space-y-2'>
 								<Label id={`${fieldId}-list-label`} htmlFor={`${fieldId}-list`}>List</Label>
 								<Select
@@ -179,10 +200,11 @@ export function MergeToBaseListDialog({ open, onOpenChange, ticketId, selectedIt
 								type='button'
 								variant='secondary'
 								size='primary'
-								onClick={() => onOpenChange(false)}
+								disabled={loading}
+								onClick={() => (reviewing ? backToChoose() : onOpenChange(false))}
 								className='flex-1'
 							>
-								Cancel
+								{reviewing ? 'Back' : 'Cancel'}
 							</Button>
 							<Button
 								type='submit'
@@ -197,12 +219,10 @@ export function MergeToBaseListDialog({ open, onOpenChange, ticketId, selectedIt
 											strokeWidth={2}
 											className='mr-2 h-4 w-4 animate-spin motion-reduce:animate-none'
 										/>
-										Adding…
+										{mode === 'existing' && !reviewing ? 'Checking…' : 'Adding…'}
 									</>
 								) : (
-									mode === 'new'
-										? `Create List with ${selectedItemIds.length} ${selectedItemIds.length === 1 ? 'Item' : 'Items'}`
-										: `Add ${selectedItemIds.length} ${selectedItemIds.length === 1 ? 'Item' : 'Items'}`
+									mode === 'new' ? `Create List with ${itemsLabel}` : `Add ${itemsLabel}`
 								)}
 							</Button>
 						</div>

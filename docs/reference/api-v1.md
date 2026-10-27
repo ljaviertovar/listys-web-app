@@ -59,11 +59,12 @@ strings. The inventory maps directly to [`src/app/api/v1/`](../../src/app/api/v1
 | `/shopping-session-items/{itemId}` | PATCH, DELETE | Update/delete a session item. |
 | `/shopping-sessions/active` | GET | Deprecated alias; see compatibility table. |
 | `/shopping-sessions/{sessionId}/cancel` | POST | Deprecated alias; see compatibility table. |
-| `/tickets` | GET, POST | List receipts or upload multipart photos. |
-| `/tickets/{ticketId}` | GET, PATCH, DELETE | Read receipt/items, update group assignment, or delete. |
+| `/tickets` | GET, POST | List receipts (each with `store`: the confirmed store's `id` and `name`, or null) or upload multipart photos. |
+| `/tickets/{ticketId}` | GET, PATCH, DELETE | Read receipt/items (with `store` and `store_suggestion`), assign or clear its store and update group assignment, or delete. |
 | `/tickets/{ticketId}/status` | GET | `{ "data": { "ocr_status": "pending" } }`; status can also be processing/completed/failed. |
 | `/tickets/{ticketId}/retry-ocr` | POST | Clear extracted items and restart processing. |
-| `/tickets/{ticketId}/merge-to-base-list` | POST | Merge selected receipt items into an existing list. |
+| `/tickets/{ticketId}/matches` | GET | `?base_list_id=` required: how every line of the receipt matches that list (`name`, `alias` or `none`, with the matched item). |
+| `/tickets/{ticketId}/merge-to-base-list` | POST | Merge selected receipt items into an existing list, applying optional `links` from the review step. |
 | `/tickets/{ticketId}/create-base-list` | POST | Create a list from selected receipt items; currently returns `200`. |
 | `/tickets/{ticketId}/assign-group` | POST | Deprecated alias; see compatibility table. |
 | `/tickets/maintenance/orphaned-images` | GET | Invoke orphan-image report RPC. |
@@ -74,6 +75,9 @@ strings. The inventory maps directly to [`src/app/api/v1/`](../../src/app/api/v1
 | `/base-lists/{baseListId}/collaborators` | GET | Experimental collaborator list. |
 | `/base-lists/{baseListId}/collaborators/{userId}` | DELETE | Experimental collaborator removal. |
 | `/invites/{token}/accept` | POST | Experimental acceptance; grants list access. |
+| `/stores` | GET, POST | List the caller's stores (`id`, `name`, `receipt_count`, timestamps; ordered by name; `meta.count` and `meta.limit`) / create one (`201` with `Location`). |
+| `/stores/{storeId}` | PATCH | Rename a store; its previous name keeps resolving to it. |
+| `/stores/{storeId}/merge` | POST | Move another store's receipts and names into this one and remove the other store, in one transaction. |
 
 Maintenance handlers are not safe diagnostics by default: inspect database function authorization and affected scope
 before invoking them. This audit did not execute them.
@@ -88,10 +92,13 @@ before invoking them. This audit did not execute them.
 | Session create | UUID `base_list_id`, `name` 1–100. | [`shopping-session.ts`](../../src/lib/validations/shopping-session.ts) |
 | Session update (PATCH) | Optional `name` 1–100, `status` (only `active`; `completed` returns `422` and points to the complete operation), positive `total_amount`, `general_notes` up to 1000. `sync_to_base` is stripped. | [`shopping-session.ts`](../../src/lib/validations/shopping-session.ts) |
 | Session complete | Optional positive `total_amount`, `general_notes` up to 1000. `sync_to_base` is deprecated: accepted with any boolean, ignored, completion always syncs. | [`shopping-session.ts`](../../src/lib/validations/shopping-session.ts) |
-| Ticket upload | Multipart repeated `files`: 1–5 images, each at most 10 MiB. Service reads optional `group_id` and `store_name`; UI requires a store name, but the service does not apply the full upload Zod schema. | [`uploadTicket`](../../src/lib/server/services/tickets.service.ts), [`UI schema`](../../src/lib/validations/ticket.ts) |
-| Ticket group PATCH | `{ "group_id": "UUID" }` or `{ "group_id": null }`; field optional. | [`ticket handler`](../../src/app/api/v1/tickets/[ticketId]/route.ts) |
-| Merge items | UUID `base_list_id`, 1–200 `items` entries containing UUID `id` and boolean `merge`; path ticket ID takes precedence. | [`ticket schemas`](../../src/lib/validations/ticket.ts), [`merge handler`](../../src/app/api/v1/tickets/[ticketId]/merge-to-base-list/route.ts) |
+| Ticket upload | Multipart repeated `files`: 1–5 images, each at most 10 MiB. Optional `store_name` (raw text, whitespace collapsed, at most 100 characters, blank treated as absent) is validated with Zod before any photo is stored (`422` otherwise); when it is absent, OCR fills it from the receipt header. The service also reads an optional `group_id`; file checks are manual. The web form sends photos only. | [`uploadTicket`](../../src/lib/server/services/tickets.service.ts), [`uploadTicketFieldsSchema`](../../src/lib/validations/ticket.ts) |
+| Ticket PATCH | At least one of `store_id` (UUID or null) and `group_id` (UUID or null). `store_id` assigns one of the caller's stores and remembers the receipt's raw store name as an alias of it, or clears it with null (the store is kept); a store or receipt that is missing or someone else's returns `404`. | [`updateTicketSchema`](../../src/lib/validations/ticket.ts), [`ticket handler`](../../src/app/api/v1/tickets/[ticketId]/route.ts) |
+| Receipt matches | Query `base_list_id` (UUID, required, `422` otherwise). Returns `{ "data": [{ "ticket_item_id", "match": "name" \| "alias" \| "none", "base_list_item": { "id", "name" } \| null }] }` for every line of the receipt; `404` for a receipt or list that is not the caller's. | [`matches handler`](../../src/app/api/v1/tickets/[ticketId]/matches/route.ts) |
+| Merge items | UUID `base_list_id`, 1–200 `items` entries containing UUID `id` and boolean `merge`; path ticket ID takes precedence. Optional `links` (at most 200): `{ "ticket_item_id": "UUID", "base_list_item_id": "UUID" \| null }`, each for a different selected line. An item id makes the line update that item of the list and remembers the line's name as an alias of it in this list; null adds a line that matched a remembered alias as a new item and forgets that alias. A line with the same name as an item cannot be linked. Lines without a link update the item of the same name, else the item of a remembered alias, else create an item; only created items count toward the list limit. Invalid links return `422`, a missing list or receipt `404`, a full list `409 LIMIT_EXCEEDED`; nothing is written on any error. | [`ticket schemas`](../../src/lib/validations/ticket.ts), [`merge handler`](../../src/app/api/v1/tickets/[ticketId]/merge-to-base-list/route.ts) |
 | List from receipt | `name` 1–100 and 1–200 UUID `item_ids`; optional `group_id` UUID with the same rules as list create (default group when omitted, `404` for a group that is not the caller's, `409` when the name is taken); the receipt is linked to the list and its group; path ticket ID takes precedence. | [`ticket schemas`](../../src/lib/validations/ticket.ts) |
+| Store create/rename | `name` 1–100 characters after collapsing whitespace; it must contain at least one letter or digit once a branch number such as `#123` is ignored (`422` otherwise). Names are compared ignoring case, accents, spaces, punctuation and branch numbers, so "No Frills", "NOFRILLS" and "No Frills #3127" are the same store: a name that already belongs to another of the caller's stores returns `409 CONFLICT` with `details.store_id`. At `MAX_STORES_PER_USER` stores, create returns `409 LIMIT_EXCEEDED`. A store that is missing or someone else's returns `404`. | [`store.ts`](../../src/lib/validations/store.ts), [`stores.service.ts`](../../src/lib/server/services/stores.service.ts) |
+| Store merge | `{ "source_store_id": "UUID" }`; the path store is the one that remains. The same id on both sides returns `422`; either store missing or someone else's returns `404`. Responds with the remaining store and its new `receipt_count`. | [`store.ts`](../../src/lib/validations/store.ts) |
 | Experimental invite | Optional `expires_in_days` integer 1–30 and `max_uses` integer 1–100. Empty JSON object is accepted. | [`sharing.ts`](../../src/lib/validations/sharing.ts) |
 
 Example creation request: `POST /api/v1/groups` with `Content-Type: application/json` and
@@ -126,6 +133,22 @@ Source: [`default-group.service.ts`](../../src/lib/server/services/default-group
 [`find-list-by-name.ts`](../../src/lib/server/services/find-list-by-name.ts),
 [`base-lists.service.ts`](../../src/lib/server/services/base-lists.service.ts) and the
 [migration](../../supabase/migrations/20261024000000_ensure_default_group.sql).
+
+Stores (PRD v3 Phase 3, 2026-10-25). Compatible changes inside v1, no new major version and no deprecation headers:
+
+- New resources `/stores`, `/stores/{storeId}`, `/stores/{storeId}/merge` and the read `/tickets/{ticketId}/matches` (above).
+- `PATCH /tickets/{ticketId}` accepts `store_id`; `merge-to-base-list` accepts optional `links`. Without `links` a merge only
+  differs from before when the list has remembered aliases, and those exist only after the caller linked lines with the new
+  field, so existing clients see no change.
+- Receipt reads add `store_id`, `store` and (single receipt) `store_suggestion`; clients must ignore unknown fields.
+- `store_name` on upload stays optional but is now validated (`422` over 100 characters instead of being stored as sent). It
+  keeps its meaning (raw store text) and is filled by OCR when absent.
+- `merge-to-base-list` errors are now mapped: a full list returns `409 LIMIT_EXCEEDED` and a missing list or receipt `404`
+  (both were `500` with the database message), and other database errors return a generic `500` message. Store responses never include the owner id or the internal normalized key. Example:
+`POST /api/v1/stores` with `{ "name": "No Frills" }` returns `201`, `Location: /api/v1/stores/opaque-store-id` and
+`{ "data": { "id": "opaque-store-id", "name": "No Frills", "receipt_count": 0, "created_at": "…", "updated_at": "…" } }`.
+Source: [`stores.service.ts`](../../src/lib/server/services/stores.service.ts), [`rpc-errors.ts`](../../src/lib/server/services/rpc-errors.ts)
+and the [migration](../../supabase/migrations/20261025000000_stores_foundation.sql).
 
 Session completion contract: `POST /api/v1/shopping-sessions/{sessionId}/complete` returns `200` with
 `{ "data": { "success": true, "sync": { "new_count": 0, "updated_count": 0, "skipped_count": 0, "over_limit_count": 0 } } }`.

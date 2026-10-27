@@ -24,6 +24,14 @@ export const ticketIdParamsSchema = z.object({
   ticketId: z.string().uuid(),
 })
 
+export const storeIdParamsSchema = z.object({
+  storeId: z.string().uuid(),
+})
+
+export const ticketMatchesQuerySchema = z.object({
+  base_list_id: z.string({ message: 'Choose a list' }).uuid('Choose a list'),
+})
+
 export const shoppingSessionsQuerySchema = z.object({
   status: z.enum(['completed', 'active']).optional(),
 })

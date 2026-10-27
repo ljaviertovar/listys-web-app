@@ -426,6 +426,7 @@ export type Database = {
           ocr_error: string | null
           ocr_status: Database["public"]["Enums"]["ocr_status"] | null
           processed_at: string | null
+          store_id: string | null
           store_name: string | null
           total_items: number | null
           user_id: string
@@ -441,6 +442,7 @@ export type Database = {
           ocr_error?: string | null
           ocr_status?: Database["public"]["Enums"]["ocr_status"] | null
           processed_at?: string | null
+          store_id?: string | null
           store_name?: string | null
           total_items?: number | null
           user_id: string
@@ -456,6 +458,7 @@ export type Database = {
           ocr_error?: string | null
           ocr_status?: Database["public"]["Enums"]["ocr_status"] | null
           processed_at?: string | null
+          store_id?: string | null
           store_name?: string | null
           total_items?: number | null
           user_id?: string
@@ -474,6 +477,117 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "groups"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tickets_store_fkey"
+            columns: ["store_id", "user_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id", "user_id"]
+          },
+        ]
+      }
+      stores: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          normalized_name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          normalized_name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          normalized_name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      store_aliases: {
+        Row: {
+          alias_key: string
+          created_at: string
+          id: string
+          store_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          alias_key: string
+          created_at?: string
+          id?: string
+          store_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          alias_key?: string
+          created_at?: string
+          id?: string
+          store_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_aliases_store_fkey"
+            columns: ["store_id", "user_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id", "user_id"]
+          },
+        ]
+      }
+      base_list_item_aliases: {
+        Row: {
+          alias_key: string
+          base_list_id: string
+          base_list_item_id: string
+          created_at: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          alias_key: string
+          base_list_id: string
+          base_list_item_id: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          alias_key?: string
+          base_list_id?: string
+          base_list_item_id?: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "base_list_item_aliases_base_list_id_fkey"
+            columns: ["base_list_id"]
+            isOneToOne: false
+            referencedRelation: "base_lists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "base_list_item_aliases_item_fkey"
+            columns: ["base_list_item_id", "base_list_id"]
+            isOneToOne: false
+            referencedRelation: "base_list_items"
+            referencedColumns: ["id", "base_list_id"]
           },
         ]
       }
@@ -528,6 +642,7 @@ export type Database = {
         Args: {
           p_base_list_id: string
           p_item_ids?: string[] | null
+          p_links?: Json | null
           p_max_items?: number
           p_ticket_id: string
         }
@@ -535,6 +650,39 @@ export type Database = {
           new_count: number
           skipped_count: number
           updated_count: number
+        }[]
+      }
+      assign_ticket_store: {
+        Args: { p_store_id: string | null; p_ticket_id: string }
+        Returns: Database["public"]["Tables"]["tickets"]["Row"]
+      }
+      create_store: {
+        Args: { p_max_stores: number; p_name: string }
+        Returns: Database["public"]["Tables"]["stores"]["Row"]
+      }
+      merge_stores: {
+        Args: { p_source_id: string; p_target_id: string }
+        Returns: Database["public"]["Tables"]["stores"]["Row"]
+      }
+      normalize_store_name: {
+        Args: { input_text: string }
+        Returns: string | null
+      }
+      rename_store: {
+        Args: { p_name: string; p_store_id: string }
+        Returns: Database["public"]["Tables"]["stores"]["Row"]
+      }
+      resolve_store: {
+        Args: { p_raw_name: string }
+        Returns: string | null
+      }
+      ticket_item_matches: {
+        Args: { p_base_list_id: string; p_ticket_id: string }
+        Returns: {
+          base_list_item_id: string | null
+          base_list_item_name: string | null
+          match_kind: "name" | "alias" | "none"
+          ticket_item_id: string
         }[]
       }
       sync_shopping_session_to_base_list: {

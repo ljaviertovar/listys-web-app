@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { isUsablePrice } from '@/utils/is-usable-price'
 import { mergeTicketItemsSchema, createBaseListFromTicketSchema } from '@/lib/validations/ticket'
 import { MAX_ITEMS_PER_BASE_LIST } from '@/lib/config/limits'
 import { revalidatePath } from 'next/cache'
@@ -208,6 +209,8 @@ export async function createBaseListFromTicket(data: unknown) {
     unit: item.unit,
     category: item.category,
     sort_order: index,
+    // The line's price starts the item's average, as merging into a list does.
+    average_price: isUsablePrice(item.price) ? item.price : null,
   }))
 
   const { error: insertError } = await supabase

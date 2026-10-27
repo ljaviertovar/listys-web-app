@@ -9,6 +9,7 @@ describe('findBreadcrumb', () => {
 	it('names the section and the entry of a page in the navigation', () => {
 		expect(find('/dashboard')).toEqual({ section: 'Shopping', page: 'Dashboard' })
 		expect(find('/tickets')).toEqual({ section: 'Management', page: 'Receipts' })
+		expect(find('/stores')).toEqual({ section: 'Management', page: 'My Stores' })
 		expect(find('/settings/account')).toEqual({ section: 'Settings', page: 'Account' })
 	})
 

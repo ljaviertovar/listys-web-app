@@ -6,6 +6,7 @@ Check parity with `pnpm verify:limits-reference`. A timeout threshold does not e
 | Constant | Value | Description |
 | --- | ---: | --- |
 | `MAX_GROUPS_PER_USER` | 10 | Maximum number of groups a user can create through the API (the web app no longer creates groups) |
+| `MAX_STORES_PER_USER` | 50 | Maximum stores per user ("My Stores"); enforced by the `create_store` database function |
 | `MAX_ITEMS_PER_BASE_LIST` | 250 | Maximum items in a base list (via any method) |
 | `MAX_TICKET_ITEMS_MERGE` | 200 | Maximum items to merge from a single OCR ticket |
 | `MAX_SYNC_ITEMS` | 250 | Maximum items to sync from shopping session to base list |
@@ -19,6 +20,12 @@ Groups are internal since PRD v3 Phase 2: the web app never asks for, shows or c
 [implementation status](implementation-status.md#prd-v3-phase-1-delivered)) counts toward `MAX_GROUPS_PER_USER`, so an API client can create
 nine more groups. Lists have no per-account limit. Completing a shopping session never fails because of `MAX_ITEMS_PER_BASE_LIST`: checked items that already are in the list
 are updated, and new ones that do not fit are skipped and reported (`over_limit_count`).
+
+Stores (PRD v3 Phase 3): creating a store beyond `MAX_STORES_PER_USER` answers `409 LIMIT_EXCEEDED`; merging two stores
+frees one place. Store aliases and remembered item links have no separate cap: each receipt assignment or linked line adds
+at most one, and item links belong to a list that is itself bounded by `MAX_ITEMS_PER_BASE_LIST`. Linked lines and lines
+matched by a remembered link update an existing item, so only the lines that create items count toward that limit when
+receipt items are added to a list.
 
 The Gemini function enforces its own three-attempt cap. The OpenAI function increments attempts but does not currently
 apply that cap; the web retry service also does not enforce it. See the

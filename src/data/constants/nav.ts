@@ -6,6 +6,7 @@ import {
 	Invoice01Icon,
 	UserSettings01Icon,
 	Settings02Icon,
+	Store01Icon,
 } from '@hugeicons/core-free-icons'
 
 export const NAV_ITEMS: NavItemO[] = [
@@ -54,6 +55,11 @@ export const SIDEBAR_DATA: SidebarData = {
 					title: 'Receipts',
 					url: '/tickets',
 					icon: Invoice01Icon,
+				},
+				{
+					title: 'My Stores',
+					url: '/stores',
+					icon: Store01Icon,
 				},
 			],
 		},

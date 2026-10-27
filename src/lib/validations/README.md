@@ -11,6 +11,7 @@ This directory owns runtime Zod input schemas. Canonical business-limit values l
 | `base-list.ts` | Base-list metadata and item fields. |
 | `shopping-session.ts` | Session creation, updates, completion and item fields. |
 | `ticket.ts` | UI upload schema, selected-item merge and create-list input. |
+| `store.ts` | Store names (create, rename) and the store merge body. |
 | `sharing.ts` | Experimental invite options and identifiers. |
 | `api/common.ts` | Common UUID route params and session-status query input. |
 

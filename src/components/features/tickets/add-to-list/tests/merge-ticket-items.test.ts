@@ -139,4 +139,27 @@ describe('submitTicketItemsToList', () => {
 
 		expect(result).toEqual({ kind: 'error', message: 'We couldn’t add these items. Check your connection and try again.' })
 	})
+
+	it('sends the review decisions as links, and leaves them out when there are none', async () => {
+		const merge = vi.fn().mockResolvedValue({ success: true, new_count: 0, updated_count: 2, skipped_count: 0 })
+		const links = [{ ticket_item_id: 'fixture-item-1', base_list_item_id: 'fixture-base-item' }]
+
+		await submitTicketItemsToList({ ...input, links }, { merge, create: vi.fn() })
+		await submitTicketItemsToList({ ...input, links: [] }, { merge, create: vi.fn() })
+
+		expect(merge.mock.calls[0][0]).toMatchObject({ links })
+		expect(merge.mock.calls[1][0]).not.toHaveProperty('links')
+	})
+
+	it('says how to fix a list that cannot take the new items', async () => {
+		const result = await submitTicketItemsToList(input, {
+			merge: vi.fn().mockResolvedValue({ error: 'Cannot merge items.', errorCode: 'LIMIT_EXCEEDED' }),
+			create: vi.fn(),
+		})
+
+		expect(result).toEqual({
+			kind: 'error',
+			message: 'This list can’t take that many new items. Link some lines to existing items, or add fewer.',
+		})
+	})
 })

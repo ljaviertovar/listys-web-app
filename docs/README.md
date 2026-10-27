@@ -29,8 +29,10 @@ the implementation reference describes repository evidence. Neither establishes 
 
 - **MVP:** receipt capture/OCR, reusable lists and enrichment, shopping sessions, and history, governed by PRD v2.
 - **Direction:** PRD v3 refines the MVP in phases. Phase 1 (always sync on completion, a default "Pantry" list, visible
-  average price and estimated total) and Phase 2 (flat lists: groups hidden from the interface, history filtered by list)
-  change behavior described in PRD v2; later phases (stores) are not built yet.
+  average price and estimated total), Phase 2 (flat lists: groups hidden from the interface, history filtered by list) and
+  Phase 3 (stores foundation: the store read from the receipt by OCR, normalized "My Stores" with rename and merge, and
+  receipt lines linked to existing items and remembered per list) change behavior described in PRD v2; later phases
+  (per-item store tags, store-scoped sessions, receipt-to-session reconciliation) are not built yet.
 - **Experimental:** shared lists, invitations, collaborators, and collaborative realtime shopping. The product owner
   confirmed on 2026-10-17 that these remain outside the MVP.
 - **Planning:** `openspec/` holds specifications and planned changes; its local configuration uses `spec-driven`.

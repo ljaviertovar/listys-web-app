@@ -781,11 +781,12 @@ Badges are compact context, never the only explanation for a failure. A failed r
 
 The upload form (`features/tickets/upload/`) opens as a bottom sheet on phones (24px top radius, up to 92% of
 the viewport) and as a centred 520px dialog from `sm`. It has a Jakarta 600 20px title with a 44px close button, a grey 14px
-description, a `Name *` field (48px, 16px radius) and `Photos *` with a mono `n / 5` counter. The photo field starts as one
+description and `Photos *` with a mono `n / 5` counter. There is no name field: since PRD v3 Phase 3 the store is read from the
+receipt header and confirmed on the receipt screen (section 7.6). The photo field starts as one
 dashed 16px-radius tile with an upload glyph, `Choose Photos` in blue and the accepted formats and the 10MB per-image limit;
 once there are photos it becomes a 3-column grid of 3:4 thumbnails, each with a 44px target to remove it (a 24px dark disc),
 and an `Add More` tile while there is room. A photo that is left out (HEIC, or over 10MB) is named in an inline red alert with
-how to fix it; it does not block the others. `Upload` is enabled as soon as there is one valid photo (up to five); a missing name is reported on submit, not by a dead button.
+how to fix it; it does not block the others. `Upload` is enabled as soon as there is one valid photo (up to five).
 From `sm` the empty tile reads `Drag and drop photos here` / `or Choose Photos`, and the footer is one row: `* Required fields` on the left, `Cancel` and
 `Upload` (44px) on the right. Removal does not shift keyboard focus unpredictably.
 
@@ -805,8 +806,9 @@ The list card (`features/tickets/list/tickets-list.tsx`) is a 24px borderless ca
 merchant name (Jakarta 600 16) beside the status chip, and the upload date and time in mono 12/500 underneath. A hairline
 separates one line about where the receipt stands: `Waiting in line to be read` (pending), a progress bar and `Reading your
 receipt...` (processing, no invented percentage), `Couldn’t read this receipt` in red with `View Details` (failed), or the item
-count in mono with `View Details` (completed). Merchant name is the title even when OCR returns none; use “Store not
-recognized,” not “Unknown.” Completed and failed receipts show a `View Details` link in the footer; only that link opens the
+count in mono with `View Details` (completed). The title is the store: the confirmed store's name, else the name read from the receipt (or typed on an
+older upload), else “Store not recognized,” never “Unknown” (`getReceiptStoreLabel`, also used by the receipt screen and the
+dashboard, so renaming a store renames its receipts). Completed and failed receipts show a `View Details` link in the footer; only that link opens the
 detail page. Pending and processing cards have no detail link, and the card body is not interactive.
 
 From `md` the grid is two columns (three from `xl`) and ends with a dashed `Upload Another Receipt` tile that opens the upload form; photos dropped on it
@@ -831,8 +833,26 @@ names printed in capitals are shown in Title Case (short codes such as “PC” 
 count, their total in mono, `Clear` and `Add to a List`. The summary card closes the screen with the item count, the calculated
 total (mono 20/700) and the receipt's own actions: `Retry` when it can be retried and a soft-red `Delete Receipt`.
 
+**Store card (PRD v3 Phase 3; derived, the HTML has no example).** On a read receipt the `TicketStoreCard` sits above the summary
+card (the right column from `lg`, after the items on phones). It is the summary card's 24px surface with the list card's header: a
+36px blue tile with the store glyph, a 12px `Store` caption, the name in Jakarta 600 16 and one grey 14px line. Four states:
+**confirmed** (the store's name, "Confirmed for this receipt.", `Choose Another Store` secondary and `Remove Store` quiet);
+**suggested** (the store the raw name resolves to, "Matches “NOFRILLS” on the receipt.", a primary `Confirm`, one tap, and
+`Choose Another Store`); **unmatched** (the raw name, "This store isn’t in My Stores yet.", `Save as New Store` and `Choose
+Another Store`); **unrecognized** ("Store not recognized", `Choose a Store`). Buttons are `size='primary'`, stacked full width on
+phones and in one row from `sm`. Every state but confirmed ends with "Optional. You can add items to a list without it." A failed
+save shows its message in the card, with `Try Again` when the store was created but not yet put on the receipt.
+
+**Store picker and store name sheets.** `StorePickerDialog` (`features/stores/`) is an A1 sheet: a 44px search field (`Search or
+name a store`), a polite count line ("3 stores", "No store matches this search."), and a radio list (48px rows: the radio, the name
+in 14px medium, the receipt count in mono 12px; the chosen row takes the `accent` surface) that scrolls inside the sheet after
+288px; a `Create “…”` row heads the list when the typed name is new. Footer: `Cancel` and the confirm (`Use This Store`, `Merge
+Into Store`), disabled until a row is chosen. It is not the floating `Combobox`: a popup opened from inside a modal sheet fights
+its focus trap. `StoreNameDialog` is the one-field sheet (`Store Name *`, 44px) for `Save as New Store` (prefilled from the raw
+name without its branch number, in Title Case when the raw name has a single case, e.g. "NO FRILLS" or a logo read as "metro") and for renaming a store.
+
 From `lg` the screen is two columns (3fr / 2fr). The items card is on the left, with its rows on one line (checkbox, name, quantity chip, price)
-and the selection bar stuck to the bottom of the card. The bar is the dark-blue action bar (`slate-900`, white text, the total in mono `slate-300`) with `sm` buttons: `Clear` (`quiet-on-dark`) and `Add to a List` (default blue). On phones it floats 12px above the tab bar's top edge (8.5rem plus the safe area when the active-session bar shows), so the raised upload button does not crowd it. The right column stays in view while the list scrolls: a `Receipt Photo` card (the photo on
+and the selection bar stuck to the bottom of the card. The bar is the dark-blue action bar (`slate-900`, white text, the total in mono `slate-300`) with `primary` buttons (40px on phones, 44px from `md`, the touch-target rule; they were `sm`, 32px, before PRD v3 Phase 3): `Clear` (`quiet-on-dark`) and `Add to a List` (default blue). On phones it floats 12px above the tab bar's top edge (8.5rem plus the safe area when the active-session bar shows), so the raised upload button does not crowd it. The right column stays in view while the list scrolls: a `Receipt Photo` card (the photo on
 a dark stage, zoom, rotate and fit over it, a strip of 48px thumbnails and a `1 / 3` counter for several photos, and `Open Full Screen`), then the
 summary card. The full-screen viewer gets a left column of thumbnails, 52px arrows, a hint (`Scroll to zoom · Drag to pan · ← → to switch photos`),
 the wheel and mouse drag, and the keys `← →`, `+`, `-` and `0`. Compare puts the photo on the left (60% of the width) and the items on the right,
@@ -866,6 +886,16 @@ The Lists section (the "Lists mobile" pattern in the design reference) has four 
   own coloured icon (700 level: Bakery amber, Bulk Food orange, Dairy sky, Frozen teal, Meat red, Pantry purple, Produce green, Home
   indigo), its name as the category caption (section 4.2), the count in mono (`3 items`, or `1/2` in a trip) and a chevron; the rows
   sit on a `#F6F7F9` surface with 16px radius. Every category opens expanded on a receipt and on a list, however many items they have. The trip is the exception: its categories are folded only on the first visit after the session is started (`/shopping/<id>?started=1`; the items drop the flag from the URL once shown), and any later visit opens them again.
+
+**My Stores (PRD v3 Phase 3; derived from the Lists screen, the HTML has no example).** `/stores` uses the `screen` header
+("My Stores", back to Receipts, "The stores of your receipts. Rename a store, or merge two names for the same store."), the
+toolbar count ("3 stores", no creation action: stores come from receipts) and the same `EntityCard` grid with a blue store tile, the
+name, the receipt count in the footer ("3 receipts", "No receipts yet") and no footer link (a store has no page of its own). Its
+`...` menu holds `Rename` and `Merge Into…` (disabled with a single store). Rename is the store name sheet; a name another store
+already has reads "Another store already uses this name. Merge them instead?" with a `Merge Into “…”` button. Merge picks the
+target in the store picker (no create row), then a red `ConfirmSheet`: "Merge “NOFRILLS” into “No Frills”?", how many receipts move,
+and the red box "“NOFRILLS” will be removed. This can’t be undone." With no store, one empty-state card ("No stores yet") links to
+the receipts.
 
 ### 7.8 Shopping item row
 
@@ -919,7 +949,8 @@ raised 48px **Upload Receipt** button (`fab`, `icon-2xl`, 16px radius) in the mi
 The desktop sidebar follows the "A1 desktop" pattern (the shadcn floating sidebar): a white card with a 12px radius and a
 hairline ring, 240px wide inside 8px margins on the page ground. It opens with the brand (the Listys mark at 32px, "Listys" in
 Jakarta 600 14 and "Reuse lists. Shop together." in 12px muted, a 64px block that links home), then the three groups (Shopping,
-Management, Settings), each with its title and its entries inset by 6px. Receipts carry an amber count pill (how many are still
+Management, Settings), each with its title and its entries inset by 6px. Management holds Receipts and My Stores; phones,
+whose tab bar has no slot for My Stores, reach it from the `My Stores` button of the Receipts header. Receipts carry an amber count pill (how many are still
 waiting for a list) and Shopping Lists a neutral one (how many lists); a count of zero shows nothing. The foot holds the
 running session as a card (10px radius, "Shopping now", `done/total`, a 6px progress bar) and the author credit. The sidebar has
 no icon mode: the trigger hides it entirely and the page takes the full width (the open state is kept in a cookie). The
@@ -1231,6 +1262,10 @@ These are remaining implementation notes, not permission for two systems:
     is the group row pattern at top level (32px tile, "Start" button), and the history is one list of session cards with a list filter. The filter
     is the standard `Select` (`size='lg'`, 44px target) above the cards, derived from the receipt form selects because the HTML has no filter
     example; it needs a design review. Same-named lists read `Weekly`, `Weekly (2)` on screen. Update the reference to drop the group screens.
+12d. **Stores (PRD v3 Phase 3):** the HTML reference has no store card, store picker, store name sheet or "My Stores" screen. They
+    are derived from the receipt summary card and the list card header (store card), the A1 sheets with the merge sheet's radio rows
+    (picker), the list-card edit form (store name) and the Lists screen cards (My Stores); see sections 7.6 and 7.7. The upload sheet
+    lost its name field, so the reference's `Name *` field is obsolete. All of it needs a design review.
 13. **Copy:** product UI and documentation mix “ticket,” “receipt,” “shopping run,” and “shopping session.” User-facing
    English uses `receipt` and `shopping session`; internal legacy names may remain until safely migrated. Profile and Account describe
    the sign-in method in plain language and wrap long values on phones.
@@ -1293,6 +1328,7 @@ drawn 52), "View All" is 32px at every width, and `Label` keeps the 20px line he
 
 - History: one screen of session cards, newest first, with a `Show trips from` select above them (`Select size='lg'`: "All lists" plus the lists that have at least one trip; the choice is `?list=<id>` in the URL, and an unknown value reads as all lists). The session card reads `Completed on <date> · $total` (mono date, `text-xs`), with the footer count and a `View Details` link. The empty state is one card with the folder icon.
 - Add Items to List is a bottom sheet below `md` (`DialogContent sheetOnPhones`). Cancel is `variant='secondary'`; Add is `size='primary'` and reads `Add N Items`, disabled until a list is chosen in the existing-list mode. There is no group choice: one list selector (names of lists that share one read `Weekly`, `Weekly (2)`) or, to start a list, only its name. With no list yet the sheet shows a line ("You have no lists yet. Name one and these items will start it.") and the name field alone.
+- **Review Matches (PRD v3 Phase 3; derived, the HTML has no example).** In the existing-list mode, `Add N Items` first checks the chosen list (`Checking…`). When every selected line has the name of an item, the items are added at once. Otherwise the same sheet becomes `Review Matches` ("Check how these items are added to “Pantry”. Nothing is added until you confirm."): a `New items` section (lines that would create an item, each reading "Will be added as a new item" with `Link to…`), a `Remembered matches` section (lines matched by a link from an earlier receipt: "Updates “2% Milk 4L” · remembered from an earlier receipt" with `Change…` and `Add as New`) and a folded `Updates by name` row with the plain names. Sections carry a mono count and one grey 12px hint; rows are 16px-radius `muted` surfaces (the OCR review row of 7.6) with the line name in 14px medium, the outcome in 12px grey and `primary`-size buttons. `Link to…` opens a nested `Link to an Item` sheet with the list's items in the searchable radio list of the store picker (section 7.6). The footer turns `Cancel` into `Back` (to the list choice, decisions dropped). A failed check reads "We couldn’t check your list. Try again." and adds nothing; a list that cannot take the new items says to link some lines or add fewer.
 
 ## 12. Do and don't
 

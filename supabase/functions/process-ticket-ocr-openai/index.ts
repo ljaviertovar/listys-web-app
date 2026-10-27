@@ -1,5 +1,6 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { parseOcrPayload, STORE_NAME_INSTRUCTIONS } from '../_shared/receipt-store.ts'
 
 const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY')!
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
@@ -19,12 +20,17 @@ interface ReceiptItem {
   category: string | null
 }
 
+interface ImageResult {
+  items: ReceiptItem[]
+  storeName: string | null
+}
+
 // Process a single image with OpenAI Vision API
 async function processImage(
   imageUrl: string,
   imageIndex: number,
   totalImages: number
-): Promise<ReceiptItem[]> {
+): Promise<ImageResult> {
   const isMultiImage = totalImages > 1
   const positionContext = isMultiImage
     ? `This is image ${imageIndex + 1} of ${totalImages} of a LONG RECEIPT captured in multiple photos.
@@ -42,6 +48,9 @@ async function processImage(
        - If an item appears incomplete (cut text, missing price), still include it
        - The system will merge items from all images and remove duplicates automatically`
     : ''
+
+  // The store name comes from the same request as the items: only the first photo, which carries the header, asks for it.
+  const storeInstructions = imageIndex === 0 ? STORE_NAME_INSTRUCTIONS : ''
 
   // NOTE: output schema MUST match ReceiptItem (name, quantity, unit, price, category)
   const prompt = `You are a receipt line-item extractor.
@@ -111,6 +120,8 @@ FINAL CHECK:
 - JSON only.
 
 ${mergeInstructions}
+
+${storeInstructions}
 `
 
 
@@ -148,13 +159,11 @@ ${mergeInstructions}
 
   try {
     const cleanContent = content.replace(/```json\n?|\n?```/g, '').trim()
-    const parsed = JSON.parse(cleanContent)
-
-    // Defensive: ensure array
-    if (!Array.isArray(parsed)) return []
+    // Accepts the item array or the first photo's { store_name, items } object.
+    const { items: parsed, storeName } = parseOcrPayload(cleanContent)
 
     // Defensive cleanup: only keep expected fields
-    return parsed
+    const items = parsed
       .filter((x: any) => x && typeof x === 'object')
       .map((x: any) => ({
         name: typeof x.name === 'string' ? x.name : '',
@@ -168,6 +177,8 @@ ${mergeInstructions}
           typeof x.price === 'number' && Number.isFinite(x.price) ? x.price : null,
       }))
       .filter((x: ReceiptItem) => x.name.trim().length > 0)
+
+    return { items, storeName }
   } catch (parseError) {
     console.error(`Failed to parse OCR response for image ${imageIndex + 1}:`, content)
     throw new Error('Failed to parse OCR response')
@@ -368,7 +379,7 @@ serve(async (req: Request) => {
 
     const startedAt = Date.now()
 
-    const { data: ticketRow } = await supabase.from('tickets').select('ocr_attempts').eq('id', ticketId).single()
+    const { data: ticketRow } = await supabase.from('tickets').select('ocr_attempts, store_name').eq('id', ticketId).single()
     const nextAttempts = Number(ticketRow?.ocr_attempts ?? 0) + 1
 
     // Update ticket status to processing and increment attempt counter.
@@ -381,10 +392,12 @@ serve(async (req: Request) => {
 
     // Process all images sequentially
     const allItemsPerImage: ReceiptItem[][] = []
+    let storeNameFromHeader: string | null = null
 
     for (let i = 0; i < urls.length; i++) {
       console.log(`Processing image ${i + 1}/${urls.length}`)
-      const items = await processImage(urls[i], i, urls.length)
+      const { items, storeName } = await processImage(urls[i], i, urls.length)
+      if (i === 0) storeNameFromHeader = storeName
       console.log(`Image ${i + 1}: Found ${items.length} items`)
       try {
         console.log(`Image ${i + 1} items: ${JSON.stringify(items, null, 2)}`)
@@ -396,6 +409,8 @@ serve(async (req: Request) => {
 
     // Merge items from all images, removing border duplicates
     const mergedItems = mergeItems(allItemsPerImage)
+    // A name the ticket already has (sent by a client or read earlier) is never overwritten.
+    const extractedStoreName = ticketRow?.store_name ? null : storeNameFromHeader
     console.log(`Total merged items: ${mergedItems.length}`)
     try {
       console.log(`Merged items: ${JSON.stringify(mergedItems, null, 2)}`)
@@ -430,6 +445,7 @@ serve(async (req: Request) => {
         processed_at: new Date().toISOString(),
         total_items: mergedItems.length,
         ocr_error: null,
+        ...(extractedStoreName ? { store_name: extractedStoreName } : {}),
       })
       .eq('id', ticketId)
 

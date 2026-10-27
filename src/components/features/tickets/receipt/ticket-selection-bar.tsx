@@ -54,14 +54,14 @@ export function TicketSelectionBar({ count, total, onClear, onAdd, placement = '
 			<Button
 				type='button'
 				variant='quiet-on-dark'
-				size='sm'
+				size='primary'
 				onClick={onClear}
 			>
 				Clear
 			</Button>
 			<Button
 				type='button'
-				size='sm'
+				size='primary'
 				onClick={onAdd}
 			>
 				Add to a List

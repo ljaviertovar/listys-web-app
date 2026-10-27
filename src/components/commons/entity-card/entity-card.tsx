@@ -5,10 +5,28 @@ import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react'
 import { Delete02Icon, Edit02Icon } from '@hugeicons/core-free-icons'
 
 import { ActionLink } from '../action-link/action-link'
-import { RowMenu } from '../row-menu/row-menu'
+import { RowMenu, type RowMenuAction } from '../row-menu/row-menu'
+
+type EntityCardMenu =
+	| {
+			/** Names the thing the menu belongs to: the list. */
+			label: string
+			editLabel: string
+			deleteLabel: string
+			onEdit: () => void
+			onDelete: () => void
+			disabled?: boolean
+	  }
+	| {
+			label: string
+			/** The card's own actions, for a card whose menu is not edit and delete (a store: rename, merge). */
+			actions: RowMenuAction[]
+			disabled?: boolean
+	  }
 
 interface EntityCardProps {
-	href: string
+	/** Where the footer link goes; a card with nothing to open leaves it out and has no link. */
+	href?: string
 	icon: IconSvgElement
 	title: string
 	description?: string | null
@@ -17,17 +35,9 @@ interface EntityCardProps {
 	unit: { one: string; many: string }
 	emptyLabel: string
 	/** Text of the link in the footer ("View Details", "View Items"). */
-	linkLabel: string
-	/** The "⋯" menu with edit and delete; a read-only card passes none of these. */
-	menu?: {
-		/** Names the thing the menu belongs to: the list. */
-		label: string
-		editLabel: string
-		deleteLabel: string
-		onEdit: () => void
-		onDelete: () => void
-		disabled?: boolean
-	}
+	linkLabel?: string
+	/** The "⋯" menu, with edit and delete or the card's own actions; a read-only card passes none. */
+	menu?: EntityCardMenu
 	menuTriggerRef?: Ref<HTMLButtonElement>
 	testId: string
 }
@@ -76,10 +86,14 @@ export function EntityCard({
 						disabled={menu.disabled}
 						testId={`${testId}-menu`}
 						className='-mr-2'
-						actions={[
-							{ label: menu.editLabel, icon: Edit02Icon, onSelect: menu.onEdit },
-							{ label: menu.deleteLabel, icon: Delete02Icon, onSelect: menu.onDelete, tone: 'danger' },
-						]}
+						actions={
+							'actions' in menu
+								? menu.actions
+								: [
+										{ label: menu.editLabel, icon: Edit02Icon, onSelect: menu.onEdit },
+										{ label: menu.deleteLabel, icon: Delete02Icon, onSelect: menu.onDelete, tone: 'danger' },
+									]
+						}
 					/>
 				) : null}
 			</div>
@@ -96,9 +110,11 @@ export function EntityCard({
 						</>
 					)}
 				</span>
-				<ActionLink href={href} aria-label={`${linkLabel} in ${title}`} className='shrink-0'>
-					{linkLabel}
-				</ActionLink>
+				{href && linkLabel ? (
+					<ActionLink href={href} aria-label={`${linkLabel} in ${title}`} className='shrink-0'>
+						{linkLabel}
+					</ActionLink>
+				) : null}
 			</div>
 		</article>
 	)

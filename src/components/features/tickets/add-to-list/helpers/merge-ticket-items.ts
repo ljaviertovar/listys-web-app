@@ -1,5 +1,7 @@
 import { createBaseListFromTicket, getBaseLists, mergeTicketItemsToBaseList } from '@/lib/api/endpoints'
 
+import type { MergeLink } from './merge-review'
+
 export type MergeMode = 'existing' | 'new'
 export type BaseList = { id: string; name: string; created_at?: string | null }
 
@@ -39,6 +41,8 @@ interface SubmitTicketItemsInput {
 	selectedItemIds: string[]
 	selectedBaseListId: string
 	newListName: string
+	/** Decisions from the Review Matches step; only sent when there are any. */
+	links?: MergeLink[]
 }
 
 export type SubmitTicketItemsResult =
@@ -59,8 +63,15 @@ export async function submitTicketItemsToList(
 				ticket_id: input.ticketId,
 				base_list_id: input.selectedBaseListId,
 				items: input.selectedItemIds.map(id => ({ id, merge: true })),
+				...(input.links && input.links.length > 0 ? { links: input.links } : {}),
 			})
-			if ('error' in result && result.error) return { kind: 'error', message: 'We couldn’t add these items to your list. Try again.' }
+			if ('error' in result && result.error) {
+				// A full list is something the user can fix in the review step, so it says how.
+				if ('errorCode' in result && result.errorCode === 'LIMIT_EXCEEDED') {
+					return { kind: 'error', message: 'This list can’t take that many new items. Link some lines to existing items, or add fewer.' }
+				}
+				return { kind: 'error', message: 'We couldn’t add these items to your list. Try again.' }
+			}
 
 			const counts = result as { new_count?: number; updated_count?: number; skipped_count?: number }
 			const hasCounts = [counts.new_count, counts.updated_count, counts.skipped_count].every(Number.isFinite)

@@ -141,6 +141,16 @@ describe('buildDashboardModel', () => {
 		expect(JSON.stringify(model.upNext)).not.toMatch(/group/i)
 	})
 
+	it('titles a receipt with its confirmed store rather than the raw name', () => {
+		const model = build({
+			tickets: [
+				{ id: 't1', store_name: 'NOFRILLS #3127', store: { name: 'No Frills' }, ocr_status: 'completed', total_items: 3, created_at: null, base_list_id: null },
+			],
+		})
+
+		expect(model.upNext[0].title).toBe('3 items from “No Frills” are waiting')
+	})
+
 	it('uses a safe name when OCR did not recognise the store and a failed receipt gets a recovery hint', () => {
 		const model = build({
 			tickets: [

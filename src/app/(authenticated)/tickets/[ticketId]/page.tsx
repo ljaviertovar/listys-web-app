@@ -1,18 +1,18 @@
 import { redirect } from 'next/navigation'
 
 import { PageHeader, PageContainer } from '@/components/app'
-import { TicketReview, TicketSummaryCard, sumLineTotals, toTicketStatus } from '@/components/features/tickets'
+import { TicketReview, TicketStoreCard, TicketSummaryCard, sumLineTotals, toTicketStatus } from '@/components/features/tickets'
 
 import { getTicket } from '@/lib/api/endpoints'
 
 import { createClient } from '@/lib/supabase/server'
 
-import { formatDate, formatTime } from '@/utils'
+import { formatDate, formatTime, getReceiptStoreLabel } from '@/utils'
 
-import type { Ticket } from '@/types'
+import type { Ticket, TicketStoreFields } from '@/types'
 
 /** Columns the generated database types do not list yet. */
-type TicketRow = Ticket & { image_paths?: string[] | null; ocr_error?: string | null }
+type TicketRow = Ticket & TicketStoreFields & { image_paths?: string[] | null; ocr_error?: string | null }
 
 export default async function TicketDetailPage({ params }: { params: Promise<{ ticketId: string }> }) {
 	const { ticketId } = await params
@@ -37,15 +37,16 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 	const ticketItems = ticket.items || []
 	const extractedItemsCount = ticket.total_items ?? ticketItems.length
 	const pricedItemsCount = ticketItems.filter((item: { price?: number | null }) => item.price !== null).length
-	const { image_paths: storedPaths, ocr_error: ocrError } = ticket as TicketRow
+	const { image_paths: storedPaths, ocr_error: ocrError, store, store_suggestion: storeSuggestion } = ticket as TicketRow
 	const imagePaths: string[] = storedPaths && storedPaths.length > 0 ? storedPaths : ticket.image_path ? [ticket.image_path] : []
+	const storeLabel = getReceiptStoreLabel(ticket)
 
 	return (
 		<>
 			<PageHeader
 				variant='screen'
 				back={{ href: '/tickets', label: 'Back to Receipts' }}
-				title={ticket.store_name || 'Store not recognized'}
+				title={storeLabel}
 				desc={
 					uploadedAt ? (
 						<>
@@ -62,12 +63,21 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 			<PageContainer>
 				<TicketReview
 					ticketId={ticketId}
-					title={ticket.store_name || 'Receipt'}
+					title={storeLabel}
 					imagePaths={imagePaths}
 					items={ticketItems}
 					status={toTicketStatus(ticket.ocr_status)}
 					ocrError={ocrError}
 				>
+					{/* The store is read with the items, so it is only worth confirming once the receipt has been read. */}
+					{ticket.ocr_status === 'completed' ? (
+						<TicketStoreCard
+							ticketId={ticketId}
+							store={store ?? null}
+							storeSuggestion={storeSuggestion ?? null}
+							storeName={ticket.store_name}
+						/>
+					) : null}
 					<TicketSummaryCard
 						ticket={ticket}
 						itemsCount={extractedItemsCount}

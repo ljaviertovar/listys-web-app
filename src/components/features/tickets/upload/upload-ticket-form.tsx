@@ -9,7 +9,6 @@ import { toast } from 'sonner'
 import { Loading03Icon } from '@hugeicons/core-free-icons'
 
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { DialogClose, DialogFooter } from '@/components/ui/dialog'
 import { uploadTicketSchema, type UploadTicketInput } from '@/lib/validations/ticket'
@@ -42,21 +41,18 @@ export function UploadTicketProgress({ photoCount }: { photoCount: number }) {
 
 export function UploadTicketForm({ onSuccess, initialFiles }: Props) {
 	const router = useRouter()
-	const storeNameId = useId()
 	const photosId = useId()
 	const photosDescriptionId = useId()
 	const [loading, setLoading] = useState(false)
 	const { previews, rejections, addFiles, removePhoto, dismissRejection } = usePhotoPicker(MAX_IMAGES_PER_TICKET)
 
 	const {
-		register,
 		handleSubmit,
 		formState: { errors },
 		setValue,
 	} = useForm<UploadTicketInput>({
 		resolver: zodResolver(uploadTicketSchema),
 		defaultValues: {
-			store_name: '',
 			files: [],
 		},
 	})
@@ -78,7 +74,7 @@ export function UploadTicketForm({ onSuccess, initialFiles }: Props) {
 		)
 	}, [previews, setValue])
 
-	// One valid photo is enough to try: a missing name is reported (and focused) on submit instead of leaving the button dead.
+	// One valid photo is enough: the store is read from the receipt itself, so there is nothing else to fill in.
 	const canSubmit = previews.length > 0 && !loading
 
 	const onSubmit = async (data: UploadTicketInput) => {
@@ -89,7 +85,6 @@ export function UploadTicketForm({ onSuccess, initialFiles }: Props) {
 			data.files.forEach(file => {
 				formData.append('files', file)
 			})
-			formData.append('store_name', data.store_name)
 
 			const response = await fetch('/api/upload-ticket', {
 				method: 'POST',
@@ -124,27 +119,6 @@ export function UploadTicketForm({ onSuccess, initialFiles }: Props) {
 			onSubmit={handleSubmit(onSubmit)}
 			className='flex flex-col gap-5'
 		>
-			<div className='flex flex-col gap-2'>
-					<Label htmlFor={storeNameId}>
-						Store or Receipt Name <span aria-hidden='true' className='text-destructive'>*</span>
-				</Label>
-				<Input
-						id={storeNameId}
-					{...register('store_name')}
-						placeholder='e.g. Grocery Store'
-					disabled={loading}
-					aria-invalid={errors.store_name ? true : undefined}
-						aria-required='true'
-						aria-describedby={errors.store_name ? `${storeNameId}-error` : `${storeNameId}-hint`}
-					size='lg'
-				/>
-					{errors.store_name ? (
-						<p id={`${storeNameId}-error`} role='alert' className='text-sm text-destructive'>{errors.store_name.message}</p>
-					) : (
-						<p id={`${storeNameId}-hint`} className='text-xs leading-normal text-muted-foreground'>Use a name you’ll recognize, such as Grocery Store.</p>
-					)}
-			</div>
-
 			<div className='flex flex-col gap-2'>
 				<div className='flex items-center justify-between'>
 					<Label htmlFor={photosId}>

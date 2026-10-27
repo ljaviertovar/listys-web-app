@@ -11,6 +11,16 @@
 export const MAX_GROUPS_PER_USER = 10 // Maximum number of groups a user can create through the API (the web app no longer creates groups)
 
 /**
+ * STORES LIMITS
+ *
+ * MAX_STORES_PER_USER (50):
+ *    - Households shop at a handful of stores; 50 leaves room for branches named apart and one-off trips
+ *    - Keeps "My Stores" a single bounded list (no pagination) and the store picker small
+ *    - Enforced inside create_store, so concurrent creations cannot exceed it
+ */
+export const MAX_STORES_PER_USER = 50 // Maximum stores per user; merging stores frees room
+
+/**
  * BASE LISTS & SHOPPING SESSIONS LIMITS
  *
  * IMPORTANT: These limits are designed to maintain consistency across the entire app lifecycle:
