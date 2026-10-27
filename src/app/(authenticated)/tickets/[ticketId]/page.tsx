@@ -68,6 +68,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 					items={ticketItems}
 					status={toTicketStatus(ticket.ocr_status)}
 					ocrError={ocrError}
+					storeConfirmed={!!store}
 				>
 					{/* The store is read with the items, so it is only worth confirming once the receipt has been read. */}
 					{ticket.ocr_status === 'completed' ? (

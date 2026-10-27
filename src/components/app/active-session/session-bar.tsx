@@ -12,6 +12,7 @@ export interface SessionBarProps {
 	name: string
 	/** Null while the count is still loading: the bar then says only that the trip is in progress. */
 	progress: { checked: number; total: number } | null
+	otherCount?: number
 }
 
 /**
@@ -19,7 +20,7 @@ export interface SessionBarProps {
  * session from any other screen. The whole bar is the link; "Continue" only borrows the primary button's look. The raised
  * upload button overlaps its lower edge, so the bar sits just under its z-index.
  */
-export function SessionBar({ id, name, progress }: SessionBarProps) {
+export function SessionBar({ id, name, progress, otherCount = 0 }: SessionBarProps) {
 	const percent = progress && progress.total > 0 ? Math.round((progress.checked / progress.total) * 100) : 0
 	const filled = (percent / 100) * RING_CIRCUMFERENCE
 
@@ -28,6 +29,7 @@ export function SessionBar({ id, name, progress }: SessionBarProps) {
 			data-testid='active-session-bar'
 			className={cn('fixed inset-x-0 z-30 px-3 pb-2 lg:hidden', ABOVE_MOBILE_UPLOAD_BUTTON)}
 		>
+			<div className='flex items-center gap-2'>
 			<Link
 				href={`/shopping/${id}`}
 				className={cn(
@@ -79,6 +81,12 @@ export function SessionBar({ id, name, progress }: SessionBarProps) {
 					</span>
 				</Button>
 			</Link>
+			{otherCount > 0 ? (
+				<Link href='/shopping-lists' aria-label={`+${otherCount} more in progress`} data-testid='active-session-more-link' className='shrink-0 rounded-2xl bg-slate-800 px-3 py-2 text-center text-xs font-semibold leading-tight text-white focus-ring'>
+					+{otherCount} more<span className='sr-only'> shopping sessions in progress</span>
+				</Link>
+			) : null}
+			</div>
 		</div>
 	)
 }

@@ -46,7 +46,7 @@ v3 therefore:
 | Session scope | Whole list | Whole list, or filtered to one store |
 | Active sessions | One per user | One per base list (see §8, FR-12) |
 | Receipt ↔ session | Unrelated flows | Receipt can complete the active/recent session |
-| Price memory | `average_price` stored, not shown | Shown per item; per-store price comparison |
+| Price memory | `average_price` stored, not shown | Shown as a list-wide average per item; store-specific price comparison is a later product direction, not part of the store-tags-and-scoped-sessions change |
 | Terminology | receipt, base list, shopping session, **group**, item | receipt, base list, shopping session, **store**, item |
 
 ---

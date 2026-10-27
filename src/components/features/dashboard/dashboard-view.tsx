@@ -45,12 +45,13 @@ export function DashboardView({ model, firstName, isGuest = false, hasLists }: P
 				) : null}
 			</header>
 
-			<div className='grid items-stretch gap-6 lg:grid-cols-5'>
+			<div className='grid grid-cols-1 items-stretch gap-6 lg:grid-cols-5'>
 				<div className={cn(hasUpNext ? 'lg:col-span-3' : 'lg:col-span-5')}>
 					{model.activeSession ? (
 						<ActiveSessionBanner
 							session={model.activeSession}
 							isGuest={isGuest}
+							otherSessionCount={model.otherSessionCount}
 						/>
 					) : (
 						<NoSessionBanner
@@ -69,10 +70,10 @@ export function DashboardView({ model, firstName, isGuest = false, hasLists }: P
 				) : null}
 			</div>
 
-			<div className='grid items-stretch gap-5 sm:grid-cols-2 xl:grid-cols-3'>
+			<div className='grid grid-cols-1 items-stretch gap-5 sm:grid-cols-2 xl:grid-cols-3'>
 				<ListsSectionCard
 					lists={model.lists}
-					sessionActive={model.activeSession !== null}
+					activeSessionIds={model.activeSessionIds}
 				/>
 				<ReceiptsSectionCard receipts={model.receipts} />
 				{/* On two columns the third card takes the whole row instead of leaving a half-empty one. */}

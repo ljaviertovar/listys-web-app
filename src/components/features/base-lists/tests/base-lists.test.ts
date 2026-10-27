@@ -12,14 +12,18 @@ const item = (overrides: Partial<BaseListItem>) =>
 	({ id: 'i1', base_list_id: 'l1', name: 'Milk', quantity: 1, unit: 'pcs', category: 'Dairy', notes: null, sort_order: 0, ...overrides }) as BaseListItem
 
 describe('BaseListsList', () => {
-	it('leaves out the list that is being shopped', () => {
+	it('keeps every list visible and offers resume for each active list', () => {
 		const html = renderToStaticMarkup(
-			createElement(BaseListsList, { baseLists: [list({}), list({ id: 'l2', name: 'Weekly Groceries' })], activeBaseListId: 'l1' }),
+			createElement(BaseListsList, {
+				baseLists: [list({}), list({ id: 'l2', name: 'Weekly Groceries' })],
+				activeSessionIds: { l1: 'session-1', l2: 'session-2' },
+			}),
 		)
 
-		expect(html).not.toContain('data-testid="list-card-l1"')
+		expect(html).toContain('data-testid="list-card-l1"')
 		expect(html).toContain('data-testid="list-card-l2"')
-		expect(html).toMatch(/>1<\/b> list</)
+		expect(html.match(/Resume Shopping/g)).toHaveLength(2)
+		expect(html).toMatch(/>2<\/b> lists/)
 	})
 })
 
@@ -40,8 +44,7 @@ describe('StartShoppingDialog', () => {
 		expect(render({ itemsCount: 0 })).toMatch(/<button[^>]*disabled=""/)
 	})
 
-	it('disappears while a shopping session is active: only one can run at a time', () => {
-		// The page knows it from the server; the client store covers the rest, but it is not readable in a server render.
-		expect(render({ sessionActive: true })).toBe('')
+	it('offers to resume when this list already has an active session', () => {
+		expect(render({ sessionActive: true, activeSessionId: 'session-1' })).toContain('Resume Shopping')
 	})
 })

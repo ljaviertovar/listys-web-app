@@ -1,5 +1,4 @@
 export { ActiveSessionBar, isSessionScreen } from './active-session-bar'
 export { default as ActiveSessionInit } from './active-session-init'
-export { default as ActiveSessionProvider } from './active-session-provider'
 export { ActiveShoppingBadge } from './active-shopping-badge'
 export { SessionBar } from './session-bar'

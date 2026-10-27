@@ -1,6 +1,6 @@
 # API v1 repository reference
 
-Snapshot of Route Handlers on 2026-10-17. This inventory describes current behavior; it is not a complete OpenAPI
+Snapshot of Route Handlers on 2026-10-27. This inventory describes current behavior; it is not a complete OpenAPI
 contract or proof of policy compliance. [AGENTS.md](../../AGENTS.md) defines the required API policy.
 
 ## Authentication and responses
@@ -49,11 +49,11 @@ strings. The inventory maps directly to [`src/app/api/v1/`](../../src/app/api/v1
 | `/groups/{groupId}/base-lists` | GET | Lists in an owner group. |
 | `/groups/history` | GET | Groups with completed sessions; existing specialized read. |
 | `/base-lists` | GET, POST | List the owner's base lists (name, notes, group, creation date, item count; ordered by name, then creation) / create one; `group_id` is optional on create. |
-| `/base-lists/{baseListId}` | GET, PATCH, DELETE | Read/update/delete a list; shared reads are experimental. |
+| `/base-lists/{baseListId}` | GET, PATCH, DELETE | Read/update/delete a list; each item includes its usual-store summary; shared reads are experimental. |
 | `/base-lists/{baseListId}/items` | POST | Create an item; list ID comes from the path. |
-| `/base-list-items/{itemId}` | PATCH, DELETE | Update/delete an item. |
-| `/shopping-sessions` | GET, POST | History/default completed read, or create session. `?status=active` returns active-session data instead. |
-| `/shopping-sessions/{sessionId}` | GET, PATCH, DELETE | Read/update a session; DELETE invokes cancellation. PATCH cannot set `status` to `completed`. |
+| `/base-list-items/{itemId}` | PATCH, DELETE | Update/delete an item; PATCH can set or clear its usual store. |
+| `/shopping-sessions` | GET, POST | History/default completed read, or create a session optionally scoped to a store. `?status=active` returns the most recent visible active session. |
+| `/shopping-sessions/{sessionId}` | GET, PATCH, DELETE | Read/update a session, including its store and each item's scope flag; DELETE invokes cancellation. PATCH cannot set `status` to `completed`. |
 | `/shopping-sessions/{sessionId}/complete` | POST | Complete the session and always apply its checked items to the base list, in one database transaction. |
 | `/shopping-sessions/{sessionId}/items` | POST | Create a session item. |
 | `/shopping-session-items/{itemId}` | PATCH, DELETE | Update/delete a session item. |
@@ -89,7 +89,10 @@ before invoking them. This audit did not execute them.
 | Group create/update | `name` 1–100 characters, `description` up to 500; fields optional on PATCH. | [`group.ts`](../../src/lib/validations/group.ts) |
 | List create/update | Create requires `name` 1–100; `group_id` is an optional UUID (null is accepted): omitted, the list goes to the user's default group, created on first use; supplied, it must be a group of the caller (`404` otherwise, with no difference between a missing and a foreign group). `notes` nullable/optional up to 500. Names are unique per user, ignoring case, across all groups (`409` otherwise); saving a list under its own name, or changing only its case, is accepted. PATCH accepts name/notes. | [`base-list.ts`](../../src/lib/validations/base-list.ts) |
 | Item create/update | Name up to 200, quantity 0.1–99 in 0.1 steps, optional unit/notes/category. Path determines parent on nested POST. | [`base-list.ts`](../../src/lib/validations/base-list.ts), [`shopping-session.ts`](../../src/lib/validations/shopping-session.ts) |
-| Session create | UUID `base_list_id`, `name` 1–100. | [`shopping-session.ts`](../../src/lib/validations/shopping-session.ts) |
+| Session create | UUID `base_list_id`, `name` 1–100, optional `store_id` (UUID or null). When supplied, the session includes only items usual at or previously purchased at that store; other items remain available in the session as `is_other_store`. A list with an active session returns `409 CONFLICT` and `details.activeSessionId`; an empty list returns `409 CONFLICT`; a missing list or store outside the caller's scope returns `404`. | [`shopping-session.ts`](../../src/lib/validations/shopping-session.ts), [`shopping-sessions.service.ts`](../../src/lib/server/services/shopping-sessions.service.ts) |
+| Session reads | `GET /shopping-sessions/{sessionId}` adds `store: { id, name } \| null` and `is_other_store` on each session item; completed-session history adds `store: { id, name } \| null`. Whole-list sessions have `store: null` and `is_other_store: false`. | [`shopping-sessions.service.ts`](../../src/lib/server/services/shopping-sessions.service.ts) |
+| Base-list item usual store | `PATCH /base-list-items/{itemId}` accepts `usual_store_id` (UUID or null). This field must be the only field in the PATCH (`422` if combined); a store or item outside the caller's scope returns `404`. The response adds `usual_store: { id, name, source } \| null` and `other_stores: [{ id, name, purchase_count }]`, with the usual store omitted from `other_stores`. | [`base-list.ts`](../../src/lib/validations/base-list.ts), [`base-lists.service.ts`](../../src/lib/server/services/base-lists.service.ts) |
+| Base-list item store summary | `GET /base-lists/{baseListId}` adds `usual_store` and `other_stores` to each item. `other_stores` is ordered by purchase count descending, then most recent purchase; raw statistics rows are not returned. Collaborators may see `usual_store: null` and `other_stores: []` when RLS hides the store data. | [`base-lists.service.ts`](../../src/lib/server/services/base-lists.service.ts) |
 | Session update (PATCH) | Optional `name` 1–100, `status` (only `active`; `completed` returns `422` and points to the complete operation), positive `total_amount`, `general_notes` up to 1000. `sync_to_base` is stripped. | [`shopping-session.ts`](../../src/lib/validations/shopping-session.ts) |
 | Session complete | Optional positive `total_amount`, `general_notes` up to 1000. `sync_to_base` is deprecated: accepted with any boolean, ignored, completion always syncs. | [`shopping-session.ts`](../../src/lib/validations/shopping-session.ts) |
 | Ticket upload | Multipart repeated `files`: 1–5 images, each at most 10 MiB. Optional `store_name` (raw text, whitespace collapsed, at most 100 characters, blank treated as absent) is validated with Zod before any photo is stored (`422` otherwise); when it is absent, OCR fills it from the receipt header. The service also reads an optional `group_id`; file checks are manual. The web form sends photos only. | [`uploadTicket`](../../src/lib/server/services/tickets.service.ts), [`uploadTicketFieldsSchema`](../../src/lib/validations/ticket.ts) |
@@ -149,6 +152,26 @@ Stores (PRD v3 Phase 3, 2026-10-25). Compatible changes inside v1, no new major 
 `{ "data": { "id": "opaque-store-id", "name": "No Frills", "receipt_count": 0, "created_at": "…", "updated_at": "…" } }`.
 Source: [`stores.service.ts`](../../src/lib/server/services/stores.service.ts), [`rpc-errors.ts`](../../src/lib/server/services/rpc-errors.ts)
 and the [migration](../../supabase/migrations/20261025000000_stores_foundation.sql).
+
+Store tags and scoped sessions (PRD v3 Phase 3, 2026-10-27). Compatible additions inside v1, no new major version and
+no deprecation headers:
+
+- `POST /shopping-sessions` accepts optional `store_id`; omitting it or sending `null` preserves whole-list shopping.
+  A second active session for the same list returns `409 CONFLICT` with `details.activeSessionId` and the message
+  "This list already has a shopping session in progress." Clients should use the detail field to resume and ignore
+  unknown response fields.
+- Session reads and history add `store` and item `is_other_store`; list reads add each item's `usual_store` and
+  `other_stores`. Clients must ignore these new fields. Store statistics are not exposed as raw rows.
+- `PATCH /base-list-items/{itemId}` accepts `usual_store_id` alone to set a manual tag or `null` to return the item to
+  automatic selection. Existing item fields and their meanings are unchanged.
+- A list can have one active session at a time; different lists can be shopped concurrently. Existing active sessions
+  and history are not backfilled or rewritten by the additive migration.
+
+Source: the [store-tags-and-scoped-sessions change](../../openspec/changes/store-tags-and-scoped-sessions/design.md),
+[`shopping-sessions.service.ts`](../../src/lib/server/services/shopping-sessions.service.ts),
+[`base-lists.service.ts`](../../src/lib/server/services/base-lists.service.ts) and the
+[migration](../../supabase/migrations/20261027000000_store_tags_and_scoped_sessions.sql). The migration has not been
+applied to a database as part of this implementation.
 
 Session completion contract: `POST /api/v1/shopping-sessions/{sessionId}/complete` returns `200` with
 `{ "data": { "success": true, "sync": { "new_count": 0, "updated_count": 0, "skipped_count": 0, "over_limit_count": 0 } } }`.

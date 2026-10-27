@@ -228,8 +228,9 @@ flowchart LR
 The current schema includes owner groups, base lists/items, shopping sessions/items, tickets/items, and (PRD v3 Phase 3)
 owner stores with their aliases (every key that resolves to a store; `tickets.store_id` points to a store of the same
 user through a composite foreign key) and per-list item aliases (receipt-line names remembered as another name of an
-item). Experimental
-sharing adds collaborators, invite links and session participants. Migration files describe intended database state;
+item). An additive follow-on migration defines per-item store statistics, usual-store tags, store-scoped sessions and
+`is_other_store`; it is prepared in the repository but has not been applied to a database. Experimental sharing adds
+collaborators, invite links and session participants. Migration files describe intended database state;
 this audit did not verify a live installation. The PRD ERD is a requirements model; migrations/generated types and
 the [implementation reference](../reference/implementation-status.md) qualify what exists.
 
@@ -264,11 +265,16 @@ the [implementation reference](../reference/implementation-status.md) qualify wh
 
 ### Shopping-session flow
 
-1. A user starts a session from a base list through the Server Action or `/api/v1/shopping-sessions`.
-2. The service clones the base-list items into session items, preserving a snapshot for the historical purchase.
+1. A user starts a session from a base list through the Server Action or `/api/v1/shopping-sessions`, optionally
+   selecting one of their stores. At most one active session can belong to a given list; different lists can have
+   sessions at the same time.
+2. The service clones every base-list item into session items, preserving a snapshot. For a store-scoped session, it
+   marks items usual at or previously purchased at that store as `is_other_store = false`; the rest remain available
+   with `is_other_store = true`.
 3. The UI updates item state through the service/API boundary and receives realtime updates where configured.
-4. Completion records status, optional amount and notes, then optionally invokes the sync RPC. A sync failure can
-   leave the session completed because these are separate writes.
+4. Completion records status, optional amount and notes, and applies checked items to the base list in the same
+   transaction. When store-learning is enabled for that transaction, it increments purchase statistics and recomputes
+   each affected item's automatic usual store; a manual usual-store choice is preserved.
 5. Completed sessions remain available to the user's history queries.
 
 ## Required invariants
@@ -276,7 +282,7 @@ the [implementation reference](../reference/implementation-status.md) qualify wh
 These rules must remain true across UI, Server Actions, API handlers, services, and database policies:
 
 1. A caller can only access owned data or the explicitly permitted experimental collaborator scope.
-2. A user has at most one active shopping session at a time.
+2. A base list has at most one active shopping session; different lists may each have one.
 3. Business limits are enforced server-side, including group count, base-list item count, ticket image count, and merge size.
 4. OCR status transitions are explicit; failed processing does not appear as completed data and can only be retried through an
    authorized operation.

@@ -5,6 +5,8 @@ import { toast } from 'sonner'
 
 import type { ItemFormValues } from '@/components/features/list-items'
 import { createBaseListItem, deleteBaseListItem, updateBaseListItem } from '@/lib/api/endpoints'
+import { createStore } from '@/lib/api/endpoints/stores'
+import type { StorePick } from '@/components/features/stores'
 import { broadcastListActivity } from '@/utils'
 import type { BaseListItem } from '@/types'
 
@@ -55,5 +57,27 @@ export function useBaseListItemActions(item: BaseListItem) {
 		toast('Item deleted', { duration: 6000, action: { label: 'Undo', onClick: restore } })
 	}
 
-	return { save, remove }
+	const setUsualStore = async (pick: StorePick | null) => {
+		try {
+			let storeId: string | null = null
+			if (pick?.kind === 'existing') {
+				storeId = pick.store.id
+			} else if (pick?.kind === 'new') {
+				const created = await createStore({ name: pick.name })
+				if (created.error || !created.data) throw new Error(created.error ?? 'Could not create store')
+				storeId = created.data.id
+			}
+
+			const result = await updateBaseListItem(item.id, { usual_store_id: storeId })
+			if (result.error) throw new Error(result.error)
+			toast.success(storeId ? 'Usual store updated' : 'Using automatic store')
+			refresh()
+			return true
+		} catch (err) {
+			toast.error(err instanceof Error ? err.message : 'Could not update usual store')
+			return false
+		}
+	}
+
+	return { save, remove, setUsualStore }
 }

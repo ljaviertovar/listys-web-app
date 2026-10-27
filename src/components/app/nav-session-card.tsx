@@ -7,14 +7,16 @@ interface Props {
 	name: string
 	/** Null while the progress is still loading: the card then shows the name only. */
 	progress: { checked: number; total: number } | null
+	otherCount?: number
 	onNavigate?: () => void
 }
 
 /** The running shopping session at the foot of the sidebar and the mobile menu: a way back in, with how far along it is. */
-export function NavSessionCard({ sessionId, name, progress, onNavigate }: Props) {
+export function NavSessionCard({ sessionId, name, progress, otherCount = 0, onNavigate }: Props) {
 	const percent = progress && progress.total > 0 ? Math.round((progress.checked / progress.total) * 100) : 0
 
 	return (
+		<div className='flex flex-col gap-2'>
 		<Link
 			href={`/shopping/${sessionId}`}
 			onClick={onNavigate}
@@ -43,5 +45,11 @@ export function NavSessionCard({ sessionId, name, progress, onNavigate }: Props)
 				tone='soft'
 			/>
 		</Link>
+		{otherCount > 0 ? (
+			<Link href='/shopping-lists' onClick={onNavigate} data-testid='nav-active-session-more' className='rounded-md px-3 py-1 text-xs font-medium text-muted-foreground hover:text-foreground focus-ring'>
+				+{otherCount} more in progress
+			</Link>
+		) : null}
+		</div>
 	)
 }

@@ -56,8 +56,10 @@ itself. The receipt is a signal, not the product; the durable object is a list t
   and an estimate is never worded as an amount paid.
 - Auth is Google OAuth only. There is one account tier; no paid plans, pricing page, or billing exists.
 - Stores (PRD-v3 Phase 3): receipts carry a normalized, user-owned store that can be renamed and merged in "My Stores".
-  Not built yet (later PRD-v3 phases): a usual-store tag per item, store-scoped shopping sessions, per-store prices, and
-  automatic or fuzzy item matching (links are always chosen by the user).
+  The Phase 3 follow-on adds an automatically learned or owner-chosen usual store per item and optional store-scoped
+  shopping sessions; one active session is allowed per list, so separate lists can be shopped concurrently. Its code and
+  additive migration are prepared, with database application still pending. Non-goals are per-store price comparison,
+  collaborator-managed tags, and automatic or fuzzy item matching (links remain user-chosen).
 - Terminology that must stay stable: **receipt**, **base list**, **shopping session**, **store**, **item**. **Store** is
   only the place where something is bought, never a container of lists. **Group** is no longer a visible word: PRD-v3
   Phase 2 hides groups (the data keeps one implicit default group per user and any group an account already had). See

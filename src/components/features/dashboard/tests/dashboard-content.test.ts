@@ -1,15 +1,27 @@
 import { isValidElement } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { getActiveShoppingSession, getBaseLists, getShoppingHistory, getTickets } from '@/lib/api/endpoints'
+import { getBaseLists, getShoppingHistory, getTickets } from '@/lib/api/endpoints'
 import { ensureDefaultPantry } from '@/lib/server/services/default-pantry.service'
 
 import { DashboardContent } from '../dashboard-content'
 import { DashboardLoadError } from '../dashboard-load-error'
 import { DashboardView } from '../dashboard-view'
 
+let activeSessionRows: unknown[] = []
 vi.mock('@/lib/supabase/server', () => ({
-	createClient: async () => ({ auth: { getUser: async () => ({ data: { user: { id: 'user-1', email: 'maria@example.com' } } }) } }),
+	createClient: async () => ({
+		auth: { getUser: async () => ({ data: { user: { id: 'user-1', email: 'maria@example.com' } } }) },
+		from: () => {
+			const query = {
+				select: () => query,
+				eq: () => query,
+				order: () => query,
+				limit: async () => ({ data: activeSessionRows, error: null }),
+			}
+			return query
+		},
+	}),
 }))
 vi.mock('@/lib/server/services/default-pantry.service', () => ({ ensureDefaultPantry: vi.fn() }))
 vi.mock('@/lib/api/endpoints', async importOriginal => ({
@@ -17,7 +29,6 @@ vi.mock('@/lib/api/endpoints', async importOriginal => ({
 	getBaseLists: vi.fn(),
 	getTickets: vi.fn(),
 	getShoppingHistory: vi.fn(),
-	getActiveShoppingSession: vi.fn(),
 }))
 
 const ok = (data: unknown) => ({ data, error: null }) as never
@@ -26,12 +37,13 @@ function mockReads(baseLists: unknown[] = []) {
 	vi.mocked(getBaseLists).mockResolvedValue(ok(baseLists))
 	vi.mocked(getTickets).mockResolvedValue(ok([]))
 	vi.mocked(getShoppingHistory).mockResolvedValue(ok([]))
-	vi.mocked(getActiveShoppingSession).mockResolvedValue(ok(null))
+	activeSessionRows = []
 }
 
 describe('DashboardContent', () => {
 	beforeEach(() => {
 		vi.clearAllMocks()
+		activeSessionRows = []
 		vi.mocked(ensureDefaultPantry).mockResolvedValue(true)
 	})
 
@@ -64,6 +76,21 @@ describe('DashboardContent', () => {
 
 		expect((element as { type: unknown }).type).toBe(DashboardView)
 		expect((element as { props: { hasLists: boolean } }).props.hasLists).toBe(false)
+	})
+
+	it('loads every active session and keeps the newest as the dashboard hero', async () => {
+		mockReads([{ id: 'list-1', name: 'Pantry', items: [{ count: 2 }] }])
+		activeSessionRows = [
+			{ id: 'session-new', name: 'New trip', user_id: 'user-1', base_list_id: 'list-1', items: [], base_list: { name: 'Pantry', collaborators: [] } },
+			{ id: 'session-old', name: 'Old trip', user_id: 'user-1', base_list_id: 'list-2', items: [], base_list: { name: 'Weekly', collaborators: [] } },
+		]
+
+		const element = await DashboardContent()
+		const { model } = (element as { props: { model: { activeSession?: { id: string } | null; otherSessionCount: number; activeSessionIds: Record<string, string> } } }).props
+
+		expect(model.activeSession?.id).toBe('session-new')
+		expect(model.otherSessionCount).toBe(1)
+		expect(model.activeSessionIds).toEqual({ 'list-1': 'session-new', 'list-2': 'session-old' })
 	})
 
 	it('keeps the load error for a failed read, not an empty account', async () => {

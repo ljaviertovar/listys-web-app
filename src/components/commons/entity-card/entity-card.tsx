@@ -1,6 +1,6 @@
 'use client'
 
-import type { Ref } from 'react'
+import type { ReactNode, Ref } from 'react'
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react'
 import { Delete02Icon, Edit02Icon } from '@hugeicons/core-free-icons'
 
@@ -36,6 +36,7 @@ interface EntityCardProps {
 	emptyLabel: string
 	/** Text of the link in the footer ("View Details", "View Items"). */
 	linkLabel?: string
+	footerAction?: ReactNode
 	/** The "⋯" menu, with edit and delete or the card's own actions; a read-only card passes none. */
 	menu?: EntityCardMenu
 	menuTriggerRef?: Ref<HTMLButtonElement>
@@ -55,6 +56,7 @@ export function EntityCard({
 	unit,
 	emptyLabel,
 	linkLabel,
+	footerAction,
 	menu,
 	menuTriggerRef,
 	testId,
@@ -110,11 +112,11 @@ export function EntityCard({
 						</>
 					)}
 				</span>
-				{href && linkLabel ? (
+				{footerAction ?? (href && linkLabel ? (
 					<ActionLink href={href} aria-label={`${linkLabel} in ${title}`} className='shrink-0'>
 						{linkLabel}
 					</ActionLink>
-				) : null}
+				) : null)}
 			</div>
 		</article>
 	)

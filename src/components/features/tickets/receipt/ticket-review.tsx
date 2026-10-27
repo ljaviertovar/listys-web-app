@@ -23,6 +23,7 @@ interface Props {
 	items: TicketItem[]
 	status: TicketStatus
 	ocrError?: string | null
+	storeConfirmed: boolean
 	/** What follows the items (the summary and the receipt's actions), rendered on the server by the page. */
 	children?: ReactNode
 }
@@ -32,7 +33,7 @@ interface Props {
  * items from `lg`) and the two photo views, the items with their selection, and the bar and dialog that act on it. The compare view
  * edits the very selection the page shows, and the panel and the full-screen viewer share the photo being looked at.
  */
-export function TicketReview({ ticketId, title, imagePaths, items, status, ocrError, children }: Props) {
+export function TicketReview({ ticketId, title, imagePaths, items, status, ocrError, storeConfirmed, children }: Props) {
 	const router = useRouter()
 	const selection = useTicketSelection(items)
 	const photos = useTicketImageUrls(imagePaths)
@@ -155,6 +156,7 @@ export function TicketReview({ ticketId, title, imagePaths, items, status, ocrEr
 				ticketId={ticketId}
 				selectedItemIds={Array.from(selection.selectedIds)}
 				lines={items}
+				storeConfirmed={storeConfirmed}
 				onSuccess={handleMergeSuccess}
 			/>
 		</div>

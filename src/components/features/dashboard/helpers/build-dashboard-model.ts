@@ -49,6 +49,8 @@ export interface DashboardModelInput {
 	tickets: DashboardTicketInput[]
 	trips: DashboardTripInput[]
 	activeSession: DashboardActiveSessionInput | null
+	/** Active sessions ordered newest first. The singular field remains for existing model callers. */
+	activeSessions?: DashboardActiveSessionInput[]
 	now?: Date
 }
 
@@ -105,6 +107,8 @@ export interface QuickStartList {
 export interface DashboardModel {
 	counts: { receipts: number; trips: number }
 	activeSession: ActiveSessionSummary | null
+	activeSessionIds: Record<string, string>
+	otherSessionCount: number
 	/** A few of the user's lists, flat: there is no group level any more. */
 	lists: { items: ListPreview[]; hiddenCount: number }
 	receipts: ReceiptPreview[]
@@ -280,6 +284,7 @@ export function buildDashboardModel({
 	tickets,
 	trips,
 	activeSession,
+	activeSessions,
 	now = new Date(),
 }: DashboardModelInput): DashboardModel {
 	const listNames = buildListDisplayNames(baseLists)
@@ -297,10 +302,15 @@ export function buildDashboardModel({
 	const addItemsTarget = onlyList && itemsCountOf(onlyList) === 0 ? { id: onlyList.id, name: nameOf(onlyList) } : null
 
 	const latest = trips[0]
+	const sessions = activeSessions ?? (activeSession ? [activeSession] : [])
+	const latestSession = sessions[0] ?? null
+	const activeSessionIds = Object.fromEntries(sessions.map(session => [session.base_list_id, session.id]))
 
 	return {
 		counts: { receipts: tickets.length, trips: trips.length },
-		activeSession: buildActiveSession(activeSession, listNames),
+		activeSession: buildActiveSession(latestSession, listNames),
+		activeSessionIds,
+		otherSessionCount: Math.max(sessions.length - 1, 0),
 		lists: buildLists(baseLists, listNames),
 		receipts: buildReceipts(tickets),
 		trips: buildTrips(trips, listNames),

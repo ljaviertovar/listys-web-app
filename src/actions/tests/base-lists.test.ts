@@ -236,7 +236,7 @@ describe('getBaseList', () => {
     const list = {
       id: TEST_UUID,
       name: 'Weekly',
-      items: [{ id: 'i1', name: 'Milk' }],
+      items: [{ id: 'i1', name: 'Milk', usual_store: null, other_stores: [] }],
       is_owner: false,
     }
     const supabase = setupMock()

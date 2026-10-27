@@ -66,19 +66,21 @@ export function NoSessionBanner({ quickStart, startTarget, addItemsTarget = null
 						</span>
 						<ul className='flex flex-wrap gap-2'>
 							{otherLists.map(list => (
-								<li key={list.id}>
+								<li key={list.id} className='min-w-0 max-w-full'>
 									<Button
 										asChild
 										variant='on-dark'
 										size='primary'
 										rounded='full'
+										className='max-w-full'
 									>
 										<Link
 											href={`/base-lists/${list.id}/edit`}
 											data-testid={`dashboard-quick-start-${list.id}`}
+											className='flex min-w-0 max-w-full items-center focus-ring'
 										>
-											{list.name}
-											<span className='font-medium text-slate-400'>· {describeList(list)}</span>
+											<span className='min-w-0 truncate'>{list.name}</span>
+											<span className='shrink-0 font-medium text-slate-400'> · {describeList(list)}</span>
 										</Link>
 									</Button>
 								</li>

@@ -139,7 +139,7 @@ export default function Page() {
 	afterAll(() => {
 		fs.rmSync(dir, { recursive: true, force: true })
 		scan() // restore the module's root to the real src for any later caller
-	})
+	}, 30_000)
 
 	const find = (kind: string, tag?: string) => fixture.findings.filter(f => f.kind === kind && (!tag || f.tag === tag))
 

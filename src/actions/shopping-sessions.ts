@@ -10,6 +10,7 @@ import {
 } from '@/lib/validations/shopping-session'
 import { ApiServiceError } from '@/lib/api/http'
 import { completeSessionViaRpc } from '@/lib/server/services/complete-session-rpc'
+import { mapStartShoppingSessionRpcError } from '@/lib/server/services/rpc-errors'
 import { revalidatePath } from 'next/cache'
 
 export async function createShoppingSession(data: unknown) {
@@ -28,89 +29,18 @@ export async function createShoppingSession(data: unknown) {
     return { error: validation.error.issues[0].message }
   }
 
-  // Check if user already has an active shopping session
-  const { data: existingSession } = await supabase
-    .from('shopping_sessions')
-    .select('id')
-    .eq('user_id', user.id)
-    .eq('status', 'active')
-    .maybeSingle()
+  const { data: shoppingSession, error } = await supabase.rpc('start_shopping_session', {
+    p_base_list_id: validation.data.base_list_id,
+    p_name: validation.data.name,
+    p_store_id: validation.data.store_id ?? null,
+  })
 
-  if (existingSession) {
-    return {
-      error: 'You already have an active shopping run. Please complete or cancel it before starting a new one.',
-      activeSessionId: existingSession.id
-    }
+  if (error) {
+    const mapped = mapStartShoppingSessionRpcError(error)
+    return { error: mapped.message, ...(mapped.details ?? {}) }
   }
 
-  // Get base list items to copy
-  const { data: baseList, error: baseListError } = await supabase
-    .from('base_lists')
-    .select(`
-      *,
-      items:base_list_items(*)
-    `)
-    .eq('id', validation.data.base_list_id)
-    .eq('user_id', user.id)
-    .single()
-
-  if (baseListError || !baseList) {
-    return { error: 'Base list not found' }
-  }
-
-  // Validate base list has items
-  if (!baseList.items || baseList.items.length === 0) {
-    return { error: 'Cannot create shopping run from an empty base list. Please add items to your base list first.' }
-  }
-
-  // Create shopping session
-  const { data: shoppingSession, error: sessionError } = await supabase
-    .from('shopping_sessions')
-    .insert({
-      user_id: user.id,
-      ...validation.data,
-      status: 'active',
-    })
-    .select()
-    .single()
-
-  if (sessionError) {
-    return { error: sessionError.message }
-  }
-
-  // Copy items from base list using dynamic ordering from enrichment fields.
-  if (baseList.items && baseList.items.length > 0) {
-    const orderedItems = [...baseList.items].sort((a, b) => {
-      const purchaseA = Number(a?.purchase_count ?? 0)
-      const purchaseB = Number(b?.purchase_count ?? 0)
-      if (purchaseA !== purchaseB) return purchaseB - purchaseA
-
-      const lastPurchasedA = a?.last_purchased_at ? new Date(a.last_purchased_at).getTime() : 0
-      const lastPurchasedB = b?.last_purchased_at ? new Date(b.last_purchased_at).getTime() : 0
-      if (lastPurchasedA !== lastPurchasedB) return lastPurchasedB - lastPurchasedA
-
-      return Number(a?.sort_order ?? 0) - Number(b?.sort_order ?? 0)
-    })
-
-    const items = orderedItems.map((item, index) => ({
-      shopping_session_id: shoppingSession.id,
-      name: item.name,
-      quantity: item.quantity,
-      unit: item.unit,
-      notes: item.notes,
-      category: item.category,
-      sort_order: index,
-      checked: false,
-    }))
-
-    const { error: itemsError } = await supabase
-      .from('shopping_session_items')
-      .insert(items)
-
-    if (itemsError) {
-      return { error: itemsError.message }
-    }
-  }
+  if (!shoppingSession) return { error: 'Something went wrong. Please try again.' }
 
   revalidatePath('/dashboard')
   revalidatePath('/shopping')
@@ -196,7 +126,8 @@ export async function getActiveShoppingSession() {
     .select(`
       *,
       items:shopping_session_items(*),
-      base_list:base_lists(*)
+      base_list:base_lists(*),
+      store:stores(id, name)
     `)
     .eq('user_id', user.id)
     .eq('status', 'active')
@@ -227,7 +158,8 @@ export async function getShoppingSession(id: string) {
     .select(`
       *,
       items:shopping_session_items(*),
-      base_list:base_lists(*)
+      base_list:base_lists(*),
+      store:stores(id, name)
     `)
     .eq('id', id)
     .single()
@@ -254,6 +186,7 @@ export async function getShoppingHistory() {
     .from('shopping_sessions')
     .select(`
       *,
+      store:stores(id, name),
       base_list:base_lists(
         name,
         group:groups(

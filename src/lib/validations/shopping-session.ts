@@ -3,6 +3,7 @@ import { z } from 'zod'
 export const createShoppingSessionSchema = z.object({
   base_list_id: z.string().uuid(),
   name: z.string().min(1, 'Name is required').max(100),
+  store_id: z.string().uuid().nullable().optional(),
 })
 
 export const COMPLETE_SESSION_ONLY_MESSAGE = 'A shopping session can only be completed with the complete operation.'

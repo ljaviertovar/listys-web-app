@@ -10,12 +10,11 @@ import { pluralize, type DashboardModel } from './helpers/build-dashboard-model'
 
 interface Props {
 	lists: DashboardModel['lists']
-	/** A shopping session is running, so no list can start another one: the "Start" buttons are not drawn. */
-	sessionActive?: boolean
+	activeSessionIds: DashboardModel['activeSessionIds']
 }
 
 /** Shopping Lists: the user's lists, one row each with its item count and a way to start shopping from it. */
-export function ListsSectionCard({ lists, sessionActive = false }: Props) {
+export function ListsSectionCard({ lists, activeSessionIds }: Props) {
 	return (
 		<DashboardSectionCard
 			testId='dashboard-lists-card'
@@ -56,7 +55,8 @@ export function ListsSectionCard({ lists, sessionActive = false }: Props) {
 								baseListId={list.id}
 								baseListName={list.name}
 								itemsCount={list.itemsCount}
-								sessionActive={sessionActive}
+								sessionActive={Boolean(activeSessionIds[list.id])}
+								activeSessionId={activeSessionIds[list.id]}
 								variant='secondary'
 								size='sm'
 								className='w-auto'

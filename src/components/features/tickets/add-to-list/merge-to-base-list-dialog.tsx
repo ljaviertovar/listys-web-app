@@ -13,6 +13,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useMergeToBaseList } from './hooks/use-merge-to-base-list'
 import { MergeReviewStep } from './merge-review-step'
+import { shouldShowReceiptStoreUnconfirmedNote } from './helpers/receipt-store-note'
 
 interface Props {
 	open: boolean
@@ -21,10 +22,11 @@ interface Props {
 	selectedItemIds: string[]
 	/** The receipt's lines, so Review Matches can name them. */
 	lines: Array<{ id: string; name: string }>
+	storeConfirmed: boolean
 	onSuccess: (baseListId: string) => void
 }
 
-export function MergeToBaseListDialog({ open, onOpenChange, ticketId, selectedItemIds, lines, onSuccess }: Props) {
+export function MergeToBaseListDialog({ open, onOpenChange, ticketId, selectedItemIds, lines, storeConfirmed, onSuccess }: Props) {
 	const fieldId = useId()
 	const titleRef = useRef<HTMLHeadingElement>(null)
 	const { onOpenAutoFocus, onCloseAutoFocus } = useDialogFocus(titleRef)
@@ -134,6 +136,11 @@ export function MergeToBaseListDialog({ open, onOpenChange, ticketId, selectedIt
 								You have no lists yet. Name one and these items will start it.
 							</p>
 						)}
+						{shouldShowReceiptStoreUnconfirmedNote(storeConfirmed, reviewing) ? (
+							<p data-testid='receipt-store-unconfirmed-note' className='text-sm text-muted-foreground'>
+								This receipt has no confirmed store. You can still add its items to your list.
+							</p>
+						) : null}
 
 						{reviewing ? null : mode === 'existing' && hasLists ? (
 							<div className='space-y-2'>

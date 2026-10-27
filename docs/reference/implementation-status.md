@@ -1,9 +1,21 @@
 # Implementation status
 
-Reviewed on 2026-10-17 against the working tree. This document owns observed behavior and implementation gaps;
+Reviewed on 2026-10-27 against the working tree and the approved development Supabase project. This document owns observed behavior and implementation gaps;
 [PRD v2](../prd/PRD-v2.md) remains the MVP baseline. Code presence does not establish deployment or E2E validation.
 
 ## Implemented product flows
+
+### PRD v3 Phase 4: store tags and store-scoped sessions
+
+| Requirement | Observed behavior | Evidence and validation |
+| --- | --- | --- |
+| FR-10 — item/store statistics | Confirmed receipt merges and completed store-scoped sessions update per-item store counts atomically; receipt prices are retained as the latest store price. There is no historical backfill. | [Migration](../../supabase/migrations/20261027000000_store_tags_and_scoped_sessions.sql), [rollback-only verification](../../supabase/verification/store-tags-and-scoped-sessions.sql) (42 checks passed), and authenticated development-account receipt/session flows. |
+| FR-11 — usual-store tags | Automatic tags require at least three purchases within the 180-day evidence window, use recency for ties, and update after completed sessions. Owners can set a manual tag, keep it through another purchase, and return it to automatic; a clear with no evidence leaves the item untagged. The list shows the tag and other-store summary. | [Usual-store spec](../../openspec/changes/store-tags-and-scoped-sessions/specs/usual-store-tags/spec.md), [base-list service](../../src/lib/server/services/base-lists.service.ts), [row](../../src/components/features/base-lists/items/base-list-item-row.tsx); signed-in UI flow and rollback-only SQL scenarios. |
+| FR-12 — scoped sessions and per-list limit | A session can be scoped to a store, prioritizes matching items and folds other/untagged items, and counts a checked item when completed without a receipt. Two lists can be active concurrently; a second start for the same list resumes its active session. | [Session spec](../../openspec/changes/store-tags-and-scoped-sessions/specs/store-scoped-sessions/spec.md), [active-session spec](../../openspec/changes/store-tags-and-scoped-sessions/specs/active-session-limit/spec.md), [session service](../../src/lib/server/services/shopping-sessions.service.ts); signed-in browser scenarios and rollback-only SQL verification. |
+
+The additive migration was applied on 2026-10-27 to the user-approved development Supabase project. Before and after counts matched: `base_list_items` 92, `shopping_sessions` 8, `shopping_session_items` 101, `tickets` 11, `stores` 0; one active session existed and no list had duplicate active sessions. The rollback-only SQL verification completed all 42 checks. The signed-in browser flow also uploaded the provided test receipt, confirmed OCR completion (18 items), and completed four store-scoped trips.
+
+Known limits: no backfill for already-merged receipts; a trip completed with a receipt can count once as a trip and once as a receipt until Phase 5 joins those flows; changing a receipt's store after its merge does not move prior statistics; collaborators do not see store tags or statistics. The full Playwright suite remains blocked by its global teardown, which resets all database rows; the browser scenarios were exercised manually in the authenticated development session instead.
 
 | Area | Observed behavior | Evidence |
 | --- | --- | --- |

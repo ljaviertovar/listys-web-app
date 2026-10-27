@@ -1,5 +1,5 @@
 import { ensureDefaultPantry } from '@/lib/server/services/default-pantry.service'
-import { getActiveShoppingSession, getBaseLists, getShoppingHistory, getTickets } from '@/lib/api/endpoints'
+import { getBaseLists, getShoppingHistory, getTickets } from '@/lib/api/endpoints'
 import { createClient } from '@/lib/supabase/server'
 
 import { DashboardLoadError } from './dashboard-load-error'
@@ -23,29 +23,52 @@ export async function DashboardContent() {
 	await ensureDefaultPantry()
 
 	const supabase = await createClient()
-	const [userResult, baseListsResult, ticketsResult, historyResult, activeSessionResult] =
+	const [userResult, baseListsResult, ticketsResult, historyResult, activeSessionsResult] =
 		await Promise.all([
 			supabase.auth.getUser(),
 			getBaseLists(),
 			getTickets(),
 			getShoppingHistory(),
-			getActiveShoppingSession(),
+			supabase
+				.from('shopping_sessions')
+				.select(`
+					*,
+					items:shopping_session_items(*),
+					base_list:base_lists(
+						*,
+						collaborators:list_collaborators(id, user_id, role, joined_at)
+					),
+					store:stores(id, name)
+				`)
+				.eq('status', 'active')
+				.order('started_at', { ascending: false })
+				.limit(100),
 		])
 
 	// A failed request must not be shown as an empty account: with no data the page would invite the user to start from scratch.
-	if ([baseListsResult, ticketsResult, historyResult, activeSessionResult].some(result => result.error)) {
+	if ([baseListsResult, ticketsResult, historyResult, activeSessionsResult].some(result => result.error)) {
 		return <DashboardLoadError />
 	}
 
 	const user = userResult.data.user
-	const activeSession = (activeSessionResult.data ?? null) as DashboardInput['activeSession']
+	const activeSessions = (activeSessionsResult.data ?? []).map(session => {
+		const baseList = session.base_list as { collaborators?: Array<{ user_id: string }> } | null
+		return {
+			...session,
+			collaborators: (baseList?.collaborators ?? []).map(collaborator => ({
+				initials: collaborator.user_id.slice(0, 2).toUpperCase(),
+				display_name: null,
+			})),
+		}
+	}) as DashboardInput['activeSessions']
 	const baseLists = baseListsResult.data ?? []
 
 	const model = buildDashboardModel({
 		baseLists,
 		tickets: ticketsResult.data ?? [],
 		trips: historyResult.data ?? [],
-		activeSession,
+		activeSession: activeSessions?.[0] ?? null,
+		activeSessions,
 	})
 
 	return (
@@ -53,7 +76,7 @@ export async function DashboardContent() {
 			model={model}
 			firstName={firstNameOf(user)}
 			hasLists={baseLists.length > 0}
-			isGuest={!!user && !!activeSession && (activeSessionResult.data as { user_id?: string }).user_id !== user.id}
+			isGuest={!!user && !!activeSessionsResult.data?.[0] && activeSessionsResult.data[0].user_id !== user.id}
 		/>
 	)
 }

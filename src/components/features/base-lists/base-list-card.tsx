@@ -12,6 +12,7 @@ import {
   focusEntityMenuWhenReady,
   type EntityEditValues,
 } from "@/components/commons";
+import { StartShoppingDialog } from "./start-shopping-dialog";
 import { deleteBaseList, updateBaseList } from "@/lib/api/endpoints";
 
 import type { BaseListWithCount } from "@/types";
@@ -20,10 +21,11 @@ interface Props {
   baseList: BaseListWithCount;
   /** What the screen calls the list when two share a name ("Weekly (2)"); the stored name stays the one edited. */
   displayName?: string;
+  activeSessionId?: string;
 }
 
 /** A base list: its card, the inline rename form and the delete confirmation. */
-export function BaseListCard({ baseList, displayName }: Props) {
+export function BaseListCard({ baseList, displayName, activeSessionId }: Props) {
   const shownName = displayName ?? baseList.name;
   const [editing, setEditing] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
@@ -117,6 +119,18 @@ export function BaseListCard({ baseList, displayName }: Props) {
         unit={{ one: "item", many: "items" }}
         emptyLabel="items"
         linkLabel="View Items"
+        footerAction={
+          <StartShoppingDialog
+            baseListId={baseList.id}
+            baseListName={shownName}
+            itemsCount={baseList.items_count}
+            sessionActive={Boolean(activeSessionId)}
+            activeSessionId={activeSessionId}
+            variant="secondary"
+            size="sm"
+            className="w-auto"
+          />
+        }
         menu={{
           label: `More options for ${shownName}`,
           editLabel: "Edit List",

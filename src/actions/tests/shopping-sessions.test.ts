@@ -66,76 +66,56 @@ describe('createShoppingSession', () => {
     expect(result.error).toBeTruthy()
   })
 
-  it('rejects when user already has an active session', async () => {
-    const supabase = setupMock()
-    supabase.from = sequentialFrom({
-      shopping_sessions: [
-        { data: { id: 'active-session' }, error: null }, // active session exists
-      ],
-    })
-
-    const result = await createShoppingSession({ base_list_id: TEST_UUID, name: 'Trip' })
-    expect(result.error).toContain('active shopping run')
-    expect('activeSessionId' in result ? result.activeSessionId : undefined).toBe('active-session')
-  })
-
-  it('rejects when base list is empty', async () => {
-    const supabase = setupMock()
-    supabase.from = sequentialFrom({
-      shopping_sessions: [
-        { data: null, error: null }, // no active session
-      ],
-      base_lists: [
-        { data: { id: TEST_UUID, items: [] }, error: null }, // empty base list
-      ],
-    })
-
-    const result = await createShoppingSession({ base_list_id: TEST_UUID, name: 'Trip' })
-    expect(result.error).toContain('empty base list')
-  })
-
-  it('rejects when base list not found', async () => {
-    const supabase = setupMock()
-    supabase.from = sequentialFrom({
-      shopping_sessions: [
-        { data: null, error: null }, // no active session
-      ],
-      base_lists: [
-        { data: null, error: { message: 'not found' } }, // not found
-      ],
-    })
-
-    const result = await createShoppingSession({ base_list_id: TEST_UUID, name: 'Trip' })
-    expect(result.error).toBe('Base list not found')
-  })
-
-  it('creates session and copies items on happy path', async () => {
+  it('starts without a store through the atomic RPC', async () => {
     const session = { id: 'session-1', status: 'active' }
-    const supabase = setupMock()
-    supabase.from = sequentialFrom({
-      shopping_sessions: [
-        { data: null, error: null },      // no active session
-        { data: session, error: null },   // insert session
-      ],
-      base_lists: [
-        {
-          data: {
-            id: TEST_UUID,
-            items: [
-              { name: 'Milk', quantity: 1, sort_order: 0 },
-              { name: 'Eggs', quantity: 2, sort_order: 1 },
-            ],
-          },
-          error: null,
-        },
-      ],
-      shopping_session_items: [
-        { data: null, error: null }, // insert items
-      ],
-    })
+    const supabase = setupMock({ rpcResults: { start_shopping_session: { data: session, error: null } } })
 
     const result = await createShoppingSession({ base_list_id: TEST_UUID, name: 'Trip' })
+
     expect(result.data).toEqual(session)
+    expect(supabase.rpc).toHaveBeenCalledWith('start_shopping_session', {
+      p_base_list_id: TEST_UUID,
+      p_name: 'Trip',
+      p_store_id: null,
+    })
+  })
+
+  it('starts with a selected store', async () => {
+    const supabase = setupMock({ rpcResults: { start_shopping_session: { data: { id: 'session-1' }, error: null } } })
+
+    await createShoppingSession({ base_list_id: TEST_UUID, name: 'Trip', store_id: TEST_UUID })
+
+    expect(supabase.rpc).toHaveBeenCalledWith('start_shopping_session', expect.objectContaining({ p_store_id: TEST_UUID }))
+  })
+
+  it('returns the active session id on a per-list conflict', async () => {
+    setupMock({ rpcResults: { start_shopping_session: {
+      data: null,
+      error: { code: '23505', message: 'SESSION_ALREADY_ACTIVE', details: TEST_UUID },
+    } } })
+
+    const result = await createShoppingSession({ base_list_id: TEST_UUID, name: 'Trip' })
+
+    expect(result).toEqual({
+      error: 'This list already has a shopping session in progress.',
+      activeSessionId: TEST_UUID,
+    })
+  })
+
+  it('maps empty lists and invisible lists to safe errors', async () => {
+    setupMock({ rpcResults: { start_shopping_session: {
+      data: null,
+      error: { code: 'P0001', message: 'LIST_EMPTY' },
+    } } })
+    expect(await createShoppingSession({ base_list_id: TEST_UUID, name: 'Trip' })).toEqual({
+      error: 'Cannot start a shopping session from an empty list.',
+    })
+
+    setupMock({ rpcResults: { start_shopping_session: {
+      data: null,
+      error: { code: 'P0002', message: 'internal ownership detail' },
+    } } })
+    expect(await createShoppingSession({ base_list_id: TEST_UUID, name: 'Trip' })).toEqual({ error: 'Not found' })
   })
 })
 

@@ -8,7 +8,7 @@ import type { ShoppingSessionItem } from '@/types'
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }) }))
 
 const item = (overrides: Partial<ShoppingSessionItem>) =>
-	({ id: 'i1', shopping_session_id: 's1', name: 'Milk', quantity: 1, unit: 'unit', category: 'Dairy', notes: null, checked: false, sort_order: 0, ...overrides }) as ShoppingSessionItem
+	({ id: 'i1', shopping_session_id: 's1', name: 'Milk', quantity: 1, unit: 'unit', category: 'Dairy', notes: null, checked: false, sort_order: 0, is_other_store: false, ...overrides }) as ShoppingSessionItem
 
 describe('ShoppingSessionItems', () => {
 	it('opens its categories by default and folds them only on the visit that follows starting the session', () => {
@@ -35,6 +35,30 @@ describe('ShoppingSessionItems', () => {
 
 		expect(html).not.toContain('role="checkbox"')
 		expect(html).not.toContain('More options')
+	})
+
+	it('separates items for the selected store from other stores and untagged items', () => {
+		const html = renderToStaticMarkup(createElement(ShoppingSessionItems, {
+			items: [item({ id: 'here', name: 'Milk' }), item({ id: 'other', name: 'Bread', is_other_store: true })],
+			storeId: 'store-1',
+			storeName: 'Market',
+		}))
+
+		expect(html).toContain('At Market')
+		expect(html).toContain('data-testid="session-other-stores-section"')
+		expect(html).toContain('Other Stores and Untagged')
+		expect(html.indexOf('Milk')).toBeLessThan(html.indexOf('Other Stores and Untagged'))
+	})
+
+	it('labels an unreadable store and opens the other-items section when none are tagged for it', () => {
+		const html = renderToStaticMarkup(createElement(ShoppingSessionItems, {
+			items: [item({ is_other_store: true })],
+			storeId: 'store-1',
+			storeName: null,
+		}))
+
+		expect(html).toContain('At this store')
+		expect(html).toContain('data-state="open"')
 	})
 })
 

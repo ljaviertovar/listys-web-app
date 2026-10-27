@@ -57,6 +57,7 @@ export default async function ShoppingRunPage({
 
 	const runWithItems = shoppingSession as ShoppingSessionWithItems & {
 		base_list?: { name?: string | null; user_id?: string | null } | null
+		store?: { id: string; name: string } | null
 	}
 	const isCompleted = runWithItems.status === 'completed'
 
@@ -85,13 +86,17 @@ export default async function ShoppingRunPage({
 				variant='screen'
 				back={{ href: backHref, label: backLabel }}
 				title={runWithItems.name}
-				desc={
+					desc={
 					isCompleted ? (
-						<Badge variant='completed'>
-							Completed
-						</Badge>
+						<div className='flex flex-wrap items-center gap-2'>
+							<Badge variant='completed'>Completed</Badge>
+							{runWithItems.store ? <Badge variant='neutral'>At {runWithItems.store.name}</Badge> : null}
+						</div>
 					) : (
-						<ActiveShoppingBadge />
+						<div className='flex flex-wrap items-center gap-2'>
+							<ActiveShoppingBadge />
+							{runWithItems.store ? <Badge variant='neutral'>At {runWithItems.store.name}</Badge> : null}
+						</div>
 					)
 				}
 			>
@@ -148,6 +153,8 @@ export default async function ShoppingRunPage({
 						isCompleted={isCompleted}
 						priceByItemId={priceEstimate ? Object.fromEntries(priceEstimate.priceByItemId) : undefined}
 						startCollapsed={justStarted && !isCompleted}
+						storeId={runWithItems.store_id}
+						storeName={runWithItems.store?.name ?? null}
 					/>
 				</div>
 			</PageContainer>

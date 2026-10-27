@@ -22,6 +22,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	const { state } = useSidebar()
 	const pathname = usePathname()
 	const activeSession = useActiveSessionStore(s => s.activeSession)
+	const otherCount = useActiveSessionStore(s => s.otherCount)
 	const isExpanded = state !== 'collapsed'
 	// Fetched again on every page change, so the counts follow what the user just did.
 	const summary = useNavSummary({ enabled: isExpanded, sessionId: activeSession?.id ?? null, refreshKey: pathname })
@@ -51,6 +52,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 						sessionId={activeSession.id}
 						name={activeSession.name ?? ''}
 						progress={summary.progress}
+						otherCount={otherCount}
 					/>
 				) : null}
 				<AppSidebarFooter />

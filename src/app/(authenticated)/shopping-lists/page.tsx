@@ -25,16 +25,16 @@ export default async function ShoppingListsPage() {
 
 	const [baseListsResult, activeSessionResult] = await Promise.all([
 		getBaseLists(),
-		supabase
+			supabase
 			.from('shopping_sessions')
 			.select('id, base_list_id')
-			.eq('user_id', user.id)
 			.eq('status', 'active')
-			.maybeSingle(),
+				.order('started_at', { ascending: false })
+				.limit(100),
 	])
 
 	const { data: baseLists, error } = baseListsResult
-	const { data: activeSession } = activeSessionResult
+	const { data: activeSessions } = activeSessionResult
 
 	// Transform Supabase count result to our type
 	const baseListsWithCount: BaseListWithCount[] = ((baseLists ?? []) as BaseListRow[]).map(list => ({
@@ -61,7 +61,7 @@ export default async function ShoppingListsPage() {
 				) : (
 					<BaseListsList
 						baseLists={baseListsWithCount}
-						activeBaseListId={activeSession?.base_list_id}
+						activeSessionIds={Object.fromEntries((activeSessions ?? []).map(session => [session.base_list_id, session.id]))}
 					/>
 				)}
 			</PageContainer>

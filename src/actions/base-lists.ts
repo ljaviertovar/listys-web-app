@@ -8,6 +8,7 @@ import {
   updateBaseListItemSchema,
 } from '@/lib/validations/base-list'
 import { MAX_ITEMS_PER_BASE_LIST } from '@/lib/config/limits'
+import { buildItemStoreSummary, type ItemStoreStatsRow } from '@/components/features/base-lists/items/helpers/item-store-summary'
 import { resolveListGroupId } from '@/lib/server/services/default-group.service'
 import { DUPLICATE_LIST_NAME_MESSAGE, findListByName, isSameListName } from '@/lib/server/services/find-list-by-name'
 import { revalidatePath } from 'next/cache'
@@ -149,7 +150,13 @@ export async function getBaseList(id: string) {
     .from('base_lists')
     .select(`
       *,
-      items:base_list_items(*),
+      items:base_list_items(
+        *,
+        usual_store:stores!base_list_items_usual_store_id_fkey(id, name),
+        store_stats:base_list_item_store_stats(
+          store_id, purchase_count, last_purchased_at, store:stores(id, name)
+        )
+      ),
       collaborators:list_collaborators(id, user_id, role, joined_at)
     `)
     .eq('id', id)
@@ -159,7 +166,19 @@ export async function getBaseList(id: string) {
     return { error: error.message }
   }
 
-  return { data: { ...baseList, is_owner: baseList.user_id === user.id } }
+  const items = (baseList.items ?? []).map(item => {
+    const { usual_store, store_stats, ...itemFields } = item
+    return {
+      ...itemFields,
+      ...buildItemStoreSummary(
+        store_stats as ItemStoreStatsRow[] | null,
+        usual_store,
+        item.usual_store_source,
+      ),
+    }
+  })
+
+  return { data: { ...baseList, items, is_owner: baseList.user_id === user.id } }
 }
 
 export async function getBaseLists() {

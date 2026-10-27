@@ -6,14 +6,15 @@ import { TaskAdd01Icon } from '@hugeicons/core-free-icons'
 import { CategorySection, EmptyStateCard } from '@/components/commons'
 import { AddItemSheet } from '@/components/features/list-items'
 import { groupByCategory } from '@/utils'
-import type { BaseListItem } from '@/types'
+import type { BaseListItemWithStoreSummary } from '@/types'
 
 import { BaseListItemRow } from './base-list-item-row'
 
 interface BaseListItemsProps {
 	baseListId: string
-	items: BaseListItem[]
+	items: BaseListItemWithStoreSummary[]
 	isLocked?: boolean
+	isOwner?: boolean
 }
 
 function BaseListLockedNotice() {
@@ -29,7 +30,7 @@ function BaseListLockedNotice() {
 }
 
 /** The items of a base list in one card, a collapsible section per category; or the card that invites adding the first item. */
-export function BaseListItems({ baseListId, items, isLocked = false }: BaseListItemsProps) {
+export function BaseListItems({ baseListId, items, isLocked = false, isOwner = true }: BaseListItemsProps) {
 	const groups = useMemo(
 		() => groupByCategory([...items].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))),
 		[items],
@@ -76,6 +77,7 @@ export function BaseListItems({ baseListId, items, isLocked = false }: BaseListI
 								<BaseListItemRow
 									item={item}
 									isLocked={isLocked}
+									isOwner={isOwner}
 								/>
 							</li>
 						))}

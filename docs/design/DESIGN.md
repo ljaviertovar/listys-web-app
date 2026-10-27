@@ -600,6 +600,14 @@ The category order follows product data; colour cycling between categories is no
 heading, spacing, and item counts. Checked items may move below unchecked items, but they must remain reachable and keep
 their original content. On completed sessions, the screen becomes a record: destructive and editing controls disappear.
 
+**Store-scoped session (PRD v3 Phase 3; derived from the category-card pattern above; the HTML is silent).** A session
+started for a store keeps every list item. Its first section is headed `At <store>` (or `At this store` when the store
+name is unavailable) and contains items usual at or previously purchased from that store. A folded `Other Stores and
+Untagged` section holds the remaining items and shows their count. Both sections use the existing category headings,
+unchecked-first order, and check-off rows; the second section opens by default when the first has no items. Whole-list
+sessions keep the existing single category list. Show the store beside the session title and in its history card.
+Several lists may each have one active session; a given list cannot start another until its active session ends.
+
 **Phone layout (design "Lists mobile · Sesión de compra").** Under the A1 header come the `Shopping` chip (22px, green, with the pulsing
 dot), a progress card (24px radius; "Collected", "1 of 4 items" and the percentage in mono at 24px, blue and green at 100%, over an
 8px bar), the estimate card when the list knows prices (below), a row of two secondary buttons (`Share`, `Add Item`) and one card with a
@@ -640,7 +648,7 @@ the shell in `src/components/app/mobile-tab-bar.tsx`.
 | --- | --- |
 | Header | 60px (64px from `lg`), white with a bottom hairline; logo 30px plus the "Listys" wordmark (Plus Jakarta Sans 700 19px, `-.02em`); a 44x44 account button with a 34px initials avatar on `#DBEAFE`. No menu button: Profile, Account and Sign Out live in the account menu |
 | Tab bar | See section 7.11 |
-| Session bar | Only while a trip runs, on every phone screen except the trip's own (`ActiveSessionBar`): styled like the receipt selection bar: no fixed height, 24px radius, `#0F172A`, `10px 10px 10px 16px` padding, 8px gap, the same shadow; a 28px progress ring with a green dot, the trip name (14px / 600) and "n of m · p%" (mono 12px, `slate-300`), and a `Button size='sm'` "Continue" (32px, 14px / 600, default 12px radius). The whole bar is the link. It floats 8px above the tab bar with 12px side insets, stays visible next to the dashboard hero's own button, and the raised tab-bar action overlaps its lower edge |
+| Session bar | Only while a trip runs, on every phone screen except the trip's own (`ActiveSessionBar`): styled like the receipt selection bar: no fixed height, 24px radius, `#0F172A`, `10px 10px 10px 16px` padding, 8px gap, the same shadow; a 28px progress ring with a green dot, the trip name (14px / 600) and "n of m · p%" (mono 12px, `slate-300`), and a `Button size='sm'` "Continue" (32px, 14px / 600, default 12px radius). The whole bar is the link. It floats 8px above the tab bar with 12px side insets, stays visible next to the dashboard hero's own button, and the raised tab-bar action overlaps its lower edge. If other sessions are active, a "+N more in progress" link opens Shopping Lists |
 | Content | 16px gutter, 20px above the greeting, 40px below the last card, plus 56px while the session bar is shown (a spacer after the page); surfaces pinned to the bottom edge sit above the tab bar (`ABOVE_MOBILE_TAB_BAR`), and above the session bar when it shows (`ABOVE_MOBILE_SESSION_BAR`) |
 
 **Hero.** A 24px-radius photo surface under the `hero-scrim`. One blue 52px button does the obvious thing: "Continue
@@ -648,7 +656,7 @@ shopping" for a running session, "Start shopping" for the most overdue list, or 
 lists (44px on phones, 52px from `md`). A running trip shows the "Shopping now" chip, the list, a progress bar
 (8px, white 16% track, `#60A5FA` to `#3B82F6` fill) with `n of m items - p%` in mono, and the collaborators (24px initials
 on pastel blue, pink and green, overlapping by 7px, with a 2px near-black ring). Without a session the hero omits a status
-chip, then shows the quick-start list shortcuts (36px high at every width) and the last trip in mono. An account with no list sees only
+chip, then shows the quick-start list shortcuts (36px high at every width) and the last trip in mono. When more sessions are active, the hero links to Shopping Lists with "+ N more in progress". An account with no list sees only
 the title "Start with a receipt", its explanation, the button and a mono note. A new account is not that case any more: it starts with the
 default "Pantry" list (kept in an implicit group the interface never shows), so its hero reads "Ready to go shopping?", says that the list has no items yet
 and offers `Add Items` (the list's editor) while the header and the tab bar keep `Upload`; `Start Shopping` stays hidden until the list has
@@ -662,7 +670,7 @@ items.
 | Card | White, 24px radius, 12px padding on phones and 16px from `md`, `raised` shadow, no border; the shadow deepens on hover |
 | Row | 12px radius, `10 8` padding, 12px gap, 36px icon tile (12px radius) in the 100-level tint (the same fill "Up Next" uses), 14px / 600 title, mono 12px / 500 metadata in `muted` (may wrap), hover `#F2F4F7` |
 | Tile tints | Lists `#DBEAFE` / `#1D4ED8`, receipts `#CFFAFE` / `#0E7490`, history `#DCFCE7` / `#15803D` (the 100-level fill with the 700-level icon, as in "Up Next" and the tab bar); 32px tile (the top-level row size of the v2 example) for lists |
-| Lists | One flat row per list (`ListsSectionCard`), the group level of the v2 example removed: the 32px tile, the name with `· N items`, and a grey "Start" button (32px, `#E9ECF0`, 12px radius, 13px / 600) at the end. Preview: up to five lists, then "+ N more" linking to the lists screen |
+| Lists | One flat row per list (`ListsSectionCard`), the group level of the v2 example removed: the 32px tile, the name with `· N items`, and a grey "Start" button (32px, `#E9ECF0`, 12px radius, 13px / 600) at the end. When that list has an active session, the action reads "Resume Shopping" and opens that session. Preview: up to five lists, then "+ N more" linking to the lists screen |
 | Receipt status | A 14px icon plus the word, Plus Jakarta Sans 700 12px, no chip: Completed `#15803D`, Processing `#B45309`, Failed `#B91C1C`; `divider` rules between rows (inset 8px). Preview: three receipts |
 | History | Mono 13.5px / 600 total on the right. Preview: three trips |
 | Empty | Minimum 172px, a 56px tile (16px radius) in the 100-level tint (blue `#DBEAFE` / `#1D4ED8`, cyan `#CFFAFE` / `#0E7490`, green `#DCFCE7` / `#15803D`), a two-line 13.5px explanation in `muted` (max 280px) and one primary button ("New Base List", "Upload Receipt"; History has none). The button is 32px with a 12px label on phones and 44px with 14px from `md` |
@@ -908,6 +916,8 @@ accessible name say it too), and its menu is the same. `Add Item` is a sheet wit
 read "Name is required" and "Must be above 0" under the field. Realtime updates must not animate or reorder while the user is editing
 that row.
 
+**Usual-store tag (PRD v3 Phase 3; derived from the receipt's confirmed-store badge and the list row above; the HTML is silent).** When present, show the usual store as a neutral `Badge` below the item details, with the accessible name identifying the store and whether it was chosen manually or learned automatically. When store history exists beyond the usual store, show `Also at A, B +N`, ordered by purchase count then recency and excluding the usual store; show nothing when there is no such history. The owner's item menu adds `Set Usual Store…` or `Change Usual Store…`, and `Use Automatic Store` for a manual tag. These actions are disabled while the list is being shopped; collaborators see the tag and history but cannot change them.
+
 **Average price and estimate (derived from the receipt row; the HTML has no example).** A list row and a session row show the item's
 average price on their second line, before the note: the amount in mono (`font-mono`, semibold, tabular numerals, foreground colour) followed
 by a quiet "avg" in `slate-500` at 12px, with "Average price" for assistive technology (`AveragePrice`). An item without a price shows nothing,
@@ -970,9 +980,12 @@ confirmation names the object being affected and states whether recovery is poss
 phones (24px top radius, a 20px Plus Jakarta 600 title at the left, a 44px close target) and a centred 520px dialog from `sm`.
 `ConfirmSheet` is its two-button form: `Cancel` (grey) at the left and the confirm at the right, 48px tall, red for a destructive action,
 with an optional red consequence box. Start Shopping is one: a 48px blue cart tile, "This will create a new shopping session using the
-items of “…”" and the note "Only one shopping session can be active at a time". While a session is active the `Start Shopping` button
-is not drawn at all, on the list screen and on the dashboard, and the session bar (section 6.5) is the way back. A list with no items
-shows it disabled.
+items of “…”", and a `Store` row defaulting to `Whole list`. Choosing a store shows how many items go there first, or a warning when none
+are tagged or recorded there. The `StorePickerDialog` can create a store. Only the active list's own button changes to `Resume Shopping`;
+other lists remain available to start, so separate lists can be shopped at once. A list with no items shows its start action disabled.
+
+The Add Items to List sheet shows a non-blocking note when the receipt has no confirmed store: "This receipt has no confirmed store. You
+can still add its items to your list." Receipt lines without a confirmed store do not contribute store-specific learning.
 
 The share sheet holds the list's `Invite link` (a read-only mono field with an ellipsis, `Copy Link` that turns into `Link Copied`, and
 `Regenerate` / `Revoke`, which asks first in the same place) and its `Collaborators` (initials avatar, name, a role chip, and a remove
@@ -1266,6 +1279,10 @@ These are remaining implementation notes, not permission for two systems:
     are derived from the receipt summary card and the list card header (store card), the A1 sheets with the merge sheet's radio rows
     (picker), the list-card edit form (store name) and the Lists screen cards (My Stores); see sections 7.6 and 7.7. The upload sheet
     lost its name field, so the reference's `Name *` field is obsolete. All of it needs a design review.
+12e. **Store tags and scoped sessions (PRD v3 Phase 3 follow-on):** the HTML has no usual-store badge, "Also at" summary, store choice
+    in Start Shopping, or store/other-store session sections. This implementation derives them from the receipt's confirmed-store badge,
+    the existing item row and category-card patterns; see sections 6.3, 6.5, 7.8 and 7.12. Review the derived states against the product
+    scenarios. Store tags are owner-managed; collaborators only read them. Store-specific price comparison is not part of this change.
 13. **Copy:** product UI and documentation mix “ticket,” “receipt,” “shopping run,” and “shopping session.” User-facing
    English uses `receipt` and `shopping session`; internal legacy names may remain until safely migrated. Profile and Account describe
    the sign-in method in plain language and wrap long values on phones.

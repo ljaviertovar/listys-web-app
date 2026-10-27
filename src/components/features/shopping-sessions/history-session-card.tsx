@@ -18,6 +18,7 @@ interface Session {
 	purchased_count?: number | null
 	shopping_session_items?: Array<{ id: string; checked: boolean | null }> | null
 	base_list: { name: string } | null
+	store?: { id: string; name: string } | null
 }
 
 interface Props {
@@ -64,6 +65,7 @@ export function HistorySessionCard({ session, href }: Props) {
 						<p className='text-xs leading-[1.4] text-slate-500'>
 							{completedText}
 							{totalText}
+							{session.store ? ` · ${session.store.name}` : ''}
 						</p>
 					</div>
 				</div>

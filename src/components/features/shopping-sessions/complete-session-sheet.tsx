@@ -49,7 +49,7 @@ export function CompleteSessionSheet({ sessionId, checked, total, open, onOpenCh
 			const fullMessage = listFullMessage(data?.sync?.over_limit_count ?? 0)
 			if (fullMessage) toast.info(fullMessage)
 			// Clear store optimistically
-			clearActiveSession()
+			clearActiveSession(sessionId)
 			onOpenChange(false)
 			router.push('/dashboard')
 			router.refresh()

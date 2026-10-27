@@ -11,13 +11,12 @@ import { CreateBaseListDialog } from './create-base-list-dialog'
 
 interface BaseListsListProps {
 	baseLists: BaseListWithCount[]
-	/** The list being shopped right now is left out: it is locked until the session ends. */
-	activeBaseListId?: string | null
+	activeSessionIds?: Record<string, string>
 }
 
 /** The lists screen: the count with "New Base List" and a grid of cards, or the first-use card with its own button. */
-export function BaseListsList({ baseLists, activeBaseListId }: BaseListsListProps) {
-	const visible = baseLists.filter(list => list.id !== activeBaseListId)
+export function BaseListsList({ baseLists, activeSessionIds = {} }: BaseListsListProps) {
+	const visible = baseLists
 	// Named against every list, the shopped one included, so a suffix never changes while a trip is running.
 	const displayNames = buildListDisplayNames(baseLists)
 
@@ -52,6 +51,7 @@ export function BaseListsList({ baseLists, activeBaseListId }: BaseListsListProp
 						key={baseList.id}
 						baseList={baseList}
 						displayName={displayNames.get(baseList.id)}
+						activeSessionId={activeSessionIds[baseList.id]}
 					/>
 				))}
 			</div>

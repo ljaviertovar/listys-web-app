@@ -65,3 +65,29 @@ export function mapRpcError(error: RpcError, context: string): ApiServiceError {
   console.error(`[${context}] database function failed`, { code: code || 'unknown' })
   return new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'Something went wrong. Please try again.')
 }
+
+export function mapStartShoppingSessionRpcError(error: RpcError): ApiServiceError {
+  const code = error.code ?? ''
+  const message = error.message ?? ''
+
+  if (code === 'P0002') {
+    return new ApiServiceError(404, ErrorCode.NOT_FOUND, 'Not found')
+  }
+
+  if (code === 'P0001' && message === 'LIST_EMPTY') {
+    return new ApiServiceError(409, ErrorCode.CONFLICT, 'Cannot start a shopping session from an empty list.')
+  }
+
+  if (code === '23505' && message === 'SESSION_ALREADY_ACTIVE') {
+    const activeSessionId = error.details && UUID_PATTERN.test(error.details) ? error.details : undefined
+    return new ApiServiceError(
+      409,
+      ErrorCode.CONFLICT,
+      'This list already has a shopping session in progress.',
+      activeSessionId ? { activeSessionId } : undefined,
+    )
+  }
+
+  console.error('[startShoppingSession] database function failed', { code: code || 'unknown' })
+  return new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'Something went wrong. Please try again.')
+}

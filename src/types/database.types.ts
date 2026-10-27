@@ -140,6 +140,8 @@ export type Database = {
           average_price: number | null
           first_seen_at: string
           last_purchased_at: string
+          usual_store_id: string | null
+          usual_store_source: string
           name: string
           notes: string | null
           normalized_name: string
@@ -157,6 +159,8 @@ export type Database = {
           average_price?: number | null
           first_seen_at?: string
           last_purchased_at?: string
+          usual_store_id?: string | null
+          usual_store_source?: string
           name: string
           notes?: string | null
           normalized_name?: string
@@ -174,6 +178,8 @@ export type Database = {
           average_price?: number | null
           first_seen_at?: string
           last_purchased_at?: string
+          usual_store_id?: string | null
+          usual_store_source?: string
           name?: string
           notes?: string | null
           normalized_name?: string
@@ -189,6 +195,13 @@ export type Database = {
             columns: ["base_list_id"]
             isOneToOne: false
             referencedRelation: "base_lists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "base_list_items_usual_store_id_fkey"
+            columns: ["usual_store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
             referencedColumns: ["id"]
           },
         ]
@@ -267,6 +280,7 @@ export type Database = {
           checked: boolean | null
           created_at: string | null
           id: string
+          is_other_store: boolean
           name: string
           notes: string | null
           normalized_name: string | null
@@ -282,6 +296,7 @@ export type Database = {
           checked?: boolean | null
           created_at?: string | null
           id?: string
+          is_other_store?: boolean
           name: string
           notes?: string | null
           normalized_name?: string | null
@@ -297,6 +312,7 @@ export type Database = {
           checked?: boolean | null
           created_at?: string | null
           id?: string
+          is_other_store?: boolean
           name?: string
           notes?: string | null
           normalized_name?: string | null
@@ -327,6 +343,7 @@ export type Database = {
           name: string
           started_at: string | null
           status: Database["public"]["Enums"]["shopping_session_status"] | null
+          store_id: string | null
           sync_to_base: boolean | null
           total_amount: number | null
           updated_at: string | null
@@ -341,6 +358,7 @@ export type Database = {
           name: string
           started_at?: string | null
           status?: Database["public"]["Enums"]["shopping_session_status"] | null
+          store_id?: string | null
           sync_to_base?: boolean | null
           total_amount?: number | null
           updated_at?: string | null
@@ -355,6 +373,7 @@ export type Database = {
           name?: string
           started_at?: string | null
           status?: Database["public"]["Enums"]["shopping_session_status"] | null
+          store_id?: string | null
           sync_to_base?: boolean | null
           total_amount?: number | null
           updated_at?: string | null
@@ -367,6 +386,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "base_lists"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shopping_sessions_store_owner_fkey"
+            columns: ["store_id", "user_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id", "user_id"]
           },
         ]
       }
@@ -549,6 +575,60 @@ export type Database = {
           },
         ]
       }
+      base_list_item_store_stats: {
+        Row: {
+          base_list_item_id: string
+          created_at: string
+          id: string
+          last_price: number | null
+          last_price_at: string | null
+          last_purchased_at: string
+          purchase_count: number
+          store_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          base_list_item_id: string
+          created_at?: string
+          id?: string
+          last_price?: number | null
+          last_price_at?: string | null
+          last_purchased_at: string
+          purchase_count?: number
+          store_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          base_list_item_id?: string
+          created_at?: string
+          id?: string
+          last_price?: number | null
+          last_price_at?: string | null
+          last_purchased_at?: string
+          purchase_count?: number
+          store_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "base_list_item_store_stats_base_list_item_id_fkey"
+            columns: ["base_list_item_id"]
+            isOneToOne: false
+            referencedRelation: "base_list_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "base_list_item_store_stats_store_owner_fkey"
+            columns: ["store_id", "user_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id", "user_id"]
+          },
+        ]
+      }
       base_list_item_aliases: {
         Row: {
           alias_key: string
@@ -616,6 +696,14 @@ export type Database = {
           skipped_count: number
           updated_count: number
         }[]
+      }
+      start_shopping_session: {
+        Args: { p_base_list_id: string; p_name: string; p_store_id?: string | null }
+        Returns: Database["public"]["Tables"]["shopping_sessions"]["Row"]
+      }
+      set_item_usual_store: {
+        Args: { p_item_id: string; p_store_id?: string | null }
+        Returns: { id: string; usual_store_id: string | null; usual_store_source: string }[]
       }
       ensure_default_group: {
         Args: { p_group_name: string }

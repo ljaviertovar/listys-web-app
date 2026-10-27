@@ -58,6 +58,19 @@ describe('buildDashboardModel', () => {
 		})
 	})
 
+	it('keeps the newest session in the hero and exposes every active list session', () => {
+		const model = build({
+			activeSessions: [
+				{ id: 's2', name: 'Recent trip', base_list_id: 'l2', items: [{ checked: true }] },
+				{ id: 's1', name: 'Earlier trip', base_list_id: 'l1', items: [] },
+			],
+		})
+
+		expect(model.activeSession?.id).toBe('s2')
+		expect(model.activeSessionIds).toEqual({ l2: 's2', l1: 's1' })
+		expect(model.otherSessionCount).toBe(1)
+	})
+
 	it('lists the lists flat with their item counts and caps the preview', () => {
 		const many = Array.from({ length: 7 }, (_, i) => ({ id: `x${i}`, name: `List ${i}`, items: [{ count: i }] }))
 		const model = build({ baseLists: many })

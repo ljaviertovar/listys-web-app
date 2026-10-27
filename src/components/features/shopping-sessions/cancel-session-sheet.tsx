@@ -26,7 +26,7 @@ export function CancelSessionSheet({ sessionId, open, onOpenChange }: CancelSess
 			const { error } = await cancelShoppingSession(sessionId)
 			if (error) throw new Error(error)
 			// Clear store optimistically
-			clearActiveSession()
+			clearActiveSession(sessionId)
 			router.push('/dashboard')
 		} catch (err) {
 			console.error('Failed to cancel session:', err)
