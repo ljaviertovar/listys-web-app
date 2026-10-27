@@ -8,7 +8,7 @@ Definir textos coherentes, comprensibles y verificables para las acciones y esta
 
 ### Requirement: Consistent object and action names
 
-El copy visible SHALL distinguir receipt, base list, shopping session e item de forma coherente y MUST NOT usar "group" para un contenedor de listas, porque la interfaz ya no tiene ese concepto. El nombre de una acción MUST mantenerse reconocible entre disparador, confirmación, estado pendiente y resultado. Las acciones genéricas o iconos MUST tener nombres accesibles que expresen su propósito en contexto.
+El copy visible SHALL distinguir receipt, base list, shopping session, store e item de forma coherente y MUST NOT usar "group" para un contenedor de listas, porque la interfaz ya no tiene ese concepto. Store SHALL nombrar solo el lugar donde se compra, nunca un contenedor de listas. El nombre de una acción MUST mantenerse reconocible entre disparador, confirmación, estado pendiente y resultado. Las acciones genéricas o iconos MUST tener nombres accesibles que expresen su propósito en contexto.
 
 #### Scenario: Completing shopping
 
@@ -25,14 +25,19 @@ El copy visible SHALL distinguir receipt, base list, shopping session e item de 
 - **WHEN** el usuario recorre listas, dashboard, historial, recibos, navegación y diálogos
 - **THEN** ningún texto visible ni etiqueta accesible nombra un grupo de listas; el lugar donde se organiza lo que compra es la lista base
 
+#### Scenario: Store vocabulary
+
+- **WHEN** el usuario confirma la tienda de un recibo, la gestiona en "My Stores" o la ve en un recibo
+- **THEN** se usa "store" de forma coherente, sin alternar con merchant, shop o receipt name para el mismo concepto
+
 ### Requirement: Copy describes the available capability
 
-Las explicaciones y promesas SHALL corresponder a controles y resultados disponibles. MUST distinguir seleccionar de editar, compartir una lista de gestionar otras listas, guardar un recibo de añadir artículos a una lista y una nueva subida de reemplazar una foto existente. Ningún texto MUST prometer una función pendiente para evitar reconocer una limitación.
+Las explicaciones y promesas SHALL corresponder a controles y resultados disponibles. MUST distinguir seleccionar de editar, compartir una lista de gestionar otras listas, guardar un recibo de añadir artículos a una lista, una nueva subida de reemplazar una foto existente y vincular una línea a un artículo de crear uno nuevo. Ningún texto MUST prometer una función pendiente para evitar reconocer una limitación.
 
 #### Scenario: Receipt review
 
 - **WHEN** el usuario lee cómo revisar un recibo
-- **THEN** el texto describe las opciones reales de comparación y selección, sin afirmar que puede editar nombre, cantidad o precio si esos controles no existen
+- **THEN** el texto describe las opciones reales de comparación, selección, confirmación de tienda y vínculo con artículos existentes, sin afirmar que puede editar nombre, cantidad o precio si esos controles no existen
 
 #### Scenario: Sharing explanation
 
@@ -46,8 +51,13 @@ Las explicaciones y promesas SHALL corresponder a controles y resultados disponi
 
 #### Scenario: Organizing promise
 
-- **WHEN** el usuario lee la descripción de las listas o de la página pública
-- **THEN** el texto promete listas reutilizables y no una organización en grupos, carpetas o tiendas que la aplicación no ofrece
+- **WHEN** el usuario lee la descripción de las listas, de "My Stores" o de la página pública
+- **THEN** el texto promete listas reutilizables y el registro de las tiendas de sus recibos, sin prometer grupos, carpetas, listas por tienda ni etiquetas de tienda por artículo que la aplicación no ofrece
+
+#### Scenario: Remembered match
+
+- **WHEN** la revisión muestra una línea que coincide por un vínculo recordado
+- **THEN** el texto dice que la coincidencia se recuerda de un recibo anterior y que puede cambiarse, sin presentarla como una detección automática segura
 
 ### Requirement: Receipt lifecycle states are distinct
 
