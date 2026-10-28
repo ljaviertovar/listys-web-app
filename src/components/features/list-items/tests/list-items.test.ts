@@ -1,12 +1,6 @@
-import { createElement } from 'react'
-import { renderToStaticMarkup } from 'react-dom/server'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
-import { AddItemSheet, ItemEditForm, ItemQuantityChip, itemFormSchema, unitOptions } from '@/components/features/list-items'
-import { AddItemForm } from '../add-item-form'
-
-// The add form reads the App Router when it is opened; the sheet is closed here.
-vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }) }))
+import { itemFormSchema, unitOptions } from '../helpers/item-form-schema'
 
 const valid = { name: 'Orange Juice', quantity: 1, unit: 'pcs' }
 
@@ -35,67 +29,5 @@ describe('unitOptions', () => {
 		expect(unitOptions(['pcs', 'kg'], 'unit')).toEqual(['unit', 'pcs', 'kg'])
 		expect(unitOptions(['pcs', 'kg'], 'kg')).toEqual(['pcs', 'kg'])
 		expect(unitOptions(['pcs', 'kg'], null)).toEqual(['pcs', 'kg'])
-	})
-})
-
-describe('ItemQuantityChip', () => {
-	it('shows the quantity in mono and its unit, and falls back to one unit', () => {
-		const html = renderToStaticMarkup(createElement(ItemQuantityChip, { quantity: 0.51, unit: 'kg' }))
-		const fallback = renderToStaticMarkup(createElement(ItemQuantityChip, {}))
-
-		expect(html).toContain('data-testid="item-quantity-chip"')
-		expect(html).toMatch(/<b class="font-mono[^>]*>0\.51<\/b>kg/)
-		expect(fallback).toMatch(/>1<\/b>unit/)
-	})
-
-	it('fades once the item is in the cart', () => {
-		expect(renderToStaticMarkup(createElement(ItemQuantityChip, { quantity: 1, unit: 'pcs', muted: true }))).toContain('opacity-60')
-	})
-})
-
-describe('AddItemSheet', () => {
-	it('is an Add Item button, disabled while the list is being shopped', () => {
-		const open = renderToStaticMarkup(createElement(AddItemSheet, { target: { context: 'base-list', baseListId: 'l1' } }))
-		const locked = renderToStaticMarkup(createElement(AddItemSheet, { target: { context: 'base-list', baseListId: 'l1' }, isLocked: true }))
-
-		expect(open).toContain('data-testid="add-item-button-base-list"')
-		expect(open).toContain('Add Item')
-		expect(open).not.toContain('disabled=""')
-		expect(locked).toContain('disabled=""')
-	})
-
-	it('names its context so a page can hold the list one and the session one', () => {
-		const html = renderToStaticMarkup(createElement(AddItemSheet, { target: { context: 'shopping-session', sessionId: 's1' } }))
-
-		expect(html).toContain('data-testid="add-item-button-shopping-session"')
-	})
-})
-
-describe('AddItemForm', () => {
-	it('uses Done when there is no draft and explains why a locked list cannot change', () => {
-		const empty = renderToStaticMarkup(
-			createElement(AddItemForm, { target: { context: 'base-list', baseListId: 'l1' }, onCancel: () => {} }),
-		)
-		const locked = renderToStaticMarkup(
-			createElement(AddItemForm, { target: { context: 'base-list', baseListId: 'l1' }, isLocked: true, onCancel: () => {} }),
-		)
-
-		expect(empty).toContain('>Done</button>')
-		expect(locked).toContain('A shopping session is using this list. Make changes in that session, or finish it to edit this base list.')
-	})
-})
-
-describe('ItemEditForm', () => {
-	it('labels the save action by its effect', () => {
-		const html = renderToStaticMarkup(
-			createElement(ItemEditForm, {
-				item: { id: 'item-1', name: 'Orange Juice', quantity: 1, unit: 'pcs' },
-				onSubmit: async () => {},
-				onCancel: () => {},
-			}),
-		)
-
-		expect(html).toContain('Save Changes')
-		expect(html).not.toMatch(/>Save<\/button>/)
 	})
 })

@@ -1,9 +1,21 @@
 import { createAuthenticatedClient } from '@/lib/api/auth'
+import { isUsablePrice } from '@/utils/is-usable-price'
 import { ApiServiceError, ErrorCode } from '@/lib/api/http'
-import { mergeTicketItemsSchema, createBaseListFromTicketSchema } from '@/lib/validations/ticket'
+import { parseWithSchema } from '@/lib/api/zod'
+import { mapRpcError, mapTicketSessionAttachRpcError } from '@/lib/server/services/rpc-errors'
+import {
+  mergeTicketItemsSchema,
+  createBaseListFromTicketSchema,
+  attachTicketToSessionSchema,
+  updateTicketSchema,
+  uploadTicketFieldsSchema,
+} from '@/lib/validations/ticket'
 import { MAX_IMAGES_PER_TICKET, MAX_ITEMS_PER_BASE_LIST } from '@/lib/config/limits'
 import { getOCRFunctionURL } from '@/lib/config/ocr'
-import { z } from 'zod'
+import { resolveListGroupId } from '@/lib/server/services/default-group.service'
+import { DUPLICATE_LIST_NAME_MESSAGE, findListByName } from '@/lib/server/services/find-list-by-name'
+import type { StoreRef } from '@/types/stores'
+import type { Ticket } from '@/types/tickets'
 
 export async function getTickets() {
   const { supabase, user } = await createAuthenticatedClient()
@@ -13,7 +25,8 @@ export async function getTickets() {
     .select(`
       *,
       group:groups(name),
-      base_list:base_lists(id, name)
+      base_list:base_lists(id, name),
+      store:stores(id, name)
     `)
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
@@ -32,7 +45,8 @@ export async function getTicket(id: string) {
     .from('tickets')
     .select(`
       *,
-      base_list:base_lists(id, name)
+      base_list:base_lists(id, name),
+      store:stores(id, name)
     `)
     .eq('id', id)
     .eq('user_id', user.id)
@@ -49,7 +63,46 @@ export async function getTicket(id: string) {
     console.error('[getTicket] Error fetching items:', itemsError)
   }
 
-  return { ...ticket, items: items || [] }
+  const storeSuggestion = ticket.store_id ? null : await suggestStore(supabase, ticket.store_name)
+  let shoppingSession: { id: string; name: string; status: string | null } | null = null
+  if (ticket.shopping_session_id) {
+    const { data: session, error: sessionError } = await supabase
+      .from('shopping_sessions')
+      .select('id, name, status')
+      .eq('id', ticket.shopping_session_id)
+      .eq('user_id', user.id)
+      .maybeSingle()
+    if (sessionError) throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'Unable to load the attached trip.')
+    shoppingSession = session
+  }
+
+  return { ...ticket, shopping_session: shoppingSession, store_suggestion: storeSuggestion, items: items || [] }
+}
+
+/**
+ * The store the receipt's raw name resolves to, offered for one-tap confirmation. A failure only costs the suggestion:
+ * the receipt still loads, and only the error code is logged.
+ */
+async function suggestStore(
+  supabase: Awaited<ReturnType<typeof createAuthenticatedClient>>['supabase'],
+  rawName: string | null
+): Promise<StoreRef | null> {
+  if (!rawName?.trim()) return null
+
+  const { data: storeId, error } = await supabase.rpc('resolve_store', { p_raw_name: rawName })
+  if (error) {
+    console.error('[getTicket] could not resolve the store', { code: error.code })
+    return null
+  }
+  if (!storeId) return null
+
+  const { data: store, error: storeError } = await supabase.from('stores').select('id, name').eq('id', storeId).maybeSingle()
+  if (storeError) {
+    console.error('[getTicket] could not read the suggested store', { code: storeError.code })
+    return null
+  }
+
+  return store ?? null
 }
 
 export async function getTicketStatus(id: string) {
@@ -77,7 +130,7 @@ export async function mergeTicketItemsToBaseList(data: unknown) {
     throw new ApiServiceError(422, ErrorCode.VALIDATION_ERROR, validation.error.issues[0]?.message ?? 'Invalid payload')
   }
 
-  const { ticket_id, base_list_id, items: itemsToMerge } = validation.data
+  const { ticket_id, base_list_id, items: itemsToMerge, links } = validation.data
   const selectedItemIds = itemsToMerge.filter(i => i.merge).map(i => i.id)
 
   if (selectedItemIds.length === 0) {
@@ -89,10 +142,11 @@ export async function mergeTicketItemsToBaseList(data: unknown) {
     p_base_list_id: base_list_id,
     p_item_ids: selectedItemIds,
     p_max_items: MAX_ITEMS_PER_BASE_LIST,
+    p_links: links && links.length > 0 ? links : null,
   })
 
   if (mergeError) {
-    throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, mergeError.message)
+    throw mapRpcError(mergeError, 'tickets')
   }
 
   const summary = Array.isArray(mergeSummary) ? mergeSummary[0] : mergeSummary
@@ -104,6 +158,194 @@ export async function mergeTicketItemsToBaseList(data: unknown) {
   }
 }
 
+export type TicketItemMatch = {
+  ticket_item_id: string
+  match: 'name' | 'alias' | 'none'
+  base_list_item: { id: string; name: string } | null
+  suggestion: { id: string; name: string } | null
+}
+
+export type TicketMatchesResult = {
+  data: TicketItemMatch[]
+  meta: { base_list: { id: string; name: string } | null }
+}
+
+/**
+ * How every line of the receipt would match the list: an item with the same name, an item remembered from an earlier
+ * link, or none (a new item). The same database rules decide the merge, so this preview cannot disagree with it.
+ */
+async function getOwnReviewList(
+  supabase: Awaited<ReturnType<typeof createAuthenticatedClient>>['supabase'],
+  listId: string,
+  userId: string,
+): Promise<{ id: string; name: string } | null> {
+  const { data, error } = await supabase
+    .from('base_lists')
+    .select('id, name')
+    .eq('id', listId)
+    .eq('user_id', userId)
+    .maybeSingle()
+
+  if (error) throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'Unable to load the review list.')
+  return data
+}
+
+async function resolveReviewTarget(
+  supabase: Awaited<ReturnType<typeof createAuthenticatedClient>>['supabase'],
+  ticketId: string,
+  userId: string,
+): Promise<{ id: string; name: string } | null> {
+  const { data: ticket, error: ticketError } = await supabase
+    .from('tickets')
+    .select('base_list_id')
+    .eq('id', ticketId)
+    .eq('user_id', userId)
+    .maybeSingle()
+
+  if (ticketError) throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'Unable to load the receipt.')
+  if (!ticket) throw new ApiServiceError(404, ErrorCode.NOT_FOUND, 'Ticket not found')
+
+  if (ticket.base_list_id) {
+    const receiptList = await getOwnReviewList(supabase, ticket.base_list_id, userId)
+    if (receiptList) return receiptList
+  }
+
+  const { data: latestTicket, error: latestTicketError } = await supabase
+    .from('tickets')
+    .select('base_list:base_lists!inner(id, name, user_id)')
+    .eq('user_id', userId)
+    .eq('base_list.user_id', userId)
+    .order('created_at', { ascending: false })
+    .order('id', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  if (latestTicketError) throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'Unable to load the recent review list.')
+  const latestList = latestTicket?.base_list
+  if (latestList && !Array.isArray(latestList)) return { id: latestList.id, name: latestList.name }
+
+  const { data: oldestList, error: oldestListError } = await supabase
+    .from('base_lists')
+    .select('id, name')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: true })
+    .order('id', { ascending: true })
+    .limit(1)
+    .maybeSingle()
+
+  if (oldestListError) throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'Unable to load the review list.')
+  return oldestList
+}
+
+export async function getTicketMatches(ticketId: string, baseListId?: string): Promise<TicketMatchesResult> {
+  const { supabase, user } = await createAuthenticatedClient()
+  const baseList = baseListId
+    ? await getOwnReviewList(supabase, baseListId, user.id)
+    : await resolveReviewTarget(supabase, ticketId, user.id)
+
+  if (baseListId && !baseList) throw new ApiServiceError(404, ErrorCode.NOT_FOUND, 'Base list not found')
+  if (!baseList) return { data: [], meta: { base_list: null } }
+
+  const [matchesResult, suggestionsResult] = await Promise.all([
+    supabase.rpc('ticket_item_matches', { p_ticket_id: ticketId, p_base_list_id: baseList.id }),
+    supabase.rpc('ticket_item_suggestions', { p_ticket_id: ticketId, p_base_list_id: baseList.id }),
+  ])
+
+  if (matchesResult.error) throw mapRpcError(matchesResult.error, 'tickets')
+  if (suggestionsResult.error) throw mapRpcError(suggestionsResult.error, 'tickets')
+
+  const suggestionsByTicketItem = new Map(
+    (suggestionsResult.data ?? []).map(row => [row.ticket_item_id, { id: row.base_list_item_id, name: row.base_list_item_name }]),
+  )
+
+  return {
+    data: (matchesResult.data ?? []).map(row => ({
+      ticket_item_id: row.ticket_item_id,
+      match: row.match_kind,
+      base_list_item: row.base_list_item_id && row.base_list_item_name ? { id: row.base_list_item_id, name: row.base_list_item_name } : null,
+      suggestion: suggestionsByTicketItem.get(row.ticket_item_id) ?? null,
+    })),
+    meta: { base_list: { id: baseList.id, name: baseList.name } },
+  }
+}
+
+export type TicketSessionCandidate = {
+  id: string
+  name: string
+  status: string
+  started_at: string | null
+  completed_at: string | null
+  store: { id: string; name: string } | null
+  base_list: { id: string; name: string }
+  checked_count: number
+  item_count: number
+}
+
+export async function getTicketSessionCandidates(ticketId: string): Promise<TicketSessionCandidate[]> {
+  const { supabase } = await createAuthenticatedClient()
+  const { data, error } = await supabase.rpc('ticket_session_candidates', { p_ticket_id: ticketId })
+  if (error) throw mapRpcError(error, 'tickets')
+
+  return (data ?? []).map(row => ({
+    id: row.id,
+    name: row.name,
+    status: row.status,
+    started_at: row.started_at,
+    completed_at: row.completed_at,
+    store: row.store_id && row.store_name ? { id: row.store_id, name: row.store_name } : null,
+    base_list: { id: row.base_list_id, name: row.base_list_name },
+    checked_count: row.checked_count,
+    item_count: row.item_count,
+  }))
+}
+
+export async function getTicketSessionMatches(ticketId: string, sessionId: string) {
+  const { supabase } = await createAuthenticatedClient()
+  const { data, error } = await supabase.rpc('ticket_session_matches', {
+    p_ticket_id: ticketId,
+    p_session_id: sessionId,
+  })
+  if (error) throw mapRpcError(error, 'tickets')
+
+  return (data ?? []).map(row => ({
+    ticket_item_id: row.ticket_item_id,
+    match: row.match_kind,
+    shopping_session_item: row.shopping_session_item_id && row.shopping_session_item_name
+      ? { id: row.shopping_session_item_id, name: row.shopping_session_item_name, checked: row.checked }
+      : null,
+  }))
+}
+
+export async function attachTicketToSession(ticketId: string, input: unknown) {
+  const payload = parseWithSchema(attachTicketToSessionSchema, input)
+  const { supabase } = await createAuthenticatedClient()
+  const { data, error } = await supabase.rpc('attach_receipt_to_session', {
+    p_ticket_id: ticketId,
+    p_session_id: payload.shopping_session_id,
+    p_links: payload.links?.map(link => ({
+      ticket_item_id: link.ticket_item_id,
+      shopping_session_item_id: link.shopping_session_item_id,
+    })) ?? [],
+    p_added_item_ids: payload.added_item_ids ?? [],
+    ...(payload.total_amount !== undefined ? { p_total_amount: payload.total_amount } : {}),
+    p_max_items: MAX_ITEMS_PER_BASE_LIST,
+  })
+
+  if (error) throw mapTicketSessionAttachRpcError(error)
+  const summary = Array.isArray(data) ? data[0] : data
+  if (!summary) throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'Something went wrong. Please try again.')
+
+  return {
+    completed_now: summary.completed_now,
+    matched_count: summary.matched_count,
+    checked_now_count: summary.checked_now_count,
+    added_count: summary.added_count,
+    priced_count: summary.priced_count,
+    over_limit_count: summary.over_limit_count,
+    replayed: summary.replayed,
+  }
+}
+
 export async function createBaseListFromTicket(data: unknown) {
   const { supabase, user } = await createAuthenticatedClient()
 
@@ -112,7 +354,24 @@ export async function createBaseListFromTicket(data: unknown) {
     throw new ApiServiceError(422, ErrorCode.VALIDATION_ERROR, validation.error.issues[0]?.message ?? 'Invalid payload')
   }
 
-  const { ticket_id, group_id, name, item_ids } = validation.data
+  const { ticket_id, group_id: requestedGroupId, name, item_ids } = validation.data
+
+  const { data: ticket, error: ticketLookupError } = await supabase
+    .from('tickets')
+    .select('id, shopping_session_id')
+    .eq('id', ticket_id)
+    .eq('user_id', user.id)
+    .maybeSingle()
+
+  if (ticketLookupError) {
+    throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'Unable to load this receipt.')
+  }
+  if (!ticket) throw new ApiServiceError(404, ErrorCode.NOT_FOUND, 'Ticket not found')
+  if (ticket.shopping_session_id) {
+    throw new ApiServiceError(409, ErrorCode.CONFLICT, 'This receipt is already attached to a trip.', {
+      reason: 'RECEIPT_ATTACHED',
+    })
+  }
 
   const { data: ticketItems, error: ticketError } = await supabase
     .from('ticket_items')
@@ -136,6 +395,12 @@ export async function createBaseListFromTicket(data: unknown) {
     )
   }
 
+  if (await findListByName(supabase, user.id, name)) {
+    throw new ApiServiceError(409, ErrorCode.CONFLICT, DUPLICATE_LIST_NAME_MESSAGE)
+  }
+
+  const group_id = await resolveListGroupId(supabase, user.id, requestedGroupId)
+
   const { data: baseList, error: createError } = await supabase
     .from('base_lists')
     .insert({ user_id: user.id, group_id, name })
@@ -153,6 +418,8 @@ export async function createBaseListFromTicket(data: unknown) {
     unit: item.unit,
     category: item.category,
     sort_order: index,
+    // The line's price starts the item's average, as merging into a list does.
+    average_price: isUsablePrice(item.price) ? item.price : null,
   }))
 
   const { error: insertError } = await supabase.from('base_list_items').insert(itemsToInsert)
@@ -205,24 +472,18 @@ export async function deleteTicket(id: string) {
 export async function updateTicket(id: string, data: unknown) {
   const { supabase, user } = await createAuthenticatedClient()
 
-  const schema = z
-    .object({
-      group_id: z.string().uuid().nullable().optional(),
-    })
-    .refine(payload => Object.keys(payload).length > 0, {
-      message: 'At least one field must be provided',
-    })
-
-  const validation = schema.safeParse(data)
+  const validation = updateTicketSchema.safeParse(data)
   if (!validation.success) {
     throw new ApiServiceError(422, ErrorCode.VALIDATION_ERROR, validation.error.issues[0]?.message ?? 'Invalid payload')
   }
 
-  if (validation.data.group_id !== undefined && validation.data.group_id !== null) {
+  const { group_id, store_id } = validation.data
+
+  if (group_id !== undefined && group_id !== null) {
     const { data: group, error: groupError } = await supabase
       .from('groups')
       .select('id')
-      .eq('id', validation.data.group_id)
+      .eq('id', group_id)
       .eq('user_id', user.id)
       .single()
 
@@ -231,17 +492,33 @@ export async function updateTicket(id: string, data: unknown) {
     }
   }
 
-  const { data: ticket, error } = await supabase
-    .from('tickets')
-    .update(validation.data)
-    .eq('id', id)
-    .eq('user_id', user.id)
-    .select('*')
-    .single()
+  let ticket: Ticket | null = null
 
-  if (error) {
-    const status = error.code === 'PGRST116' ? 404 : 500
-    throw new ApiServiceError(status, status === 404 ? ErrorCode.NOT_FOUND : ErrorCode.INTERNAL_ERROR, error.message)
+  // Assigning a store also teaches the receipt's raw name as an alias of that store, so it goes through the database
+  // function that does both in one transaction (and checks that store and receipt are the caller's).
+  if (store_id !== undefined) {
+    const { data: assigned, error: assignError } = await supabase.rpc('assign_ticket_store', {
+      p_ticket_id: id,
+      p_store_id: store_id,
+    })
+    if (assignError || !assigned) throw mapRpcError(assignError ?? {}, 'tickets')
+    ticket = assigned
+  }
+
+  if (group_id !== undefined) {
+    const { data: updated, error } = await supabase
+      .from('tickets')
+      .update({ group_id })
+      .eq('id', id)
+      .eq('user_id', user.id)
+      .select('*')
+      .single()
+
+    if (error) {
+      const status = error.code === 'PGRST116' ? 404 : 500
+      throw new ApiServiceError(status, status === 404 ? ErrorCode.NOT_FOUND : ErrorCode.INTERNAL_ERROR, error.message)
+    }
+    ticket = updated
   }
 
   return ticket
@@ -277,7 +554,7 @@ export async function retryTicketOCR(id: string) {
 
   const { error: updateError } = await supabase
     .from('tickets')
-    .update({ ocr_status: 'pending', total_items: 0, processed_at: null, ocr_error: null })
+    .update({ ocr_status: 'pending', total_items: 0, total_amount: null, processed_at: null, ocr_error: null })
     .eq('id', id)
 
   if (updateError) {
@@ -366,7 +643,8 @@ export async function uploadTicket(formData: FormData) {
 
   const files = formData.getAll('files') as File[]
   const groupId = formData.get('group_id') as string | null
-  const storeName = formData.get('store_name') as string | null
+  const fields = parseWithSchema(uploadTicketFieldsSchema, { store_name: formData.get('store_name') })
+  const storeName = fields.store_name ?? null
 
   if (!files || files.length === 0) {
     throw new ApiServiceError(400, ErrorCode.BAD_REQUEST, 'No files provided')

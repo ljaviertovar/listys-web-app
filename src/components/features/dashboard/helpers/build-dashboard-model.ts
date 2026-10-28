@@ -1,3 +1,5 @@
+import { buildListDisplayNames, getReceiptStoreLabel } from '@/utils'
+
 /**
  * Pure view-model for the dashboard. Every number and sentence the dashboard shows is derived here from the
  * records the API already returns, so the components stay presentational and nothing on screen is invented.
@@ -5,23 +7,18 @@
 
 type OcrStatus = 'pending' | 'processing' | 'completed' | 'failed' | null
 
-export interface DashboardGroupInput {
-	id: string
-	name: string
-	description: string | null
-	base_lists?: { count: number }[]
-}
-
 export interface DashboardBaseListInput {
 	id: string
 	name: string
-	group_id: string
+	created_at?: string | null
 	items?: { count: number }[]
 }
 
 export interface DashboardTicketInput {
 	id: string
 	store_name: string | null
+	/** The store the user confirmed, when the receipt has one. */
+	store?: { name: string } | null
 	ocr_status: OcrStatus
 	total_items: number | null
 	created_at: string | null
@@ -35,7 +32,22 @@ export interface DashboardTripInput {
 	total_amount: number | null
 	completed_at: string | null
 	purchased_count?: number
-	base_list: { name: string; group: { id: string; name: string } | null } | null
+	base_list: { name: string } | null
+}
+
+export interface DashboardLikelyNeededInput {
+	id: string
+	name: string
+	base_list: { id: string; name: string }
+	usual_store: { id: string; name: string } | null
+	interval_days: number
+	days_since: number
+}
+
+export interface DashboardStoreInput {
+	id: string
+	name: string
+	last_visit: { kind: 'trip' | 'receipt'; id: string; at: string; total_amount: number | null } | null
 }
 
 export interface DashboardActiveSessionInput {
@@ -43,23 +55,26 @@ export interface DashboardActiveSessionInput {
 	name: string
 	base_list_id: string
 	items?: { checked: boolean | null }[]
-	base_list?: { group_id?: string | null; name?: string | null } | null
+	base_list?: { name?: string | null } | null
 	collaborators?: { initials: string; display_name?: string | null }[]
 }
 
 export interface DashboardModelInput {
-	groups: DashboardGroupInput[]
 	baseLists: DashboardBaseListInput[]
 	tickets: DashboardTicketInput[]
 	trips: DashboardTripInput[]
 	activeSession: DashboardActiveSessionInput | null
+	/** Active sessions ordered newest first. The singular field remains for existing model callers. */
+	activeSessions?: DashboardActiveSessionInput[]
+	likelyNeeded?: DashboardLikelyNeededInput[]
+	likelyNeededHasHistory?: boolean
+	stores?: DashboardStoreInput[]
 	now?: Date
 }
 
 export interface ActiveSessionSummary {
 	id: string
 	name: string
-	groupName: string | null
 	listName: string | null
 	total: number
 	checked: number
@@ -68,28 +83,22 @@ export interface ActiveSessionSummary {
 	collaborators: { initials: string; display_name?: string | null }[]
 }
 
-export interface GroupPreview {
+export interface ListPreview {
 	id: string
+	/** The name the screen uses: lists that share a name read "Weekly" and "Weekly (2)". */
 	name: string
-	description: string | null
-	listsCount: number
-	lists: { id: string; name: string; itemsCount: number }[]
-	hiddenListsCount: number
+	itemsCount: number
 }
 
-export interface ReceiptPreview {
-	id: string
-	title: string
-	meta: string
-	status: 'completed' | 'processing' | 'failed' | 'pending'
-}
+export interface LikelyNeededPreview extends DashboardLikelyNeededInput { cadence: string }
 
-export interface TripPreview {
+export interface StoreVisitPreview {
+	storeId: string
+	storeName: string
+	kind: 'trip' | 'receipt'
 	id: string
-	name: string
-	meta: string
+	dateLabel: string
 	total: number | null
-	/** The group's history page; trips are browsed per group. */
 	href: string
 }
 
@@ -106,28 +115,29 @@ export interface UpNextItem {
 export interface QuickStartList {
 	id: string
 	name: string
-	groupName: string | null
 	itemsCount: number
 }
 
 export interface DashboardModel {
-	counts: { groups: number; receipts: number; trips: number }
 	activeSession: ActiveSessionSummary | null
-	groups: GroupPreview[]
-	receipts: ReceiptPreview[]
-	trips: TripPreview[]
+	activeSessionIds: Record<string, string>
+	otherSessionCount: number
+	/** A few of the user's lists, flat: there is no group level any more. */
+	lists: { items: ListPreview[]; hiddenCount: number }
+	likelyNeeded: { hasHistory: boolean; items: LikelyNeededPreview[] }
+	storeVisits: StoreVisitPreview[]
 	upNext: UpNextItem[]
 	/** Lists with items, up to a few; they are the shortcuts under the hero. */
 	quickStart: QuickStartList[]
 	/** The list the hero starts: the most overdue one, else the first with items. Null when no list has items. */
 	startTarget: QuickStartList | null
+	/** The only list of the account when it has no items yet (a new user's Pantry): the hero sends them to fill it. */
+	addItemsTarget: { id: string; name: string } | null
 	lastTrip: { listName: string; dateLabel: string; total: number | null } | null
 }
 
-const MAX_GROUPS_PREVIEW = 2
-const MAX_LISTS_PER_GROUP = 3
-const MAX_RECEIPTS_PREVIEW = 3
-const MAX_TRIPS_PREVIEW = 3
+const MAX_LISTS_PREVIEW = 5
+const MAX_STORE_VISITS = 4
 const MAX_UP_NEXT = 3
 const MAX_QUICK_START = 3
 const STALE_LIST_DAYS = 7
@@ -146,6 +156,43 @@ export function formatShortDate(value: string | null | undefined) {
 	return new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' }).format(date)
 }
 
+function pluralDay(value: number) {
+	return `${value} ${value === 1 ? 'day' : 'days'}`
+}
+
+export function formatCadence(intervalDays: number, daysSince: number) {
+	return `Usually every ${pluralDay(Math.max(1, Math.round(intervalDays)))} · last bought ${pluralDay(Math.max(0, Math.round(daysSince)))} ago`
+}
+
+function zonedParts(date: Date, timeZone: string) {
+	const parts = new Intl.DateTimeFormat('en-US', {
+		timeZone, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23',
+	}).formatToParts(date)
+	return Object.fromEntries(parts.map(part => [part.type, Number(part.value)])) as Record<string, number>
+}
+
+function localMidnightToUtc(year: number, month: number, day: number, timeZone: string) {
+	const target = Date.UTC(year, month - 1, day)
+	let guess = target
+	for (let attempt = 0; attempt < 3; attempt += 1) {
+		const local = zonedParts(new Date(guess), timeZone)
+		const represented = Date.UTC(local.year, local.month - 1, local.day, local.hour, local.minute, local.second)
+		guess += target - represented
+	}
+	return new Date(guess).toISOString()
+}
+
+/** Returns the visitor-local calendar month as a half-open UTC interval. */
+export function currentMonthRange(now: Date, timeZone: string) {
+	const local = zonedParts(now, timeZone)
+	const nextYear = local.month === 12 ? local.year + 1 : local.year
+	const nextMonth = local.month === 12 ? 1 : local.month + 1
+	return {
+		from: localMidnightToUtc(local.year, local.month, 1, timeZone),
+		to: localMidnightToUtc(nextYear, nextMonth, 1, timeZone),
+	}
+}
+
 function daysBetween(from: string, now: Date) {
 	const diff = now.getTime() - new Date(from).getTime()
 	return Math.max(0, Math.floor(diff / DAY_MS))
@@ -157,19 +204,17 @@ function itemsCountOf(list: DashboardBaseListInput) {
 
 function buildActiveSession(
 	session: DashboardActiveSessionInput | null,
-	groups: DashboardGroupInput[],
+	listNames: Map<string, string>,
 ): ActiveSessionSummary | null {
 	if (!session) return null
 
 	const total = session.items?.length ?? 0
 	const checked = session.items?.filter(item => item.checked === true).length ?? 0
-	const groupName = groups.find(group => group.id === session.base_list?.group_id)?.name ?? null
 
 	return {
 		id: session.id,
 		name: session.name || 'Current shopping',
-		groupName,
-		listName: session.base_list?.name ?? null,
+		listName: listNames.get(session.base_list_id) ?? session.base_list?.name ?? null,
 		total,
 		checked,
 		remaining: Math.max(total - checked, 0),
@@ -178,57 +223,37 @@ function buildActiveSession(
 	}
 }
 
-function buildGroups(groups: DashboardGroupInput[], baseLists: DashboardBaseListInput[]): GroupPreview[] {
-	return groups.slice(0, MAX_GROUPS_PREVIEW).map(group => {
-		const lists = baseLists.filter(list => list.group_id === group.id)
-		return {
-			id: group.id,
-			name: group.name,
-			description: group.description,
-			listsCount: lists.length,
-			lists: lists.slice(0, MAX_LISTS_PER_GROUP).map(list => ({
-				id: list.id,
-				name: list.name,
-				itemsCount: itemsCountOf(list),
-			})),
-			hiddenListsCount: Math.max(lists.length - MAX_LISTS_PER_GROUP, 0),
-		}
-	})
+function buildLists(baseLists: DashboardBaseListInput[], listNames: Map<string, string>) {
+	return {
+		items: baseLists.slice(0, MAX_LISTS_PREVIEW).map(list => ({
+			id: list.id,
+			name: listNames.get(list.id) ?? list.name,
+			itemsCount: itemsCountOf(list),
+		})),
+		hiddenCount: Math.max(baseLists.length - MAX_LISTS_PREVIEW, 0),
+	}
 }
 
 function ticketTitle(ticket: DashboardTicketInput) {
-	return ticket.store_name?.trim() || 'Store not recognized'
+	return getReceiptStoreLabel(ticket)
 }
 
-function buildReceipts(tickets: DashboardTicketInput[]): ReceiptPreview[] {
-	return tickets.slice(0, MAX_RECEIPTS_PREVIEW).map(ticket => {
-		const date = formatShortDate(ticket.created_at)
-		const items = ticket.total_items ? `${pluralize(ticket.total_items, 'item')} extracted` : null
-		const status =
-			ticket.ocr_status === 'completed' ? 'completed' : ticket.ocr_status === 'failed' ? 'failed' : ticket.ocr_status === 'processing' ? 'processing' : 'pending'
-
-		return {
-			id: ticket.id,
-			title: ticketTitle(ticket),
-			meta: [date, items].filter(Boolean).join(' · '),
-			status,
-		}
-	})
-}
-
-function buildTrips(trips: DashboardTripInput[]): TripPreview[] {
-	return trips.slice(0, MAX_TRIPS_PREVIEW).map(trip => {
-		const listName = trip.base_list?.name ?? trip.name
-		const groupName = trip.base_list?.group?.name
-		const date = formatShortDate(trip.completed_at)
-		return {
-			id: trip.id,
-			name: listName,
-			meta: [groupName, date].filter(Boolean).join(' · '),
-			total: trip.total_amount,
-			href: trip.base_list?.group ? `/shopping-history/${trip.base_list.group.id}` : '/shopping-history',
-		}
-	})
+function buildStoreVisits(stores: DashboardStoreInput[]): StoreVisitPreview[] {
+	return [...stores].filter(store => store.last_visit).sort((a, b) =>
+		Date.parse(b.last_visit?.at ?? '') - Date.parse(a.last_visit?.at ?? '')
+	).flatMap(store => {
+		if (!store.last_visit) return []
+		const visit = store.last_visit
+		return [{
+			storeId: store.id,
+			storeName: store.name,
+			kind: visit.kind,
+			id: visit.id,
+			dateLabel: formatShortDate(visit.at),
+			total: visit.total_amount,
+			href: visit.kind === 'trip' ? '/shopping-history' : `/tickets/${visit.id}`,
+		}]
+	}).slice(0, MAX_STORE_VISITS)
 }
 
 /** The list that has been shopped before, not within the last STALE_LIST_DAYS, and has items to buy; the longest wait first. */
@@ -252,7 +277,7 @@ function buildUpNext(
 	tickets: DashboardTicketInput[],
 	trips: DashboardTripInput[],
 	baseLists: DashboardBaseListInput[],
-	groups: DashboardGroupInput[],
+	listNames: Map<string, string>,
 	now: Date,
 ): UpNextItem[] {
 	const items: UpNextItem[] = []
@@ -263,7 +288,7 @@ function buildUpNext(
 			id: `receipt-waiting-${waiting.id}`,
 			kind: 'receipt-waiting',
 			title: `${pluralize(waiting.total_items ?? 0, 'item')} from “${ticketTitle(waiting)}” ${waiting.total_items === 1 ? 'is' : 'are'} waiting`,
-			detail: 'Add them to a list in one of your groups',
+			detail: 'Add them to one of your lists',
 			href: `/tickets/${waiting.id}`,
 		})
 	}
@@ -282,12 +307,12 @@ function buildUpNext(
 	const stale = findMostOverdueList(trips, baseLists, now)
 
 	if (stale) {
-		const groupName = groups.find(group => group.id === stale.list.group_id)?.name
+		const listName = listNames.get(stale.list.id) ?? stale.list.name
 		items.push({
 			id: `list-stale-${stale.list.id}`,
 			kind: 'list-stale',
-			title: `${stale.list.name}: last shopped ${pluralize(stale.days, 'day')} ago`,
-			detail: [groupName, `${pluralize(itemsCountOf(stale.list), 'item')} ready`].filter(Boolean).join(' · '),
+			title: `${listName}: last shopped ${pluralize(stale.days, 'day')} ago`,
+			detail: `${pluralize(itemsCountOf(stale.list), 'item')} ready`,
 			href: `/base-lists/${stale.list.id}/edit`,
 		})
 	}
@@ -296,37 +321,52 @@ function buildUpNext(
 }
 
 export function buildDashboardModel({
-	groups,
 	baseLists,
 	tickets,
 	trips,
 	activeSession,
+	activeSessions,
+	likelyNeeded = [],
+	likelyNeededHasHistory = false,
+	stores = [],
 	now = new Date(),
 }: DashboardModelInput): DashboardModel {
+	const listNames = buildListDisplayNames(baseLists)
+	const nameOf = (list: DashboardBaseListInput) => listNames.get(list.id) ?? list.name
 	const toQuickStart = (list: DashboardBaseListInput): QuickStartList => ({
 		id: list.id,
-		name: list.name,
-		groupName: groups.find(group => group.id === list.group_id)?.name ?? null,
+		name: nameOf(list),
 		itemsCount: itemsCountOf(list),
 	})
 	const quickStart = baseLists.filter(list => itemsCountOf(list) > 0).slice(0, MAX_QUICK_START).map(toQuickStart)
 	const overdue = findMostOverdueList(trips, baseLists, now)
 	const startTarget = overdue ? toQuickStart(overdue.list) : (quickStart[0] ?? null)
 
+	const onlyList = baseLists.length === 1 ? baseLists[0] : null
+	const addItemsTarget = onlyList && itemsCountOf(onlyList) === 0 ? { id: onlyList.id, name: nameOf(onlyList) } : null
+
 	const latest = trips[0]
+	const sessions = activeSessions ?? (activeSession ? [activeSession] : [])
+	const latestSession = sessions[0] ?? null
+	const activeSessionIds = Object.fromEntries(sessions.map(session => [session.base_list_id, session.id]))
 
 	return {
-		counts: { groups: groups.length, receipts: tickets.length, trips: trips.length },
-		activeSession: buildActiveSession(activeSession, groups),
-		groups: buildGroups(groups, baseLists),
-		receipts: buildReceipts(tickets),
-		trips: buildTrips(trips),
-		upNext: buildUpNext(tickets, trips, baseLists, groups, now),
+		activeSession: buildActiveSession(latestSession, listNames),
+		activeSessionIds,
+		otherSessionCount: Math.max(sessions.length - 1, 0),
+		lists: buildLists(baseLists, listNames),
+		likelyNeeded: {
+			hasHistory: likelyNeededHasHistory,
+			items: likelyNeeded.map(item => ({ ...item, cadence: formatCadence(item.interval_days, item.days_since) })),
+		},
+		storeVisits: buildStoreVisits(stores),
+		upNext: buildUpNext(tickets, trips, baseLists, listNames, now),
 		quickStart,
 		startTarget,
+		addItemsTarget,
 		lastTrip: latest
 			? {
-					listName: latest.base_list?.name ?? latest.name,
+					listName: listNames.get(latest.base_list_id) ?? latest.base_list?.name ?? latest.name,
 					dateLabel: formatShortDate(latest.completed_at),
 					total: latest.total_amount,
 				}

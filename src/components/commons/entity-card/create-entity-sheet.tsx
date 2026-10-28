@@ -24,14 +24,14 @@ interface CreateEntitySheetProps {
 	secondLabel: string
 	secondPlaceholder: string
 	secondMax: number
-	/** Label of the submit button ("Create Group"); it reads "Creating…" while it saves. */
+	/** Label of the submit button ("Create List"); it reads "Creating…" while it saves. */
 	submitLabel: string
 	/** Saves the new entity. Throws to keep the sheet open; the caller shows what failed. */
 	onCreate: (values: EntityEditValues) => Promise<void>
 	testId: string
 }
 
-/** The create flow of a group or a list: a sheet with its name and an optional second field. */
+/** The create flow of a list: a sheet with its name and an optional second field. */
 export function CreateEntitySheet({
 	trigger,
 	title,

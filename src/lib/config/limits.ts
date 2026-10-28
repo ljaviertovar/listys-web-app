@@ -8,7 +8,17 @@
 /**
  * GROUPS LIMITS
  */
-export const MAX_GROUPS_PER_USER = 10 // Maximum number of shopping list groups a user can create
+export const MAX_GROUPS_PER_USER = 10 // Maximum number of groups a user can create through the API (the web app no longer creates groups)
+
+/**
+ * STORES LIMITS
+ *
+ * MAX_STORES_PER_USER (50):
+ *    - Households shop at a handful of stores; 50 leaves room for branches named apart and one-off trips
+ *    - Keeps "My Stores" a single bounded list (no pagination) and the store picker small
+ *    - Enforced inside create_store, so concurrent creations cannot exceed it
+ */
+export const MAX_STORES_PER_USER = 50 // Maximum stores per user; merging stores frees room
 
 /**
  * BASE LISTS & SHOPPING SESSIONS LIMITS
@@ -23,7 +33,7 @@ export const MAX_GROUPS_PER_USER = 10 // Maximum number of shopping list groups 
  * 2. MAX_SYNC_ITEMS (250):
  *    - Matches MAX_ITEMS_PER_BASE_LIST to prevent inconsistent states
  *    - Allows syncing shopping sessions back to base lists without exceeding limit
- *    - Prevents the scenario: list with 250 items → sync fails → user confusion
+ *    - Completing a session never fails on a full list: new items that do not fit are skipped and reported
  *
  * 3. MAX_TICKET_ITEMS_MERGE (200):
  *    - Lower than base list limit (most receipts have <100 items)
@@ -39,6 +49,7 @@ export const MAX_GROUPS_PER_USER = 10 // Maximum number of shopping list groups 
 export const MAX_ITEMS_PER_BASE_LIST = 250 // Maximum items in a base list (via any method)
 export const MAX_TICKET_ITEMS_MERGE = 200  // Maximum items to merge from a single OCR ticket
 export const MAX_SYNC_ITEMS = 250          // Maximum items to sync from shopping session to base list
+export const RECEIPT_SESSION_ATTACH_WINDOW_HOURS = 48 // Completed sessions remain eligible for receipt attachment
 
 /**
  * TICKET UPLOAD LIMITS

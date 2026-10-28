@@ -7,6 +7,9 @@ import {
   updateBaseListItemSchema,
 } from '@/lib/validations/base-list'
 import { MAX_ITEMS_PER_BASE_LIST } from '@/lib/config/limits'
+import { resolveListGroupId } from '@/lib/server/services/default-group.service'
+import { DUPLICATE_LIST_NAME_MESSAGE, findListByName, isSameListName } from '@/lib/server/services/find-list-by-name'
+import { buildItemStoreSummary, type ItemStoreStatsRow } from '@/components/features/base-lists/items/helpers/item-store-summary'
 
 export async function createBaseList(data: unknown) {
   const { supabase, user } = await createAuthenticatedClient()
@@ -16,21 +19,17 @@ export async function createBaseList(data: unknown) {
     throw new ApiServiceError(422, ErrorCode.VALIDATION_ERROR, validation.error.issues[0]?.message ?? 'Invalid payload')
   }
 
-  const { data: existingList } = await supabase
-    .from('base_lists')
-    .select('id')
-    .eq('user_id', user.id)
-    .eq('group_id', validation.data.group_id)
-    .ilike('name', validation.data.name)
-    .maybeSingle()
-
-  if (existingList) {
-    throw new ApiServiceError(409, ErrorCode.CONFLICT, 'A list with this name already exists in this group. Please choose a different name.')
+  if (await findListByName(supabase, user.id, validation.data.name)) {
+    throw new ApiServiceError(409, ErrorCode.CONFLICT, DUPLICATE_LIST_NAME_MESSAGE)
   }
+
+  // After the name check, so a rejected name never creates the default group.
+  const { group_id: requestedGroupId, ...listFields } = validation.data
+  const groupId = await resolveListGroupId(supabase, user.id, requestedGroupId)
 
   const { data: baseList, error } = await supabase
     .from('base_lists')
-    .insert({ user_id: user.id, ...validation.data })
+    .insert({ user_id: user.id, ...listFields, group_id: groupId })
     .select()
     .single()
 
@@ -52,23 +51,15 @@ export async function updateBaseList(id: string, data: unknown) {
   if (validation.data.name) {
     const { data: currentList } = await supabase
       .from('base_lists')
-      .select('group_id')
+      .select('name')
       .eq('id', id)
       .eq('user_id', user.id)
       .single()
 
-    if (currentList) {
-      const { data: existingList } = await supabase
-        .from('base_lists')
-        .select('id')
-        .eq('user_id', user.id)
-        .eq('group_id', currentList.group_id)
-        .ilike('name', validation.data.name)
-        .neq('id', id)
-        .maybeSingle()
-
-      if (existingList) {
-        throw new ApiServiceError(409, ErrorCode.CONFLICT, 'A list with this name already exists in this group. Please choose a different name.')
+    // A missing list is answered with 404 by the update below.
+    if (currentList && !isSameListName(currentList.name, validation.data.name)) {
+      if (await findListByName(supabase, user.id, validation.data.name, id)) {
+        throw new ApiServiceError(409, ErrorCode.CONFLICT, DUPLICATE_LIST_NAME_MESSAGE)
       }
     }
   }
@@ -109,7 +100,13 @@ export async function getBaseList(id: string) {
     .from('base_lists')
     .select(`
       *,
-      items:base_list_items(*),
+      items:base_list_items(
+        *,
+        usual_store:stores!base_list_items_usual_store_id_fkey(id, name),
+        store_stats:base_list_item_store_stats(
+          store_id, purchase_count, last_purchased_at, last_price, last_quantity, last_unit, last_price_at, store:stores(id, name)
+        )
+      ),
       collaborators:list_collaborators(id, user_id, role, joined_at)
     `)
     .eq('id', id)
@@ -120,7 +117,19 @@ export async function getBaseList(id: string) {
     throw new ApiServiceError(status, status === 404 ? ErrorCode.NOT_FOUND : ErrorCode.INTERNAL_ERROR, error.message)
   }
 
-  return { ...baseList, is_owner: baseList.user_id === user.id }
+  const items = (baseList.items ?? []).map(item => {
+    const { usual_store, store_stats, ...itemFields } = item
+    return {
+      ...itemFields,
+      ...buildItemStoreSummary(
+        store_stats as ItemStoreStatsRow[] | null,
+        usual_store,
+        item.usual_store_source,
+      ),
+    }
+  })
+
+  return { ...baseList, items, is_owner: baseList.user_id === user.id }
 }
 
 export async function getBaseLists() {
@@ -128,15 +137,47 @@ export async function getBaseLists() {
 
   const { data: baseLists, error } = await supabase
     .from('base_lists')
-    .select('id, name, group_id, items:base_list_items(count)')
+    .select('id, name, notes, group_id, created_at, items:base_list_items(count)')
     .eq('user_id', user.id)
     .order('name', { ascending: true })
+    .order('created_at', { ascending: true })
 
   if (error) {
     throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, error.message)
   }
 
   return baseLists
+}
+
+export async function getLikelyNeededItems(limit: number) {
+  const { supabase } = await createAuthenticatedClient()
+  const { data, error } = await supabase.rpc('likely_needed_items', { p_limit: limit })
+
+  if (error) {
+    throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'Could not load likely-needed items')
+  }
+
+  const rows = data ?? []
+  const hasHistory = rows[0]?.has_history ?? false
+  const items = rows.flatMap(row => {
+    if (
+      row.id === null || row.name === null || row.base_list_id === null || row.base_list_name === null ||
+      row.interval_days === null || row.days_since === null
+    ) return []
+
+    return [{
+      id: row.id,
+      name: row.name,
+      base_list: { id: row.base_list_id, name: row.base_list_name },
+      usual_store: row.usual_store_id && row.usual_store_name
+        ? { id: row.usual_store_id, name: row.usual_store_name }
+        : null,
+      interval_days: Number(row.interval_days),
+      days_since: Number(row.days_since),
+    }]
+  })
+
+  return { data: items, meta: { limit, has_history: hasHistory } }
 }
 
 export async function getBaseListsByGroup(groupId: string) {
@@ -200,6 +241,47 @@ export async function updateBaseListItem(id: string, data: unknown) {
   const validation = updateBaseListItemSchema.safeParse(data)
   if (!validation.success) {
     throw new ApiServiceError(422, ErrorCode.VALIDATION_ERROR, validation.error.issues[0]?.message ?? 'Invalid payload')
+  }
+
+  if (Object.hasOwn(validation.data, 'usual_store_id')) {
+    const { error: rpcError } = await supabase.rpc('set_item_usual_store', {
+      p_item_id: id,
+      p_store_id: validation.data.usual_store_id ?? null,
+    })
+
+    if (rpcError) {
+      if (rpcError.code === 'P0002') {
+        throw new ApiServiceError(404, ErrorCode.NOT_FOUND, 'Not found')
+      }
+      if (rpcError.code === '22023' || rpcError.code === '22P02') {
+        throw new ApiServiceError(422, ErrorCode.VALIDATION_ERROR, 'Invalid request')
+      }
+      console.error('[updateBaseListItem] usual store update failed', { code: rpcError.code ?? 'unknown' })
+      throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'Something went wrong. Please try again.')
+    }
+
+    const { data: item, error } = await supabase
+      .from('base_list_items')
+      .select(`
+        *,
+        usual_store:stores!base_list_items_usual_store_id_fkey(id, name),
+        store_stats:base_list_item_store_stats(
+          store_id, purchase_count, last_purchased_at, store:stores(id, name)
+        )
+      `)
+      .eq('id', id)
+      .single()
+
+    if (error || !item) {
+      const status = error?.code === 'PGRST116' ? 404 : 500
+      throw new ApiServiceError(status, status === 404 ? ErrorCode.NOT_FOUND : ErrorCode.INTERNAL_ERROR, status === 404 ? 'Not found' : 'Something went wrong. Please try again.')
+    }
+
+    const { usual_store, store_stats, ...itemFields } = item
+    return {
+      ...itemFields,
+      ...buildItemStoreSummary(store_stats as ItemStoreStatsRow[] | null, usual_store, item.usual_store_source),
+    }
   }
 
   const { data: item, error } = await supabase

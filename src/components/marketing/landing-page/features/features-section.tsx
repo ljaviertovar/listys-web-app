@@ -64,24 +64,24 @@ const FEATURES: Feature[] = [
 		),
 	},
 	{
-		title: 'Group your lists',
-		body: 'One group per place, each with its own lists.',
-		fragTitle: 'Your groups',
-		fragMeta: '3 groups',
+		title: 'Keep a list for each need',
+		body: 'The weekly shop, the pharmacy, the beach house: each list stays ready to reuse.',
+		fragTitle: 'Your lists',
+		fragMeta: '3 lists',
 		content: (
 			<Rows>
 				<Row
-					chip='3'
+					chip='24'
 					name='Weekly shop'
-					meta='Weekly household · Bulk run · Snacks'
+					meta='Everyday groceries'
 				/>
 				<Row
-					chip='1'
+					chip='8'
 					name='Pharmacy'
 					meta='Monthly refill'
 				/>
 				<Row
-					chip='2'
+					chip='12'
 					name='Beach house'
 					meta='Arrival day · Barbecue'
 				/>
@@ -187,7 +187,7 @@ export function FeaturesSection() {
 					The whole app, at a glance
 				</h2>
 				<p className='max-w-[34em] text-lg leading-[1.65] font-[450] text-slate-600 min-[900px]:pt-[7px]'>
-					Receipts, lists, groups, trips, people and history — all of it in the free account. There is only one.
+					Receipts, lists, trips, people and history — all of it in the free account. There is only one.
 				</p>
 			</div>
 			<div className='grid grid-cols-1 gap-5 min-[680px]:grid-cols-2 min-[1040px]:grid-cols-3'>

@@ -21,6 +21,7 @@ export function isSessionScreen(pathname: string, sessionId: string) {
 export function ActiveSessionBar() {
 	const pathname = usePathname()
 	const session = useActiveSessionStore(s => s.activeSession)
+	const otherCount = useActiveSessionStore(s => s.otherCount)
 	const progress = useSessionProgress(session?.id ?? null, pathname)
 
 	if (!session || isSessionScreen(pathname, session.id)) return null
@@ -31,6 +32,7 @@ export function ActiveSessionBar() {
 				id={session.id}
 				name={session.name || 'Current shopping'}
 				progress={progress}
+				otherCount={otherCount}
 			/>
 			<div
 				aria-hidden='true'

@@ -15,6 +15,7 @@ interface Props {
 /** How many items were read and what they add up to, with the receipt's own actions (retry, delete) underneath. */
 export function TicketSummaryCard({ ticket, itemsCount, pricedItemsCount, total }: Props) {
 	const showTotals = ticket.ocr_status === 'completed' && itemsCount > 0
+	const showReceiptTotal = ticket.ocr_status === 'completed' && typeof ticket.total_amount === 'number'
 	// Read but empty: the way out is a better photo or another read, before deleting.
 	const noItems = ticket.ocr_status === 'completed' && itemsCount === 0
 
@@ -24,24 +25,34 @@ export function TicketSummaryCard({ ticket, itemsCount, pricedItemsCount, total 
 			aria-label='Receipt summary'
 			className='flex flex-col rounded-3xl bg-card p-3 shadow-card md:p-4'
 		>
-			{showTotals ? (
+			{showTotals || showReceiptTotal ? (
 				<>
-					<div className='flex min-h-12 items-center justify-between text-sm text-slate-500 dark:text-muted-foreground'>
-						<span>Extracted items</span>
-						<b className='font-mono font-semibold text-foreground tabular-nums'>{itemsCount}</b>
-					</div>
-					<div className='flex min-h-12 items-center justify-between border-t border-slate-100 text-sm font-semibold dark:border-border'>
-						<span>Extracted Item Total</span>
-						<b className='font-mono text-xl leading-none font-bold tabular-nums'>{formatCurrency(total)}</b>
-					</div>
-					{pricedItemsCount < itemsCount ? (
+					{showTotals ? (
+						<>
+							<div className='flex min-h-12 items-center justify-between text-sm text-slate-500 dark:text-muted-foreground'>
+								<span>Extracted items</span>
+								<b className='font-mono font-semibold text-foreground tabular-nums'>{itemsCount}</b>
+							</div>
+							<div className='flex min-h-12 items-center justify-between border-t border-slate-100 text-sm font-semibold dark:border-border'>
+								<span>Extracted Item Total</span>
+								<b className='font-mono text-xl leading-none font-bold tabular-nums'>{formatCurrency(total)}</b>
+							</div>
+						</>
+					) : null}
+					{showReceiptTotal ? (
+						<div className='flex min-h-12 items-center justify-between border-t border-slate-100 text-sm font-semibold dark:border-border'>
+							<span>Receipt Total</span>
+							<b className='font-mono text-xl leading-none font-bold tabular-nums'>{formatCurrency(ticket.total_amount ?? 0)}</b>
+						</div>
+					) : null}
+					{showTotals && pricedItemsCount < itemsCount ? (
 						<p className='pb-2 text-xs leading-normal text-slate-500 dark:text-muted-foreground'>
 							Based on prices found for {pricedItemsCount} of {itemsCount} items. This may differ from the total printed on your receipt.
 						</p>
 					) : null}
 				</>
 			) : null}
-			<div className={cn('flex flex-col gap-2', showTotals && 'mt-2')}>
+			<div className={cn('flex flex-col gap-2', (showTotals || showReceiptTotal) && 'mt-2')}>
 				{noItems ? (
 					<UploadTicketDialog
 						label='Upload a New Receipt'

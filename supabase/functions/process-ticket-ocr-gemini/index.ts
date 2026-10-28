@@ -1,6 +1,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { encode as base64Encode } from 'https://deno.land/std@0.168.0/encoding/base64.ts'
+import { parseOcrPayload, STORE_AND_TOTAL_INSTRUCTIONS, STORE_NAME_INSTRUCTIONS, TOTAL_INSTRUCTIONS } from '../_shared/receipt-store.ts'
 
 const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY')!
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
@@ -18,6 +19,12 @@ interface ReceiptItem {
   unit: string
   price: number | null
   category: string | null
+}
+
+interface ImageResult {
+  items: ReceiptItem[]
+  storeName: string | null
+  total: number | null
 }
 
 /* --- HELPERS --- */
@@ -56,15 +63,27 @@ async function processImage(
   imageUrl: string,
   imageIndex: number,
   totalImages: number
-): Promise<ReceiptItem[]> {
+): Promise<ImageResult> {
   const positionContext = totalImages > 1
     ? `Image ${imageIndex + 1}/${totalImages}. Section: ${imageIndex === 0 ? 'START' : imageIndex === totalImages - 1 ? 'END' : 'MIDDLE'}.`
     : '';
 
-  const prompt = `You are a strict receipt extractor. Extract every product into a JSON array.
+  // The store name comes from the same request as the items: only the first photo, which carries the header, asks for it.
+  const storeInstructions = totalImages === 1
+    ? STORE_AND_TOTAL_INSTRUCTIONS
+    : [imageIndex === 0 ? STORE_NAME_INSTRUCTIONS : '', imageIndex === totalImages - 1 ? TOTAL_INSTRUCTIONS : '']
+      .filter(Boolean)
+      .join('\n\n');
+  const responseShape = storeInstructions
+    ? 'Return a JSON object with an "items" array and the requested "store_name" and/or "total" fields.'
+    : 'Return a JSON array of item objects.';
+
+  const prompt = `You are a strict receipt extractor. Extract every product into JSON.
   RULES: Never use null for quantity/unit (default to 1 and "unit").
-  SCHEMA: [{"name": "string", "category": "string", "quantity": number, "unit": "string", "price": number|null}]
-  ${positionContext}`;
+  ${responseShape}
+  ITEM SCHEMA: {"name": "string", "category": "string", "quantity": number, "unit": "string", "price": number|null}
+  ${positionContext}
+  ${storeInstructions}`;
 
   console.log(`[DEBUG] Processing image ${imageIndex + 1}/${totalImages}`);
   const { base64, mimeType } = await getBase64FromUrl(imageUrl);
@@ -100,20 +119,20 @@ async function processImage(
   console.log('[DEBUG] Extracted content length:', content.length, 'Preview:', content.slice(0, 200));
 
   try {
-    const parsed = JSON.parse(content);
-    console.log('[DEBUG] JSON parsed successfully, array?', Array.isArray(parsed), 'length:', Array.isArray(parsed) ? parsed.length : 'N/A');
-    const mapped = (Array.isArray(parsed) ? parsed : []).map(x => ({
-      name: String(x.name || 'Unknown'),
-      category: x.category || null,
-      quantity: isFinite(parseFloat(x.quantity)) ? parseFloat(x.quantity) : 1,
-      unit: x.unit ? String(x.unit) : 'unit',
-      price: typeof x.price === 'number' ? x.price : null,
+    const { items: parsed, storeName, total } = parseOcrPayload(content);
+    console.log('[DEBUG] JSON parsed successfully, items:', parsed.length, 'store name found:', storeName !== null);
+    const mapped = (parsed as Array<Record<string, unknown> | null>).map(x => ({
+      name: String(x?.name || 'Unknown'),
+      category: typeof x?.category === 'string' && x.category ? x.category : null,
+      quantity: isFinite(parseFloat(String(x?.quantity))) ? parseFloat(String(x?.quantity)) : 1,
+      unit: x?.unit ? String(x.unit) : 'unit',
+      price: typeof x?.price === 'number' ? x.price : null,
     }));
     console.log(`[DEBUG] Mapped ${mapped.length} items from image ${imageIndex + 1}`);
-    return mapped;
+    return { items: mapped, storeName, total };
   } catch (parseError) {
     console.error('[ERROR] JSON parse failed:', parseError, 'Content:', content.slice(0, 300));
-    return [];
+    return { items: [], storeName: null, total: null };
   }
 }
 
@@ -156,7 +175,7 @@ serve(async (req) => {
 
     // Check current OCR attempts and enforce max limit
     console.log('[DEBUG] Fetching current ticket state...');
-    const { data: ticket } = await supabase.from('tickets').select('ocr_attempts').eq('id', ticketId).single();
+    const { data: ticket } = await supabase.from('tickets').select('ocr_attempts, store_name').eq('id', ticketId).single();
     const currentAttempts = ticket?.ocr_attempts || 0;
     const MAX_OCR_ATTEMPTS = 3;
 
@@ -195,14 +214,16 @@ serve(async (req) => {
     // PROCESAMIENTO EN PARALELO (Mucho más rápido)
     console.log('[INFO] Starting parallel image processing...');
     const allResults = await Promise.all(
-      urls.map((url, i) => processImage(url, i, urls.length).catch(e => {
+      urls.map((url, i) => processImage(url, i, urls.length).catch((e): ImageResult => {
         console.error(`[ERROR] Error en imagen ${i + 1}/${urls.length}:`, e);
-        return [];
+        return { items: [], storeName: null, total: null };
       }))
     );
 
-    console.log('[DEBUG] All images processed. Results:', allResults.map(r => r.length));
-    const mergedItems = mergeItems(allResults);
+    console.log('[DEBUG] All images processed. Results:', allResults.map(r => r.items.length));
+    const mergedItems = mergeItems(allResults.map(r => r.items));
+    // A name the ticket already has (sent by a client or read earlier) is never overwritten.
+    const extractedStoreName = ticket?.store_name ? null : allResults[0]?.storeName ?? null;
     console.log('[INFO] Merged items count:', mergedItems.length);
 
     if (mergedItems.length > 0) {
@@ -231,7 +252,9 @@ serve(async (req) => {
       ocr_status: 'completed',
       processed_at: new Date().toISOString(),
       total_items: mergedItems.length,
-      ocr_error: null
+      total_amount: allResults[allResults.length - 1]?.total ?? null,
+      ocr_error: null,
+      ...(extractedStoreName ? { store_name: extractedStoreName } : {}),
     }).eq('id', ticketId);
 
     if (updErr) {
@@ -247,16 +270,17 @@ serve(async (req) => {
       headers: { "Content-Type": "application/json" }
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error)
     console.error('[FATAL] Fatal Error:', error);
-    console.error('[FATAL] Error stack:', error.stack);
-    console.error('[FATAL] Error details:', JSON.stringify(error, null, 2));
+    if (error instanceof Error) console.error('[FATAL] Error stack:', error.stack)
+    console.error('[FATAL] Error details:', message)
 
     if (ticketId) {
       console.log('[DEBUG] Updating ticket to failed state...');
       const { error: failError } = await supabase.from('tickets').update({
         ocr_status: 'failed',
-        ocr_error: error.message || String(error)
+        ocr_error: message
       }).eq('id', ticketId);
 
       if (failError) {

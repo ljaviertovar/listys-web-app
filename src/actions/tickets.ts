@@ -1,10 +1,13 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { isUsablePrice } from '@/utils/is-usable-price'
 import { mergeTicketItemsSchema, createBaseListFromTicketSchema } from '@/lib/validations/ticket'
 import { MAX_ITEMS_PER_BASE_LIST } from '@/lib/config/limits'
 import { revalidatePath } from 'next/cache'
 import { getOCRFunctionURL } from '@/lib/config/ocr'
+import { resolveListGroupId } from '@/lib/server/services/default-group.service'
+import { DUPLICATE_LIST_NAME_MESSAGE, findListByName } from '@/lib/server/services/find-list-by-name'
 
 export async function getTickets() {
   const supabase = await createClient()
@@ -113,6 +116,9 @@ export async function mergeTicketItemsToBaseList(data: unknown) {
   )
 
   if (mergeError) {
+    if (mergeError.message === 'RECEIPT_ATTACHED') {
+      return { error: 'This receipt is already attached to a trip.', details: { reason: 'RECEIPT_ATTACHED' } }
+    }
     return { error: mergeError.message }
   }
 
@@ -148,7 +154,23 @@ export async function createBaseListFromTicket(data: unknown) {
     return { error: validation.error.issues[0].message }
   }
 
-  const { ticket_id, group_id, name, item_ids } = validation.data
+  const { ticket_id, group_id: requestedGroupId, name, item_ids } = validation.data
+
+  const { data: ticket, error: ticketLookupError } = await supabase
+    .from('tickets')
+    .select('id, shopping_session_id')
+    .eq('id', ticket_id)
+    .eq('user_id', user.id)
+    .maybeSingle()
+
+  if (ticketLookupError) return { error: 'Unable to load this receipt.' }
+  if (!ticket) return { error: 'Ticket not found' }
+  if (ticket.shopping_session_id) {
+    return {
+      error: 'This receipt is already attached to a trip.',
+      details: { reason: 'RECEIPT_ATTACHED' },
+    }
+  }
 
   // Get ticket items
   const { data: ticketItems, error: ticketError } = await supabase
@@ -170,6 +192,17 @@ export async function createBaseListFromTicket(data: unknown) {
     return {
       error: `Cannot create list with ${ticketItems.length} items. Maximum allowed is ${MAX_ITEMS_PER_BASE_LIST} items per list.`
     }
+  }
+
+  if (await findListByName(supabase, user.id, name)) {
+    return { error: DUPLICATE_LIST_NAME_MESSAGE }
+  }
+
+  let group_id: string
+  try {
+    group_id = await resolveListGroupId(supabase, user.id, requestedGroupId)
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : 'We couldn’t create your list. Try again.' }
   }
 
   // Create new base list
@@ -195,6 +228,8 @@ export async function createBaseListFromTicket(data: unknown) {
     unit: item.unit,
     category: item.category,
     sort_order: index,
+    // The line's price starts the item's average, as merging into a list does.
+    average_price: isUsablePrice(item.price) ? item.price : null,
   }))
 
   const { error: insertError } = await supabase

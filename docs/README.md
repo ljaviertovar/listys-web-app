@@ -1,6 +1,7 @@
 # Listys documentation
 
-Listys helps users build reusable shopping lists from receipts, shop from those lists, and review purchase history.
+Listys helps users build reusable shopping lists from receipts, shop from those lists, and review purchase history. Its
+dashboard highlights likely-needed list items, known spending for the visitor's current month, and recent visits by store.
 This page is the documentation index and topic-ownership map. Requirements describe intended behavior;
 the implementation reference describes repository evidence. Neither establishes production readiness.
 
@@ -10,6 +11,7 @@ the implementation reference describes repository evidence. Neither establishes 
 | --- | --- |
 | Set up the web app and find commands | [Root README](../README.md) |
 | Understand MVP users, journeys, and acceptance criteria | [PRD v2](prd/PRD-v2.md) |
+| Read the product direction after the MVP and its phased plan | [PRD v3](prd/PRD-v3.md) — draft; it supersedes only the parts of PRD v2 it lists. Phase 1 is specified in the OpenSpec change `pantry-defaults-and-price-memory` (archived) and Phase 2 (flat lists) in `flat-lists-hide-groups` |
 | Read the earlier product definition | [PRD v1](prd/PRD-v1.md) — historical |
 | See implemented features and unresolved gaps | [Implementation status](reference/implementation-status.md) |
 | Understand runtime boundaries, data flows, and security | [Architecture](architecture/architecture.md) |
@@ -27,6 +29,14 @@ the implementation reference describes repository evidence. Neither establishes 
 ## Scope and maintenance
 
 - **MVP:** receipt capture/OCR, reusable lists and enrichment, shopping sessions, and history, governed by PRD v2.
+- **Direction:** PRD v3 refines the MVP in phases. Phase 1 (always sync on completion, a default "Pantry" list, visible
+  average price and estimated total), Phase 2 (flat lists: groups hidden from the interface, history filtered by list) and
+  Phase 3 includes the stores foundation (store read from receipts, normalized "My Stores", rename/merge, and receipt
+  lines linked to existing items), Phase 4 adds usual-store tags and store-scoped sessions, and Phase 5 adds printed
+  receipt totals, receipt-to-trip reconciliation, and owner-only comparison of latest recorded prices by store. The current
+  OpenSpec change adds dashboard summaries from purchase history and receipt totals; likely-needed items use recorded
+  intervals and are not alerts or predictions. Prices are from the user's own receipt history, not live or external price feeds. A trip supports one receipt,
+  and an attached receipt cannot be detached.
 - **Experimental:** shared lists, invitations, collaborators, and collaborative realtime shopping. The product owner
   confirmed on 2026-10-17 that these remain outside the MVP.
 - **Planning:** `openspec/` holds specifications and planned changes; its local configuration uses `spec-driven`.

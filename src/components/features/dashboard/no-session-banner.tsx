@@ -13,13 +13,15 @@ interface Props {
 	quickStart: DashboardModel['quickStart']
 	/** The list the hero's button starts; null while no list has items. */
 	startTarget: DashboardModel['startTarget']
+	/** The account's single empty list, if that is all it has; the hero then points straight at it. */
+	addItemsTarget?: DashboardModel['addItemsTarget']
 	lastTrip: DashboardModel['lastTrip']
 	/** Whether the user already owns at least one list; new users are pointed at a receipt instead. */
 	hasLists: boolean
 }
 
 function describeList(list: NonNullable<Props['startTarget']>) {
-	return [list.groupName, pluralize(list.itemsCount, 'item')].filter(Boolean).join(' · ')
+	return pluralize(list.itemsCount, 'item')
 }
 
 /**
@@ -27,7 +29,7 @@ function describeList(list: NonNullable<Props['startTarget']>) {
  * that is most due (after the usual confirmation), or, for an account without lists, uploads a receipt. The other lists
  * are shortcuts to open underneath.
  */
-export function NoSessionBanner({ quickStart, startTarget, lastTrip, hasLists }: Props) {
+export function NoSessionBanner({ quickStart, startTarget, addItemsTarget = null, lastTrip, hasLists }: Props) {
 	const otherLists = quickStart.filter(list => list.id !== startTarget?.id)
 
 	return (
@@ -51,7 +53,9 @@ export function NoSessionBanner({ quickStart, startTarget, lastTrip, hasLists }:
 							? 'Upload one receipt and Listys turns it into a list you can reuse every time you shop.'
 							: startTarget
 								? `Start “${startTarget.name}” (${describeList(startTarget)}). Your list stays as it is; the session works on a copy.`
-								: 'Your lists have no items yet. Add some to a list and it is ready to shop.'}
+								: addItemsTarget
+									? `Your list “${addItemsTarget.name}” has no items yet. Add some, or upload a receipt, and it is ready to shop.`
+									: 'Your lists have no items yet. Add some to a list and it is ready to shop.'}
 					</p>
 				</div>
 
@@ -62,19 +66,21 @@ export function NoSessionBanner({ quickStart, startTarget, lastTrip, hasLists }:
 						</span>
 						<ul className='flex flex-wrap gap-2'>
 							{otherLists.map(list => (
-								<li key={list.id}>
+								<li key={list.id} className='min-w-0 max-w-full'>
 									<Button
 										asChild
 										variant='on-dark'
 										size='primary'
 										rounded='full'
+										className='max-w-full'
 									>
 										<Link
 											href={`/base-lists/${list.id}/edit`}
 											data-testid={`dashboard-quick-start-${list.id}`}
+											className='flex min-w-0 max-w-full items-center focus-ring'
 										>
-											{list.name}
-											<span className='font-medium text-slate-400'>· {describeList(list)}</span>
+											<span className='min-w-0 truncate'>{list.name}</span>
+											<span className='shrink-0 font-medium text-slate-400'> · {describeList(list)}</span>
 										</Link>
 									</Button>
 								</li>
@@ -113,11 +119,11 @@ export function NoSessionBanner({ quickStart, startTarget, lastTrip, hasLists }:
 						className='mt-1 w-full md:w-auto md:self-start'
 					>
 						<Link
-							href='/shopping-lists'
+							href={addItemsTarget ? `/base-lists/${addItemsTarget.id}/edit` : '/shopping-lists'}
 							data-testid='dashboard-no-session-cta'
 							className='focus-ring'
 						>
-							Open Your Lists
+							{addItemsTarget ? 'Add Items' : 'Open Your Lists'}
 							<HugeiconsIcon
 								icon={ArrowRight02Icon}
 								strokeWidth={2}

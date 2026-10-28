@@ -180,7 +180,7 @@ compose a primitive to add domain behavior, but that behavior belongs outside `s
 
 - Add a new feature under `src/components/features/<domain>/` and pair it with domain types in `src/types/`, actions,
   validations, and services only as needed.
-- Keep list groups, base lists, shopping sessions, sharing, tickets, and OCR behavior in their existing domain modules;
+- Keep base lists, shopping sessions, sharing, tickets, and OCR behavior in their existing domain modules;
   do not place unrelated feature logic in `commons/` or `ui/`.
 - Add protected routes under `src/app/(authenticated)/`; the group's `layout.tsx` re-checks the session as defense in
   depth behind the auth middleware and wraps the page in the authenticated shell.

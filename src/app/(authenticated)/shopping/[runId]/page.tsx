@@ -4,12 +4,17 @@ import { ActiveShoppingBadge, PageContainer, PageHeader } from '@/components/app
 import { Badge } from '@/components/ui/badge'
 import { AddItemSheet } from '@/components/features/list-items'
 import { ShareListDialog } from '@/components/features/sharing'
+import { ActionLink } from '@/components/commons'
+import { Card } from '@/components/ui/card'
 import {
 	STARTED_SESSION_PARAM,
+	SessionEstimate,
 	SessionProgressCard,
 	ShoppingSessionActions,
 	ShoppingSessionItems,
 	ShoppingSessionRealtimeListener,
+	buildSessionPriceEstimate,
+	resolveSessionBackLink,
 } from '@/components/features/shopping-sessions'
 
 import { getShoppingSession } from '@/actions'
@@ -17,10 +22,11 @@ import { getShoppingSession } from '@/actions'
 import { createClient } from '@/lib/supabase/server'
 
 import type { ShoppingSessionWithItems } from '@/types'
+import { formatCurrency } from '@/utils'
 
 type SearchParams = {
 	from?: string | string[]
-	groupId?: string | string[]
+	list?: string | string[]
 	started?: string | string[]
 }
 
@@ -34,9 +40,7 @@ export default async function ShoppingRunPage({
 	const { runId } = await params
 	const resolvedSearchParams = await searchParams
 	const origin = Array.isArray(resolvedSearchParams.from) ? resolvedSearchParams.from[0] : resolvedSearchParams.from
-	const originGroupId = Array.isArray(resolvedSearchParams.groupId)
-		? resolvedSearchParams.groupId[0]
-		: resolvedSearchParams.groupId
+	const originListId = Array.isArray(resolvedSearchParams.list) ? resolvedSearchParams.list[0] : resolvedSearchParams.list
 	// Only the visit that follows starting the session; the items clear it from the URL once shown.
 	const justStarted = [resolvedSearchParams[STARTED_SESSION_PARAM]].flat()[0] === '1'
 	const supabase = await createClient()
@@ -55,27 +59,25 @@ export default async function ShoppingRunPage({
 	}
 
 	const runWithItems = shoppingSession as ShoppingSessionWithItems & {
-		base_list?: { group_id?: string | null; name?: string | null; user_id?: string | null } | null
+		base_list?: { name?: string | null; user_id?: string | null } | null
+		store?: { id: string; name: string } | null
+		receipt?: { id: string; total_amount: number | null } | null
 	}
 	const isCompleted = runWithItems.status === 'completed'
 
 	const baseListId = runWithItems.base_list_id
 	const baseListName = runWithItems.base_list?.name ?? runWithItems.name
 	const isListOwner = runWithItems.base_list?.user_id === user.id
-	const groupId = runWithItems.base_list?.group_id
 
-	const { data: group } = groupId ? await supabase.from('groups').select('name').eq('id', groupId).single() : { data: null }
+	const { href: backHref, label: backLabel } = resolveSessionBackLink(origin, originListId)
 
-	let backHref = '/shopping-history'
-	let backLabel = 'Back to Shopping History'
-
-	if (origin === 'history-group' && originGroupId) {
-		backHref = `/shopping-history/${originGroupId}`
-		backLabel = 'Back to Group History'
-	} else if (groupId) {
-		backHref = `/shopping-lists/${groupId}/lists`
-		backLabel = `Back to ${group?.name || 'Group Lists'}`
-	}
+	// The estimate only exists while the trip runs; a finished session shows what was bought, not a guess.
+	// Read-only: it never writes a price. The list's own RLS decides what a collaborator can read.
+	const { data: knownPrices } =
+		!isCompleted && baseListId
+			? await supabase.from('base_list_items').select('normalized_name, average_price').eq('base_list_id', baseListId)
+			: { data: null }
+	const priceEstimate = isCompleted ? null : buildSessionPriceEstimate(runWithItems.items, knownPrices ?? [])
 
 	// A finished session only shows what was bought.
 	const items = isCompleted ? runWithItems.items.filter(item => item.checked === true) : runWithItems.items
@@ -88,13 +90,17 @@ export default async function ShoppingRunPage({
 				variant='screen'
 				back={{ href: backHref, label: backLabel }}
 				title={runWithItems.name}
-				desc={
+					desc={
 					isCompleted ? (
-						<Badge variant='completed'>
-							Completed
-						</Badge>
+						<div className='flex flex-wrap items-center gap-2'>
+							<Badge variant='completed'>Completed</Badge>
+							{runWithItems.store ? <Badge variant='neutral'>At {runWithItems.store.name}</Badge> : null}
+						</div>
 					) : (
-						<ActiveShoppingBadge />
+						<div className='flex flex-wrap items-center gap-2'>
+							<ActiveShoppingBadge />
+							{runWithItems.store ? <Badge variant='neutral'>At {runWithItems.store.name}</Badge> : null}
+						</div>
 					)
 				}
 			>
@@ -117,6 +123,27 @@ export default async function ShoppingRunPage({
 							isCompleted={isCompleted}
 						/>
 					)}
+
+					{priceEstimate ? (
+						<SessionEstimate
+							total={priceEstimate.total}
+							pricedCount={priceEstimate.pricedCount}
+							itemCount={priceEstimate.itemCount}
+						/>
+					) : null}
+					{runWithItems.receipt ? (
+						<Card size='tight' data-testid='session-receipt-summary'>
+							<div className='flex flex-wrap items-center justify-between gap-3'>
+								<div className='flex min-w-0 flex-col gap-1'>
+									<p className='text-xs font-medium text-muted-foreground'>Paid from receipt</p>
+									<p className='font-mono text-xl font-bold tabular-nums'>
+										{runWithItems.receipt.total_amount === null ? 'Total unavailable' : formatCurrency(runWithItems.receipt.total_amount)}
+									</p>
+								</div>
+								<ActionLink href={`/tickets/${runWithItems.receipt.id}`}>View Receipt</ActionLink>
+							</div>
+						</Card>
+					) : null}
 
 					{isCompleted ? null : (
 						<div
@@ -141,7 +168,10 @@ export default async function ShoppingRunPage({
 					<ShoppingSessionItems
 						items={items}
 						isCompleted={isCompleted}
+						priceByItemId={priceEstimate ? Object.fromEntries(priceEstimate.priceByItemId) : undefined}
 						startCollapsed={justStarted && !isCompleted}
+						storeId={runWithItems.store_id}
+						storeName={runWithItems.store?.name ?? null}
 					/>
 				</div>
 			</PageContainer>

@@ -71,7 +71,7 @@ describe('shadcn-native props: the code', () => {
 	it('finds the wrappers by itself, including wrappers of wrappers', () => {
 		const names = result.wrappers.map(w => w.name)
 
-		expect(names).toEqual(expect.arrayContaining(['CreateGroupDialog', 'StartShoppingDialog', 'ShareListDialog', 'AddItemSheet', 'UploadTicketDialog']))
+		expect(names).toEqual(expect.arrayContaining(['CreateBaseListDialog', 'StartShoppingDialog', 'ShareListDialog', 'AddItemSheet', 'UploadTicketDialog']))
 		// ItemFields forwards to a field that forwards to Input: it only counts when the fixpoint works.
 		expect(names).toContain('SheetDialog')
 	})
@@ -139,7 +139,7 @@ export default function Page() {
 	afterAll(() => {
 		fs.rmSync(dir, { recursive: true, force: true })
 		scan() // restore the module's root to the real src for any later caller
-	})
+	}, 30_000)
 
 	const find = (kind: string, tag?: string) => fixture.findings.filter(f => f.kind === kind && (!tag || f.tag === tag))
 

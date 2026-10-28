@@ -1,14 +1,19 @@
 import { redirect } from 'next/navigation'
 
 import { PageContainer, PageHeader } from '@/components/app'
-import { GroupsList } from '@/components/features/shopping-lists'
 import { RetryableError } from '@/components/commons'
+import { BaseListsList } from '@/components/features/base-lists'
 
 import { createClient } from '@/lib/supabase/server'
 
-import { getGroups } from '@/lib/api/endpoints'
+import { getBaseLists } from '@/lib/api/endpoints'
 
-export default async function GroupsPage() {
+import type { BaseListWithCount } from '@/types'
+
+/** A list as the API returns it: the item count comes nested as `items: [{ count }]`. */
+type BaseListRow = Omit<BaseListWithCount, 'items_count'> & { items?: Array<{ count?: number }> }
+
+export default async function ShoppingListsPage() {
 	const supabase = await createClient()
 	const {
 		data: { user },
@@ -18,22 +23,46 @@ export default async function GroupsPage() {
 		redirect('/auth/signin')
 	}
 
-	const { data: groups, error } = await getGroups()
+	const [baseListsResult, activeSessionResult] = await Promise.all([
+		getBaseLists(),
+			supabase
+			.from('shopping_sessions')
+			.select('id, base_list_id')
+			.eq('status', 'active')
+				.order('started_at', { ascending: false })
+				.limit(100),
+	])
+
+	const { data: baseLists, error } = baseListsResult
+	const { data: activeSessions } = activeSessionResult
+
+	// Transform Supabase count result to our type
+	const baseListsWithCount: BaseListWithCount[] = ((baseLists ?? []) as BaseListRow[]).map(list => ({
+		...list,
+		items_count: Array.isArray(list.items) ? list.items[0]?.count || 0 : 0,
+	}))
 
 	return (
 		<>
 			<PageHeader
 				variant='screen'
 				back={{ href: '/dashboard', label: 'Back to Dashboard' }}
-				title='Shopping List Groups'
-				desc='Organize your shopping lists into groups or stores. Eg: Groceries, Electronics, Walmart, etc.'
+				title='Shopping Lists'
+				desc='All your lists in one place. Start with the things you always buy.'
 			/>
 
 			<PageContainer>
 				{error ? (
-					<RetryableError message='We couldn’t load your groups.' href='/shopping-lists' testId='groups-load-error' />
+					<RetryableError
+						message='We couldn’t load your lists.'
+						href='/shopping-lists'
+						testId='base-lists-load-error'
+					/>
 				) : (
-					<GroupsList groups={groups ?? []} />
+					<BaseListsList
+						baseLists={baseListsWithCount}
+						activeSessionIds={Object.fromEntries((activeSessions ?? []).map(session => [session.base_list_id, session.id]))}
+					/>
 				)}
 			</PageContainer>
 		</>

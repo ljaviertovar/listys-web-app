@@ -1,11 +1,11 @@
 // Tickets components barrel export
-export { AssignTicketToGroupDialog } from './add-to-list/assign-ticket-to-group-dialog'
 export { TicketsList, type TicketsListItem } from './list/tickets-list'
-export { TicketsFilter } from './list/tickets-filter'
 export { TicketActions } from './receipt/ticket-actions'
 export { sumLineTotals } from './receipt/helpers/group-ticket-items'
 export { TicketReview } from './receipt/ticket-review'
+export { TicketStoreCard } from './receipt/ticket-store-card'
 export { TicketSummaryCard } from './receipt/ticket-summary-card'
+export { TicketAttachCard } from './attach/ticket-attach-card'
 export { toTicketStatus } from './helpers/ticket-status'
 export { TicketStatusChip } from './ticket-status-chip'
 export { TicketStatusListener } from './receipt/ticket-status-listener'

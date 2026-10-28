@@ -1,17 +1,18 @@
 #!/usr/bin/env node
-const { execSync } = require('child_process')
-const fs = require('fs')
-const path = require('path')
-
 function exit(msg) {
   console.error(msg)
   process.exit(1)
 }
 
+async function main() {
+  const { execSync } = await import('node:child_process')
+  const { existsSync, readFileSync, writeFileSync } = await import('node:fs')
+  const path = await import('node:path')
+
 // Try to load .env.local if present to populate env vars
 const envPath = path.resolve(process.cwd(), '.env.local')
-if (fs.existsSync(envPath)) {
-  const content = fs.readFileSync(envPath, 'utf8')
+if (existsSync(envPath)) {
+  const content = readFileSync(envPath, 'utf8')
   for (const line of content.split(/\r?\n/)) {
     const trimmed = line.trim()
     if (!trimmed || trimmed.startsWith('#')) continue
@@ -36,11 +37,22 @@ if (projectId.includes('supabase.co')) {
   if (m && m[1]) projectId = m[1]
 }
 
+if (!/^[a-z0-9-]+$/i.test(projectId)) {
+  exit('Invalid Supabase project id. Pass the project id or a Supabase project URL.')
+}
+
 console.log('Generating Supabase types for project:', projectId)
 
 try {
-  execSync(`npx supabase gen types typescript --project-id ${projectId} > src/types/database.types.ts`, { stdio: 'inherit' })
+  const generatedTypes = execSync(`npx supabase gen types typescript --project-id ${projectId}`, {
+    encoding: 'utf8',
+    stdio: ['inherit', 'pipe', 'inherit'],
+  })
+  writeFileSync('src/types/database.types.ts', generatedTypes)
   console.log('Wrote src/types/database.types.ts')
 } catch (err) {
-  exit('Failed to generate types: ' + err.message)
+  exit('Failed to generate types: ' + (err instanceof Error ? err.message : String(err)))
 }
+}
+
+main().catch(error => exit('Failed to generate types: ' + (error instanceof Error ? error.message : String(error))))

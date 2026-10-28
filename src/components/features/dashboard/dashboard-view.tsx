@@ -3,10 +3,11 @@ import { MOBILE_DASHBOARD_SESSION_CLEARANCE } from '@/components/app'
 import { cn } from '@/utils'
 import { ActiveSessionBanner } from './active-session-banner'
 import { DashboardGreeting } from './dashboard-greeting'
-import { GroupsSectionCard } from './groups-section-card'
-import { HistorySectionCard } from './history-section-card'
+import { ListsSectionCard } from './lists-section-card'
+import { LikelyNeededCard } from './likely-needed-card'
+import { MonthSpendingCard } from './month-spending-card'
 import { NoSessionBanner } from './no-session-banner'
-import { ReceiptsSectionCard } from './receipts-section-card'
+import { StoreVisitsCard } from './store-visits-card'
 import { UpNextList } from './up-next-list'
 import type { DashboardModel } from './helpers/build-dashboard-model'
 
@@ -45,17 +46,19 @@ export function DashboardView({ model, firstName, isGuest = false, hasLists }: P
 				) : null}
 			</header>
 
-			<div className='grid items-stretch gap-6 lg:grid-cols-5'>
+			<div className='grid grid-cols-1 items-stretch gap-6 lg:grid-cols-5'>
 				<div className={cn(hasUpNext ? 'lg:col-span-3' : 'lg:col-span-5')}>
 					{model.activeSession ? (
 						<ActiveSessionBanner
 							session={model.activeSession}
 							isGuest={isGuest}
+							otherSessionCount={model.otherSessionCount}
 						/>
 					) : (
 						<NoSessionBanner
 							quickStart={model.quickStart}
 							startTarget={model.startTarget}
+							addItemsTarget={model.addItemsTarget}
 							lastTrip={model.lastTrip}
 							hasLists={hasLists}
 						/>
@@ -68,16 +71,14 @@ export function DashboardView({ model, firstName, isGuest = false, hasLists }: P
 				) : null}
 			</div>
 
-			<div className='grid items-stretch gap-5 sm:grid-cols-2 xl:grid-cols-3'>
-				<GroupsSectionCard
-					groups={model.groups}
-					sessionActive={model.activeSession !== null}
+			<div className='grid grid-cols-1 items-stretch gap-5 sm:grid-cols-2 2xl:grid-cols-4'>
+				<ListsSectionCard
+					lists={model.lists}
+					activeSessionIds={model.activeSessionIds}
 				/>
-				<ReceiptsSectionCard receipts={model.receipts} />
-				{/* On two columns the third card takes the whole row instead of leaving a half-empty one. */}
-				<div className='sm:col-span-2 xl:col-span-1'>
-					<HistorySectionCard trips={model.trips} />
-				</div>
+				<LikelyNeededCard likelyNeeded={model.likelyNeeded} />
+				<MonthSpendingCard />
+				<StoreVisitsCard visits={model.storeVisits} />
 			</div>
 
 		</div>

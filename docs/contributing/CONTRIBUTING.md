@@ -11,16 +11,19 @@ is experimental. [AGENTS.md](../../AGENTS.md) owns engineering constraints and t
 pnpm lint
 pnpm typecheck
 pnpm test:ci
+pnpm check:native-props
 pnpm verify:limits-reference
 pnpm build
 ```
 
 `pnpm test` starts Vitest watch mode. `pnpm test:critical` covers actions, API routes, lib, stores and utilities.
 Vitest uses the Node environment and includes `src/**/*.test.ts`; component-named tests do not establish rendered
-browser coverage. Inspect their assertions before claiming UI validation.
+browser coverage. Inspect their assertions before claiming UI validation. `pnpm check:native-props` runs the
+"shadcn-native first" source scan, which is kept out of the default suite.
 
 Run corresponding tests for modified features and add missing application-owned behavior coverage under AGENTS.md.
-Unchanged third-party primitives do not need duplicate tests. Appearance changes also require local Chrome DevTools
+Third-party code (external libraries and the framework) is never tested, and appearance (classes, colours, sizes,
+icons, static copy) is not asserted in tests. Appearance changes also require local Chrome DevTools
 inspection and mobile/desktop screenshots against the relevant sections of the Design system v2 HTML. Documentation-only
 changes need link, evidence, terminology, command and diff checks; they do not require a new browser test.
 

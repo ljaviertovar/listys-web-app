@@ -39,38 +39,23 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 	const baseListWithItems = baseList as BaseListWithItems
 	const items = baseListWithItems.items ?? []
 
-	// Parallelize group info and session queries
-	const [groupResult, activeSessionResult, anyActiveSessionResult] = await Promise.all([
-		supabase.from('groups').select('id, name').eq('id', baseListWithItems.group_id).single(),
-		supabase
-			.from('shopping_sessions')
-			.select('id, name')
-			.eq('user_id', user.id)
-			.eq('base_list_id', baseListId)
-			.eq('status', 'active')
-			.maybeSingle(),
-		supabase
-			.from('shopping_sessions')
-			.select('id, base_list_id')
-			.eq('user_id', user.id)
-			.eq('status', 'active')
-			.maybeSingle(),
-	])
+	// RLS includes collaborator sessions; the per-list constraint guarantees at most one active result.
+	const activeSessionResult = await supabase
+		.from('shopping_sessions')
+		.select('id, name')
+		.eq('base_list_id', baseListId)
+		.eq('status', 'active')
+		.maybeSingle()
 
-	const { data: group } = groupResult
 	// This list is being shopped: it is locked until the session ends.
 	const isLocked = !!activeSessionResult.data
-	// Only one session can run at a time, so any of them hides "Start Shopping".
-	const hasActiveSession = !!anyActiveSessionResult.data
+	const activeSession = activeSessionResult.data
 
 	return (
 		<>
 			<PageHeader
 				variant='screen'
-				back={{
-					href: `/shopping-lists/${baseListWithItems.group_id}/lists`,
-					label: `Back to ${group?.name || 'Shopping Lists'}`,
-				}}
+				back={{ href: '/shopping-lists', label: 'Back to Lists' }}
 				title={baseListWithItems.name}
 				desc='Manage items in this base list'
 			/>
@@ -81,7 +66,9 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 						baseListId={baseListId}
 						baseListName={baseListWithItems.name}
 						itemsCount={items.length}
-						sessionActive={hasActiveSession}
+						items={items}
+						sessionActive={!!activeSession}
+						activeSessionId={activeSession?.id}
 						className='sm:w-fit'
 					/>
 
@@ -109,6 +96,7 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 						baseListId={baseListId}
 						items={items}
 						isLocked={isLocked}
+						isOwner={isOwner}
 					/>
 				</div>
 			</PageContainer>

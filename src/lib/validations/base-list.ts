@@ -1,7 +1,8 @@
 import { z } from 'zod'
 
 export const createBaseListSchema = z.object({
-  group_id: z.string().uuid(),
+  // Optional since groups left the interface: without it the list goes to the user's default group.
+  group_id: z.string().uuid().nullish(),
   name: z.string().min(1, 'Name is required').max(100),
   notes: z.string().max(500).nullable().optional(),
 })
@@ -38,6 +39,15 @@ export const updateBaseListItemSchema = z.object({
   notes: z.string().max(500).optional(),
   category: z.string().max(50).optional(),
   sort_order: z.number().int().optional(),
+  usual_store_id: z.string().uuid().nullable().optional(),
+}).strict().superRefine((data, context) => {
+  if (Object.hasOwn(data, 'usual_store_id') && Object.keys(data).some(key => key !== 'usual_store_id')) {
+    context.addIssue({
+      code: 'custom',
+      path: ['usual_store_id'],
+      message: 'Usual store must be updated separately from other item fields.',
+    })
+  }
 })
 
 export type CreateBaseListInput = z.infer<typeof createBaseListSchema>

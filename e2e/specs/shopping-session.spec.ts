@@ -1,16 +1,59 @@
 import { test, expect } from '@playwright/test'
+import { createClient } from '@supabase/supabase-js'
+import type { Database } from '@/types'
 import {
   createCompleteSetup,
-  createBaseListItems,
   resetDatabase,
   cleanTestUsers,
   createTestClient,
+  createTestUser,
 } from '../helpers'
+
+type Setup = Awaited<ReturnType<typeof createCompleteSetup>>
+
+/** A client that acts as the user (RLS and auth.uid() apply), which the completion RPC requires. */
+async function signInAsUser(email: string, password: string) {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  if (!url || !anonKey) throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY')
+
+  const client = createClient<Database>(url, anonKey, { auth: { persistSession: false, autoRefreshToken: false } })
+  const { error } = await client.auth.signInWithPassword({ email, password })
+  if (error) throw new Error(`Failed to sign in test user: ${error.message}`)
+  return client
+}
+
+/** An active session cloned from the setup's base list. */
+async function startSession(setup: Setup) {
+  const supabase = createTestClient()
+  const { data: baseItems } = await supabase.from('base_list_items').select('*').eq('base_list_id', setup.baseList.id)
+  const { data: session } = await supabase
+    .from('shopping_sessions')
+    .insert({ user_id: setup.user.userId, base_list_id: setup.baseList.id, name: 'Shopping Trip', status: 'active' })
+    .select()
+    .single()
+
+  const { data: sessionItems } = await supabase
+    .from('shopping_session_items')
+    .insert(
+      baseItems!.map((item, index) => ({
+        shopping_session_id: session!.id,
+        name: item.name,
+        quantity: item.quantity,
+        unit: item.unit,
+        checked: false,
+        sort_order: index,
+      })),
+    )
+    .select()
+
+  return { sessionId: session!.id as string, sessionItems: sessionItems! }
+}
 
 /**
  * Shopping Session Lifecycle Tests
  *
- * Critical: Validates session creation, dynamic ordering, and transactional sync back to base list
+ * Critical: Validates session creation, dynamic ordering, and the atomic completion that always syncs back to the base list
  * Tests enrichment updates, quantity changes, and data integrity
  */
 
@@ -97,7 +140,7 @@ test.describe('Shopping Session Lifecycle', () => {
       .order('last_purchased_at', { ascending: false, nullsFirst: false })
 
     // Clone items to shopping session
-    const sessionItems = baseListItems!.map((item: any, index: number) => ({
+    const sessionItems = baseListItems!.map((item, index) => ({
       shopping_session_id: session!.id,
       name: item.name,
       quantity: item.quantity,
@@ -122,8 +165,7 @@ test.describe('Shopping Session Lifecycle', () => {
     expect(orderedItems![3].name).toBe('Never Bought')
   })
 
-  test('Complete session with sync updates base list enrichment', async () => {
-    // Setup
+  test('Completing a session always updates base list enrichment', async () => {
     const setup = await createCompleteSetup({
       items: [
         { name: 'Milk', quantity: 1, unit: 'L' },
@@ -132,145 +174,104 @@ test.describe('Shopping Session Lifecycle', () => {
       ],
     })
 
-    const supabase = createTestClient()
+    const { sessionId, sessionItems } = await startSession(setup)
+    const userClient = await signInAsUser(setup.user.email, setup.user.password)
 
-    // Get base list items
-    const { data: baseListItems } = await supabase
+    const byName = (name: string) => sessionItems.find((item) => item.name === name)!
+    const admin = createTestClient()
+    await admin.from('shopping_session_items').update({ checked: true, quantity: 2 }).eq('id', byName('Milk').id)
+    await admin.from('shopping_session_items').update({ checked: true }).eq('id', byName('Bread').id)
+    // Eggs stays unchecked: not purchased.
+
+    const { data: eggsBefore } = await admin
       .from('base_list_items')
-      .select('*')
+      .select('id, purchase_count')
       .eq('base_list_id', setup.baseList.id)
-
-    // Create shopping session
-    const { data: session } = await supabase
-      .from('shopping_sessions')
-      .insert({
-        user_id: setup.user.userId,
-        base_list_id: setup.baseList.id,
-        name: 'Shopping Trip',
-        status: 'active',
-      })
-      .select()
+      .eq('name', 'Eggs')
       .single()
 
-    // Create session items (clone from base list)
-    const sessionItemsData = baseListItems!.map((item: any) => ({
-      shopping_session_id: session!.id,
-      name: item.name,
-      quantity: item.quantity,
-      unit: item.unit,
-      checked: false,
-    }))
-
-    const { data: sessionItems } = await supabase
-      .from('shopping_session_items')
-      .insert(sessionItemsData)
-      .select()
-
-    // Simulate user interactions: check items and change quantities
-    await supabase
-      .from('shopping_session_items')
-      .update({ checked: true, quantity: 2 })
-      .eq('id', sessionItems![0].id) // Milk: checked, quantity 2
-
-    await supabase
-      .from('shopping_session_items')
-      .update({ checked: true })
-      .eq('id', sessionItems![1].id) // Bread: checked, quantity unchanged
-
-    // Eggs: not checked (not purchased)
-
-    // Complete session with sync
-    const { data: completedSession } = await supabase
-      .from('shopping_sessions')
-      .update({
-        status: 'completed',
-        completed_at: new Date().toISOString(),
-      })
-      .eq('id', session!.id)
-      .select()
-      .single()
-
-    expect(completedSession!.status).toBe('completed')
-
-    // Call sync RPC (if exists) or manually update base list
-    // For now, we'll manually verify the expected behavior
-    const checkedItems = sessionItems!.filter((_: any, idx: number) => idx < 2) // Milk and Bread
-
-    for (const sessionItem of checkedItems) {
-      const baseItem = baseListItems!.find((bi: any) => bi.name === sessionItem.name)
-      if (baseItem) {
-        await supabase
-          .from('base_list_items')
-          .update({
-            purchase_count: (baseItem.purchase_count || 0) + 1,
-            last_purchased_at: new Date().toISOString(),
-            quantity: sessionItem.quantity, // Update from session
-          })
-          .eq('id', baseItem.id)
-      }
-    }
-
-    // Verify base list updated
-    const { data: updatedBaseItems } = await supabase
-      .from('base_list_items')
-      .select('*')
-      .eq('base_list_id', setup.baseList.id)
-      .order('name')
-
-    const milkItem = updatedBaseItems!.find((item: any) => item.name === 'Milk')
-    expect(milkItem!.purchase_count).toBe(1)
-    expect(milkItem!.quantity).toBe(2)
-    expect(milkItem!.last_purchased_at).not.toBeNull()
-
-    const breadItem = updatedBaseItems!.find((item: any) => item.name === 'Bread')
-    expect(breadItem!.purchase_count).toBe(1)
-    expect(breadItem!.last_purchased_at).not.toBeNull()
-
-    const eggsItem = updatedBaseItems!.find((item: any) => item.name === 'Eggs')
-    expect(eggsItem!.purchase_count).toBe(0) // Not checked, not purchased
-    expect(eggsItem!.last_purchased_at).toBeNull()
-  })
-
-  test('Session with sync_to_base = false does not update base list', async () => {
-    // Setup
-    const setup = await createCompleteSetup({
-      items: [{ name: 'Test Item', quantity: 1 }],
+    const { data: summary, error } = await userClient.rpc('complete_shopping_session', {
+      p_session_id: sessionId,
+      p_max_items: 250,
     })
 
-    const supabase = createTestClient()
+    expect(error).toBeNull()
+    expect(summary![0]).toEqual({ new_count: 0, updated_count: 2, skipped_count: 0, over_limit_count: 0 })
 
-    // Get original purchase_count
-    const { data: originalItems } = await supabase
+    const { data: completed } = await admin.from('shopping_sessions').select('*').eq('id', sessionId).single()
+    expect(completed!.status).toBe('completed')
+    expect(completed!.completed_at).not.toBeNull()
+
+    const { data: milk } = await admin
+      .from('base_list_items')
+      .select('*')
+      .eq('base_list_id', setup.baseList.id)
+      .eq('name', 'Milk')
+      .single()
+    expect(milk!.purchase_count).toBe(2) // seeded at 1 by the enrichment migration, plus this trip
+    expect(milk!.quantity).toBe(2)
+    expect(milk!.last_purchased_at).not.toBeNull()
+
+    const { data: eggsAfter } = await admin.from('base_list_items').select('purchase_count').eq('id', eggsBefore!.id).single()
+    expect(eggsAfter!.purchase_count).toBe(eggsBefore!.purchase_count) // unchecked items are untouched
+  })
+
+  test('Completing a session twice counts the purchase once', async () => {
+    const setup = await createCompleteSetup({ items: [{ name: 'Milk', quantity: 1, unit: 'L' }] })
+    const { sessionId, sessionItems } = await startSession(setup)
+    const userClient = await signInAsUser(setup.user.email, setup.user.password)
+    const admin = createTestClient()
+    await admin.from('shopping_session_items').update({ checked: true }).eq('id', sessionItems[0].id)
+
+    const first = await userClient.rpc('complete_shopping_session', { p_session_id: sessionId })
+    const second = await userClient.rpc('complete_shopping_session', { p_session_id: sessionId })
+
+    expect(first.error).toBeNull()
+    expect(second.error?.message).toBe('SESSION_NOT_ACTIVE')
+
+    const { data: item } = await admin
       .from('base_list_items')
       .select('purchase_count')
       .eq('base_list_id', setup.baseList.id)
       .single()
+    expect(item!.purchase_count).toBe(2) // seeded at 1 by the enrichment migration, plus one trip
+  })
 
-    const originalCount = originalItems!.purchase_count || 0
+  test('A full base list never blocks completing the trip', async () => {
+    const setup = await createCompleteSetup({ items: [{ name: 'Milk', quantity: 1, unit: 'L' }] })
+    const { sessionId, sessionItems } = await startSession(setup)
+    const userClient = await signInAsUser(setup.user.email, setup.user.password)
+    const admin = createTestClient()
+    await admin.from('shopping_session_items').update({ checked: true }).eq('id', sessionItems[0].id)
+    await admin.from('shopping_session_items').insert({
+      shopping_session_id: sessionId,
+      name: 'Brand New Item',
+      quantity: 1,
+      checked: true,
+      sort_order: 10,
+    })
 
-    // Create and complete session WITHOUT sync
-    const { data: session } = await supabase
-      .from('shopping_sessions')
-      .insert({
-        user_id: setup.user.userId,
-        base_list_id: setup.baseList.id,
-        name: 'No Sync Session',
-        status: 'completed',
-        completed_at: new Date().toISOString(),
-      })
-      .select()
-      .single()
+    // The list already holds one item, so a limit of one leaves no room for the new item.
+    const { data: summary, error } = await userClient.rpc('complete_shopping_session', {
+      p_session_id: sessionId,
+      p_max_items: 1,
+    })
 
-    expect(session).not.toBeNull()
+    expect(error).toBeNull()
+    expect(summary![0]).toEqual({ new_count: 0, updated_count: 1, skipped_count: 1, over_limit_count: 1 })
+    const { data: completed } = await admin.from('shopping_sessions').select('status').eq('id', sessionId).single()
+    expect(completed!.status).toBe('completed')
+  })
 
-    // Verify base list NOT updated (purchase_count unchanged)
-    const { data: finalItems } = await supabase
-      .from('base_list_items')
-      .select('purchase_count')
-      .eq('base_list_id', setup.baseList.id)
-      .single()
+  test('Another user cannot complete a session', async () => {
+    const setup = await createCompleteSetup({ items: [{ name: 'Milk', quantity: 1, unit: 'L' }] })
+    const { sessionId } = await startSession(setup)
+    const other = await createTestUser()
+    const otherClient = await signInAsUser(other.email, other.password)
 
-    expect(finalItems!.purchase_count).toBe(originalCount)
+    const { error } = await otherClient.rpc('complete_shopping_session', { p_session_id: sessionId })
+
+    expect(error?.message).toBe('SESSION_NOT_FOUND')
   })
 
   test('Cancel active session removes it', async () => {
@@ -384,10 +385,10 @@ test.describe('Shopping Session Lifecycle', () => {
       .select('*')
       .eq('shopping_session_id', session!.id)
 
-    const appleItem = sessionItems!.find((item: any) => item.name === 'Apple')
+    const appleItem = sessionItems!.find((item) => item.name === 'Apple')
     expect(appleItem!.category).toBe('Produce')
 
-    const yogurtItem = sessionItems!.find((item: any) => item.name === 'Yogurt')
+    const yogurtItem = sessionItems!.find((item) => item.name === 'Yogurt')
     expect(yogurtItem!.category).toBe('Dairy')
   })
 })

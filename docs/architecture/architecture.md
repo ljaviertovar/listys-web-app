@@ -30,6 +30,11 @@ OCR Edge Functions.
 
 ## Architectural Boundaries
 
+The dashboard combines server-side reads of owned lists, receipts, completed sessions, likely-needed items, and stores.
+Likely-needed items and spending are exposed through versioned v1 Route Handlers backed by owner-scoped Postgres RPCs;
+store reads include the latest owned trip or unattached receipt visit. The month-spending card fetches its own bounded
+summary using calendar boundaries from the visitor's time zone, so a failure there does not replace the rest of the page.
+
 The application is organized around ownership boundaries rather than technical layers alone:
 
 | Boundary | Location | Responsibility |
@@ -225,8 +230,14 @@ flowchart LR
     DB -->|Realtime with RLS| Browser
 ```
 
-The current schema includes owner groups, base lists/items, shopping sessions/items, and tickets/items. Experimental
-sharing adds collaborators, invite links and session participants. Migration files describe intended database state;
+The current schema includes owner groups, base lists/items, shopping sessions/items, tickets/items, and (PRD v3 Phase 3)
+owner stores with their aliases (every key that resolves to a store; `tickets.store_id` points to a store of the same
+user through a composite foreign key) and per-list item aliases (receipt-line names remembered as another name of an
+item). The Phase 4 migration defines per-item store statistics, usual-store tags, store-scoped sessions and
+`is_other_store`. The Phase 5 migration adds `tickets.total_amount`, the optional `tickets.shopping_session_id` link,
+its owner-scoped composite foreign key and uniqueness constraint, plus last purchased quantity/unit in per-store item
+statistics. It is prepared in the repository but has not been applied to a database. Experimental sharing adds
+collaborators, invite links and session participants. Migration files describe intended database state;
 this audit did not verify a live installation. The PRD ERD is a requirements model; migrations/generated types and
 the [implementation reference](../reference/implementation-status.md) qualify what exists.
 
@@ -247,20 +258,39 @@ the [implementation reference](../reference/implementation-status.md) qualify wh
 2. The API validates the multipart form, uploads images to the protected `tickets` bucket, and creates a ticket with
    `ocr_status = pending`.
 3. A non-awaited fetch dispatch invokes the configured OCR function; no durable queue is established by this code.
-   The function marks the ticket `processing`, sends images to the provider, deduplicates extracted
-   items, and writes `ticket_items`.
+   The function marks the ticket `processing`, sends images to the provider (the first image's request also reads the
+   store name from the header), deduplicates extracted items, and writes `ticket_items` and, when the ticket has none,
+   the raw `store_name`.
 4. The function marks the ticket `completed` with `total_items`, or `failed` with `ocr_error`.
 5. The UI reads status from `GET /api/v1/tickets/{ticketId}/status` and may invoke `retry-ocr` after a failure.
-6. The user chooses whether to merge items into an existing base list or create a new base list through the ticket action
-   endpoints.
+6. The receipt read proposes the store the raw name resolves to; the user may confirm it, save a new store or choose
+   another (`PATCH /api/v1/tickets/{ticketId}` with `store_id`, which also remembers the raw name as an alias).
+7. The user chooses whether to merge items into an existing base list or create a new base list through the ticket action
+   endpoints. Before merging into an existing list, `GET /api/v1/tickets/{ticketId}/matches` shows how each line matches
+   (same name, remembered alias, or new); the user's links travel with the merge, which applies them and remembers them in
+   one transaction.
+8. A read receipt can instead be attached to an eligible active or recently completed trip. The versioned candidates and
+   matches routes expose owner-scoped choices; `attach_receipt_to_session` validates them and links the receipt in one
+   database transaction. Attaching to an active trip marks matched items, adds selected unmatched lines, records the
+   receipt total and completes the trip. Attaching to a completed trip refines already-counted prices and counts only
+   newly added lines as purchases. A trip can have one receipt, and the attachment cannot be detached. The trip's
+   composite foreign key clears the optional link if its owner deletes the trip.
+9. Owners can read their last receipt price by store for each base-list item; comparison is shown only when at least two
+   prices have comparable units. It does not query current or external prices. Collaborators do not receive the owner's
+   store-price statistics.
 
 ### Shopping-session flow
 
-1. A user starts a session from a base list through the Server Action or `/api/v1/shopping-sessions`.
-2. The service clones the base-list items into session items, preserving a snapshot for the historical purchase.
+1. A user starts a session from a base list through the Server Action or `/api/v1/shopping-sessions`, optionally
+   selecting one of their stores. At most one active session can belong to a given list; different lists can have
+   sessions at the same time.
+2. The service clones every base-list item into session items, preserving a snapshot. For a store-scoped session, it
+   marks items usual at or previously purchased at that store as `is_other_store = false`; the rest remain available
+   with `is_other_store = true`.
 3. The UI updates item state through the service/API boundary and receives realtime updates where configured.
-4. Completion records status, optional amount and notes, then optionally invokes the sync RPC. A sync failure can
-   leave the session completed because these are separate writes.
+4. Completion records status, optional amount and notes, and applies checked items to the base list in the same
+   transaction. When store-learning is enabled for that transaction, it increments purchase statistics and recomputes
+   each affected item's automatic usual store; a manual usual-store choice is preserved.
 5. Completed sessions remain available to the user's history queries.
 
 ## Required invariants
@@ -268,7 +298,7 @@ the [implementation reference](../reference/implementation-status.md) qualify wh
 These rules must remain true across UI, Server Actions, API handlers, services, and database policies:
 
 1. A caller can only access owned data or the explicitly permitted experimental collaborator scope.
-2. A user has at most one active shopping session at a time.
+2. A base list has at most one active shopping session; different lists may each have one.
 3. Business limits are enforced server-side, including group count, base-list item count, ticket image count, and merge size.
 4. OCR status transitions are explicit; failed processing does not appear as completed data and can only be retried through an
    authorized operation.

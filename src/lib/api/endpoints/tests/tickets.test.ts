@@ -1,7 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { apiPost } from '@/lib/api/client'
-import { mergeTicketItemsToBaseList } from '@/lib/api/endpoints/tickets'
+import { apiGet, apiPost } from '@/lib/api/client'
+import {
+	attachTicketToSession,
+	getTicketSessionCandidates,
+	getTicketSessionMatches,
+	mergeTicketItemsToBaseList,
+} from '@/lib/api/endpoints/tickets'
 
 vi.mock('@/lib/api/client', () => ({
 	apiDelete: vi.fn(),
@@ -37,5 +42,24 @@ describe('mergeTicketItemsToBaseList', () => {
 		const result = await mergeTicketItemsToBaseList({ ticket_id: 'ticket-1', base_list_id: 'list-1', items: [] })
 
 		expect(result).toEqual({ error: 'Request failed' })
+	})
+})
+
+describe('receipt and trip endpoints', () => {
+	beforeEach(() => vi.clearAllMocks())
+
+	it('loads trip candidates and matches through their versioned routes', async () => {
+		vi.mocked(apiGet).mockResolvedValueOnce({ data: [] }).mockResolvedValueOnce({ data: [] })
+		await getTicketSessionCandidates('ticket-1')
+		await getTicketSessionMatches('ticket-1', 'session-1')
+		expect(apiGet).toHaveBeenNthCalledWith(1, '/api/v1/tickets/ticket-1/session-candidates')
+		expect(apiGet).toHaveBeenNthCalledWith(2, '/api/v1/tickets/ticket-1/session-matches?shopping_session_id=session-1')
+	})
+
+	it('posts the user-confirmed attach payload', async () => {
+		vi.mocked(apiPost).mockResolvedValueOnce({ data: { replayed: false } })
+		const payload = { shopping_session_id: 'session-1', added_item_ids: ['line-1'], total_amount: 23.5 }
+		await attachTicketToSession('ticket-1', payload)
+		expect(apiPost).toHaveBeenCalledWith('/api/v1/tickets/ticket-1/attach-to-session', payload)
 	})
 })

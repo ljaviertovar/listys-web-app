@@ -36,7 +36,7 @@ With a test account and synthetic data in the intended environment:
 
 - Check `GET /api/health`: `200`/`ok` means its API/database checks passed; `503`/`degraded` means at least one failed.
   It does not check OCR providers, Storage or realtime delivery.
-- Verify sign-in, protected navigation, group/list creation, shopping start/completion and history.
+- Verify sign-in, protected navigation, list creation, shopping start/completion and history.
 - Upload a synthetic receipt through `POST /api/v1/tickets`; follow its status to completion or a controlled failure.
   A `202` response alone does not validate OCR completion.
 - For an experimental collaboration release, check acceptance, removal and realtime with separate test accounts.

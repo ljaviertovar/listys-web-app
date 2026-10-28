@@ -1,57 +1,71 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { InformationCircleIcon, Loading03Icon, ShoppingCart02Icon } from '@hugeicons/core-free-icons'
+import { Alert02Icon, Loading03Icon, ShoppingCart02Icon, Store01Icon } from '@hugeicons/core-free-icons'
 
 import { Button, type ButtonProps } from '@/components/ui/button'
 import { DialogFooter } from '@/components/ui/dialog'
 import { SheetDialog } from '@/components/commons'
+import { StorePickerDialog, type StorePick } from '@/components/features/stores'
+import { createStore } from '@/lib/api/endpoints/stores'
 import { startedSessionHref } from '@/components/features/shopping-sessions'
 import { createShoppingSession } from '@/lib/api/endpoints'
 import useActiveSessionStore from '@/stores/active-session'
 import { cn } from '@/utils'
+import type { BaseListItemWithStoreSummary, Store } from '@/types'
+
+import { countItemsForStore, shoppingActionMode } from './items/helpers/store-session-summary'
 
 /** The trigger is a regular `Button`: `size`, `variant`, `className`… go straight to it. `children` replaces the cart icon and "Start Shopping" label. */
 interface Props extends ButtonProps {
 	baseListId: string
 	baseListName?: string
 	itemsCount?: number
-	/** The server already knows a session is running, so the button is not even drawn before the client store loads. */
+	items?: BaseListItemWithStoreSummary[]
+	/** True only when this base list has an active session. */
 	sessionActive?: boolean
+	activeSessionId?: string | null
 }
 
 /**
- * "Start Shopping": the button and the sheet that confirms it. Only one shopping session can run at a time, so the
- * button is gone while one is active (the session bar and the dashboard lead back to it).
+ * "Start Shopping": the button and the sheet that confirms an optional store-scoped session.
  */
 export function StartShoppingDialog({
 	baseListId,
 	baseListName,
 	itemsCount,
+	items = [],
 	children,
 	className,
 	sessionActive = false,
+	activeSessionId,
 	...buttonProps
 }: Props) {
 	const [open, setOpen] = useState(false)
 	const [loading, setLoading] = useState(false)
+	const [storePickerOpen, setStorePickerOpen] = useState(false)
+	const [selectedStore, setSelectedStore] = useState<Store | null>(null)
+	const [storePending, setStorePending] = useState(false)
+	const storePendingRef = useRef(false)
+	const loadingRef = useRef(false)
 	const router = useRouter()
-	const activeSession = useActiveSessionStore(s => s.activeSession)
 	const setActiveSession = useActiveSessionStore(s => s.setActiveSession)
 
 	const handleConfirm = async () => {
+		if (loadingRef.current) return
+		loadingRef.current = true
 		setLoading(true)
 		try {
 			const { data, error, activeSessionId } = await createShoppingSession({
 				base_list_id: baseListId,
 				name: baseListName || '',
+				store_id: selectedStore?.id ?? null,
 			})
 			if (error) {
-				// If there's an active session, navigate to it
-				if ((error as string).includes('active shopping run') && activeSessionId) {
+				if (activeSessionId) {
 					router.push(`/shopping/${activeSessionId}`)
 					return
 				}
@@ -66,19 +80,56 @@ export function StartShoppingDialog({
 			} else {
 				router.refresh()
 				setLoading(false)
+				loadingRef.current = false
 				setOpen(false)
 			}
 		} catch (err) {
 			toast.error(err instanceof Error ? err.message : 'Failed to start shopping session')
 			setLoading(false)
+			loadingRef.current = false
 			setOpen(false)
 		}
 	}
 
+	const handleStorePick = async (pick: StorePick) => {
+		if (storePendingRef.current) return
+		storePendingRef.current = true
+		setStorePending(true)
+		try {
+			if (pick.kind === 'existing') {
+				setSelectedStore(pick.store)
+			} else {
+				const result = await createStore({ name: pick.name })
+				if (result.error || !result.data) throw new Error(result.error ?? 'Could not create store')
+				setSelectedStore(result.data)
+			}
+			setStorePickerOpen(false)
+		} catch (error) {
+			toast.error(error instanceof Error ? error.message : 'Could not select store')
+		} finally {
+			storePendingRef.current = false
+			setStorePending(false)
+		}
+	}
+
+	const firstAtStoreCount = selectedStore ? countItemsForStore(items, selectedStore.id) : 0
+
 	const isEmpty = itemsCount !== undefined ? itemsCount === 0 : false
 
-	// While the session is being created the store already holds it; the sheet stays until the page changes.
-	if ((sessionActive || activeSession) && !loading) return null
+	if (shoppingActionMode(sessionActive) === 'resume') {
+		return (
+			<Button
+				size='lg'
+				{...buttonProps}
+				className={cn('w-full', className)}
+				onClick={() => activeSessionId && router.push(`/shopping/${activeSessionId}`)}
+				aria-label={baseListName ? `Resume shopping ${baseListName}` : 'Resume shopping'}
+				data-testid={`resume-shopping-${baseListId}`}
+			>
+				{children ?? 'Resume Shopping'}
+			</Button>
+		)
+	}
 
 	return (
 		<SheetDialog
@@ -92,7 +143,7 @@ export function StartShoppingDialog({
 					className={cn('w-full', className)}
 					// Several of these sit on one page, so the accessible name says which list each one starts.
 					aria-label={baseListName ? `Start shopping ${baseListName}` : undefined}
-					data-testid='start-shopping-button'
+			data-testid={`start-shopping-${baseListId}`}
 				>
 					{children ?? (
 						<>
@@ -130,18 +181,21 @@ export function StartShoppingDialog({
 						)}
 					</p>
 				</div>
-				<div
-					role='note'
-					className='flex items-start gap-3 rounded-2xl bg-blue-50 px-3.5 py-3 text-sm leading-normal text-blue-900 dark:bg-blue-950/40 dark:text-blue-200'
-				>
-					<HugeiconsIcon
-						icon={InformationCircleIcon}
-						strokeWidth={1.6}
-						aria-hidden='true'
-						className='mt-px size-5 shrink-0'
-					/>
-					<span>Only one shopping session can be active at a time.</span>
+				<div className='flex items-center justify-between gap-3 rounded-2xl bg-muted px-3.5 py-3'>
+					<span className='flex min-w-0 items-center gap-2 text-sm text-foreground'>
+						<HugeiconsIcon icon={Store01Icon} strokeWidth={1.6} aria-hidden='true' className='size-4.5 shrink-0' />
+						<span className='truncate'>{selectedStore?.name ?? 'Whole list'}</span>
+					</span>
+					<Button type='button' size='sm' variant='secondary' onClick={() => setStorePickerOpen(true)} disabled={loading}>
+						{selectedStore ? 'Change' : 'Choose Store'}
+					</Button>
 				</div>
+				{selectedStore ? (
+					<div role='note' className={`flex items-start gap-2 rounded-2xl px-3.5 py-3 text-sm leading-normal ${firstAtStoreCount === 0 ? 'bg-amber-50 text-amber-900 dark:bg-amber-950/40 dark:text-amber-200' : 'bg-muted text-muted-foreground'}`}>
+						{firstAtStoreCount === 0 ? <HugeiconsIcon icon={Alert02Icon} strokeWidth={1.6} aria-hidden='true' className='mt-px size-4.5 shrink-0' /> : null}
+						<span>{firstAtStoreCount === 0 ? `No items in this list are tagged or recorded at ${selectedStore.name}.` : `${firstAtStoreCount} ${firstAtStoreCount === 1 ? 'item goes' : 'items go'} first at ${selectedStore.name}.`}</span>
+					</div>
+				) : null}
 			</div>
 			<DialogFooter variant='inline'>
 				<Button
@@ -171,6 +225,16 @@ export function StartShoppingDialog({
 					{loading ? 'Starting…' : 'Start Shopping'}
 				</Button>
 			</DialogFooter>
+			<StorePickerDialog
+				open={storePickerOpen}
+				onOpenChange={setStorePickerOpen}
+				title='Choose Store'
+				description='Items for this store will appear first.'
+				confirmLabel='Use Store'
+				onPick={handleStorePick}
+				pending={storePending}
+				testId={`start-shopping-store-picker-${baseListId}`}
+			/>
 		</SheetDialog>
 	)
 }

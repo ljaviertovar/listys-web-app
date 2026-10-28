@@ -5,6 +5,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 
 import { ActionLink } from '@/components/commons'
 import { Card } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 import { formatCurrency, formatDate, formatTime } from '@/utils'
 
 interface Session {
@@ -18,6 +19,8 @@ interface Session {
 	purchased_count?: number | null
 	shopping_session_items?: Array<{ id: string; checked: boolean | null }> | null
 	base_list: { name: string } | null
+	store?: { id: string; name: string } | null
+	receipt?: { id: string } | null
 }
 
 interface Props {
@@ -26,7 +29,7 @@ interface Props {
 }
 
 /**
- * A completed session in a group's history (design: Mobile historial grupo). The card is plain; only "View Details" is a link,
+ * A completed trip in the shopping history (design: Mobile historial). The card is plain; only "View Details" is a link,
  * so the rest of the card does not react to taps or hover.
  */
 export function HistorySessionCard({ session, href }: Props) {
@@ -60,10 +63,14 @@ export function HistorySessionCard({ session, href }: Props) {
 						/>
 					</span>
 					<div className='flex min-w-0 flex-1 flex-col gap-1'>
-						<h2 className='font-display text-base leading-[1.3] font-semibold tracking-[-0.005em]'>{session.name}</h2>
+						<div className='flex flex-wrap items-center gap-2'>
+							<h2 className='font-display text-base leading-[1.3] font-semibold tracking-[-0.005em]'>{session.name}</h2>
+							{session.receipt ? <Badge data-testid={`history-receipt-marker-${session.id}`} variant='neutral'>Receipt</Badge> : null}
+						</div>
 						<p className='text-xs leading-[1.4] text-slate-500'>
 							{completedText}
 							{totalText}
+							{session.store ? ` · ${session.store.name}` : ''}
 						</p>
 					</div>
 				</div>

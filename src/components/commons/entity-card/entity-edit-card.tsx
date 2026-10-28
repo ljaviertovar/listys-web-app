@@ -20,7 +20,7 @@ export interface EntityEditValues {
 
 interface EntityEditCardProps {
 	title: string
-	/** Label of the optional second field: "Description" for a group, "Notes" for a list. */
+	/** Label of the optional second field: "Notes" for a list. */
 	secondLabel: string
 	secondPlaceholder: string
 	secondMax: number
@@ -31,7 +31,7 @@ interface EntityEditCardProps {
 	testId: string
 }
 
-/** The card of a group or list while it is being renamed: the same surface in place, with its fields and a Cancel/Save pair. */
+/** The card of a list while it is being renamed: the same surface in place, with its fields and a Cancel/Save pair. */
 export function EntityEditCard({
 	title,
 	secondLabel,

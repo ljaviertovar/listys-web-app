@@ -19,5 +19,9 @@ export { FormField } from "./form-field/form-field";
 export { ListToolbar } from "./list-toolbar/list-toolbar";
 export { RowMenu, type RowMenuAction } from "./row-menu/row-menu";
 export { RetryableError } from "./retryable-error";
+export {
+  SearchableChoiceList,
+  type ChoiceOption,
+} from "./searchable-choice-list/searchable-choice-list";
 export { ConfirmSheet } from "./sheet-dialog/confirm-sheet";
 export { SheetDialog } from "./sheet-dialog/sheet-dialog";

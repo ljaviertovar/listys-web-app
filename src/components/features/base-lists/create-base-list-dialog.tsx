@@ -10,18 +10,15 @@ import { CreateEntitySheet, type EntityEditValues } from '@/components/commons'
 import { createBaseList } from '@/lib/api/endpoints'
 
 /** The trigger is a regular `Button`: `size`, `variant`, `className`… go straight to it. `children` replaces the plus icon and "New Base List" label. */
-interface Props extends ButtonProps {
-	groupId: string
-}
+type Props = ButtonProps
 
-/** "New Base List": the sheet that creates a list inside a group and then opens it to add its items. */
-export function CreateBaseListDialog({ groupId, children, ...buttonProps }: Props) {
+/** "New Base List": the sheet that creates a list (the server files it away; the user never picks a group) and then opens it to add its items. */
+export function CreateBaseListDialog({ children, ...buttonProps }: Props) {
 	const router = useRouter()
 
 	const handleCreate = async ({ name, second }: EntityEditValues) => {
 		try {
 			const { data: baseList, error } = await createBaseList({
-				group_id: groupId,
 				name: name.trim(),
 				notes: second.trim() ? second.trim() : null,
 			})

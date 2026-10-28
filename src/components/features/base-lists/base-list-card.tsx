@@ -12,16 +12,21 @@ import {
   focusEntityMenuWhenReady,
   type EntityEditValues,
 } from "@/components/commons";
+import { StartShoppingDialog } from "./start-shopping-dialog";
 import { deleteBaseList, updateBaseList } from "@/lib/api/endpoints";
 
 import type { BaseListWithCount } from "@/types";
 
 interface Props {
   baseList: BaseListWithCount;
+  /** What the screen calls the list when two share a name ("Weekly (2)"); the stored name stays the one edited. */
+  displayName?: string;
+  activeSessionId?: string;
 }
 
-/** A base list inside its group: its card, the inline rename form and the delete confirmation. */
-export function BaseListCard({ baseList }: Props) {
+/** A base list: its card, the inline rename form and the delete confirmation. */
+export function BaseListCard({ baseList, displayName, activeSessionId }: Props) {
+  const shownName = displayName ?? baseList.name;
   const [editing, setEditing] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -108,14 +113,26 @@ export function BaseListCard({ baseList }: Props) {
       <EntityCard
         href={`/base-lists/${baseList.id}/edit`}
         icon={ListViewIcon}
-        title={baseList.name}
+        title={shownName}
         description={baseList.notes}
         count={baseList.items_count}
         unit={{ one: "item", many: "items" }}
         emptyLabel="items"
         linkLabel="View Items"
+        footerAction={
+          <StartShoppingDialog
+            baseListId={baseList.id}
+            baseListName={shownName}
+            itemsCount={baseList.items_count}
+            sessionActive={Boolean(activeSessionId)}
+            activeSessionId={activeSessionId}
+            variant="secondary"
+            size="sm"
+            className="w-auto"
+          />
+        }
         menu={{
-          label: `More options for ${baseList.name}`,
+          label: `More options for ${shownName}`,
           editLabel: "Edit List",
           deleteLabel: "Delete List",
           onEdit: () => setEditing(true),
@@ -127,7 +144,7 @@ export function BaseListCard({ baseList }: Props) {
       <ConfirmSheet
         open={showDelete}
         onOpenChange={setShowDelete}
-        title={`Delete “${baseList.name}”?`}
+        title={`Delete “${shownName}”?`}
         consequence={
           baseList.items_count > 0 ? (
             <>

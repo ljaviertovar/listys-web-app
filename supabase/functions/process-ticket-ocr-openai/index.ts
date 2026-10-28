@@ -1,5 +1,6 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { parseOcrPayload, STORE_AND_TOTAL_INSTRUCTIONS, STORE_NAME_INSTRUCTIONS, TOTAL_INSTRUCTIONS } from '../_shared/receipt-store.ts'
 
 const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY')!
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
@@ -19,12 +20,22 @@ interface ReceiptItem {
   category: string | null
 }
 
+interface ImageResult {
+  items: ReceiptItem[]
+  storeName: string | null
+  total: number | null
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
 // Process a single image with OpenAI Vision API
 async function processImage(
   imageUrl: string,
   imageIndex: number,
   totalImages: number
-): Promise<ReceiptItem[]> {
+): Promise<ImageResult> {
   const isMultiImage = totalImages > 1
   const positionContext = isMultiImage
     ? `This is image ${imageIndex + 1} of ${totalImages} of a LONG RECEIPT captured in multiple photos.
@@ -43,6 +54,16 @@ async function processImage(
        - The system will merge items from all images and remove duplicates automatically`
     : ''
 
+  // The store name comes from the same request as the items: only the first photo, which carries the header, asks for it.
+  const storeInstructions = totalImages === 1
+    ? STORE_AND_TOTAL_INSTRUCTIONS
+    : [imageIndex === 0 ? STORE_NAME_INSTRUCTIONS : '', imageIndex === totalImages - 1 ? TOTAL_INSTRUCTIONS : '']
+      .filter(Boolean)
+      .join('\n\n')
+  const responseShape = storeInstructions
+    ? 'Return a JSON object with an "items" array and the requested "store_name" and/or "total" fields.'
+    : 'Return a JSON array of item objects.'
+
   // NOTE: output schema MUST match ReceiptItem (name, quantity, unit, price, category)
   const prompt = `You are a receipt line-item extractor.
 
@@ -52,7 +73,8 @@ GOAL:
 Extract a COMPLETE list of purchased products from the image.
 Maximize recall, but DO NOT merge different products into one.
 
-Return ONLY valid JSON (no markdown), array with EXACT structure:
+Return ONLY valid JSON (no markdown). ${responseShape}
+Each item in "items" (or the top-level array) has this EXACT structure:
 
 [
   {
@@ -111,6 +133,8 @@ FINAL CHECK:
 - JSON only.
 
 ${mergeInstructions}
+
+${storeInstructions}
 `
 
 
@@ -148,26 +172,26 @@ ${mergeInstructions}
 
   try {
     const cleanContent = content.replace(/```json\n?|\n?```/g, '').trim()
-    const parsed = JSON.parse(cleanContent)
-
-    // Defensive: ensure array
-    if (!Array.isArray(parsed)) return []
+    // Accepts the item array or the first photo's { store_name, items } object.
+    const { items: parsed, storeName, total } = parseOcrPayload(cleanContent)
 
     // Defensive cleanup: only keep expected fields
-    return parsed
-      .filter((x: any) => x && typeof x === 'object')
-      .map((x: any) => ({
+    const items = parsed
+      .filter(isRecord)
+      .map(x => ({
         name: typeof x.name === 'string' ? x.name : '',
-        category: x.category ?? null,
+        category: typeof x.category === 'string' ? x.category : null,
         quantity:
           typeof x.quantity === 'number' && Number.isFinite(x.quantity)
             ? x.quantity
             : null,
-        unit: typeof x.unit === 'string' ? x.unit : x.unit ?? null,
+        unit: typeof x.unit === 'string' ? x.unit : null,
         price:
           typeof x.price === 'number' && Number.isFinite(x.price) ? x.price : null,
       }))
       .filter((x: ReceiptItem) => x.name.trim().length > 0)
+
+    return { items, storeName, total }
   } catch (parseError) {
     console.error(`Failed to parse OCR response for image ${imageIndex + 1}:`, content)
     throw new Error('Failed to parse OCR response')
@@ -306,7 +330,7 @@ function nearlyEqual(a: number, b: number, eps: number): boolean {
   return Math.abs(a - b) <= eps
 }
 
-function isFiniteNumber(x: any): x is number {
+function isFiniteNumber(x: unknown): x is number {
   return typeof x === 'number' && Number.isFinite(x)
 }
 
@@ -368,7 +392,7 @@ serve(async (req: Request) => {
 
     const startedAt = Date.now()
 
-    const { data: ticketRow } = await supabase.from('tickets').select('ocr_attempts').eq('id', ticketId).single()
+    const { data: ticketRow } = await supabase.from('tickets').select('ocr_attempts, store_name').eq('id', ticketId).single()
     const nextAttempts = Number(ticketRow?.ocr_attempts ?? 0) + 1
 
     // Update ticket status to processing and increment attempt counter.
@@ -381,10 +405,14 @@ serve(async (req: Request) => {
 
     // Process all images sequentially
     const allItemsPerImage: ReceiptItem[][] = []
+    let storeNameFromHeader: string | null = null
+    let totalFromLastPhoto: number | null = null
 
     for (let i = 0; i < urls.length; i++) {
       console.log(`Processing image ${i + 1}/${urls.length}`)
-      const items = await processImage(urls[i], i, urls.length)
+      const { items, storeName, total } = await processImage(urls[i], i, urls.length)
+      if (i === 0) storeNameFromHeader = storeName
+      if (i === urls.length - 1) totalFromLastPhoto = total
       console.log(`Image ${i + 1}: Found ${items.length} items`)
       try {
         console.log(`Image ${i + 1} items: ${JSON.stringify(items, null, 2)}`)
@@ -396,6 +424,8 @@ serve(async (req: Request) => {
 
     // Merge items from all images, removing border duplicates
     const mergedItems = mergeItems(allItemsPerImage)
+    // A name the ticket already has (sent by a client or read earlier) is never overwritten.
+    const extractedStoreName = ticketRow?.store_name ? null : storeNameFromHeader
     console.log(`Total merged items: ${mergedItems.length}`)
     try {
       console.log(`Merged items: ${JSON.stringify(mergedItems, null, 2)}`)
@@ -429,7 +459,9 @@ serve(async (req: Request) => {
         ocr_status: 'completed',
         processed_at: new Date().toISOString(),
         total_items: mergedItems.length,
+        total_amount: totalFromLastPhoto,
         ocr_error: null,
+        ...(extractedStoreName ? { store_name: extractedStoreName } : {}),
       })
       .eq('id', ticketId)
 
@@ -448,8 +480,9 @@ serve(async (req: Request) => {
       }),
       { status: 200, headers: { 'Content-Type': 'application/json' } }
     )
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('OCR processing error:', error)
+    const message = error instanceof Error ? error.message : String(error)
 
     if (ticketId) {
       try {
@@ -457,7 +490,7 @@ serve(async (req: Request) => {
           .from('tickets')
           .update({
             ocr_status: 'failed',
-            ocr_error: String(error?.message || 'OCR processing failed').slice(0, 1000),
+            ocr_error: (message || 'OCR processing failed').slice(0, 1000),
             processed_at: new Date().toISOString(),
           })
           .eq('id', ticketId)

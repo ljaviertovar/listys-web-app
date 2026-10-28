@@ -12,13 +12,14 @@ import { pluralize, type ActiveSessionSummary } from './helpers/build-dashboard-
 
 interface Props {
 	session: ActiveSessionSummary
+	otherSessionCount?: number
 	/** True when the session belongs to someone else and was shared with the current user. */
 	isGuest?: boolean
 }
 
 /** Hero of the dashboard while a shopping session is running: where you are, how far along, and one way back in. */
-export function ActiveSessionBanner({ session, isGuest = false }: Props) {
-	const origin = [session.groupName, session.listName].filter(Boolean).join(' › ')
+export function ActiveSessionBanner({ session, isGuest = false, otherSessionCount = 0 }: Props) {
+	const origin = session.listName
 	const isShared = session.collaborators.length > 0
 
 	return (
@@ -95,6 +96,15 @@ export function ActiveSessionBanner({ session, isGuest = false }: Props) {
 						collaborators={session.collaborators}
 						caption={`Shared with ${pluralize(session.collaborators.length, 'person', 'people')}`}
 					/>
+				) : null}
+				{otherSessionCount > 0 ? (
+					<Link
+						href='/shopping-lists'
+						data-testid='dashboard-other-sessions-link'
+						className='w-fit rounded-md text-sm font-medium text-slate-300 underline-offset-4 hover:text-white hover:underline focus-ring'
+					>
+						+ {otherSessionCount} more in progress
+					</Link>
 				) : null}
 			</div>
 		</HeroSurface>

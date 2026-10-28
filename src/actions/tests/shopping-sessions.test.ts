@@ -13,6 +13,7 @@ vi.mock('next/cache', () => ({
 }))
 
 import { createClient } from '@/lib/supabase/server'
+import { MAX_ITEMS_PER_BASE_LIST } from '@/lib/config/limits'
 import {
   createShoppingSession,
   updateShoppingSession,
@@ -65,76 +66,56 @@ describe('createShoppingSession', () => {
     expect(result.error).toBeTruthy()
   })
 
-  it('rejects when user already has an active session', async () => {
-    const supabase = setupMock()
-    supabase.from = sequentialFrom({
-      shopping_sessions: [
-        { data: { id: 'active-session' }, error: null }, // active session exists
-      ],
-    })
-
-    const result = await createShoppingSession({ base_list_id: TEST_UUID, name: 'Trip' })
-    expect(result.error).toContain('active shopping run')
-    expect('activeSessionId' in result ? result.activeSessionId : undefined).toBe('active-session')
-  })
-
-  it('rejects when base list is empty', async () => {
-    const supabase = setupMock()
-    supabase.from = sequentialFrom({
-      shopping_sessions: [
-        { data: null, error: null }, // no active session
-      ],
-      base_lists: [
-        { data: { id: TEST_UUID, items: [] }, error: null }, // empty base list
-      ],
-    })
-
-    const result = await createShoppingSession({ base_list_id: TEST_UUID, name: 'Trip' })
-    expect(result.error).toContain('empty base list')
-  })
-
-  it('rejects when base list not found', async () => {
-    const supabase = setupMock()
-    supabase.from = sequentialFrom({
-      shopping_sessions: [
-        { data: null, error: null }, // no active session
-      ],
-      base_lists: [
-        { data: null, error: { message: 'not found' } }, // not found
-      ],
-    })
-
-    const result = await createShoppingSession({ base_list_id: TEST_UUID, name: 'Trip' })
-    expect(result.error).toBe('Base list not found')
-  })
-
-  it('creates session and copies items on happy path', async () => {
+  it('starts without a store through the atomic RPC', async () => {
     const session = { id: 'session-1', status: 'active' }
-    const supabase = setupMock()
-    supabase.from = sequentialFrom({
-      shopping_sessions: [
-        { data: null, error: null },      // no active session
-        { data: session, error: null },   // insert session
-      ],
-      base_lists: [
-        {
-          data: {
-            id: TEST_UUID,
-            items: [
-              { name: 'Milk', quantity: 1, sort_order: 0 },
-              { name: 'Eggs', quantity: 2, sort_order: 1 },
-            ],
-          },
-          error: null,
-        },
-      ],
-      shopping_session_items: [
-        { data: null, error: null }, // insert items
-      ],
-    })
+    const supabase = setupMock({ rpcResults: { start_shopping_session: { data: session, error: null } } })
 
     const result = await createShoppingSession({ base_list_id: TEST_UUID, name: 'Trip' })
+
     expect(result.data).toEqual(session)
+    expect(supabase.rpc).toHaveBeenCalledWith('start_shopping_session', {
+      p_base_list_id: TEST_UUID,
+      p_name: 'Trip',
+      p_store_id: null,
+    })
+  })
+
+  it('starts with a selected store', async () => {
+    const supabase = setupMock({ rpcResults: { start_shopping_session: { data: { id: 'session-1' }, error: null } } })
+
+    await createShoppingSession({ base_list_id: TEST_UUID, name: 'Trip', store_id: TEST_UUID })
+
+    expect(supabase.rpc).toHaveBeenCalledWith('start_shopping_session', expect.objectContaining({ p_store_id: TEST_UUID }))
+  })
+
+  it('returns the active session id on a per-list conflict', async () => {
+    setupMock({ rpcResults: { start_shopping_session: {
+      data: null,
+      error: { code: '23505', message: 'SESSION_ALREADY_ACTIVE', details: TEST_UUID },
+    } } })
+
+    const result = await createShoppingSession({ base_list_id: TEST_UUID, name: 'Trip' })
+
+    expect(result).toEqual({
+      error: 'This list already has a shopping session in progress.',
+      activeSessionId: TEST_UUID,
+    })
+  })
+
+  it('maps empty lists and invisible lists to safe errors', async () => {
+    setupMock({ rpcResults: { start_shopping_session: {
+      data: null,
+      error: { code: 'P0001', message: 'LIST_EMPTY' },
+    } } })
+    expect(await createShoppingSession({ base_list_id: TEST_UUID, name: 'Trip' })).toEqual({
+      error: 'Cannot start a shopping session from an empty list.',
+    })
+
+    setupMock({ rpcResults: { start_shopping_session: {
+      data: null,
+      error: { code: 'P0002', message: 'internal ownership detail' },
+    } } })
+    expect(await createShoppingSession({ base_list_id: TEST_UUID, name: 'Trip' })).toEqual({ error: 'Not found' })
   })
 })
 
@@ -142,52 +123,83 @@ describe('createShoppingSession', () => {
 // completeShoppingSession
 // ────────────────────────────────────
 describe('completeShoppingSession', () => {
-  it('defaults sync_to_base to false', async () => {
-    const supabase = setupMock()
-    supabase.from = sequentialFrom({
-      shopping_sessions: [
-        { data: { id: TEST_UUID, items: [] }, error: null }, // get session
-        { data: null, error: null }, // update status
-      ],
-    })
+  const SUMMARY = { new_count: 1, updated_count: 2, skipped_count: 0, over_limit_count: 0 }
+
+  it('always completes through the RPC with the list capacity', async () => {
+    const supabase = setupMock({ rpcResults: { complete_shopping_session: { data: [SUMMARY], error: null } } })
 
     const result = await completeShoppingSession(TEST_UUID, {})
-    expect(result).toEqual({ success: true })
+
+    expect(result).toEqual({ success: true, sync: SUMMARY })
+    expect(supabase.rpc).toHaveBeenCalledTimes(1)
+    expect(supabase.rpc).toHaveBeenCalledWith('complete_shopping_session', expect.objectContaining({
+      p_session_id: TEST_UUID,
+      p_max_items: MAX_ITEMS_PER_BASE_LIST,
+    }))
   })
 
-  it('calls sync RPC when sync_to_base is true', async () => {
-    const supabase = setupMock({
-      rpcResults: {
-        sync_shopping_session_to_base_list: { data: null, error: null },
-      },
-    })
-    supabase.from = sequentialFrom({
-      shopping_sessions: [
-        { data: { id: TEST_UUID, items: [] }, error: null }, // get session
-        { data: null, error: null }, // update status
-      ],
-    })
+  it.each([true, false])('ignores the legacy sync_to_base flag (%s) and still syncs', async flag => {
+    const supabase = setupMock({ rpcResults: { complete_shopping_session: { data: [SUMMARY], error: null } } })
 
-    const result = await completeShoppingSession(TEST_UUID, { sync_to_base: true })
-    expect(result).toEqual({ success: true })
-    expect(supabase.rpc).toHaveBeenCalledWith('sync_shopping_session_to_base_list', expect.any(Object))
+    const result = await completeShoppingSession(TEST_UUID, { sync_to_base: flag })
+
+    expect(result).toEqual({ success: true, sync: SUMMARY })
+    expect(supabase.rpc).toHaveBeenCalledTimes(1)
   })
 
-  it('returns error when sync RPC fails', async () => {
-    const supabase = setupMock({
-      rpcResults: {
-        sync_shopping_session_to_base_list: { data: null, error: { message: 'sync broke' } },
-      },
-    })
+  it('does not claim success when the RPC fails and hides the database message', async () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
+    setupMock({ rpcResults: { complete_shopping_session: { data: null, error: { message: 'relation "x" does not exist', code: '42P01' } } } })
+
+    const result = await completeShoppingSession(TEST_UUID, {})
+
+    expect(result).toEqual({ error: 'Could not complete the shopping session. Please try again.' })
+    consoleError.mockRestore()
+  })
+
+  it('reports a session that is already completed', async () => {
+    setupMock({ rpcResults: { complete_shopping_session: { data: null, error: { message: 'SESSION_NOT_ACTIVE', code: 'P0001' } } } })
+
+    expect(await completeShoppingSession(TEST_UUID, {})).toEqual({ error: 'This shopping session is already completed.' })
+  })
+})
+
+describe('updateShoppingSession status guard', () => {
+  it('rejects status completed without writing', async () => {
+    const supabase = setupMock()
+
+    const result = await updateShoppingSession(TEST_UUID, { status: 'completed' })
+
+    expect(result.error).toContain('complete operation')
+    expect(supabase.from).not.toHaveBeenCalled()
+  })
+
+  it('still saves a name change', async () => {
+    const supabase = setupMock()
+    supabase.from = sequentialFrom({ shopping_sessions: [{ data: { id: TEST_UUID, name: 'Trip' }, error: null }] })
+
+    const result = await updateShoppingSession(TEST_UUID, { name: 'Trip' })
+
+    expect(result.data).toEqual({ id: TEST_UUID, name: 'Trip' })
+  })
+})
+
+describe('getShoppingSession receipt summary', () => {
+  it('returns the attached receipt id and printed total for the session page', async () => {
+    const session = { id: TEST_UUID, status: 'completed', items: [] }
+    const supabase = setupMock()
     supabase.from = sequentialFrom({
-      shopping_sessions: [
-        { data: { id: TEST_UUID, items: [] }, error: null },
-        { data: null, error: null },
-      ],
+      shopping_sessions: [{ data: session, error: null }],
+      tickets: [{ data: { id: 'receipt-1', total_amount: 84.5 }, error: null }],
     })
 
-    const result = await completeShoppingSession(TEST_UUID, { sync_to_base: true })
-    expect(result.error).toContain('sync failed')
+    const result = await getShoppingSession(TEST_UUID)
+
+    expect(result).toEqual({
+      data: { ...session, receipt: { id: 'receipt-1', total_amount: 84.5 } },
+    })
+    expect(supabase.from).toHaveBeenNthCalledWith(1, 'shopping_sessions')
+    expect(supabase.from).toHaveBeenNthCalledWith(2, 'tickets')
   })
 })
 

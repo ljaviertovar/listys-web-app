@@ -9,11 +9,12 @@ describe('findBreadcrumb', () => {
 	it('names the section and the entry of a page in the navigation', () => {
 		expect(find('/dashboard')).toEqual({ section: 'Shopping', page: 'Dashboard' })
 		expect(find('/tickets')).toEqual({ section: 'Management', page: 'Receipts' })
+		expect(find('/stores')).toEqual({ section: 'Management', page: 'My Stores' })
 		expect(find('/settings/account')).toEqual({ section: 'Settings', page: 'Account' })
 	})
 
 	it('files pages below an entry under it', () => {
-		expect(find('/shopping-lists/abc/lists')).toEqual({ section: 'Shopping', page: 'Shopping List Groups' })
+		expect(find('/shopping-lists/abc/lists')).toEqual({ section: 'Shopping', page: 'Shopping Lists' })
 	})
 
 	it('does not match a different route that merely starts with the same letters', () => {
