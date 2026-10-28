@@ -52,7 +52,7 @@ Las explicaciones y promesas SHALL corresponder a controles y resultados disponi
 #### Scenario: Organizing promise
 
 - **WHEN** el usuario lee la descripción de las listas, de "My Stores" o de la página pública
-- **THEN** el texto promete listas reutilizables, el registro de las tiendas de sus recibos y la tienda donde suele comprar cada artículo, sin prometer grupos, carpetas, listas separadas por tienda, comparación de precios entre tiendas ni etiquetas de tienda para quienes comparten una lista
+- **THEN** el texto promete listas reutilizables, el registro de las tiendas de sus recibos, la tienda donde suele comprar cada artículo y el último precio de cada artículo en cada tienda según sus recibos, sin prometer grupos, carpetas, listas separadas por tienda, precios actuales o de fuentes externas, ni etiquetas o precios por tienda para quienes comparten una lista
 
 #### Scenario: Remembered match
 
@@ -73,6 +73,11 @@ Las explicaciones y promesas SHALL corresponder a controles y resultados disponi
 
 - **WHEN** el usuario elige una tienda al empezar una compra o recorre una sesión con tienda
 - **THEN** el texto dice que los artículos de esa tienda van primero y que el resto sigue disponible en otra sección, sin afirmar que los demás artículos se quitaron de la lista
+
+#### Scenario: Attaching a receipt to a trip
+
+- **WHEN** el usuario ve la oferta o la confirmación de adjuntar un recibo a una compra
+- **THEN** el texto distingue adjuntar a una compra de añadir artículos a una lista, dice si la compra se completará y que los artículos ya contados no se cuentan otra vez, sin afirmar que el recibo se emparejó solo
 
 ### Requirement: Receipt lifecycle states are distinct
 
@@ -148,7 +153,7 @@ Las superficies públicas y de autenticación SHALL evitar garantías universale
 
 ### Requirement: Totals and account information describe what is known
 
-Los textos de importes SHALL distinguir total de artículos extraídos de importe pagado, e indicar cobertura parcial cuando ya se dispone de ese dato. Un importe estimado con precios promedio MUST etiquetarse como estimación, indicar cuántos ítems tienen precio conocido y no presentarse como importe pagado. La información de cuenta MUST usar términos del usuario sin sugerir controles de gestión inexistentes. La primera iteración MUST conservar cálculos, moneda y datos persistidos actuales.
+Los textos de importes SHALL distinguir total de artículos extraídos de importe pagado, e indicar cobertura parcial cuando ya se dispone de ese dato. Un total impreso leído del recibo SHALL presentarse como total del recibo y el total de una sesión que procede de su recibo como pagado según el recibo. Un importe estimado con precios promedio MUST etiquetarse como estimación, indicar cuántos ítems tienen precio conocido y no presentarse como importe pagado. La información de cuenta MUST usar términos del usuario sin sugerir controles de gestión inexistentes. La primera iteración MUST conservar cálculos, moneda y datos persistidos actuales.
 
 #### Scenario: Incomplete receipt prices
 
@@ -164,6 +169,16 @@ Los textos de importes SHALL distinguir total de artículos extraídos de import
 
 - **WHEN** la cuenta muestra el proveedor de acceso sin herramientas para modificarlo
 - **THEN** el texto presenta esa información como informativa y no invita a realizar una gestión ausente
+
+#### Scenario: Printed receipt total
+
+- **WHEN** un recibo tiene un total impreso leído y también la suma de sus líneas extraídas
+- **THEN** el texto llama "Receipt Total" al impreso y mantiene la suma de líneas como total de artículos extraídos, sin presentarlos como el mismo importe
+
+#### Scenario: Session total from its receipt
+
+- **WHEN** una sesión completada tiene el total de su recibo adjunto
+- **THEN** el texto lo presenta como pagado según el recibo, sin llamarlo estimación
 
 ### Requirement: Text remains concise and localization tolerant
 
