@@ -149,6 +149,37 @@ export async function getBaseLists() {
   return baseLists
 }
 
+export async function getLikelyNeededItems(limit: number) {
+  const { supabase } = await createAuthenticatedClient()
+  const { data, error } = await supabase.rpc('likely_needed_items', { p_limit: limit })
+
+  if (error) {
+    throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'Could not load likely-needed items')
+  }
+
+  const rows = data ?? []
+  const hasHistory = rows[0]?.has_history ?? false
+  const items = rows.flatMap(row => {
+    if (
+      row.id === null || row.name === null || row.base_list_id === null || row.base_list_name === null ||
+      row.interval_days === null || row.days_since === null
+    ) return []
+
+    return [{
+      id: row.id,
+      name: row.name,
+      base_list: { id: row.base_list_id, name: row.base_list_name },
+      usual_store: row.usual_store_id && row.usual_store_name
+        ? { id: row.usual_store_id, name: row.usual_store_name }
+        : null,
+      interval_days: Number(row.interval_days),
+      days_since: Number(row.days_since),
+    }]
+  })
+
+  return { data: items, meta: { limit, has_history: hasHistory } }
+}
+
 export async function getBaseListsByGroup(groupId: string) {
   const { supabase, user } = await createAuthenticatedClient()
 

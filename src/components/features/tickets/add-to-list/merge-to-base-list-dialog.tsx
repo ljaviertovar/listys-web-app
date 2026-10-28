@@ -17,6 +17,7 @@ import { shouldShowReceiptStoreUnconfirmedNote } from './helpers/receipt-store-n
 
 interface Props {
 	open: boolean
+	defaultBaseListId?: string | null
 	onOpenChange: (open: boolean) => void
 	ticketId: string
 	selectedItemIds: string[]
@@ -27,7 +28,7 @@ interface Props {
 	onReceiptAttached?: (sessionId: string) => void
 }
 
-export function MergeToBaseListDialog({ open, onOpenChange, ticketId, selectedItemIds, lines, storeConfirmed, onSuccess, onReceiptAttached }: Props) {
+export function MergeToBaseListDialog({ open, defaultBaseListId, onOpenChange, ticketId, selectedItemIds, lines, storeConfirmed, onSuccess, onReceiptAttached }: Props) {
 	const fieldId = useId()
 	const titleRef = useRef<HTMLHeadingElement>(null)
 	const { onOpenAutoFocus, onCloseAutoFocus } = useDialogFocus(titleRef)
@@ -50,7 +51,7 @@ export function MergeToBaseListDialog({ open, onOpenChange, ticketId, selectedIt
 		step,
 		backToChoose,
 		review,
-	} = useMergeToBaseList({ open, ticketId, selectedItemIds, lines, onOpenChange, onSuccess, onReceiptAttached })
+	} = useMergeToBaseList({ open, defaultBaseListId, ticketId, selectedItemIds, lines, onOpenChange, onSuccess, onReceiptAttached })
 
 	const hasLists = baseLists.length > 0
 	const reviewing = step === 'review' && review.state.status === 'ready'

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-import { createQueryBuilder, createSupabaseMock, TEST_UUID, TEST_UUID_2 } from '@/test/helpers'
+import { createQueryBuilder, createSupabaseMock, TEST_UUID, TEST_UUID_2, TEST_UUID_3 } from '@/test/helpers'
 import { ApiServiceError, ErrorCode } from '@/lib/api/http'
 import { MAX_STORES_PER_USER } from '@/lib/config/limits'
 
@@ -37,15 +37,38 @@ describe('GET /api/v1/stores', () => {
   beforeEach(() => vi.clearAllMocks())
 
   it('returns the stores with meta', async () => {
-    signIn({ tables: { stores: { data: [{ ...ROW, receipts: [{ count: 2 }] }], error: null } } })
+    signIn({
+      tables: { stores: { data: [{ ...ROW, receipts: [{ count: 2 }] }], error: null } },
+      rpcResults: { store_last_visits: { data: [{ store_id: TEST_UUID, kind: 'trip', id: TEST_UUID_2, at: '2026-10-28T12:00:00Z', total_amount: 32.5 }], error: null } },
+    })
 
     const response = await GET()
 
     expect(response.status).toBe(200)
     expect(await response.json()).toEqual({
-      data: [{ id: TEST_UUID, name: 'No Frills', receipt_count: 2, created_at: ROW.created_at, updated_at: ROW.updated_at }],
+      data: [{ id: TEST_UUID, name: 'No Frills', receipt_count: 2, created_at: ROW.created_at, updated_at: ROW.updated_at,
+        last_visit: { kind: 'trip', id: TEST_UUID_2, at: '2026-10-28T12:00:00Z', total_amount: 32.5 } }],
       meta: { count: 1, limit: MAX_STORES_PER_USER },
     })
+  })
+
+  it('returns receipt visits and null for stores without visits', async () => {
+	 signIn({
+	   tables: { stores: { data: [{ ...ROW, receipts: [{ count: 1 }] }, { ...ROW, id: TEST_UUID_2, name: 'Metro', receipts: [{ count: 0 }] }], error: null } },
+	   rpcResults: { store_last_visits: { data: [{ store_id: TEST_UUID, kind: 'receipt', id: TEST_UUID_3, at: '2026-10-26T12:00:00Z', total_amount: null }], error: null } },
+	 })
+	 const response = await GET()
+	 expect((await response.json()).data).toMatchObject([
+	   { id: TEST_UUID, last_visit: { kind: 'receipt', id: TEST_UUID_3, total_amount: null } },
+	   { id: TEST_UUID_2, last_visit: null },
+	 ])
+  })
+
+  it('returns a safe 500 when the last visit read fails', async () => {
+	 signIn({ rpcResults: { store_last_visits: { data: null, error: { code: 'XX000', message: 'private database detail' } } } })
+	 const response = await GET()
+	 expect(response.status).toBe(500)
+	 expect(await response.text()).not.toContain('private database detail')
   })
 
   it('answers 401 when signed out', async () => {

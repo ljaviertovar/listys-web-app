@@ -76,7 +76,7 @@ test.describe('Concurrent Operations', () => {
     const results = await Promise.all(promises)
 
     // Count how many succeeded
-    const successfulSessions = results.filter((r: any) => r.error === null)
+    const successfulSessions = results.filter(result => result.error === null)
 
     // Should have maximum 1 active session total (including session1)
     // So both concurrent attempts should fail

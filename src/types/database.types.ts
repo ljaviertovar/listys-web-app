@@ -720,6 +720,7 @@ export type Database = {
         }[]
       }
       receipt_attach_window: { Args: never; Returns: string }
+      receipt_suggestion_threshold: { Args: never; Returns: number }
       ticket_session_candidates: {
         Args: { p_ticket_id: string }
         Returns: {
@@ -773,6 +774,25 @@ export type Database = {
         Args: { p_item_id: string; p_store_id?: string | null }
         Returns: { id: string; usual_store_id: string | null; usual_store_source: string }[]
       }
+      spending_summary: {
+        Args: { p_from: string; p_to: string }
+        Returns: {
+          receipts_count: number
+          total: number
+          trips_count: number
+          trips_without_total: number
+        }[]
+      }
+      store_last_visits: {
+        Args: never
+        Returns: {
+          at: string
+          id: string
+          kind: string
+          store_id: string
+          total_amount: number
+        }[]
+      }
       ensure_default_group: {
         Args: { p_group_name: string }
         Returns: string
@@ -792,6 +812,20 @@ export type Database = {
       get_orphaned_tickets_count: {
         Args: { p_user_id: string }
         Returns: number
+      }
+      likely_needed_items: {
+        Args: { p_limit?: number }
+        Returns: {
+          base_list_id: string | null
+          base_list_name: string | null
+          days_since: number | null
+          has_history: boolean
+          id: string | null
+          interval_days: number | null
+          name: string | null
+          usual_store_id: string | null
+          usual_store_name: string | null
+        }[]
       }
       mark_stuck_tickets_as_failed: { Args: never; Returns: undefined }
       merge_ticket_items_to_base_list: {
@@ -838,6 +872,14 @@ export type Database = {
           base_list_item_id: string | null
           base_list_item_name: string | null
           match_kind: "name" | "alias" | "none"
+          ticket_item_id: string
+        }[]
+      }
+      ticket_item_suggestions: {
+        Args: { p_base_list_id: string; p_ticket_id: string }
+        Returns: {
+          base_list_item_id: string
+          base_list_item_name: string
           ticket_item_id: string
         }[]
       }

@@ -19,7 +19,7 @@ type AuthFixtures = {
  * })
  */
 export const test = base.extend<AuthFixtures>({
-  authenticatedPage: async ({ page }, use) => {
+  authenticatedPage: async ({ page }, provideFixture) => {
     // Create a test user
     const user = await createTestUser()
 
@@ -35,27 +35,27 @@ export const test = base.extend<AuthFixtures>({
     await page.waitForURL('**/dashboard', { timeout: 10000 })
 
     // Provide the authenticated page and user info to the test
-    await use(page)
+    await provideFixture(page)
   },
 
-  userEmail: async ({ authenticatedPage }, use) => {
+  userEmail: async ({ authenticatedPage }, provideFixture) => {
     // Extract user email from the authenticated session
     const email = await authenticatedPage.evaluate(() => {
       return localStorage.getItem('user-email') || 'unknown'
     })
-    await use(email)
+    await provideFixture(email)
   },
 
-  userId: async ({ authenticatedPage }, use) => {
+  userId: async ({ authenticatedPage }, provideFixture) => {
     // Extract user ID from the authenticated session
     const id = await authenticatedPage.evaluate(() => {
       return localStorage.getItem('user-id') || 'unknown'
     })
-    await use(id)
+    await provideFixture(id)
   },
 
-  userPassword: async ({ }, use) => {
-    await use('test-password-123')
+  userPassword: async ({ }, provideFixture) => {
+    await provideFixture('test-password-123')
   },
 })
 

@@ -12,17 +12,23 @@ export type StoreDto = {
   receipt_count: number
   created_at: string
   updated_at: string
+	last_visit: { kind: 'trip' | 'receipt'; id: string; at: string; total_amount: number | null } | null
 }
 
 type StoreRow = { id: string; name: string; created_at: string; updated_at: string }
 
-function toStoreDto(row: StoreRow, receiptCount: number): StoreDto {
+function toStoreDto(
+	row: StoreRow,
+	receiptCount: number,
+	lastVisit: StoreDto['last_visit'] = null,
+): StoreDto {
   return {
     id: row.id,
     name: row.name,
     receipt_count: receiptCount,
     created_at: row.created_at,
     updated_at: row.updated_at,
+		last_visit: lastVisit,
   }
 }
 
@@ -41,21 +47,34 @@ async function countReceipts(supabase: Client, storeId: string) {
 export async function listStores() {
   const { supabase, user } = await createAuthenticatedClient()
 
-  const { data, error } = await supabase
-    .from('stores')
-    .select('id, name, created_at, updated_at, receipts:tickets(count)')
-    .eq('user_id', user.id)
-    .order('name', { ascending: true })
-    .order('created_at', { ascending: true })
-    .limit(MAX_STORES_PER_USER)
+  const [{ data, error }, { data: visits, error: visitsError }] = await Promise.all([
+	supabase
+		.from('stores')
+		.select('id, name, created_at, updated_at, receipts:tickets(count)')
+		.eq('user_id', user.id)
+		.order('name', { ascending: true })
+		.order('created_at', { ascending: true })
+		.limit(MAX_STORES_PER_USER),
+	supabase.rpc('store_last_visits'),
+  ])
 
   if (error) {
     console.error('[stores] could not list stores', { code: error.code })
     throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'We couldn’t load your stores. Please try again.')
   }
+	if (visitsError) {
+		console.error('[stores] could not load last visits', { code: visitsError.code })
+		throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'We couldn’t load your stores. Please try again.')
+	}
 
   const rows = (data ?? []) as Array<StoreRow & { receipts?: Array<{ count: number }> | null }>
-  const stores = rows.map(row => toStoreDto(row, row.receipts?.[0]?.count ?? 0))
+	const lastVisitByStore = new Map((visits ?? []).map(visit => [visit.store_id, {
+		kind: visit.kind as 'trip' | 'receipt',
+		id: visit.id,
+		at: visit.at,
+		total_amount: visit.total_amount,
+	} satisfies NonNullable<StoreDto['last_visit']>]))
+	const stores = rows.map(row => toStoreDto(row, row.receipts?.[0]?.count ?? 0, lastVisitByStore.get(row.id) ?? null))
 
   return { stores, meta: { count: stores.length, limit: MAX_STORES_PER_USER } }
 }

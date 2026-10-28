@@ -9,7 +9,7 @@ export async function GET(request: Request, { params }: { params: Promise<unknow
   return withApiHandler(async () => {
     const { ticketId } = await parseRouteParams(params, ticketIdParamsSchema)
     const { base_list_id } = parseSearchParams(request, ticketMatchesQuerySchema)
-    const data = await getTicketMatches(ticketId, base_list_id)
-    return success(data)
+    const result = await getTicketMatches(ticketId, base_list_id)
+    return success(result.data, 200, { base_list: result.meta.base_list })
   })
 }

@@ -35,6 +35,21 @@ export interface DashboardTripInput {
 	base_list: { name: string } | null
 }
 
+export interface DashboardLikelyNeededInput {
+	id: string
+	name: string
+	base_list: { id: string; name: string }
+	usual_store: { id: string; name: string } | null
+	interval_days: number
+	days_since: number
+}
+
+export interface DashboardStoreInput {
+	id: string
+	name: string
+	last_visit: { kind: 'trip' | 'receipt'; id: string; at: string; total_amount: number | null } | null
+}
+
 export interface DashboardActiveSessionInput {
 	id: string
 	name: string
@@ -51,6 +66,9 @@ export interface DashboardModelInput {
 	activeSession: DashboardActiveSessionInput | null
 	/** Active sessions ordered newest first. The singular field remains for existing model callers. */
 	activeSessions?: DashboardActiveSessionInput[]
+	likelyNeeded?: DashboardLikelyNeededInput[]
+	likelyNeededHasHistory?: boolean
+	stores?: DashboardStoreInput[]
 	now?: Date
 }
 
@@ -72,19 +90,15 @@ export interface ListPreview {
 	itemsCount: number
 }
 
-export interface ReceiptPreview {
-	id: string
-	title: string
-	meta: string
-	status: 'completed' | 'processing' | 'failed' | 'pending'
-}
+export interface LikelyNeededPreview extends DashboardLikelyNeededInput { cadence: string }
 
-export interface TripPreview {
+export interface StoreVisitPreview {
+	storeId: string
+	storeName: string
+	kind: 'trip' | 'receipt'
 	id: string
-	name: string
-	meta: string
+	dateLabel: string
 	total: number | null
-	/** Trips are browsed on the one history screen. */
 	href: string
 }
 
@@ -105,14 +119,13 @@ export interface QuickStartList {
 }
 
 export interface DashboardModel {
-	counts: { receipts: number; trips: number }
 	activeSession: ActiveSessionSummary | null
 	activeSessionIds: Record<string, string>
 	otherSessionCount: number
 	/** A few of the user's lists, flat: there is no group level any more. */
 	lists: { items: ListPreview[]; hiddenCount: number }
-	receipts: ReceiptPreview[]
-	trips: TripPreview[]
+	likelyNeeded: { hasHistory: boolean; items: LikelyNeededPreview[] }
+	storeVisits: StoreVisitPreview[]
 	upNext: UpNextItem[]
 	/** Lists with items, up to a few; they are the shortcuts under the hero. */
 	quickStart: QuickStartList[]
@@ -124,8 +137,7 @@ export interface DashboardModel {
 }
 
 const MAX_LISTS_PREVIEW = 5
-const MAX_RECEIPTS_PREVIEW = 3
-const MAX_TRIPS_PREVIEW = 3
+const MAX_STORE_VISITS = 4
 const MAX_UP_NEXT = 3
 const MAX_QUICK_START = 3
 const STALE_LIST_DAYS = 7
@@ -142,6 +154,43 @@ export function formatShortDate(value: string | null | undefined) {
 	const date = new Date(value)
 	if (Number.isNaN(date.getTime())) return ''
 	return new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' }).format(date)
+}
+
+function pluralDay(value: number) {
+	return `${value} ${value === 1 ? 'day' : 'days'}`
+}
+
+export function formatCadence(intervalDays: number, daysSince: number) {
+	return `Usually every ${pluralDay(Math.max(1, Math.round(intervalDays)))} · last bought ${pluralDay(Math.max(0, Math.round(daysSince)))} ago`
+}
+
+function zonedParts(date: Date, timeZone: string) {
+	const parts = new Intl.DateTimeFormat('en-US', {
+		timeZone, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23',
+	}).formatToParts(date)
+	return Object.fromEntries(parts.map(part => [part.type, Number(part.value)])) as Record<string, number>
+}
+
+function localMidnightToUtc(year: number, month: number, day: number, timeZone: string) {
+	const target = Date.UTC(year, month - 1, day)
+	let guess = target
+	for (let attempt = 0; attempt < 3; attempt += 1) {
+		const local = zonedParts(new Date(guess), timeZone)
+		const represented = Date.UTC(local.year, local.month - 1, local.day, local.hour, local.minute, local.second)
+		guess += target - represented
+	}
+	return new Date(guess).toISOString()
+}
+
+/** Returns the visitor-local calendar month as a half-open UTC interval. */
+export function currentMonthRange(now: Date, timeZone: string) {
+	const local = zonedParts(now, timeZone)
+	const nextYear = local.month === 12 ? local.year + 1 : local.year
+	const nextMonth = local.month === 12 ? 1 : local.month + 1
+	return {
+		from: localMidnightToUtc(local.year, local.month, 1, timeZone),
+		to: localMidnightToUtc(nextYear, nextMonth, 1, timeZone),
+	}
 }
 
 function daysBetween(from: string, now: Date) {
@@ -189,30 +238,22 @@ function ticketTitle(ticket: DashboardTicketInput) {
 	return getReceiptStoreLabel(ticket)
 }
 
-function buildReceipts(tickets: DashboardTicketInput[]): ReceiptPreview[] {
-	return tickets.slice(0, MAX_RECEIPTS_PREVIEW).map(ticket => {
-		const date = formatShortDate(ticket.created_at)
-		const items = ticket.total_items ? `${pluralize(ticket.total_items, 'item')} extracted` : null
-		const status =
-			ticket.ocr_status === 'completed' ? 'completed' : ticket.ocr_status === 'failed' ? 'failed' : ticket.ocr_status === 'processing' ? 'processing' : 'pending'
-
-		return {
-			id: ticket.id,
-			title: ticketTitle(ticket),
-			meta: [date, items].filter(Boolean).join(' · '),
-			status,
-		}
-	})
-}
-
-function buildTrips(trips: DashboardTripInput[], listNames: Map<string, string>): TripPreview[] {
-	return trips.slice(0, MAX_TRIPS_PREVIEW).map(trip => ({
-		id: trip.id,
-		name: listNames.get(trip.base_list_id) ?? trip.base_list?.name ?? trip.name,
-		meta: formatShortDate(trip.completed_at),
-		total: trip.total_amount,
-		href: '/shopping-history',
-	}))
+function buildStoreVisits(stores: DashboardStoreInput[]): StoreVisitPreview[] {
+	return [...stores].filter(store => store.last_visit).sort((a, b) =>
+		Date.parse(b.last_visit?.at ?? '') - Date.parse(a.last_visit?.at ?? '')
+	).flatMap(store => {
+		if (!store.last_visit) return []
+		const visit = store.last_visit
+		return [{
+			storeId: store.id,
+			storeName: store.name,
+			kind: visit.kind,
+			id: visit.id,
+			dateLabel: formatShortDate(visit.at),
+			total: visit.total_amount,
+			href: visit.kind === 'trip' ? '/shopping-history' : `/tickets/${visit.id}`,
+		}]
+	}).slice(0, MAX_STORE_VISITS)
 }
 
 /** The list that has been shopped before, not within the last STALE_LIST_DAYS, and has items to buy; the longest wait first. */
@@ -285,6 +326,9 @@ export function buildDashboardModel({
 	trips,
 	activeSession,
 	activeSessions,
+	likelyNeeded = [],
+	likelyNeededHasHistory = false,
+	stores = [],
 	now = new Date(),
 }: DashboardModelInput): DashboardModel {
 	const listNames = buildListDisplayNames(baseLists)
@@ -307,13 +351,15 @@ export function buildDashboardModel({
 	const activeSessionIds = Object.fromEntries(sessions.map(session => [session.base_list_id, session.id]))
 
 	return {
-		counts: { receipts: tickets.length, trips: trips.length },
 		activeSession: buildActiveSession(latestSession, listNames),
 		activeSessionIds,
 		otherSessionCount: Math.max(sessions.length - 1, 0),
 		lists: buildLists(baseLists, listNames),
-		receipts: buildReceipts(tickets),
-		trips: buildTrips(trips, listNames),
+		likelyNeeded: {
+			hasHistory: likelyNeededHasHistory,
+			items: likelyNeeded.map(item => ({ ...item, cadence: formatCadence(item.interval_days, item.days_since) })),
+		},
+		storeVisits: buildStoreVisits(stores),
 		upNext: buildUpNext(tickets, trips, baseLists, listNames, now),
 		quickStart,
 		startTarget,

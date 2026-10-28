@@ -270,16 +270,17 @@ serve(async (req) => {
       headers: { "Content-Type": "application/json" }
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error)
     console.error('[FATAL] Fatal Error:', error);
-    console.error('[FATAL] Error stack:', error.stack);
-    console.error('[FATAL] Error details:', JSON.stringify(error, null, 2));
+    if (error instanceof Error) console.error('[FATAL] Error stack:', error.stack)
+    console.error('[FATAL] Error details:', message)
 
     if (ticketId) {
       console.log('[DEBUG] Updating ticket to failed state...');
       const { error: failError } = await supabase.from('tickets').update({
         ocr_status: 'failed',
-        ocr_error: error.message || String(error)
+        ocr_error: message
       }).eq('id', ticketId);
 
       if (failError) {

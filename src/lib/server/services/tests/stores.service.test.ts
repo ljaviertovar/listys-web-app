@@ -81,8 +81,8 @@ describe('stores service', () => {
 
     expect(result).toEqual({
       stores: [
-        { id: TEST_UUID, name: 'No Frills', receipt_count: 3, created_at: ROW.created_at, updated_at: ROW.updated_at },
-        { id: TEST_UUID_2, name: 'Metro', receipt_count: 0, created_at: ROW.created_at, updated_at: ROW.updated_at },
+		{ id: TEST_UUID, name: 'No Frills', receipt_count: 3, created_at: ROW.created_at, updated_at: ROW.updated_at, last_visit: null },
+		{ id: TEST_UUID_2, name: 'Metro', receipt_count: 0, created_at: ROW.created_at, updated_at: ROW.updated_at, last_visit: null },
       ],
       meta: { count: 2, limit: MAX_STORES_PER_USER },
     })
@@ -97,7 +97,7 @@ describe('stores service', () => {
     const store = await createStore({ name: '  No   Frills ' })
 
     expect(supabase.rpc).toHaveBeenCalledWith('create_store', { p_name: 'No Frills', p_max_stores: MAX_STORES_PER_USER })
-    expect(store).toEqual({ id: TEST_UUID, name: 'No Frills', receipt_count: 0, created_at: ROW.created_at, updated_at: ROW.updated_at })
+		expect(store).toEqual({ id: TEST_UUID, name: 'No Frills', receipt_count: 0, created_at: ROW.created_at, updated_at: ROW.updated_at, last_visit: null })
     expect(store).not.toHaveProperty('user_id')
   })
 

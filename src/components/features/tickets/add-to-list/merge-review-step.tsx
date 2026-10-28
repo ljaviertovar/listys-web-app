@@ -32,6 +32,29 @@ export function MergeReviewStep({ review, listItems, decisions, onDecide, disabl
 			data-testid='merge-review-step'
 			className='flex flex-col gap-5'
 		>
+			{review.suggested.length > 0 ? (
+				<ReviewSection
+					title='Possible matches'
+					count={review.suggested.length}
+					hint='These names are similar to items in your list. Choose a match to link it; otherwise the line stays new.'
+					testId='merge-review-suggested'
+				>
+					{review.suggested.map(line => (
+						<ReviewRow
+							key={line.ticketItemId}
+							line={line}
+							decision={decisions.get(line.ticketItemId)}
+							remembered={false}
+							suggestedItem={line.suggestedItem}
+							disabled={disabled}
+							onLink={() => setLinking(line)}
+							onLinkSuggestion={() => line.suggestedItem && onDecide(line.ticketItemId, { kind: 'link', item: line.suggestedItem })}
+							onAddAsNew={() => onDecide(line.ticketItemId, null)}
+						/>
+					))}
+				</ReviewSection>
+			) : null}
+
 			{review.fresh.length > 0 ? (
 				<ReviewSection
 					title='New items'
@@ -151,12 +174,14 @@ interface ReviewRowProps {
 	line: ReviewLine
 	decision: LineDecision | undefined
 	remembered: boolean
+	suggestedItem?: MatchedItem
 	disabled: boolean
 	onLink: () => void
+	onLinkSuggestion?: () => void
 	onAddAsNew: () => void
 }
 
-function ReviewRow({ line, decision, remembered, disabled, onLink, onAddAsNew }: ReviewRowProps) {
+function ReviewRow({ line, decision, remembered, suggestedItem, disabled, onLink, onLinkSuggestion, onAddAsNew }: ReviewRowProps) {
 	const target = resolvedItem(line, decision)
 	const name = formatItemName(line.name)
 
@@ -168,13 +193,24 @@ function ReviewRow({ line, decision, remembered, disabled, onLink, onAddAsNew }:
 	return (
 		<li
 			data-testid='merge-review-row'
-			className='flex flex-col gap-2 rounded-2xl bg-muted px-3 py-2.5 sm:flex-row sm:items-center'
+			className='grid min-w-0 grid-cols-1 gap-2 rounded-2xl bg-muted px-3 py-2.5 sm:grid-cols-[minmax(0,1fr)_14rem] sm:items-center'
 		>
 			<div className='flex min-w-0 flex-1 flex-col'>
 				<span className='break-words text-sm font-medium'>{name}</span>
 				<span className='text-xs leading-normal text-slate-500 dark:text-muted-foreground'>{outcome}</span>
 			</div>
-			<div className='flex shrink-0 gap-2'>
+			<div className='flex min-w-0 flex-wrap justify-start gap-2'>
+				{suggestedItem ? (
+					<Button
+						type='button'
+						size='primary'
+						disabled={disabled}
+						onClick={onLinkSuggestion}
+						aria-label={`Link to ${formatItemName(suggestedItem.name)}`}
+					>
+						Link to “{formatItemName(suggestedItem.name)}”
+					</Button>
+				) : null}
 				<Button
 					type='button'
 					variant='secondary'
@@ -185,7 +221,7 @@ function ReviewRow({ line, decision, remembered, disabled, onLink, onAddAsNew }:
 				>
 					{target ? 'Change…' : 'Link to…'}
 				</Button>
-				{target ? (
+				{target || suggestedItem ? (
 					<Button
 						type='button'
 						variant='quiet'

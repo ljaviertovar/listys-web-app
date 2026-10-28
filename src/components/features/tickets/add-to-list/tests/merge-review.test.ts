@@ -14,11 +14,17 @@ const lines = [
 ]
 
 const matches = [
-	{ ticket_item_id: 'l-bread', match: 'name' as const, base_list_item: BREAD },
-	{ ticket_item_id: 'l-milk', match: 'alias' as const, base_list_item: MILK },
-	{ ticket_item_id: 'l-apples', match: 'none' as const, base_list_item: null },
-	{ ticket_item_id: 'l-huevos', match: 'none' as const, base_list_item: null },
+	{ ticket_item_id: 'l-bread', match: 'name' as const, base_list_item: BREAD, suggestion: null },
+	{ ticket_item_id: 'l-milk', match: 'alias' as const, base_list_item: MILK, suggestion: null },
+	{ ticket_item_id: 'l-apples', match: 'none' as const, base_list_item: null, suggestion: null },
+	{ ticket_item_id: 'l-huevos', match: 'none' as const, base_list_item: null, suggestion: null },
 ]
+const suggestedMatches = [...matches, {
+	ticket_item_id: 'l-huevos',
+	match: 'none' as const,
+	base_list_item: null,
+	suggestion: EGGS,
+}]
 
 describe('buildMergeReview', () => {
 	it('needs no review step when every selected line matches by name', () => {
@@ -43,6 +49,14 @@ describe('buildMergeReview', () => {
 		expect(review.byName).toEqual([])
 		expect(review.remembered).toEqual([])
 		expect(review.fresh.map(line => line.ticketItemId)).toEqual(['l-huevos'])
+	})
+
+	it('places suggested unmatched lines in their own review group', () => {
+		const review = buildMergeReview(suggestedMatches, lines, ['l-huevos'])
+
+		expect(review.needsReview).toBe(true)
+		expect(review.suggested).toEqual([{ ticketItemId: 'l-huevos', name: 'HUEVOS', matchedItem: null, suggestedItem: EGGS }])
+		expect(review.fresh).toEqual([])
 	})
 })
 
@@ -72,6 +86,15 @@ describe('buildMergeLinks', () => {
 			['l-apples', { kind: 'new' }],
 		])
 		expect(buildMergeLinks(review, decisions)).toEqual([{ ticket_item_id: 'l-huevos', base_list_item_id: EGGS.id }])
+	})
+
+	it('sends no link for an untouched suggestion and sends the selected suggestion after acceptance', () => {
+		const suggested = buildMergeReview(suggestedMatches, lines, ['l-huevos'])
+
+		expect(buildMergeLinks(suggested, new Map())).toEqual([])
+		expect(buildMergeLinks(suggested, new Map([['l-huevos', { kind: 'link', item: EGGS }]]))).toEqual([
+			{ ticket_item_id: 'l-huevos', base_list_item_id: EGGS.id },
+		])
 	})
 
 	it('never links a line that matches by name', () => {

@@ -10,6 +10,7 @@ import { useMergeReview } from './use-merge-review'
 
 interface UseMergeToBaseListInput {
 	open: boolean
+	defaultBaseListId?: string | null
 	ticketId: string
 	selectedItemIds: string[]
 	/** The receipt's lines, so the review step can name them. */
@@ -22,7 +23,7 @@ interface UseMergeToBaseListInput {
 /** `choose` picks the list (or names a new one); `review` decides how lines without a same-name item are added. */
 export type MergeStep = 'choose' | 'review'
 
-export function useMergeToBaseList({ open, ticketId, selectedItemIds, lines, onOpenChange, onSuccess, onReceiptAttached }: UseMergeToBaseListInput) {
+export function useMergeToBaseList({ open, defaultBaseListId, ticketId, selectedItemIds, lines, onOpenChange, onSuccess, onReceiptAttached }: UseMergeToBaseListInput) {
 	const [mode, setMode] = useState<MergeMode>('existing')
 	const [baseLists, setBaseLists] = useState<BaseList[]>([])
 	const [selectedBaseListId, setSelectedBaseListId] = useState('')
@@ -58,6 +59,10 @@ export function useMergeToBaseList({ open, ticketId, selectedItemIds, lines, onO
 			.then(targets => {
 				if (cancelled) return
 				setBaseLists(targets.baseLists)
+				setSelectedBaseListId(current => {
+					if (current && targets.baseLists.some(list => list.id === current)) return current
+					return defaultBaseListId && targets.baseLists.some(list => list.id === defaultBaseListId) ? defaultBaseListId : ''
+				})
 				setMode(current => modeForListCount(targets.baseLists.length, current))
 				setLoadFailed(false)
 				setError(null)
@@ -72,7 +77,7 @@ export function useMergeToBaseList({ open, ticketId, selectedItemIds, lines, onO
 		return () => {
 			cancelled = true
 		}
-	}, [open, attempt])
+	}, [open, attempt, defaultBaseListId])
 
 	const loadData = () => {
 		setLoadFailed(false)

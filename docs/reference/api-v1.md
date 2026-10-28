@@ -51,6 +51,8 @@ strings. The inventory maps directly to [`src/app/api/v1/`](../../src/app/api/v1
 | `/base-lists` | GET, POST | List the owner's base lists (name, notes, group, creation date, item count; ordered by name, then creation) / create one; `group_id` is optional on create. |
 | `/base-lists/{baseListId}` | GET, PATCH, DELETE | Read/update/delete a list; each item includes its usual-store summary; shared reads are experimental. |
 | `/base-lists/{baseListId}/items` | POST | Create an item; list ID comes from the path. |
+| `/base-list-items` | GET | `?filter=likely_needed` reads up to 10 due items from the caller's own lists. |
+| `/spending` | GET | `?from=<ISO datetime with offset>&to=<ISO datetime with offset>` returns the caller's known spending totals for a range of at most 92 days. |
 | `/base-list-items/{itemId}` | PATCH, DELETE | Update/delete an item; PATCH can set or clear its usual store. |
 | `/shopping-sessions` | GET, POST | History/default completed read, or create a session optionally scoped to a store. `?status=active` returns the most recent visible active session. |
 | `/shopping-sessions/{sessionId}` | GET, PATCH, DELETE | Read/update a session, including its store and each item's scope flag; DELETE invokes cancellation. PATCH cannot set `status` to `completed`. |
@@ -63,7 +65,7 @@ strings. The inventory maps directly to [`src/app/api/v1/`](../../src/app/api/v1
 | `/tickets/{ticketId}` | GET, PATCH, DELETE | Read receipt/items (with `store` and `store_suggestion`), assign or clear its store and update group assignment, or delete. |
 | `/tickets/{ticketId}/status` | GET | `{ "data": { "ocr_status": "pending" } }`; status can also be processing/completed/failed. |
 | `/tickets/{ticketId}/retry-ocr` | POST | Clear extracted items and restart processing. |
-| `/tickets/{ticketId}/matches` | GET | `?base_list_id=` required: how every line of the receipt matches that list (`name`, `alias` or `none`, with the matched item). |
+| `/tickets/{ticketId}/matches` | GET | Optional `?base_list_id=`; when omitted, chooses the receipt's own list, its latest prior list, then the owner's oldest list. Returns match and suggestion data for each receipt line plus the selected list in `meta.base_list`. |
 | `/tickets/{ticketId}/session-candidates` | GET | List the caller's eligible active or recently completed sessions for this receipt. |
 | `/tickets/{ticketId}/session-matches` | GET | `?shopping_session_id=` required: match receipt lines against items in the selected session. |
 | `/tickets/{ticketId}/attach-to-session` | POST | Atomically attach a read receipt to an eligible session, reconcile selected lines, and optionally complete an active session. |
@@ -78,12 +80,26 @@ strings. The inventory maps directly to [`src/app/api/v1/`](../../src/app/api/v1
 | `/base-lists/{baseListId}/collaborators` | GET | Experimental collaborator list. |
 | `/base-lists/{baseListId}/collaborators/{userId}` | DELETE | Experimental collaborator removal. |
 | `/invites/{token}/accept` | POST | Experimental acceptance; grants list access. |
-| `/stores` | GET, POST | List the caller's stores (`id`, `name`, `receipt_count`, timestamps; ordered by name; `meta.count` and `meta.limit`) / create one (`201` with `Location`). |
+| `/stores` | GET, POST | List the caller's stores (`id`, `name`, `receipt_count`, timestamps, `last_visit`; ordered by name; `meta.count` and `meta.limit`) / create one (`201` with `Location`). |
 | `/stores/{storeId}` | PATCH | Rename a store; its previous name keeps resolving to it. |
 | `/stores/{storeId}/merge` | POST | Move another store's receipts and names into this one and remove the other store, in one transaction. |
 
 Maintenance handlers are not safe diagnostics by default: inspect database function authorization and affected scope
 before invoking them. This audit did not execute them.
+
+### Likely-needed items
+
+`GET /api/v1/base-list-items?filter=likely_needed&limit=5` returns `{ "data": [...], "meta": { "limit": 5, "has_history": true } }`.
+`filter` is required and only accepts `likely_needed`; `limit` is an integer from 1 to 10 and defaults to 5. The DTO
+contains `id`, `name`, `base_list: { id, name }`, `usual_store: { id, name } | null`, `interval_days`, and `days_since`.
+The response uses the caller's owned lists only. Invalid/missing filters or limits return `422`; an unauthenticated
+request returns `401`. The cadence and cutoff rules are listed in [reference limits](limits.md#likely-needed-items).
+
+### Spending and store visits
+
+`GET /api/v1/spending?from=2026-10-01T00:00:00Z&to=2026-11-01T00:00:00Z` returns `{ "data": { "from", "to", "total", "trips_count", "receipts_count", "trips_without_total" } }`. Both endpoints are required ISO datetimes with a timezone offset; `to` must be after `from`, and the half-open range cannot exceed 92 days. Only known totals from the caller's completed trips and unattached receipts are summed. Invalid ranges return `422`, unauthenticated requests return `401`.
+
+Each store from `GET /api/v1/stores` adds `last_visit: { kind: "trip" | "receipt", id, at, total_amount } | null`. Attached receipts are represented by their trip. A trip visit links to the shopping-history screen; a receipt visit links to its receipt. The value is null when the caller has no visits to that store.
 
 ## Request boundaries
 
@@ -100,7 +116,7 @@ before invoking them. This audit did not execute them.
 | Session complete | Optional positive `total_amount`, `general_notes` up to 1000. `sync_to_base` is deprecated: accepted with any boolean, ignored, completion always syncs. | [`shopping-session.ts`](../../src/lib/validations/shopping-session.ts) |
 | Ticket upload | Multipart repeated `files`: 1–5 images, each at most 10 MiB. Optional `store_name` (raw text, whitespace collapsed, at most 100 characters, blank treated as absent) is validated with Zod before any photo is stored (`422` otherwise); when it is absent, OCR fills it from the receipt header. The service also reads an optional `group_id`; file checks are manual. The web form sends photos only. | [`uploadTicket`](../../src/lib/server/services/tickets.service.ts), [`uploadTicketFieldsSchema`](../../src/lib/validations/ticket.ts) |
 | Ticket PATCH | At least one of `store_id` (UUID or null) and `group_id` (UUID or null). `store_id` assigns one of the caller's stores and remembers the receipt's raw store name as an alias of it, or clears it with null (the store is kept); a store or receipt that is missing or someone else's returns `404`. | [`updateTicketSchema`](../../src/lib/validations/ticket.ts), [`ticket handler`](../../src/app/api/v1/tickets/[ticketId]/route.ts) |
-| Receipt matches | Query `base_list_id` (UUID, required, `422` otherwise). Returns `{ "data": [{ "ticket_item_id", "match": "name" \| "alias" \| "none", "base_list_item": { "id", "name" } \| null }] }` for every line of the receipt; `404` for a receipt or list that is not the caller's. | [`matches handler`](../../src/app/api/v1/tickets/[ticketId]/matches/route.ts) |
+| Receipt matches | Optional query `base_list_id` (UUID; invalid values return `422`). When supplied, it must be the caller's list (`404` otherwise). When omitted, the target is chosen in order: the receipt's own list if still owned by the caller; the most recently used list on one of the caller's receipts; then the caller's oldest list. If the caller has no list, returns empty `data` and `meta.base_list: null`. Returns `{ "data": [{ "ticket_item_id", "match": "name" \| "alias" \| "none", "base_list_item": { "id", "name" } \| null, "suggestion": { "id", "name" } \| null }], "meta": { "base_list": { "id", "name" } \| null } }`. `suggestion` is an optional likely match for review; it does not change `match` or link the item. | [`matches handler`](../../src/app/api/v1/tickets/[ticketId]/matches/route.ts) |
 | Session candidates | No query parameters. Returns `{ "data": [{ "id", "name", "status", "started_at", "completed_at", "store", "base_list", "checked_count", "item_count" }] }` for the caller's active sessions and completed sessions within the 48-hour attachment window. Unread receipts, receipts already added to a list, sessions with a receipt, and sessions outside the window are not eligible. | [`session-candidates handler`](../../src/app/api/v1/tickets/[ticketId]/session-candidates/route.ts) |
 | Session matches | Query `shopping_session_id` (UUID, required, `422` otherwise). Returns `{ "data": [{ "ticket_item_id", "match": "name" \| "alias" \| "none", "shopping_session_item": { "id", "name", "checked" } \| null }] }` for every receipt line. | [`session-matches handler`](../../src/app/api/v1/tickets/[ticketId]/session-matches/route.ts) |
 | Attach receipt to session | Strict JSON body: required `shopping_session_id`; optional `links` (`ticket_item_id`, `shopping_session_item_id` UUID or null), `added_item_ids` (UUIDs), and `total_amount` (number ≥ 0 or null). A line cannot be both linked and added. Returns `{ "data": { "completed_now", "matched_count", "checked_now_count", "added_count", "priced_count", "over_limit_count", "replayed" } }`; retrying the same attachment is idempotent and reports `replayed: true`. Known conflicts return `409 CONFLICT` with `details.reason` and, when available, `details.shopping_session_id`: `RECEIPT_NOT_READ`, `RECEIPT_ATTACHED`, `RECEIPT_ADDED_TO_LIST`, `SESSION_HAS_RECEIPT`, `SESSION_OUT_OF_WINDOW`, or `STORE_MISMATCH`. Foreign or collaborator-only resources return `404`; invalid or unknown body fields return `422`. | [`attach-to-session schema`](../../src/lib/validations/ticket.ts), [`attach handler`](../../src/app/api/v1/tickets/[ticketId]/attach-to-session/route.ts) |

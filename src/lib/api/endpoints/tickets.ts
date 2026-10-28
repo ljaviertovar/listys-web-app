@@ -18,6 +18,11 @@ export type TicketItemMatch = {
   ticket_item_id: string
   match: 'name' | 'alias' | 'none'
   base_list_item: { id: string; name: string } | null
+  suggestion: { id: string; name: string } | null
+}
+
+export type TicketMatchesMeta = {
+  base_list: { id: string; name: string } | null
 }
 
 export type TicketSessionCandidate = {
@@ -55,8 +60,15 @@ export type AttachTicketToSessionSummary = {
   replayed: boolean
 }
 
-export async function getTicketMatches(ticketId: string, baseListId: string) {
-  return apiGet<TicketItemMatch[]>(`/api/v1/tickets/${ticketId}/matches?base_list_id=${encodeURIComponent(baseListId)}`)
+export async function getTicketMatches(ticketId: string, baseListId?: string) {
+  const query = baseListId ? `?base_list_id=${encodeURIComponent(baseListId)}` : ''
+  return apiGet<TicketItemMatch[]>(`/api/v1/tickets/${ticketId}/matches${query}`) as Promise<{
+    data?: TicketItemMatch[]
+    error?: string
+    errorCode?: string
+    details?: unknown
+    meta?: TicketMatchesMeta
+  }>
 }
 
 export async function getTicketSessionCandidates(ticketId: string) {

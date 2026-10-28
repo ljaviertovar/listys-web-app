@@ -6,7 +6,7 @@ import { ListViewIcon, Loading03Icon, PackageSearchIcon, SpamIcon, Tick02Icon } 
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 
-import { TicketItemsList } from './ticket-items-list'
+import { TicketItemsList, type TicketItemsTriage } from './ticket-items-list'
 import { TicketStatusListener } from './ticket-status-listener'
 
 import type { TicketItem } from '@/types'
@@ -21,9 +21,10 @@ interface TicketItemsCardProps {
 	selection: TicketSelection
 	/** The selection bar: it floats over the page on a phone and sticks to the bottom of this card from `lg`. */
 	footer?: ReactNode
+	triage?: TicketItemsTriage
 }
 
-function ItemsBody({ items, status, selection }: Omit<TicketItemsCardProps, 'ticketId'>) {
+function ItemsBody({ items, status, selection, triage }: Omit<TicketItemsCardProps, 'ticketId'>) {
 	if (status === 'pending' || status === 'processing') {
 		return (
 			<div className='flex flex-col items-center justify-center py-12'>
@@ -55,12 +56,13 @@ function ItemsBody({ items, status, selection }: Omit<TicketItemsCardProps, 'tic
 			items={items}
 			selection={selection}
 			canSelect={status === 'completed'}
+			triage={triage}
 		/>
 	)
 }
 
 /** The receipt's extracted items: who is reading it (status chip, live), and then the list, or why there is none yet. */
-export function TicketItemsCard({ ticketId, items, status, ocrError, selection, footer }: TicketItemsCardProps) {
+export function TicketItemsCard({ ticketId, items, status, ocrError, selection, footer, triage }: TicketItemsCardProps) {
 	return (
 		<section
 			data-testid='ticket-items-card'
@@ -99,6 +101,7 @@ export function TicketItemsCard({ ticketId, items, status, ocrError, selection, 
 				status={status}
 				ocrError={ocrError}
 				selection={selection}
+				triage={triage}
 			/>
 			{footer}
 		</section>

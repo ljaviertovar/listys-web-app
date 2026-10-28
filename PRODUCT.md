@@ -68,7 +68,9 @@ itself. The receipt is a signal, not the product; the durable object is a list t
   only the place where something is bought, never a container of lists. **Group** is no longer a visible word: PRD-v3
   Phase 2 hides groups (the data keeps one implicit default group per user and any group an account already had). See
   [`docs/prd/PRD-v3.md`](docs/prd/PRD-v3.md).
-- Explicitly not built: predictive restock alerts or notifications, analytics dashboards, POS integrations.
+- The dashboard now surfaces likely-needed list items from recorded purchase intervals, known spending totals for the
+  visitor's current month, and the latest visit to each store. These are factual summaries, not predictive restock alerts,
+  notifications, analytics dashboards, or POS integrations.
 - PRD-v2 lists real-time multi-user collaboration as an MVP non-goal; the codebase has since shipped sharing and shared
   sessions. Sharing is real and may be shown; it is not the lead promise.
 

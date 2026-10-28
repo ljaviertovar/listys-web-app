@@ -12,6 +12,7 @@ const review: MergeReview = {
 	byName: [{ ticketItemId: 'l-bread', name: 'BREAD', matchedItem: { id: 'item-bread', name: 'Bread' } }],
 	remembered: [{ ticketItemId: 'l-milk', name: 'LECHE 2% 4L', matchedItem: MILK }],
 	fresh: [{ ticketItemId: 'l-huevos', name: 'HUEVOS', matchedItem: null }],
+	suggested: [],
 	needsReview: true,
 }
 
@@ -62,5 +63,12 @@ describe('MergeReviewStep', () => {
 		expect(html).toContain('New items')
 		expect(html).not.toContain('Remembered matches')
 		expect(html).not.toContain('Updates by name')
+	})
+
+	it('shows possible matches only when suggested lines exist', () => {
+		const line = { ticketItemId: 'l-bananas', name: 'ORG BANANAS', matchedItem: null, suggestedItem: EGGS }
+		expect(render([], { suggested: [line] })).toContain('Possible matches')
+		expect(render([], { suggested: [line] })).toContain('Link to “Eggs”')
+		expect(render()).not.toContain('Possible matches')
 	})
 })

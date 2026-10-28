@@ -6,7 +6,7 @@ import { RowIcon } from './row-icon'
 interface Props {
 	testId: string
 	icon: IconSvgElement
-	tone: 'primary' | 'ocr' | 'success'
+	tone: 'primary' | 'ocr' | 'success' | 'warning'
 	/** First sentence, set on its own line ("No lists yet."). */
 	title: string
 	message: string

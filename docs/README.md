@@ -1,6 +1,7 @@
 # Listys documentation
 
-Listys helps users build reusable shopping lists from receipts, shop from those lists, and review purchase history.
+Listys helps users build reusable shopping lists from receipts, shop from those lists, and review purchase history. Its
+dashboard highlights likely-needed list items, known spending for the visitor's current month, and recent visits by store.
 This page is the documentation index and topic-ownership map. Requirements describe intended behavior;
 the implementation reference describes repository evidence. Neither establishes production readiness.
 
@@ -32,9 +33,9 @@ the implementation reference describes repository evidence. Neither establishes 
   average price and estimated total), Phase 2 (flat lists: groups hidden from the interface, history filtered by list) and
   Phase 3 includes the stores foundation (store read from receipts, normalized "My Stores", rename/merge, and receipt
   lines linked to existing items), Phase 4 adds usual-store tags and store-scoped sessions, and Phase 5 adds printed
-  receipt totals, receipt-to-trip reconciliation, and owner-only comparison of latest recorded prices by store. The Phase
-  5 code, additive migration and verification script are prepared; database application remains pending an approved
-  target. Prices are from the user's own receipt history, not live or external price feeds. A trip supports one receipt,
+  receipt totals, receipt-to-trip reconciliation, and owner-only comparison of latest recorded prices by store. The current
+  OpenSpec change adds dashboard summaries from purchase history and receipt totals; likely-needed items use recorded
+  intervals and are not alerts or predictions. Prices are from the user's own receipt history, not live or external price feeds. A trip supports one receipt,
   and an attached receipt cannot be detached.
 - **Experimental:** shared lists, invitations, collaborators, and collaborative realtime shopping. The product owner
   confirmed on 2026-10-17 that these remain outside the MVP.

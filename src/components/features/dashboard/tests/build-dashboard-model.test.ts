@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest'
 
 import {
 	buildDashboardModel,
+	currentMonthRange,
+	formatCadence,
 	formatShortDate,
 	pluralize,
 	type DashboardModelInput,
@@ -79,7 +81,7 @@ describe('buildDashboardModel', () => {
 		expect(model.lists.items[2]).toEqual({ id: 'x2', name: 'List 2', itemsCount: 2 })
 		expect(model.lists.hiddenCount).toBe(2)
 		expect(model).not.toHaveProperty('groups')
-		expect(model.counts).toEqual({ receipts: 0, trips: 0 })
+		expect(model).not.toHaveProperty('counts')
 	})
 
 	it('shows every list when they fit, with nothing hidden', () => {
@@ -105,7 +107,7 @@ describe('buildDashboardModel', () => {
 		expect(model.lists.items.map(list => list.name)).toEqual(['Weekly (2)', 'Weekly'])
 		expect(model.quickStart.map(list => list.name)).toEqual(['Weekly (2)', 'Weekly'])
 		expect(model.activeSession?.listName).toBe('Weekly (2)')
-		expect(model.trips[0].name).toBe('Weekly (2)')
+		expect(model.lastTrip?.listName).toBe('Weekly (2)')
 		expect(model.lastTrip?.listName).toBe('Weekly (2)')
 	})
 
@@ -198,28 +200,34 @@ describe('buildDashboardModel', () => {
 		expect(build().upNext).toEqual([])
 	})
 
-	it('previews trips with their date and total, all leading to the one history screen, and exposes the last trip', () => {
+	it('exposes the last trip for the hero', () => {
 		const model = build({
 			trips: [
 				{ id: 'h1', name: 'NO frills', base_list_id: 'l1', total_amount: 86.4, completed_at: '2026-02-14T10:00:00Z', base_list: { name: 'NO frills' } },
 			],
 		})
 
-		expect(model.trips[0]).toEqual({ id: 'h1', name: 'NO frills', meta: '14 Feb', total: 86.4, href: '/shopping-history' })
 		expect(model.lastTrip).toEqual({ listName: 'NO frills', dateLabel: '14 Feb', total: 86.4 })
 		expect(build().lastTrip).toBeNull()
 	})
 
-	it('maps OCR statuses to receipt previews', () => {
+	it('builds likely-needed explanations and recent store visits with the right destination', () => {
 		const model = build({
-			tickets: [
-				{ id: 't1', store_name: 'v2', ocr_status: 'completed', total_items: 19, created_at: '2026-02-18T22:24:00Z', base_list_id: null },
-				{ id: 't2', store_name: null, ocr_status: 'processing', total_items: null, created_at: null, base_list_id: null },
+			likelyNeeded: [{ id: 'i1', name: 'Milk', base_list: { id: 'l1', name: 'Pantry' }, usual_store: { id: 's1', name: 'Metro' }, interval_days: 9.4, days_since: 12 }],
+			likelyNeededHasHistory: true,
+			stores: [
+				{ id: 's1', name: 'Metro', last_visit: { kind: 'trip', id: 'trip-1', at: '2026-02-18T22:24:00Z', total_amount: 84.2 } },
+				{ id: 's2', name: 'Costco', last_visit: { kind: 'receipt', id: 'ticket-1', at: '2026-02-12T10:00:00Z', total_amount: null } },
 			],
 		})
-
-		expect(model.receipts[0]).toEqual({ id: 't1', title: 'v2', meta: '18 Feb · 19 items extracted', status: 'completed' })
-		expect(model.receipts[1]).toMatchObject({ title: 'Store not recognized', status: 'processing' })
+		expect(model.likelyNeeded).toEqual({ hasHistory: true, items: [{
+			id: 'i1', name: 'Milk', base_list: { id: 'l1', name: 'Pantry' }, usual_store: { id: 's1', name: 'Metro' },
+			interval_days: 9.4, days_since: 12, cadence: 'Usually every 9 days · last bought 12 days ago',
+		}] })
+		expect(model.storeVisits).toEqual([
+			{ storeId: 's1', storeName: 'Metro', kind: 'trip', id: 'trip-1', dateLabel: '18 Feb', total: 84.2, href: '/shopping-history' },
+			{ storeId: 's2', storeName: 'Costco', kind: 'receipt', id: 'ticket-1', dateLabel: '12 Feb', total: null, href: '/tickets/ticket-1' },
+		])
 	})
 })
 
@@ -234,5 +242,17 @@ describe('helpers', () => {
 		expect(formatShortDate('2026-02-14T10:00:00Z')).toBe('14 Feb')
 		expect(formatShortDate(null)).toBe('')
 		expect(formatShortDate('not-a-date')).toBe('')
+	})
+
+	it('formats cadence with rounded days and correct singulars', () => {
+		expect(formatCadence(9.4, 1)).toBe('Usually every 9 days · last bought 1 day ago')
+		expect(formatCadence(0.4, 0)).toBe('Usually every 1 day · last bought 0 days ago')
+	})
+
+	it('calculates visitor-local month boundaries across zones, month edges, and DST', () => {
+		expect(currentMonthRange(new Date('2026-10-15T12:00:00Z'), 'UTC')).toEqual({ from: '2026-10-01T00:00:00.000Z', to: '2026-11-01T00:00:00.000Z' })
+		expect(currentMonthRange(new Date('2026-10-15T12:00:00Z'), 'Asia/Tokyo')).toEqual({ from: '2026-09-30T15:00:00.000Z', to: '2026-10-31T15:00:00.000Z' })
+		expect(currentMonthRange(new Date('2026-11-01T03:30:00Z'), 'America/Toronto')).toEqual({ from: '2026-10-01T04:00:00.000Z', to: '2026-11-01T04:00:00.000Z' })
+		expect(currentMonthRange(new Date('2026-03-15T12:00:00Z'), 'America/Toronto')).toEqual({ from: '2026-03-01T05:00:00.000Z', to: '2026-04-01T04:00:00.000Z' })
 	})
 })

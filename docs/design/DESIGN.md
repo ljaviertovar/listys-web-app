@@ -662,18 +662,19 @@ default "Pantry" list (kept in an implicit group the interface never shows), so 
 and offers `Add Items` (the list's editor) while the header and the tab bar keep `Upload`; `Start Shopping` stays hidden until the list has
 items.
 
-**Sections** (Shopping Lists, Receipts, Shopping History):
+**Sections** (Shopping Lists, Likely Needed, This Month, Last Trip by Store):
 
 | Piece | Spec |
 | --- | --- |
 | Title row | `h2` 20px / 600 / 1.39 / `-.01em` and, on the right, a "View All" `ActionLink` (blue 700, 600 14px, no fill and no horizontal padding; on hover its arrow nudges 2px right) 12px above the card. The link is `min-h-8` at every width and the title row is `min-h-10`, so it lines up with "Up Next", which has no link |
 | Card | White, 24px radius, 12px padding on phones and 16px from `md`, `raised` shadow, no border; the shadow deepens on hover |
 | Row | 12px radius, `10 8` padding, 12px gap, 36px icon tile (12px radius) in the 100-level tint (the same fill "Up Next" uses), 14px / 600 title, mono 12px / 500 metadata in `muted` (may wrap), hover `#F2F4F7` |
-| Tile tints | Lists `#DBEAFE` / `#1D4ED8`, receipts `#CFFAFE` / `#0E7490`, history `#DCFCE7` / `#15803D` (the 100-level fill with the 700-level icon, as in "Up Next" and the tab bar); 32px tile (the top-level row size of the v2 example) for lists |
+| Tile tints | Lists `#DBEAFE` / `#1D4ED8`, Likely Needed amber `#FEF3C7` / `#B45309`, This Month green `#DCFCE7` / `#15803D`, Last Trip by Store cyan `#CFFAFE` / `#0E7490` (the 100-level fill with the 700-level icon, as in "Up Next" and the tab bar); 32px tile (the top-level row size of the v2 example) for lists |
 | Lists | One flat row per list (`ListsSectionCard`), the group level of the v2 example removed: the 32px tile, the name with `· N items`, and a grey "Start" button (32px, `#E9ECF0`, 12px radius, 13px / 600) at the end. When that list has an active session, the action reads "Resume Shopping" and opens that session. Preview: up to five lists, then "+ N more" linking to the lists screen |
-| Receipt status | A 14px icon plus the word, Plus Jakarta Sans 700 12px, no chip: Completed `#15803D`, Processing `#B45309`, Failed `#B91C1C`; `divider` rules between rows (inset 8px). Preview: three receipts |
-| History | Mono 13.5px / 600 total on the right. Preview: three trips |
-| Empty | Minimum 172px, a 56px tile (16px radius) in the 100-level tint (blue `#DBEAFE` / `#1D4ED8`, cyan `#CFFAFE` / `#0E7490`, green `#DCFCE7` / `#15803D`), a two-line 13.5px explanation in `muted` (max 280px) and one primary button ("New Base List", "Upload Receipt"; History has none). The button is 32px with a 12px label on phones and 44px with 14px from `md` |
+| Likely Needed | Up to five overdue items, sorted by overdue ratio; each row links to its list and shows the list, usual store when known, and the factual cadence in mono ("Usually every 9 days · last bought 12 days ago"). Empty copy distinguishes no history from nothing due; it does not show a score or prediction |
+| This Month | Visitor-time-zone calendar month; shows only known totals from completed trips and unattached receipts, with their counts. Trips without totals are called out separately. Loading skeleton and retryable error stay inside this card; when no total is known, explain how to record one and do not show `$0` |
+| Last Trip by Store | Up to four stores with a visit, newest first. Show store name, visit date and known total in mono; a trip opens Shopping History and a receipt opens that receipt. The empty state explains how to confirm or choose a store |
+| Empty | Minimum 172px, a 56px tile (16px radius) in the corresponding 100-level tint, a two-line 13.5px explanation in `muted` (max 280px) and one primary action only when the section has a useful next step. The button is 32px with a 12px label on phones and 44px with 14px from `md` |
 
 **Up Next.** One white card (24px radius, 12px padding on phones and 16px from `md`) of up to three rows: 64px high, 14px radius, a 40px tile (12px
 radius, 100-level tint with 700 icon: amber for a receipt waiting, red for one that failed, blue for a list not shopped for
@@ -840,6 +841,13 @@ names printed in capitals are shown in Title Case (short codes such as “PC” 
 44px checkbox target, a quantity chip and the price in mono. Ticking items raises a bar above the tab bar's upload button with the
 count, their total in mono, `Clear` and `Add to a List`. The summary card closes the screen with the item count, the calculated
 total (mono 20/700) and the receipt's own actions: `Retry` when it can be retried and a soft-red `Delete Receipt`.
+
+**Receipt triage (this OpenSpec change; derived from the same review row and status-badge patterns).** For a completed,
+unattached receipt with lines, compare against the selected target list and show a compact target row, then sections in
+receipt order: `Check these`, `New items`, and `In <list>`. Check rows carry a readable reason (`No price read` or
+`Looks like <item>?`) and are not selected by bulk selection; `Select all N` selects only the matched rows. `In <list>`
+folds when there are other sections. Loading, error/retry and unavailable states keep the category view usable. A failed
+comparison reports the problem without hiding the lines. The same comparison model feeds the receipt photo compare view.
 
 **Store card (PRD v3 Phase 3; derived, the HTML has no example).** On a read receipt the `TicketStoreCard` sits above the summary
 card (the right column from `lg`, after the items on phones). It is the summary card's 24px surface with the list card's header: a
@@ -1252,6 +1260,10 @@ These are remaining implementation notes, not permission for two systems:
    and `Cancel Shopping` menu items, each with a 44px target; both open the existing owner-checked confirmation sheets. From `lg`, the
    two actions remain inline beside the title.
 3e. **Prices by Store (PRD v3 Phase 5):** the owner's row menu and `ItemStorePricesSheet` follow the store picker/A1 sheet pattern. Rows come only from store statistics with a recorded receipt price; collaborators see none through RLS, and unit-price comparisons label historical receipt data rather than current prices. The HTML is silent, so the sheet derives from the shared white sheet surface and store rows described in 7.12.
+3f. **Receipt matching review and suggestions (this OpenSpec change):** the HTML has no receipt-match example. The receipt
+   triage sections, status reasons and the `Review Matches` possible-match row are derived from the OCR review rows in 7.6,
+   status badges in 7.3, and the existing A1 link-item sheet. Suggestions remain optional and require an explicit link
+   choice; see the receipt triage note in 7.6 and the review flow in 11.6.
 4. **Dark mode:** `Card` is the 24px borderless surface everywhere now; v2 dark values are not defined in the HTML and the new
    tokens (`--secondary-hover`, shadows) only keep dark mode valid, so it is deferred until it is reviewed.
 5. **Colour discipline:** marketing, authentication, shopping categories, and statuses use independent violet, pink, green,
@@ -1293,6 +1305,12 @@ These are remaining implementation notes, not permission for two systems:
     the existing item row and category-card patterns; see sections 6.3, 6.5, 7.8 and 7.12. Review the derived states against the product
     scenarios. Store tags are owner-managed; collaborators only read them. Phase 5 adds owner-only comparison of the latest
     comparable receipt prices by store; it does not provide current or external prices.
+12f. **Dashboard memory cards (this OpenSpec change):** the HTML's A1 dashboard still shows activity previews. The updated
+    dashboard replaces Receipts and Shopping History with Likely Needed, This Month, and Last Trip by Store, derived from
+    the list-card row, receipt summary, history total, and A1 empty-state patterns above. Likely Needed uses the amber
+    warning tint; spending uses green; store visits use cyan. This Month reports only recorded totals and handles the
+    visitor-local month range in a card-level loading/error state. Review at phone and desktop widths; no prediction or
+    restock alert is implied.
 13. **Copy:** product UI and documentation mix “ticket,” “receipt,” “shopping run,” and “shopping session.” User-facing
    English uses `receipt` and `shopping session`; internal legacy names may remain until safely migrated. Profile and Account describe
    the sign-in method in plain language and wrap long values on phones.

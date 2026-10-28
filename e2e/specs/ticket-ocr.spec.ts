@@ -192,7 +192,7 @@ test.describe('OCR Pipeline End-to-End', () => {
       {
         p_ticket_id: ticket!.id,
         p_base_list_id: setup.baseList.id,
-        p_item_ids: ticketItems!.map((item: any) => item.id),
+        p_item_ids: ticketItems!.map(item => item.id),
       }
     )
 
@@ -211,14 +211,14 @@ test.describe('OCR Pipeline End-to-End', () => {
     expect(baseListItems).toHaveLength(3) // Milk, Bread, Eggs
 
     // Find Milk item (should have enrichment)
-    const milkItem = baseListItems!.find((item: any) => item.name === 'Milk')
+    const milkItem = baseListItems!.find(item => item.name === 'Milk')
     expect(milkItem).toBeDefined()
     expect(milkItem!.purchase_count).toBe(1) // Incremented from 0
     expect(milkItem!.last_purchased_at).not.toBeNull()
     expect(milkItem!.average_price).toBeCloseTo(3.99, 2)
 
     // Find Eggs item (new)
-    const eggsItem = baseListItems!.find((item: any) => item.name === 'Eggs')
+    const eggsItem = baseListItems!.find(item => item.name === 'Eggs')
     expect(eggsItem).toBeDefined()
     expect(eggsItem!.purchase_count).toBe(1)
     expect(eggsItem!.average_price).toBeCloseTo(5.49, 2)

@@ -1,7 +1,7 @@
 import { isValidElement } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { getBaseLists, getShoppingHistory, getTickets } from '@/lib/api/endpoints'
+import { getBaseLists, getLikelyNeededItems, getShoppingHistory, getStores, getTickets } from '@/lib/api/endpoints'
 import { ensureDefaultPantry } from '@/lib/server/services/default-pantry.service'
 
 import { DashboardContent } from '../dashboard-content'
@@ -29,6 +29,8 @@ vi.mock('@/lib/api/endpoints', async importOriginal => ({
 	getBaseLists: vi.fn(),
 	getTickets: vi.fn(),
 	getShoppingHistory: vi.fn(),
+	getLikelyNeededItems: vi.fn(),
+	getStores: vi.fn(),
 }))
 
 const ok = (data: unknown) => ({ data, error: null }) as never
@@ -37,6 +39,8 @@ function mockReads(baseLists: unknown[] = []) {
 	vi.mocked(getBaseLists).mockResolvedValue(ok(baseLists))
 	vi.mocked(getTickets).mockResolvedValue(ok([]))
 	vi.mocked(getShoppingHistory).mockResolvedValue(ok([]))
+	vi.mocked(getLikelyNeededItems).mockResolvedValue({ data: [], meta: { limit: 5, has_history: false } } as never)
+	vi.mocked(getStores).mockResolvedValue(ok([]))
 	activeSessionRows = []
 }
 
@@ -100,5 +104,14 @@ describe('DashboardContent', () => {
 		const element = await DashboardContent()
 
 		expect((element as { type: unknown }).type).toBe(DashboardLoadError)
+	})
+
+	it('keeps the load error when likely-needed or store data fails', async () => {
+		mockReads()
+		vi.mocked(getLikelyNeededItems).mockResolvedValue({ error: 'failed' } as never)
+		expect((await DashboardContent() as { type: unknown }).type).toBe(DashboardLoadError)
+		mockReads()
+		vi.mocked(getStores).mockResolvedValue({ error: 'failed' } as never)
+		expect((await DashboardContent() as { type: unknown }).type).toBe(DashboardLoadError)
 	})
 })

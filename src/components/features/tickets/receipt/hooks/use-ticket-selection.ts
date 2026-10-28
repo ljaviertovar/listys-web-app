@@ -5,6 +5,7 @@ import { useCallback, useMemo, useState } from 'react'
 import type { TicketItem } from '@/types'
 
 import { sumLineTotals } from '../helpers/group-ticket-items'
+import { mergeTicketSelection } from '../helpers/ticket-selection-state'
 
 export interface TicketSelection {
 	selectedIds: ReadonlySet<string>
@@ -15,13 +16,18 @@ export interface TicketSelection {
 	partiallySelected: boolean
 	isSelected: (id: string) => boolean
 	toggle: (id: string) => void
+	selectMany: (ids: readonly string[]) => void
 	toggleAll: () => void
 	clear: () => void
 }
 
+export function createEmptyTicketSelection(): ReadonlySet<string> {
+	return new Set()
+}
+
 /** Which items of a receipt are ticked, shared by the list, the action bar and the compare view. */
 export function useTicketSelection(items: TicketItem[]): TicketSelection {
-	const [selectedIds, setSelectedIds] = useState<ReadonlySet<string>>(new Set())
+	const [selectedIds, setSelectedIds] = useState<ReadonlySet<string>>(createEmptyTicketSelection)
 
 	const toggle = useCallback((id: string) => {
 		setSelectedIds(prev => {
@@ -30,6 +36,10 @@ export function useTicketSelection(items: TicketItem[]): TicketSelection {
 			else next.add(id)
 			return next
 		})
+	}, [])
+
+	const selectMany = useCallback((ids: readonly string[]) => {
+		setSelectedIds(prev => mergeTicketSelection(prev, ids))
 	}, [])
 
 	const toggleAll = useCallback(() => {
@@ -48,8 +58,9 @@ export function useTicketSelection(items: TicketItem[]): TicketSelection {
 			partiallySelected: count > 0 && count < items.length,
 			isSelected: (id: string) => selectedIds.has(id),
 			toggle,
+			selectMany,
 			toggleAll,
 			clear,
 		}
-	}, [selectedIds, items, toggle, toggleAll, clear])
+	}, [selectedIds, items, toggle, selectMany, toggleAll, clear])
 }

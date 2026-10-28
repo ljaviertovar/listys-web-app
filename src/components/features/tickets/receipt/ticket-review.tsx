@@ -15,6 +15,7 @@ import { TicketPhotoViewer } from '../photo/ticket-photo-viewer'
 import { usePhotoView } from '../photo/hooks/use-photo-view'
 import { useTicketImageUrls } from '../photo/hooks/use-ticket-image-urls'
 import { useTicketSelection } from './hooks/use-ticket-selection'
+import { useReceiptTriage } from './hooks/use-receipt-triage'
 import type { TicketStatus } from '../helpers/ticket-status'
 import { getReceiptAttachmentVisibility } from '../attach/helpers/receipt-attachment-visibility'
 
@@ -48,6 +49,7 @@ export function TicketReview({ ticketId, title, imagePaths, items, status, ocrEr
 	const [mergeOpen, setMergeOpen] = useState(false)
 	const [attachedOverride, setAttachedOverride] = useState<{ id: string; name: string; status: string } | null>(null)
 	const attached = attachedSession ?? attachedOverride
+	const triage = useReceiptTriage({ ticketId, items, status, attached: !!attached })
 
 	const canSelect = status === 'completed'
 	const attachmentVisibility = getReceiptAttachmentVisibility(!!attached)
@@ -103,6 +105,7 @@ export function TicketReview({ ticketId, title, imagePaths, items, status, ocrEr
 					status={status}
 					ocrError={ocrError}
 					selection={selection}
+					triage={triage}
 					footer={
 						canSelect && attachmentVisibility.showSelectionBar ? (
 							<TicketSelectionBar
@@ -157,6 +160,7 @@ export function TicketReview({ ticketId, title, imagePaths, items, status, ocrEr
 					view={view}
 					items={items}
 					selection={selection}
+					triage={triage}
 					canSelect={canSelect}
 					onAddToList={() => setMergeOpen(true)}
 				/>
@@ -166,6 +170,7 @@ export function TicketReview({ ticketId, title, imagePaths, items, status, ocrEr
 				open={mergeOpen}
 				onOpenChange={setMergeOpen}
 				ticketId={ticketId}
+				defaultBaseListId={triage.baseList?.id}
 				selectedItemIds={Array.from(selection.selectedIds)}
 				lines={items}
 				storeConfirmed={storeConfirmed}

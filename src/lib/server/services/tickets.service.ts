@@ -162,23 +162,111 @@ export type TicketItemMatch = {
   ticket_item_id: string
   match: 'name' | 'alias' | 'none'
   base_list_item: { id: string; name: string } | null
+  suggestion: { id: string; name: string } | null
+}
+
+export type TicketMatchesResult = {
+  data: TicketItemMatch[]
+  meta: { base_list: { id: string; name: string } | null }
 }
 
 /**
  * How every line of the receipt would match the list: an item with the same name, an item remembered from an earlier
  * link, or none (a new item). The same database rules decide the merge, so this preview cannot disagree with it.
  */
-export async function getTicketMatches(ticketId: string, baseListId: string): Promise<TicketItemMatch[]> {
-  const { supabase } = await createAuthenticatedClient()
+async function getOwnReviewList(
+  supabase: Awaited<ReturnType<typeof createAuthenticatedClient>>['supabase'],
+  listId: string,
+  userId: string,
+): Promise<{ id: string; name: string } | null> {
+  const { data, error } = await supabase
+    .from('base_lists')
+    .select('id, name')
+    .eq('id', listId)
+    .eq('user_id', userId)
+    .maybeSingle()
 
-  const { data, error } = await supabase.rpc('ticket_item_matches', { p_ticket_id: ticketId, p_base_list_id: baseListId })
-  if (error) throw mapRpcError(error, 'tickets')
+  if (error) throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'Unable to load the review list.')
+  return data
+}
 
-  return (data ?? []).map(row => ({
-    ticket_item_id: row.ticket_item_id,
-    match: row.match_kind,
-    base_list_item: row.base_list_item_id && row.base_list_item_name ? { id: row.base_list_item_id, name: row.base_list_item_name } : null,
-  }))
+async function resolveReviewTarget(
+  supabase: Awaited<ReturnType<typeof createAuthenticatedClient>>['supabase'],
+  ticketId: string,
+  userId: string,
+): Promise<{ id: string; name: string } | null> {
+  const { data: ticket, error: ticketError } = await supabase
+    .from('tickets')
+    .select('base_list_id')
+    .eq('id', ticketId)
+    .eq('user_id', userId)
+    .maybeSingle()
+
+  if (ticketError) throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'Unable to load the receipt.')
+  if (!ticket) throw new ApiServiceError(404, ErrorCode.NOT_FOUND, 'Ticket not found')
+
+  if (ticket.base_list_id) {
+    const receiptList = await getOwnReviewList(supabase, ticket.base_list_id, userId)
+    if (receiptList) return receiptList
+  }
+
+  const { data: latestTicket, error: latestTicketError } = await supabase
+    .from('tickets')
+    .select('base_list:base_lists!inner(id, name, user_id)')
+    .eq('user_id', userId)
+    .eq('base_list.user_id', userId)
+    .order('created_at', { ascending: false })
+    .order('id', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  if (latestTicketError) throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'Unable to load the recent review list.')
+  const latestList = latestTicket?.base_list
+  if (latestList && !Array.isArray(latestList)) return { id: latestList.id, name: latestList.name }
+
+  const { data: oldestList, error: oldestListError } = await supabase
+    .from('base_lists')
+    .select('id, name')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: true })
+    .order('id', { ascending: true })
+    .limit(1)
+    .maybeSingle()
+
+  if (oldestListError) throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'Unable to load the review list.')
+  return oldestList
+}
+
+export async function getTicketMatches(ticketId: string, baseListId?: string): Promise<TicketMatchesResult> {
+  const { supabase, user } = await createAuthenticatedClient()
+  const baseList = baseListId
+    ? await getOwnReviewList(supabase, baseListId, user.id)
+    : await resolveReviewTarget(supabase, ticketId, user.id)
+
+  if (baseListId && !baseList) throw new ApiServiceError(404, ErrorCode.NOT_FOUND, 'Base list not found')
+  if (!baseList) return { data: [], meta: { base_list: null } }
+
+  const [matchesResult, suggestionsResult] = await Promise.all([
+    supabase.rpc('ticket_item_matches', { p_ticket_id: ticketId, p_base_list_id: baseList.id }),
+    supabase.rpc('ticket_item_suggestions', { p_ticket_id: ticketId, p_base_list_id: baseList.id }),
+  ])
+
+  if (matchesResult.error) throw mapRpcError(matchesResult.error, 'tickets')
+  if (suggestionsResult.error) throw mapRpcError(suggestionsResult.error, 'tickets')
+
+  const suggestionsByTicketItem = new Map(
+    (suggestionsResult.data ?? []).map(row => [row.ticket_item_id, { id: row.base_list_item_id, name: row.base_list_item_name }]),
+  )
+
+  return {
+    data: (matchesResult.data ?? []).map(row => ({
+      ticket_item_id: row.ticket_item_id,
+      match: row.match_kind,
+      base_list_item: row.base_list_item_id && row.base_list_item_name ? { id: row.base_list_item_id, name: row.base_list_item_name } : null,
+      suggestion: suggestionsByTicketItem.get(row.ticket_item_id) ?? null,
+    })),
+    meta: { base_list: { id: baseList.id, name: baseList.name } },
+  }
 }
 
 export type TicketSessionCandidate = {

@@ -28,6 +28,18 @@ at most one, and item links belong to a list that is itself bounded by `MAX_ITEM
 matched by a remembered link update an existing item, so only the lines that create items count toward that limit when
 receipt items are added to a list.
 
+## Likely-needed items
+
+`GET /api/v1/base-list-items?filter=likely_needed` returns at most 10 rows (default 5; valid `limit` is 1–10). An item
+needs at least 3 recorded purchases, an average interval of at least 1 day, and elapsed time since its last purchase at
+least equal to that interval. The average interval is `(last purchase − first seen) / (purchase count − 1)`. Items older
+than 4 intervals or 120 days are excluded, whichever cutoff comes first. The endpoint considers only the caller's owned
+lists.
+
+## Spending summary
+
+`GET /api/v1/spending` requires ISO datetimes with offsets in `from` and `to`. The end must be after the start and the half-open range is limited to 92 days. The dashboard requests the visitor's current calendar month; its boundaries are computed in the visitor's time zone. Totals include completed trips with a known total and unattached receipts with a known total. Completed trips without a total are counted separately; attached receipts are not counted again.
+
 The Gemini function enforces its own three-attempt cap. The OpenAI function increments attempts but does not currently
 apply that cap; the web retry service also does not enforce it. See the
 [implementation gaps](implementation-status.md#prd-v2-acceptance-gaps) before assuming uniform retry guarantees.

@@ -30,6 +30,11 @@ OCR Edge Functions.
 
 ## Architectural Boundaries
 
+The dashboard combines server-side reads of owned lists, receipts, completed sessions, likely-needed items, and stores.
+Likely-needed items and spending are exposed through versioned v1 Route Handlers backed by owner-scoped Postgres RPCs;
+store reads include the latest owned trip or unattached receipt visit. The month-spending card fetches its own bounded
+summary using calendar boundaries from the visitor's time zone, so a failure there does not replace the rest of the page.
+
 The application is organized around ownership boundaries rather than technical layers alone:
 
 | Boundary | Location | Responsibility |

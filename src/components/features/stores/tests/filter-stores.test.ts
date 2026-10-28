@@ -4,7 +4,7 @@ import type { Store } from '@/types'
 
 import { canCreateStore, filterStores, pickerStatus, storeNameKey } from '../helpers/filter-stores'
 
-const store = (id: string, name: string): Store => ({ id, name, receipt_count: 0, created_at: '', updated_at: '' })
+const store = (id: string, name: string): Store => ({ id, name, receipt_count: 0, created_at: '', updated_at: '', last_visit: null })
 const stores = [store('1', 'No Frills'), store('2', 'Metro'), store('3', 'Food Basics')]
 
 describe('filterStores', () => {

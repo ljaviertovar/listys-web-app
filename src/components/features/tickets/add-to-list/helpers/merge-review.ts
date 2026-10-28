@@ -7,6 +7,7 @@ export interface ReviewLine {
 	name: string
 	/** The item the line updates by default: same name, or remembered from an earlier link. */
 	matchedItem: MatchedItem | null
+	suggestedItem?: MatchedItem
 }
 
 export interface MergeReview {
@@ -16,6 +17,8 @@ export interface MergeReview {
 	remembered: ReviewLine[]
 	/** Lines that would become new items. */
 	fresh: ReviewLine[]
+	/** New lines with a likely existing item, offered for explicit linking. */
+	suggested: ReviewLine[]
 	/** False when every line updates an item by name, so the items can be added without a review step. */
 	needsReview: boolean
 }
@@ -33,7 +36,7 @@ export function buildMergeReview(
 ): MergeReview {
 	const byId = new Map(matches.map(match => [match.ticket_item_id, match]))
 	const names = new Map(lines.map(line => [line.id, line.name]))
-	const review: MergeReview = { byName: [], remembered: [], fresh: [], needsReview: false }
+	const review: MergeReview = { byName: [], remembered: [], fresh: [], suggested: [], needsReview: false }
 
 	for (const id of selectedIds) {
 		const match = byId.get(id)
@@ -41,10 +44,12 @@ export function buildMergeReview(
 
 		if (match?.match === 'name' && line.matchedItem) review.byName.push(line)
 		else if (match?.match === 'alias' && line.matchedItem) review.remembered.push(line)
-		else review.fresh.push({ ...line, matchedItem: null })
+		else if (match?.match === 'none' && match.suggestion) {
+			review.suggested.push({ ...line, matchedItem: null, suggestedItem: match.suggestion })
+		} else review.fresh.push({ ...line, matchedItem: null })
 	}
 
-	review.needsReview = review.remembered.length + review.fresh.length > 0
+	review.needsReview = review.remembered.length + review.fresh.length + review.suggested.length > 0
 	return review
 }
 
@@ -64,6 +69,11 @@ export function buildMergeLinks(review: MergeReview, decisions: ReadonlyMap<stri
 	}
 
 	for (const line of review.fresh) {
+		const decision = decisions.get(line.ticketItemId)
+		if (decision?.kind === 'link') links.push({ ticket_item_id: line.ticketItemId, base_list_item_id: decision.item.id })
+	}
+
+	for (const line of review.suggested) {
 		const decision = decisions.get(line.ticketItemId)
 		if (decision?.kind === 'link') links.push({ ticket_item_id: line.ticketItemId, base_list_item_id: decision.item.id })
 	}

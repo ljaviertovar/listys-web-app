@@ -19,6 +19,10 @@ interface ReceiptItem {
   category: string | null
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
 // Process a single image with OpenAI Vision API
 async function processImage(
   imageUrl: string,
@@ -155,15 +159,15 @@ ${mergeInstructions}
 
     // Defensive cleanup: only keep expected fields
     return parsed
-      .filter((x: any) => x && typeof x === 'object')
-      .map((x: any) => ({
+      .filter(isRecord)
+      .map(x => ({
         name: typeof x.name === 'string' ? x.name : '',
-        category: x.category ?? null,
+        category: typeof x.category === 'string' ? x.category : null,
         quantity:
           typeof x.quantity === 'number' && Number.isFinite(x.quantity)
             ? x.quantity
             : null,
-        unit: typeof x.unit === 'string' ? x.unit : x.unit ?? null,
+        unit: typeof x.unit === 'string' ? x.unit : null,
         price:
           typeof x.price === 'number' && Number.isFinite(x.price) ? x.price : null,
       }))
@@ -306,7 +310,7 @@ function nearlyEqual(a: number, b: number, eps: number): boolean {
   return Math.abs(a - b) <= eps
 }
 
-function isFiniteNumber(x: any): x is number {
+function isFiniteNumber(x: unknown): x is number {
   return typeof x === 'number' && Number.isFinite(x)
 }
 
@@ -429,10 +433,11 @@ serve(async (req: Request) => {
       }),
       { status: 200, headers: { 'Content-Type': 'application/json' } }
     )
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('OCR processing error:', error)
+    const message = error instanceof Error ? error.message : String(error)
 
-    return new Response(JSON.stringify({ error: error.message || 'OCR processing failed' }), {
+    return new Response(JSON.stringify({ error: message || 'OCR processing failed' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     })

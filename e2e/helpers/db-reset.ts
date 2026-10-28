@@ -70,7 +70,7 @@ export async function cleanTestUsers() {
 
   if (!users) return
 
-  const testUsers = users.users.filter((u: any) => u.email?.startsWith('test-'))
+  const testUsers = users.users.filter(user => user.email?.startsWith('test-'))
 
   for (const user of testUsers) {
     await supabase.auth.admin.deleteUser(user.id)
