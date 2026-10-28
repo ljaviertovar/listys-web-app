@@ -452,9 +452,11 @@ export type Database = {
           ocr_error: string | null
           ocr_status: Database["public"]["Enums"]["ocr_status"] | null
           processed_at: string | null
+          shopping_session_id: string | null
           store_id: string | null
           store_name: string | null
           total_items: number | null
+          total_amount: number | null
           user_id: string
         }
         Insert: {
@@ -468,9 +470,11 @@ export type Database = {
           ocr_error?: string | null
           ocr_status?: Database["public"]["Enums"]["ocr_status"] | null
           processed_at?: string | null
+          shopping_session_id?: string | null
           store_id?: string | null
           store_name?: string | null
           total_items?: number | null
+          total_amount?: number | null
           user_id: string
         }
         Update: {
@@ -484,9 +488,11 @@ export type Database = {
           ocr_error?: string | null
           ocr_status?: Database["public"]["Enums"]["ocr_status"] | null
           processed_at?: string | null
+          shopping_session_id?: string | null
           store_id?: string | null
           store_name?: string | null
           total_items?: number | null
+          total_amount?: number | null
           user_id?: string
         }
         Relationships: [
@@ -582,6 +588,8 @@ export type Database = {
           id: string
           last_price: number | null
           last_price_at: string | null
+          last_quantity: number | null
+          last_unit: string | null
           last_purchased_at: string
           purchase_count: number
           store_id: string
@@ -594,6 +602,8 @@ export type Database = {
           id?: string
           last_price?: number | null
           last_price_at?: string | null
+          last_quantity?: number | null
+          last_unit?: string | null
           last_purchased_at: string
           purchase_count?: number
           store_id: string
@@ -606,6 +616,8 @@ export type Database = {
           id?: string
           last_price?: number | null
           last_price_at?: string | null
+          last_quantity?: number | null
+          last_unit?: string | null
           last_purchased_at?: string
           purchase_count?: number
           store_id?: string
@@ -695,6 +707,62 @@ export type Database = {
           over_limit_count: number
           skipped_count: number
           updated_count: number
+        }[]
+      }
+      apply_session_completion: {
+        Args: { p_max_items: number; p_session_id: string }
+        Returns: {
+          new_count: number
+          over_limit_count: number
+          skipped_count: number
+          touched_item_ids: string[]
+          updated_count: number
+        }[]
+      }
+      receipt_attach_window: { Args: never; Returns: string }
+      ticket_session_candidates: {
+        Args: { p_ticket_id: string }
+        Returns: {
+          base_list_id: string
+          base_list_name: string
+          checked_count: number
+          completed_at: string | null
+          id: string
+          item_count: number
+          name: string
+          started_at: string | null
+          status: string
+          store_id: string | null
+          store_name: string | null
+        }[]
+      }
+      ticket_session_matches: {
+        Args: { p_session_id: string; p_ticket_id: string }
+        Returns: {
+          checked: boolean
+          match_kind: string
+          shopping_session_item_id: string | null
+          shopping_session_item_name: string | null
+          ticket_item_id: string
+        }[]
+      }
+      attach_receipt_to_session: {
+        Args: {
+          p_links?: Json
+          p_max_items?: number
+          p_session_id: string
+          p_ticket_id: string
+          p_added_item_ids?: string[]
+          p_total_amount?: number | null
+        }
+        Returns: {
+          added_count: number
+          checked_now_count: number
+          completed_now: boolean
+          matched_count: number
+          over_limit_count: number
+          priced_count: number
+          replayed: boolean
         }[]
       }
       start_shopping_session: {

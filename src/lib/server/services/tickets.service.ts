@@ -2,10 +2,11 @@ import { createAuthenticatedClient } from '@/lib/api/auth'
 import { isUsablePrice } from '@/utils/is-usable-price'
 import { ApiServiceError, ErrorCode } from '@/lib/api/http'
 import { parseWithSchema } from '@/lib/api/zod'
-import { mapRpcError } from '@/lib/server/services/rpc-errors'
+import { mapRpcError, mapTicketSessionAttachRpcError } from '@/lib/server/services/rpc-errors'
 import {
   mergeTicketItemsSchema,
   createBaseListFromTicketSchema,
+  attachTicketToSessionSchema,
   updateTicketSchema,
   uploadTicketFieldsSchema,
 } from '@/lib/validations/ticket'
@@ -63,8 +64,19 @@ export async function getTicket(id: string) {
   }
 
   const storeSuggestion = ticket.store_id ? null : await suggestStore(supabase, ticket.store_name)
+  let shoppingSession: { id: string; name: string; status: string | null } | null = null
+  if (ticket.shopping_session_id) {
+    const { data: session, error: sessionError } = await supabase
+      .from('shopping_sessions')
+      .select('id, name, status')
+      .eq('id', ticket.shopping_session_id)
+      .eq('user_id', user.id)
+      .maybeSingle()
+    if (sessionError) throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'Unable to load the attached trip.')
+    shoppingSession = session
+  }
 
-  return { ...ticket, store_suggestion: storeSuggestion, items: items || [] }
+  return { ...ticket, shopping_session: shoppingSession, store_suggestion: storeSuggestion, items: items || [] }
 }
 
 /**
@@ -169,6 +181,83 @@ export async function getTicketMatches(ticketId: string, baseListId: string): Pr
   }))
 }
 
+export type TicketSessionCandidate = {
+  id: string
+  name: string
+  status: string
+  started_at: string | null
+  completed_at: string | null
+  store: { id: string; name: string } | null
+  base_list: { id: string; name: string }
+  checked_count: number
+  item_count: number
+}
+
+export async function getTicketSessionCandidates(ticketId: string): Promise<TicketSessionCandidate[]> {
+  const { supabase } = await createAuthenticatedClient()
+  const { data, error } = await supabase.rpc('ticket_session_candidates', { p_ticket_id: ticketId })
+  if (error) throw mapRpcError(error, 'tickets')
+
+  return (data ?? []).map(row => ({
+    id: row.id,
+    name: row.name,
+    status: row.status,
+    started_at: row.started_at,
+    completed_at: row.completed_at,
+    store: row.store_id && row.store_name ? { id: row.store_id, name: row.store_name } : null,
+    base_list: { id: row.base_list_id, name: row.base_list_name },
+    checked_count: row.checked_count,
+    item_count: row.item_count,
+  }))
+}
+
+export async function getTicketSessionMatches(ticketId: string, sessionId: string) {
+  const { supabase } = await createAuthenticatedClient()
+  const { data, error } = await supabase.rpc('ticket_session_matches', {
+    p_ticket_id: ticketId,
+    p_session_id: sessionId,
+  })
+  if (error) throw mapRpcError(error, 'tickets')
+
+  return (data ?? []).map(row => ({
+    ticket_item_id: row.ticket_item_id,
+    match: row.match_kind,
+    shopping_session_item: row.shopping_session_item_id && row.shopping_session_item_name
+      ? { id: row.shopping_session_item_id, name: row.shopping_session_item_name, checked: row.checked }
+      : null,
+  }))
+}
+
+export async function attachTicketToSession(ticketId: string, input: unknown) {
+  const payload = parseWithSchema(attachTicketToSessionSchema, input)
+  const { supabase } = await createAuthenticatedClient()
+  const { data, error } = await supabase.rpc('attach_receipt_to_session', {
+    p_ticket_id: ticketId,
+    p_session_id: payload.shopping_session_id,
+    p_links: payload.links?.map(link => ({
+      ticket_item_id: link.ticket_item_id,
+      shopping_session_item_id: link.shopping_session_item_id,
+    })) ?? [],
+    p_added_item_ids: payload.added_item_ids ?? [],
+    ...(payload.total_amount !== undefined ? { p_total_amount: payload.total_amount } : {}),
+    p_max_items: MAX_ITEMS_PER_BASE_LIST,
+  })
+
+  if (error) throw mapTicketSessionAttachRpcError(error)
+  const summary = Array.isArray(data) ? data[0] : data
+  if (!summary) throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'Something went wrong. Please try again.')
+
+  return {
+    completed_now: summary.completed_now,
+    matched_count: summary.matched_count,
+    checked_now_count: summary.checked_now_count,
+    added_count: summary.added_count,
+    priced_count: summary.priced_count,
+    over_limit_count: summary.over_limit_count,
+    replayed: summary.replayed,
+  }
+}
+
 export async function createBaseListFromTicket(data: unknown) {
   const { supabase, user } = await createAuthenticatedClient()
 
@@ -178,6 +267,23 @@ export async function createBaseListFromTicket(data: unknown) {
   }
 
   const { ticket_id, group_id: requestedGroupId, name, item_ids } = validation.data
+
+  const { data: ticket, error: ticketLookupError } = await supabase
+    .from('tickets')
+    .select('id, shopping_session_id')
+    .eq('id', ticket_id)
+    .eq('user_id', user.id)
+    .maybeSingle()
+
+  if (ticketLookupError) {
+    throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'Unable to load this receipt.')
+  }
+  if (!ticket) throw new ApiServiceError(404, ErrorCode.NOT_FOUND, 'Ticket not found')
+  if (ticket.shopping_session_id) {
+    throw new ApiServiceError(409, ErrorCode.CONFLICT, 'This receipt is already attached to a trip.', {
+      reason: 'RECEIPT_ATTACHED',
+    })
+  }
 
   const { data: ticketItems, error: ticketError } = await supabase
     .from('ticket_items')
@@ -360,7 +466,7 @@ export async function retryTicketOCR(id: string) {
 
   const { error: updateError } = await supabase
     .from('tickets')
-    .update({ ocr_status: 'pending', total_items: 0, processed_at: null, ocr_error: null })
+    .update({ ocr_status: 'pending', total_items: 0, total_amount: null, processed_at: null, ocr_error: null })
     .eq('id', id)
 
   if (updateError) {

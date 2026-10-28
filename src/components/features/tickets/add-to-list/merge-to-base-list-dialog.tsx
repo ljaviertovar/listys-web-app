@@ -24,9 +24,10 @@ interface Props {
 	lines: Array<{ id: string; name: string }>
 	storeConfirmed: boolean
 	onSuccess: (baseListId: string) => void
+	onReceiptAttached?: (sessionId: string) => void
 }
 
-export function MergeToBaseListDialog({ open, onOpenChange, ticketId, selectedItemIds, lines, storeConfirmed, onSuccess }: Props) {
+export function MergeToBaseListDialog({ open, onOpenChange, ticketId, selectedItemIds, lines, storeConfirmed, onSuccess, onReceiptAttached }: Props) {
 	const fieldId = useId()
 	const titleRef = useRef<HTMLHeadingElement>(null)
 	const { onOpenAutoFocus, onCloseAutoFocus } = useDialogFocus(titleRef)
@@ -49,7 +50,7 @@ export function MergeToBaseListDialog({ open, onOpenChange, ticketId, selectedIt
 		step,
 		backToChoose,
 		review,
-	} = useMergeToBaseList({ open, ticketId, selectedItemIds, lines, onOpenChange, onSuccess })
+	} = useMergeToBaseList({ open, ticketId, selectedItemIds, lines, onOpenChange, onSuccess, onReceiptAttached })
 
 	const hasLists = baseLists.length > 0
 	const reviewing = step === 'review' && review.state.status === 'ready'

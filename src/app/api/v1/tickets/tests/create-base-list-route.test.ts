@@ -41,7 +41,10 @@ describe('POST /api/v1/tickets/:ticketId/create-base-list', () => {
         { data: list, error: null },
       ],
       base_list_items: [{ data: null, error: null }],
-      tickets: [{ data: null, error: null }],
+      tickets: [
+        { data: { id: TEST_UUID, shopping_session_id: null }, error: null },
+        { data: null, error: null },
+      ],
     })
     supabase.from = vi.fn().mockImplementation((table: string) => {
       const builder = builders(table)
@@ -67,7 +70,10 @@ describe('POST /api/v1/tickets/:ticketId/create-base-list', () => {
         { data: { id: 'list-1', name: 'From receipt' }, error: null },
       ],
       base_list_items: [{ data: null, error: null }],
-      tickets: [{ data: null, error: null }],
+      tickets: [
+        { data: { id: TEST_UUID, shopping_session_id: null }, error: null },
+        { data: null, error: null },
+      ],
     })
     supabase.from = vi.fn().mockImplementation((table: string) => {
       const builder = builders(table)
@@ -88,6 +94,7 @@ describe('POST /api/v1/tickets/:ticketId/create-base-list', () => {
     const supabase = signIn()
     const insertSpy = vi.fn()
     const builders = sequentialFrom({
+      tickets: [{ data: { id: TEST_UUID, shopping_session_id: null }, error: null }],
       ticket_items: [{ data: [{ id: ITEM_ID, name: 'Milk', quantity: 1 }], error: null }],
       base_lists: [{ data: null, error: null }],
       groups: [{ data: null, error: null }],
@@ -107,6 +114,7 @@ describe('POST /api/v1/tickets/:ticketId/create-base-list', () => {
   it('answers 409 when the user already has a list with that name in any group', async () => {
     const supabase = signIn()
     supabase.from = sequentialFrom({
+      tickets: [{ data: { id: TEST_UUID, shopping_session_id: null }, error: null }],
       ticket_items: [{ data: [{ id: ITEM_ID, name: 'Milk', quantity: 1 }], error: null }],
       base_lists: [{ data: { id: 'existing' }, error: null }],
     })
@@ -116,6 +124,25 @@ describe('POST /api/v1/tickets/:ticketId/create-base-list', () => {
 
     expect(response.status).toBe(409)
     expect(body.error.message).toBe('A list with this name already exists. Please choose a different name.')
+  })
+
+  it('answers 409 and creates no list when the receipt is attached to a trip', async () => {
+    const supabase = signIn()
+    const insert = vi.fn()
+    const builders = sequentialFrom({
+      tickets: [{ data: { id: TEST_UUID, shopping_session_id: TEST_UUID_2 }, error: null }],
+    })
+    supabase.from = vi.fn().mockImplementation((table: string) => {
+      const builder = builders(table)
+      if (table === 'base_lists') builder.insert = insert
+      return builder
+    })
+
+    const response = await post({})
+    const body = await response.json()
+    expect(response.status).toBe(409)
+    expect(body.error.details.reason).toBe('RECEIPT_ATTACHED')
+    expect(insert).not.toHaveBeenCalled()
   })
 
   it('answers 422 without a name and 401 when nobody is signed in', async () => {

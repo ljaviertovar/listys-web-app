@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 
 import { PageHeader, PageContainer } from '@/components/app'
-import { TicketReview, TicketStoreCard, TicketSummaryCard, sumLineTotals, toTicketStatus } from '@/components/features/tickets'
+import { TicketAttachCard, TicketReview, TicketStoreCard, TicketSummaryCard, sumLineTotals, toTicketStatus } from '@/components/features/tickets'
 
 import { getTicket } from '@/lib/api/endpoints'
 
@@ -69,15 +69,26 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 					status={toTicketStatus(ticket.ocr_status)}
 					ocrError={ocrError}
 					storeConfirmed={!!store}
+					attachedSession={ticket.shopping_session ?? null}
 				>
 					{/* The store is read with the items, so it is only worth confirming once the receipt has been read. */}
 					{ticket.ocr_status === 'completed' ? (
+						<>
+							{!ticket.shopping_session && !ticket.base_list_id ? (
+								<TicketAttachCard
+									ticketId={ticketId}
+									items={ticketItems}
+									receiptStore={store ?? null}
+									totalAmount={ticket.total_amount ?? null}
+								/>
+							) : null}
 						<TicketStoreCard
 							ticketId={ticketId}
 							store={store ?? null}
 							storeSuggestion={storeSuggestion ?? null}
 							storeName={ticket.store_name}
 						/>
+						</>
 					) : null}
 					<TicketSummaryCard
 						ticket={ticket}

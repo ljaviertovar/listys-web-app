@@ -114,6 +114,17 @@ describe('POST /api/v1/tickets/:ticketId/merge-to-base-list', () => {
     expect((await response.json()).error).toMatchObject({ code: 'LIMIT_EXCEEDED', message })
   })
 
+  it('answers 409 CONFLICT when the receipt is already attached to a trip', async () => {
+    signIn({ data: null, error: { code: 'P0001', message: 'RECEIPT_ATTACHED' } })
+    const response = await post({})
+    const body = await response.json()
+    expect(response.status).toBe(409)
+    expect(body.error).toMatchObject({
+      code: 'CONFLICT',
+      details: { reason: 'RECEIPT_ATTACHED' },
+    })
+  })
+
   it('hides any other database error behind a generic 500', async () => {
     signIn({ data: null, error: { code: '42501', message: 'permission denied for table "secret"' } })
 

@@ -4,6 +4,8 @@ import { ActiveShoppingBadge, PageContainer, PageHeader } from '@/components/app
 import { Badge } from '@/components/ui/badge'
 import { AddItemSheet } from '@/components/features/list-items'
 import { ShareListDialog } from '@/components/features/sharing'
+import { ActionLink } from '@/components/commons'
+import { Card } from '@/components/ui/card'
 import {
 	STARTED_SESSION_PARAM,
 	SessionEstimate,
@@ -20,6 +22,7 @@ import { getShoppingSession } from '@/actions'
 import { createClient } from '@/lib/supabase/server'
 
 import type { ShoppingSessionWithItems } from '@/types'
+import { formatCurrency } from '@/utils'
 
 type SearchParams = {
 	from?: string | string[]
@@ -58,6 +61,7 @@ export default async function ShoppingRunPage({
 	const runWithItems = shoppingSession as ShoppingSessionWithItems & {
 		base_list?: { name?: string | null; user_id?: string | null } | null
 		store?: { id: string; name: string } | null
+		receipt?: { id: string; total_amount: number | null } | null
 	}
 	const isCompleted = runWithItems.status === 'completed'
 
@@ -126,6 +130,19 @@ export default async function ShoppingRunPage({
 							pricedCount={priceEstimate.pricedCount}
 							itemCount={priceEstimate.itemCount}
 						/>
+					) : null}
+					{runWithItems.receipt ? (
+						<Card size='tight' data-testid='session-receipt-summary'>
+							<div className='flex flex-wrap items-center justify-between gap-3'>
+								<div className='flex min-w-0 flex-col gap-1'>
+									<p className='text-xs font-medium text-muted-foreground'>Paid from receipt</p>
+									<p className='font-mono text-xl font-bold tabular-nums'>
+										{runWithItems.receipt.total_amount === null ? 'Total unavailable' : formatCurrency(runWithItems.receipt.total_amount)}
+									</p>
+								</div>
+								<ActionLink href={`/tickets/${runWithItems.receipt.id}`}>View Receipt</ActionLink>
+							</div>
+						</Card>
 					) : null}
 
 					{isCompleted ? null : (

@@ -16,12 +16,13 @@ interface UseMergeToBaseListInput {
 	lines: Array<{ id: string; name: string }>
 	onOpenChange: (open: boolean) => void
 	onSuccess: (baseListId: string) => void
+	onReceiptAttached?: (sessionId: string) => void
 }
 
 /** `choose` picks the list (or names a new one); `review` decides how lines without a same-name item are added. */
 export type MergeStep = 'choose' | 'review'
 
-export function useMergeToBaseList({ open, ticketId, selectedItemIds, lines, onOpenChange, onSuccess }: UseMergeToBaseListInput) {
+export function useMergeToBaseList({ open, ticketId, selectedItemIds, lines, onOpenChange, onSuccess, onReceiptAttached }: UseMergeToBaseListInput) {
 	const [mode, setMode] = useState<MergeMode>('existing')
 	const [baseLists, setBaseLists] = useState<BaseList[]>([])
 	const [selectedBaseListId, setSelectedBaseListId] = useState('')
@@ -100,6 +101,11 @@ export function useMergeToBaseList({ open, ticketId, selectedItemIds, lines, onO
 
 		if (result.kind === 'invalid' || result.kind === 'error') {
 			setError(result.message)
+			return
+		}
+		if (result.kind === 'attached') {
+			onOpenChange(false)
+			onReceiptAttached?.(result.sessionId)
 			return
 		}
 

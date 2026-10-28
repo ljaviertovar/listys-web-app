@@ -18,6 +18,15 @@ const VALIDATION_MESSAGES = new Set([
   'A line with the name of an item in this list cannot be linked to another item',
 ])
 
+const TICKET_SESSION_CONFLICTS = new Set([
+  'RECEIPT_NOT_READ',
+  'RECEIPT_ATTACHED',
+  'RECEIPT_ADDED_TO_LIST',
+  'SESSION_HAS_RECEIPT',
+  'SESSION_OUT_OF_WINDOW',
+  'STORE_MISMATCH',
+])
+
 /**
  * Turns an error from the stores and matching database functions into the API error the client sees:
  * P0002 → 404, 22023/22P02 → 422, 23505 → 409 CONFLICT (with the id of the store that has the name), a store or list
@@ -26,6 +35,12 @@ const VALIDATION_MESSAGES = new Set([
 export function mapRpcError(error: RpcError, context: string): ApiServiceError {
   const code = error.code ?? ''
   const message = error.message ?? ''
+
+  if (message === 'RECEIPT_ATTACHED') {
+    return new ApiServiceError(409, ErrorCode.CONFLICT, 'This receipt is already attached to a trip.', {
+      reason: 'RECEIPT_ATTACHED',
+    })
+  }
 
   if (code === 'P0002') {
     return new ApiServiceError(404, ErrorCode.NOT_FOUND, NOT_FOUND_MESSAGES.has(message) ? message : 'Not found')
@@ -89,5 +104,24 @@ export function mapStartShoppingSessionRpcError(error: RpcError): ApiServiceErro
   }
 
   console.error('[startShoppingSession] database function failed', { code: code || 'unknown' })
+  return new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'Something went wrong. Please try again.')
+}
+
+export function mapTicketSessionAttachRpcError(error: RpcError): ApiServiceError {
+  const code = error.code ?? ''
+  const reason = code === '23505' ? error.details ?? '' : error.message ?? ''
+
+  if (code === 'P0002') return new ApiServiceError(404, ErrorCode.NOT_FOUND, 'Not found')
+  if (code === '22023') return new ApiServiceError(422, ErrorCode.VALIDATION_ERROR, 'Invalid request')
+
+  if ((code === 'P0001' || code === '23505') && TICKET_SESSION_CONFLICTS.has(reason)) {
+    const shoppingSessionId = error.details && UUID_PATTERN.test(error.details) ? error.details : undefined
+    return new ApiServiceError(409, ErrorCode.CONFLICT, 'This receipt cannot be attached to that trip.', {
+      reason,
+      ...(shoppingSessionId ? { shopping_session_id: shoppingSessionId } : {}),
+    })
+  }
+
+  console.error('[attachTicketToSession] database function failed', { code: code || 'unknown' })
   return new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'Something went wrong. Please try again.')
 }

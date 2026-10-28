@@ -48,6 +48,7 @@ interface SubmitTicketItemsInput {
 export type SubmitTicketItemsResult =
 	| { kind: 'invalid'; message: string }
 	| { kind: 'error'; message: string }
+	| { kind: 'attached'; sessionId: string }
 	| { kind: 'merged'; baseListId: string; counts?: { added: number; updated: number; skipped: number } }
 	| { kind: 'created'; baseListId: string; itemCount: number }
 
@@ -66,6 +67,13 @@ export async function submitTicketItemsToList(
 				...(input.links && input.links.length > 0 ? { links: input.links } : {}),
 			})
 			if ('error' in result && result.error) {
+				const details = (result as { details?: unknown }).details
+				if (
+					result.errorCode === 'CONFLICT'
+					&& details && typeof details === 'object'
+					&& 'reason' in details && details.reason === 'RECEIPT_ATTACHED'
+					&& 'shopping_session_id' in details && typeof details.shopping_session_id === 'string'
+				) return { kind: 'attached', sessionId: details.shopping_session_id }
 				// A full list is something the user can fix in the review step, so it says how.
 				if ('errorCode' in result && result.errorCode === 'LIMIT_EXCEEDED') {
 					return { kind: 'error', message: 'This list can’t take that many new items. Link some lines to existing items, or add fewer.' }

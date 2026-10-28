@@ -31,9 +31,11 @@ the implementation reference describes repository evidence. Neither establishes 
 - **Direction:** PRD v3 refines the MVP in phases. Phase 1 (always sync on completion, a default "Pantry" list, visible
   average price and estimated total), Phase 2 (flat lists: groups hidden from the interface, history filtered by list) and
   Phase 3 includes the stores foundation (store read from receipts, normalized "My Stores", rename/merge, and receipt
-  lines linked to existing items) plus a follow-on for usual-store tags and store-scoped sessions. The follow-on's code,
-  additive migration, and documentation are being prepared; the migration remains unapplied pending an approved target.
-  Per-store price comparison and receipt-to-session reconciliation are outside this change.
+  lines linked to existing items), Phase 4 adds usual-store tags and store-scoped sessions, and Phase 5 adds printed
+  receipt totals, receipt-to-trip reconciliation, and owner-only comparison of latest recorded prices by store. The Phase
+  5 code, additive migration and verification script are prepared; database application remains pending an approved
+  target. Prices are from the user's own receipt history, not live or external price feeds. A trip supports one receipt,
+  and an attached receipt cannot be detached.
 - **Experimental:** shared lists, invitations, collaborators, and collaborative realtime shopping. The product owner
   confirmed on 2026-10-17 that these remain outside the MVP.
 - **Planning:** `openspec/` holds specifications and planned changes; its local configuration uses `spec-driven`.

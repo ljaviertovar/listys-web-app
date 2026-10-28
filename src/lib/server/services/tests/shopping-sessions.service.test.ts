@@ -87,6 +87,21 @@ describe('shopping session store reads', () => {
 		})
 	})
 
+  it('includes the linked receipt on session detail and in completed history', async () => {
+		signInWithTables({
+			shopping_sessions: { data: { id: 'session-1', user_id: 'user-1', status: 'completed' }, error: null },
+			tickets: { data: { id: 'receipt-1' }, error: null },
+		})
+		await expect(getShoppingSession('session-1')).resolves.toMatchObject({ receipt: { id: 'receipt-1' } })
+
+		signInWithTables({
+			shopping_sessions: { data: [{ id: 'session-1', user_id: 'user-1', status: 'completed' }], error: null },
+			shopping_session_items: { data: [], error: null },
+			tickets: { data: [{ id: 'receipt-1', shopping_session_id: 'session-1' }], error: null },
+		})
+		await expect(getShoppingHistory()).resolves.toMatchObject([{ receipt: { id: 'receipt-1' } }])
+	})
+
 	it('keeps an unreadable store as null on session detail and history reads', async () => {
 		const detail = { id: 'session-1', user_id: 'user-1', store: null, items: [{ id: 'item-1', is_other_store: false }] }
 		signInWithTables({ shopping_sessions: { data: detail, error: null } })

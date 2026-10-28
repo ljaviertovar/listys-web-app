@@ -6,7 +6,7 @@ import { Delete02Icon, Edit02Icon } from '@hugeicons/core-free-icons'
 import { Checkbox } from '@/components/ui/checkbox'
 import { ConfirmSheet, RowMenu } from '@/components/commons'
 import { AveragePrice, ItemEditForm, ItemQuantityChip } from '@/components/features/list-items'
-import { cn, formatItemName } from '@/utils'
+import { cn, formatCurrency, formatItemName } from '@/utils'
 import type { ShoppingSessionItem } from '@/types'
 
 import { useSessionItemActions } from './hooks/use-session-item-actions'
@@ -98,10 +98,16 @@ export function ShoppingSessionItemRow({ item, isCompleted = false, averagePrice
 							unit={item.unit}
 							muted={checked}
 						/>
-						<AveragePrice
-							price={averagePrice}
-							testId={`session-item-${item.id}-average-price`}
-						/>
+						{isCompleted ? (
+							item.price !== null ? (
+								<span data-testid={`session-item-${item.id}-receipt-price`} className='inline-flex shrink-0 items-baseline text-xs leading-[1.3] text-slate-500 dark:text-muted-foreground'>
+									<span className='sr-only'>Paid price </span>
+									<b className='font-mono font-semibold text-foreground tabular-nums'>{formatCurrency(item.price)}</b>
+								</span>
+							) : null
+						) : (
+							<AveragePrice price={averagePrice} testId={`session-item-${item.id}-average-price`} />
+						)}
 						{item.notes ? (
 							<span className='min-w-0 break-words text-xs leading-[1.3] text-slate-600 dark:text-muted-foreground'>{item.notes}</span>
 						) : null}

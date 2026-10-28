@@ -8,12 +8,25 @@ export interface ItemStoreStatsRow {
   store_id: string
   purchase_count: number
   last_purchased_at: string | null
+	last_price?: number | null
+	last_quantity?: number | null
+	last_unit?: string | null
+	last_price_at?: string | null
   store: { id: string; name: string } | null
+}
+
+export interface StorePriceEntry {
+	store: { id: string; name: string }
+	last_price: number
+	last_quantity: number | null
+	last_unit: string | null
+	last_price_at: string | null
 }
 
 export interface ItemStoreSummary {
   usual_store: { id: string; name: string; source: 'auto' | 'manual' } | null
   other_stores: StoreSummaryEntry[]
+	store_prices: StorePriceEntry[]
 }
 
 export function buildItemStoreSummary(
@@ -40,8 +53,20 @@ export function buildItemStoreSummary(
       || a.id.localeCompare(b.id),
     )
   const other_stores = orderedStores.map(({ id, name, purchase_count }) => ({ id, name, purchase_count }))
+	const store_prices = (stats ?? [])
+		.filter((row): row is ItemStoreStatsRow & { store: { id: string; name: string }; last_price: number } =>
+			Boolean(row.store) && typeof row.last_price === 'number' && Number.isFinite(row.last_price) && row.last_price >= 0,
+		)
+		.map(row => ({
+			store: row.store,
+			last_price: row.last_price,
+			last_quantity: row.last_quantity ?? null,
+			last_unit: row.last_unit ?? null,
+			last_price_at: row.last_price_at ?? null,
+		}))
+		.sort((a, b) => a.store.name.localeCompare(b.store.name) || a.store.id.localeCompare(b.store.id))
 
-  return { usual_store: usual, other_stores }
+	return { usual_store: usual, other_stores, store_prices }
 }
 
 export function formatAlsoAt(otherStores: StoreSummaryEntry[]): string | null {

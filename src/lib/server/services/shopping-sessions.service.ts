@@ -124,7 +124,16 @@ export async function getShoppingSession(id: string) {
     throw new ApiServiceError(status, status === 404 ? ErrorCode.NOT_FOUND : ErrorCode.INTERNAL_ERROR, error.message)
   }
 
-  return shoppingSession
+  const { data: receipt, error: receiptError } = await supabase
+    .from('tickets')
+    .select('id, total_amount')
+    .eq('shopping_session_id', id)
+    .eq('user_id', user.id)
+    .maybeSingle()
+
+  if (receiptError) throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'Unable to load the attached receipt.')
+
+  return { ...shoppingSession, receipt }
 }
 
 export async function getShoppingHistory() {
@@ -170,9 +179,19 @@ export async function getShoppingHistory() {
     {} as Record<string, number>,
   )
 
+  const { data: receipts, error: receiptsError } = await supabase
+    .from('tickets')
+    .select('id, shopping_session_id')
+    .in('shopping_session_id', sessionIds)
+    .eq('user_id', user.id)
+
+  if (receiptsError) throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'Unable to load receipt links.')
+  const receiptMap = new Map((receipts ?? []).map(receipt => [receipt.shopping_session_id, { id: receipt.id }]))
+
   return sessions.map(s => ({
     ...s,
     purchased_count: purchasedCountMap[s.id] ?? 0,
+    receipt: receiptMap.get(s.id) ?? null,
   }))
 }
 

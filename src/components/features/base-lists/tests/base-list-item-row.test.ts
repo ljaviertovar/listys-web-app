@@ -5,6 +5,7 @@ import type { BaseListItemWithStoreSummary } from '@/types'
 
 vi.mock('@/components/commons', () => ({
 	RowMenu: ({ actions, disabled }: { actions: Array<{ label: string }>; disabled?: boolean }) => createElement('div', { 'data-testid': 'mock-row-menu', 'data-disabled': String(Boolean(disabled)) }, actions.map(action => action.label).join('|')),
+	SheetDialog: () => null,
 }))
 vi.mock('@/components/features/list-items', () => ({
   AveragePrice: () => null,
@@ -89,5 +90,15 @@ describe('BaseListItemRow store labels', () => {
 	it('disables the menu while the list is locked', () => {
 		const html = renderToStaticMarkup(createElement(BaseListItemRow, { item, isLocked: true }))
 		expect(html).toContain('data-disabled="true"')
+	})
+
+	it('offers receipt prices only to the owner when a store price exists', () => {
+		const storePrice = {
+			store: { id: 'store-1', name: 'No Frills' }, last_price: 5.49,
+			last_quantity: 1, last_unit: null, last_price_at: '2026-03-04T00:00:00Z',
+		}
+		expect(render({ store_prices: [storePrice] })).toContain('Prices by Store')
+		expect(render({ store_prices: [] })).not.toContain('Prices by Store')
+		expect(render({ store_prices: [storePrice] }, false)).not.toContain('Prices by Store')
 	})
 })

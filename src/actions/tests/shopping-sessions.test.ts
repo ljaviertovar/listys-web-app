@@ -184,6 +184,25 @@ describe('updateShoppingSession status guard', () => {
   })
 })
 
+describe('getShoppingSession receipt summary', () => {
+  it('returns the attached receipt id and printed total for the session page', async () => {
+    const session = { id: TEST_UUID, status: 'completed', items: [] }
+    const supabase = setupMock()
+    supabase.from = sequentialFrom({
+      shopping_sessions: [{ data: session, error: null }],
+      tickets: [{ data: { id: 'receipt-1', total_amount: 84.5 }, error: null }],
+    })
+
+    const result = await getShoppingSession(TEST_UUID)
+
+    expect(result).toEqual({
+      data: { ...session, receipt: { id: 'receipt-1', total_amount: 84.5 } },
+    })
+    expect(supabase.from).toHaveBeenNthCalledWith(1, 'shopping_sessions')
+    expect(supabase.from).toHaveBeenNthCalledWith(2, 'tickets')
+  })
+})
+
 // ────────────────────────────────────
 // cancelShoppingSession
 // ────────────────────────────────────

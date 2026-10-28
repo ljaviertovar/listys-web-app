@@ -236,7 +236,7 @@ describe('getBaseList', () => {
     const list = {
       id: TEST_UUID,
       name: 'Weekly',
-      items: [{ id: 'i1', name: 'Milk', usual_store: null, other_stores: [] }],
+      items: [{ id: 'i1', name: 'Milk', usual_store: null, other_stores: [], store_prices: [] }],
       is_owner: false,
     }
     const supabase = setupMock()
@@ -246,6 +246,43 @@ describe('getBaseList', () => {
 
     const result = await getBaseList(TEST_UUID)
     expect(result.data).toEqual(list)
+  })
+
+  it('maps receipt-backed store prices for the base-list page', async () => {
+    const list = {
+      id: TEST_UUID,
+      name: 'Weekly',
+      user_id: 'test-user-id',
+      items: [{
+        id: 'item-1',
+        name: 'Blackberry',
+        usual_store: null,
+        usual_store_source: null,
+        store_stats: [{
+          store_id: 'store-1',
+          purchase_count: 1,
+          last_purchased_at: '2026-10-28T03:00:00.000Z',
+          last_price: 3.99,
+          last_quantity: 1,
+          last_unit: 'pcs',
+          last_price_at: '2026-10-28T03:00:00.000Z',
+          store: { id: 'store-1', name: 'Metro' },
+        }],
+      }],
+      collaborators: [],
+    }
+    const supabase = setupMock()
+    supabase.from = sequentialFrom({ base_lists: [{ data: list, error: null }] })
+
+    const result = await getBaseList(TEST_UUID)
+
+    expect(result.data?.items?.[0].store_prices).toEqual([{
+      store: { id: 'store-1', name: 'Metro' },
+      last_price: 3.99,
+      last_quantity: 1,
+      last_unit: 'pcs',
+      last_price_at: '2026-10-28T03:00:00.000Z',
+    }])
   })
 })
 

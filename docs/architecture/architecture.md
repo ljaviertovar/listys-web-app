@@ -228,8 +228,10 @@ flowchart LR
 The current schema includes owner groups, base lists/items, shopping sessions/items, tickets/items, and (PRD v3 Phase 3)
 owner stores with their aliases (every key that resolves to a store; `tickets.store_id` points to a store of the same
 user through a composite foreign key) and per-list item aliases (receipt-line names remembered as another name of an
-item). An additive follow-on migration defines per-item store statistics, usual-store tags, store-scoped sessions and
-`is_other_store`; it is prepared in the repository but has not been applied to a database. Experimental sharing adds
+item). The Phase 4 migration defines per-item store statistics, usual-store tags, store-scoped sessions and
+`is_other_store`. The Phase 5 migration adds `tickets.total_amount`, the optional `tickets.shopping_session_id` link,
+its owner-scoped composite foreign key and uniqueness constraint, plus last purchased quantity/unit in per-store item
+statistics. It is prepared in the repository but has not been applied to a database. Experimental sharing adds
 collaborators, invite links and session participants. Migration files describe intended database state;
 this audit did not verify a live installation. The PRD ERD is a requirements model; migrations/generated types and
 the [implementation reference](../reference/implementation-status.md) qualify what exists.
@@ -262,6 +264,15 @@ the [implementation reference](../reference/implementation-status.md) qualify wh
    endpoints. Before merging into an existing list, `GET /api/v1/tickets/{ticketId}/matches` shows how each line matches
    (same name, remembered alias, or new); the user's links travel with the merge, which applies them and remembers them in
    one transaction.
+8. A read receipt can instead be attached to an eligible active or recently completed trip. The versioned candidates and
+   matches routes expose owner-scoped choices; `attach_receipt_to_session` validates them and links the receipt in one
+   database transaction. Attaching to an active trip marks matched items, adds selected unmatched lines, records the
+   receipt total and completes the trip. Attaching to a completed trip refines already-counted prices and counts only
+   newly added lines as purchases. A trip can have one receipt, and the attachment cannot be detached. The trip's
+   composite foreign key clears the optional link if its owner deletes the trip.
+9. Owners can read their last receipt price by store for each base-list item; comparison is shown only when at least two
+   prices have comparable units. It does not query current or external prices. Collaborators do not receive the owner's
+   store-price statistics.
 
 ### Shopping-session flow
 

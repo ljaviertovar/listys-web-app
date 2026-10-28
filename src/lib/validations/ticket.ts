@@ -95,6 +95,27 @@ export const updateTicketSchema = z
     message: 'At least one field must be provided',
   })
 
+const attachTicketLinkSchema = z.object({
+  ticket_item_id: z.string().uuid(),
+  shopping_session_item_id: z.string().uuid().nullable(),
+}).strict()
+
+export const attachTicketToSessionSchema = z.object({
+  shopping_session_id: z.string().uuid(),
+  links: z.array(attachTicketLinkSchema).max(MAX_TICKET_ITEMS_MERGE).optional(),
+  added_item_ids: z.array(z.string().uuid()).max(MAX_TICKET_ITEMS_MERGE).optional(),
+  total_amount: z.number().finite().min(0).nullable().optional(),
+}).strict().superRefine((payload, ctx) => {
+  const linkedIds = payload.links?.map(link => link.ticket_item_id) ?? []
+  const addedIds = payload.added_item_ids ?? []
+  const allIds = [...linkedIds, ...addedIds]
+  const uniqueIds = new Set(allIds)
+
+  if (uniqueIds.size !== allIds.length) {
+    ctx.addIssue({ code: 'custom', path: ['links'], message: 'Each receipt line can be included only once' })
+  }
+})
+
 export type UploadTicketInput = z.infer<typeof uploadTicketSchema>
 export type MergeTicketItemsInput = z.infer<typeof mergeTicketItemsSchema>
 export type CreateBaseListFromTicketInput = z.infer<typeof createBaseListFromTicketSchema>

@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import { Delete02Icon, Edit02Icon, Store01Icon } from '@hugeicons/core-free-icons'
+import { Delete02Icon, Edit02Icon, Store01Icon, ShoppingBasket01Icon } from '@hugeicons/core-free-icons'
 
 import { RowMenu } from '@/components/commons'
 import { AveragePrice, ItemEditForm, ItemQuantityChip } from '@/components/features/list-items'
@@ -12,6 +12,7 @@ import type { BaseListItemWithStoreSummary } from '@/types'
 
 import { useBaseListItemActions } from './hooks/use-base-list-item-actions'
 import { formatAlsoAt } from './helpers/item-store-summary'
+import { ItemStorePricesSheet } from './item-store-prices-sheet'
 
 interface BaseListItemRowProps {
 	item: BaseListItemWithStoreSummary
@@ -27,6 +28,7 @@ interface BaseListItemRowProps {
 export function BaseListItemRow({ item, isLocked = false, isOwner = true }: BaseListItemRowProps) {
 	const [editing, setEditing] = useState(false)
 	const [storePickerOpen, setStorePickerOpen] = useState(false)
+	const [pricesOpen, setPricesOpen] = useState(false)
 	const [usualStorePending, setUsualStorePending] = useState(false)
 	const usualStorePendingRef = useRef(false)
 	const {
@@ -107,6 +109,7 @@ export function BaseListItemRow({ item, isLocked = false, isOwner = true }: Base
 					actions={[
 					{ label: 'Edit Item', icon: Edit02Icon, onSelect: () => setEditing(true) },
 						...(isOwner ? [{ label: item.usual_store ? 'Change Usual Store…' : 'Set Usual Store…', icon: Store01Icon, onSelect: () => setStorePickerOpen(true) }] : []),
+						...(isOwner && (item.store_prices?.length ?? 0) > 0 ? [{ label: 'Prices by Store', icon: ShoppingBasket01Icon, onSelect: () => setPricesOpen(true) }] : []),
 						...(isOwner && item.usual_store?.source === 'manual'
 						? [{ label: 'Use Automatic Store', icon: Store01Icon, onSelect: () => setUsualStore(null) }]
 						: []),
@@ -122,6 +125,13 @@ export function BaseListItemRow({ item, isLocked = false, isOwner = true }: Base
 				onPick={handleStorePick}
 				pending={usualStorePending}
 				testId={`base-list-item-${item.id}-store-picker`}
+			/> : null}
+			{isOwner && (item.store_prices?.length ?? 0) > 0 ? <ItemStorePricesSheet
+				open={pricesOpen}
+				onOpenChange={setPricesOpen}
+				itemName={name}
+				prices={item.store_prices ?? []}
+				testId={`item-store-prices-${item.id}-sheet`}
 			/> : null}
 		</div>
 	)

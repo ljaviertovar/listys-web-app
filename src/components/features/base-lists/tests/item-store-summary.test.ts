@@ -10,7 +10,7 @@ const stats = [
 
 describe('item store summary', () => {
   it('returns an empty summary when there is no data', () => {
-    expect(buildItemStoreSummary([], null, null)).toEqual({ usual_store: null, other_stores: [] })
+    expect(buildItemStoreSummary([], null, null)).toEqual({ usual_store: null, other_stores: [], store_prices: [] })
     expect(formatAlsoAt([])).toBeNull()
   })
 
@@ -19,6 +19,7 @@ describe('item store summary', () => {
     expect(result).toEqual({
       usual_store: { id: 'store-1', name: 'No Frills', source: 'auto' },
       other_stores: [],
+      store_prices: [],
     })
   })
 
@@ -39,8 +40,22 @@ describe('item store summary', () => {
     expect(result.other_stores).toHaveLength(4)
   })
 
+	it('returns only store rows with a recorded price for the price comparison read shape', () => {
+		const result = buildItemStoreSummary([
+			{ ...stats[0], last_price: 5.49, last_quantity: 2, last_unit: 'each', last_price_at: '2026-10-01T00:00:00Z' },
+			stats[1],
+		], null, null)
+		expect(result.store_prices).toEqual([{
+			store: { id: 'store-1', name: 'No Frills' },
+			last_price: 5.49,
+			last_quantity: 2,
+			last_unit: 'each',
+			last_price_at: '2026-10-01T00:00:00Z',
+		}])
+	})
+
   it('hides unreadable store embeds for collaborators', () => {
     const result = buildItemStoreSummary([{ ...stats[0], store: null }], null, null)
-    expect(result).toEqual({ usual_store: null, other_stores: [] })
+    expect(result).toEqual({ usual_store: null, other_stores: [], store_prices: [] })
   })
 })

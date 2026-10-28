@@ -20,8 +20,57 @@ export type TicketItemMatch = {
   base_list_item: { id: string; name: string } | null
 }
 
+export type TicketSessionCandidate = {
+  id: string
+  name: string
+  status: string
+  started_at: string | null
+  completed_at: string | null
+  store: { id: string; name: string } | null
+  base_list: { id: string; name: string }
+  checked_count: number
+  item_count: number
+}
+
+export type TicketSessionMatch = {
+  ticket_item_id: string
+  match: 'name' | 'alias' | 'none'
+  shopping_session_item: { id: string; name: string; checked: boolean } | null
+}
+
+export type AttachTicketToSessionInput = {
+  shopping_session_id: string
+  links?: Array<{ ticket_item_id: string; shopping_session_item_id: string | null }>
+  added_item_ids?: string[]
+  total_amount?: number | null
+}
+
+export type AttachTicketToSessionSummary = {
+  completed_now: boolean
+  matched_count: number
+  checked_now_count: number
+  added_count: number
+  priced_count: number
+  over_limit_count: number
+  replayed: boolean
+}
+
 export async function getTicketMatches(ticketId: string, baseListId: string) {
   return apiGet<TicketItemMatch[]>(`/api/v1/tickets/${ticketId}/matches?base_list_id=${encodeURIComponent(baseListId)}`)
+}
+
+export async function getTicketSessionCandidates(ticketId: string) {
+  return apiGet<TicketSessionCandidate[]>(`/api/v1/tickets/${ticketId}/session-candidates`)
+}
+
+export async function getTicketSessionMatches(ticketId: string, shoppingSessionId: string) {
+  return apiGet<TicketSessionMatch[]>(
+    `/api/v1/tickets/${ticketId}/session-matches?shopping_session_id=${encodeURIComponent(shoppingSessionId)}`,
+  )
+}
+
+export async function attachTicketToSession(ticketId: string, payload: AttachTicketToSessionInput) {
+  return apiPost<AttachTicketToSessionSummary>(`/api/v1/tickets/${ticketId}/attach-to-session`, payload)
 }
 
 export async function mergeTicketItemsToBaseList(data: { ticket_id: string } & Record<string, unknown>) {

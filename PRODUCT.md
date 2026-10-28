@@ -53,13 +53,17 @@ itself. The receipt is a signal, not the product; the durable object is a list t
   shopping sessions with collaborators.
 - Price memory is visible as plain facts: a base item shows its average price (labelled "avg") when receipts gave it
   one, and a running session shows an estimated total that says how many items it covers. Nothing is shown without data
-  and an estimate is never worded as an amount paid.
+  and an estimate is never worded as an amount paid. A read receipt can show its printed total separately; when the
+  user attaches it to a trip, the confirmed total is shown as paid. Owners can compare their last recorded prices by
+  store for an item when at least two comparable store records exist.
 - Auth is Google OAuth only. There is one account tier; no paid plans, pricing page, or billing exists.
 - Stores (PRD-v3 Phase 3): receipts carry a normalized, user-owned store that can be renamed and merged in "My Stores".
-  The Phase 3 follow-on adds an automatically learned or owner-chosen usual store per item and optional store-scoped
-  shopping sessions; one active session is allowed per list, so separate lists can be shopped concurrently. Its code and
-  additive migration are prepared, with database application still pending. Non-goals are per-store price comparison,
-  collaborator-managed tags, and automatic or fuzzy item matching (links remain user-chosen).
+  Phase 4 adds an automatically learned or owner-chosen usual store per item and optional store-scoped shopping
+  sessions; one active session is allowed per list, so separate lists can be shopped concurrently. Its additive migration
+  was applied to the approved development database. Phase 5 adds owner-only comparison of the
+  latest comparable receipt prices by store and receipt-to-trip attachment. It does not provide live or external prices,
+  several receipts per trip, receipt detachment, collaborator-managed tags, or automatic/fuzzy item matching (links remain
+  user-chosen). Its database migration must be applied before the new database-backed flows are available.
 - Terminology that must stay stable: **receipt**, **base list**, **shopping session**, **store**, **item**. **Store** is
   only the place where something is bought, never a container of lists. **Group** is no longer a visible word: PRD-v3
   Phase 2 hides groups (the data keeps one implicit default group per user and any group an account already had). See

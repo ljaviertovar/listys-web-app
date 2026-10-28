@@ -45,6 +45,28 @@ describe('receipt reads with stores', () => {
     expect(supabase.rpc).not.toHaveBeenCalled()
   })
 
+  it('includes the linked trip for an attached receipt and null when no trip is attached', async () => {
+    signIn({
+      tickets: [{ data: {
+        id: TEST_UUID,
+        shopping_session_id: TEST_UUID_2,
+        store_id: STORE.id,
+        store_name: 'No Frills',
+      }, error: null }],
+      ticket_items: [{ data: [], error: null }],
+      shopping_sessions: [{ data: { id: TEST_UUID_2, name: 'Saturday shop', status: 'completed' }, error: null }],
+    })
+    await expect(getTicket(TEST_UUID)).resolves.toMatchObject({
+      shopping_session: { id: TEST_UUID_2, name: 'Saturday shop', status: 'completed' },
+    })
+
+    signIn({
+      tickets: [{ data: { id: TEST_UUID, shopping_session_id: null, store_id: STORE.id, store_name: 'No Frills' }, error: null }],
+      ticket_items: [{ data: [], error: null }],
+    })
+    await expect(getTicket(TEST_UUID)).resolves.toMatchObject({ shopping_session: null })
+  })
+
   it('suggests the store the raw name resolves to', async () => {
     const supabase = signIn(
       {

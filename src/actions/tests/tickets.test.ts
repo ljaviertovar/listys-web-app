@@ -4,6 +4,7 @@ import {
   sequentialFrom,
   TEST_UUID,
   TEST_UUID_2,
+  TEST_UUID_3,
 } from '@/test/helpers'
 
 vi.mock('@/lib/supabase/server', () => ({
@@ -132,6 +133,24 @@ describe('mergeTicketItemsToBaseList', () => {
     })
     expect(result.error).toBe('RPC error')
   })
+
+  it('returns a stable reason when the receipt was already attached', async () => {
+    setupMock({
+      rpcResults: {
+        merge_ticket_items_to_base_list: { data: null, error: { code: 'P0001', message: 'RECEIPT_ATTACHED' } },
+      },
+    })
+
+    const result = await mergeTicketItemsToBaseList({
+      ticket_id: TEST_UUID,
+      base_list_id: TEST_UUID_2,
+      items: [{ id: TEST_UUID_3, merge: true }],
+    })
+    expect(result).toEqual({
+      error: 'This receipt is already attached to a trip.',
+      details: { reason: 'RECEIPT_ATTACHED' },
+    })
+  })
 })
 
 // ────────────────────────────────────
@@ -141,6 +160,7 @@ describe('createBaseListFromTicket', () => {
   it('returns error when no ticket items found', async () => {
     const supabase = setupMock()
     supabase.from = sequentialFrom({
+      tickets: [{ data: { id: TEST_UUID, shopping_session_id: null }, error: null }],
       ticket_items: [{ data: [], error: null }],
     })
 
@@ -162,6 +182,7 @@ describe('createBaseListFromTicket', () => {
     }))
     const supabase = setupMock()
     supabase.from = sequentialFrom({
+      tickets: [{ data: { id: TEST_UUID, shopping_session_id: null }, error: null }],
       ticket_items: [{ data: tooManyItems, error: null }],
     })
 
@@ -186,7 +207,10 @@ describe('createBaseListFromTicket', () => {
       ],
       groups: [{ data: { id: TEST_UUID_2 }, error: null }], // the user's own group
       base_list_items: [{ data: null, error: null }],
-      tickets: [{ data: null, error: null }],
+      tickets: [
+        { data: { id: TEST_UUID, shopping_session_id: null }, error: null },
+        { data: null, error: null },
+      ],
     })
 
     const result = await createBaseListFromTicket({
@@ -211,7 +235,10 @@ describe('createBaseListFromTicket', () => {
         { data: newList, error: null },
       ],
       base_list_items: [{ data: null, error: null }],
-      tickets: [{ data: null, error: null }],
+      tickets: [
+        { data: { id: TEST_UUID, shopping_session_id: null }, error: null },
+        { data: null, error: null },
+      ],
     })
     supabase.from = vi.fn().mockImplementation((table: string) => {
       const builder = tableBuilder(table)
@@ -229,6 +256,7 @@ describe('createBaseListFromTicket', () => {
     const itemUUID = '00000001-0000-4000-a000-000000000001'
     const supabase = setupMock()
     supabase.from = sequentialFrom({
+      tickets: [{ data: { id: TEST_UUID, shopping_session_id: null }, error: null }],
       ticket_items: [{ data: [{ id: itemUUID, name: 'Milk', quantity: 1 }], error: null }],
       base_lists: [{ data: { id: 'existing' }, error: null }],
     })
@@ -236,6 +264,19 @@ describe('createBaseListFromTicket', () => {
     const result = await createBaseListFromTicket({ ticket_id: TEST_UUID, name: 'Pantry', item_ids: [itemUUID] })
 
     expect(result.error).toBe('A list with this name already exists. Please choose a different name.')
+  })
+
+  it('refuses to create a list from a receipt already attached to a trip', async () => {
+    const supabase = setupMock()
+    supabase.from = sequentialFrom({
+      tickets: [{ data: { id: TEST_UUID, shopping_session_id: TEST_UUID_2 }, error: null }],
+    })
+
+    const result = await createBaseListFromTicket({ ticket_id: TEST_UUID, name: 'From Ticket', item_ids: [TEST_UUID_3] })
+    expect(result).toEqual({
+      error: 'This receipt is already attached to a trip.',
+      details: { reason: 'RECEIPT_ATTACHED' },
+    })
   })
 })
 

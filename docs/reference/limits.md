@@ -10,6 +10,7 @@ Check parity with `pnpm verify:limits-reference`. A timeout threshold does not e
 | `MAX_ITEMS_PER_BASE_LIST` | 250 | Maximum items in a base list (via any method) |
 | `MAX_TICKET_ITEMS_MERGE` | 200 | Maximum items to merge from a single OCR ticket |
 | `MAX_SYNC_ITEMS` | 250 | Maximum items to sync from shopping session to base list |
+| `RECEIPT_SESSION_ATTACH_WINDOW_HOURS` | 48 | Maximum age of a completed session when attaching a receipt |
 | `MAX_IMAGES_PER_TICKET` | 5 | Maximum images per ticket upload |
 | `MAX_TICKET_IMAGE_MB` | 10 | Maximum size per receipt photo in MiB (10 × 1024 × 1024 bytes) |
 | `MAX_OCR_ATTEMPTS` | 3 | Configured OCR attempt cap; enforcement differs by provider |

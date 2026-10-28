@@ -116,6 +116,9 @@ export async function mergeTicketItemsToBaseList(data: unknown) {
   )
 
   if (mergeError) {
+    if (mergeError.message === 'RECEIPT_ATTACHED') {
+      return { error: 'This receipt is already attached to a trip.', details: { reason: 'RECEIPT_ATTACHED' } }
+    }
     return { error: mergeError.message }
   }
 
@@ -152,6 +155,22 @@ export async function createBaseListFromTicket(data: unknown) {
   }
 
   const { ticket_id, group_id: requestedGroupId, name, item_ids } = validation.data
+
+  const { data: ticket, error: ticketLookupError } = await supabase
+    .from('tickets')
+    .select('id, shopping_session_id')
+    .eq('id', ticket_id)
+    .eq('user_id', user.id)
+    .maybeSingle()
+
+  if (ticketLookupError) return { error: 'Unable to load this receipt.' }
+  if (!ticket) return { error: 'Ticket not found' }
+  if (ticket.shopping_session_id) {
+    return {
+      error: 'This receipt is already attached to a trip.',
+      details: { reason: 'RECEIPT_ATTACHED' },
+    }
+  }
 
   // Get ticket items
   const { data: ticketItems, error: ticketError } = await supabase

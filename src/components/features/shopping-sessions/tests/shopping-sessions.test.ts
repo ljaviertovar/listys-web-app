@@ -2,7 +2,7 @@ import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
 
-import { ShoppingSessionActions, ShoppingSessionItems } from '@/components/features/shopping-sessions'
+import { HistorySessionCard, ShoppingSessionActions, ShoppingSessionItems } from '@/components/features/shopping-sessions'
 import type { ShoppingSessionItem } from '@/types'
 
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }) }))
@@ -37,6 +37,19 @@ describe('ShoppingSessionItems', () => {
 		expect(html).not.toContain('More options')
 	})
 
+	it('shows a receipt line price on completed items, never an average price', () => {
+		const html = renderToStaticMarkup(createElement(ShoppingSessionItems, {
+			items: [item({ checked: true, price: 7.25 })],
+			isCompleted: true,
+			priceByItemId: { i1: 3.5 },
+		}))
+
+		expect(html).toContain('data-testid="session-item-i1-receipt-price"')
+		expect(html).toContain('$7.25')
+		expect(html).not.toContain('Average price')
+		expect(html).not.toContain('$3.50')
+	})
+
 	it('separates items for the selected store from other stores and untagged items', () => {
 		const html = renderToStaticMarkup(createElement(ShoppingSessionItems, {
 			items: [item({ id: 'here', name: 'Milk' }), item({ id: 'other', name: 'Bread', is_other_store: true })],
@@ -68,5 +81,20 @@ describe('ShoppingSessionActions', () => {
 
 		expect(render(true)).toContain('Complete Shopping')
 		expect(render(false)).toBe('')
+	})
+})
+
+describe('HistorySessionCard receipt marker', () => {
+	const session = { id: 's1', name: 'Weekly shop', status: 'completed', started_at: null, completed_at: null, total_amount: 20, base_list: { name: 'Groceries' } }
+
+	it('marks sessions with a linked receipt', () => {
+		const html = renderToStaticMarkup(createElement(HistorySessionCard, { session: { ...session, receipt: { id: 'ticket-1' } } }))
+		expect(html).toContain('data-testid="history-receipt-marker-s1"')
+		expect(html).toContain('Receipt')
+	})
+
+	it('omits the marker when there is no receipt', () => {
+		const html = renderToStaticMarkup(createElement(HistorySessionCard, { session: { ...session, receipt: null } }))
+		expect(html).not.toContain('history-receipt-marker')
 	})
 })

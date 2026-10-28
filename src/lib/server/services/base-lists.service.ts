@@ -104,7 +104,7 @@ export async function getBaseList(id: string) {
         *,
         usual_store:stores!base_list_items_usual_store_id_fkey(id, name),
         store_stats:base_list_item_store_stats(
-          store_id, purchase_count, last_purchased_at, store:stores(id, name)
+          store_id, purchase_count, last_purchased_at, last_price, last_quantity, last_unit, last_price_at, store:stores(id, name)
         )
       ),
       collaborators:list_collaborators(id, user_id, role, joined_at)

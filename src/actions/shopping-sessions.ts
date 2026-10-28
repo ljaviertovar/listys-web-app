@@ -168,7 +168,18 @@ export async function getShoppingSession(id: string) {
     return { error: error.message }
   }
 
-  return { data: shoppingSession }
+  const { data: receipt, error: receiptError } = await supabase
+    .from('tickets')
+    .select('id, total_amount')
+    .eq('shopping_session_id', id)
+    .eq('user_id', user.id)
+    .maybeSingle()
+
+  if (receiptError) {
+    return { error: receiptError.message }
+  }
+
+  return { data: { ...shoppingSession, receipt } }
 }
 
 export async function getShoppingHistory() {

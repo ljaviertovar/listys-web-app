@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef, useState, type ReactNode } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
 import type { TicketItem } from '@/types'
@@ -15,6 +16,7 @@ import { usePhotoView } from '../photo/hooks/use-photo-view'
 import { useTicketImageUrls } from '../photo/hooks/use-ticket-image-urls'
 import { useTicketSelection } from './hooks/use-ticket-selection'
 import type { TicketStatus } from '../helpers/ticket-status'
+import { getReceiptAttachmentVisibility } from '../attach/helpers/receipt-attachment-visibility'
 
 interface Props {
 	ticketId: string
@@ -24,6 +26,7 @@ interface Props {
 	status: TicketStatus
 	ocrError?: string | null
 	storeConfirmed: boolean
+	attachedSession?: { id: string; name: string; status: string } | null
 	/** What follows the items (the summary and the receipt's actions), rendered on the server by the page. */
 	children?: ReactNode
 }
@@ -33,7 +36,7 @@ interface Props {
  * items from `lg`) and the two photo views, the items with their selection, and the bar and dialog that act on it. The compare view
  * edits the very selection the page shows, and the panel and the full-screen viewer share the photo being looked at.
  */
-export function TicketReview({ ticketId, title, imagePaths, items, status, ocrError, storeConfirmed, children }: Props) {
+export function TicketReview({ ticketId, title, imagePaths, items, status, ocrError, storeConfirmed, attachedSession = null, children }: Props) {
 	const router = useRouter()
 	const selection = useTicketSelection(items)
 	const photos = useTicketImageUrls(imagePaths)
@@ -43,8 +46,11 @@ export function TicketReview({ ticketId, title, imagePaths, items, status, ocrEr
 	const [viewerOpen, setViewerOpen] = useState(false)
 	const [compareOpen, setCompareOpen] = useState(false)
 	const [mergeOpen, setMergeOpen] = useState(false)
+	const [attachedOverride, setAttachedOverride] = useState<{ id: string; name: string; status: string } | null>(null)
+	const attached = attachedSession ?? attachedOverride
 
 	const canSelect = status === 'completed'
+	const attachmentVisibility = getReceiptAttachmentVisibility(!!attached)
 	const canCompare = canSelect && items.length > 0
 	const hasPhotos = imagePaths.length > 0
 
@@ -98,7 +104,7 @@ export function TicketReview({ ticketId, title, imagePaths, items, status, ocrEr
 					ocrError={ocrError}
 					selection={selection}
 					footer={
-						canSelect ? (
+						canSelect && attachmentVisibility.showSelectionBar ? (
 							<TicketSelectionBar
 								count={selection.count}
 								total={selection.total}
@@ -123,6 +129,12 @@ export function TicketReview({ ticketId, title, imagePaths, items, status, ocrEr
 						triggerRef={desktopPhotoTriggerRef}
 						/>
 					</div>
+				) : null}
+				{attached ? (
+					<section data-testid='ticket-attached-state' className='flex flex-col gap-1 rounded-3xl bg-card p-3 shadow-card md:p-4'>
+						<h2 className='text-sm font-semibold'>Attached to {attached.name}</h2>
+						<Link href={`/shopping/${attached.id}`} className='text-sm font-semibold text-primary underline-offset-4 hover:underline'>View trip</Link>
+					</section>
 				) : null}
 				{children}
 			</div>
@@ -150,7 +162,7 @@ export function TicketReview({ ticketId, title, imagePaths, items, status, ocrEr
 				/>
 			) : null}
 
-			<MergeToBaseListDialog
+			{attachmentVisibility.showMergeDialog ? <MergeToBaseListDialog
 				open={mergeOpen}
 				onOpenChange={setMergeOpen}
 				ticketId={ticketId}
@@ -158,7 +170,11 @@ export function TicketReview({ ticketId, title, imagePaths, items, status, ocrEr
 				lines={items}
 				storeConfirmed={storeConfirmed}
 				onSuccess={handleMergeSuccess}
-			/>
+				onReceiptAttached={sessionId => {
+					setAttachedOverride({ id: sessionId, name: 'your trip', status: 'active' })
+					router.refresh()
+				}}
+			/> : null}
 		</div>
 	)
 }

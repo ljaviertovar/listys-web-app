@@ -85,6 +85,21 @@ describe('shopping session page estimate', () => {
 		expect(html).toContain('data-prices="null"')
 		expect(mocks.baseListItemReads).toEqual([])
 	})
+
+	it('shows the paid total and receipt link for a session reconciled with a receipt', async () => {
+		vi.mocked(getShoppingSession).mockResolvedValue({
+			data: { ...session('completed'), receipt: { id: 'ticket-1', total_amount: 38.5 } }, error: null,
+		} as never)
+
+		const html = await render()
+
+		expect(html).toContain('data-testid="session-receipt-summary"')
+		expect(html).toContain('Paid from receipt')
+		expect(html).toContain('$38.50')
+		expect(html).toContain('href="/tickets/ticket-1"')
+		expect(html).toContain('View Receipt')
+		expect(html).not.toContain('Estimated total')
+	})
 })
 
 // The origin rules live in resolveSessionBackLink and are covered there; this checks the page hands them its search params.

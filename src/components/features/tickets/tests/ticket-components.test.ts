@@ -47,6 +47,12 @@ describe('TicketSummaryCard', () => {
 		expect(partlyPricedZero).toContain('Based on prices found for 1 of 2 items.')
 		expect(partlyPricedZero).toContain('This may differ from the total printed on your receipt.')
 	})
+
+	it('shows the printed receipt total when OCR found one and hides it otherwise', () => {
+		expect(render({ ticket: ticket({ total_amount: 23.5 }) })).toContain('Receipt Total')
+		expect(render({ ticket: ticket({ total_amount: 23.5 }) })).toContain('$23.50')
+		expect(render({ ticket: ticket({ total_amount: null }) })).not.toContain('Receipt Total')
+	})
 })
 
 describe('Photo viewer keyboard commands', () => {

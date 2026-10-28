@@ -1,6 +1,6 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { parseOcrPayload, STORE_NAME_INSTRUCTIONS } from '../_shared/receipt-store.ts'
+import { parseOcrPayload, STORE_AND_TOTAL_INSTRUCTIONS, STORE_NAME_INSTRUCTIONS, TOTAL_INSTRUCTIONS } from '../_shared/receipt-store.ts'
 
 const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY')!
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
@@ -23,6 +23,7 @@ interface ReceiptItem {
 interface ImageResult {
   items: ReceiptItem[]
   storeName: string | null
+  total: number | null
 }
 
 // Process a single image with OpenAI Vision API
@@ -50,7 +51,14 @@ async function processImage(
     : ''
 
   // The store name comes from the same request as the items: only the first photo, which carries the header, asks for it.
-  const storeInstructions = imageIndex === 0 ? STORE_NAME_INSTRUCTIONS : ''
+  const storeInstructions = totalImages === 1
+    ? STORE_AND_TOTAL_INSTRUCTIONS
+    : [imageIndex === 0 ? STORE_NAME_INSTRUCTIONS : '', imageIndex === totalImages - 1 ? TOTAL_INSTRUCTIONS : '']
+      .filter(Boolean)
+      .join('\n\n')
+  const responseShape = storeInstructions
+    ? 'Return a JSON object with an "items" array and the requested "store_name" and/or "total" fields.'
+    : 'Return a JSON array of item objects.'
 
   // NOTE: output schema MUST match ReceiptItem (name, quantity, unit, price, category)
   const prompt = `You are a receipt line-item extractor.
@@ -61,7 +69,8 @@ GOAL:
 Extract a COMPLETE list of purchased products from the image.
 Maximize recall, but DO NOT merge different products into one.
 
-Return ONLY valid JSON (no markdown), array with EXACT structure:
+Return ONLY valid JSON (no markdown). ${responseShape}
+Each item in "items" (or the top-level array) has this EXACT structure:
 
 [
   {
@@ -160,7 +169,7 @@ ${storeInstructions}
   try {
     const cleanContent = content.replace(/```json\n?|\n?```/g, '').trim()
     // Accepts the item array or the first photo's { store_name, items } object.
-    const { items: parsed, storeName } = parseOcrPayload(cleanContent)
+    const { items: parsed, storeName, total } = parseOcrPayload(cleanContent)
 
     // Defensive cleanup: only keep expected fields
     const items = parsed
@@ -178,7 +187,7 @@ ${storeInstructions}
       }))
       .filter((x: ReceiptItem) => x.name.trim().length > 0)
 
-    return { items, storeName }
+    return { items, storeName, total }
   } catch (parseError) {
     console.error(`Failed to parse OCR response for image ${imageIndex + 1}:`, content)
     throw new Error('Failed to parse OCR response')
@@ -393,11 +402,13 @@ serve(async (req: Request) => {
     // Process all images sequentially
     const allItemsPerImage: ReceiptItem[][] = []
     let storeNameFromHeader: string | null = null
+    let totalFromLastPhoto: number | null = null
 
     for (let i = 0; i < urls.length; i++) {
       console.log(`Processing image ${i + 1}/${urls.length}`)
-      const { items, storeName } = await processImage(urls[i], i, urls.length)
+      const { items, storeName, total } = await processImage(urls[i], i, urls.length)
       if (i === 0) storeNameFromHeader = storeName
+      if (i === urls.length - 1) totalFromLastPhoto = total
       console.log(`Image ${i + 1}: Found ${items.length} items`)
       try {
         console.log(`Image ${i + 1} items: ${JSON.stringify(items, null, 2)}`)
@@ -444,6 +455,7 @@ serve(async (req: Request) => {
         ocr_status: 'completed',
         processed_at: new Date().toISOString(),
         total_items: mergedItems.length,
+        total_amount: totalFromLastPhoto,
         ocr_error: null,
         ...(extractedStoreName ? { store_name: extractedStoreName } : {}),
       })

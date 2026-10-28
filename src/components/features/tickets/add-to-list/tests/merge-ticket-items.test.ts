@@ -77,6 +77,19 @@ describe('submitTicketItemsToList', () => {
 		expect(result).toEqual({ kind: 'error', message: 'We couldn’t add these items to your list. Try again.' })
 	})
 
+	it('returns an attached state with the session id for the attachment conflict', async () => {
+		const result = await submitTicketItemsToList(input, {
+			merge: vi.fn().mockResolvedValue({
+				error: 'Conflict',
+				errorCode: 'CONFLICT',
+				details: { reason: 'RECEIPT_ATTACHED', shopping_session_id: 'fixture-session' },
+			}),
+			create: vi.fn(),
+		})
+
+		expect(result).toEqual({ kind: 'attached', sessionId: 'fixture-session' })
+	})
+
 	it('validates an existing destination before calling either action', async () => {
 		const merge = vi.fn()
 		const create = vi.fn()

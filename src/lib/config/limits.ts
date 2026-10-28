@@ -49,6 +49,7 @@ export const MAX_STORES_PER_USER = 50 // Maximum stores per user; merging stores
 export const MAX_ITEMS_PER_BASE_LIST = 250 // Maximum items in a base list (via any method)
 export const MAX_TICKET_ITEMS_MERGE = 200  // Maximum items to merge from a single OCR ticket
 export const MAX_SYNC_ITEMS = 250          // Maximum items to sync from shopping session to base list
+export const RECEIPT_SESSION_ATTACH_WINDOW_HOURS = 48 // Completed sessions remain eligible for receipt attachment
 
 /**
  * TICKET UPLOAD LIMITS
