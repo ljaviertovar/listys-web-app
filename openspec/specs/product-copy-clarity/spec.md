@@ -79,6 +79,21 @@ Las explicaciones y promesas SHALL corresponder a controles y resultados disponi
 - **WHEN** el usuario ve la oferta o la confirmación de adjuntar un recibo a una compra
 - **THEN** el texto distingue adjuntar a una compra de añadir artículos a una lista, dice si la compra se completará y que los artículos ya contados no se cuentan otra vez, sin afirmar que el recibo se emparejó solo
 
+#### Scenario: Line statuses on a receipt
+
+- **WHEN** el usuario ve los estados "In <list>", "New" y "Check" de las líneas de un recibo
+- **THEN** el texto dice frente a qué lista se comparan, que seleccionar no añade nada hasta confirmar y, para "Check", el motivo concreto ("No price read", "Looks like <item>?"), sin hablar de confianza, puntuaciones ni detección segura
+
+#### Scenario: Suggested match
+
+- **WHEN** la revisión ofrece vincular una línea a un artículo parecido
+- **THEN** el texto la presenta como posible coincidencia por parecido de nombre que solo se aplica si el usuario la elige
+
+#### Scenario: Likely needed wording
+
+- **WHEN** el dashboard muestra artículos probablemente necesarios
+- **THEN** el texto da los hechos de cada uno (cada cuánto suele comprarse y hace cuánto se compró) sin prometer avisos, predicciones ni certeza
+
 ### Requirement: Receipt lifecycle states are distinct
 
 El copy SHALL distinguir subida, espera, lectura, revisión y adición a una lista. Un procesamiento finalizado MUST evitar afirmar que el usuario ya revisó o guardó los artículos en una lista. El progreso de duración desconocida MUST evitar porcentajes o tiempos inventados.
@@ -153,7 +168,7 @@ Las superficies públicas y de autenticación SHALL evitar garantías universale
 
 ### Requirement: Totals and account information describe what is known
 
-Los textos de importes SHALL distinguir total de artículos extraídos de importe pagado, e indicar cobertura parcial cuando ya se dispone de ese dato. Un total impreso leído del recibo SHALL presentarse como total del recibo y el total de una sesión que procede de su recibo como pagado según el recibo. Un importe estimado con precios promedio MUST etiquetarse como estimación, indicar cuántos ítems tienen precio conocido y no presentarse como importe pagado. La información de cuenta MUST usar términos del usuario sin sugerir controles de gestión inexistentes. La primera iteración MUST conservar cálculos, moneda y datos persistidos actuales.
+Los textos SHALL distinguir los totales de artículos, recibos, sesiones y gastos agregados, e indicar la cobertura o los datos faltantes cuando corresponda. Las estimaciones MUST identificarse como tales y la información de cuenta MUST usar términos del usuario sin sugerir controles inexistentes.
 
 #### Scenario: Incomplete receipt prices
 
@@ -179,6 +194,16 @@ Los textos de importes SHALL distinguir total de artículos extraídos de import
 
 - **WHEN** una sesión completada tiene el total de su recibo adjunto
 - **THEN** el texto lo presenta como pagado según el recibo, sin llamarlo estimación
+
+#### Scenario: Monthly spending
+
+- **WHEN** el dashboard muestra el gasto del mes
+- **THEN** el texto dice de cuántas compras y recibos procede y cuántas compras del mes no tienen total, sin presentarlo como todo lo gastado ni como un presupuesto
+
+#### Scenario: Existing total calculations
+
+- **WHEN** Listys presenta totales de artículos, recibos, sesiones o gastos agregados
+- **THEN** conserva los cálculos, la moneda y los datos persistidos actuales
 
 ### Requirement: Text remains concise and localization tolerant
 

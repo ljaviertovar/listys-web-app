@@ -68,7 +68,7 @@ Las explicaciones y promesas SHALL corresponder a controles y resultados disponi
 
 ### Requirement: Totals and account information describe what is known
 
-Los textos de importes SHALL distinguir total de artículos extraídos de importe pagado, e indicar cobertura parcial cuando ya se dispone de ese dato. Un total impreso leído del recibo SHALL presentarse como total del recibo y el total de una sesión que procede de su recibo como pagado según el recibo. Un gasto agregado SHALL presentarse como suma de los totales conocidos, con su composición y las compras que no tienen total. Un importe estimado con precios promedio MUST etiquetarse como estimación, indicar cuántos ítems tienen precio conocido y no presentarse como importe pagado. La información de cuenta MUST usar términos del usuario sin sugerir controles de gestión inexistentes. La primera iteración MUST conservar cálculos, moneda y datos persistidos actuales.
+Los textos SHALL distinguir los totales de artículos, recibos, sesiones y gastos agregados, e indicar la cobertura o los datos faltantes cuando corresponda. Las estimaciones MUST identificarse como tales y la información de cuenta MUST usar términos del usuario sin sugerir controles inexistentes.
 
 #### Scenario: Incomplete receipt prices
 
@@ -99,3 +99,8 @@ Los textos de importes SHALL distinguir total de artículos extraídos de import
 
 - **WHEN** el dashboard muestra el gasto del mes
 - **THEN** el texto dice de cuántas compras y recibos procede y cuántas compras del mes no tienen total, sin presentarlo como todo lo gastado ni como un presupuesto
+
+#### Scenario: Existing total calculations
+
+- **WHEN** Listys presenta totales de artículos, recibos, sesiones o gastos agregados
+- **THEN** conserva los cálculos, la moneda y los datos persistidos actuales
