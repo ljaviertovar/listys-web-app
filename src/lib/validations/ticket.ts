@@ -2,11 +2,16 @@ import { z } from 'zod'
 import { MAX_TICKET_ITEMS_MERGE, MAX_IMAGES_PER_TICKET, MAX_TICKET_IMAGE_MB } from '@/lib/config/limits'
 
 // Non-file multipart fields of an upload, checked on the server before any photo is stored. The store name is optional
-// raw text (OCR fills it from the receipt header when absent); blank means absent.
+// raw text (OCR fills it from the receipt header when absent); blank means absent. `shopping_session_id` is the trip the
+// upload started from; the service checks that it is the caller's before storing anything.
 export const uploadTicketFieldsSchema = z.object({
   store_name: z.preprocess(
     value => (typeof value === 'string' ? value.replace(/\s+/g, ' ').trim() || undefined : value ?? undefined),
     z.string({ message: 'Store name must be text' }).max(100, 'Store name is too long').optional()
+  ),
+  shopping_session_id: z.preprocess(
+    value => (typeof value === 'string' ? value.trim() || undefined : value ?? undefined),
+    z.string({ message: 'Trip must be an id' }).uuid('Trip must be an id').optional()
   ),
 })
 

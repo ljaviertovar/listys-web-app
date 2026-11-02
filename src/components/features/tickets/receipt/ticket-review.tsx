@@ -1,12 +1,13 @@
 'use client'
 
-import { useRef, useState, type ReactNode } from 'react'
+import { useMemo, useRef, useState, type ReactNode } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
 import { cn } from '@/utils'
 import type { TicketItem } from '@/types'
 
+import { LinkItemDialog } from '../add-to-list/link-item-dialog'
 import { MergeToBaseListDialog } from '../add-to-list/merge-to-base-list-dialog'
 import { TicketCompareDialog } from './ticket-compare-dialog'
 import { TicketItemsCard } from './ticket-items-card'
@@ -17,6 +18,7 @@ import { usePhotoView } from '../photo/hooks/use-photo-view'
 import { useTicketImageUrls } from '../photo/hooks/use-ticket-image-urls'
 import { useTicketSelection } from './hooks/use-ticket-selection'
 import { useReceiptTriage } from './hooks/use-receipt-triage'
+import { buildSelectionBreakdown } from './helpers/receipt-selection-breakdown'
 import type { TicketStatus } from '../helpers/ticket-status'
 import { getReceiptAttachmentVisibility } from '../attach/helpers/receipt-attachment-visibility'
 
@@ -53,6 +55,10 @@ export function TicketReview({ ticketId, title, imagePaths, items, status, ocrEr
 	const [attachedOverride, setAttachedOverride] = useState<{ id: string; name: string; status: string } | null>(null)
 	const attached = attachedSession ?? attachedOverride
 	const triage = useReceiptTriage({ ticketId, items, status, attached: !!attached })
+	const breakdown = useMemo(
+		() => buildSelectionBreakdown(triage.status === 'ready' ? triage.triage : [], selection.selectedIds),
+		[triage.status, triage.triage, selection.selectedIds],
+	)
 
 	const canSelect = status === 'completed'
 	const attachmentVisibility = getReceiptAttachmentVisibility(!!attached)
@@ -78,6 +84,7 @@ export function TicketReview({ ticketId, title, imagePaths, items, status, ocrEr
 	const handleMergeSuccess = (baseListId: string) => {
 		setMergeOpen(false)
 		selection.clear()
+		triage.clearDecisions()
 		if (baseListId) {
 			router.push(`/base-lists/${baseListId}/edit`)
 		} else {
@@ -118,6 +125,7 @@ export function TicketReview({ ticketId, title, imagePaths, items, status, ocrEr
 								total={selection.total}
 								onClear={selection.clear}
 								onAdd={() => setMergeOpen(true)}
+								breakdown={breakdown}
 							/>
 						) : null
 					}
@@ -168,8 +176,11 @@ export function TicketReview({ ticketId, title, imagePaths, items, status, ocrEr
 					triage={triage}
 					canSelect={canSelect}
 					onAddToList={() => setMergeOpen(true)}
+					breakdown={breakdown}
 				/>
 			) : null}
+
+			{triage.status === 'ready' ? <LinkItemDialog {...triage.actions.linkDialog} /> : null}
 
 			{attachmentVisibility.showMergeDialog ? <MergeToBaseListDialog
 				open={mergeOpen}
@@ -178,6 +189,7 @@ export function TicketReview({ ticketId, title, imagePaths, items, status, ocrEr
 				defaultBaseListId={triage.baseList?.id}
 				selectedItemIds={Array.from(selection.selectedIds)}
 				lines={items}
+				initialDecisions={triage.baseList ? { baseListId: triage.baseList.id, decisions: triage.decisions } : null}
 				storeConfirmed={storeConfirmed}
 				onSuccess={handleMergeSuccess}
 				onReceiptAttached={sessionId => {

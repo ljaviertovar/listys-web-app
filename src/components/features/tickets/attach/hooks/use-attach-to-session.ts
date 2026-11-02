@@ -13,8 +13,7 @@ import {
 } from '@/lib/api/endpoints'
 import type { TicketItem } from '@/types'
 
-import { buildAttachReview, getAttachDialogStage } from '../helpers/build-attach-review'
-import { sortCandidatesByStore } from '../helpers/attach-candidates'
+import { buildAttachReview } from '../helpers/build-attach-review'
 
 type SessionItem = { id: string; name: string; checked: boolean }
 type AttachError = { message: string; attached: boolean }
@@ -65,20 +64,20 @@ export function useAttachToSession({
 		setCandidatesError(null)
 		const result = await getTicketSessionCandidates(ticketId)
 		if (result.error) setCandidatesError(result.error)
-		else setCandidates(sortCandidatesByStore(result.data ?? [], receiptStore?.id))
+		else setCandidates(result.data ?? [])
 		setCandidatesLoading(false)
-	}, [ticketId, receiptStore?.id])
+	}, [ticketId])
 
 	useEffect(() => {
 		let active = true
 		getTicketSessionCandidates(ticketId).then(result => {
 			if (!active) return
 			if (result.error) setCandidatesError(result.error)
-			else setCandidates(sortCandidatesByStore(result.data ?? [], receiptStore?.id))
+			else setCandidates(result.data ?? [])
 			setCandidatesLoading(false)
 		})
 		return () => { active = false }
-	}, [ticketId, receiptStore?.id])
+	}, [ticketId])
 
 	const loadReview = useCallback(async (next: TicketSessionCandidate) => {
 		setCandidate(next)
@@ -102,12 +101,8 @@ export function useAttachToSession({
 		setSubmitError(null)
 		setAddedItemIds([])
 		setLinkedItems(new Map())
-		if (getAttachDialogStage(candidates.length, null) === 'review') void loadReview(candidates[0])
-	}
-
-	const chooseCandidate = (id: string) => {
-		const selected = candidates.find(entry => entry.id === id)
-		if (selected) void loadReview(selected)
+		// A receipt is only offered the trip it was uploaded from, so there is never a choice to make.
+		if (candidates[0]) void loadReview(candidates[0])
 	}
 
 	const review = useMemo(() => candidate ? buildAttachReview({
@@ -157,7 +152,7 @@ export function useAttachToSession({
 
 	return {
 		candidates, candidatesLoading, candidatesError, reloadCandidates: loadCandidates,
-		open, setOpen, openDialog, candidate, chooseCandidate, matches, sessionItems,
+		open, setOpen, openDialog, candidate, matches, sessionItems,
 		reviewLoading, reviewError, retryReview: () => candidate && void loadReview(candidate),
 		addedItemIds, toggleAdded, linkedItems, linkingLineId, setLinkingLineId, linkLine,
 		totalInput, setTotalInput, totalIsValid, submitting, submitError, submit, review,

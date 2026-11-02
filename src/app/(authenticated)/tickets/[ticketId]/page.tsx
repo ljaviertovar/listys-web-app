@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 
 import { PageHeader, PageContainer } from '@/components/app'
-import { ReceiptAddedToListNote, TicketAttachCard, TicketReview, TicketStoreCard, TicketSummaryCard, sumLineTotals, toTicketStatus } from '@/components/features/tickets'
+import { ReceiptAddedToListNote, TicketAttachCard, TicketReview, TicketStoreCard, TicketSummaryCard, getReceiptTripSurface, sumLineTotals, toTicketStatus } from '@/components/features/tickets'
 
 import { getTicket } from '@/lib/api/endpoints'
 
@@ -43,6 +43,11 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 	// A read receipt is something to review; the store is confirmed in its own card, so the title no longer repeats the raw OCR text.
 	const isReadReceipt = ticket.ocr_status === 'completed'
 	const headerTitle = isReadReceipt ? 'Review receipt' : storeLabel
+	const tripSurface = getReceiptTripSurface({
+		attached: !!ticket.shopping_session,
+		addedToList: !!ticket.base_list_id,
+		uploadedFromTrip: !!ticket.uploaded_from_session_id,
+	})
 
 	return (
 		<>
@@ -92,7 +97,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 					{/* The store is read with the items, so it is only worth confirming once the receipt has been read. */}
 					{ticket.ocr_status === 'completed' ? (
 						<>
-							{!ticket.shopping_session && !ticket.base_list_id ? (
+							{tripSurface === 'attach-card' ? (
 								<TicketAttachCard
 									ticketId={ticketId}
 									items={ticketItems}
@@ -100,7 +105,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 									totalAmount={ticket.total_amount ?? null}
 								/>
 							) : null}
-							{ticket.base_list_id && !ticket.shopping_session ? <ReceiptAddedToListNote /> : null}
+							{tripSurface === 'added-to-list-note' ? <ReceiptAddedToListNote /> : null}
 						</>
 					) : null}
 					<TicketSummaryCard

@@ -1,22 +1,26 @@
 'use client'
 
-import { useMemo, useId } from 'react'
+import { useId, useMemo } from 'react'
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Loading03Icon } from '@hugeicons/core-free-icons'
 
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { CategorySection } from '@/components/commons'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { buildListDisplayNames, formatCurrency, formatItemName } from '@/utils'
+import { buildListDisplayNames } from '@/utils'
 import type { TicketItem } from '@/types'
 import type { TicketItemMatch } from '@/lib/api/endpoints/tickets'
 
 import { groupTicketItems } from './helpers/group-ticket-items'
+import { TicketItemRow } from './ticket-item-row'
+import { TicketTriageSection } from './ticket-triage-section'
 import type { TicketSelection } from './hooks/use-ticket-selection'
+import type { ReceiptMatchActions } from './hooks/use-receipt-match-actions'
 import type { TicketItemGroup } from './helpers/group-ticket-items'
 import type { ReceiptTriageSection, ReceiptTriageStatus } from './helpers/build-receipt-triage'
-import { receiptBulkSelectionIds, receiptItemsView } from './helpers/receipt-triage-view'
+import { receiptItemsView } from './helpers/receipt-triage-view'
 import type { BaseList } from '../add-to-list/helpers/merge-ticket-items'
 
 export interface TicketItemsTriage {
@@ -25,6 +29,7 @@ export interface TicketItemsTriage {
 	baseLists: BaseList[]
 	triage: ReceiptTriageSection[]
 	matches: TicketItemMatch[]
+	actions: ReceiptMatchActions
 	changeList: (baseListId: string) => void
 	retry: () => void
 }
@@ -36,13 +41,13 @@ interface TicketItemsListProps {
 	triage?: TicketItemsTriage
 }
 
-/** "Select all" and the receipt's items by category. Controlled by the caller's selection, so the page and the compare view agree. */
+/** "Include all" and the receipt's items by category. Controlled by the caller's selection, so the page and the compare view agree. */
 export function TicketItemsList({ items, selection, canSelect, triage }: TicketItemsListProps) {
 	const groups = useMemo(() => groupTicketItems(items), [items])
-	const activeTriage = triage?.status === 'ready' ? triage : null
 	const triageMode = receiptItemsView(triage?.status) === 'triage'
+	const activeTriage = triage && triageMode ? triage : null
+	const readyTriage = triage?.status === 'ready' ? triage : null
 	const checkAll = selection.allSelected ? true : selection.partiallySelected ? 'indeterminate' : false
-	const listLabels = useMemo(() => buildListDisplayNames(triage?.baseLists ?? []), [triage?.baseLists])
 
 	return (
 		<div data-testid='ticket-items-list'>
@@ -56,26 +61,14 @@ export function TicketItemsList({ items, selection, canSelect, triage }: TicketI
 					</AlertDescription>
 				</Alert>
 			) : null}
-			{activeTriage?.baseList ? (
-				<div data-testid='receipt-target-list' className='flex flex-col gap-2 border-b border-slate-100 py-3 dark:border-border sm:flex-row sm:items-center'>
-					<span className='min-w-0 flex-1 text-sm font-medium'>Comparing with {activeTriage.baseList.name}</span>
-					<Select value={activeTriage.baseList.id} onValueChange={activeTriage.changeList}>
-						<SelectTrigger size='lg' aria-label='Comparing with list' data-testid='receipt-target-list-select' className='sm:w-auto sm:min-w-48'>
-							<SelectValue />
-						</SelectTrigger>
-						<SelectContent>
-							{activeTriage.baseLists.map(list => <SelectItem key={list.id} value={list.id}>{listLabels.get(list.id) ?? list.name}</SelectItem>)}
-						</SelectContent>
-					</Select>
-				</div>
-			) : null}
+			{activeTriage?.baseList ? <TargetListRow triage={activeTriage} baseList={activeTriage.baseList} /> : null}
 			{canSelect && !triageMode ? (
 				<label className='mt-2 flex min-h-14 cursor-pointer items-center gap-1 border-t border-slate-100 dark:border-border'>
 					<span className='flex size-11 shrink-0 items-center justify-center'>
 						<Checkbox
 							checked={checkAll}
 							onCheckedChange={selection.toggleAll}
-							aria-label='Select all items'
+							aria-label='Include all items'
 							size='lg'
 						/>
 					</span>
@@ -83,87 +76,61 @@ export function TicketItemsList({ items, selection, canSelect, triage }: TicketI
 						aria-live='polite'
 						className='text-sm leading-[1.3] font-medium'
 					>
-						{selection.count === 0 ? 'Select all items to add to a list' : `${selection.count} of ${items.length} selected`}
+						{selection.count === 0 ? 'Include all items to add to a list' : `${selection.count} of ${items.length} included`}
 					</span>
 				</label>
 			) : null}
-			{activeTriage && activeTriage.triage.length === 1 && activeTriage.triage[0].id === 'matched' ? (
-					<p data-testid='receipt-all-match' role='note' className='py-3 text-sm leading-normal text-muted-foreground'>
-						<b className='font-semibold text-foreground'>All {activeTriage.triage[0].lines.length} {activeTriage.triage[0].lines.length === 1 ? 'item matches' : 'items match'} {activeTriage.baseList?.name}.</b> Same names as last time. Nothing needs a look.
-					</p>
-				) : null}
-				{activeTriage ? activeTriage.triage.map(section => (
-				<TriageSection
+			{activeTriage?.status === 'switching' ? (
+				<div data-testid='receipt-triage-switching' role='status' className='my-3 flex items-center gap-3 rounded-2xl bg-muted px-4 py-6 dark:bg-muted/50'>
+					<HugeiconsIcon icon={Loading03Icon} strokeWidth={2} aria-hidden='true' className='size-5 shrink-0 animate-spin text-primary motion-reduce:animate-none' />
+					<p className='text-sm font-medium'>Comparing with {activeTriage.baseList?.name}…</p>
+				</div>
+			) : null}
+			{readyTriage && readyTriage.triage.length === 1 && readyTriage.triage[0].id === 'matched' ? (
+				<p data-testid='receipt-all-match' role='note' className='py-3 text-sm leading-normal text-muted-foreground'>
+					<b className='font-semibold text-foreground'>All {readyTriage.triage[0].lines.length} {readyTriage.triage[0].lines.length === 1 ? 'item matches' : 'items match'} {readyTriage.baseList?.name}.</b> Same names as last time. Nothing needs a look.
+				</p>
+			) : null}
+			{readyTriage ? readyTriage.triage.map(section => (
+				<TicketTriageSection
 					key={section.id}
 					section={section}
-					listName={activeTriage.baseList?.name ?? ''}
+					listName={readyTriage.baseList?.name ?? ''}
 					selection={selection}
 					canSelect={canSelect}
+					actions={readyTriage.actions}
 				/>
-			)) : groups.map(group => (
+			)) : triageMode ? null : groups.map(group => (
 				<TicketCategorySection key={group.key} group={group} selection={selection} canSelect={canSelect} />
 			))}
 		</div>
 	)
 }
 
-interface TriageSectionProps {
-	section: ReceiptTriageSection
-	listName: string
-	selection: TicketSelection
-	canSelect: boolean
+interface TargetListRowProps {
+	triage: TicketItemsTriage
+	baseList: { id: string; name: string }
 }
 
-function TriageSection({ section, listName, selection, canSelect }: TriageSectionProps) {
-	const title = section.id === 'check' ? 'Needs a look' : section.id === 'fresh' ? `New to ${listName}` : `Matched to ${listName}`
-	const ids = receiptBulkSelectionIds([section], section.id)
-	// Accepting a line selects it, so the bar below can add it: accepted is the selected state of the lines that match.
-	const allAccepted = ids.length > 0 && ids.every(id => selection.isSelected(id))
-	const status = section.id === 'check' ? 'check' : section.id === 'fresh' ? 'new' : 'in-list'
+/** The list the lines are compared with and will be added to, with the way to pick another one. */
+function TargetListRow({ triage, baseList }: TargetListRowProps) {
+	const labelId = useId()
+	const listLabels = useMemo(() => buildListDisplayNames(triage.baseLists), [triage.baseLists])
 
 	return (
-		<div data-testid={`receipt-triage-section-${section.id}`}>
-			{section.id === 'matched' && canSelect ? (
-				<div className='flex items-center justify-end gap-3 pt-2'>
-					{allAccepted ? (
-						<>
-							<span data-testid='receipt-accepted-matched' aria-live='polite' className='text-sm text-muted-foreground'>
-								{ids.length} accepted
-							</span>
-							<Button type='button' variant='ghost-primary' size='sm' onClick={() => selection.deselectMany(ids)} data-testid='receipt-undo-accept-matched'>
-								Undo
-							</Button>
-						</>
-					) : (
-						<Button type='button' variant='ghost-primary' size='sm' onClick={() => selection.selectMany(ids)} data-testid='receipt-select-all-matched'>
-							Accept All {ids.length}
-						</Button>
-					)}
-				</div>
-			) : null}
-			<CategorySection
-				category={section.id}
-				title={title}
-				count={`${section.lines.length} ${section.lines.length === 1 ? 'item' : 'items'}`}
-				defaultOpen={!section.startsFolded}
-				testId={`receipt-triage-${section.id}`}
-			>
-				<ul className='divide-y divide-slate-200/70 dark:divide-border'>
-					{section.lines.map(line => (
-						<li key={line.item.id}>
-							<TicketItemRow
-								item={line.item}
-								canSelect={canSelect}
-								selected={selection.isSelected(line.item.id)}
-								onSelectToggle={selection.toggle}
-								status={status}
-								reasons={line.reasons}
-								remembered={line.remembered}
-							/>
-						</li>
-					))}
-				</ul>
-			</CategorySection>
+		<div data-testid='receipt-target-list' className='flex flex-col gap-2 border-b border-slate-100 py-3 dark:border-border sm:flex-row sm:items-center'>
+			<div className='flex min-w-0 flex-1 flex-col gap-0.5'>
+				<span id={labelId} className='text-sm font-medium'>Add to</span>
+				<span className='text-xs leading-normal text-muted-foreground'>Each line is compared with this list.</span>
+			</div>
+			<Select value={baseList.id} onValueChange={triage.changeList}>
+				<SelectTrigger size='lg' aria-labelledby={labelId} data-testid='receipt-target-list-select' className='sm:w-auto sm:min-w-48'>
+					<SelectValue />
+				</SelectTrigger>
+				<SelectContent>
+					{triage.baseLists.map(list => <SelectItem key={list.id} value={list.id}>{listLabels.get(list.id) ?? list.name}</SelectItem>)}
+				</SelectContent>
+			</Select>
 		</div>
 	)
 }
@@ -175,7 +142,7 @@ interface TicketCategorySectionProps {
 }
 
 /** A category of the receipt that folds away: its coloured icon and name, how many items it holds, and its rows on a soft surface. */
-export function TicketCategorySection({ group, selection, canSelect }: TicketCategorySectionProps) {
+function TicketCategorySection({ group, selection, canSelect }: TicketCategorySectionProps) {
 	const count = group.items.length
 
 	return (
@@ -198,59 +165,5 @@ export function TicketCategorySection({ group, selection, canSelect }: TicketCat
 				))}
 			</ul>
 		</CategorySection>
-	)
-}
-
-interface TicketItemRowProps {
-	item: TicketItem
-	canSelect?: boolean
-	selected?: boolean
-	onSelectToggle?: (id: string) => void
-	status?: 'check' | 'new' | 'in-list'
-	reasons?: string[]
-	remembered?: boolean
-}
-
-/** One extracted item: a 44px checkbox target, the name in Title Case, its quantity chip and the line price in mono. */
-export function TicketItemRow({ item, canSelect = false, selected = false, onSelectToggle, status, reasons = [], remembered = false }: TicketItemRowProps) {
-	const checkboxId = useId()
-	const name = formatItemName(item.name)
-
-	return (
-		<label
-			htmlFor={canSelect ? checkboxId : undefined}
-			data-testid={`ticket-item-row-${item.id}`}
-			data-selected={selected}
-			className={`flex min-h-16 items-center gap-1 py-1.5 pr-3.5 lg:min-h-14 lg:gap-3 ${canSelect ? 'cursor-pointer' : 'pl-3.5'}`}
-		>
-			{canSelect ? (
-				<span className='flex size-11 shrink-0 items-center justify-center'>
-					<Checkbox
-						id={checkboxId}
-						checked={selected}
-						onCheckedChange={() => onSelectToggle?.(item.id)}
-						aria-label={name}
-						size='lg'
-					/>
-				</span>
-			) : null}
-			<span className='flex min-w-0 flex-1 flex-col items-start gap-1.5 pl-1 lg:contents'>
-				<span className='w-full truncate text-sm leading-[1.25] font-semibold lg:min-w-0 lg:flex-1'>{name}</span>
-				{status ? (
-					<span className='flex w-full flex-wrap items-center gap-1.5 lg:min-w-0 lg:flex-1'>
-						<Badge variant={status === 'check' ? 'processing' : status === 'new' ? 'neutral' : 'completed'}>{status === 'check' ? 'Check' : status === 'new' ? 'New' : 'In list'}</Badge>
-						{remembered ? <span className='text-xs text-muted-foreground'>Remembered from an earlier receipt</span> : null}
-						{reasons.map(reason => <span key={reason} className='text-xs text-muted-foreground'>{reason}</span>)}
-					</span>
-				) : null}
-				<span className='inline-flex h-5.5 items-center gap-1 rounded-md bg-secondary px-2 text-xs leading-none font-medium text-slate-600 lg:shrink-0 dark:bg-muted dark:text-muted-foreground'>
-					<b className='font-mono font-semibold text-foreground tabular-nums'>{item.quantity ?? 1}</b>
-					{item.unit || 'unit'}
-				</span>
-			</span>
-			{item.price !== null ? (
-				<span className='font-mono text-sm font-semibold tabular-nums lg:w-20 lg:text-right'>{formatCurrency(item.price)}</span>
-			) : null}
-		</label>
 	)
 }

@@ -460,6 +460,7 @@ export type Database = {
           store_name: string | null
           total_items: number | null
           total_amount: number | null
+          uploaded_from_session_id: string | null
           user_id: string
         }
         Insert: {
@@ -478,6 +479,7 @@ export type Database = {
           store_name?: string | null
           total_items?: number | null
           total_amount?: number | null
+          uploaded_from_session_id?: string | null
           user_id: string
         }
         Update: {
@@ -496,6 +498,7 @@ export type Database = {
           store_name?: string | null
           total_items?: number | null
           total_amount?: number | null
+          uploaded_from_session_id?: string | null
           user_id?: string
         }
         Relationships: [

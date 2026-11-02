@@ -16,6 +16,7 @@ import { TicketSelectionBar } from './ticket-selection-bar'
 import { MAX_ZOOM, MIN_ZOOM } from '../photo/helpers/photo-zoom'
 import type { PhotoView } from '../photo/hooks/use-photo-view'
 import type { TicketSelection } from './hooks/use-ticket-selection'
+import type { ReceiptSelectionBreakdown } from './helpers/receipt-selection-breakdown'
 
 interface Props {
 	open: boolean
@@ -28,6 +29,7 @@ interface Props {
 	canSelect: boolean
 	onAddToList: () => void
 	triage?: TicketItemsTriage
+	breakdown?: ReceiptSelectionBreakdown | null
 }
 
 /** Share of the screen the photo takes (its height on a phone, its width from `lg`). The handle moves it within these limits. */
@@ -40,7 +42,7 @@ const KEY_SPLIT_STEP = 0.05
  * The photo next to the extracted items in one screen, so a line can be checked against the paper and ticked without scrolling back
  * and forth: the photo above the list on a phone, on its left from `lg`. The handle between them resizes the two by pointer or keyboard.
  */
-export function TicketCompareDialog({ open, onOpenChange, title, urls, view, items, selection, canSelect, onAddToList, triage }: Props) {
+export function TicketCompareDialog({ open, onOpenChange, title, urls, view, items, selection, canSelect, onAddToList, triage, breakdown }: Props) {
 	// `null` keeps the default of each layout (38% of the height on a phone, 60% of the width beside the list).
 	const [split, setSplit] = useState<number | null>(null)
 	const sideBySide = useMediaQuery('(min-width: 64rem)')
@@ -236,6 +238,7 @@ export function TicketCompareDialog({ open, onOpenChange, title, urls, view, ite
 								total={selection.total}
 								onClear={selection.clear}
 								onAdd={onAddToList}
+								breakdown={breakdown}
 								placement='panel'
 							/>
 						</div>

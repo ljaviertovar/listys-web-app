@@ -7,7 +7,7 @@ import { ArrowDown01Icon } from '@hugeicons/core-free-icons'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { cn } from '@/utils'
 
-import { getCategoryIcon, getCategoryTone } from './helpers/category-style'
+import { CategoryHeading } from './category-heading'
 
 interface CategorySectionProps {
 	/** Normalised category name; it picks the icon and its colour. */
@@ -52,25 +52,13 @@ export function CategorySection({
 			>
 				<h3 className='m-0'>
 					<CollapsibleTrigger variant='row'>
-						<span className='flex size-8 shrink-0 items-center justify-center rounded-lg bg-secondary dark:bg-muted'>
-							<HugeiconsIcon
-								icon={getCategoryIcon(category)}
-								strokeWidth={1.5}
-								aria-hidden='true'
-								className={cn('size-4.5', getCategoryTone(category))}
-							/>
-						</span>
-						<span className='min-w-0 flex-1 truncate font-sans text-xs leading-[1.25] font-semibold tracking-[0.04em] text-slate-700 uppercase dark:text-foreground/80'>
-							{title}
-						</span>
-						<span
-							className={cn(
-								'font-mono text-xs tabular-nums',
-								complete ? 'font-semibold text-green-700 dark:text-green-400' : 'font-medium text-slate-500 dark:text-muted-foreground',
-							)}
-						>
-							{count}
-						</span>
+						<CategoryHeading
+							category={category}
+							title={title}
+							count={count}
+							complete={complete}
+							testId={`${testId}-heading`}
+						/>
 						<span
 							aria-hidden='true'
 							className='flex size-9 items-center justify-center text-slate-500'

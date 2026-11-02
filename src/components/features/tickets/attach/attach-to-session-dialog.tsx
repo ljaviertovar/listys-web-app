@@ -28,21 +28,10 @@ export function AttachToSessionDialog({
 			<SheetDialog
 				open={actions.open}
 				onOpenChange={actions.setOpen}
-				title={actions.candidate ? `Attach to ${actions.candidate.name}` : 'Choose a trip'}
-				description={actions.candidate ? 'Review how this receipt will update the trip.' : 'Choose one of your recent trips for this receipt.'}
+				title={actions.candidate ? `Attach to ${actions.candidate.name}` : 'Attach to trip'}
+				description={actions.candidate ? `${describeCandidate(actions.candidate)}. Review how this receipt will update the trip.` : 'Loading the trip this receipt came from.'}
 				testId='attach-to-session-dialog'
 			>
-			{actions.open && !actions.candidate ? (
-				<div className='mt-3 flex min-w-0 flex-col gap-2' data-testid='attach-session-chooser'>
-					<p className='text-sm text-muted-foreground'>Choose a trip for this receipt.</p>
-					{actions.candidates.map(candidate => (
-						<Button key={candidate.id} type='button' variant='secondary' size='lg' className='justify-between' onClick={() => actions.chooseCandidate(candidate.id)}>
-							<span className='truncate'>{describeCandidate(candidate)}</span>
-							<span className='shrink-0 text-xs'>{candidate.checked_count}/{candidate.item_count} checked</span>
-						</Button>
-					))}
-				</div>
-			) : null}
 			{actions.open && actions.candidate ? (
 				<div className='mt-3 flex min-w-0 flex-col gap-4' data-testid='attach-session-review'>
 					{actions.reviewLoading ? <p role='status' className='text-sm text-muted-foreground'>Loading trip items…</p> : null}
@@ -63,7 +52,7 @@ export function AttachToSessionDialog({
 							<div className='flex flex-col gap-2'>
 								<p className='text-sm font-semibold'>Store</p>
 								<p className='text-sm text-muted-foreground'>{actions.review.resultingStore?.name ?? 'No store recorded'}</p>
-								{actions.review.storeMismatch ? <p role='alert' className='text-sm text-destructive'>The trip and receipt have different stores. Choose a trip from the same store.</p> : null}
+								{actions.review.storeMismatch ? <p role='alert' className='text-sm text-destructive'>The trip and receipt have different stores. This receipt can’t be attached to a trip at another store.</p> : null}
 							</div>
 							<label className='flex flex-col gap-2 text-sm font-semibold' htmlFor='attach-total'>Total paid
 								<Input id='attach-total' aria-label='Total paid' type='number' min='0' step='0.01' size='lg' value={actions.totalInput} onChange={event => actions.setTotalInput(event.target.value)} placeholder='0.00' />

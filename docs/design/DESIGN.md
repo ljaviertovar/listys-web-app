@@ -838,16 +838,30 @@ double-tap zoom, `−`/`+`, Rotate and Fit, a strip of 48px thumbnails when ther
 the photo above the items with a draggable, keyboard-operable separator, so a line can be checked against the paper and ticked
 without scrolling. Items are grouped by category in collapsible sections (a 32px grey tile with the category's own coloured line icon, the name as the category caption in capitals, a mono count); OCR
 names printed in capitals are shown in Title Case (short codes such as “PC” stay, the stored value is untouched). Rows have a
-44px checkbox target, a quantity chip and the price in mono. Ticking items raises a bar above the tab bar's upload button with the
-count, their total in mono, `Clear` and `Add to a List`. The summary card closes the screen with the item count, the calculated
+44px checkbox target that means “include this line” (its name for assistive tech is `Include <name>`), a quantity chip and the price in mono. Including items raises a bar above the tab bar's upload button with the
+`N included` count, their total in mono (and, once the lines are compared, `N new · M updated`), `Clear` and `Add or Update`. The summary card closes the screen with the item count, the calculated
 total (mono 20/700) and the receipt's own actions: `Retry` when it can be retried and a soft-red `Delete Receipt`.
 
-**Receipt triage (this OpenSpec change; derived from the same review row and status-badge patterns).** For a completed,
-unattached receipt with lines, compare against the selected target list and show a compact target row, then sections in
-receipt order: `Check these`, `New items`, and `In <list>`. Check rows carry a readable reason (`No price read` or
-`Looks like <item>?`) and are not selected by bulk selection; `Select all N` selects only the matched rows. `In <list>`
-folds when there are other sections. Loading, error/retry and unavailable states keep the category view usable. A failed
-comparison reports the problem without hiding the lines. The same comparison model feeds the receipt photo compare view.
+**Receipt triage (this OpenSpec change; derived from the same review rows, the category section of 7.6 and the status badges of 7.3).**
+For a completed, unattached receipt with lines, compare against a target list. The target row reads `Add to` with the list select
+(44px) and the note “Each line is compared with this list.”; it never says “Comparing with”. Below it come the status sections in this
+order, each a folding category section with its count: `Needs a look`, `New to <list>` and `Matched to <list>`; inside each, the lines
+split by category (the 32px category tile, the name as a caption in capitals and a mono count; these captions do not fold), in receipt
+order. `Matched to <list>` folds when there are other sections. A line's badges say why it is where it is: `In list` (green; with “Remembered
+from an earlier receipt” when it came from a link), `New` (neutral), `Confirm match` (blue tint: a proposed match is waiting for a
+decision) and `No price` (amber: the receipt gave no price). A line can carry `Confirm match` and `No price` together, or `In list` and
+`No price`.
+
+A line with a proposed match shows “Possible match: <item>” under the row with three 44px actions: `Confirm Match`, `Choose Another`
+(opens the searchable link sheet over the target list's items) and `Add as New`. Deciding moves the line to where it ends up (`Matched to`
+or `New to`) unless the price is still missing, in which case it stays in `Needs a look` with `No price`; it shows “Matches <item>” or
+“Adds as new item” with a `Change` action that offers the three choices again. Every decision is announced in a toast with `Undo`, and the
+section counts update at once. Deciding never includes or removes the line, and decisions are dropped when another list becomes the
+target. The checkbox only includes a line in what is added; `Include All N` in `Matched to` includes just its lines, shows `N included`
+with `Undo` afterwards, and never touches lines in `Needs a look`. Choosing another list keeps the layout: the sections are replaced by
+a soft card with a spinner and “Comparing with <list>…” until the new comparison arrives. The first load, a failed comparison (with `Try
+Again`, which retries the list that was chosen) and a receipt with no lists keep the category view usable. The same comparison model feeds
+the receipt photo compare view.
 
 **Store card (PRD v3 Phase 3; derived, the HTML has no example).** On a read receipt the `TicketStoreCard` sits above the summary
 card (the right column from `lg`, after the items on phones). It is the summary card's 24px surface with the list card's header: a
@@ -859,7 +873,7 @@ Another Store`); **unrecognized** ("Store not recognized", `Choose a Store`). Bu
 phones and in one row from `sm`. Every state but confirmed ends with "Optional. You can add items to a list without it." A failed
 save shows its message in the card, with `Try Again` when the store was created but not yet put on the receipt.
 
-**Close the loop (PRD v3 Phase 5; derived from the OCR review row, the A1 card and sheet, and the existing `LinkItemDialog`; the HTML has no receipt-to-trip example).** For a read receipt with eligible trips that is neither attached nor already added to a list, show `TicketAttachCard` before the store card: “This receipt may be from a recent trip”, one primary action for the single candidate or “Choose a trip” for several. The A1 `AttachToSessionDialog` chooses a trip when needed, then reviews three groups: “Already checked”, “Will be checked” and “Not in this trip”. Unmatched lines can be “Add as Purchased” (checked by default when chosen) or linked through the existing searchable `LinkItemDialog` over the trip items. The review shows the resulting store and a 44px “Total paid” field prefilled from the printed receipt total. A completed trip with a different confirmed store is blocked with an explanation; an active trip may adopt the receipt's store. The primary footer reads “Attach and Complete Trip” for an active trip and “Attach to Trip” for a completed one; it disables while attaching, reports errors with retry where the review can be reloaded, and never submits twice. Success opens the trip. An attached receipt replaces the selection bar and “Add Items to a List” dialog with “Attached to <trip>” and “View trip”. If a merge races with an attachment, `409 RECEIPT_ATTACHED` transitions to this attached state. `TicketSummaryCard` keeps the extracted item total and coverage note, and separately shows “Receipt Total” only when OCR read the printed total.
+**Close the loop (PRD v3 Phase 5; derived from the OCR review row, the A1 card and sheet, and the existing `LinkItemDialog`; the HTML has no receipt-to-trip example).** A receipt remembers the trip it was uploaded from: only the trip's own receipts card (`Upload a Receipt` / `Add Receipt`) records it, while the Receipts page, the tab bar and the dashboard upload receipts with no trip. For a read receipt that has such a trip, is neither attached nor already added to a list, and whose trip is still eligible, show `TicketAttachCard` before the store card: “You uploaded this receipt from a trip” with one primary action, `Review <trip>`. There is no chooser and no trip ordering, because there is only ever one trip; a receipt uploaded on its own shows neither this card nor the “added to a list” note. The A1 `AttachToSessionDialog` opens straight on the review of that trip (its name, date and store in the description) with three groups: “Already checked”, “Will be checked” and “Not in this trip”. Unmatched lines can be “Add as Purchased” (checked by default when chosen) or linked through the existing searchable `LinkItemDialog` over the trip items. The review shows the resulting store and a 44px “Total paid” field prefilled from the printed receipt total. A completed trip with a different confirmed store is blocked with an explanation; an active trip may adopt the receipt's store. The primary footer reads “Attach and Complete Trip” for an active trip and “Attach to Trip” for a completed one; it disables while attaching, reports errors with retry where the review can be reloaded, and never submits twice. Success opens the trip. An attached receipt replaces the selection bar and the add dialog with “Attached to <trip>” and “View trip”. If a merge races with an attachment, `409 RECEIPT_ATTACHED` transitions to this attached state; attaching to any trip other than the origin answers `409 RECEIPT_NOT_FROM_TRIP`. `TicketSummaryCard` keeps the extracted item total and coverage note, and separately shows “Receipt Total” only when OCR read the printed total. Known gap: `TripReceiptsCard` only appears on completed trips, so the app offers no way to upload a receipt from an active trip; the API still accepts it.
 
 **Store picker and store name sheets.** `StorePickerDialog` (`features/stores/`) is an A1 sheet: a 44px search field (`Search or
 name a store`), a polite count line ("3 stores", "No store matches this search."), and a radio list (48px rows: the radio, the name
@@ -870,7 +884,7 @@ its focus trap. `StoreNameDialog` is the one-field sheet (`Store Name *`, 44px) 
 name without its branch number, in Title Case when the raw name has a single case, e.g. "NO FRILLS" or a logo read as "metro") and for renaming a store.
 
 From `lg` the screen is two columns (3fr / 2fr). The items card is on the left, with its rows on one line (checkbox, name, quantity chip, price)
-and the selection bar stuck to the bottom of the card. The bar is the dark-blue action bar (`slate-900`, white text, the total in mono `slate-300`) with `primary` buttons (40px on phones, 44px from `md`, the touch-target rule; they were `sm`, 32px, before PRD v3 Phase 3): `Clear` (`quiet-on-dark`) and `Add to a List` (default blue). On phones it floats 12px above the tab bar's top edge (8.5rem plus the safe area when the active-session bar shows), so the raised upload button does not crowd it. The right column stays in view while the list scrolls: a `Receipt Photo` card (the photo on
+and the selection bar stuck to the bottom of the card. The bar is the dark-blue action bar (`slate-900`, white text, the total in mono `slate-300`) with `primary` buttons (40px on phones, 44px from `md`, the touch-target rule; they were `sm`, 32px, before PRD v3 Phase 3): `Clear` (`quiet-on-dark`) and `Add or Update` (default blue). On phones it floats 12px above the tab bar's top edge (8.5rem plus the safe area when the active-session bar shows), so the raised upload button does not crowd it. The right column stays in view while the list scrolls: a `Receipt Photo` card (the photo on
 a dark stage, zoom, rotate and fit over it, a strip of 48px thumbnails and a `1 / 3` counter for several photos, and `Open Full Screen`), then the
 summary card. The full-screen viewer gets a left column of thumbnails, 52px arrows, a hint (`Scroll to zoom · Drag to pan · ← → to switch photos`),
 the wheel and mouse drag, and the keys `← →`, `+`, `-` and `0`. Compare puts the photo on the left (60% of the width) and the items on the right,
@@ -1261,7 +1275,7 @@ These are remaining implementation notes, not permission for two systems:
    two actions remain inline beside the title.
 3e. **Prices by Store (PRD v3 Phase 5):** the owner's row menu and `ItemStorePricesSheet` follow the store picker/A1 sheet pattern. Rows come only from store statistics with a recorded receipt price; collaborators see none through RLS, and unit-price comparisons label historical receipt data rather than current prices. The HTML is silent, so the sheet derives from the shared white sheet surface and store rows described in 7.12.
 3f. **Receipt matching review and suggestions (this OpenSpec change):** the HTML has no receipt-match example. The receipt
-   triage sections, status reasons and the `Review Matches` possible-match row are derived from the OCR review rows in 7.6,
+   triage sections, status badges, the on-screen match decisions and the `Review Matches` possible-match row are derived from the OCR review rows in 7.6,
    status badges in 7.3, and the existing A1 link-item sheet. Suggestions remain optional and require an explicit link
    choice; see the receipt triage note in 7.6 and the review flow in 11.6.
 4. **Dark mode:** `Card` is the 24px borderless surface everywhere now; v2 dark values are not defined in the HTML and the new

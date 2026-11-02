@@ -10,13 +10,15 @@ interface TripReceiptsCardProps {
 	/** Items the trip saved, and the list they went to. */
 	itemCount: number
 	listName: string
+	/** The trip's id, so a receipt uploaded here can be attached to it later. Omitted when the viewer did not run the trip. */
+	sessionId?: string
 }
 
 /**
  * A completed trip with no receipt: right after completing it says the trip is saved and invites the receipts (one per store
  * visited); later it only says that none is attached and offers to add one. Attaching is confirmed on the receipt itself.
  */
-export function TripReceiptsCard({ justSaved = false, itemCount, listName }: TripReceiptsCardProps) {
+export function TripReceiptsCard({ justSaved = false, itemCount, listName, sessionId }: TripReceiptsCardProps) {
 	return (
 		<Card size='tight' data-testid='trip-receipts-card' data-state={justSaved ? 'saved' : 'no-receipt'}>
 			<div className='flex flex-col gap-3'>
@@ -31,6 +33,7 @@ export function TripReceiptsCard({ justSaved = false, itemCount, listName }: Tri
 				<div className='flex flex-col gap-2 sm:flex-row'>
 					<UploadTicketDialog
 						label={justSaved ? 'Upload a Receipt' : 'Add Receipt'}
+						shoppingSessionId={sessionId}
 						className='sm:w-auto'
 					/>
 					{justSaved ? (

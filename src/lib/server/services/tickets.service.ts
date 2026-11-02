@@ -318,7 +318,24 @@ export async function getTicketSessionMatches(ticketId: string, sessionId: strin
 
 export async function attachTicketToSession(ticketId: string, input: unknown) {
   const payload = parseWithSchema(attachTicketToSessionSchema, input)
-  const { supabase } = await createAuthenticatedClient()
+  const { supabase, user } = await createAuthenticatedClient()
+
+  // A receipt belongs to the trip it was uploaded from and to no other. Checked here rather than in the RPC, which stays
+  // the single writer of the attachment itself.
+  const { data: ticket, error: ticketError } = await supabase
+    .from('tickets')
+    .select('uploaded_from_session_id')
+    .eq('id', ticketId)
+    .eq('user_id', user.id)
+    .maybeSingle()
+  if (ticketError) throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'Something went wrong. Please try again.')
+  if (!ticket) throw new ApiServiceError(404, ErrorCode.NOT_FOUND, 'Not found')
+  if (ticket.uploaded_from_session_id !== payload.shopping_session_id) {
+    throw new ApiServiceError(409, ErrorCode.CONFLICT, 'This receipt cannot be attached to that trip.', {
+      reason: 'RECEIPT_NOT_FROM_TRIP',
+    })
+  }
+
   const { data, error } = await supabase.rpc('attach_receipt_to_session', {
     p_ticket_id: ticketId,
     p_session_id: payload.shopping_session_id,
@@ -643,8 +660,12 @@ export async function uploadTicket(formData: FormData) {
 
   const files = formData.getAll('files') as File[]
   const groupId = formData.get('group_id') as string | null
-  const fields = parseWithSchema(uploadTicketFieldsSchema, { store_name: formData.get('store_name') })
+  const fields = parseWithSchema(uploadTicketFieldsSchema, {
+    store_name: formData.get('store_name'),
+    shopping_session_id: formData.get('shopping_session_id'),
+  })
   const storeName = fields.store_name ?? null
+  const originSessionId = fields.shopping_session_id ?? null
 
   if (!files || files.length === 0) {
     throw new ApiServiceError(400, ErrorCode.BAD_REQUEST, 'No files provided')
@@ -661,6 +682,18 @@ export async function uploadTicket(formData: FormData) {
     if (file.size > MAX_TICKET_IMAGE_MB * 1024 * 1024) {
       throw new ApiServiceError(400, ErrorCode.BAD_REQUEST, `Each file must be less than ${MAX_TICKET_IMAGE_MB}MB`)
     }
+  }
+
+  // Checked before any photo is stored; a trip that is missing and one that belongs to someone else look the same.
+  if (originSessionId) {
+    const { data: origin, error: originError } = await supabase
+      .from('shopping_sessions')
+      .select('id')
+      .eq('id', originSessionId)
+      .eq('user_id', user.id)
+      .maybeSingle()
+    if (originError) throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'Unable to check the trip.')
+    if (!origin) throw new ApiServiceError(404, ErrorCode.NOT_FOUND, 'Not found')
   }
 
   const uploadedPaths: string[] = []
@@ -708,6 +741,7 @@ export async function uploadTicket(formData: FormData) {
       image_path: uploadedPaths[0],
       image_paths: uploadedPaths,
       store_name: storeName,
+      uploaded_from_session_id: originSessionId,
       ocr_status: 'pending',
     })
     .select()

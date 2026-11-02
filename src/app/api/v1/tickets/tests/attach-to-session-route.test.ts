@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { createSupabaseMock, TEST_UUID, TEST_UUID_2, TEST_UUID_3 } from '@/test/helpers'
+import { createQueryBuilder, createSupabaseMock, TEST_UUID,TEST_UUID_2, TEST_UUID_3 } from '@/test/helpers'
 import { ApiServiceError, ErrorCode } from '@/lib/api/http'
 
 vi.mock('@/lib/api/auth', () => ({ createAuthenticatedClient: vi.fn() }))
@@ -12,8 +12,12 @@ const mockedAuth = vi.mocked(createAuthenticatedClient)
 const payload = { shopping_session_id: TEST_UUID_2, links: [{ ticket_item_id: TEST_UUID_3, shopping_session_item_id: null }], total_amount: 12.4 }
 const result = { completed_now: true, matched_count: 1, checked_now_count: 1, added_count: 0, priced_count: 1, over_limit_count: 0, replayed: false }
 
-function signIn(rpc: { data?: unknown; error?: unknown }) {
-	const { supabase } = createSupabaseMock({ rpcResults: { attach_receipt_to_session: rpc } })
+/** `origin` is the trip the receipt was uploaded from; the payload below attaches it to TEST_UUID_2. */
+function signIn(rpc: { data?: unknown; error?: unknown }, origin: string | null = TEST_UUID_2) {
+	const { supabase } = createSupabaseMock({
+		rpcResults: { attach_receipt_to_session: rpc },
+		tables: { tickets: { data: { uploaded_from_session_id: origin }, error: null } },
+	})
 	mockedAuth.mockResolvedValue({ supabase, user: { id: 'user-1' } } as never)
 	return supabase
 }
@@ -67,6 +71,24 @@ describe('POST /api/v1/tickets/:ticketId/attach-to-session', () => {
 		const supabase = signIn({ data: null, error: null })
 		expect((await post({ ...payload, total_amount: -1 })).status).toBe(422)
 		expect((await post({ ...payload, unexpected: true })).status).toBe(422)
+		expect(supabase.rpc).not.toHaveBeenCalled()
+	})
+
+	it.each([
+		['another trip', TEST_UUID_3],
+		['no trip at all', null],
+	])('refuses a receipt uploaded from %s with a conflict, before the RPC', async (_label, origin) => {
+		const supabase = signIn({ data: [result], error: null }, origin)
+		const response = await post(payload)
+		expect(response.status).toBe(409)
+		expect((await response.json()).error.details.reason).toBe('RECEIPT_NOT_FROM_TRIP')
+		expect(supabase.rpc).not.toHaveBeenCalled()
+	})
+
+	it('returns 404 for a receipt the caller cannot see, before the RPC', async () => {
+		const supabase = signIn({ data: [result], error: null })
+		supabase.from = vi.fn().mockReturnValue(createQueryBuilder({ data: null, error: null }))
+		expect((await post(payload)).status).toBe(404)
 		expect(supabase.rpc).not.toHaveBeenCalled()
 	})
 

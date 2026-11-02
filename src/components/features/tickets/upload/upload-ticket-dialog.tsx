@@ -46,6 +46,8 @@ interface Props extends Omit<ButtonProps, 'children'> {
 	onOpenChange?: (open: boolean) => void
 	/** Photos to start with, such as the ones dropped on the "Upload Another Receipt" tile. */
 	initialFiles?: File[]
+	/** The trip this upload belongs to, set only by a trip's own receipts card; it is what lets the receipt be attached to that trip later. */
+	shoppingSessionId?: string
 }
 
 /** The upload form: a bottom sheet on phones and a centred dialog from `sm`. */
@@ -56,6 +58,7 @@ export function UploadTicketDialog({
 	open: controlledOpen,
 	onOpenChange,
 	initialFiles,
+	shoppingSessionId,
 	...buttonProps
 }: Props = {}) {
 	const [ownOpen, setOwnOpen] = useState(false)
@@ -127,6 +130,7 @@ export function UploadTicketDialog({
 				<UploadTicketForm
 					onSuccess={handleSuccess}
 					initialFiles={initialFiles}
+						shoppingSessionId={shoppingSessionId}
 				/>
 			</DialogContent>
 		</Dialog>

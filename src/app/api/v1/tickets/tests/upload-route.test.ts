@@ -10,7 +10,10 @@ import { POST } from '../route'
 
 const mockedAuth = vi.mocked(createAuthenticatedClient)
 
-function signIn() {
+const TRIP_ID = '0d6f4b0e-2a64-4f6a-9d3e-6c3b2c8d1a11'
+
+/** `ownTrip` is whether the user owns TRIP_ID: the trips table answers with the row or with nothing. */
+function signIn({ ownTrip = true }: { ownTrip?: boolean } = {}) {
   const { supabase } = createSupabaseMock()
   const upload = vi.fn().mockResolvedValue({ data: {}, error: null })
   supabase.storage.from = vi.fn().mockReturnValue({
@@ -19,9 +22,10 @@ function signIn() {
     createSignedUrl: vi.fn().mockResolvedValue({ data: { signedUrl: 'https://signed.test' }, error: null }),
   })
   const tickets = createQueryBuilder({ data: { id: 'ticket-1' }, error: null })
-  supabase.from = vi.fn().mockReturnValue(tickets)
+  const trips = createQueryBuilder({ data: ownTrip ? { id: TRIP_ID } : null, error: null })
+  supabase.from = vi.fn().mockImplementation((table: string) => (table === 'shopping_sessions' ? trips : tickets))
   mockedAuth.mockResolvedValue({ supabase, user: { id: 'user-1' } } as never)
-  return { upload, tickets }
+  return { upload, tickets, trips }
 }
 
 function upload(fields: Record<string, string> = {}) {
@@ -69,6 +73,35 @@ describe('POST /api/v1/tickets (upload)', () => {
     const response = await upload({ store_name: 'x'.repeat(101) })
 
     expect(response.status).toBe(422)
+    expect(storageUpload).not.toHaveBeenCalled()
+    expect(tickets.insert).not.toHaveBeenCalled()
+  })
+
+  it('remembers the trip the upload started from', async () => {
+    const { tickets, trips } = signIn()
+
+    const response = await upload({ shopping_session_id: TRIP_ID })
+
+    expect(response.status).toBe(202)
+    expect(trips.eq).toHaveBeenCalledWith('user_id', 'user-1')
+    expect(tickets.insert).toHaveBeenCalledWith(expect.objectContaining({ uploaded_from_session_id: TRIP_ID }))
+  })
+
+  it('leaves the origin empty for an upload from anywhere else', async () => {
+    const { tickets, trips } = signIn()
+
+    await upload()
+
+    expect(trips.select).not.toHaveBeenCalled()
+    expect(tickets.insert).toHaveBeenCalledWith(expect.objectContaining({ uploaded_from_session_id: null }))
+  })
+
+  it('answers 404 before storing any photo when the trip is not the caller’s', async () => {
+    const { upload: storageUpload, tickets } = signIn({ ownTrip: false })
+
+    const response = await upload({ shopping_session_id: TRIP_ID })
+
+    expect(response.status).toBe(404)
     expect(storageUpload).not.toHaveBeenCalled()
     expect(tickets.insert).not.toHaveBeenCalled()
   })

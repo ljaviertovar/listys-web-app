@@ -139,6 +139,7 @@ export default async function ShoppingRunPage({
 								justSaved={justSaved}
 								itemCount={checkedCount}
 								listName={baseListName}
+								sessionId={runWithItems.user_id === user.id ? runId : undefined}
 							/>
 						) : null}
 						{runWithItems.receipt ? (

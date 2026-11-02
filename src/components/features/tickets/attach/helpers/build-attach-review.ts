@@ -105,7 +105,3 @@ export function buildAttachReview({
 		},
 	}
 }
-
-export function getAttachDialogStage(candidateCount: number, selectedCandidateId: string | null): 'choose' | 'review' {
-	return candidateCount === 1 || selectedCandidateId ? 'review' : 'choose'
-}

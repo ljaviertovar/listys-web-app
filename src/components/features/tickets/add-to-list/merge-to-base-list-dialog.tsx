@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useMergeToBaseList } from './hooks/use-merge-to-base-list'
 import { MergeReviewStep } from './merge-review-step'
 import { shouldShowReceiptStoreUnconfirmedNote } from './helpers/receipt-store-note'
+import type { ScreenDecisions } from './helpers/merge-review'
 
 interface Props {
 	open: boolean
@@ -23,12 +24,14 @@ interface Props {
 	selectedItemIds: string[]
 	/** The receipt's lines, so Review Matches can name them. */
 	lines: Array<{ id: string; name: string }>
+	/** Matches the user already decided on the receipt screen; the review starts from them when adding to the same list. */
+	initialDecisions?: ScreenDecisions | null
 	storeConfirmed: boolean
 	onSuccess: (baseListId: string) => void
 	onReceiptAttached?: (sessionId: string) => void
 }
 
-export function MergeToBaseListDialog({ open, defaultBaseListId, onOpenChange, ticketId, selectedItemIds, lines, storeConfirmed, onSuccess, onReceiptAttached }: Props) {
+export function MergeToBaseListDialog({ open, defaultBaseListId, onOpenChange, ticketId, selectedItemIds, lines, initialDecisions, storeConfirmed, onSuccess, onReceiptAttached }: Props) {
 	const fieldId = useId()
 	const titleRef = useRef<HTMLHeadingElement>(null)
 	const { onOpenAutoFocus, onCloseAutoFocus } = useDialogFocus(titleRef)
@@ -51,7 +54,7 @@ export function MergeToBaseListDialog({ open, defaultBaseListId, onOpenChange, t
 		step,
 		backToChoose,
 		review,
-	} = useMergeToBaseList({ open, defaultBaseListId, ticketId, selectedItemIds, lines, onOpenChange, onSuccess, onReceiptAttached })
+	} = useMergeToBaseList({ open, defaultBaseListId, ticketId, selectedItemIds, lines, initialDecisions, onOpenChange, onSuccess, onReceiptAttached })
 
 	const hasLists = baseLists.length > 0
 	const reviewing = step === 'review' && review.state.status === 'ready'
@@ -71,11 +74,13 @@ export function MergeToBaseListDialog({ open, defaultBaseListId, onOpenChange, t
 				className='sm:max-w-125'
 			>
 				<DialogHeader>
-					<DialogTitle ref={titleRef} tabIndex={-1} variant='sheet'>{reviewing ? 'Review Matches' : 'Add Items to a List'}</DialogTitle>
+					<DialogTitle ref={titleRef} tabIndex={-1} variant='sheet'>{reviewing ? 'Review Matches' : 'Add or Update Items'}</DialogTitle>
 					<DialogDescription>
 						{reviewing
 							? `Check how these items are added to “${listName}”. Nothing is added until you confirm.`
-							: `Add ${selectedItemIds.length} selected item${selectedItemIds.length !== 1 ? 's' : ''} to a shopping list.`}
+							: mode === 'new'
+								? `Create a new list with the ${selectedItemIds.length} selected item${selectedItemIds.length !== 1 ? 's' : ''}.`
+								: `${selectedItemIds.length} selected item${selectedItemIds.length !== 1 ? 's' : ''}. New products are added to the list, and products already on it are updated and keep their quantity.`}
 					</DialogDescription>
 				</DialogHeader>
 

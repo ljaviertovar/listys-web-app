@@ -32,7 +32,7 @@ export function TicketAttachCard({
 					<HugeiconsIcon icon={ArrowRight01Icon} strokeWidth={1.8} className='size-5' aria-hidden='true' />
 				</div>
 				<div className='min-w-0 flex-1'>
-					<h2 className='text-sm font-semibold'>This receipt may be from a recent trip</h2>
+					<h2 className='text-sm font-semibold'>You uploaded this receipt from a trip</h2>
 					<p className='mt-1 text-sm text-muted-foreground'>Attach it to finish the trip and save its prices.</p>
 				</div>
 			</div>
@@ -43,7 +43,7 @@ export function TicketAttachCard({
 				</div>
 			) : (
 				<Button type='button' size='primary' onClick={actions.openDialog}>
-					{actions.candidates.length === 1 ? `Review ${actions.candidates[0].name}` : 'Choose a trip'}
+					Review {actions.candidates[0].name}
 				</Button>
 			)}
 			{actions.candidates.length ? <AttachToSessionDialog actions={actions} items={items} /> : null}

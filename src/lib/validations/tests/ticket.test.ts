@@ -28,6 +28,21 @@ describe('uploadTicketFieldsSchema (server-side upload fields)', () => {
 		expect(uploadTicketFieldsSchema.safeParse({ store_name: 'x'.repeat(101) }).success).toBe(false)
 		expect(uploadTicketFieldsSchema.safeParse({ store_name: photo() }).success).toBe(false)
 	})
+
+	const tripId = '0d6f4b0e-2a64-4f6a-9d3e-6c3b2c8d1a11'
+
+	it.each([null, undefined, '', '  '])('treats %p as an upload from no trip', value => {
+		expect(uploadTicketFieldsSchema.parse({ shopping_session_id: value }).shopping_session_id).toBeUndefined()
+	})
+
+	it('keeps the trip the upload started from', () => {
+		expect(uploadTicketFieldsSchema.parse({ shopping_session_id: tripId }).shopping_session_id).toBe(tripId)
+	})
+
+	it('rejects a trip that is not an id', () => {
+		expect(uploadTicketFieldsSchema.safeParse({ shopping_session_id: 'my-trip' }).success).toBe(false)
+		expect(uploadTicketFieldsSchema.safeParse({ shopping_session_id: photo() }).success).toBe(false)
+	})
 })
 
 describe('storeNameSchema', () => {

@@ -1,5 +1,6 @@
 // Domain-agnostic UI pieces shared by several features
 export { CategorySection } from "./category-section/category-section";
+export { CategoryHeading } from "./category-section/category-heading";
 export {
   getCategoryIcon,
   getCategoryTone,

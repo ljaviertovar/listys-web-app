@@ -4,7 +4,7 @@ import { useState } from 'react'
 
 import { getBaseList, getTicketMatches } from '@/lib/api/endpoints'
 
-import { buildMergeLinks, buildMergeReview, type LineDecision, type MatchedItem, type MergeReview } from '../helpers/merge-review'
+import { buildMergeLinks, buildMergeReview, seedMergeDecisions, type LineDecision, type MatchedItem, type MergeReview, type ScreenDecisions } from '../helpers/merge-review'
 
 type ReviewState =
 	| { status: 'idle' }
@@ -17,6 +17,8 @@ interface LoadInput {
 	baseListId: string
 	lines: Array<{ id: string; name: string }>
 	selectedIds: string[]
+	/** What the user already decided on the receipt screen; it is applied only when `baseListId` is the list they decided against. */
+	initialDecisions?: ScreenDecisions | null
 }
 
 /**
@@ -42,6 +44,7 @@ export function useMergeReview() {
 			}
 
 			const review = buildMergeReview(matches.data ?? [], input.lines, input.selectedIds)
+			setDecisions(seedMergeDecisions(review, input.baseListId, input.initialDecisions))
 			const listItems = ((list.data?.items ?? []) as Array<{ id: string; name: string }>)
 				.map(item => ({ id: item.id, name: item.name }))
 				.sort((a, b) => a.name.localeCompare(b.name))

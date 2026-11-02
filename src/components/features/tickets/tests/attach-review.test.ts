@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { buildAttachReview, getAttachDialogStage } from '../attach/helpers/build-attach-review'
-import { getReceiptAttachmentVisibility, shouldShowAttachCard } from '../attach/helpers/receipt-attachment-visibility'
+import { buildAttachReview } from '../attach/helpers/build-attach-review'
+import { getReceiptAttachmentVisibility, getReceiptTripSurface, shouldShowAttachCard } from '../attach/helpers/receipt-attachment-visibility'
 
 const candidate = (overrides: Record<string, unknown> = {}) => ({
 	id: 'session-1',
@@ -76,12 +76,6 @@ describe('buildAttachReview', () => {
 		expect(review.payload.links).toEqual([{ ticket_item_id: 'line-1', shopping_session_item_id: 'item-1' }])
 	})
 
-	it('chooses review immediately for one candidate and asks when there are several', () => {
-		expect(getAttachDialogStage(1, null)).toBe('review')
-		expect(getAttachDialogStage(3, null)).toBe('choose')
-		expect(getAttachDialogStage(3, 'session-2')).toBe('review')
-	})
-
 	it('shows the attach card only for an eligible unread-list state and hides list actions after attachment', () => {
 		expect(shouldShowAttachCard({ read: true, attached: false, addedToList: false, candidateCount: 1 })).toBe(true)
 		expect(shouldShowAttachCard({ read: false, attached: false, addedToList: false, candidateCount: 1 })).toBe(false)
@@ -90,6 +84,17 @@ describe('buildAttachReview', () => {
 		expect(shouldShowAttachCard({ read: true, attached: false, addedToList: false, candidateCount: 0 })).toBe(false)
 		expect(getReceiptAttachmentVisibility(false)).toEqual({ showSelectionBar: true, showMergeDialog: true, showAttachedState: false })
 		expect(getReceiptAttachmentVisibility(true)).toEqual({ showSelectionBar: false, showMergeDialog: false, showAttachedState: true })
+	})
+
+	it('mentions trips only on a receipt that was uploaded from one', () => {
+		const surface = (attached: boolean, addedToList: boolean, uploadedFromTrip: boolean) =>
+			getReceiptTripSurface({ attached, addedToList, uploadedFromTrip })
+
+		expect(surface(false, false, true)).toBe('attach-card')
+		expect(surface(false, true, true)).toBe('added-to-list-note')
+		expect(surface(true, false, true)).toBe('none')
+		expect(surface(false, false, false)).toBe('none')
+		expect(surface(false, true, false)).toBe('none')
 	})
 })
 

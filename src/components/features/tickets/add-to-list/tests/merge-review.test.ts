@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { buildMergeLinks, buildMergeReview, resolvedItem, type LineDecision } from '../helpers/merge-review'
+import { buildMergeLinks, buildMergeReview, resolvedItem, seedMergeDecisions, type LineDecision } from '../helpers/merge-review'
 
 const MILK = { id: 'item-milk', name: '2% Milk 4L' }
 const BREAD = { id: 'item-bread', name: 'Bread' }
@@ -109,5 +109,42 @@ describe('resolvedItem', () => {
 		expect(resolvedItem(line, undefined)).toEqual(MILK)
 		expect(resolvedItem(line, { kind: 'new' })).toBeNull()
 		expect(resolvedItem(line, { kind: 'link', item: EGGS })).toEqual(EGGS)
+	})
+})
+
+describe('seedMergeDecisions', () => {
+	const review = buildMergeReview(suggestedMatches, lines, ['l-bread', 'l-milk', 'l-huevos'])
+	const screen = (baseListId: string, entries: Array<[string, LineDecision]>) => ({ baseListId, decisions: new Map(entries) })
+
+	it('starts the review with what was decided on the receipt screen, so its links go out unchanged', () => {
+		const seeded = seedMergeDecisions(review, 'pantry', screen('pantry', [['l-huevos', { kind: 'link', item: EGGS }]]))
+
+		expect(seeded.get('l-huevos')).toEqual({ kind: 'link', item: EGGS })
+		expect(buildMergeLinks(review, seeded)).toEqual([{ ticket_item_id: 'l-huevos', base_list_item_id: EGGS.id }])
+	})
+
+	it('keeps "add as new" as a decision, which sends no link', () => {
+		const seeded = seedMergeDecisions(review, 'pantry', screen('pantry', [['l-huevos', { kind: 'new' }]]))
+
+		expect(seeded.get('l-huevos')).toEqual({ kind: 'new' })
+		expect(buildMergeLinks(review, seeded)).toEqual([])
+	})
+
+	it('ignores decisions made against another list', () => {
+		expect(seedMergeDecisions(review, 'office', screen('pantry', [['l-huevos', { kind: 'link', item: EGGS }]])).size).toBe(0)
+	})
+
+	it('ignores decisions for lines that are not in the review or cannot be decided there', () => {
+		const seeded = seedMergeDecisions(review, 'pantry', screen('pantry', [
+			['l-apples', { kind: 'link', item: EGGS }],
+			['l-bread', { kind: 'link', item: EGGS }],
+		]))
+
+		expect(seeded.size).toBe(0)
+	})
+
+	it('starts empty without screen decisions', () => {
+		expect(seedMergeDecisions(review, 'pantry', null).size).toBe(0)
+		expect(seedMergeDecisions(review, 'pantry', undefined).size).toBe(0)
 	})
 })

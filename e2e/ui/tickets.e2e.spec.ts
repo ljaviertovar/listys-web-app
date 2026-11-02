@@ -125,7 +125,7 @@ test.describe('Receipt stores and item matching', () => {
 
   async function addLineToList(page: Page, ticketItemId: string, listName: string) {
     await page.locator(`[data-testid="ticket-item-row-${ticketItemId}"] [role="checkbox"]`).click()
-    await page.getByRole('button', { name: 'Add to a List' }).click()
+    await page.getByRole('button', { name: 'Add or Update' }).click()
     const sheet = page.getByTestId('merge-to-base-list-dialog')
     await sheet.getByRole('combobox').click()
     await page.getByRole('option', { name: listName }).click()

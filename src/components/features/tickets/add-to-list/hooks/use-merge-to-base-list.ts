@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 import { buildListDisplayNames } from '@/utils'
 
 import { loadMergeListTargets, modeForListCount, submitTicketItemsToList, type BaseList, type MergeMode } from '../helpers/merge-ticket-items'
+import type { ScreenDecisions } from '../helpers/merge-review'
 import { useMergeReview } from './use-merge-review'
 
 interface UseMergeToBaseListInput {
@@ -15,6 +16,8 @@ interface UseMergeToBaseListInput {
 	selectedItemIds: string[]
 	/** The receipt's lines, so the review step can name them. */
 	lines: Array<{ id: string; name: string }>
+	/** Matches already decided on the receipt screen; Review Matches starts from them when it is adding to the same list. */
+	initialDecisions?: ScreenDecisions | null
 	onOpenChange: (open: boolean) => void
 	onSuccess: (baseListId: string) => void
 	onReceiptAttached?: (sessionId: string) => void
@@ -23,7 +26,7 @@ interface UseMergeToBaseListInput {
 /** `choose` picks the list (or names a new one); `review` decides how lines without a same-name item are added. */
 export type MergeStep = 'choose' | 'review'
 
-export function useMergeToBaseList({ open, defaultBaseListId, ticketId, selectedItemIds, lines, onOpenChange, onSuccess, onReceiptAttached }: UseMergeToBaseListInput) {
+export function useMergeToBaseList({ open, defaultBaseListId, ticketId, selectedItemIds, lines, initialDecisions, onOpenChange, onSuccess, onReceiptAttached }: UseMergeToBaseListInput) {
 	const [mode, setMode] = useState<MergeMode>('existing')
 	const [baseLists, setBaseLists] = useState<BaseList[]>([])
 	const [selectedBaseListId, setSelectedBaseListId] = useState('')
@@ -140,7 +143,7 @@ export function useMergeToBaseList({ open, defaultBaseListId, ticketId, selected
 				}
 
 				// Remembered links and new lines are always shown before anything is added; lines that all match by name skip the step.
-				const checked = await review.load({ ticketId, baseListId: selectedBaseListId, lines, selectedIds: selectedItemIds })
+				const checked = await review.load({ ticketId, baseListId: selectedBaseListId, lines, selectedIds: selectedItemIds, initialDecisions })
 				if (!checked) {
 					setError('We couldn’t check your list. Try again.')
 					return
