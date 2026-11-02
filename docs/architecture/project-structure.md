@@ -188,7 +188,8 @@ compose a primitive to add domain behavior, but that behavior belongs outside `s
   `(authenticated)/layout.tsx`, next to the existing `AppSidebar` and `Header`. Do not reach for a marketing shell
   component and add a mode prop to it.
 - Add versioned route handlers under `src/app/api/v{major}/...` for public HTTP endpoints that require a REST contract;
-  follow the complete API policy in `AGENTS.md` and do not add an unversioned `/api/` alias.
+  follow the API Policy in `AGENTS.md` (its detailed rules are in the `nextjs-saas-rest-api` skill) and do not add an
+  unversioned `/api/` alias.
 - Keep `supabase/migrations/` version-controlled for implemented list, shopping-session, ticket, sharing, trigger, and
   RLS behavior. Review every migration for direct or indirect record deletion before applying it.
 - Add new canonical documents to `docs/README.md` and keep exactly one source of truth per topic.

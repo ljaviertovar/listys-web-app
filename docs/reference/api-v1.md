@@ -1,7 +1,7 @@
 # API v1 repository reference
 
 Snapshot of Route Handlers on 2026-10-27. This inventory describes current behavior; it is not a complete OpenAPI
-contract or proof of policy compliance. [AGENTS.md](../../AGENTS.md) defines the required API policy.
+contract or proof of policy compliance. [AGENTS.md](../../AGENTS.md) defines the API baseline, and the `nextjs-saas-rest-api` skill it names holds the detailed rules.
 
 ## Authentication and responses
 

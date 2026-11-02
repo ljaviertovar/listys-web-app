@@ -341,7 +341,7 @@ These rules must remain true across UI, Server Actions, API handlers, services, 
 ## Related Documents
 
 - [`project-structure.md`](./project-structure.md): exact file/folder placement and component-bucket rules.
-- [`AGENTS.md`](../../AGENTS.md): mandatory API, security, validation, testing, and migration policies.
+- [`AGENTS.md`](../../AGENTS.md): mandatory security, validation, testing, and migration policies, and the API baseline; the detailed REST rules are in the `nextjs-saas-rest-api` skill it points to.
 - [`docs/README.md`](../README.md): documentation index and topic ownership.
 - [`implementation-status.md`](../reference/implementation-status.md): behavior, experimental scope and remaining gaps.
 - [`docs/runbooks/deploy.md`](../runbooks/deploy.md): deployment procedure.
