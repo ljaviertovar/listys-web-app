@@ -1,6 +1,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { encode as base64Encode } from 'https://deno.land/std@0.168.0/encoding/base64.ts'
+import { decideOcrOutcome, extractGeminiText, fetchWithRetry } from '../_shared/ocr-outcome.ts'
 import { parseOcrPayload, STORE_AND_TOTAL_INSTRUCTIONS, STORE_NAME_INSTRUCTIONS, TOTAL_INSTRUCTIONS } from '../_shared/receipt-store.ts'
 
 const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY')!
@@ -25,6 +26,8 @@ interface ImageResult {
   items: ReceiptItem[]
   storeName: string | null
   total: number | null
+  /** Why this photo could not be read; null when it was. A photo that failed is not a photo with no items. */
+  failure: string | null
 }
 
 /* --- HELPERS --- */
@@ -89,7 +92,8 @@ async function processImage(
   const { base64, mimeType } = await getBase64FromUrl(imageUrl);
 
   console.log('[DEBUG] Sending request to Gemini API...');
-  const ocrResponse = await fetch(
+  // A busy provider (429, 5xx) or a dropped connection is tried once more before the photo counts as failed.
+  const ocrResponse = await fetchWithRetry(() => fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${GEMINI_API_KEY}`,
     {
       method: 'POST',
@@ -105,7 +109,7 @@ async function processImage(
         },
       }),
     }
-  );
+  ));
 
   if (!ocrResponse.ok) {
     const errorText = await ocrResponse.text().catch(() => 'Unable to read error');
@@ -115,7 +119,13 @@ async function processImage(
 
   const ocrData = await ocrResponse.json();
   console.log('[DEBUG] Gemini response received:', JSON.stringify(ocrData).slice(0, 500) + '...');
-  const content = ocrData.candidates?.[0]?.content?.parts?.[0]?.text || '[]';
+  // An answer with no text (blocked, cut off, only reasoning) is a failure, not an empty receipt.
+  const answer = extractGeminiText(ocrData);
+  if ('reason' in answer) {
+    console.error('[ERROR] Gemini gave no usable answer:', answer.reason);
+    throw new Error(answer.reason);
+  }
+  const content = answer.text;
   console.log('[DEBUG] Extracted content length:', content.length, 'Preview:', content.slice(0, 200));
 
   try {
@@ -129,10 +139,10 @@ async function processImage(
       price: typeof x?.price === 'number' ? x.price : null,
     }));
     console.log(`[DEBUG] Mapped ${mapped.length} items from image ${imageIndex + 1}`);
-    return { items: mapped, storeName, total };
+    return { items: mapped, storeName, total, failure: null };
   } catch (parseError) {
     console.error('[ERROR] JSON parse failed:', parseError, 'Content:', content.slice(0, 300));
-    return { items: [], storeName: null, total: null };
+    return { items: [], storeName: null, total: null, failure: 'Gemini answer was not valid JSON' };
   }
 }
 
@@ -216,7 +226,7 @@ serve(async (req) => {
     const allResults = await Promise.all(
       urls.map((url, i) => processImage(url, i, urls.length).catch((e): ImageResult => {
         console.error(`[ERROR] Error en imagen ${i + 1}/${urls.length}:`, e);
-        return { items: [], storeName: null, total: null };
+        return { items: [], storeName: null, total: null, failure: e instanceof Error ? e.message : String(e) };
       }))
     );
 
@@ -225,6 +235,19 @@ serve(async (req) => {
     // A name the ticket already has (sent by a client or read earlier) is never overwritten.
     const extractedStoreName = ticket?.store_name ? null : allResults[0]?.storeName ?? null;
     console.log('[INFO] Merged items count:', mergedItems.length);
+
+    // Photos that failed with nothing found elsewhere is a failed read, not a receipt with no items.
+    const outcome = decideOcrOutcome(allResults.map(r => ({ itemCount: r.items.length, failure: r.failure })), mergedItems.length);
+    if (outcome.status === 'failed') {
+      console.error('[ERROR] OCR failed with no items:', allResults.map(r => r.failure));
+      await supabase.from('tickets').update({
+        ocr_status: 'failed',
+        ocr_error: outcome.error,
+        processed_at: new Date().toISOString(),
+      }).eq('id', ticketId);
+      return new Response(JSON.stringify({ error: outcome.error }), { status: 502, headers: { "Content-Type": "application/json" } });
+    }
+    if (outcome.partial) console.warn('[WARN] Some photos could not be read; the receipt may be missing lines:', allResults.map(r => r.failure));
 
     if (mergedItems.length > 0) {
       const rows = mergedItems.map(item => ({
