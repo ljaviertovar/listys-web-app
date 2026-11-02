@@ -7,6 +7,7 @@ import {
   createCompleteSetup,
   resetDatabase,
   cleanTestUsers,
+  loadE2EEnv,
 } from '../helpers'
 import { createAuthenticatedClient } from '../helpers/supabase-client'
 
@@ -239,10 +240,8 @@ test.describe('RLS Policy Enforcement', () => {
 
     // Create unauthenticated client (no auth token)
     const { createClient } = await import('@supabase/supabase-js')
-    const anonClient = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    )
+    const { supabaseUrl, publishableKey } = loadE2EEnv()
+    const anonClient = createClient(supabaseUrl, publishableKey)
 
     // Attempt to query groups
     const { data: groups, error: groupsError } = await anonClient

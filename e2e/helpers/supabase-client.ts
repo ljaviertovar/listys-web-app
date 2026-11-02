@@ -1,21 +1,17 @@
 import { createClient } from '@supabase/supabase-js'
 import type { Database } from '@/types'
 
+import { loadE2EEnv } from './e2e-env'
+
 /**
  * Supabase client for E2E tests
- * Uses service role key to bypass RLS for test setup/teardown
+ * Uses the service role key to bypass RLS for test setup/teardown. The target comes from the `E2E_SUPABASE_*` inputs and
+ * must be a loopback address; the application's own credentials are never read.
  */
 export function createTestClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  const { supabaseUrl, serviceRoleKey } = loadE2EEnv()
 
-  if (!supabaseUrl || !supabaseServiceKey) {
-    throw new Error(
-      'Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY environment variables'
-    )
-  }
-
-  return createClient<Database>(supabaseUrl, supabaseServiceKey, {
+  return createClient<Database>(supabaseUrl, serviceRoleKey, {
     auth: {
       autoRefreshToken: false,
       persistSession: false,
@@ -27,16 +23,9 @@ export function createTestClient() {
  * Supabase client with user authentication for testing RLS
  */
 export function createAuthenticatedClient(accessToken: string) {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  const { supabaseUrl, publishableKey } = loadE2EEnv()
 
-  if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error(
-      'Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY environment variables'
-    )
-  }
-
-  const client = createClient<Database>(supabaseUrl, supabaseAnonKey)
+  const client = createClient<Database>(supabaseUrl, publishableKey)
 
   // Set the session with the provided access token
   client.auth.setSession({

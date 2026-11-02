@@ -1,28 +1,62 @@
 # E2E Integration Tests
 
-La infraestructura de Playwright está versionada y usa Supabase real. Este documento describe su estado; la política
-de pruebas vive en [AGENTS.md](../AGENTS.md) y la guía de verificación en
+La infraestructura de Playwright está versionada y usa Supabase real, **solo local**. Este documento describe su estado; la
+política de pruebas vive en [AGENTS.md](../AGENTS.md) y la guía de verificación en
 [CONTRIBUTING.md](../docs/contributing/CONTRIBUTING.md#playwright-boundary).
 
-## Bloqueo de ejecución actual
+## Entorno
 
-La revisión del 2026-10-17 encontró que `helpers/db-reset.ts` elimina datos de tablas completas y que
-`global-teardown.ts` llama a `fullReset()`. Los clientes leen variables ordinarias de la aplicación en vez de los
-inputs `E2E_SUPABASE_*` exigidos por AGENTS.md. Las comprobaciones de proyecto dedicado no convierten esos borrados
-globales en limpieza de fixtures aislados.
+Toda entrada E2E lee su destino con `e2e/helpers/e2e-env.ts` (`loadE2EEnv`), desde `.env.test.local`:
 
-No ejecutar la suite, los helpers de reset ni migraciones destructivas como parte de una verificación rutinaria hasta
-corregir esos puntos. No usar producción ni datos compartidos; no introducir credenciales predeterminadas en el código
-ni sustituir Supabase por mocks en E2E. Este cambio documental no modifica la infraestructura de pruebas.
+| Variable | Uso |
+| --- | --- |
+| `E2E_SUPABASE_URL` | Origen de la API de Supabase local, con puerto explícito (por ejemplo `http://127.0.0.1:54321`). |
+| `E2E_SUPABASE_PUBLISHABLE_KEY` | Clave publicable de ese Supabase local. |
+| `E2E_SUPABASE_SERVICE_ROLE_KEY` | Clave de servicio de ese Supabase local (solo para sembrar datos). |
+| `E2E_APP_URL` | Opcional; origen de la aplicación bajo prueba (por defecto `http://localhost:3000`). |
+| `E2E_ALLOW_DB_RESET` | `true` solo para los specs antiguos que aún vacían tablas completas (ver abajo). |
+
+El cargador solo acepta destinos loopback literales (`localhost`, `127.0.0.1`, `[::1]`), con puerto explícito, sin
+credenciales ni ruta, y **nunca** consulta `NEXT_PUBLIC_SUPABASE_*` ni el resto de credenciales de la aplicación: con
+`.env.local` apuntando al proyecto alojado, el arranque falla antes de tocar nada. Los errores nombran el campo y no
+imprimen valores.
+
+`playwright.config.ts` arranca un servidor propio (`next dev` en el puerto de `E2E_APP_URL`) con
+`NEXT_PUBLIC_SUPABASE_*` y `SUPABASE_SERVICE_ROLE_KEY` tomados de las variables `E2E_*` (Next no sobrescribe el entorno del
+proceso, así que `.env.local` no puede elegir otro destino), los secretos de proveedores vacíos y el modo demo apagado. No
+reutiliza un servidor que ya esté corriendo: ese podría estar conectado al proyecto alojado.
+
+## Comandos
+
+```bash
+pnpm test:e2e:helpers   # guardas del arnés (Vitest, sin red ni Supabase)
+npx playwright test     # suite de navegador; requiere un Supabase local aprovisionado
+node --env-file=.env.test.local e2e/create-test-user.mjs   # cuenta para los specs de interfaz, solo en local
+```
+
+`pnpm test:e2e:helpers` ejecuta `e2e/helpers/tests/`; Playwright los ignora (`testIgnore`).
+
+## Estado
+
+- El teardown global **ya no borra nada**: antes llamaba a `fullReset()`, que vaciaba tablas completas.
+- `resetDatabase`, `cleanTestUsers` y `fullReset` siguen existiendo para los specs de `e2e/specs/` que aún los usan, pero
+  exigen un destino loopback validado y `E2E_ALLOW_DB_RESET=true`. Siguen borrando tablas completas de esa base local.
+- `create-test-user.mjs` ya no usa `.env.local` ni una cuenta fija: crea una cuenta con correo y contraseña generados (o los
+  de `E2E_USER_EMAIL` y `E2E_USER_PASSWORD`) y solo en un Supabase loopback.
+- **Sin verificar:** no hay un Supabase local aprovisionado en esta máquina, así que ningún spec de navegador se ejecutó con
+  estos cambios. Lo comprobado es el cargador (14 pruebas puras), que Playwright lista los 74 tests sin los de Vitest y que el
+  proyecto compila.
 
 ## Inventario
 
 | Ruta | Responsabilidad |
 | --- | --- |
-| `../playwright.config.ts` | Chromium, servidor web en puerto 3000, setup/teardown y reportes. |
-| `global-setup.ts` / `global-teardown.ts` | Carga/comprobación del entorno y limpieza global existente. |
+| `../playwright.config.ts` | Chromium, servidor propio, setup/teardown y reportes. |
+| `global-setup.ts` / `global-teardown.ts` | Valida el entorno local; el teardown no borra datos. |
+| `helpers/e2e-env.ts` | Lectura y validación de las entradas `E2E_*`. |
+| `helpers/tests/` | Pruebas puras del arnés. |
 | `fixtures/auth.setup.ts` | Preparación de autenticación. |
-| `helpers/` | Clientes Supabase, creación de datos y limpieza actual. |
+| `helpers/` | Clientes Supabase, creación de datos y limpieza heredada. |
 | `specs/rls-security.spec.ts` | Escenarios de acceso entre usuarios y RPCs. |
 | `specs/ticket-ocr.spec.ts` | Escenarios OCR, extracción y merge. |
 | `specs/shopping-session.spec.ts` | Ciclo de compra, orden y sincronización. |
@@ -30,25 +64,16 @@ ni sustituir Supabase por mocks en E2E. Este cambio documental no modifica la in
 | `specs/shared-lists.spec.ts` | Colaboración experimental, fuera del MVP. |
 | `ui/` | Flujos de interfaz: auth, listas, compras, recibos y landing. |
 
-La existencia de escenarios no demuestra que hayan pasado ni que todos los requisitos estén implementados.
-Aunque `.gitignore` coincide con `e2e/`, los archivos ya versionados siguen en Git; verificar el seguimiento de nuevos
-archivos antes de asumir que estarán presentes en un clon limpio.
+La existencia de escenarios no demuestra que hayan pasado ni que todos los requisitos estén implementados. Aunque
+`.gitignore` coincide con `e2e/`, los archivos ya versionados siguen en Git; verificar el seguimiento de nuevos archivos
+antes de asumir que estarán presentes en un clon limpio.
 
-## Entorno y comandos después de corregir el bloqueo
+## Pendiente
 
-La configuración actual carga `.env.test.local`, se bloquea si falta y utiliza `PLAYWRIGHT_TEST_BASE_URL` o
-`http://localhost:3000`. El servidor configurado arranca con `pnpm dev` en el puerto 3000. No copiar credenciales a
-documentación ni habilitar el reset amplio para sortear los bloqueos.
+Falta lo que describe `openspec/changes/stabilize-test-foundation`: fixtures con identidad propia por intento de prueba,
+limpieza por identificadores exactos, migrar cada spec y probar el aislamiento contra un Supabase local con
+`npx playwright test e2e/specs/test-isolation.spec.ts --workers=2 --repeat-each=5`. Hasta entonces, no ejecutar la suite
+completa contra una base local que contenga datos que importen.
 
-La entrada de ejecución prevista es `npx playwright test`; los scripts `pnpm test:e2e`, `pnpm test:e2e:ui`,
-`pnpm test:e2e:headed` y `pnpm test:e2e:debug` están en `package.json`. Su existencia no elimina el bloqueo anterior.
-No se encontró una pipeline CI versionada que ejecute estas suites.
-
-## Mantenimiento
-
-Sustituir los resets globales por fixtures identificables y limpieza limitada a los datos creados por cada prueba;
-alinear credenciales con `E2E_SUPABASE_*` y validar que ningún test pueda apuntar a producción. Una vez corregido,
-actualizar esta guía y ejecutar los flujos relevantes con `npx playwright test`.
-
-Los reportes, trazas y capturas pueden contener información privada. Usar datos sintéticos y revisar los artefactos
-antes de compartirlos. No publicar cookies, tokens, URLs firmadas ni fotos reales de recibos.
+Los reportes, trazas y capturas pueden contener información privada. Usar datos sintéticos y revisar los artefactos antes de
+compartirlos. No publicar cookies, tokens, URLs firmadas ni fotos reales de recibos.

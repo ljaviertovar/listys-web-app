@@ -1,24 +1,38 @@
 /**
- * Script to create a test user for E2E UI tests
- * Run with: node e2e/create-test-user.mjs
+ * Creates the account the UI specs sign in with, on a LOCAL Supabase only.
+ * Run with: node --env-file=.env.test.local e2e/create-test-user.mjs
+ *
+ * It reads only the E2E_SUPABASE_* inputs and refuses anything that is not a loopback address with an explicit port. The
+ * application's own credentials (.env.local, which may point at the hosted project) are never read.
  */
 
-import { config } from 'dotenv'
-import { resolve } from 'path'
 import { createClient } from '@supabase/supabase-js'
 
-// Load environment variables
-config({ path: resolve(process.cwd(), '.env.local') })
+const LOOPBACK_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]'])
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-
-if (!supabaseUrl || !supabaseServiceKey) {
-  console.error('❌ Missing Supabase credentials in .env.local')
+function fail(message) {
+  console.error(`❌ ${message}`)
   process.exit(1)
 }
 
-const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+const supabaseUrl = process.env.E2E_SUPABASE_URL
+const supabaseServiceKey = process.env.E2E_SUPABASE_SERVICE_ROLE_KEY
+
+if (!supabaseUrl || !supabaseServiceKey) {
+  fail('Set E2E_SUPABASE_URL and E2E_SUPABASE_SERVICE_ROLE_KEY (for example with --env-file=.env.test.local).')
+}
+
+let target
+try {
+  target = new URL(supabaseUrl)
+} catch {
+  fail('E2E_SUPABASE_URL is not a valid URL.')
+}
+if (!LOOPBACK_HOSTS.has(target.hostname) || !target.port || target.username || target.password) {
+  fail('E2E_SUPABASE_URL must be a loopback address (localhost, 127.0.0.1 or [::1]) with an explicit port and no credentials.')
+}
+
+const supabase = createClient(target.origin, supabaseServiceKey, {
   auth: {
     autoRefreshToken: false,
     persistSession: false,
@@ -26,22 +40,10 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey, {
 })
 
 async function createTestUser() {
-  const testEmail = 'test@example.com'
-  const testPassword = 'password123'
+  const testEmail = process.env.E2E_USER_EMAIL || `e2e-${crypto.randomUUID()}@example.test`
+  const testPassword = process.env.E2E_USER_PASSWORD || `Local-${crypto.randomUUID()}-Only!`
 
-  console.log('🔍 Checking if test user exists...')
-
-  // Check if user already exists
-  const { data: existingUsers } = await supabase.auth.admin.listUsers()
-  const userExists = existingUsers?.users?.some(u => u.email === testEmail)
-
-  if (userExists) {
-    console.log(`✅ Test user already exists: ${testEmail}`)
-    return
-  }
-
-  // Create new test user
-  console.log(`👤 Creating test user: ${testEmail}`)
+  console.log('👤 Creating a local test user...')
 
   const { data, error } = await supabase.auth.admin.createUser({
     email: testEmail,
@@ -50,14 +52,15 @@ async function createTestUser() {
   })
 
   if (error) {
-    console.error('❌ Failed to create test user:', error.message)
-    process.exit(1)
+    fail(`Failed to create the test user: ${error.message}`)
   }
 
-  console.log(`✅ Test user created successfully!`)
+  console.log('✅ Test user created on the local Supabase.')
   console.log(`   Email: ${testEmail}`)
-  console.log(`   Password: ${testPassword}`)
   console.log(`   User ID: ${data.user?.id}`)
+  if (!process.env.E2E_USER_PASSWORD) {
+    console.log('   Password: generated; set E2E_USER_EMAIL and E2E_USER_PASSWORD to choose your own.')
+  }
 }
 
 createTestUser()

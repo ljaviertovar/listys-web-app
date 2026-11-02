@@ -1,3 +1,4 @@
+export * from './e2e-env'
 export * from './supabase-client'
 export * from './db-reset'
 export * from './seed-data'
