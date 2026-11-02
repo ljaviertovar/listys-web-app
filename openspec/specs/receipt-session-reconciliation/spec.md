@@ -9,29 +9,44 @@ completa si seguía activa y le aporta total, precios reales y tienda, sin que e
 
 ### Requirement: A read receipt offers to attach to a recent trip
 
-En la pantalla de un recibo leído, sin adjuntar y no añadido a ninguna lista, SHALL ofrecerse adjuntarlo cuando el
-propietario tiene sesiones candidatas: sus sesiones activas y sus sesiones completadas como mucho 48 horas antes de la
-subida del recibo o después de ella, sin recibo adjunto. Sin candidatas MUST NOT mostrarse la oferta.
+En la pantalla de un recibo leído, sin adjuntar y no añadido a ninguna lista, SHALL ofrecerse adjuntarlo solo al viaje
+desde el que se subió, cuando ese viaje sigue siendo candidato: activo, o completado como mucho 48 horas antes de la
+subida o después de ella, y sin recibo adjunto. Un recibo subido fuera de un viaje MUST NOT ofrecer adjuntarse a ninguno.
 
 #### Scenario: Active trip
 
-- **WHEN** el propietario tiene una sesión activa de "Pantry" y abre un recibo recién leído
+- **WHEN** el viaje de origen del recibo es la sesión activa de "Pantry" y el recibo se lee
 - **THEN** la pantalla ofrece adjuntar el recibo a la compra de "Pantry"
-
-#### Scenario: Trip completed an hour before the upload
-
-- **WHEN** el propietario completó una sesión una hora antes de subir el recibo
-- **THEN** la pantalla del recibo ofrece adjuntarlo a esa sesión
 
 #### Scenario: Trip completed after the upload
 
-- **WHEN** el propietario sube el recibo durante el viaje y completa la sesión antes de revisarlo
-- **THEN** la pantalla del recibo ofrece adjuntarlo a esa sesión completada
+- **WHEN** el viaje de origen del recibo se completó después de la subida y antes de revisarlo
+- **THEN** la pantalla del recibo ofrece adjuntarlo a ese viaje completado
+
+#### Scenario: Trip completed an hour before the upload
+
+- **WHEN** el propietario sube un recibo desde la tarjeta de recibos de un viaje completado hace una hora y el recibo se lee
+- **THEN** la pantalla del recibo ofrece adjuntarlo a ese viaje
+
+#### Scenario: Standalone receipt with a recent trip
+
+- **WHEN** el propietario completó un viaje hace una hora y sube un recibo desde la pantalla de recibos
+- **THEN** la pantalla del recibo no ofrece adjuntarlo a ningún viaje
+
+#### Scenario: Origin trip already has a receipt
+
+- **WHEN** el recibo se subió desde un viaje que ya tiene otro recibo adjunto
+- **THEN** la pantalla no ofrece adjuntarlo
 
 #### Scenario: Old trip
 
-- **WHEN** la única sesión completada del propietario terminó tres días antes de subir el recibo
-- **THEN** la pantalla no ofrece adjuntar el recibo
+- **WHEN** el recibo se subió desde un viaje completado tres días antes
+- **THEN** la pantalla no ofrece adjuntarlo
+
+#### Scenario: Origin trip deleted
+
+- **WHEN** el propietario eliminó el viaje desde el que subió el recibo
+- **THEN** la pantalla no ofrece adjuntarlo y el recibo se revisa como uno independiente
 
 #### Scenario: Receipt already added to a list
 
@@ -42,22 +57,6 @@ subida del recibo o después de ella, sin recibo adjunto. Sin candidatas MUST NO
 
 - **WHEN** el recibo está pendiente de lectura o su lectura falló
 - **THEN** la pantalla no ofrece adjuntarlo
-
-### Requirement: Several candidates are chosen explicitly
-
-Cuando hay más de una sesión candidata, el usuario SHALL elegir una antes de revisar, viendo de cada una el nombre de
-la lista, si está en curso o cuándo se completó, su tienda si la tiene y cuántos ítems lleva marcados. Las sesiones en
-curso SHALL aparecer primero y después las completadas, de la más reciente a la más antigua.
-
-#### Scenario: Two lists in progress and one recent trip
-
-- **WHEN** el propietario tiene sesiones activas en "Pantry" y "Office" y una completada hace 5 horas
-- **THEN** la elección muestra primero las dos activas por inicio más reciente y después la completada, y no preselecciona ninguna
-
-#### Scenario: Single candidate
-
-- **WHEN** solo hay una sesión candidata
-- **THEN** la revisión se abre con esa sesión elegida y el usuario puede cancelar
 
 ### Requirement: Attaching is reviewed line by line before it is applied
 
@@ -263,15 +262,6 @@ qué viajes tienen recibo. Si el recibo se elimina, la sesión SHALL conservar t
 - **WHEN** el propietario elimina un recibo adjunto
 - **THEN** la sesión conserva su total y precios y deja de mostrar el enlace al recibo
 
-### Requirement: The trip chooser tells trips apart
-
-El selector de viaje SHALL mostrar por viaje su nombre, la fecha y hora en que se completó o empezó, y su tienda, y SHALL
-poner primero los viajes de la tienda del recibo o sin tienda, conservando el orden de llegada dentro de cada grupo.
-
-#### Scenario: Several trips at different stores
-- **WHEN** un recibo de Fortinos tiene viajes sin tienda y viajes en Metro
-- **THEN** los viajes sin tienda van antes y cada fila muestra fecha, hora y tienda
-
 ### Requirement: The attach review summarises what matches
 
 La revisión de adjuntar SHALL mostrar cuántas líneas coinciden con ítems del viaje ("Matched"), cuántas solo están en el recibo
@@ -289,9 +279,31 @@ sin precio. Cuando no hay líneas sobrantes ni ítems sin línea, SHALL decir qu
 
 ### Requirement: A receipt added to a list explains why it has no trip
 
-Un recibo leído que ya se añadió a una lista SHALL decir que por eso no puede adjuntarse también a un viaje, en lugar de
-omitir la tarjeta de viaje sin explicación.
+Un recibo leído subido desde un viaje que ya se añadió a una lista SHALL decir que por eso no puede adjuntarse también a
+ese viaje, en lugar de omitir la tarjeta de viaje sin explicación. Un recibo subido fuera de un viaje MUST NOT mostrar esa
+explicación.
 
 #### Scenario: Receipt already in a list
-- **WHEN** el usuario abre un recibo cuyos ítems se añadieron a una lista
+
+- **WHEN** el usuario abre un recibo subido desde un viaje cuyos ítems se añadieron a una lista
 - **THEN** ve "The items of this receipt were added to a list, so it can’t also be attached to a trip."
+
+#### Scenario: Standalone receipt already in a list
+
+- **WHEN** el usuario abre un recibo subido desde la pantalla de recibos cuyos ítems se añadieron a una lista
+- **THEN** no ve ninguna nota sobre viajes
+
+### Requirement: Attaching is limited to the receipt's origin trip
+
+Adjuntar un recibo SHALL aceptarse solo con el viaje desde el que se subió. Una petición que intenta adjuntarlo a otra
+sesión propia, o adjuntar un recibo sin viaje de origen, MUST rechazarse con un conflicto sin cambios.
+
+#### Scenario: Another own session
+
+- **WHEN** una petición intenta adjuntar a la sesión de "Office" un recibo subido desde la sesión de "Pantry"
+- **THEN** la respuesta es un conflicto y nada cambia
+
+#### Scenario: Standalone receipt
+
+- **WHEN** una petición intenta adjuntar a una sesión un recibo subido desde la pantalla de recibos
+- **THEN** la respuesta es un conflicto y nada cambia
