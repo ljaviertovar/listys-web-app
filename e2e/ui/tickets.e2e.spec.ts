@@ -156,7 +156,8 @@ test.describe('Receipt stores and item matching', () => {
     await card.getByRole('button', { name: 'Confirm' }).click()
 
     await expect(card).toHaveAttribute('data-state', 'confirmed', { timeout: 10000 })
-    await expect(page.getByRole('heading', { level: 1, name: 'No Frills' })).toBeVisible()
+    await expect(page.getByRole('heading', { level: 1, name: 'Review receipt' })).toBeVisible()
+    await expect(page.getByTestId('ticket-store-card').getByRole('heading', { name: 'No Frills' })).toBeVisible()
   })
 
   test('saves an unknown store as a new store with a cleaned-up name', async ({ page }) => {

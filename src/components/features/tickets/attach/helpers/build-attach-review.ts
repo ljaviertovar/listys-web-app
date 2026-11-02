@@ -14,6 +14,8 @@ export type AttachReview = {
 	alreadyChecked: AttachReviewLine[]
 	willBeChecked: AttachReviewLine[]
 	notInTrip: AttachReviewLine[]
+	/** Trip items that were checked off and have no line on the receipt: they stay as bought, without a price. */
+	checkedNotOnReceipt: Array<{ id: string; name: string }>
 	resultingStore: { id: string; name: string } | null
 	confirmLabel: 'Attach and Complete Trip' | 'Attach to Trip'
 	storeMismatch: boolean
@@ -73,6 +75,14 @@ export function buildAttachReview({
 		}
 	}
 
+	// A trip item is "on the receipt" when a line matched or was linked to it; the rest that were checked keep no price.
+	const itemsOnReceipt = new Set<string>()
+	for (const line of [...alreadyChecked, ...willBeChecked]) if (line.shoppingSessionItem) itemsOnReceipt.add(line.shoppingSessionItem.id)
+	for (const target of linkedItems.values()) itemsOnReceipt.add(target)
+	const checkedNotOnReceipt = sessionItems
+		.filter(item => item.checked && !itemsOnReceipt.has(item.id))
+		.map(item => ({ id: item.id, name: item.name }))
+
 	const resultingStore = candidate.store && receiptStore && candidate.store.id !== receiptStore.id
 		? (candidate.status === 'active' ? receiptStore : candidate.store)
 		: candidate.store ?? receiptStore
@@ -83,6 +93,7 @@ export function buildAttachReview({
 		alreadyChecked,
 		willBeChecked,
 		notInTrip,
+		checkedNotOnReceipt,
 		resultingStore,
 		confirmLabel: candidate.status === 'active' ? 'Attach and Complete Trip' : 'Attach to Trip',
 		storeMismatch,

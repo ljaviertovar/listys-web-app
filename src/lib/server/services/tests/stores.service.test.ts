@@ -81,8 +81,8 @@ describe('stores service', () => {
 
     expect(result).toEqual({
       stores: [
-		{ id: TEST_UUID, name: 'No Frills', receipt_count: 3, created_at: ROW.created_at, updated_at: ROW.updated_at, last_visit: null },
-		{ id: TEST_UUID_2, name: 'Metro', receipt_count: 0, created_at: ROW.created_at, updated_at: ROW.updated_at, last_visit: null },
+		{ id: TEST_UUID, name: 'No Frills', receipt_count: 3, created_at: ROW.created_at, updated_at: ROW.updated_at, last_visit: null, usual_items_count: 0 },
+		{ id: TEST_UUID_2, name: 'Metro', receipt_count: 0, created_at: ROW.created_at, updated_at: ROW.updated_at, last_visit: null, usual_items_count: 0 },
       ],
       meta: { count: 2, limit: MAX_STORES_PER_USER },
     })

@@ -30,6 +30,10 @@ interface EntityCardProps {
 	icon: IconSvgElement
 	title: string
 	description?: string | null
+	/** A small label next to the title (a list's Default chip). */
+	badge?: ReactNode
+	/** One quiet line under the description (when the list was last shopped, who it is shared with). */
+	meta?: string | null
 	/** How many things the card holds, with the words that name them; the card reads "No <emptyLabel> yet" at zero. */
 	count: number | null
 	unit: { one: string; many: string }
@@ -52,6 +56,8 @@ export function EntityCard({
 	icon,
 	title,
 	description,
+	badge,
+	meta,
 	count,
 	unit,
 	emptyLabel,
@@ -76,10 +82,14 @@ export function EntityCard({
 					/>
 				</span>
 				<div className='flex min-w-0 flex-1 flex-col'>
-					<h2 className='break-words font-display text-base leading-[1.5] font-semibold'>{title}</h2>
+					<div className='flex min-w-0 flex-wrap items-center gap-x-2'>
+						<h2 className='break-words font-display text-base leading-[1.5] font-semibold'>{title}</h2>
+						{badge}
+					</div>
 					{description ? (
 						<p className='break-words text-sm leading-[1.4] text-slate-500 dark:text-muted-foreground'>{description}</p>
 					) : null}
+					{meta ? <p className='text-xs leading-[1.4] text-slate-500 dark:text-muted-foreground'>{meta}</p> : null}
 				</div>
 				{menu ? (
 					<RowMenu

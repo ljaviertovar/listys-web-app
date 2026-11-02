@@ -12,7 +12,7 @@ import { ShoppingCart02Icon } from '@hugeicons/core-free-icons'
 export function MonthSpendingCard() {
 	const spending = useMonthSpending()
 	return (
-		<DashboardSectionCard testId='dashboard-month-spending-card' title='This Month' viewAll={{ href: '/shopping-history', noun: 'history', testId: 'dashboard-month-spending-view-all' }}>
+		<DashboardSectionCard testId='dashboard-month-spending-card' title='Spend This Month' viewAll={{ href: '/shopping-history', noun: 'history', testId: 'dashboard-month-spending-view-all' }}>
 			{spending.status === 'loading' ? (
 				<div data-testid='dashboard-month-spending-loading' aria-label='Loading monthly spending' className='flex flex-1 flex-col justify-center gap-3 px-3 py-6'>
 					<Skeleton className='h-8 w-32' />
@@ -39,6 +39,22 @@ export function MonthSpendingCard() {
 						</div>
 						<p className='pl-12 text-sm text-muted-foreground'>From {summary.trips_count} {summary.trips_count === 1 ? 'trip' : 'trips'} and {summary.receipts_count} {summary.receipts_count === 1 ? 'receipt' : 'receipts'}</p>
 						{summary.trips_without_total > 0 ? <p data-testid='dashboard-month-spending-missing-totals' className='pl-12 text-sm text-amber-700 dark:text-amber-400'><MissingTotals count={summary.trips_without_total} /></p> : null}
+				{(summary.stores ?? []).length > 0 ? (
+					<ul data-testid='dashboard-month-spending-stores' aria-label='Spend by store' className='mt-2 flex flex-col gap-1 pl-12'>
+						{(summary.stores ?? []).map(store => (
+							<li key={store.id} className='flex items-center justify-between gap-3 text-sm'>
+								<span className='min-w-0 truncate text-muted-foreground'>{store.name}</span>
+								<span className='font-mono font-medium tabular-nums'>{formatCurrency(store.total)}</span>
+							</li>
+					))}
+					{(summary.other_total ?? 0) > 0 ? (
+						<li data-testid='dashboard-month-spending-other' className='flex items-center justify-between gap-3 text-sm'>
+							<span className='min-w-0 truncate text-muted-foreground'>Other</span>
+							<span className='font-mono font-medium tabular-nums'>{formatCurrency(summary.other_total ?? 0)}</span>
+						</li>
+					) : null}
+					</ul>
+				) : null}
 					</div>
 				)
 			})() : null}

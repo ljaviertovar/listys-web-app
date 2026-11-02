@@ -4,6 +4,7 @@ import { useRef, useState, type ReactNode } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
+import { cn } from '@/utils'
 import type { TicketItem } from '@/types'
 
 import { MergeToBaseListDialog } from '../add-to-list/merge-to-base-list-dialog'
@@ -28,6 +29,8 @@ interface Props {
 	ocrError?: string | null
 	storeConfirmed: boolean
 	attachedSession?: { id: string; name: string; status: string } | null
+	/** What goes above the photo and the items, full width: the store the receipt was read at, rendered on the server by the page. */
+	top?: ReactNode
 	/** What follows the items (the summary and the receipt's actions), rendered on the server by the page. */
 	children?: ReactNode
 }
@@ -37,7 +40,7 @@ interface Props {
  * items from `lg`) and the two photo views, the items with their selection, and the bar and dialog that act on it. The compare view
  * edits the very selection the page shows, and the panel and the full-screen viewer share the photo being looked at.
  */
-export function TicketReview({ ticketId, title, imagePaths, items, status, ocrError, storeConfirmed, attachedSession = null, children }: Props) {
+export function TicketReview({ ticketId, title, imagePaths, items, status, ocrError, storeConfirmed, attachedSession = null, top, children }: Props) {
 	const router = useRouter()
 	const selection = useTicketSelection(items)
 	const photos = useTicketImageUrls(imagePaths)
@@ -98,7 +101,9 @@ export function TicketReview({ ticketId, title, imagePaths, items, status, ocrEr
 				</div>
 			) : null}
 
-			<div className='min-w-0 lg:col-start-1 lg:row-start-1'>
+			{top ? <div className='min-w-0 lg:col-span-2 lg:row-start-1'>{top}</div> : null}
+
+			<div className={cn('min-w-0 lg:col-start-1', top ? 'lg:row-start-2' : 'lg:row-start-1')}>
 				<TicketItemsCard
 					ticketId={ticketId}
 					items={items}
@@ -120,7 +125,7 @@ export function TicketReview({ ticketId, title, imagePaths, items, status, ocrEr
 			</div>
 
 			{/* From `lg` the photo and the summary stay in view while the long list scrolls beside them. */}
-			<div className='flex min-w-0 flex-col gap-4 lg:sticky lg:top-4 lg:col-start-2 lg:row-start-1'>
+			<div className={cn('flex min-w-0 flex-col gap-4 lg:sticky lg:top-4 lg:col-start-2', top ? 'lg:row-start-2' : 'lg:row-start-1')}>
 				{hasPhotos ? (
 					<div className='hidden lg:block'>
 						<TicketPhotoPanel

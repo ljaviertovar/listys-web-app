@@ -34,6 +34,12 @@ interface StorePickerDialogProps {
 	/** An error from running the choice, shown above the buttons. */
 	error?: string | null
 	testId?: string
+	/** What is known about the thing the store is picked for (an item): a headline and a line under it, shown above the search. */
+	context?: { headline: string; body: string }
+	/** A line for each store by id that replaces its receipt count (for example the last price); a store without one reads "Not bought there yet". */
+	storeDetails?: Record<string, string>
+	/** A closing note under the list. */
+	footnote?: string
 }
 
 /** Chooses one of the user's stores, or names a new one, inside the A1 sheet (search field over a radio list). */
@@ -70,6 +76,9 @@ function StorePickerBody({
 	pending = false,
 	error,
 	onCancel,
+	context,
+	storeDetails,
+	footnote,
 }: StorePickerBodyProps) {
 	const errorId = useId()
 	const stores = useStores()
@@ -100,7 +109,9 @@ function StorePickerBody({
 		...matches.map(store => ({
 			value: store.id,
 			label: store.name,
-			detail: `${store.receipt_count} ${store.receipt_count === 1 ? 'receipt' : 'receipts'}`,
+			detail: storeDetails
+				? (storeDetails[store.id] ?? 'Not bought there yet')
+				: `${store.receipt_count} ${store.receipt_count === 1 ? 'receipt' : 'receipts'}`,
 		})),
 	]
 
@@ -118,7 +129,17 @@ function StorePickerBody({
 			noValidate
 			className='flex flex-col gap-4'
 		>
-			{stores.status === 'loading' ? (
+			{context ? (
+					<div
+						data-testid='store-picker-context'
+						className='flex flex-col gap-1 rounded-2xl bg-muted px-3.5 py-3'
+					>
+						<p className='text-sm font-semibold text-foreground'>{context.headline}</p>
+						<p className='text-xs leading-normal text-slate-500 dark:text-muted-foreground'>{context.body}</p>
+					</div>
+				) : null}
+
+				{stores.status === 'loading' ? (
 				<div
 					role='status'
 					className='flex items-center justify-center gap-2 py-6 text-sm text-slate-500 dark:text-muted-foreground'
@@ -166,7 +187,16 @@ function StorePickerBody({
 				/>
 			)}
 
-			{error ? (
+			{footnote ? (
+					<p
+						data-testid='store-picker-footnote'
+						className='text-xs leading-normal text-slate-500 dark:text-muted-foreground'
+					>
+						{footnote}
+					</p>
+				) : null}
+
+				{error ? (
 				<p
 					id={errorId}
 					role='alert'

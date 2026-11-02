@@ -14,6 +14,7 @@ import {
 import type { TicketItem } from '@/types'
 
 import { buildAttachReview, getAttachDialogStage } from '../helpers/build-attach-review'
+import { sortCandidatesByStore } from '../helpers/attach-candidates'
 
 type SessionItem = { id: string; name: string; checked: boolean }
 type AttachError = { message: string; attached: boolean }
@@ -64,20 +65,20 @@ export function useAttachToSession({
 		setCandidatesError(null)
 		const result = await getTicketSessionCandidates(ticketId)
 		if (result.error) setCandidatesError(result.error)
-		else setCandidates(result.data ?? [])
+		else setCandidates(sortCandidatesByStore(result.data ?? [], receiptStore?.id))
 		setCandidatesLoading(false)
-	}, [ticketId])
+	}, [ticketId, receiptStore?.id])
 
 	useEffect(() => {
 		let active = true
 		getTicketSessionCandidates(ticketId).then(result => {
 			if (!active) return
 			if (result.error) setCandidatesError(result.error)
-			else setCandidates(result.data ?? [])
+			else setCandidates(sortCandidatesByStore(result.data ?? [], receiptStore?.id))
 			setCandidatesLoading(false)
 		})
 		return () => { active = false }
-	}, [ticketId])
+	}, [ticketId, receiptStore?.id])
 
 	const loadReview = useCallback(async (next: TicketSessionCandidate) => {
 		setCandidate(next)
@@ -118,7 +119,7 @@ export function useAttachToSession({
 		totalAmount: totalInput.trim() === '' ? null : Number(totalInput),
 		addedItemIds,
 		linkedItems,
-	}) : null, [candidate, items, matches, receiptStore, totalInput, addedItemIds, linkedItems])
+	}) : null, [candidate, items, matches, sessionItems, receiptStore, totalInput, addedItemIds, linkedItems])
 	const totalIsValid = totalInput.trim() === '' || (Number.isFinite(Number(totalInput)) && Number(totalInput) >= 0)
 
 	const toggleAdded = (id: string, checked: boolean) => {

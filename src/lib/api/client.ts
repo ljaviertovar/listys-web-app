@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- legacy client: callers rely on the loose default payload type */
 import type { ApiError, ApiSuccess } from '@/lib/api/http'
+import { markLocalMutation } from '@/utils/local-activity'
 
 export type LegacyResult<T = any> = {
   data?: T
@@ -32,6 +33,8 @@ async function getBaseUrl(): Promise<string> {
 }
 
 async function request<T = any>(path: string, init?: RequestInit): Promise<LegacyResult<T>> {
+  // The realtime echo of this change must not be announced to the person who made it.
+  if (typeof window !== 'undefined' && init?.method && init.method !== 'GET') markLocalMutation()
   try {
     const baseUrl = await getBaseUrl()
     const headers = new Headers(init?.headers ?? {})

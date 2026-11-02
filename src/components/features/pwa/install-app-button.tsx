@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { DownloadIcon } from 'lucide-react'
 
@@ -45,11 +45,13 @@ function isStandalone() {
 export function InstallAppButton() {
   const [installEvent, setInstallEvent] = useState<BeforeInstallPromptEvent | null>(null)
   const [installed, setInstalled] = useState(false)
+  const [mobileDevice, setMobileDevice] = useState(false)
 
   useEffect(() => {
-    // Display mode can only be read in the browser, so it is synced after mount (reading it during render would not match the server HTML).
+    // Display mode and the user agent can only be read in the browser, so they are synced after mount (reading them during render would not match the server HTML on phones).
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setInstalled(isStandalone())
+    setMobileDevice(isMobileDevice())
 
     const handleBeforeInstallPrompt = (event: Event) => {
       event.preventDefault()
@@ -70,10 +72,7 @@ export function InstallAppButton() {
     }
   }, [])
 
-  const showManualHint = useMemo(
-    () => !installed && !installEvent && isMobileDevice(),
-    [installed, installEvent],
-  )
+  const showManualHint = !installed && !installEvent && mobileDevice
 
   if (installed) return null
   if (!installEvent && !showManualHint) return null

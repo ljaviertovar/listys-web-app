@@ -13,6 +13,8 @@ export type StoreDto = {
   created_at: string
   updated_at: string
 	last_visit: { kind: 'trip' | 'receipt'; id: string; at: string; total_amount: number | null } | null
+	/** Base-list items whose usual store this is. */
+	usual_items_count?: number
 }
 
 type StoreRow = { id: string; name: string; created_at: string; updated_at: string }
@@ -47,7 +49,7 @@ async function countReceipts(supabase: Client, storeId: string) {
 export async function listStores() {
   const { supabase, user } = await createAuthenticatedClient()
 
-  const [{ data, error }, { data: visits, error: visitsError }] = await Promise.all([
+  const [{ data, error }, { data: visits, error: visitsError }, { data: usualRows }] = await Promise.all([
 	supabase
 		.from('stores')
 		.select('id, name, created_at, updated_at, receipts:tickets(count)')
@@ -56,6 +58,8 @@ export async function listStores() {
 		.order('created_at', { ascending: true })
 		.limit(MAX_STORES_PER_USER),
 	supabase.rpc('store_last_visits'),
+	// How many items each store is the usual store of; a failure only leaves the count out of the cards.
+	supabase.from('base_list_items').select('usual_store_id').not('usual_store_id', 'is', null).limit(5000),
   ])
 
   if (error) {
@@ -74,7 +78,14 @@ export async function listStores() {
 		at: visit.at,
 		total_amount: visit.total_amount,
 	} satisfies NonNullable<StoreDto['last_visit']>]))
-	const stores = rows.map(row => toStoreDto(row, row.receipts?.[0]?.count ?? 0, lastVisitByStore.get(row.id) ?? null))
+	const usualItemsByStore = new Map<string, number>()
+	for (const row of usualRows ?? []) {
+		if (row.usual_store_id) usualItemsByStore.set(row.usual_store_id, (usualItemsByStore.get(row.usual_store_id) ?? 0) + 1)
+	}
+	const stores = rows.map(row => ({
+		...toStoreDto(row, row.receipts?.[0]?.count ?? 0, lastVisitByStore.get(row.id) ?? null),
+		usual_items_count: usualItemsByStore.get(row.id) ?? 0,
+	}))
 
   return { stores, meta: { count: stores.length, limit: MAX_STORES_PER_USER } }
 }
@@ -113,4 +124,90 @@ export async function mergeStores(targetStoreId: string, data: unknown) {
   if (error || !store) throw mapRpcError(error ?? {}, 'stores')
 
   return toStoreDto(store, await countReceipts(supabase, targetStoreId))
+}
+
+/** Failures that carry nothing a person can act on: logged with the code only, answered with a safe message. */
+function failRead(what: string, error: { code?: string } | null): never {
+  console.error(`[stores] could not read ${what}`, { code: error?.code })
+  throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'We couldn’t load this store. Please try again.')
+}
+
+const sumAmounts = (rows: Array<{ total_amount: number | null }> | null) =>
+  (rows ?? []).reduce((sum, row) => sum + (typeof row.total_amount === 'number' ? row.total_amount : 0), 0)
+
+/**
+ * What a store's own screen shows: its counts, what was spent there since the start of the year (completed trips plus
+ * receipts that are not attached to a trip, the same rule as the month summary) and the names printed on its receipts.
+ * Each name is one alias of the store; the store's own name is the one that cannot be removed.
+ */
+export async function getStoreDetail(storeId: string, now: Date = new Date()) {
+  const { supabase, user } = await createAuthenticatedClient()
+  const since = new Date(Date.UTC(now.getUTCFullYear(), 0, 1)).toISOString()
+
+  const { data: store, error: storeError } = await supabase
+    .from('stores')
+    .select('id, name, normalized_name, created_at, updated_at')
+    .eq('id', storeId)
+    .eq('user_id', user.id)
+    .maybeSingle()
+  if (storeError) failRead('the store', storeError)
+  if (!store) throw new ApiServiceError(404, ErrorCode.NOT_FOUND, 'Store not found')
+
+  const [receiptCount, usual, trips, looseReceipts, aliases, rawNames, visits] = await Promise.all([
+    countReceipts(supabase, storeId),
+    supabase.from('base_list_items').select('id', { count: 'exact', head: true }).eq('usual_store_id', storeId),
+    supabase.from('shopping_sessions').select('total_amount').eq('store_id', storeId).eq('status', 'completed').gte('completed_at', since),
+    supabase.from('tickets').select('total_amount').eq('store_id', storeId).is('shopping_session_id', null).gte('created_at', since),
+    supabase.from('store_aliases').select('id, alias_key').eq('store_id', storeId).eq('user_id', user.id).order('created_at', { ascending: true }),
+    supabase.from('tickets').select('store_name').eq('store_id', storeId).not('store_name', 'is', null).order('created_at', { ascending: false }).limit(200),
+    supabase.rpc('store_last_visits'),
+  ])
+  for (const result of [usual, trips, looseReceipts, aliases, rawNames, visits]) {
+    if (result.error) failRead('the store', result.error)
+  }
+
+  // A receipt name resolves through the same normalization the database uses, so it is matched to its alias by key.
+  const distinctRaw = [...new Set((rawNames.data ?? []).map(row => row.store_name).filter((name): name is string => !!name))].slice(0, 20)
+  const keys = await Promise.all(distinctRaw.map(async name => {
+    const { data } = await supabase.rpc('normalize_store_name', { input_text: name })
+    return [name, data] as const
+  }))
+  const rawByKey = new Map<string, string>()
+  for (const [name, key] of keys) if (key && !rawByKey.has(key)) rawByKey.set(key, name)
+
+  const names = (aliases.data ?? []).map(alias => {
+    const canonical = alias.alias_key === store.normalized_name
+    return { id: alias.id, name: canonical ? store.name : rawByKey.get(alias.alias_key) ?? alias.alias_key, removable: !canonical }
+  })
+
+  const visit = (visits.data ?? []).find(row => row.store_id === storeId)
+  return {
+    ...toStoreDto(store, receiptCount, visit ? { kind: visit.kind as 'trip' | 'receipt', id: visit.id, at: visit.at, total_amount: visit.total_amount } : null),
+    usual_items_count: usual.count ?? 0,
+    spent_since: since,
+    spent_total: Math.round((sumAmounts(trips.data) + sumAmounts(looseReceipts.data)) * 100) / 100,
+    names,
+  }
+}
+
+/**
+ * Stops a printed name from resolving to this store: receipts that print it will ask which store they belong to. The
+ * store's own name is refused, since the store would no longer recognise itself.
+ */
+export async function removeStoreAlias(storeId: string, aliasId: string) {
+  const { supabase, user } = await createAuthenticatedClient()
+
+  const [{ data: store, error: storeError }, { data: alias, error: aliasError }] = await Promise.all([
+    supabase.from('stores').select('normalized_name').eq('id', storeId).eq('user_id', user.id).maybeSingle(),
+    supabase.from('store_aliases').select('id, alias_key').eq('id', aliasId).eq('store_id', storeId).eq('user_id', user.id).maybeSingle(),
+  ])
+  if (storeError || aliasError) failRead('the name', storeError ?? aliasError)
+  if (!store || !alias) throw new ApiServiceError(404, ErrorCode.NOT_FOUND, 'Name not found')
+  if (alias.alias_key === store.normalized_name) {
+    throw new ApiServiceError(422, ErrorCode.VALIDATION_ERROR, 'The store’s own name cannot be removed')
+  }
+
+  const { error } = await supabase.from('store_aliases').delete().eq('id', aliasId).eq('store_id', storeId).eq('user_id', user.id)
+  if (error) failRead('the name', error)
+  return { success: true }
 }

@@ -12,10 +12,21 @@ import { CreateBaseListDialog } from './create-base-list-dialog'
 interface BaseListsListProps {
 	baseLists: BaseListWithCount[]
 	activeSessionIds?: Record<string, string>
+	/** The list marked as the account's default, when the database says which one it is. */
+	defaultListId?: string | null
+	/** When each list was last shopped (a completed trip), and with how many people each is shared, by list id. */
+	lastTripByList?: Record<string, string>
+	sharedCountByList?: Record<string, number>
 }
 
 /** The lists screen: the count with "New Base List" and a grid of cards, or the first-use card with its own button. */
-export function BaseListsList({ baseLists, activeSessionIds = {} }: BaseListsListProps) {
+export function BaseListsList({
+	baseLists,
+	activeSessionIds = {},
+	defaultListId = null,
+	lastTripByList = {},
+	sharedCountByList = {},
+}: BaseListsListProps) {
 	const visible = baseLists
 	// Named against every list, the shopped one included, so a suffix never changes while a trip is running.
 	const displayNames = buildListDisplayNames(baseLists)
@@ -52,6 +63,9 @@ export function BaseListsList({ baseLists, activeSessionIds = {} }: BaseListsLis
 						baseList={baseList}
 						displayName={displayNames.get(baseList.id)}
 						activeSessionId={activeSessionIds[baseList.id]}
+							isDefault={baseList.id === defaultListId}
+							lastTripAt={lastTripByList[baseList.id] ?? null}
+							sharedWithCount={sharedCountByList[baseList.id]}
 					/>
 				))}
 			</div>

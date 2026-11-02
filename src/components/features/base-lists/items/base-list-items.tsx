@@ -5,6 +5,7 @@ import { TaskAdd01Icon } from '@hugeicons/core-free-icons'
 
 import { CategorySection, EmptyStateCard } from '@/components/commons'
 import { AddItemSheet } from '@/components/features/list-items'
+import { UploadTicketDialog } from '@/components/features/tickets'
 import { groupByCategory } from '@/utils'
 import type { BaseListItemWithStoreSummary } from '@/types'
 
@@ -42,15 +43,18 @@ export function BaseListItems({ baseListId, items, isLocked = false, isOwner = t
 				icon={TaskAdd01Icon}
 				tone='amber'
 				title='No items yet'
-				description={isLocked ? 'A shopping session is using this list.' : 'Add what you buy most often, or send the items of a receipt to this list.'}
+				description={isLocked ? 'A shopping session is using this list.' : 'Type them in, or upload a receipt and pick the ones you want here.'}
 				testId='base-list-empty-state'
 			>
 				{isLocked ? <BaseListLockedNotice /> : null}
-				<AddItemSheet
-					target={{ context: 'base-list', baseListId }}
-					isLocked={isLocked}
-					variant='default'
-				/>
+				<div className='flex w-full flex-col items-stretch gap-3 sm:w-auto sm:flex-row'>
+					<AddItemSheet
+						target={{ context: 'base-list', baseListId }}
+						isLocked={isLocked}
+						variant='default'
+					/>
+					{isLocked ? null : <UploadTicketDialog variant='secondary' />}
+				</div>
 			</EmptyStateCard>
 		)
 	}

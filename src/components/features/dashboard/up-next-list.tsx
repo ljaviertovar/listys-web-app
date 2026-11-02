@@ -12,6 +12,8 @@ import type { UpNextItem, UpNextKind } from './helpers/build-dashboard-model'
 const KINDS: Record<UpNextKind, { icon: IconSvgElement; tone: 'warning' | 'danger' | 'primary' }> = {
 	'receipt-waiting': { icon: Invoice01Icon, tone: 'warning' },
 	'receipt-failed': { icon: Invoice01Icon, tone: 'danger' },
+	'partner-shopping': { icon: ShoppingCart02Icon, tone: 'primary' },
+	'list-running-low': { icon: ShoppingCart02Icon, tone: 'warning' },
 	'list-stale': { icon: ShoppingCart02Icon, tone: 'primary' },
 }
 

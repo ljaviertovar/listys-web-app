@@ -33,7 +33,7 @@ export function UploadTicketProgress({ photoCount }: { photoCount: number }) {
 				<span className='font-mono font-medium tabular-nums'>
 					Uploading {photoCount} {photoCount === 1 ? 'photo' : 'photos'}
 				</span>
-				<span>Keep this window open</span>
+				<span>Keep this open until it finishes.</span>
 			</div>
 		</div>
 	)
@@ -76,6 +76,8 @@ export function UploadTicketForm({ onSuccess, initialFiles }: Props) {
 
 	// One valid photo is enough: the store is read from the receipt itself, so there is nothing else to fill in.
 	const canSubmit = previews.length > 0 && !loading
+	// With several photos the button says how many go up, so a photo that was left out is not a surprise.
+	const uploadLabel = previews.length > 1 ? `Upload ${previews.length} Photos` : 'Upload'
 
 	const onSubmit = async (data: UploadTicketInput) => {
 		setLoading(true)
@@ -187,10 +189,10 @@ export function UploadTicketForm({ onSuccess, initialFiles }: Props) {
 									strokeWidth={2}
 									className='size-4 animate-spin motion-reduce:animate-none'
 								/>
-								Uploading Receipt…
+								Uploading…
 							</>
 						) : (
-							'Upload Receipt'
+							uploadLabel
 						)}
 					</Button>
 				</DialogFooter>

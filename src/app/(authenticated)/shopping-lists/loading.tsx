@@ -6,8 +6,7 @@ export default function ShoppingListsLoading() {
 		<>
 			<PageHeader
 				variant='screen'
-				back={{ href: '/dashboard', label: 'Back to Dashboard' }}
-				title='Shopping Lists'
+				title='Lists'
 				desc='All your lists in one place. Start with the things you always buy.'
 			/>
 			<PageContainer>

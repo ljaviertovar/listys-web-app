@@ -87,7 +87,12 @@ export function TicketItemsList({ items, selection, canSelect, triage }: TicketI
 					</span>
 				</label>
 			) : null}
-			{activeTriage ? activeTriage.triage.map(section => (
+			{activeTriage && activeTriage.triage.length === 1 && activeTriage.triage[0].id === 'matched' ? (
+					<p data-testid='receipt-all-match' role='note' className='py-3 text-sm leading-normal text-muted-foreground'>
+						<b className='font-semibold text-foreground'>All {activeTriage.triage[0].lines.length} {activeTriage.triage[0].lines.length === 1 ? 'item matches' : 'items match'} {activeTriage.baseList?.name}.</b> Same names as last time. Nothing needs a look.
+					</p>
+				) : null}
+				{activeTriage ? activeTriage.triage.map(section => (
 				<TriageSection
 					key={section.id}
 					section={section}
@@ -110,17 +115,30 @@ interface TriageSectionProps {
 }
 
 function TriageSection({ section, listName, selection, canSelect }: TriageSectionProps) {
-	const title = section.id === 'check' ? 'Check these' : section.id === 'fresh' ? `New to ${listName}` : `In ${listName}`
+	const title = section.id === 'check' ? 'Needs a look' : section.id === 'fresh' ? `New to ${listName}` : `Matched to ${listName}`
 	const ids = receiptBulkSelectionIds([section], section.id)
+	// Accepting a line selects it, so the bar below can add it: accepted is the selected state of the lines that match.
+	const allAccepted = ids.length > 0 && ids.every(id => selection.isSelected(id))
 	const status = section.id === 'check' ? 'check' : section.id === 'fresh' ? 'new' : 'in-list'
 
 	return (
 		<div data-testid={`receipt-triage-section-${section.id}`}>
 			{section.id === 'matched' && canSelect ? (
-				<div className='flex justify-end pt-2'>
-					<Button type='button' variant='ghost-primary' size='sm' onClick={() => selection.selectMany(ids)} data-testid='receipt-select-all-matched'>
-						Select all {ids.length}
-					</Button>
+				<div className='flex items-center justify-end gap-3 pt-2'>
+					{allAccepted ? (
+						<>
+							<span data-testid='receipt-accepted-matched' aria-live='polite' className='text-sm text-muted-foreground'>
+								{ids.length} accepted
+							</span>
+							<Button type='button' variant='ghost-primary' size='sm' onClick={() => selection.deselectMany(ids)} data-testid='receipt-undo-accept-matched'>
+								Undo
+							</Button>
+						</>
+					) : (
+						<Button type='button' variant='ghost-primary' size='sm' onClick={() => selection.selectMany(ids)} data-testid='receipt-select-all-matched'>
+							Accept All {ids.length}
+						</Button>
+					)}
 				</div>
 			) : null}
 			<CategorySection

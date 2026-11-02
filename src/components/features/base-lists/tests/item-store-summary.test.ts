@@ -10,14 +10,15 @@ const stats = [
 
 describe('item store summary', () => {
   it('returns an empty summary when there is no data', () => {
-    expect(buildItemStoreSummary([], null, null)).toEqual({ usual_store: null, other_stores: [], store_prices: [] })
+    expect(buildItemStoreSummary([], null, null)).toEqual({ usual_store: null, purchase_total: 0, other_stores: [], store_prices: [] })
     expect(formatAlsoAt([])).toBeNull()
   })
 
   it('returns only the usual store when no other store has stats', () => {
     const result = buildItemStoreSummary([stats[0]], stats[0].store, 'auto')
     expect(result).toEqual({
-      usual_store: { id: 'store-1', name: 'No Frills', source: 'auto' },
+      usual_store: { id: 'store-1', name: 'No Frills', source: 'auto', purchase_count: 8 },
+      purchase_total: 8,
       other_stores: [],
       store_prices: [],
     })
@@ -25,7 +26,7 @@ describe('item store summary', () => {
 
   it('excludes the usual store, sorts others by count and recency, and formats two plus the remainder', () => {
     const result = buildItemStoreSummary(stats, stats[0].store, 'manual')
-    expect(result.usual_store).toEqual({ id: 'store-1', name: 'No Frills', source: 'manual' })
+    expect(result.usual_store).toEqual({ id: 'store-1', name: 'No Frills', source: 'manual', purchase_count: 8 })
     expect(result.other_stores).toEqual([
       { id: 'store-3', name: 'Costco', purchase_count: 6 },
       { id: 'store-2', name: 'Metro', purchase_count: 6 },
@@ -56,6 +57,6 @@ describe('item store summary', () => {
 
   it('hides unreadable store embeds for collaborators', () => {
     const result = buildItemStoreSummary([{ ...stats[0], store: null }], null, null)
-    expect(result).toEqual({ usual_store: null, other_stores: [], store_prices: [] })
+    expect(result).toEqual({ usual_store: null, purchase_total: 0, other_stores: [], store_prices: [] })
   })
 })

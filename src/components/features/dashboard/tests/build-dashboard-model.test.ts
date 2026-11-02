@@ -256,3 +256,35 @@ describe('helpers', () => {
 		expect(currentMonthRange(new Date('2026-03-15T12:00:00Z'), 'America/Toronto')).toEqual({ from: '2026-03-01T05:00:00.000Z', to: '2026-04-01T04:00:00.000Z' })
 	})
 })
+
+describe('buildDashboardModel up next: running low and a partner shopping', () => {
+	const likely = (id: string, list: { id: string; name: string }) => ({ id, name: id, base_list: list, usual_store: null, interval_days: 7, days_since: 9 })
+
+	it('says which list is running low, the one with the most items likely needed', () => {
+		const model = build({
+			likelyNeeded: [likely('a', { id: 'l2', name: 'Weekly Groceries' }), likely('b', { id: 'l1', name: 'NO frills' }), likely('c', { id: 'l1', name: 'NO frills' })],
+		})
+
+		expect(model.upNext.find(item => item.kind === 'list-running-low')).toMatchObject({
+			title: 'NO frills is running low',
+			detail: '2 items likely needed',
+			href: '/base-lists/l1/edit',
+		})
+	})
+
+	it('invites to join a trip another person started on a shared list, and ignores the user’s own trips', () => {
+		const sessions = [
+			{ id: 's1', name: 'Mine', base_list_id: 'l1', user_id: 'me', items: [{ checked: true }] },
+			{ id: 's2', name: 'Partner trip', base_list_id: 'l2', user_id: 'partner', base_list: { name: 'Weekly Groceries' }, items: [{ checked: true }, { checked: false }, { checked: false }] },
+		]
+		const model = build({ activeSessions: sessions, activeSession: sessions[0], currentUserId: 'me' })
+
+		expect(model.upNext.find(item => item.kind === 'partner-shopping')).toMatchObject({
+			title: 'Someone is shopping “Weekly Groceries”',
+			detail: '1 of 3 items · Join the trip',
+			href: '/shopping/s2',
+		})
+		expect(build({ activeSessions: [sessions[0]], activeSession: sessions[0], currentUserId: 'me' }).upNext.some(item => item.kind === 'partner-shopping')).toBe(false)
+		expect(build({ activeSessions: sessions, activeSession: sessions[0] }).upNext.some(item => item.kind === 'partner-shopping')).toBe(false)
+	})
+})

@@ -4,6 +4,9 @@ import type { Ticket } from '@/types'
 import { TicketActions } from './ticket-actions'
 import { UploadTicketDialog } from '../upload/upload-ticket-dialog'
 
+/** Taxes and discounts make the printed total differ a little from the lines; a gap beyond this share means lines were likely missed. */
+const TOTAL_GAP_RATIO = 0.1
+
 interface Props {
 	ticket: Ticket
 	itemsCount: number
@@ -18,6 +21,8 @@ export function TicketSummaryCard({ ticket, itemsCount, pricedItemsCount, total 
 	const showReceiptTotal = ticket.ocr_status === 'completed' && typeof ticket.total_amount === 'number'
 	// Read but empty: the way out is a better photo or another read, before deleting.
 	const noItems = ticket.ocr_status === 'completed' && itemsCount === 0
+	const receiptTotal = ticket.total_amount ?? 0
+	const linesMissed = showTotals && showReceiptTotal && total < receiptTotal * (1 - TOTAL_GAP_RATIO)
 
 	return (
 		<section
@@ -42,10 +47,19 @@ export function TicketSummaryCard({ ticket, itemsCount, pricedItemsCount, total 
 					{showReceiptTotal ? (
 						<div className='flex min-h-12 items-center justify-between border-t border-slate-100 text-sm font-semibold dark:border-border'>
 							<span>Receipt Total</span>
-							<b className='font-mono text-xl leading-none font-bold tabular-nums'>{formatCurrency(ticket.total_amount ?? 0)}</b>
+							<b className='font-mono text-xl leading-none font-bold tabular-nums'>{formatCurrency(receiptTotal)}</b>
 						</div>
 					) : null}
-					{showTotals && pricedItemsCount < itemsCount ? (
+					{linesMissed ? (
+							<p
+								role='note'
+								data-testid='ticket-total-gap-note'
+								className='pb-2 text-xs leading-normal text-amber-800 dark:text-amber-300'
+							>
+								The items we read add up to less than the receipt total. Some lines may be missing: check the photo.
+							</p>
+						) : null}
+						{showTotals && !linesMissed && pricedItemsCount < itemsCount ? (
 						<p className='pb-2 text-xs leading-normal text-slate-500 dark:text-muted-foreground'>
 							Based on prices found for {pricedItemsCount} of {itemsCount} items. This may differ from the total printed on your receipt.
 						</p>

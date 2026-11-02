@@ -18,7 +18,7 @@ export function ListsSectionCard({ lists, activeSessionIds }: Props) {
 	return (
 		<DashboardSectionCard
 			testId='dashboard-lists-card'
-			title='Shopping Lists'
+			title='Lists'
 			viewAll={{ href: '/shopping-lists', noun: 'lists', testId: 'dashboard-lists-view-all' }}
 		>
 			{lists.items.length === 0 ? (

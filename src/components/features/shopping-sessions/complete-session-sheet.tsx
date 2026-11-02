@@ -51,7 +51,8 @@ export function CompleteSessionSheet({ sessionId, checked, total, open, onOpenCh
 			// Clear store optimistically
 			clearActiveSession(sessionId)
 			onOpenChange(false)
-			router.push('/dashboard')
+			// The trip's own page says it is saved and asks for the receipts, which is the next step of the loop.
+				router.push(`/shopping/${sessionId}?saved=1`)
 			router.refresh()
 		} catch (err) {
 			console.error('Failed to complete session:', err)

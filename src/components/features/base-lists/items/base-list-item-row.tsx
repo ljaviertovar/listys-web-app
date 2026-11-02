@@ -12,6 +12,7 @@ import type { BaseListItemWithStoreSummary } from '@/types'
 
 import { useBaseListItemActions } from './hooks/use-base-list-item-actions'
 import { formatAlsoAt } from './helpers/item-store-summary'
+import { buildUsualStorePickerInfo } from './helpers/usual-store-picker-info'
 import { ItemStorePricesSheet } from './item-store-prices-sheet'
 
 interface BaseListItemRowProps {
@@ -38,6 +39,7 @@ export function BaseListItemRow({ item, isLocked = false, isOwner = true }: Base
 	} = useBaseListItemActions(item)
 	const name = formatItemName(item.name)
 	const alsoAt = formatAlsoAt(item.other_stores ?? [])
+	const pickerInfo = buildUsualStorePickerInfo(item)
 	const handleStorePick = async (pick: Parameters<typeof setUsualStore>[0]) => {
 		if (usualStorePendingRef.current) return
 		usualStorePendingRef.current = true
@@ -74,15 +76,7 @@ export function BaseListItemRow({ item, isLocked = false, isOwner = true }: Base
 			/>
 			<span className='flex min-w-0 flex-1 flex-col gap-0.5'>
 				<span className='truncate text-sm leading-[1.3] font-semibold'>{name}</span>
-				{item.notes || isUsablePrice(item.average_price) ? (
-					<span className='flex min-w-0 items-center gap-2'>
-						<AveragePrice
-							price={item.average_price}
-							testId={`base-list-item-${item.id}-average-price`}
-						/>
-						{item.notes ? <span className='min-w-0 truncate text-xs leading-[1.3] text-slate-500 dark:text-muted-foreground'>{item.notes}</span> : null}
-					</span>
-				) : null}
+				{item.notes ? <span className='min-w-0 truncate text-xs leading-[1.3] text-slate-500 dark:text-muted-foreground'>{item.notes}</span> : null}
 				{item.usual_store ? (
 					<Badge
 						variant='neutral'
@@ -102,6 +96,12 @@ export function BaseListItemRow({ item, isLocked = false, isOwner = true }: Base
 					</span>
 				) : null}
 			</span>
+			{isUsablePrice(item.average_price) ? (
+				<AveragePrice
+					price={item.average_price}
+					testId={`base-list-item-${item.id}-average-price`}
+				/>
+			) : null}
 			<RowMenu
 				label={`More options for ${name}`}
 				disabled={isLocked || usualStorePending}
@@ -120,7 +120,10 @@ export function BaseListItemRow({ item, isLocked = false, isOwner = true }: Base
 				open={storePickerOpen}
 				onOpenChange={setStorePickerOpen}
 				title={item.usual_store ? 'Change Usual Store' : 'Set Usual Store'}
-				description={item.usual_store?.source === 'manual' ? 'Chosen by you' : 'Automatic, from your purchases'}
+				description={name}
+				context={{ headline: pickerInfo.headline, body: pickerInfo.body }}
+				storeDetails={pickerInfo.details}
+				footnote='A store you pick stays until you change it. Receipts won’t move it.'
 				confirmLabel='Set Usual Store'
 				onPick={handleStorePick}
 				pending={usualStorePending}

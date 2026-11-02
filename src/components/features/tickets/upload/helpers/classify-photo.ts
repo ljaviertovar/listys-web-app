@@ -30,11 +30,11 @@ export function rejectionMessage(name: string, verdict: Exclude<PhotoVerdict, 'o
 		? {
 				title: `${name} can’t be used`,
 				hint: isHeic({ name, type: '', size: 0 })
-					? 'HEIC photos aren’t supported yet. Export it as JPG or PNG and add it again.'
+					? 'HEIC isn’t supported yet. Export it as JPG or PNG and add it again.'
 					: 'Choose a JPG or PNG image and add it again.',
 			}
 		: {
 				title: `${name} is too large`,
-				hint: `Each photo can be up to ${MAX_TICKET_IMAGE_MB} MB. Choose a smaller one or lower its quality.`,
+				hint: `Photos must be under ${MAX_TICKET_IMAGE_MB} MB. Retake it with the flash off, or lower the camera quality.`,
 			}
 }

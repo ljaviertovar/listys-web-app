@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { createReceiptTriageState, receiptTriageReducer } from '../helpers/receipt-triage-state'
 import { createEmptyTicketSelection } from '../hooks/use-ticket-selection'
 import { receiptBulkSelectionIds, receiptItemsView } from '../helpers/receipt-triage-view'
-import { mergeTicketSelection } from '../helpers/ticket-selection-state'
+import { mergeTicketSelection, removeFromTicketSelection } from '../helpers/ticket-selection-state'
 import type { ReceiptTriageSection } from '../helpers/build-receipt-triage'
 import type { ReceiptTriageStatus } from '../helpers/build-receipt-triage'
 
@@ -60,5 +60,14 @@ describe('receipt triage state', () => {
 		expect(mergeTicketSelection(new Set(['category-selected']), receiptBulkSelectionIds(sections, 'matched'))).toEqual(
 			new Set(['category-selected', 'matched-1', 'matched-2']),
 		)
+	})
+})
+
+describe('accepting matched lines and undoing it', () => {
+	it('gives back only the accepted lines and keeps whatever else was selected', () => {
+		const selected = mergeTicketSelection(new Set(['category-selected']), ['matched-1', 'matched-2'])
+
+		expect(removeFromTicketSelection(selected, ['matched-1', 'matched-2'])).toEqual(new Set(['category-selected']))
+		expect(removeFromTicketSelection(new Set(['a']), ['missing'])).toEqual(new Set(['a']))
 	})
 })
