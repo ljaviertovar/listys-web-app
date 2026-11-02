@@ -54,6 +54,8 @@ export interface DashboardActiveSessionInput {
 	id: string
 	name: string
 	base_list_id: string
+	/** Who started the trip: another person's active trip on a shared list is something to join. */
+	user_id?: string | null
 	items?: { checked: boolean | null }[]
 	base_list?: { name?: string | null } | null
 	collaborators?: { initials: string; display_name?: string | null }[]
@@ -69,6 +71,8 @@ export interface DashboardModelInput {
 	likelyNeeded?: DashboardLikelyNeededInput[]
 	likelyNeededHasHistory?: boolean
 	stores?: DashboardStoreInput[]
+	/** The signed-in user, to tell their own trips from a collaborator's. */
+	currentUserId?: string | null
 	now?: Date
 }
 
@@ -102,7 +106,7 @@ export interface StoreVisitPreview {
 	href: string
 }
 
-export type UpNextKind = 'receipt-waiting' | 'receipt-failed' | 'list-stale'
+export type UpNextKind = 'receipt-waiting' | 'receipt-failed' | 'list-running-low' | 'partner-shopping' | 'list-stale'
 
 export interface UpNextItem {
 	id: string
@@ -138,7 +142,7 @@ export interface DashboardModel {
 
 const MAX_LISTS_PREVIEW = 5
 const MAX_STORE_VISITS = 4
-const MAX_UP_NEXT = 3
+const MAX_UP_NEXT = 4
 const MAX_QUICK_START = 3
 const STALE_LIST_DAYS = 7
 
@@ -279,6 +283,9 @@ function buildUpNext(
 	baseLists: DashboardBaseListInput[],
 	listNames: Map<string, string>,
 	now: Date,
+	likelyNeeded: DashboardLikelyNeededInput[] = [],
+	sessions: DashboardActiveSessionInput[] = [],
+	currentUserId: string | null = null,
 ): UpNextItem[] {
 	const items: UpNextItem[] = []
 
@@ -304,6 +311,38 @@ function buildUpNext(
 		})
 	}
 
+	// Someone else is shopping a list this account shares: the trip is there to join. Names are not known, so it says "Someone".
+	const partner = currentUserId ? sessions.find(session => session.user_id && session.user_id !== currentUserId) : undefined
+	if (partner) {
+		const checked = (partner.items ?? []).filter(item => item.checked).length
+		const total = partner.items?.length ?? 0
+		const listName = partner.base_list?.name ?? partner.name
+		items.push({
+			id: `partner-shopping-${partner.id}`,
+			kind: 'partner-shopping',
+			title: `Someone is shopping “${listName}”`,
+			detail: total > 0 ? `${checked} of ${pluralize(total, 'item')} · Join the trip` : 'Join the trip',
+			href: `/shopping/${partner.id}`,
+		})
+	}
+
+	// The list with the most items whose usual interval has passed: what the household will need first.
+	if (likelyNeeded.length > 0) {
+		const byList = new Map<string, { id: string; name: string; count: number }>()
+		for (const item of likelyNeeded) {
+			const entry = byList.get(item.base_list.id) ?? { id: item.base_list.id, name: listNames.get(item.base_list.id) ?? item.base_list.name, count: 0 }
+			entry.count += 1
+			byList.set(item.base_list.id, entry)
+		}
+		const lowest = [...byList.values()].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name))[0]
+		items.push({
+			id: `list-running-low-${lowest.id}`,
+			kind: 'list-running-low',
+			title: `${lowest.name} is running low`,
+			detail: `${pluralize(lowest.count, 'item')} likely needed`,
+			href: `/base-lists/${lowest.id}/edit`,
+		})
+	}
 	const stale = findMostOverdueList(trips, baseLists, now)
 
 	if (stale) {
@@ -329,6 +368,7 @@ export function buildDashboardModel({
 	likelyNeeded = [],
 	likelyNeededHasHistory = false,
 	stores = [],
+	currentUserId = null,
 	now = new Date(),
 }: DashboardModelInput): DashboardModel {
 	const listNames = buildListDisplayNames(baseLists)
@@ -360,7 +400,7 @@ export function buildDashboardModel({
 			items: likelyNeeded.map(item => ({ ...item, cadence: formatCadence(item.interval_days, item.days_since) })),
 		},
 		storeVisits: buildStoreVisits(stores),
-		upNext: buildUpNext(tickets, trips, baseLists, listNames, now),
+		upNext: buildUpNext(tickets, trips, baseLists, listNames, now, likelyNeeded, sessions, currentUserId),
 		quickStart,
 		startTarget,
 		addItemsTarget,

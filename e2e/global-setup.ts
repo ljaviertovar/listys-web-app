@@ -1,77 +1,41 @@
 /**
  * Playwright Global Setup
  *
- * Runs once before all tests
- * Use for: DB migrations check, global fixtures, etc.
+ * Runs once before all tests. It only validates the environment: the Supabase target and the application origin must both be
+ * loopback and come from the `E2E_*` inputs, so a run can never be pointed at the hosted project.
  */
 
 import { config } from 'dotenv'
 import fs from 'fs'
 import path from 'path'
 
-function extractProjectRef(url: string) {
-  const match = url.match(/^https?:\/\/([^.]+)\./)
-  return match?.[1]
-}
+import { loadE2EEnv } from './helpers/e2e-env'
 
-function assertDedicatedE2EEnvironment() {
+function assertLocalE2EEnvironment() {
   if (process.env.E2E_CONFIG_INVALID === 'true') {
-    throw new Error(
-      'Missing .env.test.local. E2E is blocked to prevent execution against non-test environments.'
-    )
+    throw new Error('Missing .env.test.local. E2E is blocked to prevent execution against non-test environments.')
   }
 
   const envPath = path.resolve(process.cwd(), '.env.test.local')
 
   if (!fs.existsSync(envPath)) {
-    throw new Error(
-      'Missing .env.test.local. E2E is blocked to prevent execution against non-test environments.'
-    )
+    throw new Error('Missing .env.test.local. E2E is blocked to prevent execution against non-test environments.')
   }
 
   config({ path: envPath, override: true })
 
-  const requiredEnvVars = [
-    'NEXT_PUBLIC_SUPABASE_URL',
-    'NEXT_PUBLIC_SUPABASE_ANON_KEY',
-    'SUPABASE_SERVICE_ROLE_KEY',
-    'E2E_TEST_PROJECT_REF',
-    'E2E_ALLOW_DB_RESET',
-  ]
-
-  const missing = requiredEnvVars.filter((key) => !process.env[key])
-  if (missing.length > 0) {
-    throw new Error(
-      `Missing required E2E environment variables: ${missing.join(', ')}\n` +
-      'Use .env.test.local with dedicated test project credentials only.'
-    )
-  }
-
-  const currentProjectRef = extractProjectRef(process.env.NEXT_PUBLIC_SUPABASE_URL as string)
-  const expectedProjectRef = process.env.E2E_TEST_PROJECT_REF
-
-  if (!currentProjectRef || currentProjectRef !== expectedProjectRef) {
-    throw new Error(
-      `E2E blocked. Project ref mismatch: current=${currentProjectRef ?? 'unknown'} expected=${expectedProjectRef}.`
-    )
-  }
-
-  if (process.env.E2E_ALLOW_DB_RESET !== 'true') {
-    throw new Error('E2E blocked. Set E2E_ALLOW_DB_RESET=true only for dedicated test environments.')
-  }
+  // Throws, naming the field and never a value, unless every input is present and loopback.
+  loadE2EEnv()
 }
 
 export default async function globalSetup() {
   console.log('🚀 Starting E2E test suite...')
 
-  assertDedicatedE2EEnvironment()
+  assertLocalE2EEnvironment()
 
-  console.log('✅ Environment variables verified')
+  console.log('✅ E2E environment is local')
 
-  // Note: UI tests require a test user to exist
-  // Create manually in Supabase with:
-  // Email: test@example.com
-  // Password: password123
+  // Note: UI tests need an account on that local Supabase. Create one with `node e2e/create-test-user.mjs`.
 
   console.log('✅ Global setup complete')
 }

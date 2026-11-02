@@ -210,6 +210,7 @@ export type Database = {
         Row: {
           created_at: string | null
           group_id: string
+          is_default?: boolean
           id: string
           name: string
           notes: string | null
@@ -219,6 +220,7 @@ export type Database = {
         Insert: {
           created_at?: string | null
           group_id: string
+          is_default?: boolean
           id?: string
           name: string
           notes?: string | null
@@ -228,6 +230,7 @@ export type Database = {
         Update: {
           created_at?: string | null
           group_id?: string
+          is_default?: boolean
           id?: string
           name?: string
           notes?: string | null

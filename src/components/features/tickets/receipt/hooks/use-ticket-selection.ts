@@ -5,7 +5,7 @@ import { useCallback, useMemo, useState } from 'react'
 import type { TicketItem } from '@/types'
 
 import { sumLineTotals } from '../helpers/group-ticket-items'
-import { mergeTicketSelection } from '../helpers/ticket-selection-state'
+import { mergeTicketSelection, removeFromTicketSelection } from '../helpers/ticket-selection-state'
 
 export interface TicketSelection {
 	selectedIds: ReadonlySet<string>
@@ -17,6 +17,7 @@ export interface TicketSelection {
 	isSelected: (id: string) => boolean
 	toggle: (id: string) => void
 	selectMany: (ids: readonly string[]) => void
+	deselectMany: (ids: readonly string[]) => void
 	toggleAll: () => void
 	clear: () => void
 }
@@ -42,6 +43,9 @@ export function useTicketSelection(items: TicketItem[]): TicketSelection {
 		setSelectedIds(prev => mergeTicketSelection(prev, ids))
 	}, [])
 
+	const deselectMany = useCallback((ids: readonly string[]) => {
+		setSelectedIds(prev => removeFromTicketSelection(prev, ids))
+	}, [])
 	const toggleAll = useCallback(() => {
 		setSelectedIds(prev => (prev.size === items.length ? new Set() : new Set(items.map(item => item.id))))
 	}, [items])
@@ -59,8 +63,9 @@ export function useTicketSelection(items: TicketItem[]): TicketSelection {
 			isSelected: (id: string) => selectedIds.has(id),
 			toggle,
 			selectMany,
+			deselectMany,
 			toggleAll,
 			clear,
 		}
-	}, [selectedIds, items, toggle, selectMany, toggleAll, clear])
+	}, [selectedIds, items, toggle, selectMany, deselectMany, toggleAll, clear])
 }

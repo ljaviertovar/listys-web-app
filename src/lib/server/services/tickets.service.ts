@@ -10,7 +10,7 @@ import {
   updateTicketSchema,
   uploadTicketFieldsSchema,
 } from '@/lib/validations/ticket'
-import { MAX_IMAGES_PER_TICKET, MAX_ITEMS_PER_BASE_LIST } from '@/lib/config/limits'
+import { MAX_IMAGES_PER_TICKET, MAX_ITEMS_PER_BASE_LIST, MAX_TICKET_IMAGE_MB } from '@/lib/config/limits'
 import { getOCRFunctionURL } from '@/lib/config/ocr'
 import { resolveListGroupId } from '@/lib/server/services/default-group.service'
 import { DUPLICATE_LIST_NAME_MESSAGE, findListByName } from '@/lib/server/services/find-list-by-name'
@@ -658,8 +658,8 @@ export async function uploadTicket(formData: FormData) {
     if (!file.type.startsWith('image/')) {
       throw new ApiServiceError(400, ErrorCode.BAD_REQUEST, 'All files must be images')
     }
-    if (file.size > 10 * 1024 * 1024) {
-      throw new ApiServiceError(400, ErrorCode.BAD_REQUEST, 'Each file must be less than 10MB')
+    if (file.size > MAX_TICKET_IMAGE_MB * 1024 * 1024) {
+      throw new ApiServiceError(400, ErrorCode.BAD_REQUEST, `Each file must be less than ${MAX_TICKET_IMAGE_MB}MB`)
     }
   }
 

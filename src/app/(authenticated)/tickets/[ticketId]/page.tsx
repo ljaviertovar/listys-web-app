@@ -1,13 +1,13 @@
 import { redirect } from 'next/navigation'
 
 import { PageHeader, PageContainer } from '@/components/app'
-import { TicketAttachCard, TicketReview, TicketStoreCard, TicketSummaryCard, sumLineTotals, toTicketStatus } from '@/components/features/tickets'
+import { ReceiptAddedToListNote, TicketAttachCard, TicketReview, TicketStoreCard, TicketSummaryCard, sumLineTotals, toTicketStatus } from '@/components/features/tickets'
 
 import { getTicket } from '@/lib/api/endpoints'
 
 import { createClient } from '@/lib/supabase/server'
 
-import { formatDate, formatTime, getReceiptStoreLabel } from '@/utils'
+import { formatCurrency, formatDate, formatTime, getReceiptStoreLabel } from '@/utils'
 
 import type { Ticket, TicketStoreFields } from '@/types'
 
@@ -40,15 +40,23 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 	const { image_paths: storedPaths, ocr_error: ocrError, store, store_suggestion: storeSuggestion } = ticket as TicketRow
 	const imagePaths: string[] = storedPaths && storedPaths.length > 0 ? storedPaths : ticket.image_path ? [ticket.image_path] : []
 	const storeLabel = getReceiptStoreLabel(ticket)
+	// A read receipt is something to review; the store is confirmed in its own card, so the title no longer repeats the raw OCR text.
+	const isReadReceipt = ticket.ocr_status === 'completed'
+	const headerTitle = isReadReceipt ? 'Review receipt' : storeLabel
 
 	return (
 		<>
 			<PageHeader
 				variant='screen'
 				back={{ href: '/tickets', label: 'Back to Receipts' }}
-				title={storeLabel}
+				title={headerTitle}
 				desc={
-					uploadedAt ? (
+					isReadReceipt && uploadedAt ? (
+						<span className='font-mono text-xs font-medium text-slate-600 tabular-nums dark:text-foreground/80'>
+							{formatDate(uploadedAt)} · {extractedItemsCount} {extractedItemsCount === 1 ? 'item' : 'items'}
+							{typeof ticket.total_amount === 'number' ? ` · ${formatCurrency(ticket.total_amount)}` : ''}
+						</span>
+					) : uploadedAt ? (
 						<>
 							Uploaded{' '}
 							<span className='font-mono text-xs font-medium text-slate-600 tabular-nums dark:text-foreground/80'>
@@ -70,6 +78,16 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 					ocrError={ocrError}
 					storeConfirmed={!!store}
 					attachedSession={ticket.shopping_session ?? null}
+					top={
+						ticket.ocr_status === 'completed' ? (
+							<TicketStoreCard
+								ticketId={ticketId}
+								store={store ?? null}
+								storeSuggestion={storeSuggestion ?? null}
+								storeName={ticket.store_name}
+							/>
+						) : null
+					}
 				>
 					{/* The store is read with the items, so it is only worth confirming once the receipt has been read. */}
 					{ticket.ocr_status === 'completed' ? (
@@ -82,12 +100,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 									totalAmount={ticket.total_amount ?? null}
 								/>
 							) : null}
-						<TicketStoreCard
-							ticketId={ticketId}
-							store={store ?? null}
-							storeSuggestion={storeSuggestion ?? null}
-							storeName={ticket.store_name}
-						/>
+							{ticket.base_list_id && !ticket.shopping_session ? <ReceiptAddedToListNote /> : null}
 						</>
 					) : null}
 					<TicketSummaryCard

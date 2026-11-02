@@ -10,7 +10,9 @@ export type InsertBaseListItem = Database['public']['Tables']['base_list_items']
 export type UpdateBaseListItem = Database['public']['Tables']['base_list_items']['Update']
 
 export type BaseListItemWithStoreSummary = BaseListItem & {
-  usual_store?: { id: string; name: string; source: 'auto' | 'manual' } | null
+  usual_store?: { id: string; name: string; source: 'auto' | 'manual'; purchase_count?: number } | null
+  /** Purchases recorded across every store. */
+  purchase_total?: number
   other_stores?: Array<{ id: string; name: string; purchase_count: number }>
   store_prices?: StorePriceEntry[]
 }

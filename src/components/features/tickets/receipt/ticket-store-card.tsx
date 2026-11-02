@@ -50,7 +50,7 @@ export function TicketStoreCard({ ticketId, store, storeSuggestion, storeName }:
 			secondary = (
 				<>
 					<Button type='button' variant='secondary' size='primary' disabled={busy} onClick={actions.openPicker}>
-						Choose Another Store
+						Change Store
 					</Button>
 					<Button type='button' variant='quiet' size='primary' disabled={busy} onClick={actions.remove}>
 						{actions.pending === 'remove' ? spinner : null}
@@ -63,7 +63,7 @@ export function TicketStoreCard({ ticketId, store, storeSuggestion, storeName }:
 			title = state.store.name
 			detail = (
 				<>
-					Matches <span className='font-medium text-foreground'>“{state.rawName}”</span> on the receipt.
+					Read as <span className='font-medium text-foreground'>“{state.rawName}”</span>
 				</>
 			)
 			primary = (
@@ -74,7 +74,7 @@ export function TicketStoreCard({ ticketId, store, storeSuggestion, storeName }:
 			)
 			secondary = (
 				<Button type='button' variant='secondary' size='primary' disabled={busy} onClick={actions.openPicker}>
-					Choose Another Store
+					Change Store
 				</Button>
 			)
 			break
@@ -88,7 +88,7 @@ export function TicketStoreCard({ ticketId, store, storeSuggestion, storeName }:
 			)
 			secondary = (
 				<Button type='button' variant='secondary' size='primary' disabled={busy} onClick={actions.openPicker}>
-					Choose Another Store
+					Change Store
 				</Button>
 			)
 			break

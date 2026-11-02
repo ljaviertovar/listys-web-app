@@ -28,6 +28,11 @@ export const storeIdParamsSchema = z.object({
   storeId: z.string().uuid(),
 })
 
+export const storeAliasParamsSchema = z.object({
+  storeId: z.string().uuid(),
+  aliasId: z.string().uuid(),
+})
+
 export const ticketMatchesQuerySchema = z.object({
   base_list_id: z.string({ message: 'Choose a list' }).uuid('Choose a list').optional(),
 }).strict()

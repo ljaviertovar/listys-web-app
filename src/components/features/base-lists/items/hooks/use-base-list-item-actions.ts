@@ -70,7 +70,25 @@ export function useBaseListItemActions(item: BaseListItem) {
 
 			const result = await updateBaseListItem(item.id, { usual_store_id: storeId })
 			if (result.error) throw new Error(result.error)
-			toast.success(storeId ? 'Usual store updated' : 'Using automatic store')
+			const previousManualId = item.usual_store_source === 'manual' ? item.usual_store_id ?? null : null
+			// Undo returns to what the item had: its manual store, or automatic (null) when nothing was chosen by hand.
+			const undo = {
+				label: 'Undo',
+				onClick: async () => {
+					const reverted = await updateBaseListItem(item.id, { usual_store_id: previousManualId })
+					if (reverted.error) {
+						toast.error('Could not undo', { description: reverted.error })
+						return
+					}
+					refresh()
+				},
+			}
+			if (storeId) {
+				const name = pick?.kind === 'existing' ? pick.store.name : pick?.kind === 'new' ? pick.name : ''
+				toast.success(`Usual store set to ${name}`, { description: 'It won’t change on its own.', duration: 6000, action: undo })
+			} else {
+				toast.success('Using automatic store', previousManualId ? { duration: 6000, action: undo } : undefined)
+			}
 			refresh()
 			return true
 		} catch (err) {

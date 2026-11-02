@@ -4,10 +4,12 @@ import Link from 'next/link'
 import { Edit02Icon, GitMergeIcon, Store01Icon } from '@hugeicons/core-free-icons'
 
 import { ConfirmSheet, EmptyStateCard, EntityCard, EntityCardSkeleton, ListToolbar } from '@/components/commons'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { Store } from '@/types'
 
+import { buildStoreMeta } from './helpers/store-meta'
 import { useStoreActions } from './hooks/use-store-actions'
 import { StoreNameDialog } from './store-name-dialog'
 import { StorePickerDialog } from './store-picker-dialog'
@@ -52,11 +54,15 @@ export function StoresList({ stores }: StoresListProps) {
 				testId='stores-toolbar'
 			/>
 			<div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:gap-6 xl:grid-cols-3'>
-				{stores.map(store => (
+				{stores.filter(store => store.id !== actions.hiddenStoreId).map(store => (
 					<EntityCard
 						key={store.id}
 						icon={Store01Icon}
 						title={store.name}
+							href={`/stores/${store.id}`}
+							linkLabel='View Store'
+							badge={store.receipt_count === 1 ? <Badge variant='neutral'>New</Badge> : null}
+							meta={buildStoreMeta(store)}
 						count={store.receipt_count}
 						unit={{ one: 'receipt', many: 'receipts' }}
 						emptyLabel='receipts'
@@ -132,7 +138,7 @@ export function StoresList({ stores }: StoresListProps) {
 						? `${receipts(flow.source.receipt_count)} will move to “${flow.target.name}”, and receipts printed with either name will be filed there.`
 						: undefined
 				}
-				consequence={flow.kind === 'confirm-merge' ? `“${flow.source.name}” will be removed. This can’t be undone.` : undefined}
+				consequence={flow.kind === 'confirm-merge' ? `“${flow.source.name}” will be removed. You can undo it for a few seconds.` : undefined}
 				confirmLabel='Merge Stores'
 				loadingLabel='Merging…'
 				tone='danger'

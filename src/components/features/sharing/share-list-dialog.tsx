@@ -19,6 +19,10 @@ interface Props extends Omit<ButtonProps, 'children'> {
 	isOwner: boolean
 	initialCollaborators?: CollaboratorWithProfile[]
 	initialInviteLinks?: InviteLinkWithUrl[]
+	/** Controls the sheet from outside (a menu item); `trigger={null}` then leaves out the button. Without them it manages itself. */
+	open?: boolean
+	onOpenChange?: (open: boolean) => void
+	trigger?: null
 }
 
 /** "Share": the button and the sheet where the owner of a list creates its invite link and manages who has access. */
@@ -28,9 +32,14 @@ export function ShareListDialog({
 	isOwner,
 	initialCollaborators,
 	initialInviteLinks,
+	open: controlledOpen,
+	onOpenChange,
+	trigger,
 	...buttonProps
 }: Props) {
-	const [open, setOpen] = useState(false)
+	const [ownOpen, setOwnOpen] = useState(false)
+	const open = controlledOpen ?? ownOpen
+	const setOpen = onOpenChange ?? setOwnOpen
 	const share = useShareList({ baseListId, isOwner, initialCollaborators, initialInviteLinks })
 
 	return (
@@ -41,7 +50,8 @@ export function ShareListDialog({
 				if (next) share.load()
 			}}
 			trigger={
-				<Button
+				trigger === null ? undefined : (
+					<Button
 					variant='secondary'
 					size='primary'
 					{...buttonProps}
@@ -55,6 +65,7 @@ export function ShareListDialog({
 					/>
 					Share
 				</Button>
+				)
 			}
 			title={`Share “${listName}”`}
 			description='Invite people to view and edit this list together.'

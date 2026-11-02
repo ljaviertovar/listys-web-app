@@ -24,7 +24,10 @@ export interface StorePriceEntry {
 }
 
 export interface ItemStoreSummary {
-  usual_store: { id: string; name: string; source: 'auto' | 'manual' } | null
+  /** The store the item usually comes from, with how many purchases are recorded there. */
+  usual_store: { id: string; name: string; source: 'auto' | 'manual'; purchase_count: number } | null
+  /** Purchases recorded across every store, so the usual store can say how many of them happened there. */
+  purchase_total: number
   other_stores: StoreSummaryEntry[]
 	store_prices: StorePriceEntry[]
 }
@@ -35,7 +38,11 @@ export function buildItemStoreSummary(
   usualStoreSource: string | null | undefined,
 ): ItemStoreSummary {
   const usual = usualStore
-    ? { ...usualStore, source: usualStoreSource === 'manual' ? 'manual' as const : 'auto' as const }
+    ? {
+        ...usualStore,
+        source: usualStoreSource === 'manual' ? 'manual' as const : 'auto' as const,
+        purchase_count: (stats ?? []).find(row => row.store_id === usualStore.id)?.purchase_count ?? 0,
+      }
     : null
 
   const orderedStores = (stats ?? [])
@@ -66,7 +73,10 @@ export function buildItemStoreSummary(
 		}))
 		.sort((a, b) => a.store.name.localeCompare(b.store.name) || a.store.id.localeCompare(b.store.id))
 
-	return { usual_store: usual, other_stores, store_prices }
+	// Only stores the reader can see count: a collaborator whose store embeds are hidden learns nothing from the total.
+	const purchase_total = (stats ?? []).reduce((sum, row) => sum + (row.store ? row.purchase_count ?? 0 : 0), 0)
+
+	return { usual_store: usual, purchase_total, other_stores, store_prices }
 }
 
 export function formatAlsoAt(otherStores: StoreSummaryEntry[]): string | null {

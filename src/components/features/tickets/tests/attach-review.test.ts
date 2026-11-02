@@ -92,3 +92,24 @@ describe('buildAttachReview', () => {
 		expect(getReceiptAttachmentVisibility(true)).toEqual({ showSelectionBar: false, showMergeDialog: false, showAttachedState: true })
 	})
 })
+
+describe('buildAttachReview checked items without a receipt line', () => {
+	it('lists the trip items that were checked off and have no matching or linked receipt line', () => {
+		const review = buildAttachReview({
+			candidate: candidate(),
+			lines: [{ id: 'line-1', name: 'Milk' }, { id: 'line-2', name: 'Bread' }],
+			matches: [{ ticket_item_id: 'line-1', match: 'name', shopping_session_item: { id: 'item-1', name: 'Milk', checked: true } }],
+			receiptStore: null,
+			totalAmount: null,
+			sessionItems: [
+				{ id: 'item-1', name: 'Milk', checked: true },
+				{ id: 'item-2', name: 'Paper towels', checked: true },
+				{ id: 'item-3', name: 'Soap', checked: false },
+				{ id: 'item-4', name: 'Rice', checked: true },
+			],
+			linkedItems: new Map([['line-2', 'item-4']]),
+		})
+
+		expect(review.checkedNotOnReceipt).toEqual([{ id: 'item-2', name: 'Paper towels' }])
+	})
+})

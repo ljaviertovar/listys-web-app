@@ -107,7 +107,7 @@ export function UploadTicketDialog({
 						Upload Receipt
 					</DialogTitle>
 					<DialogDescription variant='sheet'>
-						Upload photos of your shopping receipt. We&apos;ll extract the items automatically.
+						We read the store, date and total from the receipt. You confirm them before anything is saved.
 					</DialogDescription>
 					<DialogClose asChild>
 						<Button

@@ -37,7 +37,7 @@ export const SIDEBAR_DATA: SidebarData = {
 					icon: DashboardSquare02Icon,
 				},
 				{
-					title: 'Shopping Lists',
+					title: 'Lists',
 					url: '/shopping-lists',
 					icon: FolderLibraryIcon,
 				},

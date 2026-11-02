@@ -14,6 +14,7 @@
 		"test:critical": "vitest run src/actions src/app/api src/lib src/stores src/utils",
 		"check:native-props": "vitest run --config vitest.guards.config.ts",
 		"typecheck": "tsc --noEmit",
+		"test:e2e:helpers": "vitest run --config vitest.e2e-helpers.config.ts",
 		"test:e2e": "playwright test",
 		"test:e2e:ui": "playwright test --ui",
 		"test:e2e:headed": "playwright test --headed",

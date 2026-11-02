@@ -1,6 +1,8 @@
 import { createClient } from '@supabase/supabase-js'
 import type { Database } from '@/types'
 
+import { loadE2EEnv } from './e2e-env'
+
 type SessionStatus = 'active' | 'completed'
 
 export type CloseTheLoopFixture = {
@@ -17,16 +19,9 @@ export type CloseTheLoopFixture = {
 }
 
 function createLocalAdminClient() {
-  const url = process.env.E2E_SUPABASE_URL
-  const serviceRoleKey = process.env.E2E_SUPABASE_SERVICE_ROLE_KEY
-  if (!url || !serviceRoleKey) throw new Error('Set E2E_SUPABASE_URL and E2E_SUPABASE_SERVICE_ROLE_KEY for local E2E seeding.')
-
-  const hostname = new URL(url).hostname
-  if (!['localhost', '127.0.0.1', '::1', '[::1]'].includes(hostname)) {
-    throw new Error('Receipt reconciliation E2E fixtures may only write to a local Supabase URL.')
-  }
-
-  return createClient<Database>(url, serviceRoleKey, { auth: { autoRefreshToken: false, persistSession: false } })
+  // Loopback-only and from the E2E_SUPABASE_* inputs; throws naming the field, never a value.
+  const { supabaseUrl, serviceRoleKey } = loadE2EEnv()
+  return createClient<Database>(supabaseUrl, serviceRoleKey, { auth: { autoRefreshToken: false, persistSession: false } })
 }
 
 /** Seeds only isolated local fixtures; the service key is read from E2E_SUPABASE_* and never has a code default. */

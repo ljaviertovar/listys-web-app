@@ -30,12 +30,10 @@ changes need link, evidence, terminology, command and diff checks; they do not r
 ## Playwright boundary
 
 The intended suite entry point is `npx playwright test` (also `pnpm test:e2e`), with interactive checks through
-Playwright CLI. The tracked configuration loads `.env.test.local`, uses Chromium, and starts `pnpm dev` on port 3000.
+Playwright CLI. The tracked configuration loads `.env.test.local`, uses Chromium, and starts its own `next dev` on the port of `E2E_APP_URL` against the loopback `E2E_SUPABASE_*` inputs; it never reuses a running server. The harness guards run with `pnpm test:e2e:helpers`.
 
-**Current execution blocker:** `e2e/helpers/db-reset.ts` deletes table-wide data and global teardown calls `fullReset()`.
-Credential helpers read ordinary app/Supabase variables instead of required `E2E_SUPABASE_*` inputs. Dedicated-project
-checks do not make broad cleanup comply with repository policy. Do not run the suite as routine verification until
-cleanup is fixture-scoped and credential handling is corrected. Never reset shared data, target production, embed
+**Current execution blocker:** no browser spec has run on a provisioned local Supabase. E2E inputs are the loopback-only `E2E_SUPABASE_*` variables (see [e2e/README.md](../../e2e/README.md)); global teardown no longer wipes data, but the legacy specs still use table-wide reset helpers behind a loopback guard until their fixtures are migrated.
+Credentials now come only from the loopback `E2E_SUPABASE_*` inputs, but the legacy specs still use table-wide reset helpers behind that guard. Do not run the suite as routine verification until cleanup is fixture-scoped (`openspec/changes/stabilize-test-foundation`). Never reset shared data, target production, embed
 default credentials, mock Supabase in E2E or run destructive migrations through tests. See the
 [audit finding](../reference/implementation-status.md#audit-findings-and-follow-up).
 

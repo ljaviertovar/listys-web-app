@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -11,6 +11,12 @@ import { completeShoppingSession } from '@/lib/api/endpoints'
 import { useActiveSessionStore } from '@/stores/active-session'
 
 import { listFullMessage } from './helpers/list-full-message'
+
+/**
+ * The last progress seen for each session. Ticking an item re-renders the page from the server, which remounts this sheet, so
+ * a ref inside it always starts at the new progress and never sees the move to 100%; the module outlives the remount.
+ */
+const lastProgressBySession = new Map<string, number>()
 
 interface CompleteSessionSheetProps {
 	sessionId: string
@@ -35,11 +41,12 @@ export function CompleteSessionSheet({ sessionId, checked, total, open, onOpenCh
 	const allChecked = total > 0 && unchecked === 0
 
 	// Opens by itself once, when the last item gets ticked (progress goes from below 100 to 100); closing it does not reopen it.
-	const previousProgress = useRef(progress)
 	useEffect(() => {
-		if (progress === 100 && previousProgress.current < 100) onOpenChange(true)
-		previousProgress.current = progress
-	}, [progress, onOpenChange])
+		// A first visit that already shows 100% has no previous value, so it does not open by itself.
+		const previous = lastProgressBySession.get(sessionId) ?? progress
+		if (progress === 100 && previous < 100) onOpenChange(true)
+		lastProgressBySession.set(sessionId, progress)
+	}, [sessionId, progress, onOpenChange])
 
 	const handleComplete = async () => {
 		setLoading(true)
@@ -51,7 +58,8 @@ export function CompleteSessionSheet({ sessionId, checked, total, open, onOpenCh
 			// Clear store optimistically
 			clearActiveSession(sessionId)
 			onOpenChange(false)
-			router.push('/dashboard')
+			// The trip's own page says it is saved and asks for the receipts, which is the next step of the loop.
+		router.push(`/shopping/${sessionId}?saved=1`)
 			router.refresh()
 		} catch (err) {
 			console.error('Failed to complete session:', err)

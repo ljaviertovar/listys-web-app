@@ -8,7 +8,8 @@ vi.mock('@/lib/api/auth', () => ({ createAuthenticatedClient: vi.fn() }))
 
 import { createAuthenticatedClient } from '@/lib/api/auth'
 import { GET, POST } from '../route'
-import { PATCH } from '../[storeId]/route'
+import { GET as GET_ONE, PATCH } from '../[storeId]/route'
+import { DELETE as REMOVE_NAME } from '../[storeId]/aliases/[aliasId]/route'
 import { POST as MERGE } from '../[storeId]/merge/route'
 
 const mockedAuth = vi.mocked(createAuthenticatedClient)
@@ -47,7 +48,7 @@ describe('GET /api/v1/stores', () => {
     expect(response.status).toBe(200)
     expect(await response.json()).toEqual({
       data: [{ id: TEST_UUID, name: 'No Frills', receipt_count: 2, created_at: ROW.created_at, updated_at: ROW.updated_at,
-        last_visit: { kind: 'trip', id: TEST_UUID_2, at: '2026-10-28T12:00:00Z', total_amount: 32.5 } }],
+        last_visit: { kind: 'trip', id: TEST_UUID_2, at: '2026-10-28T12:00:00Z', total_amount: 32.5 }, usual_items_count: 0 }],
       meta: { count: 1, limit: MAX_STORES_PER_USER },
     })
   })
@@ -180,5 +181,73 @@ describe('POST /api/v1/stores/:storeId/merge', () => {
     signIn({ rpcResults: { merge_stores: { data: null, error: { code: 'P0002', message: 'Store not found' } } } })
     const response = await MERGE(json('POST', `http://localhost/api/v1/stores/${TEST_UUID}/merge`, { source_store_id: TEST_UUID_2 }), params(TEST_UUID))
     expect(response.status).toBe(404)
+  })
+})
+
+const aliasParams = (storeId: string, aliasId: string) => ({ params: Promise.resolve({ storeId, aliasId }) })
+
+describe('GET /api/v1/stores/{id}', () => {
+  beforeEach(() => vi.clearAllMocks())
+
+  it('returns the counts, the spend since January and the names on receipts, the store’s own name first and not removable', async () => {
+    signIn({
+      tables: {
+        stores: { data: { ...ROW, normalized_name: 'nofrills' }, error: null },
+        base_list_items: { data: null, count: 7 },
+        tickets: { data: [{ store_name: 'NOFRILLS #3412', total_amount: 10 }], count: 2 },
+        shopping_sessions: { data: [{ total_amount: 32.5 }], error: null },
+        store_aliases: { data: [{ id: TEST_UUID_2, alias_key: 'nofrills' }, { id: TEST_UUID_3, alias_key: 'nofrills3412' }], error: null },
+      },
+      rpcResults: { normalize_store_name: { data: 'nofrills3412', error: null } },
+    })
+
+    const response = await GET_ONE(json('GET', 'http://x'), params(TEST_UUID))
+    const { data } = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(data).toMatchObject({ id: TEST_UUID, name: 'No Frills', receipt_count: 2, usual_items_count: 7, spent_total: 42.5 })
+    expect(data.names).toEqual([
+      { id: TEST_UUID_2, name: 'No Frills', removable: false },
+      { id: TEST_UUID_3, name: 'NOFRILLS #3412', removable: true },
+    ])
+    expect(data).not.toHaveProperty('normalized_name')
+  })
+
+  it('answers 404 for a store the caller does not own', async () => {
+    signIn({ tables: { stores: { data: null, error: null } } })
+    expect((await GET_ONE(json('GET', 'http://x'), params(TEST_UUID))).status).toBe(404)
+  })
+
+  it('answers 401 when signed out', async () => {
+    signedOut()
+    expect((await GET_ONE(json('GET', 'http://x'), params(TEST_UUID))).status).toBe(401)
+  })
+})
+
+describe('DELETE /api/v1/stores/{id}/aliases/{aliasId}', () => {
+  beforeEach(() => vi.clearAllMocks())
+
+  it('removes a name printed on receipts', async () => {
+    signIn({ tables: { stores: { data: { normalized_name: 'nofrills' }, error: null }, store_aliases: { data: { id: TEST_UUID_2, alias_key: 'nofrills3412' }, error: null } } })
+
+    expect((await REMOVE_NAME(json('DELETE', 'http://x'), aliasParams(TEST_UUID, TEST_UUID_2))).status).toBe(204)
+  })
+
+  it('refuses to remove the name the store answers to itself', async () => {
+    signIn({ tables: { stores: { data: { normalized_name: 'nofrills' }, error: null }, store_aliases: { data: { id: TEST_UUID_2, alias_key: 'nofrills' }, error: null } } })
+
+    expect((await REMOVE_NAME(json('DELETE', 'http://x'), aliasParams(TEST_UUID, TEST_UUID_2))).status).toBe(422)
+  })
+
+  it('answers 404 when the name is not this store’s, and 422 for an id that is not a UUID', async () => {
+    signIn({ tables: { stores: { data: { normalized_name: 'nofrills' }, error: null }, store_aliases: { data: null, error: null } } })
+
+    expect((await REMOVE_NAME(json('DELETE', 'http://x'), aliasParams(TEST_UUID, TEST_UUID_2))).status).toBe(404)
+    expect((await REMOVE_NAME(json('DELETE', 'http://x'), aliasParams(TEST_UUID, 'nope'))).status).toBe(422)
+  })
+
+  it('answers 401 when signed out', async () => {
+    signedOut()
+    expect((await REMOVE_NAME(json('DELETE', 'http://x'), aliasParams(TEST_UUID, TEST_UUID_2))).status).toBe(401)
   })
 })

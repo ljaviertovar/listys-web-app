@@ -13,8 +13,8 @@ const from = '2026-10-01T00:00:00Z'
 const to = '2026-10-29T00:00:00Z'
 const request = (query: string) => new Request(`http://localhost/api/v1/spending${query}`)
 
-function signIn(rpc?: { data?: unknown; error?: unknown }) {
-	const { supabase } = createSupabaseMock({ rpcResults: { spending_summary: rpc ?? {
+function signIn(rpc?: { data?: unknown; error?: unknown }, tables?: Parameters<typeof createSupabaseMock>[0] extends infer O ? (O extends { tables?: infer T } ? T : never) : never) {
+	const { supabase } = createSupabaseMock({ tables, rpcResults: { spending_summary: rpc ?? {
 		data: [{ receipts_count: 2, total: 125.75, trips_count: 3, trips_without_total: 1 }], error: null,
 	} } })
 	mockedAuth.mockResolvedValue({ supabase, user: { id: 'user-1' } } as never)
@@ -54,5 +54,55 @@ describe('GET /api/v1/spending', () => {
 		const response = await GET(request(`?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`))
 		expect(response.status).toBe(500)
 		expect(await response.text()).not.toContain('private database detail')
+	})
+})
+
+describe('GET /api/v1/spending store breakdown', () => {
+	beforeEach(() => vi.clearAllMocks())
+
+	it('adds up what each store received, largest first, from trips and receipts not attached to a trip', async () => {
+		signIn(undefined, {
+			shopping_sessions: { data: [
+				{ total_amount: 86.4, store: { id: 's1', name: 'No Frills' } },
+				{ total_amount: 41.12, store: { id: 's2', name: 'Costco' } },
+			], error: null },
+			tickets: { data: [
+				{ total_amount: 10.1, store: { id: 's2', name: 'Costco' } },
+				{ total_amount: null, store: { id: 's1', name: 'No Frills' } },
+				{ total_amount: 5, store: null },
+			], error: null },
+		})
+
+		const response = await GET(request(`?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`))
+		const { data } = await response.json()
+
+		expect(data.stores).toEqual([
+			{ id: 's1', name: 'No Frills', total: 86.4 },
+			{ id: 's2', name: 'Costco', total: 51.22 },
+		])
+		expect(data.total).toBe(125.75)
+	})
+
+	it('still answers with the total when the breakdown cannot be read', async () => {
+		vi.spyOn(console, 'error').mockImplementation(() => {})
+		signIn(undefined, { shopping_sessions: { data: null, error: { code: 'XX000', message: 'private' } } })
+
+		const response = await GET(request(`?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`))
+
+		expect(response.status).toBe(200)
+		expect((await response.json()).data).toMatchObject({ total: 125.75, stores: [] })
+	})
+})
+
+describe('GET /api/v1/spending other total', () => {
+	beforeEach(() => vi.clearAllMocks())
+
+	it('reports what the total holds beyond the listed stores, such as receipts without a confirmed store', async () => {
+		signIn(undefined, { shopping_sessions: { data: [{ total_amount: 100, store: { id: 's1', name: 'No Frills' } }], error: null }, tickets: { data: [], error: null } })
+
+		const { data } = await (await GET(request(`?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`))).json()
+
+		expect(data.stores).toEqual([{ id: 's1', name: 'No Frills', total: 100 }])
+		expect(data.other_total).toBe(25.75)
 	})
 })

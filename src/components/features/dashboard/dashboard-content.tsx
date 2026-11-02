@@ -72,6 +72,7 @@ export async function DashboardContent() {
 		likelyNeeded: likelyNeededResult.data ?? [],
 		likelyNeededHasHistory: Boolean(likelyNeededResult.meta?.has_history),
 		stores: storesResult.data ?? [],
+			currentUserId: user?.id ?? null,
 		activeSession: activeSessions?.[0] ?? null,
 		activeSessions,
 	})

@@ -102,6 +102,35 @@ describe('shopping session page estimate', () => {
 	})
 })
 
+describe('shopping session page receipts card', () => {
+	it('confirms the save and asks for the receipts right after completing a trip without one', async () => {
+		vi.mocked(getShoppingSession).mockResolvedValue({ data: session('completed'), error: null } as never)
+
+		const html = await render({ saved: '1' })
+
+		expect(html).toContain('data-state="saved"')
+		expect(html).toContain('Trip saved')
+		expect(html).toContain('2 items updated in Pantry')
+		expect(html).toContain('Keep It Separate')
+	})
+
+	it('only says that no receipt is attached on a later visit, and draws nothing when one is attached or the trip is running', async () => {
+		vi.mocked(getShoppingSession).mockResolvedValue({ data: session('completed'), error: null } as never)
+		const later = await render()
+		expect(later).toContain('data-state="no-receipt"')
+		expect(later).toContain('No receipts attached')
+		expect(later).not.toContain('Keep It Separate')
+
+		vi.mocked(getShoppingSession).mockResolvedValue({
+			data: { ...session('completed'), receipt: { id: 'ticket-1', total_amount: 38.5 } }, error: null,
+		} as never)
+		expect(await render({ saved: '1' })).not.toContain('trip-receipts-card')
+
+		vi.mocked(getShoppingSession).mockResolvedValue({ data: session('active'), error: null } as never)
+		expect(await render()).not.toContain('trip-receipts-card')
+	})
+})
+
 // The origin rules live in resolveSessionBackLink and are covered there; this checks the page hands them its search params.
 describe('shopping session page back link', () => {
 	it('goes back to the history with the list it was narrowed to', async () => {

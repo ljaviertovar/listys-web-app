@@ -4,7 +4,15 @@ import { createClient } from '@/lib/supabase/server'
 
 import { PageContainer, PageHeader } from '@/components/app'
 import { ListToolbar } from '@/components/commons'
-import { BaseListItems, BaseListRealtimeListener, StartShoppingDialog } from '@/components/features/base-lists'
+import {
+	BaseListItems,
+	BaseListRealtimeListener,
+	StartShoppingDialog,
+	UsualStoreFilter,
+	buildStoreFilterOptions,
+	filterItemsByUsualStore,
+	resolveStoreFilter,
+} from '@/components/features/base-lists'
 import { AddItemSheet } from '@/components/features/list-items'
 import { ShareListDialog } from '@/components/features/sharing'
 
@@ -12,8 +20,15 @@ import { getBaseList } from '@/actions'
 
 import type { BaseListWithItems } from '@/types'
 
-export default async function EditBaseListPage({ params }: { params: Promise<{ baseListId: string }> }) {
+export default async function EditBaseListPage({
+	params,
+	searchParams,
+}: {
+	params: Promise<{ baseListId: string }>
+	searchParams: Promise<{ store?: string | string[] }>
+}) {
 	const { baseListId } = await params
+	const { store: requestedStore } = await searchParams
 	const supabase = await createClient()
 	const {
 		data: { user },
@@ -38,6 +53,10 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 	const isOwner = (baseList as { is_owner?: boolean }).is_owner !== false
 	const baseListWithItems = baseList as BaseListWithItems
 	const items = baseListWithItems.items ?? []
+	// "Show items from": only the screen narrows; starting a trip still takes the whole list.
+	const storeOptions = buildStoreFilterOptions(items)
+	const storeFilter = resolveStoreFilter(items, [requestedStore].flat()[0])
+	const shownItems = filterItemsByUsualStore(items, storeFilter)
 
 	// RLS includes collaborator sessions; the per-list constraint guarantees at most one active result.
 	const activeSessionResult = await supabase
@@ -73,7 +92,7 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 					/>
 
 					<ListToolbar
-						count={items.length}
+						count={shownItems.length}
 						unit={{ one: 'item', many: 'items' }}
 						testId='base-list-toolbar'
 					>
@@ -92,9 +111,17 @@ export default async function EditBaseListPage({ params }: { params: Promise<{ b
 						)}
 					</ListToolbar>
 
-					<BaseListItems
+					{storeOptions.length > 0 ? (
+							<UsualStoreFilter
+								options={storeOptions}
+								value={storeFilter}
+								totalCount={items.length}
+							/>
+						) : null}
+
+						<BaseListItems
 						baseListId={baseListId}
-						items={items}
+						items={shownItems}
 						isLocked={isLocked}
 						isOwner={isOwner}
 					/>

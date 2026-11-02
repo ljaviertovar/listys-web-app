@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 
+import { useUndoableAction } from '@/hooks'
 import type { Store } from '@/types'
 
 import { mergeStoresAction, renameStoreAction } from '../helpers/store-actions'
@@ -24,6 +25,8 @@ export function useStoreActions(stores: Store[]) {
 	const router = useRouter()
 	const [flow, setFlow] = useState<Flow>({ kind: 'idle' })
 	const [pending, startTransition] = useTransition()
+	const [mergingSourceId, setMergingSourceId] = useState<string | null>(null)
+	const undoableMerge = useUndoableAction()
 
 	const close = () => {
 		if (!pending) setFlow({ kind: 'idle' })
@@ -52,26 +55,29 @@ export function useStoreActions(stores: Store[]) {
 		})
 	}
 
+	// A merge cannot be brought back, so it waits a few seconds behind an Undo; the merged store's card hides meanwhile.
 	const merge = () => {
 		if (flow.kind !== 'confirm-merge' || pending) return
-		const current = flow
+		const { source, target } = flow
 
-		startTransition(async () => {
-			const result = await mergeStoresAction(current.target.id, current.source.id)
-
-			if (result.kind === 'done') {
-				setFlow({ kind: 'idle' })
-				toast.success(`Stores merged into “${current.target.name}”`)
+		setFlow({ kind: 'idle' })
+		setMergingSourceId(source.id)
+		undoableMerge.schedule({
+			message: `Merged “${source.name}” into “${target.name}”`,
+			run: async () => {
+				const result = await mergeStoresAction(target.id, source.id)
+				if (result.kind !== 'done') return { error: result.message }
 				router.refresh()
-			} else {
-				setFlow({ ...current, error: result.message })
-			}
+				return { error: null }
+			},
 		})
 	}
 
 	return {
 		flow,
 		pending,
+		/** The store being merged away while its Undo is open: its card is hidden. */
+		hiddenStoreId: undoableMerge.pending ? mergingSourceId : null,
 		close,
 		startRename: (store: Store) => setFlow({ kind: 'rename', store, error: null, conflictWith: null }),
 		startMerge: (source: Store) => setFlow({ kind: 'pick-target', source }),

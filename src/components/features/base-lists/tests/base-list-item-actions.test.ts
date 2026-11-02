@@ -101,12 +101,15 @@ describe('base list item feedback', () => {
 
 		await expect(setUsualStore({ kind: 'existing', store: { id: 'store-1', name: 'No Frills' } } as never)).resolves.toBe(true)
 		expect(mocks.updateBaseListItem).toHaveBeenLastCalledWith('synthetic-item', { usual_store_id: 'store-1' })
-		expect(mocks.toastSuccess).toHaveBeenCalledWith('Usual store updated')
+		expect(mocks.toastSuccess).toHaveBeenCalledWith('Usual store set to No Frills', expect.objectContaining({
+			description: 'It won’t change on its own.',
+			action: expect.objectContaining({ label: 'Undo' }),
+		}))
 		expect(mocks.refresh).toHaveBeenCalledOnce()
 
 		await expect(setUsualStore(null)).resolves.toBe(true)
 		expect(mocks.updateBaseListItem).toHaveBeenLastCalledWith('synthetic-item', { usual_store_id: null })
-		expect(mocks.toastSuccess).toHaveBeenCalledWith('Using automatic store')
+		expect(mocks.toastSuccess).toHaveBeenCalledWith('Using automatic store', undefined)
 		expect(mocks.refresh).toHaveBeenCalledTimes(2)
 	})
 

@@ -1,37 +1,18 @@
 import { createTestClient } from './supabase-client'
+import { loadE2EEnv } from './e2e-env'
 
-function extractProjectRef(url: string) {
-  const match = url.match(/^https?:\/\/([^.]+)\./)
-  return match?.[1]
-}
-
+/**
+ * These helpers delete whole tables, which is only acceptable on a throwaway local database. They refuse anything that is not
+ * a loopback Supabase named by the `E2E_SUPABASE_*` inputs, and they need an explicit opt-in on top. The suite is being moved
+ * to fixtures that own and remove only their own rows (see openspec/changes/stabilize-test-foundation); until a spec is
+ * migrated, this is the guard that keeps it away from the hosted project.
+ */
 function assertResetSafety() {
-  const allowReset = process.env.E2E_ALLOW_DB_RESET === 'true'
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const expectedProjectRef = process.env.E2E_TEST_PROJECT_REF
+  // Throws unless every input is present and loopback: the application's own credentials are never consulted.
+  loadE2EEnv()
 
-  if (!allowReset) {
-    throw new Error(
-      'Blocked destructive E2E reset. Set E2E_ALLOW_DB_RESET=true to allow test cleanup.'
-    )
-  }
-
-  if (!supabaseUrl) {
-    throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL for E2E reset safety checks.')
-  }
-
-  if (!expectedProjectRef) {
-    throw new Error(
-      'Missing E2E_TEST_PROJECT_REF. Set it to your dedicated test project ref before running E2E cleanup.'
-    )
-  }
-
-  const currentProjectRef = extractProjectRef(supabaseUrl)
-
-  if (!currentProjectRef || currentProjectRef !== expectedProjectRef) {
-    throw new Error(
-      `Blocked destructive E2E reset. Current project ref (${currentProjectRef ?? 'unknown'}) does not match E2E_TEST_PROJECT_REF (${expectedProjectRef}).`
-    )
+  if (process.env.E2E_ALLOW_DB_RESET !== 'true') {
+    throw new Error('Blocked destructive E2E reset. Set E2E_ALLOW_DB_RESET=true to allow test cleanup on a local database.')
   }
 }
 

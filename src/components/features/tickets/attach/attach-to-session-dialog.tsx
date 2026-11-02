@@ -1,6 +1,7 @@
 'use client'
 
 import { SheetDialog } from '@/components/commons'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { DialogFooter } from '@/components/ui/dialog'
@@ -8,6 +9,7 @@ import { Input } from '@/components/ui/input'
 import type { TicketItem } from '@/types'
 
 import { LinkItemDialog } from '../add-to-list/link-item-dialog'
+import { describeCandidate } from './helpers/attach-candidates'
 import type { useAttachToSession } from './hooks/use-attach-to-session'
 
 type Actions = ReturnType<typeof useAttachToSession>
@@ -35,7 +37,7 @@ export function AttachToSessionDialog({
 					<p className='text-sm text-muted-foreground'>Choose a trip for this receipt.</p>
 					{actions.candidates.map(candidate => (
 						<Button key={candidate.id} type='button' variant='secondary' size='lg' className='justify-between' onClick={() => actions.chooseCandidate(candidate.id)}>
-							<span className='truncate'>{candidate.name} · {candidate.base_list.name}</span>
+							<span className='truncate'>{describeCandidate(candidate)}</span>
 							<span className='shrink-0 text-xs'>{candidate.checked_count}/{candidate.item_count} checked</span>
 						</Button>
 					))}
@@ -52,10 +54,12 @@ export function AttachToSessionDialog({
 					) : null}
 					{!actions.reviewLoading && !actions.reviewError && actions.review ? (
 						<>
-							{matchedLines === 0 ? <p className='text-sm text-muted-foreground'>No receipt lines match this trip yet.</p> : null}
+							<AttachReviewSummary review={actions.review} />
+								{matchedLines === 0 ? <p className='text-sm text-muted-foreground'>No receipt lines match this trip yet.</p> : null}
 							<ReviewGroup title='Already checked' lines={actions.review.alreadyChecked} />
 							<ReviewGroup title='Will be checked' lines={actions.review.willBeChecked} onLink={actions.setLinkingLineId} />
 							<ReviewGroup title='Not in this trip' lines={actions.review.notInTrip} onAdd={(id, checked) => actions.toggleAdded(id, checked)} onLink={actions.setLinkingLineId} addedIds={actions.addedItemIds} />
+								<CheckedNotOnReceipt items={actions.review.checkedNotOnReceipt} />
 							<div className='flex flex-col gap-2'>
 								<p className='text-sm font-semibold'>Store</p>
 								<p className='text-sm text-muted-foreground'>{actions.review.resultingStore?.name ?? 'No store recorded'}</p>
@@ -122,6 +126,44 @@ function ReviewGroup({
 						</li>
 					)
 				})}
+			</ul>
+		</section>
+	)
+}
+
+/** How the receipt and the trip line up, in three counts; when nothing is left over it says there is nothing to fix. */
+function AttachReviewSummary({ review }: { review: NonNullable<Actions['review']> }) {
+	const added = review.willBeChecked.filter(line => !line.shoppingSessionItem).length
+	const matched = review.alreadyChecked.length + review.willBeChecked.length - added
+	const onlyOnReceipt = review.notInTrip.length + added
+	const notOnReceipt = review.checkedNotOnReceipt.length
+	const allMatch = onlyOnReceipt === 0 && notOnReceipt === 0 && matched > 0
+
+	return (
+		<div data-testid='attach-review-summary' className='flex flex-col gap-2'>
+			<div className='flex flex-wrap gap-2'>
+				<Badge variant='neutral'>{matched} Matched</Badge>
+				<Badge variant='neutral'>{onlyOnReceipt} Only on receipt</Badge>
+				<Badge variant='neutral'>{notOnReceipt} Not on receipt</Badge>
+			</div>
+			{allMatch ? <p className='text-sm text-muted-foreground'>Everything you checked is on the receipt. Nothing to add or fix.</p> : null}
+		</div>
+	)
+}
+
+/** Items checked off during the trip that no receipt line matches: they stay as bought, without a price. */
+function CheckedNotOnReceipt({ items }: { items: Array<{ id: string; name: string }> }) {
+	if (!items.length) return null
+	return (
+		<section data-testid='attach-review-checked-not-on-receipt' className='flex flex-col gap-2' aria-label='Checked, not on the receipt'>
+			<h3 className='text-sm font-semibold'>Checked, not on the receipt</h3>
+			<p className='text-xs text-muted-foreground'>These stay as bought, without a price.</p>
+			<ul className='flex flex-col divide-y divide-slate-100 rounded-2xl bg-muted px-3 dark:divide-border'>
+				{items.map(item => (
+					<li key={item.id} className='flex min-h-12 items-center py-2'>
+						<span className='min-w-0 flex-1 truncate text-sm'>{item.name}</span>
+					</li>
+				))}
 			</ul>
 		</section>
 	)

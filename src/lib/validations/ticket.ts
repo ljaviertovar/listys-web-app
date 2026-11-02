@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { MAX_TICKET_ITEMS_MERGE, MAX_IMAGES_PER_TICKET } from '@/lib/config/limits'
+import { MAX_TICKET_ITEMS_MERGE, MAX_IMAGES_PER_TICKET, MAX_TICKET_IMAGE_MB } from '@/lib/config/limits'
 
 // Non-file multipart fields of an upload, checked on the server before any photo is stored. The store name is optional
 // raw text (OCR fills it from the receipt header when absent); blank means absent.
@@ -15,7 +15,7 @@ export const uploadTicketSchema = z.object({
   files: z
     .array(
       z.instanceof(File, { message: 'Please select image files' })
-        .refine((file) => file.size <= 10 * 1024 * 1024, 'Each file must be less than 10MB')
+        .refine((file) => file.size <= MAX_TICKET_IMAGE_MB * 1024 * 1024, `Each file must be less than ${MAX_TICKET_IMAGE_MB}MB`)
         .refine((file) => file.type.startsWith('image/'), 'Please select image files only')
     )
     .min(1, 'Please select at least one image')

@@ -11,10 +11,10 @@ import { DialogFooter } from '@/components/ui/dialog'
 import { SheetDialog } from '@/components/commons'
 import { StorePickerDialog, type StorePick } from '@/components/features/stores'
 import { createStore } from '@/lib/api/endpoints/stores'
-import { startedSessionHref } from '@/components/features/shopping-sessions'
+import { buildSessionPriceEstimate, startedSessionHref } from '@/components/features/shopping-sessions'
 import { createShoppingSession } from '@/lib/api/endpoints'
 import useActiveSessionStore from '@/stores/active-session'
-import { cn } from '@/utils'
+import { cn, formatCurrency } from '@/utils'
 import type { BaseListItemWithStoreSummary, Store } from '@/types'
 
 import { countItemsForStore, shoppingActionMode } from './items/helpers/store-session-summary'
@@ -115,6 +115,8 @@ export function StartShoppingDialog({
 	const firstAtStoreCount = selectedStore ? countItemsForStore(items, selectedStore.id) : 0
 
 	const isEmpty = itemsCount !== undefined ? itemsCount === 0 : false
+	// The trip copies these items, so the list's own averages are what it would cost; nothing is shown without a known price.
+	const estimate = buildSessionPriceEstimate(items, items)
 
 	if (shoppingActionMode(sessionActive) === 'resume') {
 		return (
@@ -139,7 +141,7 @@ export function StartShoppingDialog({
 				<Button
 					size='lg'
 					{...buttonProps}
-					disabled={buttonProps.disabled || isEmpty}
+					disabled={buttonProps.disabled}
 					className={cn('w-full', className)}
 					// Several of these sit on one page, so the accessible name says which list each one starts.
 					aria-label={baseListName ? `Start shopping ${baseListName}` : undefined}
@@ -190,14 +192,29 @@ export function StartShoppingDialog({
 						{selectedStore ? 'Change' : 'Choose Store'}
 					</Button>
 				</div>
-				{selectedStore ? (
+				{estimate.pricedCount > 0 ? (
+						<div
+							data-testid='start-shopping-estimate'
+							className='flex items-end justify-between gap-3 rounded-2xl bg-muted px-3.5 py-3'
+						>
+							<div className='flex min-w-0 flex-col gap-1'>
+								<span className='text-sm font-medium text-foreground'>Estimated total</span>
+								<span className='text-xs leading-normal text-muted-foreground'>
+									From {estimate.pricedCount} of {estimate.itemCount} {estimate.itemCount === 1 ? 'item' : 'items'}
+								</span>
+							</div>
+							<span className='font-mono text-lg leading-none font-semibold text-foreground tabular-nums'>≈ {formatCurrency(estimate.total)}</span>
+						</div>
+					) : null}
+					{selectedStore ? (
 					<div role='note' className={`flex items-start gap-2 rounded-2xl px-3.5 py-3 text-sm leading-normal ${firstAtStoreCount === 0 ? 'bg-amber-50 text-amber-900 dark:bg-amber-950/40 dark:text-amber-200' : 'bg-muted text-muted-foreground'}`}>
 						{firstAtStoreCount === 0 ? <HugeiconsIcon icon={Alert02Icon} strokeWidth={1.6} aria-hidden='true' className='mt-px size-4.5 shrink-0' /> : null}
 						<span>{firstAtStoreCount === 0 ? `No items in this list are tagged or recorded at ${selectedStore.name}.` : `${firstAtStoreCount} ${firstAtStoreCount === 1 ? 'item goes' : 'items go'} first at ${selectedStore.name}.`}</span>
 					</div>
 				) : null}
 			</div>
-			<DialogFooter variant='inline'>
+			{isEmpty ? null : <p className='px-1 text-xs leading-normal text-muted-foreground'>One trip at a time per list.</p>}
+				<DialogFooter variant='inline'>
 				<Button
 					size='primary'
 					type='button'

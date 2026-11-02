@@ -10,6 +10,7 @@ import {
 	STARTED_SESSION_PARAM,
 	SessionEstimate,
 	SessionProgressCard,
+	TripReceiptsCard,
 	ShoppingSessionActions,
 	ShoppingSessionItems,
 	ShoppingSessionRealtimeListener,
@@ -28,6 +29,7 @@ type SearchParams = {
 	from?: string | string[]
 	list?: string | string[]
 	started?: string | string[]
+	saved?: string | string[]
 }
 
 export default async function ShoppingRunPage({
@@ -43,6 +45,7 @@ export default async function ShoppingRunPage({
 	const originListId = Array.isArray(resolvedSearchParams.list) ? resolvedSearchParams.list[0] : resolvedSearchParams.list
 	// Only the visit that follows starting the session; the items clear it from the URL once shown.
 	const justStarted = [resolvedSearchParams[STARTED_SESSION_PARAM]].flat()[0] === '1'
+	const justSaved = [resolvedSearchParams.saved].flat()[0] === '1'
 	const supabase = await createClient()
 	const {
 		data: { user },
@@ -131,7 +134,14 @@ export default async function ShoppingRunPage({
 							itemCount={priceEstimate.itemCount}
 						/>
 					) : null}
-					{runWithItems.receipt ? (
+					{isCompleted && !runWithItems.receipt ? (
+							<TripReceiptsCard
+								justSaved={justSaved}
+								itemCount={checkedCount}
+								listName={baseListName}
+							/>
+						) : null}
+						{runWithItems.receipt ? (
 						<Card size='tight' data-testid='session-receipt-summary'>
 							<div className='flex flex-wrap items-center justify-between gap-3'>
 								<div className='flex min-w-0 flex-col gap-1'>
