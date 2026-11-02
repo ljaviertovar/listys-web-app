@@ -1,5 +1,6 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { extractChatCompletionText, fetchWithRetry } from '../_shared/ocr-outcome.ts'
 import { parseOcrPayload, STORE_AND_TOTAL_INSTRUCTIONS, STORE_NAME_INSTRUCTIONS, TOTAL_INSTRUCTIONS } from '../_shared/receipt-store.ts'
 
 const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY')!
@@ -138,7 +139,8 @@ ${storeInstructions}
 `
 
 
-  const ocrResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+  // A busy provider (429, 5xx) or a dropped connection is tried once more before the photo counts as failed.
+  const ocrResponse = await fetchWithRetry(() => fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -159,7 +161,7 @@ ${storeInstructions}
       ],
       max_tokens: 5000,
     }),
-  })
+  }))
 
   if (!ocrResponse.ok) {
     const error = await ocrResponse.text()
@@ -168,7 +170,13 @@ ${storeInstructions}
   }
 
   const ocrData = await ocrResponse.json()
-  const content = ocrData.choices[0]?.message?.content || '[]'
+  // An answer with no text (refused, cut off) is a failure, not an empty receipt.
+  const answer = extractChatCompletionText(ocrData)
+  if ('reason' in answer) {
+    console.error(`OpenAI gave no usable answer for image ${imageIndex + 1}:`, answer.reason)
+    throw new Error(answer.reason)
+  }
+  const content = answer.text
 
   try {
     const cleanContent = content.replace(/```json\n?|\n?```/g, '').trim()
