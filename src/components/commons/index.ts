@@ -21,6 +21,7 @@ export { ListToolbar } from "./list-toolbar/list-toolbar";
 export { RowMenu, type RowMenuAction } from "./row-menu/row-menu";
 export { RetryableError } from "./retryable-error";
 export {
+  ChoiceRow,
   SearchableChoiceList,
   type ChoiceOption,
 } from "./searchable-choice-list/searchable-choice-list";

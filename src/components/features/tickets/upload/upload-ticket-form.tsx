@@ -17,6 +17,7 @@ import { MAX_IMAGES_PER_TICKET } from '@/lib/config/limits'
 import { UploadTicketPhotos } from './upload-ticket-photos'
 import { usePhotoPicker } from './hooks/use-photo-picker'
 import { buildUploadFormData } from './helpers/build-upload-form-data'
+import { getUploadSuccessOutcome } from './helpers/upload-success'
 
 interface Props {
 	onSuccess?: () => void
@@ -100,12 +101,11 @@ export function UploadTicketForm({ onSuccess, initialFiles, shoppingSessionId }:
 			}
 
 			const ticketId = result?.ticketId || result?.data?.id || result?.id || null
-			toast.success('Receipt uploaded', {
-				description: ticketId ? 'Opening your receipt…' : 'You can review its progress in your receipts.',
-			})
+			const outcome = getUploadSuccessOutcome({ ticketId, fromTrip: Boolean(shoppingSessionId) })
+			toast.success('Receipt uploaded', { description: outcome.toastDescription })
 			onSuccess?.()
-			if (ticketId) {
-				router.push(`/tickets/${ticketId}`)
+			if (outcome.openReceiptId) {
+				router.push(`/tickets/${outcome.openReceiptId}`)
 			}
 		} catch (err) {
 			console.error('Failed to upload receipt:', err)

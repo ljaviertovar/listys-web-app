@@ -102,6 +102,21 @@ describe('shopping session store reads', () => {
 		await expect(getShoppingHistory()).resolves.toMatchObject([{ receipt: { id: 'receipt-1' } }])
 	})
 
+	it('marks a completed trip without a receipt with a null receipt, apart from trips that have one', async () => {
+		signInWithTables({
+			shopping_sessions: {
+				data: [
+					{ id: 'with-receipt', user_id: 'user-1', status: 'completed' },
+					{ id: 'without-receipt', user_id: 'user-1', status: 'completed' },
+				],
+				error: null,
+			},
+			shopping_session_items: { data: [], error: null },
+			tickets: { data: [{ id: 'receipt-1', shopping_session_id: 'with-receipt' }], error: null },
+		})
+		await expect(getShoppingHistory()).resolves.toMatchObject([{ receipt: { id: 'receipt-1' } }, { receipt: null }])
+	})
+
 	it('keeps an unreadable store as null on session detail and history reads', async () => {
 		const detail = { id: 'session-1', user_id: 'user-1', store: null, items: [{ id: 'item-1', is_other_store: false }] }
 		signInWithTables({ shopping_sessions: { data: detail, error: null } })

@@ -12,7 +12,7 @@ import { ShoppingCart02Icon } from '@hugeicons/core-free-icons'
 export function MonthSpendingCard() {
 	const spending = useMonthSpending()
 	return (
-		<DashboardSectionCard testId='dashboard-month-spending-card' title='Spend This Month' viewAll={{ href: '/shopping-history', noun: 'history', testId: 'dashboard-month-spending-view-all' }}>
+		<DashboardSectionCard testId='dashboard-month-spending-card' title='Spend This Month' viewAll={{ href: '/trips', noun: 'trips', testId: 'dashboard-month-spending-view-all' }}>
 			{spending.status === 'loading' ? (
 				<div data-testid='dashboard-month-spending-loading' aria-label='Loading monthly spending' className='flex flex-1 flex-col justify-center gap-3 px-3 py-6'>
 					<Skeleton className='h-8 w-32' />

@@ -84,17 +84,35 @@ describe('ShoppingSessionActions', () => {
 	})
 })
 
-describe('HistorySessionCard receipt marker', () => {
+describe('HistorySessionCard receipt status', () => {
 	const session = { id: 's1', name: 'Weekly shop', status: 'completed', started_at: null, completed_at: null, total_amount: 20, base_list: { name: 'Groceries' } }
+	const render = (receipt: { id: string } | null | undefined, href?: string) =>
+		renderToStaticMarkup(createElement(HistorySessionCard, { session: { ...session, receipt }, href }))
 
-	it('marks sessions with a linked receipt', () => {
-		const html = renderToStaticMarkup(createElement(HistorySessionCard, { session: { ...session, receipt: { id: 'ticket-1' } } }))
+	it('shows the trip as completed and its receipt as attached, with no action to add one', () => {
+		const html = render({ id: 'ticket-1' })
+		expect(html).toContain('Completed')
 		expect(html).toContain('data-testid="history-receipt-marker-s1"')
-		expect(html).toContain('Receipt')
+		expect(html).toContain('Receipt attached')
+		expect(html).not.toContain('history-add-receipt-s1')
 	})
 
-	it('omits the marker when there is no receipt', () => {
-		const html = renderToStaticMarkup(createElement(HistorySessionCard, { session: { ...session, receipt: null } }))
+	it('shows a trip without a receipt as completed, marks the missing receipt and offers Add Receipt', () => {
+		const html = render(null)
+		expect(html).toContain('Completed')
+		expect(html).toContain('data-testid="history-no-receipt-s1"')
+		expect(html).toContain('href="/shopping/s1?receipt=add"')
+		expect(html).toContain('Add Receipt')
+	})
+
+	it('opens the trip it came from with the receipt choice, keeping the list filter', () => {
+		expect(render(null, '/shopping/s1?from=trips&list=l1')).toContain('href="/shopping/s1?from=trips&amp;list=l1&amp;receipt=add"')
+	})
+
+	it('shows neither receipt state when it is not known', () => {
+		const html = render(undefined)
 		expect(html).not.toContain('history-receipt-marker')
+		expect(html).not.toContain('history-no-receipt')
+		expect(html).not.toContain('history-add-receipt')
 	})
 })

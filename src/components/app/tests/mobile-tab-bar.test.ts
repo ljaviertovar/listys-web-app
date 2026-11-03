@@ -26,7 +26,7 @@ describe('MobileTabBar', () => {
 	it('keeps Lists current while a list or a shopping session is open', () => {
 		expect(isListsSection('/base-lists/l1/edit')).toBe(true)
 		expect(isListsSection('/shopping/s1')).toBe(true)
-		expect(isListsSection('/shopping-history')).toBe(false)
+		expect(isListsSection('/trips')).toBe(false)
 		expect(isListsSection('/shopping-lists')).toBe(false)
 	})
 })

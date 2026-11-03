@@ -5,12 +5,17 @@ import { useId } from 'react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { cn } from '@/utils'
 
 export interface ChoiceOption {
 	value: string
 	label: string
 	/** A short fact at the end of the row, in mono ("3 receipts", "New store"). */
 	detail?: string
+	/** A second line under the label, for what tells two similar rows apart or why a row cannot be chosen. */
+	note?: string
+	/** The row stays listed but cannot be chosen. */
+	disabled?: boolean
 }
 
 interface SearchableChoiceListProps {
@@ -97,19 +102,28 @@ interface ChoiceRowProps {
 	option: ChoiceOption
 }
 
-function ChoiceRow({ option }: ChoiceRowProps) {
+/** One radio row of a choice list; also used on its own by lists that do not need the search field. */
+export function ChoiceRow({ option }: ChoiceRowProps) {
 	const id = useId()
 	return (
 		<label
 			htmlFor={id}
 			data-testid='choice-option'
-			className='flex min-h-12 cursor-pointer items-center gap-3 rounded-xl px-3 py-2 hover:bg-muted has-data-[state=checked]:bg-accent'
+			data-disabled={option.disabled ? '' : undefined}
+			className={cn(
+				'flex min-h-12 items-center gap-3 rounded-xl px-3 py-2',
+				option.disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer hover:bg-muted has-data-[state=checked]:bg-accent',
+			)}
 		>
 			<RadioGroupItem
 				id={id}
 				value={option.value}
+				disabled={option.disabled}
 			/>
-			<span className='min-w-0 flex-1 break-words text-sm font-medium'>{option.label}</span>
+			<span className='flex min-w-0 flex-1 flex-col'>
+				<span className='break-words text-sm font-medium'>{option.label}</span>
+				{option.note ? <span className='break-words text-xs text-slate-500 dark:text-muted-foreground'>{option.note}</span> : null}
+			</span>
 			{option.detail ? (
 				<span className='shrink-0 font-mono text-xs text-slate-500 tabular-nums dark:text-muted-foreground'>{option.detail}</span>
 			) : null}

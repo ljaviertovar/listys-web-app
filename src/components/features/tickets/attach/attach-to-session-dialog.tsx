@@ -6,21 +6,18 @@ import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { DialogFooter } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import type { TicketItem } from '@/types'
 
 import { LinkItemDialog } from '../add-to-list/link-item-dialog'
-import { describeCandidate } from './helpers/attach-candidates'
-import type { useAttachToSession } from './hooks/use-attach-to-session'
+import { describeTripReview } from './helpers/trip-review-phase'
+import type { TripReview } from './hooks/use-trip-review'
 
-type Actions = ReturnType<typeof useAttachToSession>
+type Actions = TripReview
 
-export function AttachToSessionDialog({
-	actions,
-	items,
-}: {
-	actions: Actions
-	items: TicketItem[]
-}) {
+/**
+ * The review of a receipt against a trip, in a sheet. It does not change anything until the user confirms; closing it, with
+ * Cancel or the close control, leaves the receipt unattached and the trip as it was.
+ */
+export function AttachToSessionDialog({ actions }: { actions: Actions }) {
 	const sessionItems = actions.sessionItems
 	const matchedLines = actions.matches.length
 	return (
@@ -28,11 +25,11 @@ export function AttachToSessionDialog({
 			<SheetDialog
 				open={actions.open}
 				onOpenChange={actions.setOpen}
-				title={actions.candidate ? `Attach to ${actions.candidate.name}` : 'Attach to trip'}
-				description={actions.candidate ? `${describeCandidate(actions.candidate)}. Review how this receipt will update the trip.` : 'Loading the trip this receipt came from.'}
+				title={actions.trip ? `Attach to ${actions.trip.name}` : 'Attach to trip'}
+				description={describeTripReview(actions.trip, actions.phase)}
 				testId='attach-to-session-dialog'
 			>
-			{actions.open && actions.candidate ? (
+			{actions.open && actions.trip ? (
 				<div className='mt-3 flex min-w-0 flex-col gap-4' data-testid='attach-session-review'>
 					{actions.reviewLoading ? <p role='status' className='text-sm text-muted-foreground'>Loading trip items…</p> : null}
 					{actions.reviewError ? (
@@ -64,7 +61,7 @@ export function AttachToSessionDialog({
 								</div>
 							) : null}
 							<DialogFooter variant='sheet'>
-								<Button type='button' variant='secondary' size='primary' disabled={actions.submitting} onClick={() => actions.setOpen(false)}>Cancel</Button>
+								<Button type='button' variant='secondary' size='primary' disabled={actions.submitting} onClick={actions.closeReview}>Cancel</Button>
 								<Button type='button' size='primary' disabled={actions.submitting || !actions.review || actions.review.storeMismatch || !actions.totalIsValid} onClick={() => void actions.submit()}>
 									{actions.submitting ? 'Attaching…' : actions.review.confirmLabel}
 								</Button>
@@ -75,7 +72,7 @@ export function AttachToSessionDialog({
 			) : null}
 			</SheetDialog>
 			<LinkItemDialog
-				lineName={items.find(item => item.id === actions.linkingLineId)?.name ?? null}
+				lineName={actions.lines.find(line => line.id === actions.linkingLineId)?.name ?? null}
 				currentItemId={actions.linkingLineId ? actions.linkedItems.get(actions.linkingLineId) : null}
 				items={sessionItems}
 				onClose={() => actions.setLinkingLineId(null)}

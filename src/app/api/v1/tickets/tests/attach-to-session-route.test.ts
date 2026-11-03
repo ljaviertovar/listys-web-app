@@ -74,15 +74,19 @@ describe('POST /api/v1/tickets/:ticketId/attach-to-session', () => {
 		expect(supabase.rpc).not.toHaveBeenCalled()
 	})
 
-	it.each([
-		['another trip', TEST_UUID_3],
-		['no trip at all', null],
-	])('refuses a receipt uploaded from %s with a conflict, before the RPC', async (_label, origin) => {
-		const supabase = signIn({ data: [result], error: null }, origin)
+	it('refuses a receipt uploaded from another trip with a conflict, before the RPC', async () => {
+		const supabase = signIn({ data: [result], error: null }, TEST_UUID_3)
 		const response = await post(payload)
 		expect(response.status).toBe(409)
 		expect((await response.json()).error.details.reason).toBe('RECEIPT_NOT_FROM_TRIP')
 		expect(supabase.rpc).not.toHaveBeenCalled()
+	})
+
+	it('attaches a receipt uploaded outside any trip to the trip it was chosen from', async () => {
+		const supabase = signIn({ data: [result], error: null }, null)
+		const response = await post(payload)
+		expect(response.status).toBe(200)
+		expect(supabase.rpc).toHaveBeenCalledWith('attach_receipt_to_session', expect.objectContaining({ p_session_id: TEST_UUID_2 }))
 	})
 
 	it('returns 404 for a receipt the caller cannot see, before the RPC', async () => {

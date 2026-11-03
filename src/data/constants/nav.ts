@@ -42,8 +42,8 @@ export const SIDEBAR_DATA: SidebarData = {
 					icon: FolderLibraryIcon,
 				},
 				{
-					title: 'Shopping History',
-					url: '/shopping-history',
+					title: 'Trips',
+					url: '/trips',
 					icon: TimeQuarterPassIcon,
 				},
 			],
@@ -86,7 +86,7 @@ export const MOBILE_TAB_ITEMS: { title: string; url: string; icon: NonNullable<N
 	{ title: 'Dashboard', url: '/dashboard', icon: DashboardSquare02Icon },
 	{ title: 'Lists', url: '/shopping-lists', icon: FolderLibraryIcon },
 	{ title: 'Receipts', url: '/tickets', icon: Invoice01Icon },
-	{ title: 'History', url: '/shopping-history', icon: TimeQuarterPassIcon },
+	{ title: 'Trips', url: '/trips', icon: TimeQuarterPassIcon },
 ]
 
 export const USER_NAV_ITEMS: NavLink[] = [

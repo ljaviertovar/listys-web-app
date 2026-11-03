@@ -255,7 +255,7 @@ function buildStoreVisits(stores: DashboardStoreInput[]): StoreVisitPreview[] {
 			id: visit.id,
 			dateLabel: formatShortDate(visit.at),
 			total: visit.total_amount,
-			href: visit.kind === 'trip' ? '/shopping-history' : `/tickets/${visit.id}`,
+			href: visit.kind === 'trip' ? '/trips' : `/tickets/${visit.id}`,
 		}]
 	}).slice(0, MAX_STORE_VISITS)
 }

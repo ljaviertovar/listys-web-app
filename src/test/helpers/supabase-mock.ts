@@ -22,6 +22,7 @@ export function createQueryBuilder(result: { data?: any; error?: any; count?: nu
     lt: vi.fn().mockReturnThis(),
     ilike: vi.fn().mockReturnThis(),
     in: vi.fn().mockReturnThis(),
+    or: vi.fn().mockReturnThis(),
     order: vi.fn().mockReturnThis(),
     limit: vi.fn().mockReturnThis(),
     single: vi.fn().mockImplementation(() => Promise.resolve(result)),

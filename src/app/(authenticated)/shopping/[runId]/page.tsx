@@ -11,6 +11,7 @@ import {
 	SessionEstimate,
 	SessionProgressCard,
 	TripReceiptsCard,
+	getTripReceiptState,
 	ShoppingSessionActions,
 	ShoppingSessionItems,
 	ShoppingSessionRealtimeListener,
@@ -30,6 +31,8 @@ type SearchParams = {
 	list?: string | string[]
 	started?: string | string[]
 	saved?: string | string[]
+	/** `add` opens the Add Receipt choice, from the "Add Receipt" action of a trip card in Trips. */
+	receipt?: string | string[]
 }
 
 export default async function ShoppingRunPage({
@@ -46,6 +49,7 @@ export default async function ShoppingRunPage({
 	// Only the visit that follows starting the session; the items clear it from the URL once shown.
 	const justStarted = [resolvedSearchParams[STARTED_SESSION_PARAM]].flat()[0] === '1'
 	const justSaved = [resolvedSearchParams.saved].flat()[0] === '1'
+	const addReceiptRequested = [resolvedSearchParams.receipt].flat()[0] === 'add'
 	const supabase = await createClient()
 	const {
 		data: { user },
@@ -71,6 +75,8 @@ export default async function ShoppingRunPage({
 	const baseListId = runWithItems.base_list_id
 	const baseListName = runWithItems.base_list?.name ?? runWithItems.name
 	const isListOwner = runWithItems.base_list?.user_id === user.id
+	// Only the person who ran the trip can give it a receipt; everyone else is told its state.
+	const ranTrip = runWithItems.user_id === user.id
 
 	const { href: backHref, label: backLabel } = resolveSessionBackLink(origin, originListId)
 
@@ -87,6 +93,22 @@ export default async function ShoppingRunPage({
 	const checkedCount = runWithItems.items.filter(item => item.checked).length
 	const totalCount = runWithItems.items.length
 
+	// The latest receipt uploaded from this trip that is still free: it is being read, ready to review, or unreadable.
+	const { data: pendingReceipt } =
+		isCompleted && !runWithItems.receipt && ranTrip
+			? await supabase
+					.from('tickets')
+					.select('id, ocr_status')
+					.eq('user_id', user.id)
+					.eq('uploaded_from_session_id', runId)
+					.is('shopping_session_id', null)
+					.is('base_list_id', null)
+					.order('created_at', { ascending: false })
+					.limit(1)
+					.maybeSingle()
+			: { data: null }
+	const receiptState = getTripReceiptState({ attachedReceipt: runWithItems.receipt, pendingReceipt })
+
 	return (
 		<>
 			<PageHeader
@@ -97,6 +119,7 @@ export default async function ShoppingRunPage({
 					isCompleted ? (
 						<div className='flex flex-wrap items-center gap-2'>
 							<Badge variant='completed'>Completed</Badge>
+							{runWithItems.receipt ? <Badge variant='neutral'>Receipt attached</Badge> : <Badge variant='processing'>No receipt</Badge>}
 							{runWithItems.store ? <Badge variant='neutral'>At {runWithItems.store.name}</Badge> : null}
 						</div>
 					) : (
@@ -134,14 +157,30 @@ export default async function ShoppingRunPage({
 							itemCount={priceEstimate.itemCount}
 						/>
 					) : null}
-					{isCompleted && !runWithItems.receipt ? (
-							<TripReceiptsCard
-								justSaved={justSaved}
-								itemCount={checkedCount}
-								listName={baseListName}
-								sessionId={runWithItems.user_id === user.id ? runId : undefined}
-							/>
-						) : null}
+					{isCompleted && receiptState.kind !== 'attached' ? (
+						<TripReceiptsCard
+							state={receiptState}
+							justSaved={justSaved}
+							itemCount={checkedCount}
+							listName={baseListName}
+							openAddOnLoad={addReceiptRequested}
+							trip={
+								ranTrip
+									? {
+											id: runId,
+											name: runWithItems.name,
+											status: 'completed',
+											started_at: runWithItems.started_at ?? null,
+											completed_at: runWithItems.completed_at ?? null,
+											store: runWithItems.store ?? null,
+											base_list: { id: baseListId ?? '', name: baseListName },
+											checked_count: checkedCount,
+											item_count: totalCount,
+										}
+									: undefined
+							}
+						/>
+					) : null}
 						{runWithItems.receipt ? (
 						<Card size='tight' data-testid='session-receipt-summary'>
 							<div className='flex flex-wrap items-center justify-between gap-3'>

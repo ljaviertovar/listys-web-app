@@ -46,7 +46,7 @@ export function TicketAttachCard({
 					Review {actions.candidates[0].name}
 				</Button>
 			)}
-			{actions.candidates.length ? <AttachToSessionDialog actions={actions} items={items} /> : null}
+			{actions.candidates.length ? <AttachToSessionDialog actions={actions} /> : null}
 		</section>
 	)
 }

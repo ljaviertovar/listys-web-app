@@ -136,6 +136,55 @@ export async function getShoppingSession(id: string) {
   return { ...shoppingSession, receipt }
 }
 
+const AVAILABLE_RECEIPTS_LIMIT = 50
+
+/**
+ * The owner's receipts that can still be attached to this trip: read, attached nowhere, not added to a list, and either
+ * uploaded outside any trip or from this one. A receipt confirmed at another store than a completed trip's store is
+ * listed but not selectable, mirroring the rule the attach RPC enforces.
+ */
+export async function listAvailableReceipts(sessionId: string) {
+  const { supabase, user } = await createAuthenticatedClient()
+
+  const { data: session, error: sessionError } = await supabase
+    .from('shopping_sessions')
+    .select('id, status, store_id')
+    .eq('id', sessionId)
+    .eq('user_id', user.id)
+    .maybeSingle()
+
+  if (sessionError) throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'Unable to load the trip.')
+  if (!session) throw new ApiServiceError(404, ErrorCode.NOT_FOUND, 'Not found')
+
+  // sessionId is a validated UUID, so interpolating it into the filter cannot widen the query.
+  const { data: tickets, error } = await supabase
+    .from('tickets')
+    .select('id, created_at, total_amount, total_items, store_id, store:stores(id, name)')
+    .eq('user_id', user.id)
+    .eq('ocr_status', 'completed')
+    .is('shopping_session_id', null)
+    .is('base_list_id', null)
+    .or(`uploaded_from_session_id.is.null,uploaded_from_session_id.eq.${sessionId}`)
+    .order('created_at', { ascending: false })
+    .limit(AVAILABLE_RECEIPTS_LIMIT)
+
+  if (error) throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'Unable to load your receipts.')
+
+  return (tickets ?? []).map(ticket => {
+    const storeMismatch =
+      session.status === 'completed' && session.store_id !== null && ticket.store_id !== null && session.store_id !== ticket.store_id
+    return {
+      id: ticket.id,
+      created_at: ticket.created_at,
+      store: ticket.store ? { id: ticket.store.id, name: ticket.store.name } : null,
+      total_amount: ticket.total_amount,
+      item_count: ticket.total_items ?? 0,
+      selectable: !storeMismatch,
+      reason: storeMismatch ? ('STORE_MISMATCH' as const) : null,
+    }
+  })
+}
+
 export async function getShoppingHistory() {
   const { supabase, user } = await createAuthenticatedClient()
 

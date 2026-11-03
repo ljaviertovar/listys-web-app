@@ -105,7 +105,7 @@ export async function completeShoppingSession(id: string, data: unknown) {
   }
 
   revalidatePath('/dashboard')
-  revalidatePath('/shopping-history')
+  revalidatePath('/trips')
   revalidatePath(`/shopping/${id}`)
   return { success: true, sync }
 }

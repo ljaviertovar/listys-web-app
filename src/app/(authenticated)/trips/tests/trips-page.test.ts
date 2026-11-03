@@ -2,12 +2,12 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 
 import { getBaseLists, getShoppingHistory } from '@/lib/api/endpoints'
-import HistoryPage from '../page'
+import TripsPage from '../page'
 
 vi.mock('next/navigation', () => ({
 	redirect: vi.fn(),
 	useRouter: () => ({ push: vi.fn() }),
-	usePathname: () => '/shopping-history',
+	usePathname: () => '/trips',
 	useSearchParams: () => new URLSearchParams(),
 }))
 vi.mock('@/lib/supabase/server', () => ({
@@ -33,7 +33,7 @@ const trip = (id: string, base_list_id: string, completed_at: string) => ({
 const list = (id: string, name: string, created_at = '2026-01-01T00:00:00Z') => ({ id, name, created_at, items: [{ count: 1 }] })
 
 const render = async (searchParams: Record<string, string | string[]> = {}) =>
-	renderToStaticMarkup(await HistoryPage({ searchParams: Promise.resolve(searchParams) }))
+	renderToStaticMarkup(await TripsPage({ searchParams: Promise.resolve(searchParams) }))
 // What the user reads: the markup itself carries Tailwind `group` classes.
 const text = (html: string) => html.replace(/<[^>]*>/g, ' ')
 
@@ -42,16 +42,16 @@ beforeEach(() => {
 	vi.mocked(getBaseLists).mockResolvedValue({ data: [list('l1', 'Pantry'), list('l2', 'Costco')], error: null } as never)
 })
 
-describe('shopping history page', () => {
+describe('trips page', () => {
 	it('shows only the retryable error when loading fails with no returned sessions', async () => {
 		vi.mocked(getShoppingHistory).mockResolvedValue({ data: null, error: 'private backend detail' } as never)
 
 		const html = await render()
 
 		expect(html).toContain('data-testid="history-load-error"')
-		expect(html).toContain('We couldn’t load your shopping history.')
-		expect(html).toContain('href="/shopping-history"')
-		expect(html).not.toContain('No shopping history yet')
+		expect(html).toContain('We couldn’t load your trips.')
+		expect(html).toContain('href="/trips"')
+		expect(html).not.toContain('No trips yet')
 		expect(html).not.toContain('private backend detail')
 	})
 
@@ -62,7 +62,7 @@ describe('shopping history page', () => {
 		const html = await render()
 
 		expect(html).toContain('data-testid="history-load-error"')
-		expect(html).not.toContain('No shopping history yet')
+		expect(html).not.toContain('No trips yet')
 	})
 
 	it('shows the empty state only after a successful empty response', async () => {
@@ -70,7 +70,7 @@ describe('shopping history page', () => {
 
 		const html = await render()
 
-		expect(html).toContain('No shopping history yet')
+		expect(html).toContain('No trips yet')
 		expect(html).not.toContain('history-load-error')
 		expect(html).not.toContain('history-list-filter')
 		expect(text(html)).not.toMatch(/group/i)
@@ -100,7 +100,7 @@ describe('shopping history page', () => {
 
 		expect(html).toContain('history-card-t1')
 		expect(html).not.toContain('history-card-t2')
-		expect(html).toContain('href="/shopping/t1?from=history&amp;list=l1"')
+		expect(html).toContain('href="/shopping/t1?from=trips&amp;list=l1"')
 	})
 
 	it('treats an unknown list value as all trips, without an error', async () => {
@@ -113,7 +113,7 @@ describe('shopping history page', () => {
 
 		expect(html).toContain('history-card-t1')
 		expect(html).toContain('history-card-t2')
-		expect(html).toContain('href="/shopping/t1?from=history"')
+		expect(html).toContain('href="/shopping/t1?from=trips"')
 		expect(html).not.toContain('history-load-error')
 	})
 })
