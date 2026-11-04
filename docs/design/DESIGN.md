@@ -10,7 +10,7 @@ meta:
   productSource: "docs/prd/PRD-v2.md"
   implementationSource: "src/app/globals.css and application-owned components"
   status: "Target canonical; implementation gaps are listed in section 11"
-  designSource: "docs/design/listys-design-system-v2.html (canonical visual reference; four sections covering foundations, controls, feedback/navigation/data, and product patterns/mobile A1)"
+  designSource: "docs/design/listys-design-system.html (canonical visual reference; four sections covering foundations, controls, feedback/navigation/data, and product patterns/mobile A1)"
 
 colors:
   ink: "#0F172A"
@@ -298,16 +298,22 @@ components:
 
 ## Overview
 
-**Status:** Target canonical. The [Design system v2 HTML](listys-design-system-v2.html) is the canonical visual source for
+**Status:** Target canonical. The [Design system v2 HTML](listys-design-system.html) is the canonical visual source for
 new and redesigned interfaces. This document is its written specification and code mapping: it records interaction
 rules, implementation details, and gaps without redefining the target around accidental implementation details. The
 current product is partially aligned; section 11.4 records the migration work. When the HTML and this document disagree,
 the HTML wins for the target look and this document is updated in the same change. See the development rule in
 [`AGENTS.md`](../../AGENTS.md#design-system-v2-source-for-new-components).
 
-**Visual source:** [`listys-design-system-v2.html`](listys-design-system-v2.html), with four navigable sections covering
+**Visual source:** [`listys-design-system.html`](listys-design-system.html), with four navigable sections covering
 foundations and typography, buttons/chips/forms/cards, feedback/navigation/data, and product patterns/mobile A1. Inspect
 the relevant examples before implementation and visual validation.
+
+**Canvas boards:** the "Listys - System Design" canvas carries the newer Design system v2 boards (1/7 foundations, 2/7 buttons,
+counters, forms and cards, 3/7 chips and object colours, 4/7 data hierarchy, 5/7 feedback and navigation, 6/7 Listys v3
+components, 7/7 patterns, mobile A1 and item rows) and the v3 screen flows (F1–F7). Their decisions are written into this
+document: status, tags and entities (7.3), object colours (7.15), data hierarchy (7.16), counters (7.17), item rows (7.18), the
+v3 components (7.19) and the trip receipt review (7.6). Where the code or the HTML has not caught up, the gap is in 11.4 (3g).
 
 **Product premise:** Listys turns receipts into reusable household memory. A receipt is an input signal, not the final
 product; the lasting object is a shopping list that becomes easier to use after every trip.
@@ -379,20 +385,20 @@ width. Do not recolour the mark by feature, add a glow, or place it inside a sec
 
 ### 3.1 Core palette
 
-| Token | Hex | Role |
-| --- | --- | --- |
-| Ink (`foreground`) | `#0F172A` | Primary text, important numerals, dark structural surfaces |
-| Paper (`surface`) | `#FFFFFF` | Cards, rows, dialogs, menus, elevated inputs |
-| Canvas (`background`) | `#F2F4F7` | Application background |
-| Surface secondary | `#E9ECF0` | Default secondary and tertiary buttons, chips, filled inputs, tracks, segmented controls |
-| Surface tertiary | `#DEE2E8` | Hover of a secondary surface, highlighted or selected content |
-| Action blue (`accent`) | `#2563EB` | Primary actions, focus, selection |
-| Action blue strong | `#1D4ED8` | Hover of primary, blue text on grey, the current navigation item |
-| Scan cyan | `#38BDF8` | OCR and synchronization accent only |
-| Danger | `#DC2626` | Solid destructive button (hover `#B91C1C`) |
-| Danger soft | `#FDE2E2` | Destructive icon tile and soft destructive button (hover `#FECACA`) |
-| Divider | `#EEF0F3` | Separators between rows inside a card and between Up Next entries |
-| Hero scrim | `#080D1A` | Veil over the hero photo: 93% to 86% top-down on phones; 95%, 88%, 45% left to right from `md` |
+| Token                  | Hex       | Role                                                                                           |
+| ---------------------- | --------- | ---------------------------------------------------------------------------------------------- |
+| Ink (`foreground`)     | `#0F172A` | Primary text, important numerals, dark structural surfaces                                     |
+| Paper (`surface`)      | `#FFFFFF` | Cards, rows, dialogs, menus, elevated inputs                                                   |
+| Canvas (`background`)  | `#F2F4F7` | Application background                                                                         |
+| Surface secondary      | `#E9ECF0` | Default secondary and tertiary buttons, chips, filled inputs, tracks, segmented controls       |
+| Surface tertiary       | `#DEE2E8` | Hover of a secondary surface, highlighted or selected content                                  |
+| Action blue (`accent`) | `#2563EB` | Primary actions, focus, selection                                                              |
+| Action blue strong     | `#1D4ED8` | Hover of primary, blue text on grey, the current navigation item                               |
+| Scan cyan              | `#38BDF8` | OCR and synchronization accent only                                                            |
+| Danger                 | `#DC2626` | Solid destructive button (hover `#B91C1C`)                                                     |
+| Danger soft            | `#FDE2E2` | Destructive icon tile and soft destructive button (hover `#FECACA`)                            |
+| Divider                | `#EEF0F3` | Separators between rows inside a card and between Up Next entries                              |
+| Hero scrim             | `#080D1A` | Veil over the hero photo: 93% to 86% top-down on phones; 95%, 88%, 45% left to right from `md` |
 
 The logo gradient is a brand asset, not a general-purpose background gradient. Product surfaces should use flat semantic
 colours. The exceptions are the highlight layer on the hero call to action and the raised tab-bar action (section 7.1) and
@@ -401,17 +407,17 @@ it must not become a multi-colour mesh.
 
 ### 3.2 Neutrals and hierarchy
 
-| Token | Hex | Use |
-| --- | --- | --- |
-| `ink` | `#0F172A` | Headings, item names, primary values |
-| `ink-soft` | `#334155` | Secondary headings, icons, inactive navigation labels |
-| `body` | `#475569` | Default body and metadata |
-| `muted` | `#64748B` | Supporting labels, descriptions, inactive controls |
-| `faint` | `#94A3B8` | Placeholders and non-essential annotations only |
-| `surface-secondary` | `#E9ECF0` | Input groups, skeleton and progress tracks, selected neutral rows |
-| `divider` | `#EEF0F3` | Row separators inside cards (inset), table row rules |
-| nested-list rule | `#E2E8F0` | The 2px rule beside nested rows (no screen nests lists any more; kept for the v2 HTML example) |
-| outline ring | `#D5DAE1` | The 1px inset ring of the outline button |
+| Token               | Hex       | Use                                                                                            |
+| ------------------- | --------- | ---------------------------------------------------------------------------------------------- |
+| `ink`               | `#0F172A` | Headings, item names, primary values                                                           |
+| `ink-soft`          | `#334155` | Secondary headings, icons, inactive navigation labels                                          |
+| `body`              | `#475569` | Default body and metadata                                                                      |
+| `muted`             | `#64748B` | Supporting labels, descriptions, inactive controls                                             |
+| `faint`             | `#94A3B8` | Placeholders and non-essential annotations only                                                |
+| `surface-secondary` | `#E9ECF0` | Input groups, skeleton and progress tracks, selected neutral rows                              |
+| `divider`           | `#EEF0F3` | Row separators inside cards (inset), table row rules                                           |
+| nested-list rule    | `#E2E8F0` | The 2px rule beside nested rows (no screen nests lists any more; kept for the v2 HTML example) |
+| outline ring        | `#D5DAE1` | The 1px inset ring of the outline button                                                       |
 
 Cards and rows do not use hairline borders. Field rings are the shadows in section 5.3. The legacy `#E2E8F0` and `#CBD5E1`
 borders still exist in the code and are tracked in section 11.4.
@@ -420,16 +426,17 @@ Do not use `faint` for navigation, form labels, essential timestamps, prices, or
 
 ### 3.3 Semantic states
 
-| State | Foreground | Tinted surface | Required textual cue |
-| --- | --- | --- | --- |
-| Completed / success | `#15803D` | `#F0FDF4` (counters and deltas `#DCFCE7`) | "Completed", "Saved", or equivalent |
-| Pending / attention | `#B45309` | `#FFFBEB` (counters `#FEF3C7`) | "Pending" or the next action |
-| Failed / destructive | `#B91C1C` | `#FEF2F2` (deltas `#FEE2E2`) | Failure reason and recovery action |
-| Processing | `#1D4ED8` | `#EFF6FF` | "Reading receipt" or current stage |
-| Collaboration | `#7C3AED` | `#F5F3FF` | Person, invitation, or sharing label |
+| State                | Foreground | Tinted surface                            | Required textual cue                 |
+| -------------------- | ---------- | ----------------------------------------- | ------------------------------------ |
+| Completed / success  | `#15803D`  | `#F0FDF4` (counters and deltas `#DCFCE7`) | "Completed", "Saved", or equivalent  |
+| Pending / attention  | `#B45309`  | `#FFFBEB` (counters `#FEF3C7`)            | "Pending" or the next action         |
+| Failed / destructive | `#B91C1C`  | `#FEF2F2` (deltas `#FEE2E2`)              | Failure reason and recovery action   |
+| Processing           | `#1D4ED8`  | `#EFF6FF`                                 | "Reading receipt" or current stage   |
+| Collaboration        | `#7C3AED`  | `#F5F3FF`                                 | Person, invitation, or sharing label |
 
-Status chips sit on surface secondary (`#E9ECF0`) with an icon and coloured text; the tinted surfaces above are for counters,
-deltas, icon tiles and alerts. Status meaning is never colour alone. Badges include text; progress includes a numeric or
+Status pills use the 100-level tint of their state with 700-level text and a 6px dot; tags are white boxes (amber only when
+something is missing) and stores are violet entities without a box (section 7.3). The tinted surfaces above are also used for
+icon tiles and alerts; counters and deltas carry no box (section 7.17). Status meaning is never colour alone. Badges include text; progress includes a numeric or
 verbal value; selected list rows include a check mark and an accessible checked state.
 
 ### 3.4 Dark mode
@@ -466,28 +473,32 @@ are self-hosted and layout shifts are controlled.
 
 ### 4.2 Scale and roles
 
-| Role | Spec | Use |
-| --- | --- | --- |
-| Display | `800 clamp(44px, 7vw, 76px)/1`, `-.035em` | Landing hero title only (`max-width: 18ch`, two lines on desktop). The tracking stays at `-.035em`: at `-.045em` the word spaces close up at this size |
-| Hero lead | `500 clamp(18px, 1.8vw, 20px)/1.55` (Inter) | The line under the landing hero title; section ledes use Body large |
-| Marketing heading | `750 clamp(32px, 4vw, 48px)/1.1`, `-.035em` | Landing sections |
-| h1 (screen title) | `700 36px/1.11`, `-.03em` | Authenticated page heading; 24px (`text-2xl`, `/1.17`, `-.025em`) below `md`, 30px (`text-3xl`) from `md`, 36px (`lg:text-4xl`) on desktop |
-| h2 | `700 30px/1.17`, `-.025em` | Hero and session titles: 20px (`text-xl`) below `md`, 30px (`text-3xl`) from `md`, never above the page h1 |
-| h3 | `700 16px/1.25` below `md`, `700 18px/1.25` from `md`, `-.02em` | Session and list names, card titles |
-| h4 (section title) | `600 20px/1.33`, `-.015em` | Section titles and "Up Next" from `md`; the dashboard sets them at `/1.39`, `-.01em`. On phones they are `h2` elements set at the h6 size (`600 16px/1.5`, `-.005em`) |
-| h5 | `600 18px/1.39`, `-.01em` | Sub-sections |
-| h6 (card title) | `600 16px/1.5`, `-.005em` | Lists, receipts, history cards |
-| Body large | `450 18px/1.65` | Marketing lead |
-| Body | `400 16px/1.75` | Default app and marketing copy |
-| Body small | `400 14px/1.5` | Secondary text, table cells, navigation and sidebar items |
-| Body extra small | `400 12px/1.25` | Captions, helper text and fine print |
-| Label | `600 14px/1` (Plus Jakarta Sans) | Buttons, tabs, form actions |
-| Chip | `600 12px/1` (Inter, `text-xs`) | Status chips (`Badge`, 22px high) and counters (the date and session pills stay at `600 12.5px/1`) |
-| Tab | `500-600 12px/1` (Inter, `text-xs`) | Tab-bar labels |
-| Mono | `500 14px/1.5` | Ids, dates, amounts |
-| Receipt meta | `500 12px/1.4`, `.01em` | Row metadata under titles: merchant, dates, item counts |
-| Overline | `600 11px/1.2`, `.1em`, uppercase | Actual process stage or data category |
-| Category caption | `600 12px/1.25` (Inter), `.04em`, uppercase, slate-700 | Category headings of a receipt, a list and a shopping session: the Caption size, not the mono Overline |
+| Role               | Spec                                                            | Use                                                                                                                                                                   |
+| ------------------ | --------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Display            | `800 clamp(44px, 7vw, 76px)/1`, `-.035em`                       | Landing hero title only (`max-width: 18ch`, two lines on desktop). The tracking stays at `-.035em`: at `-.045em` the word spaces close up at this size                |
+| Hero lead          | `500 clamp(18px, 1.8vw, 20px)/1.55` (Inter)                     | The line under the landing hero title; section ledes use Body large                                                                                                   |
+| Marketing heading  | `750 clamp(32px, 4vw, 48px)/1.1`, `-.035em`                     | Landing sections                                                                                                                                                      |
+| h1 (screen title)  | `700 36px/1.11`, `-.03em`                                       | Authenticated page heading; 24px (`text-2xl`, `/1.17`, `-.025em`) below `md`, 30px (`text-3xl`) from `md`, 36px (`lg:text-4xl`) on desktop                            |
+| h2                 | `700 30px/1.17`, `-.025em`                                      | Hero and session titles: 20px (`text-xl`) below `md`, 30px (`text-3xl`) from `md`, never above the page h1                                                            |
+| h3                 | `700 16px/1.25` below `md`, `700 18px/1.25` from `md`, `-.02em` | Session and list names, card titles                                                                                                                                   |
+| h4 (section title) | `600 20px/1.33`, `-.015em`                                      | Section titles and "Up Next" from `md`; the dashboard sets them at `/1.39`, `-.01em`. On phones they are `h2` elements set at the h6 size (`600 16px/1.5`, `-.005em`) |
+| h5                 | `600 18px/1.39`, `-.01em`                                       | Sub-sections                                                                                                                                                          |
+| h6 (card title)    | `600 16px/1.5`, `-.005em`                                       | Lists, receipts, history cards                                                                                                                                        |
+| Body large         | `450 18px/1.65`                                                 | Marketing lead                                                                                                                                                        |
+| Body               | `400 16px/1.75`                                                 | Default app and marketing copy                                                                                                                                        |
+| Body small         | `400 14px/1.5`                                                  | Secondary text, table cells, navigation and sidebar items                                                                                                             |
+| Body extra small   | `400 12px/1.25`                                                 | Captions, helper text and fine print                                                                                                                                  |
+| Label              | `600 14px/1` (Plus Jakarta Sans)                                | Buttons, tabs, form actions                                                                                                                                           |
+| Chip               | `600 12px/1` (Inter, `text-xs`)                                 | Status pills (`Badge`, 22px high) and store entities; tags use `500 12px/1` (section 7.3)                                                                             |
+| Tab                | `500-600 12px/1` (Inter, `text-xs`)                             | Tab-bar labels                                                                                                                                                        |
+| Mono               | `500 14px/1.5`                                                  | Ids, dates, amounts                                                                                                                                                   |
+| Receipt meta       | `500 12px/1.4`, `.01em`                                         | Row metadata under titles: merchant, dates, item counts                                                                                                               |
+| Overline           | `600 12px/1.2` (`text-xs`), `.1em` (`tracking-widest`), uppercase | Actual process stage or data category                                                                                                                               |
+| Category caption   | `600 12px/1.25` (Inter), `.04em`, uppercase, slate-700          | Category headings of a receipt, a list and a shopping session: the Caption size, not the mono Overline                                                                |
+
+The scale is closed: `text-xs` 12, `text-sm` 14, `text-base` 16, `text-lg` 18, `text-xl` 20, `text-2xl` 24, `text-3xl` 30 and
+`text-4xl` 36. In-between values (11, 11.5, 12.5, 13, 13.5, 14.5, 15) round to the nearest step, with no exceptions. Mono only
+at 500 or 600; weight 750 only for the landing section titles and 800 for the hero title and large figures.
 
 Use tabular numerals for prices, item counts, percentages, quantities, and timestamps. Headings use `text-wrap: balance`;
 prose uses `text-wrap: pretty`. Uppercase is restricted to short mono overlines and the category caption. Item names use title
@@ -502,17 +513,17 @@ case in the product UI even when OCR input arrived in capitals; a category headi
 Medium (12px) is the radius of components, large (16px) of form fields, 24px of cards and dialogs; the full pill is
 only for avatars, switches and progress bars.
 
-| Token | Value | Applies to |
-| --- | --- | --- |
-| `checkbox` | `6px` | Checkbox |
-| `tag` | `8px` | Chips, the date pill, small tiles in lists |
-| `control` / `row` | `12px` | Buttons at every size, rows, menu items, icon tiles, avatars of stores |
-| `field` | `16px` | Inputs, selects, one-time-code cells, the raised tab-bar action |
-| `panel` | `20px` | Action menus, the phone session pill |
-| `card` | `24px` | Cards, hero surfaces, upload areas |
-| `dialog` | `24px` | Dialogs and phone sheets (`rounded-3xl`) |
-| `device` | `32px` | Marketing phone mockup only |
-| `pill` | `999px` | Person avatars, switches, progress tracks |
+| Token             | Value   | Applies to                                                             |
+| ----------------- | ------- | ---------------------------------------------------------------------- |
+| `checkbox`        | `6px`   | Checkbox                                                               |
+| `tag`             | `8px`   | Chips, the date pill, small tiles in lists                             |
+| `control` / `row` | `12px`  | Buttons at every size, rows, menu items, icon tiles, avatars of stores |
+| `field`           | `16px`  | Inputs, selects, one-time-code cells, the raised tab-bar action        |
+| `panel`           | `20px`  | Action menus, the phone session pill                                   |
+| `card`            | `24px`  | Cards, hero surfaces, upload areas                                     |
+| `dialog`          | `24px`  | Dialogs and phone sheets (`rounded-3xl`)                               |
+| `device`          | `32px`  | Marketing phone mockup only                                            |
+| `pill`            | `999px` | Person avatars, switches, progress tracks                              |
 
 Do not mix `rounded-lg`, `rounded-xl`, and arbitrary bracket values for equivalent components. Choose the semantic token.
 
@@ -638,18 +649,18 @@ that were bought, without checkboxes or menus.
 
 ### 6.5 Dashboard and phone shell (design A1)
 
-The dashboard and the phone shell follow the A1 desktop and mobile patterns in the [Design system v2 HTML](listys-design-system-v2.html). Their values take precedence over the
+The dashboard and the phone shell follow the A1 desktop and mobile patterns in the [Design system v2 HTML](listys-design-system.html). Their values take precedence over the
 generic scale on this surface. They are expressed with the native props and tokens of `src/components/ui/` (section 11.5) and
 the shell in `src/components/app/mobile-tab-bar.tsx`.
 
 **Phone shell** (below `lg`):
 
-| Piece | Spec |
-| --- | --- |
-| Header | 60px (64px from `lg`), white with a bottom hairline; logo 30px plus the "Listys" wordmark (Plus Jakarta Sans 700 19px, `-.02em`); a 44x44 account button with a 34px initials avatar on `#DBEAFE`. No menu button: Profile, Account and Sign Out live in the account menu |
-| Tab bar | See section 7.11 |
+| Piece       | Spec                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Header      | 60px (64px from `lg`), white with a bottom hairline; logo 30px plus the "Listys" wordmark (Plus Jakarta Sans 700 19px, `-.02em`); a 44x44 account button with a 34px initials avatar on `#DBEAFE`. No menu button: Profile, Account and Sign Out live in the account menu                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| Tab bar     | See section 7.11                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | Session bar | Only while a trip runs, on every phone screen except the trip's own (`ActiveSessionBar`): styled like the receipt selection bar: no fixed height, 24px radius, `#0F172A`, `10px 10px 10px 16px` padding, 8px gap, the same shadow; a 28px progress ring with a green dot, the trip name (14px / 600) and "n of m · p%" (mono 12px, `slate-300`), and a `Button size='sm'` "Continue" (32px, 14px / 600, default 12px radius). The whole bar is the link. It floats 8px above the tab bar with 12px side insets, stays visible next to the dashboard hero's own button, and the raised tab-bar action overlaps its lower edge. If other sessions are active, a "+N more in progress" link opens Shopping Lists |
-| Content | 16px gutter, 20px above the greeting, 40px below the last card, plus 56px while the session bar is shown (a spacer after the page); surfaces pinned to the bottom edge sit above the tab bar (`ABOVE_MOBILE_TAB_BAR`), and above the session bar when it shows (`ABOVE_MOBILE_SESSION_BAR`) |
+| Content     | 16px gutter, 20px above the greeting, 40px below the last card, plus 56px while the session bar is shown (a spacer after the page); surfaces pinned to the bottom edge sit above the tab bar (`ABOVE_MOBILE_TAB_BAR`), and above the session bar when it shows (`ABOVE_MOBILE_SESSION_BAR`)                                                                                                                                                                                                                                                                                                                                                                                                                   |
 
 **Hero.** A 24px-radius photo surface under the `hero-scrim`. One blue 52px button does the obvious thing: "Continue
 shopping" for a running session, "Start shopping" for the most overdue list, or "Upload receipt" for an account without
@@ -664,17 +675,17 @@ items.
 
 **Sections** (Shopping Lists, Likely Needed, This Month, Last Trip by Store):
 
-| Piece | Spec |
-| --- | --- |
-| Title row | `h2` 20px / 600 / 1.39 / `-.01em` and, on the right, a "View All" `ActionLink` (blue 700, 600 14px, no fill and no horizontal padding; on hover its arrow nudges 2px right) 12px above the card. The link is `min-h-8` at every width and the title row is `min-h-10`, so it lines up with "Up Next", which has no link |
-| Card | White, 24px radius, 12px padding on phones and 16px from `md`, `raised` shadow, no border; the shadow deepens on hover |
-| Row | 12px radius, `10 8` padding, 12px gap, 36px icon tile (12px radius) in the 100-level tint (the same fill "Up Next" uses), 14px / 600 title, mono 12px / 500 metadata in `muted` (may wrap), hover `#F2F4F7` |
-| Tile tints | Lists `#DBEAFE` / `#1D4ED8`, Likely Needed amber `#FEF3C7` / `#B45309`, This Month green `#DCFCE7` / `#15803D`, Last Trip by Store cyan `#CFFAFE` / `#0E7490` (the 100-level fill with the 700-level icon, as in "Up Next" and the tab bar); 32px tile (the top-level row size of the v2 example) for lists |
-| Lists | One flat row per list (`ListsSectionCard`), the group level of the v2 example removed: the 32px tile, the name with `· N items`, and a grey "Start" button (32px, `#E9ECF0`, 12px radius, 13px / 600) at the end. When that list has an active session, the action reads "Resume Shopping" and opens that session. Preview: up to five lists, then "+ N more" linking to the lists screen |
-| Likely Needed | Up to five overdue items, sorted by overdue ratio; each row links to its list and shows the list, usual store when known, and the factual cadence in mono ("Usually every 9 days · last bought 12 days ago"). Empty copy distinguishes no history from nothing due; it does not show a score or prediction |
-| This Month | Visitor-time-zone calendar month; shows only known totals from completed trips and unattached receipts, with their counts. Trips without totals are called out separately. Loading skeleton and retryable error stay inside this card; when no total is known, explain how to record one and do not show `$0` |
-| Last Trip by Store | Up to four stores with a visit, newest first. Show store name, visit date and known total in mono; a trip opens Trips and a receipt opens that receipt. The empty state explains how to confirm or choose a store |
-| Empty | Minimum 172px, a 56px tile (16px radius) in the corresponding 100-level tint, a two-line 13.5px explanation in `muted` (max 280px) and one primary action only when the section has a useful next step. The button is 32px with a 12px label on phones and 44px with 14px from `md` |
+| Piece              | Spec                                                                                                                                                                                                                                                                                                                                                                                      |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Title row          | `h2` 20px / 600 / 1.39 / `-.01em` and, on the right, a "View All" `ActionLink` (blue 700, 600 14px, no fill and no horizontal padding; on hover its arrow nudges 2px right) 12px above the card. The link is `min-h-8` at every width and the title row is `min-h-10`, so it lines up with "Up Next", which has no link                                                                   |
+| Card               | White, 24px radius, 12px padding on phones and 16px from `md`, `raised` shadow, no border; the shadow deepens on hover                                                                                                                                                                                                                                                                    |
+| Row                | 12px radius, `10 8` padding, 12px gap, 36px icon tile (12px radius) in the 100-level tint (the same fill "Up Next" uses), 14px / 600 title, mono 12px / 500 metadata in `muted` (may wrap), hover `#F2F4F7`                                                                                                                                                                               |
+| Tile tints         | Lists `#DBEAFE` / `#1D4ED8`, Likely Needed amber `#FEF3C7` / `#B45309`, This Month green `#DCFCE7` / `#15803D`, Last Trip by Store cyan `#CFFAFE` / `#0E7490` (the 100-level fill with the 700-level icon, as in "Up Next" and the tab bar); 32px tile (the top-level row size of the v2 example) for lists                                                                               |
+| Lists              | One flat row per list (`ListsSectionCard`), the group level of the v2 example removed: the 32px tile, the name with `· N items`, and a grey "Start" button (32px, `#E9ECF0`, 12px radius, 13px / 600) at the end. When that list has an active session, the action reads "Resume Shopping" and opens that session. Preview: up to five lists, then "+ N more" linking to the lists screen |
+| Likely Needed      | Up to five overdue items, sorted by overdue ratio; each row links to its list and shows the list, usual store when known, and the factual cadence in mono ("Usually every 9 days · last bought 12 days ago"). Empty copy distinguishes no history from nothing due; it does not show a score or prediction                                                                                |
+| This Month         | Visitor-time-zone calendar month; shows only known totals from completed trips and unattached receipts, with their counts. Trips without totals are called out separately. Loading skeleton and retryable error stay inside this card; when no total is known, explain how to record one and do not show `$0`                                                                             |
+| Last Trip by Store | Up to four stores with a visit, newest first. Show store name, visit date and known total in mono; a trip opens Trips and a receipt opens that receipt. The empty state explains how to confirm or choose a store                                                                                                                                                                         |
+| Empty              | Minimum 172px, a 56px tile (16px radius) in the corresponding 100-level tint, a two-line 13.5px explanation in `muted` (max 280px) and one primary action only when the section has a useful next step. The button is 32px with a 12px label on phones and 44px with 14px from `md`                                                                                                       |
 
 **Up Next.** One white card (24px radius, 12px padding on phones and 16px from `md`) of up to three rows: 64px high, 14px radius, a 40px tile (12px
 radius, 100-level tint with 700 icon: amber for a receipt waiting, red for one that failed, blue for a list not shopped for
@@ -690,18 +701,18 @@ a failed request must not look like an empty account. The photo behind the heroe
 
 **Sizes that change with the viewport:**
 
-| Element | Phones | From `md` / `lg` |
-| --- | --- | --- |
-| Page title | 24px (`text-2xl`) | 30px (`text-3xl`) from `md`, 36px (`lg:text-4xl`) on desktop |
-| Hero and session title | 20px (`text-xl`) | 30px (`text-3xl`) from `md` |
-| Primary action (`size='primary'`) | 40px by product decision | 44px from `md` |
-| Hero button | 52px; hero card action 40px (`lg`) | 52px; hero card action 44px (`xl`) |
-| Quick-start chips | 36px / 12.5px | 36px / 12.5px |
-| Empty-state button | `primary`, 40px / 14px | `primary`, 44px / 14px |
-| "View All" | `link-inline`, 32px min / 14px | `link-inline`, 32px min / 14px |
-| Header | 60px | 64px (`lg`) |
-| Tab bar and session pill | Shown | Hidden (`lg`) |
-| Header "Upload Receipt" | Hidden | Shown (`lg`) |
+| Element                           | Phones                             | From `md` / `lg`                                             |
+| --------------------------------- | ---------------------------------- | ------------------------------------------------------------ |
+| Page title                        | 24px (`text-2xl`)                  | 30px (`text-3xl`) from `md`, 36px (`lg:text-4xl`) on desktop |
+| Hero and session title            | 20px (`text-xl`)                   | 30px (`text-3xl`) from `md`                                  |
+| Primary action (`size='primary'`) | 40px by product decision           | 44px from `md`                                               |
+| Hero button                       | 52px; hero card action 40px (`lg`) | 52px; hero card action 44px (`xl`)                           |
+| Quick-start chips                 | 36px / 12.5px                      | 36px / 12.5px                                                |
+| Empty-state button                | `primary`, 40px / 14px             | `primary`, 44px / 14px                                       |
+| "View All"                        | `link-inline`, 32px min / 14px     | `link-inline`, 32px min / 14px                               |
+| Header                            | 60px                               | 64px (`lg`)                                                  |
+| Tab bar and session pill          | Shown                              | Hidden (`lg`)                                                |
+| Header "Upload Receipt"           | Hidden                             | Shown (`lg`)                                                 |
 
 ---
 
@@ -717,28 +728,28 @@ each word capitalised except short articles, conjunctions and prepositions ("a",
 unless they open the label. This covers visible text and the tooltip titles of icon buttons ("Copy Link"). Headings,
 descriptions, badges, toasts and list or receipt data keep sentence case.
 
-| Variant | Surface and text | Hover |
-| --- | --- | --- |
-| Primary | `#2563EB`, white | `#1D4ED8` |
-| Secondary | `#E9ECF0`, `#1D4ED8` | `#DEE2E8` |
-| Tertiary | `#E9ECF0`, ink | `#DEE2E8` |
-| Outline | Transparent, ink, 1px inset ring `#D5DAE1` | `#F2F4F7` |
-| Ghost | Transparent, ink | `#E9ECF0` |
-| Danger | `#DC2626`, white | `#B91C1C` |
-| Danger soft | `#FDE2E2`, `#B91C1C` | `#FECACA` |
+| Variant     | Surface and text                           | Hover     |
+| ----------- | ------------------------------------------ | --------- |
+| Primary     | `#2563EB`, white                           | `#1D4ED8` |
+| Secondary   | `#E9ECF0`, `#1D4ED8`                       | `#DEE2E8` |
+| Tertiary    | `#E9ECF0`, ink                             | `#DEE2E8` |
+| Outline     | Transparent, ink, 1px inset ring `#D5DAE1` | `#F2F4F7` |
+| Ghost       | Transparent, ink                           | `#E9ECF0` |
+| Danger      | `#DC2626`, white                           | `#B91C1C` |
+| Danger soft | `#FDE2E2`, `#B91C1C`                       | `#FECACA` |
 
-| Size | Height | Padding and label |
-| --- | --- | --- |
-| `sm` | 32px | 0 14px, 13px, 6px gap |
-| `default` | 36px below `md`, 40px from `md` | 0 12px, then 0 16px from `md`; 14px / 600, 6px gap (the default size) |
-| `lg` | 40px | 0 16px, 14px / 600 |
-| `xl` | 44px | 0 24px, 16px / 600 (the library's own xl; toolbars and sheet footers from `md`) |
-| `primary` | 40px below `md`, 44px from `md` | The primary action of a screen, sheet or form; compact mobile height is a product decision (see section 11.5) |
-| `link-action` | 40px below `md`, 44px from `md` | A link rendered as a button action; follows the compact mobile height |
+| Size          | Height                                           | Padding and label                                                                                                                           |
+| ------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sm`          | 32px                                             | 0 14px, 13px, 6px gap                                                                                                                       |
+| `default`     | 36px below `md`, 40px from `md`                  | 0 12px, then 0 16px from `md`; 14px / 600, 6px gap (the default size)                                                                       |
+| `lg`          | 40px                                             | 0 16px, 14px / 600                                                                                                                          |
+| `xl`          | 44px                                             | 0 24px, 16px / 600 (the library's own xl; toolbars and sheet footers from `md`)                                                             |
+| `primary`     | 40px below `md`, 44px from `md`                  | The primary action of a screen, sheet or form; compact mobile height is a product decision (see section 11.5)                               |
+| `link-action` | 40px below `md`, 44px from `md`                  | A link rendered as a button action; follows the compact mobile height                                                                       |
 | `link-inline` | `min-h-8` (32px), no horizontal padding, 4px gap | The text link that ends a row or titles a section ("View Details", "View All"): flush with the edge of its row. Always through `ActionLink` |
-| `hero-action` | 40px below `md`, 44px from `md` | The dashboard hero card action: `lg` on phones, `xl` from `md` |
-| `2xl` (hero) | 52px | 0 28px, Plus Jakarta Sans 700 16px, 10px gap, 18px icon |
-| Icon only | 36 to 48px | 18px icon; the raised tab-bar action is 48x48 with a 16px radius |
+| `hero-action` | 40px below `md`, 44px from `md`                  | The dashboard hero card action: `lg` on phones, `xl` from `md`                                                                              |
+| `2xl` (hero)  | 52px                                             | 0 28px, Plus Jakarta Sans 700 16px, 10px gap, 18px icon                                                                                     |
+| Icon only     | 36 to 48px                                       | 18px icon; the raised tab-bar action is 48x48 with a 16px radius                                                                            |
 
 Touch: standard buttons use `default` (36px) below `md` and `lg` (40px) from `md`; `primary` and link actions are 40px on phones and 44px from `md`. The marketing `ButtonLink` compact CTA follows the same responsive height. Use `sm` only inside dense rows that provide a 44px hit area.
 Most controls keep at least a 44x44px target (section 10.2). The mobile `primary` and `link-action` sizes are explicit 40px product exceptions; they do not claim an expanded hit area.
@@ -777,11 +788,31 @@ region; repeated polling must not produce repeated announcements.
 
 The running-session badge reads `Shopping` (the dashboard hero chip reads `Shopping now`) with a subtly pulsing green dot to
 reinforce its active state. The pulse stops when reduced motion is preferred. It has an `on-dark` tone for photo and ink
-surfaces such as the dashboard banner: a 26px pill with a 12% white fill and a 7px dot. Status chips are small
-22px pills (999 radius) tinted with the 100-level of their status (`Pending` slate-100 / slate-700, `Processing` amber-100 / amber-700,
-`Completed` green-100 / green-700, `Failed` red-100 / red-700), with a 12px icon (a 6px dot for `Pending`) and a 12px / 600 label, padding
-8px. They are deliberately not the shape of a button (12px radius, `#E9ECF0`, 40px), so they never read as pressable. Counters share the
-22px pill with a 12px label, and deltas and "New" use the same tinted success and danger surfaces.
+surfaces such as the dashboard banner: a 26px pill with a 12% white fill and a 7px dot.
+
+**Three shapes, three jobs (canvas 3/7).** Every chip used to be the same pill, so a trip's state (`Completed`) and a fact about it
+(`No receipt`) read as two competing states. Each level now has its own shape, distinguishable even in greyscale:
+
+| Level | Says | Shape | Place |
+| --- | --- | --- | --- |
+| **Status** | Where the object is in its process; one at most, and it changes over time | The only filled pill: 22px, 999 radius, 6px dot, Inter 600 / 12, 100-level tint with 700-level text | Beside the title, right-aligned |
+| **Tag** | Something about the object: an attribute or a missing fact. There can be several; they do not describe progress | The only bordered box: 22px, 6px radius, white with a 1px `#E2E8F0` ring, a mandatory 13px icon, Inter 500 / 12 slate text. The attention variant (`#FFFBEB` fill, `#FDE68A` ring, `#92400E` text) means something is missing, never green or red | The data line, under the title |
+| **Entity** | Another thing in the app the object is linked to; today only stores | No box: a 14px `#7C3AED` store icon and the name in Inter 600 / 12 `#5B21B6`. A store the user chose by hand adds “· set by you” in grey regular | The data line, after the tags, 10px apart |
+
+Status labels: trip `Shopping` (blue; the dot pulses 1.4s while the session is live, still under reduced motion) and `Completed`
+(green); receipt `Reading` (blue), `Processed` (green: the OCR finished and the data can be used; it replaces `Completed` on a receipt) and
+`Failed` (red). `Reading` is a process but its pulse is carried by the screen's spinner, not the chip. Tags in use: `Receipt attached`,
+`Default`, `Shared with <name>`, `No receipt` (attention), `Remembered` and `Linked by you` (receipt lines, 7.6), `No price` and
+`No name` (attention). Rules:
+
+- One status per object. If something needs two, one of them is really a tag.
+- The status goes with the title; tags and the store go on the data line, never in the same row.
+- A tag always carries an icon and only informs. If it asks for an action (the receipt is missing), the action is its own button.
+- No green or red in tags: those colours are reserved for success and error statuses.
+- No chip is pressable. Filtering uses the 36px filter chips and acting uses buttons (40px, 12px radius) or links, always apart from the chips.
+
+The legacy pill labels `Pending`, `Processing` and `Completed` for receipts map to `Pending`, `Reading` and `Processed`; the code
+still ships the old labels (see 11.4, 3g).
 
 Badges are compact context, never the only explanation for a failure. A failed receipt also includes a short safe error and
 `Try again` when retry is available.
@@ -873,7 +904,19 @@ Another Store`); **unrecognized** ("Store not recognized", `Choose a Store`). Bu
 phones and in one row from `sm`. Every state but confirmed ends with "Optional. You can add items to a list without it." A failed
 save shows its message in the card, with `Try Again` when the store was created but not yet put on the receipt.
 
-**Close the loop (PRD v3 Phase 5; derived from the OCR review row, the A1 card and sheet, and the existing `LinkItemDialog`; the HTML has no receipt-to-trip example).** A receipt remembers the trip it was uploaded from: only the trip's own receipts card (`Upload a Receipt` / `Add Receipt`) records it, while the Receipts page, the tab bar and the dashboard upload receipts with no trip. For a read receipt that has such a trip, is neither attached nor already added to a list, and whose trip has no receipt yet (however long ago it was completed: there is no time limit), show `TicketAttachCard` before the store card: “You uploaded this receipt from a trip” with one primary action, `Review <trip>`. There is no chooser and no trip ordering, because there is only ever one trip; a receipt uploaded on its own shows neither this card nor the “added to a list” note. The A1 `AttachToSessionDialog` opens straight on the review of that trip (its name, date and store in the description) with three groups: “Already checked”, “Will be checked” and “Not in this trip”. Unmatched lines can be “Add as Purchased” (checked by default when chosen) or linked through the existing searchable `LinkItemDialog` over the trip items. The review shows the resulting store and a 44px “Total paid” field prefilled from the printed receipt total. A completed trip with a different confirmed store is blocked with an explanation; an active trip may adopt the receipt's store. The primary footer reads “Attach and Complete Trip” for an active trip and “Attach to Trip” for a completed one; it disables while attaching, reports errors with retry where the review can be reloaded, and never submits twice. Success opens the trip. An attached receipt replaces the selection bar and the add dialog with “Attached to <trip>” and “View trip”. If a merge races with an attachment, `409 RECEIPT_ATTACHED` transitions to this attached state; attaching to any trip other than the origin answers `409 RECEIPT_NOT_FROM_TRIP`. `TicketSummaryCard` keeps the extracted item total and coverage note, and separately shows “Receipt Total” only when OCR read the printed total. Known gap: `TripReceiptsCard` only appears on completed trips, so the app offers no way to upload a receipt from an active trip; the API still accepts it. Attaching also replaces quantities: each trip item matched by receipt lines, and its list item, takes the quantity bought (the sum of those lines), never added to the usual one; lines in different units leave both alone.
+**Close the loop (PRD v3 Phase 5; derived from the OCR review row, the A1 card and sheet, and the existing `LinkItemDialog`; the HTML has no receipt-to-trip example).** A receipt remembers the trip it was uploaded from: only the trip's own receipts card (`Upload a Receipt` / `Add Receipt`) records it, while the Receipts page, the tab bar and the dashboard upload receipts with no trip. For a read receipt that has such a trip, is neither attached nor already added to a list, and whose trip has no receipt yet (however long ago it was completed: there is no time limit), show `TicketAttachCard` before the store card: “You uploaded this receipt from a trip” with one primary action, `Review <trip>`. There is no chooser and no trip ordering, because there is only ever one trip; a receipt uploaded on its own shows neither this card nor the “added to a list” note. The A1 `AttachToSessionDialog` opens straight on the review of that trip, titled “Attach to <trip>”, with the line “Each receipt line updates the trip and your <list> list. Nothing changes until you attach.” and the store as an entity. A summary of three stat tiles (white, 16px radius, a 28px status-coloured icon tile and a mono 24 figure over a 12px label) counts `Matched`, `New to <list>` and `Left out`. Below it, every receipt line sits in exactly one collapsible section (the category-section header of 7.19 D, in this order): `New to <list>`, `Will be checked off`, `Already checked`, `Left out`, `Checked, not on the receipt` and a folded `Not checked, not on the receipt`. Each section carries a 12px help line under its title.
+
+A line is a row on a `#F6F7F9` panel: the receipt name in Title Case, then the price in mono with the quantity box under it (the item row of 7.18), then a tag if one applies (`Remembered`, `Linked by you`, `No price`, `No name`), then **one result line in plain grey text** that says what attaching will do, and a single `Change` text button (32px with a 44px hit area; its accessible name ends with the line's name). There is no checkbox, no `Link` and no chip that reads as an action:
+
+| Section | Result line | Example |
+| --- | --- | --- |
+| New to <list> | “Adds as a new item” | Takis Fuego 280g |
+| Will be checked off | “Matches <item>”; a changed quantity adds “· usual quantity 2 → 3” (the purchased quantity replaces the usual one); a remembered match adds “from an earlier receipt”; a line the user linked adds “· remembered for next time”; a line with no price says “checked off without a price” | Lay’s Classic, Neilson 2% Milk, 3ct Rnbw Pep, Sk Sour Peg, Bananas |
+| Already checked | “Matches <item>” (it only gets the receipt price) | PC Greek Yogurt |
+| Left out | “Left out by you”; a line whose name could not be read has no `Change` and says “The name couldn’t be read, so it can’t be added.” | Bag Fee, Unreadable line |
+| Checked, not on the receipt | No result line and no control; the section says the items stay as bought, without a price | Paper Towels |
+
+**A line with no match is added by default** as a new item, because every trip teaches the list (PRD v3 principle 4); the user leaves it out with `Change`. `Change` opens a small A1 sheet, **Change Line** (canvas F7 · 10): the receipt line in mono with its price and quantity box, then three choice rows (7.19 A) in a radio group: `Add as a new item` (“Adds it to this trip and to <list>.”), `Match a trip item` (“Checks off that item. This name is remembered next time.”, which opens the search field `Search trip items`, a count line and the trip's items as the radio list of the store picker, each with `checked` or `not checked`) and `Leave out` (“Not saved to the trip or to <list>.”), with `Save` (primary) and `Cancel`. The review shows the resulting store and a 44px “Total paid” field prefilled from the printed receipt total. A completed trip with a different confirmed store is blocked with an explanation; an active trip may adopt the receipt's store. The primary footer reads “Attach and Complete Trip” for an active trip and “Attach to Trip” for a completed one; it disables while attaching, reports errors with retry where the review can be reloaded, and never submits twice. Success opens the trip. An attached receipt replaces the selection bar and the add dialog with “Attached to <trip>” and “View trip”. If a merge races with an attachment, `409 RECEIPT_ATTACHED` transitions to this attached state; attaching to any trip other than the origin answers `409 RECEIPT_NOT_FROM_TRIP`. `TicketSummaryCard` keeps the extracted item total and coverage note, and separately shows “Receipt Total” only when OCR read the printed total. Known gap: `TripReceiptsCard` only appears on completed trips, so the app offers no way to upload a receipt from an active trip; the API still accepts it. Attaching also replaces quantities: each trip item matched by receipt lines, and its list item, takes the quantity bought (the sum of those lines), never added to the usual one; lines in different units leave both alone.
 
 **Trip receipts card and chooser (trips-and-receipt-attach; derived from the receipt summary card, the store picker's radio rows and the A1 sheets; the HTML has no example).** On a completed trip without an attached receipt, `TripReceiptsCard` follows the receipt instead of only asking for one, in the card's single title/body/actions layout: no receipt (`No receipt`, or `Trip saved` right after completing) offers `Add Receipt` (`Upload a Receipt` and `Keep It Separate` right after saving); `Reading your receipt…` shows the `Reading Receipt` status chip, offers nothing to press and refreshes the trip by itself when the reading ends; a read receipt reads `Your receipt is ready` with `Review Receipt`; an unreadable one says so with `Open Receipt` and `Add Receipt`. The header carries `Completed` plus `No receipt` (amber) or `Receipt attached`. `Add Receipt` opens an A1 sheet with `Upload New Receipt` (primary) and `Choose Uploaded Receipt` (secondary); uploading from the trip keeps the user on the trip. `Choose an Uploaded Receipt` lists the free receipts as the store picker's radio rows (store, then date and line count as a second line, total in mono at the end), newest first; a receipt confirmed at another store than the completed trip stays listed, disabled, with the reason. The review (“Review how this receipt will update the trip”) is the same sheet as on the receipt screen, opened only after a receipt is chosen or ready: while it loads it names the trip and says it is loading, and `Cancel` leaves the receipt unattached and the trip unchanged. Only the person who ran the trip gets actions.
 
@@ -980,13 +1023,13 @@ block. Entries are 36px high on one line with an 8px radius, an 18px icon (slate
 Below `lg` the sidebar is replaced by a bottom tab bar (the "A1 mobile" pattern): five equal slots, Dashboard, Lists, a
 raised 48px **Upload Receipt** button (`fab`, `icon-2xl`, 16px radius) in the middle, Receipts and Trips.
 
-| Piece | Spec |
-| --- | --- |
-| Bar | White, a hairline on top and a soft upward shadow; padding `4 8 18` (the bottom grows to the device's safe-area inset when larger); pinned to the bottom edge of the screen; hidden from `lg` |
+| Piece             | Spec                                                                                                                                                                                                                                                                                    |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Bar               | White, a hairline on top and a soft upward shadow; padding `4 8 18` (the bottom grows to the device's safe-area inset when larger); pinned to the bottom edge of the screen; hidden from `lg`                                                                                           |
 | Content clearance | The scrolling content carries a bottom padding equal to the bar's height (78px plus any safe-area inset beyond 18px) so its last row stays reachable; surfaces pinned to the bottom edge sit above it (`ABOVE_MOBILE_TAB_BAR` in `src/components/app/helpers/mobile-tab-bar-layout.ts`) |
-| Tab | 56px high (`min-h-14`), with a 24px icon at stroke 1.5, a 12px label (`text-xs`), and 12px radius; all five slots keep the same height |
-| Current tab | `#E9ECF0` surface, `#1D4ED8` text and weight 600, with no extra marker (`aria-current="page"`); inactive tabs are `slate-500`, weight 500. Lists stays current on a list and on a shopping session, whose paths start with `/base-lists` and `/shopping/` |
-| Raised action | 58x58, 16px radius, primary with the highlight layer, a 6px white ring plus the blue glow, 24px above the bar edge, 26px icon, `aria-label` "Upload a receipt" |
+| Tab               | 56px high (`min-h-14`), with a 24px icon at stroke 1.5, a 12px label (`text-xs`), and 12px radius; all five slots keep the same height                                                                                                                                                  |
+| Current tab       | `#E9ECF0` surface, `#1D4ED8` text and weight 600, with no extra marker (`aria-current="page"`); inactive tabs are `slate-500`, weight 500. Lists stays current on a list and on a shopping session, whose paths start with `/base-lists` and `/shopping/`                               |
+| Raised action     | 58x58, 16px radius, primary with the highlight layer, a 6px white ring plus the blue glow, 24px above the bar edge, 26px icon, `aria-label` "Upload a receipt"                                                                                                                          |
 
 The desktop sidebar follows the "A1 desktop" pattern (the shadcn floating sidebar): a white card with a 12px radius and a
 hairline ring, 240px wide inside 8px margins on the page ground. It opens with the brand (the Listys mark at 32px, "Listys" in
@@ -1058,6 +1101,111 @@ with concrete recovery steps); every process shows a spinner with honest text, n
 A table has a header band on `surface-secondary` (44px, 12.5px `muted` labels) and a white body that wraps it. Rows are at
 least 60px high with 18px side padding and `divider` rules. Row actions are icon-only buttons; delete uses danger soft. A
 toolbar above shows the title with a count chip and tertiary `sm` filters.
+
+### 7.15 Colour by object
+
+Each kind of object has one fixed icon colour. The colour says what the object is, never what state it is in. It is used on the
+tile (100-level fill, 700-level icon; 12px radius at 36–44px, 20px at 64px) and in empty states. The tab bar does not use it: its
+icons stay grey and the current tab is blue.
+
+| Object | Fill | Icon | Used on |
+| --- | --- | --- | --- |
+| Lists | `#DBEAFE` | `#1D4ED8` | List tiles, the list filter, list empty states |
+| Receipts | `#CFFAFE` | `#0E7490` | Receipt tiles, upload and reading, receipt empty states |
+| Trips | `#DCFCE7` | `#15803D` | Trip and shopping-session tiles, trip empty states |
+| Stores | `#EDE9FE` | `#6D28D9` | Store tiles, My Stores, and the store entity (icon `#7C3AED`, text `#5B21B6`) |
+
+### 7.16 Data hierarchy
+
+The same levels, in the same order, on an object card and under a screen title.
+
+**Object card** (list, receipt, trip, store): a 24px white card with 14px padding and 10px between levels; an empty level is
+omitted, never left as a gap.
+
+1. **Identity:** the object's tile and its title on one line, cut with an ellipsis.
+2. **Status:** zero or one pill on that row, right-aligned (7.3). Only the receipt and the trip carry one.
+3. **Classification:** one row, in this order: the entity, then up to two tags (the store, `Default`, `Shared with Ana`, `No receipt`).
+4. **Data:** at most three facts separated by “·”, in this order: quantity, time, total amount (the amount last, next to the date).
+   Figures in IBM Plex Mono, text in Inter 14 `#475569`.
+5. **Footer:** the count of what the card holds on the left and one link on the right (`View Details`, `View Items`, `View Store`).
+   The primary button goes below the footer, apart.
+
+Two optional elements do not change the order: **A, a note** (the person's free text, between the title row and the classification:
+16px note icon `#64748B`, Inter 400 / 14 `#334155`, two lines at most; only lists have one) and **B, the ⋯ actions** (a 44px button
+that closes the title row, named “More options for <name>”; the status pill sits to its left).
+
+**Under a screen title** there is no footer, so four levels remain: title with its status (Jakarta 700 / 24, two lines at most; the
+back link is 44px and is not data), classification, note and data. A quantity that would go in the footer moves to the data line.
+A receipt that is still being read or has failed has no store or amount yet, so it has no classification row and its data line has
+no amount. A trip takes the store and the amount from its receipt; without one it shows the estimated amount and the amber
+`No receipt` tag. The amount always ends the data line.
+
+### 7.17 Counters and quantities
+
+A counter is a number in IBM Plex Mono beside its label in Inter grey, with no box and no semantic colour, so it is never taken for
+a status. Figures are tabular.
+
+| Piece | Spec |
+| --- | --- |
+| Inline counter | Mono 16 / 700 (600 in a card footer) `#0F172A` and an Inter 400 / 14 `#475569` label on the same line; singular and plural follow the number (`1 receipt`, `3 receipts`) |
+| Section counter | The category caption on the left and the count in mono 600 / 12 `#64748B` before the chevron; the row is 52px at least |
+| Item quantity | A box that reads as item data: `#E9ECF0`, 8px radius (not a pill), 22px high, the number in mono 600 / 12 `#0F172A` and the unit in Inter 500 / 12 `#475569`; under the name or the price, never at the start of the row |
+| Stat tile | `#F6F7F9`, 16px radius, 12px padding, a mono 600 / 20 figure over an Inter 400 / 12 `#64748B` label, inside a white card. The receipt-review summary uses the white variant with a status-coloured 28px icon tile |
+| Delta | Text and icon in mono 600 / 12, no box: `#15803D` up, `#B91C1C` down |
+| Avatar | Circular for people, a 12px-radius square for groups and stores |
+
+### 7.18 Item rows
+
+One anatomy of four zones, used in 72 reviewed rows across lists, receipts, trips and stores.
+
+1. **Start:** a 44px checkbox target, only when the row is ticked (picking in a trip, including in a review). No tick, no zone.
+2. **Body:** the name (Inter 600 / 14, one line with an ellipsis) and one secondary line: the note with its icon or the receipt's text
+   in mono, never both. The store follows as an entity, never a chip.
+3. **Data:** the price on top in IBM Plex Mono 600 / 14 (with “avg” when it is an average) and the quantity box (7.17) under it. With no
+   price, only the quantity; on receipts, only the price.
+4. **Action:** the ⋯ menu, 44px, at the end, only on rows that can be edited. A row never carries a checkbox and a text button.
+
+| Context | Start | Body | Data | Action |
+| --- | --- | --- | --- | --- |
+| List item | none | Name · note · usual store | Average price · quantity | ⋯ menu |
+| Shopping item | Picked checkbox | Name (struck through when ticked) · note | Average price · quantity | ⋯ menu |
+| Receipt line | `Include` checkbox (review only) | Name · one tag · the receipt's text in mono | Price paid | none |
+| Closed-trip item | none | Struck-through name · “Added from the receipt” | Price paid | none |
+| Trip receipt line (7.6) | none | Name · tag · one result line | Price paid · quantity | `Change` text button |
+| Store item | none | Name · note · store entity | Price per store · quantity | ⋯ menu |
+
+The state of a line never competes with the name: it is a tag on the secondary line. Rows sit on a `#F6F7F9` panel with 16px radius
+and `#E5E8EC` dividers, under a 52px category header (7.19 D). Visual weight, high to low: name, price, secondary line, quantity box,
+actions. Proposals the screens do not fix yet: review sections ordered by urgency (`Needs a look`, `New to <list>`, `Matched to <list>`
+folded); pending items before ticked ones in a trip; ticket order in receipts and trips and insertion order in lists; and folding only
+what already matches and asks for no decision, never a row that needs an action.
+
+### 7.19 Listys v3 components
+
+Pieces that appear in the v3 screens; the number of screens that use each one is in the canvas.
+
+- **A · Choice row:** 56px, 16px radius, 1px ring; a 20px radio (6px border when chosen); the chosen row is `#EFF6FF` with a 2px
+  `#2563EB` ring; name 14 / 600 and note 12 `#64748B`; an amount in mono 14 / 600 at the end; unavailable rows are at 50% opacity with
+  the reason in the note. Used to choose a receipt, change a store, and in the Change Line sheet (7.6).
+- **B · List filter:** a 44px button, 16px radius, 1px ring; an 18px blue icon, “List” in grey 400 and the value in 600, a chevron; it
+  opens the list picker as a bottom sheet.
+- **C · Upload progress:** a 6px bar, track `#E5E8EC`, fill `#2563EB`, percentage in mono 600 / 12 `#1D4ED8`, `role=progressbar` with
+  `aria-valuenow`, on a `#F6F7F9` row with a 40×52 thumbnail.
+- **D · Collapsible section header:** 52px; a 32px tile with 8px radius, the title as the category caption, the count in mono 600 / 12,
+  a 36px chevron and `aria-expanded`; the rows panel sits under it on `#F6F7F9`. A 12px help line may follow the title, indented 44px.
+- **E · Destination “Add to”:** a card of 20px radius and 12px padding, label 14 / 600, help 12 `#64748B`, a 44px select that names the
+  list each line is compared with.
+- **F · Suggested match (add to list):** “Possible match: <item>” with `Confirm Match` (secondary), `Choose Another` and `Add as New`
+  (32px, no fill), indented 34px under the name; once resolved it reads “Matches <item>” with `Change`. It belongs to the add-to-list review
+  only; the trip review (7.6) has no suggestions and uses the result line and `Change`.
+- **G · Selection bar with breakdown:** a 56px floating bar, 16px radius, `#0F172A`: “N included” 14 / 500 over “N new · M updated” 12
+  `#CBD5E1`, `Clear` without a fill and a 32px blue primary action; it floats over the tab bar.
+- **H · Receipt photo row:** a linked card, 16px radius, 64px high: a 40×52 thumbnail, “Receipt Photo” 14 / 600, “N photos · Tap to
+  enlarge” with the figure in mono, and an expand icon.
+- **I · Loading card:** a card with a 22px blue spinner and one 14 / 500 line saying what is happening; `role=status`,
+  `aria-live` and `aria-busy`; the spin stops under reduced motion.
+- **J · Floating actions:** a 40px white button with a shadow and a blue 14 / 600 label with an icon; it opens the session actions
+  (`Complete Shopping`, `Cancel Shopping`) and sits above the tab bar, on the right.
 
 ---
 
@@ -1195,11 +1343,11 @@ as OKLCH. Keeping OKLCH is acceptable and preferred for controlled colour mixing
 values above are the canonical visual targets, not a requirement to change syntax. The action-blue family is implemented
 exactly, not approximated:
 
-| Token (`--primary`, `--ring`, `--sidebar-primary`, `--sidebar-ring`) | Hex | OKLCH in `globals.css` |
-| --- | --- | --- |
-| Light | `#2563EB` | `oklch(0.5461 0.2152 262.8809)` |
-| Dark | `#60A5FA` | `oklch(0.7137 0.1434 254.6240)` |
-| Dark `--primary-foreground` and `--sidebar-primary-foreground` | `#0F172A` | `oklch(0.2077 0.0398 265.7549)` |
+| Token (`--primary`, `--ring`, `--sidebar-primary`, `--sidebar-ring`) | Hex       | OKLCH in `globals.css`          |
+| -------------------------------------------------------------------- | --------- | ------------------------------- |
+| Light                                                                | `#2563EB` | `oklch(0.5461 0.2152 262.8809)` |
+| Dark                                                                 | `#60A5FA` | `oklch(0.7137 0.1434 254.6240)` |
+| Dark `--primary-foreground` and `--sidebar-primary-foreground`       | `#0F172A` | `oklch(0.2077 0.0398 265.7549)` |
 
 Before this, `--primary` held `oklch(0.6231 0.1880 259.8145)` (`#3B82F6`), a lighter blue than the spec.
 
@@ -1235,17 +1383,17 @@ Apply all three variables to `<html>`. The global theme maps `font-sans` to Inte
 
 ### 11.3 Component ownership
 
-| Concern | Current owner |
-| --- | --- |
-| Buttons, cards, badges, inputs, dialogs | `src/components/ui/` |
-| Header, sidebar, page shell, reusable app cards | `src/components/app/` |
-| Logo and domain-agnostic shared UI | `src/components/commons/` |
-| List cards, creation and editing | `src/components/features/base-lists/` |
-| Base-list cards and item editing | `src/components/features/base-lists/` |
-| Active shopping rows, actions, and completion | `src/components/features/shopping-sessions/` |
-| Receipt upload, processing, review, and merge | `src/components/features/tickets/` |
-| Collaboration avatars and sharing UI | `src/components/features/sharing/` |
-| Landing sections | `src/components/marketing/landing-page/` |
+| Concern                                         | Current owner                                |
+| ----------------------------------------------- | -------------------------------------------- |
+| Buttons, cards, badges, inputs, dialogs         | `src/components/ui/`                         |
+| Header, sidebar, page shell, reusable app cards | `src/components/app/`                        |
+| Logo and domain-agnostic shared UI              | `src/components/commons/`                    |
+| List cards, creation and editing                | `src/components/features/base-lists/`        |
+| Base-list cards and item editing                | `src/components/features/base-lists/`        |
+| Active shopping rows, actions, and completion   | `src/components/features/shopping-sessions/` |
+| Receipt upload, processing, review, and merge   | `src/components/features/tickets/`           |
+| Collaboration avatars and sharing UI            | `src/components/features/sharing/`           |
+| Landing sections                                | `src/components/marketing/landing-page/`     |
 
 Variants belong in existing shared primitives when behaviour and semantics are the same. Domain components own composition;
 they must not duplicate button, card, badge, dialog, or input primitives. New application-owned components follow the
@@ -1282,6 +1430,21 @@ These are remaining implementation notes, not permission for two systems:
    triage sections, status badges, the on-screen match decisions and the `Review Matches` possible-match row are derived from the OCR review rows in 7.6,
    status badges in 7.3, and the existing A1 link-item sheet. Suggestions remain optional and require an explicit link
    choice; see the receipt triage note in 7.6 and the review flow in 11.6.
+3g. **Canvas v2 boards not in the code yet:** the canvas decisions written into 7.3 and 7.6 and 7.15–7.19 are the target; the
+   implementation still differs in these places.
+   - *Chips (7.3):* `Badge` keeps one pill shape and the labels `Pending`, `Processing`, `Completed`; the three-level status / tag /
+     entity split, the `Reading` and `Processed` receipt labels, the bordered tag with its icon, and the violet entity without a box are
+     not built. `No receipt` and `Receipt attached` are still pills beside the trip name.
+   - *Trip receipt review (7.6, F7 · 9 and 10):* `attach-to-session-dialog.tsx` shows three groups (`Already checked`, `Will be checked`,
+     `Not in this trip`), a `Add as Purchased` checkbox and a `Link…` button, and **leaves unmatched lines out by default**. The canvas
+     adds new items by default, shows one result line and one `Change` per row, and adds the `New to <list>` and `Left out`
+     sections and the Change Line sheet. Changing the default contradicts the requirement “Unmatched lines are added only when the
+     user chooses” in `openspec/specs/receipt-session-reconciliation/spec.md`, so it needs its own OpenSpec change (spec,
+     `use-trip-review.ts`, `build-attach-review.ts` and the dialog) before it ships. The `Remembered` and `Linked by you` tags and the
+     “usual quantity 2 → 3” result need the match source and the previous quantity in the review model.
+   - *Hierarchy and counters (7.16, 7.17):* the data line under a title still uses mono 12 grey text and the quantity can sit at the
+     start of a row in places; the receipt, trip and store cards do not have the ⋯ menu, and the receipt-review stat tiles are not built.
+   - *Type scale (4.2):* the closed scale drops 11, 11.5, 12.5, 13, 13.5, 14.5 and 15px; several components still use them (see gap 12 in this list).
 4. **Dark mode:** `Card` is the 24px borderless surface everywhere now; v2 dark values are not defined in the HTML and the new
    tokens (`--secondary-hover`, shadows) only keep dark mode valid, so it is deferred until it is reviewed.
 5. **Colour discipline:** marketing, authentication, shopping categories, and statuses use independent violet, pink, green,
@@ -1341,37 +1504,37 @@ authentication, then marketing. Each flow should be visually complete in light/d
 The design is implemented with shadcn's native props and Tailwind's own scale; a call site does not restate any of it in `className`
 (AGENTS.md, "shadcn-native first"). Where the mockups draw a value that is not on the scale, the closest native one is used.
 
-| Concern | Native value | Lives in |
-| --- | --- | --- |
-| Button `size` | `xs` 24 · `sm` 32 · `default` 36 · `lg` 40 · `xl` 44, the library's own xl: `px-6`, `text-base`, `gap-2` (touch actions, toolbars, sheet and form footers; the mockups' 48 became 44) · `2xl` 52 (hero) · `avatar` 44 circle that widens into a pill from `lg` (the account trigger) | `ui/button.tsx` |
-| Button `weight` | `default` semibold · `medium` (the landing header's lighter label) | `ui/button.tsx` |
-| Icon button `size` | `icon` 36 · `icon-xs` 24 · `icon-sm` 32 · `icon-lg` 40 · `icon-xl` 44 · `icon-2xl` 48 (raised tab-bar action) | `ui/button.tsx` |
-| Button `variant` | `default`, `secondary` (`--secondary`, blue text), `outline`, `ghost`, `destructive`, `destructive-soft`, `success-soft`, `hero` (glow, lift), `fab`, `link`; quiet row/icon actions `quiet`, `quiet-destructive`, `destructive-ghost`, `ghost-primary` (a blue text action such as "View All": no fill on hover, its arrow nudges right), `floating` (the session Actions button); the dark viewer's `on-dark`, `viewer`, `overlay`; the drop target `dropzone` | `ui/button.tsx` |
-| Button `size` on phones | Standard buttons use the library's `default` (36px, `px-3`, `gap-1.5`) below `md` and `lg` (40px, `px-4`, `gap-1.5`) from `md` up. `primary` and `link-action` are 40px on phones by product decision and 44px from `md`; `mobile-action` remains 44px for mobile session controls. The dashboard hero card action uses `hero-action`: `lg` (40px) on phones and `xl` (44px) from `md`. `sm`, icon, hero and content-driven sizes keep their own scale. One size, two breakpoints, no hook | `ui/button.tsx` |
-| Marketing `ButtonLink` compact CTA | `size='sm'` is 40px below `md` and 44px from `md`, matching shared primary actions; do not add a phone-only 44px minimum-height override | `marketing/landing-page/commons/button-link.tsx` |
-| Title roles on phones | Below `md` the page heading (`h1`, the screen header and the dashboard greeting) is `text-2xl` (24px); from `md` it is `text-3xl` and `lg:text-4xl` as before. The hero and session title (the dashboard hero, the no-session banner) is `text-xl` (20px) below `md` and `text-3xl` from `md`. Card names stay `text-base`, metadata `text-xs`. Receipt and list cards use `p-3 gap-2` below `md` and `p-4 gap-3` from `md`; they are plain elements, not `Card`, so their padding is a responsive class on the element | `app/`, `components/` |
-| Button `size` (content height) | `block`: `h-auto`, several lines, 24px padding (drop targets) | `ui/button.tsx` |
-| Button `rounded` | `xl` by default (12px); `md`, `lg`, `2xl`, `3xl`, `full` | `ui/button.tsx` |
-| Link that looks like a button | `<Button asChild variant size><Link/></Button>`; never `buttonVariants()` or hand-set classes on `Link` (back link, the shortcut chips, the session bar's Continue) | call sites |
-| Action link | `ActionLink` (`Button asChild variant='ghost-primary' size='link-inline' rounded='lg'` plus the 16px arrow) is the one "View Details" / "View All" link: receipts, list cards, history, dashboard section titles | `commons/action-link/action-link.tsx` |
-| Field `size` | `default` 36 (`rounded-xl`) · `lg` 44 (`rounded-2xl`, the 16px of the form fields); borderless on `bg-card` with `shadow-field`; invalid: a `--destructive` ring | `ui/input.tsx`, `ui/textarea.tsx`, `ui/select.tsx` |
-| Card | `rounded-3xl` (24px), `shadow-card`, no border; 12px padding on phones and 16px from `md`; `size` `compact` / `tight` / `flush` keeps that inset for compact row cards; `variant` `premium`, `accent`, `ghost`; `interactive` lifts the shadow | `ui/card.tsx` |
-| Card parts | Card sides use 12px below `md` and 16px from `md`; `CardContent space` `default` · `snug` (12px gap in a flex column) · `stack` (16px between stacked blocks) and `inset` `default` · `compact` (responsive card-side inset) | `ui/card.tsx` |
-| Badge | 22px (`h-5.5`), `text-xs`; `variant` `completed`, `failed`, `processing`, `pending`, `neutral`, `outline`, `on-dark`; `size` `lg` | `ui/badge.tsx` |
-| Dialog, sheet | `rounded-3xl`; on phones the sheet is `rounded-t-3xl`. `DialogContent variant` `sheet` (the A1 form panel: 20px gap, 20/24px padding, no border, safe-area bottom) or `viewer` (dark full screen); `DialogTitle variant` `sheet` / `strong` / `viewer`; `DialogDescription variant` `sheet`; `AlertDialogTitle variant` `strong`; `AlertDialogMedia tone` `destructive`. `DialogHeader variant='sheet'` (left-aligned, 4px gap, room for the close button) and `DialogFooter variant` `inline` (one row, 12px gap) or `sheet` (two actions stacked with the primary on top below `sm`, two equal columns from `sm`: the confirm of every sheet, because two xl buttons with 24px padding do not fit side by side at 390px). Closing is `<DialogClose asChild><Button variant='quiet' size='icon-xl'>` | `ui/dialog.tsx`, `ui/alert-dialog.tsx` |
-| Menus | `DropdownMenuContent variant` `menu` (a row or action menu: 16px radius, `shadow-menu`) or `account` (24px radius, `shadow-menu-lg`); `DropdownMenuItem size` `touch` (44px, display face) · `row` (52px link row) · `action` (filled secondary row, e.g. Sign Out; it takes the `accent` highlight on focus like every item) and `variant='destructive'`; `DropdownMenuLabel variant='identity'`; `DropdownMenuSeparator variant='solid'` | `ui/dropdown-menu.tsx` |
-| Form parts | `Label` is 14px semibold with the default 20px line; `Checkbox size` `default` 16 · `lg` 22 (the touch box of lists); `CardTitle variant` `strong` / `display`; `CardDescription size` `lg`, `weight` `medium` | `ui/label.tsx`, `ui/checkbox.tsx`, `ui/card.tsx` |
-| Progress | `size` `default` 12 · `md` 8 · `sm` 6; `tone` `default`, `soft` (pale blue track), `track` (hairline-grey), `on-dark` (translucent track, blue gradient fill); `complete` turns the fill green | `ui/progress.tsx` |
-| Avatar | `size` `sm` 24 · `default` 32 · `md` 36 · `lg` 40 · `xl` 44 · `2xl` 96; `ring` for the profile portrait; `AvatarFallback tone` `soft` (blue initials badge) or `initials` (bold uppercase); `AvatarGroupCount` is 12px bold | `ui/avatar.tsx` |
-| Sidebar | the A1 entries are the default look of `SidebarMenuButton`, `SidebarMenuSubButton` and `SidebarGroupLabel` (slate entry, `accent` surface and text on hover and when current); the A1 spacing is the default of the parts: `SidebarContent` and `SidebarFooter` `gap-3 p-2`, `SidebarGroup` `gap-0.5 p-0`, `SidebarMenu` `gap-px px-1.5`; `SidebarProvider` carries the page ground; `--sidebar` is the card white in light mode | `ui/sidebar.tsx`, `globals.css` |
-| Collapsible | `Collapsible variant='section'` leaves 10px under its open content; `CollapsibleTrigger variant='row'`: the 52px header row of a category section | `ui/collapsible.tsx` |
-| Badge `size` | `lg` 28 (rounded-lg) · `hero` (as tall as its two lines need, for the pill over the dashboard hero) | `ui/badge.tsx` |
-| Radius scale | `--radius` 0.5rem: `rounded-lg` 8 · `rounded-xl` 12 (controls, rows) · `rounded-2xl` 16 (fields) · `rounded-3xl` 24 (cards, dialogs) · `rounded-full` | `globals.css` |
-| Colour tokens | `--background` `#F2F4F7` · `--card` white · `--secondary` `#E9ECF0`, `--secondary-hover` `#DEE2E8`, `--secondary-foreground` `#1D4ED8` · `--muted` `#F6F7F9` · `--destructive` `#DC2626` · `--color-ink` `#0B1220` (receipt viewer) | `globals.css` |
-| Shadow tokens | `shadow-card`, `shadow-card-hover`, `shadow-field`, `shadow-premium`, `shadow-glow`, `shadow-fab`, `shadow-menu`, `shadow-menu-lg` | `globals.css` |
-| Spacing, sizes | Tailwind steps (`h-5.5`, `gap-2.5`, `p-4`); odd pixel values were rounded to the nearest 2px step | call sites |
-| Text | `text-xs` 12 · `text-sm` 14 · `text-base` 16 · `text-xl` · `text-3xl` 30 · `text-4xl` 36; `tracking-tight` for titles, `tracking-widest` for overlines | call sites |
-| Global styles | app-wide tokens, base rules and the `focus-ring` utility: `src/app/globals.css`; the landing page's own styles and the `.marketing` scope that restores the pre-A1 white page, light secondary and 6px radius: `src/app/(marketing)/marketing.css` | `src/app/` |
+| Concern                            | Native value                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | Lives in                                           |
+| ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| Button `size`                      | `xs` 24 · `sm` 32 · `default` 36 · `lg` 40 · `xl` 44, the library's own xl: `px-6`, `text-base`, `gap-2` (touch actions, toolbars, sheet and form footers; the mockups' 48 became 44) · `2xl` 52 (hero) · `avatar` 44 circle that widens into a pill from `lg` (the account trigger)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | `ui/button.tsx`                                    |
+| Button `weight`                    | `default` semibold · `medium` (the landing header's lighter label)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | `ui/button.tsx`                                    |
+| Icon button `size`                 | `icon` 36 · `icon-xs` 24 · `icon-sm` 32 · `icon-lg` 40 · `icon-xl` 44 · `icon-2xl` 48 (raised tab-bar action)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | `ui/button.tsx`                                    |
+| Button `variant`                   | `default`, `secondary` (`--secondary`, blue text), `outline`, `ghost`, `destructive`, `destructive-soft`, `success-soft`, `hero` (glow, lift), `fab`, `link`; quiet row/icon actions `quiet`, `quiet-destructive`, `destructive-ghost`, `ghost-primary` (a blue text action such as "View All": no fill on hover, its arrow nudges right), `floating` (the session Actions button); the dark viewer's `on-dark`, `viewer`, `overlay`; the drop target `dropzone`                                                                                                                                                                                                                                                                                                                                      | `ui/button.tsx`                                    |
+| Button `size` on phones            | Standard buttons use the library's `default` (36px, `px-3`, `gap-1.5`) below `md` and `lg` (40px, `px-4`, `gap-1.5`) from `md` up. `primary` and `link-action` are 40px on phones by product decision and 44px from `md`; `mobile-action` remains 44px for mobile session controls. The dashboard hero card action uses `hero-action`: `lg` (40px) on phones and `xl` (44px) from `md`. `sm`, icon, hero and content-driven sizes keep their own scale. One size, two breakpoints, no hook                                                                                                                                                                                                                                                                                                            | `ui/button.tsx`                                    |
+| Marketing `ButtonLink` compact CTA | `size='sm'` is 40px below `md` and 44px from `md`, matching shared primary actions; do not add a phone-only 44px minimum-height override                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | `marketing/landing-page/commons/button-link.tsx`   |
+| Title roles on phones              | Below `md` the page heading (`h1`, the screen header and the dashboard greeting) is `text-2xl` (24px); from `md` it is `text-3xl` and `lg:text-4xl` as before. The hero and session title (the dashboard hero, the no-session banner) is `text-xl` (20px) below `md` and `text-3xl` from `md`. Card names stay `text-base`, metadata `text-xs`. Receipt and list cards use `p-3 gap-2` below `md` and `p-4 gap-3` from `md`; they are plain elements, not `Card`, so their padding is a responsive class on the element                                                                                                                                                                                                                                                                               | `app/`, `components/`                              |
+| Button `size` (content height)     | `block`: `h-auto`, several lines, 24px padding (drop targets)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | `ui/button.tsx`                                    |
+| Button `rounded`                   | `xl` by default (12px); `md`, `lg`, `2xl`, `3xl`, `full`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | `ui/button.tsx`                                    |
+| Link that looks like a button      | `<Button asChild variant size><Link/></Button>`; never `buttonVariants()` or hand-set classes on `Link` (back link, the shortcut chips, the session bar's Continue)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | call sites                                         |
+| Action link                        | `ActionLink` (`Button asChild variant='ghost-primary' size='link-inline' rounded='lg'` plus the 16px arrow) is the one "View Details" / "View All" link: receipts, list cards, history, dashboard section titles                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | `commons/action-link/action-link.tsx`              |
+| Field `size`                       | `default` 36 (`rounded-xl`) · `lg` 44 (`rounded-2xl`, the 16px of the form fields); borderless on `bg-card` with `shadow-field`; invalid: a `--destructive` ring                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | `ui/input.tsx`, `ui/textarea.tsx`, `ui/select.tsx` |
+| Card                               | `rounded-3xl` (24px), `shadow-card`, no border; 12px padding on phones and 16px from `md`; `size` `compact` / `tight` / `flush` keeps that inset for compact row cards; `variant` `premium`, `accent`, `ghost`; `interactive` lifts the shadow                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | `ui/card.tsx`                                      |
+| Card parts                         | Card sides use 12px below `md` and 16px from `md`; `CardContent space` `default` · `snug` (12px gap in a flex column) · `stack` (16px between stacked blocks) and `inset` `default` · `compact` (responsive card-side inset)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | `ui/card.tsx`                                      |
+| Badge                              | 22px (`h-5.5`), `text-xs`; `variant` `completed`, `failed`, `processing`, `pending`, `neutral`, `outline`, `on-dark`; `size` `lg`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | `ui/badge.tsx`                                     |
+| Dialog, sheet                      | `rounded-3xl`; on phones the sheet is `rounded-t-3xl`. `DialogContent variant` `sheet` (the A1 form panel: 20px gap, 20/24px padding, no border, safe-area bottom) or `viewer` (dark full screen); `DialogTitle variant` `sheet` / `strong` / `viewer`; `DialogDescription variant` `sheet`; `AlertDialogTitle variant` `strong`; `AlertDialogMedia tone` `destructive`. `DialogHeader variant='sheet'` (left-aligned, 4px gap, room for the close button) and `DialogFooter variant` `inline` (one row, 12px gap) or `sheet` (two actions stacked with the primary on top below `sm`, two equal columns from `sm`: the confirm of every sheet, because two xl buttons with 24px padding do not fit side by side at 390px). Closing is `<DialogClose asChild><Button variant='quiet' size='icon-xl'>` | `ui/dialog.tsx`, `ui/alert-dialog.tsx`             |
+| Menus                              | `DropdownMenuContent variant` `menu` (a row or action menu: 16px radius, `shadow-menu`) or `account` (24px radius, `shadow-menu-lg`); `DropdownMenuItem size` `touch` (44px, display face) · `row` (52px link row) · `action` (filled secondary row, e.g. Sign Out; it takes the `accent` highlight on focus like every item) and `variant='destructive'`; `DropdownMenuLabel variant='identity'`; `DropdownMenuSeparator variant='solid'`                                                                                                                                                                                                                                                                                                                                                            | `ui/dropdown-menu.tsx`                             |
+| Form parts                         | `Label` is 14px semibold with the default 20px line; `Checkbox size` `default` 16 · `lg` 22 (the touch box of lists); `CardTitle variant` `strong` / `display`; `CardDescription size` `lg`, `weight` `medium`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | `ui/label.tsx`, `ui/checkbox.tsx`, `ui/card.tsx`   |
+| Progress                           | `size` `default` 12 · `md` 8 · `sm` 6; `tone` `default`, `soft` (pale blue track), `track` (hairline-grey), `on-dark` (translucent track, blue gradient fill); `complete` turns the fill green                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | `ui/progress.tsx`                                  |
+| Avatar                             | `size` `sm` 24 · `default` 32 · `md` 36 · `lg` 40 · `xl` 44 · `2xl` 96; `ring` for the profile portrait; `AvatarFallback tone` `soft` (blue initials badge) or `initials` (bold uppercase); `AvatarGroupCount` is 12px bold                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | `ui/avatar.tsx`                                    |
+| Sidebar                            | the A1 entries are the default look of `SidebarMenuButton`, `SidebarMenuSubButton` and `SidebarGroupLabel` (slate entry, `accent` surface and text on hover and when current); the A1 spacing is the default of the parts: `SidebarContent` and `SidebarFooter` `gap-3 p-2`, `SidebarGroup` `gap-0.5 p-0`, `SidebarMenu` `gap-px px-1.5`; `SidebarProvider` carries the page ground; `--sidebar` is the card white in light mode                                                                                                                                                                                                                                                                                                                                                                      | `ui/sidebar.tsx`, `globals.css`                    |
+| Collapsible                        | `Collapsible variant='section'` leaves 10px under its open content; `CollapsibleTrigger variant='row'`: the 52px header row of a category section                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | `ui/collapsible.tsx`                               |
+| Badge `size`                       | `lg` 28 (rounded-lg) · `hero` (as tall as its two lines need, for the pill over the dashboard hero)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | `ui/badge.tsx`                                     |
+| Radius scale                       | `--radius` 0.5rem: `rounded-lg` 8 · `rounded-xl` 12 (controls, rows) · `rounded-2xl` 16 (fields) · `rounded-3xl` 24 (cards, dialogs) · `rounded-full`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | `globals.css`                                      |
+| Colour tokens                      | `--background` `#F2F4F7` · `--card` white · `--secondary` `#E9ECF0`, `--secondary-hover` `#DEE2E8`, `--secondary-foreground` `#1D4ED8` · `--muted` `#F6F7F9` · `--destructive` `#DC2626` · `--color-ink` `#0B1220` (receipt viewer)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | `globals.css`                                      |
+| Shadow tokens                      | `shadow-card`, `shadow-card-hover`, `shadow-field`, `shadow-premium`, `shadow-glow`, `shadow-fab`, `shadow-menu`, `shadow-menu-lg`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | `globals.css`                                      |
+| Spacing, sizes                     | Tailwind steps (`h-5.5`, `gap-2.5`, `p-4`); odd pixel values were rounded to the nearest 2px step                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | call sites                                         |
+| Text                               | `text-xs` 12 · `text-sm` 14 · `text-base` 16 · `text-xl` · `text-3xl` 30 · `text-4xl` 36; `tracking-tight` for titles, `tracking-widest` for overlines                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | call sites                                         |
+| Global styles                      | app-wide tokens, base rules and the `focus-ring` utility: `src/app/globals.css`; the landing page's own styles and the `.marketing` scope that restores the pre-A1 white page, light secondary and 6px radius: `src/app/(marketing)/marketing.css`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | `src/app/`                                         |
 
 What stays as a class by rule, and is checked by `src/test/native-props-guard.test.ts`: layout (width, margin, position, flex/grid
 placement), the shape of a `Skeleton` (its size and radius are the placeholder), and the glyph size of an icon. The padding and the gap

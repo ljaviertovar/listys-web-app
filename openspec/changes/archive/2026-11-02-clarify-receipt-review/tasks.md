@@ -52,7 +52,7 @@
 
 ## 8. Visual validation
 
-- [x] 8.1 Build a temporary fixture route (per project memory: stubbed Supabase, fake auth cookie) with a receipt covering every badge, a proposal, a resolved line with Change, nested categories, the switching card and the bar breakdown; check at 390px and 1280px with Chrome DevTools against `docs/design/listys-design-system-v2.html` (review rows, badges, category sections), fix discrepancies, then delete the route
+- [x] 8.1 Build a temporary fixture route (per project memory: stubbed Supabase, fake auth cookie) with a receipt covering every badge, a proposal, a resolved line with Change, nested categories, the switching card and the bar breakdown; check at 390px and 1280px with Chrome DevTools against `docs/design/listys-design-system.html` (review rows, badges, category sections), fix discrepancies, then delete the route
 
 ## 9. Integration checks
 

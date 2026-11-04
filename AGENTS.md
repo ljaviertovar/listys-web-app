@@ -261,12 +261,12 @@ to re-verify before trusting the stylesheet.
 ### Design System v2 (source for new components)
 
 The **Design system v2** is the visual source of truth for every new or redesigned component. Its canonical visual
-reference is the local [design system HTML](docs/design/listys-design-system-v2.html), which contains four sections for
+reference is the local [design system HTML](docs/design/listys-design-system.html), which contains four sections for
 foundations and typography, controls and cards, feedback/navigation/data, and product patterns/mobile A1. The written
 specification and implementation mapping are in [docs/design/DESIGN.md](docs/design/DESIGN.md).
 
 - Before designing or writing a new component, read the matching section of `docs/design/DESIGN.md` and inspect the
-  relevant examples in `docs/design/listys-design-system-v2.html`. Match its tokens, radii, surfaces, type scale, sizes,
+  relevant examples in `docs/design/listys-design-system.html`. Match its tokens, radii, surfaces, type scale, sizes,
   variants, states and copy rules; do not invent values or follow another design reference when it conflicts with v2.
 - Express the design through the shared layer (theme tokens in `src/app/globals.css`, and variants and sizes in
   `src/components/ui/`), as the Styling rules above require. When v2 draws something no existing variant or token can
@@ -277,7 +277,7 @@ specification and implementation mapping are in [docs/design/DESIGN.md](docs/des
 - When no HTML example covers the component, derive it from the closest v2 pattern, then say which pattern was used when
   reporting the change. Do not ship a one-off look.
 - The visual check in "Testing Expectations" compares the result against the relevant section of
-  `docs/design/listys-design-system-v2.html`, not only against the request.
+  `docs/design/listys-design-system.html`, not only against the request.
 
 ### Component Reusability
 
@@ -452,7 +452,7 @@ The full structure and rules are defined in [docs/architecture/project-structure
   one test proving it is wired in.
 - For every component change that affects appearance, start the application locally and use Chrome DevTools to open
   the browser and validate the rendered result against the proposed design (the relevant section of
-  `docs/design/listys-design-system-v2.html`, when applicable). Capture screenshots at the relevant mobile
+  `docs/design/listys-design-system.html`, when applicable). Capture screenshots at the relevant mobile
   and desktop viewports; inspect the live HTML/DOM structure, applied classes, computed styles and element dimensions.
   Check typography, colours, spacing, alignment, sizing, responsive layout and relevant visual states. Fix discrepancies
   and repeat the visual check before finishing. Reading TSX or passing behavioral tests alone does not validate appearance.
@@ -491,7 +491,7 @@ The full tooling and delegation policy is defined in [docs/tooling-delegation.md
 - [docs/README.md](docs/README.md) is the documentation index and topic-ownership map.
 - [docs/contributing/CONTRIBUTING.md](docs/contributing/CONTRIBUTING.md) defines the human contribution and verification
   workflow.
-- [docs/design/listys-design-system-v2.html](docs/design/listys-design-system-v2.html) is the canonical visual reference;
+- [docs/design/listys-design-system.html](docs/design/listys-design-system.html) is the canonical visual reference;
   [docs/design/DESIGN.md](docs/design/DESIGN.md) owns the written rules, implementation mapping, and documented gaps.
 - Keep this file authoritative for automated-contributor engineering constraints; link to canonical product,
   architecture, operational, and contribution documents instead of duplicating their requirements.

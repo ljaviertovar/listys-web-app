@@ -3,7 +3,7 @@
 Use the [root setup guide](../../README.md) for development. [PRD v2](../prd/PRD-v2.md) governs the MVP; collaboration
 is experimental. [AGENTS.md](../../AGENTS.md) owns engineering constraints and the
 [project structure](../architecture/project-structure.md) owns placement rules. For visual work, use the canonical
-[Design system v2 HTML](../design/listys-design-system-v2.html) with its [written specification](../design/DESIGN.md).
+[Design system v2 HTML](../design/listys-design-system.html) with its [written specification](../design/DESIGN.md).
 
 ## Verification before a PR
 

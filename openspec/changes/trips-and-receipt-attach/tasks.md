@@ -44,7 +44,7 @@
 
 ## 6. Visual validation
 
-- [x] 6.1 Build a temporary fixture route (per project memory: stubbed Supabase, fake auth cookie) with Trips cards with and without receipt, the trip card in each state, the Add Receipt sheet, the chooser (selectable, disabled, empty) and the review loading/ready; check at 390px and 1280px with Chrome DevTools against `docs/design/listys-design-system-v2.html` (cards, badges, sheets, radio rows), fix discrepancies, then delete the route
+- [x] 6.1 Build a temporary fixture route (per project memory: stubbed Supabase, fake auth cookie) with Trips cards with and without receipt, the trip card in each state, the Add Receipt sheet, the chooser (selectable, disabled, empty) and the review loading/ready; check at 390px and 1280px with Chrome DevTools against `docs/design/listys-design-system.html` (cards, badges, sheets, radio rows), fix discrepancies, then delete the route
 
 ## 7. Integration checks
 
