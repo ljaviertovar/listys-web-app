@@ -1,7 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { Edit02Icon, GitMergeIcon, Store01Icon } from '@hugeicons/core-free-icons'
+import { Edit02Icon, GitMergeIcon, SparklesIcon, Store01Icon } from '@hugeicons/core-free-icons'
+import { HugeiconsIcon } from '@hugeicons/react'
 
 import { ConfirmSheet, EmptyStateCard, EntityCard, EntityCardSkeleton, ListToolbar } from '@/components/commons'
 import { Badge } from '@/components/ui/badge'
@@ -62,7 +63,14 @@ export function StoresList({ stores }: StoresListProps) {
 						title={store.name}
 							href={`/stores/${store.id}`}
 							linkLabel='View Store'
-							badge={store.receipt_count === 1 ? <Badge variant='neutral'>New</Badge> : null}
+							badge={
+								store.receipt_count === 1 ? (
+									<Badge variant='tag'>
+										<HugeiconsIcon icon={SparklesIcon} strokeWidth={1.8} aria-hidden='true' />
+										New
+									</Badge>
+								) : null
+							}
 							meta={buildStoreMeta(store)}
 						count={store.receipt_count}
 						unit={{ one: 'receipt', many: 'receipts' }}

@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 
 import { PageHeader, PageContainer } from '@/components/app'
+import { DataFigure, DataLine } from '@/components/commons'
 import { ReceiptAddedToListNote, TicketAttachCard, TicketReview, TicketStoreCard, TicketSummaryCard, getReceiptTripSurface, sumLineTotals, toTicketStatus } from '@/components/features/tickets'
 
 import { getTicket } from '@/lib/api/endpoints'
@@ -57,17 +58,20 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 				title={headerTitle}
 				desc={
 					isReadReceipt && uploadedAt ? (
-						<span className='font-mono text-xs font-medium text-slate-600 tabular-nums dark:text-foreground/80'>
-							{formatDate(uploadedAt)} · {extractedItemsCount} {extractedItemsCount === 1 ? 'item' : 'items'}
-							{typeof ticket.total_amount === 'number' ? ` · ${formatCurrency(ticket.total_amount)}` : ''}
-						</span>
+						<DataLine testId='ticket-data'>
+							<>
+								<DataFigure>{extractedItemsCount}</DataFigure> {extractedItemsCount === 1 ? 'item' : 'items'}
+							</>
+							<DataFigure>{formatDate(uploadedAt)}</DataFigure>
+							{typeof ticket.total_amount === 'number' ? <DataFigure>{formatCurrency(ticket.total_amount)}</DataFigure> : null}
+						</DataLine>
 					) : uploadedAt ? (
-						<>
-							Uploaded{' '}
-							<span className='font-mono text-xs font-medium text-slate-600 tabular-nums dark:text-foreground/80'>
-								{formatDate(uploadedAt)} · {formatTime(uploadedAt)}
-							</span>
-						</>
+						<DataLine testId='ticket-data'>
+							<>
+								Uploaded <DataFigure>{formatDate(uploadedAt)}</DataFigure>
+							</>
+							<DataFigure>{formatTime(uploadedAt)}</DataFigure>
+						</DataLine>
 					) : (
 						'Upload date unknown'
 					)

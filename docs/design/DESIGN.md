@@ -1432,9 +1432,12 @@ These are remaining implementation notes, not permission for two systems:
    choice; see the receipt triage note in 7.6 and the review flow in 11.6.
 3g. **Canvas v2 boards not in the code yet:** the canvas decisions written into 7.3 and 7.6 and 7.15–7.19 are the target; the
    implementation still differs in these places.
-   - *Chips (7.3):* `Badge` keeps one pill shape and the labels `Pending`, `Processing`, `Completed`; the three-level status / tag /
-     entity split, the `Reading` and `Processed` receipt labels, the bordered tag with its icon, and the violet entity without a box are
-     not built. `No receipt` and `Receipt attached` are still pills beside the trip name.
+   - *Chips (7.3, built):* `Badge` has the status pill with its 6px dot (`dot`), the bordered `tag` and amber `tag-attention` (6px radius,
+     13px icon) and `EntityLabel` (`commons/entity-label`, violet store icon and name, no box). Trips, the trip screen and list cards use
+     them (`Receipt attached`, `No receipt`, `Shared with N people`, `Default` as a yellow tag, the `New` store tag). Still open: the
+     receipt status keeps `Waiting to Read`, `Reading Receipt` and `Ready to Review` because `openspec/specs/product-copy-clarity` requires
+     them, so the canvas labels `Reading` and `Processed` need that spec changed first; `Remembered` and `Linked by you` belong to the
+     trip receipt review below; `No price` / `No name` still use the receipt-row badges.
    - *Trip receipt review (7.6, F7 · 9 and 10):* `attach-to-session-dialog.tsx` shows three groups (`Already checked`, `Will be checked`,
      `Not in this trip`), a `Add as Purchased` checkbox and a `Link…` button, and **leaves unmatched lines out by default**. The canvas
      adds new items by default, shows one result line and one `Change` per row, and adds the `New to <list>` and `Left out`
@@ -1442,9 +1445,12 @@ These are remaining implementation notes, not permission for two systems:
      user chooses” in `openspec/specs/receipt-session-reconciliation/spec.md`, so it needs its own OpenSpec change (spec,
      `use-trip-review.ts`, `build-attach-review.ts` and the dialog) before it ships. The `Remembered` and `Linked by you` tags and the
      “usual quantity 2 → 3” result need the match source and the previous quantity in the review model.
-   - *Hierarchy and counters (7.16, 7.17):* the data line under a title still uses mono 12 grey text and the quantity can sit at the
-     start of a row in places; the receipt, trip and store cards do not have the ⋯ menu, and the receipt-review stat tiles are not built.
-   - *Type scale (4.2):* the closed scale drops 11, 11.5, 12.5, 13, 13.5, 14.5 and 15px; several components still use them (see gap 12 in this list).
+   - *Hierarchy and counters (7.16, 7.17, built for the cards):* list, trip, receipt and store cards put identity, status, classification
+     and data in that order (`DataLine`, Inter 14 with mono figures; `InlineCounter` for the footer and the toolbar count) and the quantity
+     box has the 8px radius. The receipt screen's data line follows it. Still open: the receipt, trip and store cards have no ⋯ menu (the
+     only card action that exists, deleting a receipt, lives on the receipt screen), the receipt card's date and time are one preformatted
+     string so its figures are not mono, and the receipt-review stat tiles are not built.
+   - *Type scale (4.2):* the closed scale drops 11, 11.5, 12.5, 13, 13.5, 14.5 and 15px. The authenticated app no longer uses them (the auth hero's 15px became 16px, and IBM Plex Mono loads only 500 and 600); the landing page keeps its own mock-up sizes.
 4. **Dark mode:** `Card` is the 24px borderless surface everywhere now; v2 dark values are not defined in the HTML and the new
    tokens (`--secondary-hover`, shadows) only keep dark mode valid, so it is deferred until it is reviewed.
 5. **Colour discipline:** marketing, authentication, shopping categories, and statuses use independent violet, pink, green,

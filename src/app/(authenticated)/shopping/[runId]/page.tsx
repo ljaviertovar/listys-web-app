@@ -4,7 +4,10 @@ import { ActiveShoppingBadge, PageContainer, PageHeader } from '@/components/app
 import { Badge } from '@/components/ui/badge'
 import { AddItemSheet } from '@/components/features/list-items'
 import { ShareListDialog } from '@/components/features/sharing'
-import { ActionLink } from '@/components/commons'
+import { Alert02Icon, Attachment01Icon } from '@hugeicons/core-free-icons'
+import { HugeiconsIcon } from '@hugeicons/react'
+
+import { ActionLink, EntityLabel } from '@/components/commons'
 import { Card } from '@/components/ui/card'
 import {
 	STARTED_SESSION_PARAM,
@@ -117,15 +120,25 @@ export default async function ShoppingRunPage({
 				title={runWithItems.name}
 					desc={
 					isCompleted ? (
-						<div className='flex flex-wrap items-center gap-2'>
-							<Badge variant='completed'>Completed</Badge>
-							{runWithItems.receipt ? <Badge variant='neutral'>Receipt attached</Badge> : <Badge variant='processing'>No receipt</Badge>}
-							{runWithItems.store ? <Badge variant='neutral'>At {runWithItems.store.name}</Badge> : null}
+						<div className='flex flex-wrap items-center gap-x-2.5 gap-y-1.5'>
+							<Badge variant='completed' dot>Completed</Badge>
+							{runWithItems.store ? <EntityLabel name={runWithItems.store.name} testId='trip-store' /> : null}
+							{runWithItems.receipt ? (
+								<Badge variant='tag'>
+									<HugeiconsIcon icon={Attachment01Icon} strokeWidth={1.8} aria-hidden='true' />
+									Receipt attached
+								</Badge>
+							) : (
+								<Badge variant='tag-attention'>
+									<HugeiconsIcon icon={Alert02Icon} strokeWidth={1.8} aria-hidden='true' />
+									No receipt
+								</Badge>
+							)}
 						</div>
 					) : (
-						<div className='flex flex-wrap items-center gap-2'>
+						<div className='flex flex-wrap items-center gap-x-2.5 gap-y-1.5'>
 							<ActiveShoppingBadge />
-							{runWithItems.store ? <Badge variant='neutral'>At {runWithItems.store.name}</Badge> : null}
+							{runWithItems.store ? <EntityLabel name={runWithItems.store.name} testId='trip-store' /> : null}
 						</div>
 					)
 				}

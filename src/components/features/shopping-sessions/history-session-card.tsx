@@ -1,10 +1,10 @@
 'use client'
 
 import Link from 'next/link'
-import { ShoppingCart02Icon } from '@hugeicons/core-free-icons'
+import { Alert02Icon, Attachment01Icon, ShoppingCart02Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 
-import { ActionLink } from '@/components/commons'
+import { ActionLink, DataFigure, DataLine, EntityLabel, InlineCounter } from '@/components/commons'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -36,9 +36,10 @@ function addReceiptHref(detailsHref: string) {
 }
 
 /**
- * A completed trip in Trips (design: Mobile historial). The card is plain; only its links react to taps or hover. The trip's
- * state (Completed) and its receipt's state are separate badges, and a trip without a receipt highlights "Add Receipt": having
- * no receipt never makes the trip incomplete. A trip whose receipt state is unknown (`receipt` omitted) shows neither.
+ * A completed trip in Trips (design: Mobile historial; canvas 4/7 data hierarchy). The card is plain; only its links react to taps or
+ * hover. Its levels, in order: identity with the one status pill (Completed), classification (the store as an entity, then tags for the
+ * receipt), the data line and the footer. A trip without a receipt gets an attention tag and a separate "Add Receipt" button: having no
+ * receipt never makes the trip incomplete. A trip whose receipt state is unknown (`receipt` omitted) shows no receipt tag.
  */
 export function HistorySessionCard({ session, href }: Props) {
 	const detailsHref = href ?? `/shopping/${session.id}`
@@ -49,22 +50,18 @@ export function HistorySessionCard({ session, href }: Props) {
 		(session.shopping_session_items
 			? session.shopping_session_items.filter(i => i.checked === true).length
 			: session.total_items ?? null)
-
-	const completedText = completedDate
-		? `Completed on ${formatDate(completedDate)} - ${formatTime(completedDate)}`
-		: 'Date unknown'
-	const totalText = session.total_amount == null ? '' : ` · ${formatCurrency(session.total_amount)}`
+	const hasClassification = receiptState !== 'unknown' || Boolean(session.store)
 
 	return (
 		<Card
 			size='tight'
 			data-testid={`history-card-${session.id}`}
 		>
-			<div className='flex flex-col gap-3'>
+			<div className='flex flex-col gap-2.5'>
 				<div className='flex items-center gap-3'>
 					<span
 						aria-hidden='true'
-						className='flex size-9 shrink-0 items-center justify-center rounded-xl bg-slate-200/70 text-blue-600'
+						className='flex size-9 shrink-0 items-center justify-center rounded-xl bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300'
 					>
 						<HugeiconsIcon
 							icon={ShoppingCart02Icon}
@@ -72,31 +69,74 @@ export function HistorySessionCard({ session, href }: Props) {
 							className='size-4.5'
 						/>
 					</span>
-					<div className='flex min-w-0 flex-1 flex-col gap-1'>
-						<div className='flex flex-wrap items-center gap-2'>
-							<h2 className='font-display text-base leading-[1.3] font-semibold tracking-[-0.005em]'>{session.name}</h2>
-							<Badge variant='completed'>Completed</Badge>
-							{receiptState === 'attached' ? <Badge data-testid={`history-receipt-marker-${session.id}`} variant='neutral'>Receipt attached</Badge> : null}
-							{receiptState === 'none' ? <Badge data-testid={`history-no-receipt-${session.id}`} variant='processing'>No receipt</Badge> : null}
-						</div>
-						<p className='text-xs leading-[1.4] text-slate-500'>
-							{completedText}
-							{totalText}
-							{session.store ? ` · ${session.store.name}` : ''}
-						</p>
-					</div>
+					<h2 className='min-w-0 flex-1 truncate font-display text-base leading-normal font-semibold tracking-[-0.005em]'>{session.name}</h2>
+					<Badge
+						variant='completed'
+						dot
+					>
+						Completed
+					</Badge>
 				</div>
+
+				{hasClassification ? (
+					<div className='flex flex-wrap items-center gap-x-2.5 gap-y-1.5'>
+						{session.store ? (
+							<EntityLabel
+								name={session.store.name}
+								testId={`history-store-${session.id}`}
+							/>
+						) : null}
+						{receiptState === 'attached' ? (
+							<Badge
+								data-testid={`history-receipt-marker-${session.id}`}
+								variant='tag'
+							>
+								<HugeiconsIcon
+									icon={Attachment01Icon}
+									strokeWidth={1.8}
+									aria-hidden='true'
+								/>
+								Receipt attached
+							</Badge>
+						) : null}
+						{receiptState === 'none' ? (
+							<Badge
+								data-testid={`history-no-receipt-${session.id}`}
+								variant='tag-attention'
+							>
+								<HugeiconsIcon
+									icon={Alert02Icon}
+									strokeWidth={1.8}
+									aria-hidden='true'
+								/>
+								No receipt
+							</Badge>
+						) : null}
+					</div>
+				) : null}
+
+				<DataLine testId={`history-data-${session.id}`}>
+					{completedDate ? (
+						<>
+							Completed on <DataFigure>{formatDate(completedDate)}</DataFigure>
+						</>
+					) : (
+						'Date unknown'
+					)}
+					{completedDate ? <DataFigure>{formatTime(completedDate)}</DataFigure> : null}
+					{session.total_amount == null ? null : <DataFigure>{formatCurrency(session.total_amount)}</DataFigure>}
+				</DataLine>
 
 				<div className='flex items-center justify-between gap-2 border-t border-slate-100 pt-3'>
 					{purchasedCount === null ? (
-						<span className='text-xs leading-[1.25] font-medium text-slate-500'>Item count unavailable</span>
+						<span className='text-sm leading-none text-slate-600'>Item count unavailable</span>
 					) : (
-						<span className='flex items-baseline gap-1.5'>
-							<b className='font-mono text-base font-semibold tabular-nums'>{purchasedCount}</b>
-							<span className='text-xs leading-[1.25] font-medium text-slate-500'>
-								{purchasedCount === 1 ? 'Purchased Item' : 'Purchased Items'}
-							</span>
-						</span>
+						<InlineCounter
+							count={purchasedCount}
+							one='Purchased Item'
+							many='Purchased Items'
+							testId={`history-count-${session.id}`}
+						/>
 					)}
 					<ActionLink href={detailsHref} aria-label={`View details for ${session.name}`} className='shrink-0'>
 						View Details
