@@ -25,7 +25,7 @@ export function AddItemSheet({ target, isLocked = false, ...buttonProps }: AddIt
 			onOpenChange={setOpen}
 			trigger={
 				<Button
-					variant='secondary'
+					variant='outline'
 					size='primary'
 					{...buttonProps}
 					disabled={isLocked}

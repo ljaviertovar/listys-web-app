@@ -8,7 +8,9 @@ import {
   Edit02Icon,
   ListViewIcon,
   Share01Icon,
+  StarIcon,
 } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 
 import {
   ConfirmSheet,
@@ -138,7 +140,8 @@ export function BaseListCard({
         description={baseList.notes}
         badge={
           isDefault ? (
-            <Badge variant="neutral" data-testid={`list-card-${baseList.id}-default`}>
+            <Badge variant="list-default" data-testid={`list-card-${baseList.id}-default`}>
+              <HugeiconsIcon icon={StarIcon} strokeWidth={1.8} aria-hidden="true" />
               Default
             </Badge>
           ) : null

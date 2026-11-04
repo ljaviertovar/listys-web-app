@@ -29,6 +29,12 @@ const badgeVariants = cva(
         merged: "bg-primary/10 text-primary",
         category: "bg-primary/10 text-primary",
         neutral: "bg-slate-100 text-slate-700 dark:bg-muted dark:text-foreground",
+        // A store, in violet so it reads apart from lists, trips and receipts: a store learned from receipts, and one chosen by the user (white, with a darker ring).
+        store: "border-violet-200 bg-violet-50 text-violet-900 dark:border-violet-500/30 dark:bg-violet-500/15 dark:text-violet-200 [&>svg]:text-violet-600 dark:[&>svg]:text-violet-300",
+        "store-manual":
+          "border-violet-300 bg-card text-violet-900 dark:border-violet-400/50 dark:text-violet-200 [&>svg]:text-violet-600 dark:[&>svg]:text-violet-300",
+        // The list every account starts with (Pantry): yellow, with its star.
+        "list-default": "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300",
       },
       size: {
         default: "",

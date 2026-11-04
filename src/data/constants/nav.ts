@@ -2,7 +2,7 @@ import type { NavItemO, NavLink, SidebarData } from '@/types'
 import {
 	DashboardSquare02Icon,
 	FolderLibraryIcon,
-	TimeQuarterPassIcon,
+	ShoppingCart02Icon,
 	Invoice01Icon,
 	UserSettings01Icon,
 	Settings02Icon,
@@ -44,7 +44,7 @@ export const SIDEBAR_DATA: SidebarData = {
 				{
 					title: 'Trips',
 					url: '/trips',
-					icon: TimeQuarterPassIcon,
+					icon: ShoppingCart02Icon,
 				},
 			],
 		},
@@ -86,7 +86,7 @@ export const MOBILE_TAB_ITEMS: { title: string; url: string; icon: NonNullable<N
 	{ title: 'Dashboard', url: '/dashboard', icon: DashboardSquare02Icon },
 	{ title: 'Lists', url: '/shopping-lists', icon: FolderLibraryIcon },
 	{ title: 'Receipts', url: '/tickets', icon: Invoice01Icon },
-	{ title: 'Trips', url: '/trips', icon: TimeQuarterPassIcon },
+	{ title: 'Trips', url: '/trips', icon: ShoppingCart02Icon },
 ]
 
 export const USER_NAV_ITEMS: NavLink[] = [

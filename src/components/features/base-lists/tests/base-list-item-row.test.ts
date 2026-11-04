@@ -11,6 +11,8 @@ vi.mock('@/components/features/list-items', () => ({
   AveragePrice: () => null,
   ItemEditForm: () => null,
   ItemQuantityChip: () => null,
+  ItemNote: ({ children }: { children: string }) => createElement('span', { 'data-testid': 'mock-item-note' }, children),
+  ItemTrailing: ({ children }: { children: unknown }) => createElement('span', null, children as never),
 }))
 vi.mock('@/components/features/stores', () => ({ StorePickerDialog: () => null }))
 vi.mock('@/utils', async importOriginal => {

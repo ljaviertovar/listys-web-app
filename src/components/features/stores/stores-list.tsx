@@ -58,6 +58,7 @@ export function StoresList({ stores }: StoresListProps) {
 					<EntityCard
 						key={store.id}
 						icon={Store01Icon}
+						tone='store'
 						title={store.name}
 							href={`/stores/${store.id}`}
 							linkLabel='View Store'

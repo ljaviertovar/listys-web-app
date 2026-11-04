@@ -16,7 +16,7 @@ export function StoreVisitsCard({ visits }: Props) {
 				<DashboardEmptyState
 					testId='dashboard-store-visits-empty'
 					icon={Store01Icon}
-					tone='ocr'
+					tone='store'
 					title='No store visits yet.'
 					message='Confirm a receipt’s store or choose one when you start a trip.'
 				/>
@@ -29,7 +29,7 @@ export function StoreVisitsCard({ visits }: Props) {
 							title={visit.storeName}
 							meta={visit.dateLabel}
 							monoMeta
-							leading={<RowIcon icon={Store01Icon} tone='ocr' size='md' />}
+							leading={<RowIcon icon={Store01Icon} tone='store' size='md' />}
 							trailing={visit.total !== null ? <span className='shrink-0 font-mono text-sm font-semibold tabular-nums'>{formatCurrency(visit.total)}</span> : undefined}
 							testId={`dashboard-store-visit-${visit.storeId}`}
 						/>

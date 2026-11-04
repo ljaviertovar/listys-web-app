@@ -18,6 +18,10 @@ const TONES = {
 	danger: {
 		medium: 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-300',
 	},
+	// Every store icon, wherever it appears.
+	store: {
+		medium: 'bg-violet-100 text-violet-700 dark:bg-violet-500/20 dark:text-violet-300',
+	},
 } as const
 
 const SIZES = {

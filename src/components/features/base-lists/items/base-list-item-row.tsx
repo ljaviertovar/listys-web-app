@@ -1,10 +1,11 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import { Delete02Icon, Edit02Icon, Store01Icon, ShoppingBasket01Icon } from '@hugeicons/core-free-icons'
+import { Delete02Icon, Edit02Icon, Pin02Icon, Store01Icon, ShoppingBasket01Icon } from '@hugeicons/core-free-icons'
+import { HugeiconsIcon } from '@hugeicons/react'
 
 import { RowMenu } from '@/components/commons'
-import { AveragePrice, ItemEditForm, ItemQuantityChip } from '@/components/features/list-items'
+import { AveragePrice, ItemEditForm, ItemNote, ItemQuantityChip, ItemTrailing } from '@/components/features/list-items'
 import { StorePickerDialog } from '@/components/features/stores'
 import { Badge } from '@/components/ui/badge'
 import { formatItemName, isUsablePrice } from '@/utils'
@@ -23,7 +24,7 @@ interface BaseListItemRowProps {
 }
 
 /**
- * One item of a base list: its quantity chip, name, the average price when the list knows one, its note, and a "⋯" menu.
+ * One item of a base list: its name with the note under it, the average price with the quantity under that, and a "⋯" menu.
  * Editing swaps the row for the form in place.
  */
 export function BaseListItemRow({ item, isLocked = false, isOwner = true }: BaseListItemRowProps) {
@@ -68,21 +69,22 @@ export function BaseListItemRow({ item, isLocked = false, isOwner = true }: Base
 	return (
 		<div
 			data-testid={`base-list-item-${item.id}`}
-			className='flex min-h-16 items-center gap-3 py-1.5 pr-1.5 pl-3.5'
+			className='flex min-h-17 items-center gap-0.5 py-1 pr-1.5 pl-3.5'
 		>
-			<ItemQuantityChip
-				quantity={item.quantity}
-				unit={item.unit}
-			/>
-			<span className='flex min-w-0 flex-1 flex-col gap-0.5'>
+			<span className='flex min-w-0 flex-1 flex-col gap-1.5'>
 				<span className='truncate text-sm leading-[1.3] font-semibold'>{name}</span>
-				{item.notes ? <span className='min-w-0 truncate text-xs leading-[1.3] text-slate-500 dark:text-muted-foreground'>{item.notes}</span> : null}
+				{item.notes ? <ItemNote>{item.notes}</ItemNote> : null}
 				{item.usual_store ? (
 					<Badge
-						variant='neutral'
+						variant={item.usual_store.source === 'manual' ? 'store-manual' : 'store'}
 						aria-label={`Usual store: ${item.usual_store.name} (${item.usual_store.source === 'manual' ? 'chosen by you' : 'automatic'})`}
 						data-testid={`base-list-item-${item.id}-usual-store`}
 					>
+						<HugeiconsIcon
+							icon={item.usual_store.source === 'manual' ? Pin02Icon : Store01Icon}
+							strokeWidth={1.8}
+							aria-hidden='true'
+						/>
 						{item.usual_store.name}
 					</Badge>
 				) : null}
@@ -96,12 +98,18 @@ export function BaseListItemRow({ item, isLocked = false, isOwner = true }: Base
 					</span>
 				) : null}
 			</span>
-			{isUsablePrice(item.average_price) ? (
-				<AveragePrice
-					price={item.average_price}
-					testId={`base-list-item-${item.id}-average-price`}
+			<ItemTrailing>
+				{isUsablePrice(item.average_price) ? (
+					<AveragePrice
+						price={item.average_price}
+						testId={`base-list-item-${item.id}-average-price`}
+					/>
+				) : null}
+				<ItemQuantityChip
+					quantity={item.quantity}
+					unit={item.unit}
 				/>
-			) : null}
+			</ItemTrailing>
 			<RowMenu
 				label={`More options for ${name}`}
 				disabled={isLocked || usualStorePending}

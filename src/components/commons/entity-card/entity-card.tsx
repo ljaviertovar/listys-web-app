@@ -4,6 +4,8 @@ import type { ReactNode, Ref } from 'react'
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react'
 import { Delete02Icon, Edit02Icon } from '@hugeicons/core-free-icons'
 
+import { cn } from '@/utils'
+
 import { ActionLink } from '../action-link/action-link'
 import { RowMenu, type RowMenuAction } from '../row-menu/row-menu'
 
@@ -28,6 +30,8 @@ interface EntityCardProps {
 	/** Where the footer link goes; a card with nothing to open leaves it out and has no link. */
 	href?: string
 	icon: IconSvgElement
+	/** The icon tile's colour: blue for a list, violet for a store. */
+	tone?: 'default' | 'store'
 	title: string
 	description?: string | null
 	/** A small label next to the title (a list's Default chip). */
@@ -54,6 +58,7 @@ interface EntityCardProps {
 export function EntityCard({
 	href,
 	icon,
+	tone = 'default',
 	title,
 	description,
 	badge,
@@ -73,7 +78,14 @@ export function EntityCard({
 			className='flex flex-col gap-2 rounded-3xl bg-card p-3 shadow-card md:gap-3 md:p-4'
 		>
 			<div className='flex items-start gap-3'>
-				<span className='flex size-9 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300'>
+				<span
+					className={cn(
+						'flex size-9 shrink-0 items-center justify-center rounded-xl',
+						tone === 'store'
+							? 'bg-violet-100 text-violet-700 dark:bg-violet-500/20 dark:text-violet-300'
+							: 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300',
+					)}
+				>
 					<HugeiconsIcon
 						icon={icon}
 						strokeWidth={1.5}

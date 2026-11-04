@@ -22,6 +22,8 @@ vi.mock('@/components/features/list-items', async () => {
 		AveragePrice: () => null,
 		ItemEditForm: () => null,
 		ItemQuantityChip: () => React.createElement('span'),
+		ItemNote: ({ children }: { children: string }) => React.createElement('span', null, children),
+		ItemTrailing: ({ children }: { children: unknown }) => React.createElement('span', null, children as never),
 	}
 })
 vi.mock('@/components/commons', async () => {

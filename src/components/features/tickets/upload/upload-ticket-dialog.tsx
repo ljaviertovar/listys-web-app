@@ -4,7 +4,7 @@ import { useRef, useState, type ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Cancel01Icon, Upload06Icon } from '@hugeicons/core-free-icons'
+import { Cancel01Icon, InformationCircleIcon, Upload06Icon } from '@hugeicons/core-free-icons'
 
 import {
 	Dialog,
@@ -15,6 +15,7 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from '@/components/ui/dialog'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button, type ButtonProps } from '@/components/ui/button'
 import { useDialogFocus } from '@/hooks'
 import { cn } from '@/utils'
@@ -109,8 +110,8 @@ export function UploadTicketDialog({
 					<DialogTitle ref={titleRef} tabIndex={-1} variant='sheet'>
 						Upload Receipt
 					</DialogTitle>
-					<DialogDescription variant='sheet'>
-						We read the store, date and total from the receipt. You confirm them before anything is saved.
+					<DialogDescription variant='sheet' className='sr-only'>
+						Add photos of your receipt. 
 					</DialogDescription>
 					<DialogClose asChild>
 						<Button
@@ -127,6 +128,21 @@ export function UploadTicketDialog({
 						</Button>
 					</DialogClose>
 				</DialogHeader>
+				<Alert
+					variant='info'
+					role='note'
+					data-testid='upload-ticket-info'
+				>
+					<HugeiconsIcon
+						icon={InformationCircleIcon}
+						strokeWidth={1.8}
+						aria-hidden='true'
+					/>
+					<AlertTitle>Review before saving</AlertTitle>
+					<AlertDescription>
+						We read the store, date and total from the receipt. You confirm them before anything is saved.
+					</AlertDescription>
+				</Alert>
 				<UploadTicketForm
 					onSuccess={handleSuccess}
 					initialFiles={initialFiles}
