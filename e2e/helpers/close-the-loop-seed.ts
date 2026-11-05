@@ -14,6 +14,7 @@ export type CloseTheLoopFixture = {
   sessionId: string
   ticketId: string
   storeIds: string[]
+  getSessionStatus: () => Promise<SessionStatus | null>
   getItemState: (normalizedName?: string) => Promise<{ purchase_count: number | null; average_price: number | null } | null>
   createReceipt: (storeId: string) => Promise<string>
   cleanup: () => Promise<void>
@@ -131,6 +132,11 @@ export async function createCloseTheLoopFixture(options: {
       sessionId: session.data.id,
       ticketId: ticket.data.id,
       storeIds,
+      getSessionStatus: async () => {
+        const result = await supabase.from('shopping_sessions').select('status').eq('id', session.data.id).maybeSingle()
+        if (result.error) throw new Error(`Could not read local E2E trip status: ${result.error.message}`)
+        return result.data?.status === 'active' || result.data?.status === 'completed' ? result.data.status : null
+      },
       getItemState: async (normalizedName = 'milk') => {
         const result = await supabase.from('base_list_items')
           .select('purchase_count,average_price')

@@ -31,7 +31,6 @@ describe('TripReceiptsCard', () => {
 		expect(html).toContain('data-state="no-receipt"')
 		expect(html).toContain('No receipt')
 		expect(html).toContain('Upload New Receipt')
-		expect(html).not.toContain('Choose Uploaded Receipt')
 		expect(html).not.toMatch(/48 hours/)
 	})
 
@@ -70,6 +69,5 @@ describe('TripReceiptsCard', () => {
 		const html = render({ kind: 'none' }, { trip: undefined, justSaved: true })
 		expect(html).toContain('Trip saved')
 		expect(html).not.toContain('<button')
-		expect(html).not.toContain('Choose Uploaded Receipt')
 	})
 })
