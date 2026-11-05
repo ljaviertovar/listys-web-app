@@ -3,6 +3,9 @@
 - FROM: `### Requirement: Unmatched lines are added only when the user chooses`
 - TO: `### Requirement: Unmatched lines are added by default and can be left out`
 
+- FROM: `### Requirement: A receipt and a session are attached at most once`
+- TO: `### Requirement: A receipt belongs to one trip and a trip has one receipt per store`
+
 ## MODIFIED Requirements
 
 ### Requirement: Unmatched lines are added by default and can be left out
@@ -92,6 +95,210 @@ y al menos una línea coincide, SHALL decir que todo lo marcado está en el reci
 
 - **WHEN** todas las líneas coinciden y todos los ítems marcados están en el recibo
 - **THEN** la revisión dice que todo lo marcado está en el recibo y que no hay nada que añadir ni corregir
+
+### Requirement: A read receipt offers to attach to a recent trip
+
+En la pantalla de un recibo leído, sin adjuntar y no añadido a ninguna lista, SHALL ofrecerse adjuntarlo solo al viaje
+desde el que se subió, cuando ese viaje sigue siendo candidato: activo, o completado sin un recibo adjunto de la misma tienda
+confirmada que este, sin importar cuánto tiempo pasó desde que se completó. La tarjeta SHALL decir "You uploaded this receipt
+from a trip" y "Attach it to finish the trip and save its prices.", con "Review <trip>". Un recibo subido fuera de un viaje
+MUST NOT ofrecer adjuntarse a ninguno desde su pantalla.
+
+#### Scenario: Active trip
+
+- **WHEN** el viaje de origen del recibo es la sesión activa de "Pantry" y el recibo se lee
+- **THEN** la pantalla ofrece adjuntar el recibo a la compra de "Pantry"
+
+#### Scenario: Trip completed after the upload
+
+- **WHEN** el viaje de origen del recibo se completó después de la subida y antes de revisarlo
+- **THEN** la pantalla del recibo ofrece adjuntarlo a ese viaje completado
+
+#### Scenario: Trip completed an hour before the upload
+
+- **WHEN** el propietario sube un recibo desde la tarjeta de recibos de un viaje completado hace una hora y el recibo se lee
+- **THEN** la pantalla del recibo ofrece adjuntarlo a ese viaje
+
+#### Scenario: Standalone receipt with a recent trip
+
+- **WHEN** el propietario completó un viaje hace una hora y sube un recibo desde la pantalla de recibos
+- **THEN** la pantalla del recibo no ofrece adjuntarlo a ningún viaje
+
+#### Scenario: Origin trip already has a receipt from another store
+
+- **WHEN** el recibo, confirmado en "Costco", se subió desde un viaje que ya tiene adjunto un recibo de "No Frills"
+- **THEN** la pantalla ofrece adjuntarlo a ese viaje
+
+#### Scenario: Origin trip already has a receipt
+
+- **WHEN** el recibo, confirmado en "No Frills", se subió desde un viaje que ya tiene adjunto un recibo de "No Frills"
+- **THEN** la pantalla no ofrece adjuntarlo y dice que el viaje ya tiene un recibo de "No Frills"
+
+#### Scenario: Old trip
+
+- **WHEN** el recibo se subió desde un viaje completado tres días antes y sin recibo
+- **THEN** la pantalla ofrece adjuntarlo a ese viaje
+
+#### Scenario: Origin trip deleted
+
+- **WHEN** el propietario eliminó el viaje desde el que subió el recibo
+- **THEN** la pantalla no ofrece adjuntarlo y el recibo se revisa como uno independiente
+
+#### Scenario: Receipt already added to a list
+
+- **WHEN** el propietario abre un recibo cuyas líneas ya añadió a una lista
+- **THEN** la pantalla no ofrece adjuntarlo
+
+#### Scenario: Receipt not read yet
+
+- **WHEN** el recibo está pendiente de lectura o su lectura falló
+- **THEN** la pantalla no ofrece adjuntarlo
+
+### Requirement: Receipt prices and total fill the session without counting twice
+
+Cada recibo adjunto SHALL aportar a cada ítem coincidente su precio pagado (suma de sus líneas) y SHALL guardar su propio
+total pagado: el total impreso leído o el que el usuario escriba en la revisión. El total pagado del viaje SHALL ser la suma
+de los totales pagados de sus recibos adjuntos. Si la sesión ya estaba completada, los artículos que ya contó MUST NOT sumar
+otra compra; solo reciben el precio. Las líneas añadidas SHALL contar como una compra nueva. Un ítem que coincide con
+líneas de dos recibos del viaje SHALL quedar con la suma de esas líneas como precio pagado y una sola compra.
+
+#### Scenario: Recently completed trip
+
+- **WHEN** el usuario adjunta un recibo con "Milk" a 5.49 a una sesión completada en la que "Milk" ya sumó su compra
+- **THEN** "Milk" no suma otra compra, la sesión muestra 5.49 para "Milk" y el precio promedio de "Milk" incorpora 5.49 una sola vez
+
+#### Scenario: Two lines for one item
+
+- **WHEN** el recibo trae dos líneas de "Milk" a 5.49 que coinciden con el mismo ítem
+- **THEN** el ítem queda con 10.98 pagados y una sola compra
+
+#### Scenario: Total read from the receipt
+
+- **WHEN** el recibo tiene un total impreso leído de 84.12, el usuario no lo cambia y es el único recibo del viaje
+- **THEN** el viaje queda con un total pagado de 84.12
+
+#### Scenario: Corrected total
+
+- **WHEN** el usuario cambia en la revisión el total leído a 82.50
+- **THEN** ese recibo aporta 82.50 al total pagado del viaje y el total leído del recibo no cambia
+
+#### Scenario: Second receipt adds to the paid total
+
+- **WHEN** un viaje con un recibo de "No Frills" de 86.40 recibe un recibo de "Costco" de 41.12
+- **THEN** el viaje queda con un total pagado de 127.52
+
+#### Scenario: No total read
+
+- **WHEN** el recibo no tiene total leído y el usuario no escribe ninguno
+- **THEN** ese recibo no aporta total; el viaje suma los totales de sus otros recibos o, si no tiene otro, conserva el total
+  que tuviera, sin sustituirlo por la suma de las líneas
+
+### Requirement: The receipt's store reconciles with the session's store
+
+Si la sesión no tenía tienda y el recibo tiene una confirmada, la sesión SHALL tomarla como su tienda. Si la sesión ya tenía
+tienda, SHALL conservarla y la del recibo SHALL sumarse a las tiendas del viaje; una tienda distinta MUST NOT rechazar el
+adjuntar. Cada ítem SHALL tomar la tienda del recibo en el que aparece su línea. Si el recibo no tiene tienda y la sesión sí, el
+recibo SHALL quedar con la de la sesión solo cuando el viaje no tiene ya un recibo de esa tienda; si lo tiene, el recibo SHALL
+quedar sin tienda.
+
+#### Scenario: Whole-list trip and a receipt from No Frills
+
+- **WHEN** el usuario adjunta un recibo confirmado en "No Frills" a una sesión sin tienda
+- **THEN** la sesión queda registrada en "No Frills"
+
+#### Scenario: Active trip at the wrong store
+
+- **WHEN** una sesión activa se inició en "Costco" y el usuario adjunta un recibo confirmado en "Metro"
+- **THEN** la sesión se completa con "Costco" como su tienda y "Metro" entre las tiendas del viaje, y los ítems de ese recibo
+  quedan en "Metro"
+
+#### Scenario: Completed trip at another store
+
+- **WHEN** una sesión completada en "Costco" recibe un recibo confirmado en "Metro"
+- **THEN** el recibo se adjunta, el viaje muestra "Costco" y "Metro" y los ítems de ese recibo quedan en "Metro"
+
+#### Scenario: Receipt without a store
+
+- **WHEN** el usuario adjunta un recibo sin tienda a una sesión iniciada en "No Frills" que aún no tiene recibo
+- **THEN** el recibo queda en "No Frills", y el nombre leído del recibo no se aprende como alias de esa tienda
+
+#### Scenario: Receipt without a store on a trip that has one from its store
+
+- **WHEN** el usuario adjunta un recibo sin tienda a una sesión de "No Frills" que ya tiene un recibo de "No Frills"
+- **THEN** el recibo se adjunta sin tienda y no aporta estadísticas por tienda
+
+### Requirement: A receipt belongs to one trip and a trip has one receipt per store
+
+Un recibo SHALL adjuntarse a lo sumo a una sesión. Una sesión SHALL poder tener varios recibos, como mucho uno por tienda
+confirmada; los recibos sin tienda no cuentan para ese límite. La base de datos SHALL garantizar ambas reglas. Reenviar la
+misma petición MUST responder con éxito sin ningún efecto nuevo. Adjuntar a una sesión un segundo recibo de una tienda que ya
+tiene MUST rechazarse con un conflicto sin cambios. Adjuntar a otra sesión un recibo ya adjunto MUST rechazarse con un
+conflicto sin cambios.
+
+#### Scenario: Repeated request
+
+- **WHEN** se envía dos veces, de forma secuencial o simultánea, la misma petición de adjuntar
+- **THEN** la sesión, la lista y las estadísticas cambian una sola vez y ambas respuestas son correctas
+
+#### Scenario: Receipt attached elsewhere
+
+- **WHEN** se pide adjuntar a "Office" un recibo ya adjunto a la sesión de "Pantry"
+- **THEN** la respuesta es un conflicto y el recibo sigue adjunto a "Pantry"
+
+#### Scenario: Second store
+
+- **WHEN** se pide adjuntar un recibo de "Costco" a una sesión que ya tiene uno de "No Frills"
+- **THEN** el recibo se adjunta y la sesión tiene dos recibos
+
+#### Scenario: Session already has a receipt
+
+- **WHEN** se pide adjuntar un segundo recibo de "No Frills" a una sesión que ya tiene uno de "No Frills"
+- **THEN** la respuesta es un conflicto y nada cambia
+
+### Requirement: Receipt and session show their link
+
+Un recibo adjunto SHALL mostrar a qué compra pertenece con un enlace a ella, en lugar de ofrecer añadirlo a una lista.
+Una sesión con recibos SHALL mostrar su total como pagado según la suma de sus recibos, la lista de sus recibos con su tienda,
+número de ítems, total y un enlace a cada uno, y "Trips" SHALL indicar qué viajes tienen recibos. Si un recibo se elimina,
+la sesión SHALL conservar los precios que ese recibo dio a sus ítems, dejar de listarlo y recalcular su total pagado con los
+recibos que quedan; sin ninguno, SHALL conservar el último total y volver a mostrar "No receipt".
+
+#### Scenario: Attached receipt screen
+
+- **WHEN** el propietario abre un recibo adjunto a la compra de "Pantry"
+- **THEN** ve "Attached to" la compra de "Pantry" con un enlace y no ve las acciones de añadir a una lista
+
+#### Scenario: Session with a receipt
+
+- **WHEN** el propietario abre una sesión completada con un recibo de "No Frills" y otro de "Costco"
+- **THEN** ve el total pagado como la suma de ambos, cada recibo con su tienda, ítems, total y "View Receipt", y el precio
+  de cada ítem con precio
+
+#### Scenario: Deleted receipt of two
+
+- **WHEN** el propietario elimina el recibo de "Costco" de un viaje que también tiene uno de "No Frills"
+- **THEN** el viaje conserva los precios de sus ítems, deja de listar "Costco" y su total pagado pasa a ser el del recibo de
+  "No Frills"
+
+#### Scenario: Deleted receipt
+
+- **WHEN** el propietario elimina el único recibo adjunto
+- **THEN** la sesión conserva su total y precios, deja de mostrar el enlace al recibo y vuelve a mostrar "No receipt"
+
+### Requirement: Attaching is limited to the receipt's origin trip
+
+Adjuntar un recibo SHALL aceptarse con el viaje desde el que se subió o, si el recibo no tiene viaje de origen, con el viaje que indica el propietario. Cualquier otra petición que intenta adjuntar a otra sesión un
+recibo subido desde un viaje MUST rechazarse con un conflicto sin cambios.
+
+#### Scenario: Another own session
+
+- **WHEN** una petición intenta adjuntar a la sesión de "Office" un recibo subido desde la sesión de "Pantry" que no está adjunto
+- **THEN** la respuesta es un conflicto y nada cambia
+
+#### Scenario: Standalone receipt
+
+- **WHEN** el propietario adjunta al viaje de "Pantry" un recibo subido desde la pantalla de recibos (el cliente ya no lo ofrece desde el viaje)
+- **THEN** el recibo queda adjunto al viaje de "Pantry"
 
 ## ADDED Requirements
 
@@ -232,3 +439,106 @@ coinciden con él, y MUST omitirse si son iguales o si esas líneas tienen unida
 
 - **WHEN** dos líneas que coinciden con "Apples" tienen unidades "kg" y "each"
 - **THEN** ninguna muestra la cláusula de cantidad
+
+### Requirement: A failed attach changes nothing and says so
+
+Si adjuntar falla, la revisión SHALL mostrar la tarjeta roja de estado con "Couldn’t attach the receipt", "Nothing was
+changed. Try again in a moment.", "Try Again" (reintenta la misma petición) y "Attach Later" (cierra la revisión). MUST
+NOT quedar ningún cambio parcial ni enviarse dos veces la petición.
+
+#### Scenario: Network failure
+
+- **WHEN** el envío de la revisión falla por la red
+- **THEN** la revisión muestra "Couldn’t attach the receipt" con "Try Again" y "Attach Later", y el viaje, el recibo y la
+  lista no cambian
+
+#### Scenario: Attach later
+
+- **WHEN** el usuario pulsa "Attach Later"
+- **THEN** la revisión se cierra y la tarjeta de recibo del viaje vuelve a ofrecer "Review Receipt"
+
+### Requirement: Items on another receipt of the trip are not reported as missing
+
+La revisión SHALL excluir de las secciones de ausentes los ítems cubiertos por otro recibo del viaje, usando únicamente destinos persistidos y autorizados.
+
+#### Scenario: Complete contract for items on another receipt of the trip are not reported as missing
+
+- **WHEN** se presenta este flujo al usuario
+- **THEN** Al revisar un recibo de un viaje que ya tiene otro, los ítems cubiertos por líneas de otro recibo MUST NOT aparecer en
+  "Checked, not on the receipt" ni en "Not checked, not on the receipt", y una línea que coincide con uno de esos ítems SHALL
+  tratarse como "Already checked" y sumar su precio al del ítem.
+    La operación de adjuntar SHALL conservar el destino efectivo de cada línea en `ticket_items.shopping_session_item_id`,
+  incluidos los ítems nuevos. Las líneas dejadas fuera SHALL conservar `NULL`. Solo la operación autorizada SHALL escribir
+  ese vínculo, que MUST apuntar a un ítem del mismo viaje y propietario. Las líneas históricas MUST permanecer sin vínculo:
+  no se reconstruyen decisiones pasadas ni se supone cobertura a partir del nombre.
+
+#### Scenario: Item on the first receipt
+
+- **WHEN** "Milk" se cubrió con el recibo de "No Frills" y se revisa el recibo de "Costco", que no trae "Milk"
+- **THEN** "Milk" no aparece en "Checked, not on the receipt"
+
+#### Scenario: Same item on both receipts
+
+- **WHEN** "Eggs" se cubrió con el recibo de "No Frills" a 4.49 y el recibo de "Costco" trae "Eggs" a 3.99
+- **THEN** la línea de "Costco" aparece en "Already checked" y, al adjuntar, "Eggs" queda con 8.48 pagados y una sola compra
+
+#### Scenario: Everything matches
+
+- **WHEN** todas las líneas del recibo coinciden y todos los ítems marcados tienen línea en algún recibo del viaje
+- **THEN** la revisión dice "Everything you checked is on the receipt" y "Nothing to add or fix."
+
+### Requirement: Reviewing a receipt on an active trip keeps it shopping
+
+La revisión de un recibo en un viaje activo SHALL permitir adjuntar sin completar o adjuntar y completar, con confirmación explícita y compatibilidad con peticiones existentes.
+
+#### Scenario: Complete contract for reviewing a receipt on an active trip keeps it shopping
+
+- **WHEN** se presenta este flujo al usuario
+- **THEN** Revisar un recibo de un viaje en curso SHALL abrir la hoja "Review receipt" con el texto "Each receipt line updates this trip
+  and your <lista> list. Nothing changes until you attach.", la tienda del recibo, un aviso azul de información "The trip is still
+  shopping" con "Only the items on this receipt are checked off. The other <N> items stay on the list for your next store.", los
+  tres contadores y las secciones de la revisión del viaje, "Total paid" leído del recibo y dos acciones: "Attach Receipt"
+  (primaria), que adjunta el recibo y deja el viaje en "Shopping", y "Attach and Complete Trip" (secundaria), que lo adjunta y
+  completa el viaje. Solo los ítems que tienen línea en el recibo SHALL marcarse; el resto MUST quedar sin marcar en la lista.
+  Cerrar la hoja sin adjuntar MUST NOT cambiar nada.
+    La petición de adjuntar SHALL aceptar `complete_session` como booleano opcional. Omitirlo SHALL equivaler a `true`,
+  conservando la compatibilidad con las peticiones existentes. `Attach Receipt` SHALL enviar `false`; `Attach and Complete
+  Trip` SHALL enviar `true`. La RPC SHALL ejecutar adjuntar y, cuando corresponda, completar en una sola transacción.
+  Un replay de un recibo ya adjunto MUST NOT completar posteriormente el viaje ni repetir sus efectos; para completar
+  después de adjuntar sin completar se usa la operación existente de completar el viaje.
+
+#### Scenario: Existing client omits the completion flag
+
+- **WHEN** una petición válida adjunta un recibo a un viaje activo sin incluir `complete_session`
+- **THEN** adjunta y completa el viaje como antes
+
+#### Scenario: Attach without completing then complete later
+
+- **WHEN** el propietario adjunta con `complete_session: false` y después completa el viaje
+- **THEN** adjuntar deja el viaje activo y completar registra las compras una sola vez
+
+#### Scenario: Replay cannot change the completion choice
+
+- **WHEN** se reenvía un recibo ya adjunto con un valor distinto de `complete_session`
+- **THEN** responde como replay sin completar el viaje ni repetir cambios
+
+#### Scenario: Attach and keep shopping
+
+- **WHEN** el propietario revisa el recibo de "No Frills" de una compra en curso con 4 ítems, 2 de ellos en el recibo, y pulsa
+  "Attach Receipt"
+- **THEN** esos 2 ítems quedan marcados con el precio del recibo, los otros 2 siguen sin marcar y el viaje sigue en "Shopping"
+
+#### Scenario: Attach and complete
+
+- **WHEN** el propietario pulsa "Attach and Complete Trip"
+- **THEN** el recibo queda adjunto y el viaje se completa
+
+#### Scenario: Info alert
+
+- **WHEN** se abre la hoja de una compra en curso con 2 ítems fuera del recibo
+- **THEN** ve el aviso azul "The trip is still shopping" y "The other 2 items stay on the list for your next store."
+
+#### Scenario: Close without attaching
+
+- **WHEN** el propietario cierra la hoja sin pulsar ninguna acción
+- **THEN** el recibo, la lista y el viaje no cambian y el recibo queda en la tarjeta de recibos con "Pending attachment"

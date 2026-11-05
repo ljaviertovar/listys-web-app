@@ -14,7 +14,16 @@ explicar por qué una línea de nombre ilegible no puede añadirse y MUST NOT af
 #### Scenario: Default adds are stated
 
 - **WHEN** hay líneas en "New to <list>"
-- **THEN** la ayuda de la sección dice que se añadirán al viaje y a la lista, y que "Change" permite dejarlas fuera
+- **THEN** la ayuda de la sección dice "Bought but not on your list. They’re added to this trip and to <list>.", y "Change"
+  permite dejarlas fuera
+
+#### Scenario: Section help lines
+
+- **WHEN** la revisión muestra cada sección
+- **THEN** su ayuda de 12px dice, según la sección: "Will be checked off": "On this trip but not checked. They’re checked
+  off with the receipt price."; "Already checked": "You checked these during the trip. They only get the receipt price.";
+  "Left out": "Not saved to the trip or to <list>."; "Checked, not on the receipt": "These stay as bought, without a price.";
+  "Not checked, not on the receipt": "Not bought. They stay on <list> for your next trip."
 
 #### Scenario: Leave out versus match
 

@@ -916,9 +916,26 @@ A line is a row on a `#F6F7F9` panel: the receipt name in Title Case, then the p
 | Left out | “Left out by you”; a line whose name could not be read has no `Change` and says “The name couldn’t be read, so it can’t be added.” | Bag Fee, Unreadable line |
 | Checked, not on the receipt | No result line and no control; the section says the items stay as bought, without a price | Paper Towels |
 
-**A line with no match is added by default** as a new item, because every trip teaches the list (PRD v3 principle 4); the user leaves it out with `Change`. `Change` opens a small A1 sheet, **Change Line** (canvas F7 · 10): the receipt line in mono with its price and quantity box, then three choice rows (7.19 A) in a radio group: `Add as a new item` (“Adds it to this trip and to <list>.”), `Match a trip item` (“Checks off that item. This name is remembered next time.”, which opens the search field `Search trip items`, a count line and the trip's items as the radio list of the store picker, each with `checked` or `not checked`) and `Leave out` (“Not saved to the trip or to <list>.”), with `Save` (primary) and `Cancel`. The review shows the resulting store and a 44px “Total paid” field prefilled from the printed receipt total. A completed trip with a different confirmed store is blocked with an explanation; an active trip may adopt the receipt's store. The primary footer reads “Attach and Complete Trip” for an active trip and “Attach to Trip” for a completed one; it disables while attaching, reports errors with retry where the review can be reloaded, and never submits twice. Success opens the trip. An attached receipt replaces the selection bar and the add dialog with “Attached to <trip>” and “View trip”. If a merge races with an attachment, `409 RECEIPT_ATTACHED` transitions to this attached state; attaching to any trip other than the origin answers `409 RECEIPT_NOT_FROM_TRIP`. `TicketSummaryCard` keeps the extracted item total and coverage note, and separately shows “Receipt Total” only when OCR read the printed total. Known gap: `TripReceiptsCard` only appears on completed trips, so the app offers no way to upload a receipt from an active trip; the API still accepts it. Attaching also replaces quantities: each trip item matched by receipt lines, and its list item, takes the quantity bought (the sum of those lines), never added to the usual one; lines in different units leave both alone.
+**A line with no match is added by default** as a new item, because every trip teaches the list (PRD v3 principle 4); the user leaves it out with `Change`. `Change` opens a small A1 sheet, **Change Line** (canvas F7 · 10): the receipt line in mono with its price and quantity box, then three choice rows (7.19 A) in a radio group: `Add as a new item` (“Adds it to this trip and to <list>.”), `Match a trip item` (“Checks off that item. This name is remembered next time.”, which opens the search field `Search trip items`, a count line and the trip's items as the radio list of the store picker, each with `checked` or `not checked`) and `Leave out` (“Not saved to the trip or to <list>.”), with `Save` (primary) and `Cancel`. The review shows the resulting store and a 44px “Total paid” field prefilled from the printed receipt total. A different receipt store is allowed; a second receipt at the same confirmed store is blocked. The original trip store remains unchanged. Active review offers primary “Attach Receipt” and secondary “Attach and Complete Trip”; completed review offers “Attach to Trip”; it disables while attaching, reports errors with retry where the review can be reloaded, and never submits twice. Success opens the trip. An attached receipt replaces the selection bar and the add dialog with “Attached to <trip>” and “View trip”. If a merge races with an attachment, `409 RECEIPT_ATTACHED` transitions to this attached state; attaching to any trip other than the origin answers `409 RECEIPT_NOT_FROM_TRIP`. `TicketSummaryCard` keeps the extracted item total and coverage note, and separately shows “Receipt Total” only when OCR read the printed total. Active trips offer receipt upload from Actions and show pending and attached receipts separately. Attaching also replaces quantities: each trip item matched by receipt lines, and its list item, takes the quantity bought (the sum of those lines), never added to the usual one; lines in different units leave both alone.
 
-**Trip receipts card and chooser (trips-and-receipt-attach; derived from the receipt summary card, the store picker's radio rows and the A1 sheets; the HTML has no example).** On a completed trip without an attached receipt, `TripReceiptsCard` follows the receipt instead of only asking for one, in the card's single title/body/actions layout: no receipt (`No receipt`, or `Trip saved` right after completing) offers `Add Receipt` (`Upload a Receipt` and `Keep It Separate` right after saving); `Reading your receipt…` shows the `Reading Receipt` status chip, offers nothing to press and refreshes the trip by itself when the reading ends; a read receipt reads `Your receipt is ready` with `Review Receipt`; an unreadable one says so with `Open Receipt` and `Add Receipt`. The header carries `Completed` plus `No receipt` (amber) or `Receipt attached`. `Add Receipt` opens an A1 sheet with `Upload New Receipt` (primary) and `Choose Uploaded Receipt` (secondary); uploading from the trip keeps the user on the trip. `Choose an Uploaded Receipt` lists the free receipts as the store picker's radio rows (store, then date and line count as a second line, total in mono at the end), newest first; a receipt confirmed at another store than the completed trip stays listed, disabled, with the reason. The review (“Review how this receipt will update the trip”) is the same sheet as on the receipt screen, opened only after a receipt is chosen or ready: while it loads it names the trip and says it is loading, and `Cancel` leaves the receipt unattached and the trip unchanged. Only the person who ran the trip gets actions.
+**Trip receipts card (trip-receipt-review-redesign).** Upload starts directly from `Upload New Receipt` or `Add Another Receipt`. The white no-receipt card has one upload action; reading uses a blue surface and a reduced-motion-aware spinner without a chip or buttons; ready is green with `Review Receipt`; unreadable is red with `Open Receipt` and `Upload New Receipt`. Only the person who ran the trip sees receipt actions. The title/body status region announces changes. `?receipt=add` focuses its title. `Trip saved` uses the 64px green bag tile, an amber no-receipt alert, upload and view actions, and the no-deadline note. Completed trips without receipts show the estimate above this card.
+
+A trip supports one receipt per confirmed store. Its header lists the original store first, then other receipt stores, followed by the receipt count. The paid summary sums attached contributions; pending receipts do not contribute. Rows show store, items, amount and attachment status. Historical line destinations remain unknown. Active review offers `Attach Receipt` (keep shopping) and `Attach and Complete Trip`; both require explicit confirmation. Cancel writes nothing. Attachment errors use the red tonal card with `Try Again` (same payload) and `Attach Later`.
+
+**Canvas v4 flows (phases A, B and C; they supersede the chooser above).** *Phase A, shopping:* while a trip is active, `Actions` offers
+`Upload Receipt` (before `Complete Shopping` and `Cancel Shopping`) and the title row carries the `Shopping` pill at the right. Once a
+receipt exists, a card shows `Paid so far` (the attached receipts only), “N receipts · M to review” and one row per receipt with its
+store entity, items and total: a read receipt not yet attached carries the amber `Pending attachment` tag and `Review Receipt`, an
+attached one the neutral `Attached to trip` tag and `View Receipt`, and `Add Another Receipt` uploads a new one. `Review receipt` is
+the trip review sheet with a blue info alert (“The trip is still shopping”: only the items on this receipt are checked off, the rest
+stay for the next store) and two buttons, `Attach Receipt` (the trip keeps shopping) and `Attach and Complete Trip`. *Phase B, saved
+trip to ready receipt:* `Trip saved` is a centred card with the 64px green bag tile, an amber `No receipt yet` alert, `Upload New
+Receipt` and `View Trip`, and the no-deadline note; a finished trip without a receipt has a single path, `Upload New Receipt` (no
+`Choose Uploaded Receipt`, no `Keep It Separate`), under the `Estimated` card; the blue, green and red tonal cards follow the reading;
+item rows follow 7.18. *Phase C, review and several receipts:* the review of every case and `Change Line` do not change;
+`Add Another Receipt` uploads a new receipt directly, with no sheet; the all-match note (a green alert, “Everything you checked is on
+the receipt” / “Nothing to add or fix.”) and the red attach-failure card (“Couldn’t attach the receipt”, `Try Again`, `Attach Later`)
+are drawn in canvas boards 13 and 14.
 
 **Canvas v3 review pass (stores, item rows, notices).** Every store is violet and nothing else is: the store tile (`RowIcon tone='store'`, `EntityCard tone='store'`) is `violet-100`/`violet-700`, and the store chip (`Badge` `store`) is `violet-50` with a `violet-200` ring, `violet-900` text and a `violet-600` icon; a store chosen by the user (`store-manual`) is white with a `violet-300` ring and a pin. The `Default` chip of Pantry is yellow with a star (`list-default`). Item rows read the same everywhere: name on the left with its note under it (`ItemNote`: note icon, 12px regular grey, smaller than the 14px semibold name) and the usual-store chip below that; on the right (`ItemTrailing`) the price on top and the quantity and unit under it, with no quantity chip at the start of the row. A note that explains or reassures (the store picker's “stays until you change it”, `Review before saving` in the upload sheet) is `Alert variant='info'`. `Share` and `Add Item` sit on the page ground, so they are `outline`; secondary buttons stay secondary inside white cards and sheets.
 
@@ -989,10 +1006,10 @@ that row.
 
 **Usual-store tag (PRD v3 Phase 3; derived from the receipt's confirmed-store badge and the list row above; the HTML is silent).** When present, show the usual store as a neutral `Badge` below the item details, with the accessible name identifying the store and whether it was chosen manually or learned automatically. When store history exists beyond the usual store, show `Also at A, B +N`, ordered by purchase count then recency and excluding the usual store; show nothing when there is no such history. The owner's item menu adds `Set Usual Store…` or `Change Usual Store…`, and `Use Automatic Store` for a manual tag. These actions are disabled while the list is being shopped; collaborators see the tag and history but cannot change them.
 
-**Average price and estimate (derived from the receipt row; the HTML has no example).** A list row and a session row show the item's
-average price on their second line, before the note: the amount in mono (`font-mono`, semibold, tabular numerals, foreground colour) followed
+**Average price and estimate (derived from the receipt row; the HTML has no example).** A session row shows the item's
+average price on its second line, before the note (the v4 canvas moves it to the right column and shows no price on list rows, 7.18): the amount in mono (`font-mono`, semibold, tabular numerals, foreground colour) followed
 by a quiet "avg" in `slate-500` at 12px, with "Average price" for assistive technology (`AveragePrice`). An item without a price shows nothing,
-never "$0.00". While a session runs, the `SessionEstimate` card sits under the progress card with the same 24px radius and surface: "Estimated
+never "$0.00" (the v4 canvas writes “No price yet”, 7.18). The caption is only for averages, so it belongs to the active trip: list rows show no price and a finished trip shows the price printed on its receipt, with no “avg”. While a session runs, the `SessionEstimate` card sits under the progress card with the same 24px radius and surface: "Estimated
 total" and "Based on 3 of 12 items with a known price" at the left, the amount in mono 24px at the right. It is hidden when no item has a price
 and on a finished session, and it is never worded as what was paid.
 
@@ -1149,30 +1166,38 @@ a status. Figures are tabular.
 | --- | --- |
 | Inline counter | Mono 16 / 700 (600 in a card footer) `#0F172A` and an Inter 400 / 14 `#475569` label on the same line; singular and plural follow the number (`1 receipt`, `3 receipts`) |
 | Section counter | The category caption on the left and the count in mono 600 / 12 `#64748B` before the chevron; the row is 52px at least |
-| Item quantity | A box that reads as item data: `#E9ECF0`, 8px radius (not a pill), 22px high, the number in mono 600 / 12 `#0F172A` and the unit in Inter 500 / 12 `#475569`; under the name or the price, never at the start of the row |
+| Item quantity | A box that reads as item data: `#E9ECF0`, 8px radius (not a pill), 22px high, the number in mono 600 / 12 `#0F172A` and the unit in Inter 500 / 12 `#475569`; to the left of the name in every item row (7.18), never under the price |
 | Stat tile | `#F6F7F9`, 16px radius, 12px padding, a mono 600 / 20 figure over an Inter 400 / 12 `#64748B` label, inside a white card. The receipt-review summary uses the white variant with a status-coloured 28px icon tile |
 | Delta | Text and icon in mono 600 / 12, no box: `#15803D` up, `#B91C1C` down |
 | Avatar | Circular for people, a 12px-radius square for groups and stores |
 
 ### 7.18 Item rows
 
-One anatomy of four zones, used in 72 reviewed rows across lists, receipts, trips and stores.
+One anatomy, used in lists, shopping, trips, receipts and stores. The v4 canvas (design system sheet 10) fixes it as four levels in
+a fixed order, the same logic as the cards (7.16), with two optional pieces at the ends.
 
-1. **Start:** a 44px checkbox target, only when the row is ticked (picking in a trip, including in a review). No tick, no zone.
-2. **Body:** the name (Inter 600 / 14, one line with an ellipsis) and one secondary line: the note with its icon or the receipt's text
-   in mono, never both. The store follows as an entity, never a chip.
-3. **Data:** the price on top in IBM Plex Mono 600 / 14 (with “avg” when it is an average) and the quantity box (7.17) under it. With no
-   price, only the quantity; on receipts, only the price.
-4. **Action:** the ⋯ menu, 44px, at the end, only on rows that can be edited. A row never carries a checkbox and a text button.
+1. **Quantity and name:** the quantity box (7.17) to the left of the name, then the name (Inter 600 / 14, one line with an ellipsis).
+   Ticked, on an active trip only: the name and the price go `#94A3B8`, the name is struck through and the box drops to 60%.
+2. **Note** (optional): under the name, a message icon (14px) and Inter 400 / 12 `#64748B`, one line. It is the person's own text;
+   with no note the line is omitted. Receipt lines show the receipt's text in mono instead, never both.
+3. **Store:** one line under the note: the usual store as an entity (violet, no box) and, only when the item was also bought
+   elsewhere, “Also at <store>” in Inter 400 / 12 `#64748B` after it. No tag says where the item came from (no “From receipt”).
+4. **Price** (right column): IBM Plex Mono 600 / 14 `#0F172A`. “avg” (Inter 500 / 12 `#64748B`, “Average price” for assistive
+   technology) accompanies it only on the active trip, where the price is an average of the stores the item is bought in. A list item
+   shows no price, so it has no “avg”; a finished trip shows the price printed on its receipt, with no “avg”. With no price:
+   “No price yet”.
+
+Optional pieces: a **checkbox** (44px, at the start) only on an active trip, and the **⋯ menu** (44px, at the end) only on list
+screens, where the item shows no price. A row never carries a checkbox and a ⋯ menu together, nor a price and a ⋯ menu.
 
 | Context | Start | Body | Data | Action |
 | --- | --- | --- | --- | --- |
-| List item | none | Name · note · usual store | Average price · quantity | ⋯ menu |
-| Shopping item | Picked checkbox | Name (struck through when ticked) · note | Average price · quantity | ⋯ menu |
-| Receipt line | `Include` checkbox (review only) | Name · one tag · the receipt's text in mono | Price paid | none |
-| Closed-trip item | none | Struck-through name · “Added from the receipt” | Price paid | none |
-| Trip receipt line (7.6) | none | Name · tag · one result line | Price paid · quantity | `Change` text button |
-| Store item | none | Name · note · store entity | Price per store · quantity | ⋯ menu |
+| List item | none | Quantity · name · note · store | none | ⋯ menu |
+| Active-trip item | Checkbox | Quantity · name (struck through when ticked) · note · store | Price with “avg” | none |
+| Finished-trip item | none | Quantity · name (never struck through) · note · store | Price from the receipt, no “avg” | none |
+| Receipt line | `Include` checkbox (review only) | Quantity · name · one tag · the receipt's text in mono | Price paid | none |
+| Trip receipt line (7.6) | none | Quantity · name · tag · one result line | Price paid | `Change` text button |
+| Store item | none | Quantity · name · note · store entity | Price per store | ⋯ menu |
 
 The state of a line never competes with the name: it is a tag on the secondary line. Rows sit on a `#F6F7F9` panel with 16px radius
 and `#E5E8EC` dividers, under a 52px category header (7.19 D). Visual weight, high to low: name, price, secondary line, quantity box,
@@ -1186,7 +1211,7 @@ Pieces that appear in the v3 screens; the number of screens that use each one is
 
 - **A · Choice row:** 56px, 16px radius, 1px ring; a 20px radio (6px border when chosen); the chosen row is `#EFF6FF` with a 2px
   `#2563EB` ring; name 14 / 600 and note 12 `#64748B`; an amount in mono 14 / 600 at the end; unavailable rows are at 50% opacity with
-  the reason in the note. Used to choose a receipt, change a store, and in the Change Line sheet (7.6).
+  the reason in the note. Used to change a store and in the Change Line sheet (7.6).
 - **B · List filter:** a 44px button, 16px radius, 1px ring; an 18px blue icon, “List” in grey 400 and the value in 600, a chevron; it
   opens the list picker as a bottom sheet.
 - **C · Upload progress:** a 6px bar, track `#E5E8EC`, fill `#2563EB`, percentage in mono 600 / 12 `#1D4ED8`, `role=progressbar` with
@@ -1425,32 +1450,23 @@ These are remaining implementation notes, not permission for two systems:
 3d. **Active-session actions:** by product decision, phones keep one floating 44px `Actions` trigger with separate `Complete Shopping`
    and `Cancel Shopping` menu items, each with a 44px target; both open the existing owner-checked confirmation sheets. From `lg`, the
    two actions remain inline beside the title.
-3e. **Prices by Store (PRD v3 Phase 5):** the owner's row menu and `ItemStorePricesSheet` follow the store picker/A1 sheet pattern. Rows come only from store statistics with a recorded receipt price; collaborators see none through RLS, and unit-price comparisons label historical receipt data rather than current prices. The HTML is silent, so the sheet derives from the shared white sheet surface and store rows described in 7.12.
+3e. **Prices by Store (PRD v3 Phase 5):** the owner's row menu and `ItemStorePricesSheet` follow the store picker/A1 sheet pattern. Rows include visible store statistics even without a recorded price; collaborators see none through RLS, and unit-price comparisons label historical receipt data rather than current prices. The HTML is silent, so the sheet derives from the shared white sheet surface and store rows described in 7.12.
 3f. **Receipt matching review and suggestions (this OpenSpec change):** the HTML has no receipt-match example. The receipt
    triage sections, status badges, the on-screen match decisions and the `Review Matches` possible-match row are derived from the OCR review rows in 7.6,
    status badges in 7.3, and the existing A1 link-item sheet. Suggestions remain optional and require an explicit link
    choice; see the receipt triage note in 7.6 and the review flow in 11.6.
-3g. **Canvas v2 boards not in the code yet:** the canvas decisions written into 7.3 and 7.6 and 7.15–7.19 are the target; the
-   implementation still differs in these places.
-   - *Chips (7.3, built):* `Badge` has the status pill with its 6px dot (`dot`), the bordered `tag` and amber `tag-attention` (6px radius,
-     13px icon) and `EntityLabel` (`commons/entity-label`, violet store icon and name, no box). Trips, the trip screen and list cards use
-     them (`Receipt attached`, `No receipt`, `Shared with N people`, `Default` as a yellow tag, the `New` store tag). Still open: the
-     receipt status keeps `Waiting to Read`, `Reading Receipt` and `Ready to Review` because `openspec/specs/product-copy-clarity` requires
-     them, so the canvas labels `Reading` and `Processed` need that spec changed first; `Remembered` and `Linked by you` belong to the
-     trip receipt review below; `No price` / `No name` still use the receipt-row badges.
-   - *Trip receipt review (7.6, F7 · 9 and 10):* `attach-to-session-dialog.tsx` shows three groups (`Already checked`, `Will be checked`,
-     `Not in this trip`), a `Add as Purchased` checkbox and a `Link…` button, and **leaves unmatched lines out by default**. The canvas
-     adds new items by default, shows one result line and one `Change` per row, and adds the `New to <list>` and `Left out`
-     sections and the Change Line sheet. Changing the default contradicts the requirement “Unmatched lines are added only when the
-     user chooses” in `openspec/specs/receipt-session-reconciliation/spec.md`, so it needs its own OpenSpec change (spec,
-     `use-trip-review.ts`, `build-attach-review.ts` and the dialog) before it ships. The `Remembered` and `Linked by you` tags and the
-     “usual quantity 2 → 3” result need the match source and the previous quantity in the review model.
-   - *Hierarchy and counters (7.16, 7.17, built for the cards):* list, trip, receipt and store cards put identity, status, classification
-     and data in that order (`DataLine`, Inter 14 with mono figures; `InlineCounter` for the footer and the toolbar count) and the quantity
-     box has the 8px radius. The receipt screen's data line follows it. Still open: the receipt, trip and store cards have no ⋯ menu (the
-     only card action that exists, deleting a receipt, lives on the receipt screen), the receipt card's date and time are one preformatted
-     string so its figures are not mono, and the receipt-review stat tiles are not built.
-   - *Type scale (4.2):* the closed scale drops 11, 11.5, 12.5, 13, 13.5, 14.5 and 15px. The authenticated app no longer uses them (the auth hero's 15px became 16px, and IBM Plex Mono loads only 500 and 600); the landing page keeps its own mock-up sizes.
+3g. **Canvas implementation and intentional gaps:**
+   - Built: three-level chips, three review counters, six ordered sections, local per-line decisions, remembered/user-link tags, quantity outcomes and Change Line sheet. Readable unmatched lines default to new; unreadable lines remain out. Confirmation is the only write.
+   - Built: multi-store receipts, attached-only paid totals, direct uploads, four tonal receipt states, Trip saved, active review options and trip item rows. The prices sheet derives from the A1 sheet, store entities and stat tiles; it includes purchase counts and stores with no recorded price.
+   - Open: receipt status vocabulary (`Reading` / `Processed`) and the `Ready` / `Processed` contradiction in 7.3 require a separate copy decision.
+   - Open: tag shapes outside trip review retain their existing receipt-row and add-to-list treatments.
+   - Open: card ellipsis menus and receipt-card mono date figures remain a separate change.
+   - Open: the `Default` chip retains its current treatment.
+   - Kept intentionally: the `Show trips from` selector, Trips subtitle and `Back to Trips` wording remain as implemented.
+   - Kept intentionally: completing a trip opens the Trip saved card; the canvas has no replacement for this transition.
+   - Kept intentionally: no intermediate upload-choice board; trip receipt actions begin uploads directly.
+   - Dark-mode visual values are absent from the HTML; existing semantic dark tokens remain the fallback.
+
 4. **Dark mode:** `Card` is the 24px borderless surface everywhere now; v2 dark values are not defined in the HTML and the new
    tokens (`--secondary-hover`, shadows) only keep dark mode valid, so it is deferred until it is reviewed.
 5. **Colour discipline:** marketing, authentication, shopping categories, and statuses use independent violet, pink, green,
@@ -1462,6 +1478,10 @@ These are remaining implementation notes, not permission for two systems:
 9. **Radius/elevation:** the roles of section 5.1 map onto the native radius scale (11.5); marketing keeps its own 6px base.
 10. **Icons:** Hugeicons and Lucide coexist. Standardize feature by feature, never by replacing icons without reviewing
    optical size and accessible labels.
+    **Shopping icon rule (canvas v4):** the shopping *bag* is the icon of a trip (Trips list and detail tiles) and of
+    anything about an active session (session bar, session pill and session cards). The shopping *cart* is reserved for
+    starting to shop (`Start Shopping`, the start sheet and the dashboard banner that invites to begin). The two are never
+    swapped, so a bag always means "a trip that exists" and a cart always means "begin one". The trip cards, Trips heading and session actions use the bag.
 11. **Dark mode:** semantic tokens exist, but one-off literal colour utilities and translucent surfaces require a complete
    contrast review.
 12. **Type scale outside the landing page and dashboard:** these two follow section 4.2; the rest of the app does not yet.
