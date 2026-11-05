@@ -930,8 +930,8 @@ attached one the neutral `Attached to trip` tag and `View Receipt`, and `Add Ano
 the trip review sheet with a blue info alert (“The trip is still shopping”: only the items on this receipt are checked off, the rest
 stay for the next store) and two buttons, `Attach Receipt` (the trip keeps shopping) and `Attach and Complete Trip`. *Phase B, saved
 trip to ready receipt:* `Trip saved` is a centred card with the 64px green bag tile, an amber `No receipt yet` alert, `Upload New
-Receipt` and `View Trip`, and the no-deadline note; a finished trip without a receipt has a single path, `Upload New Receipt` (no
-`Choose Uploaded Receipt`, no `Keep It Separate`), under the `Estimated` card; the blue, green and red tonal cards follow the reading;
+Receipt` and `View Trip`, and the no-deadline note; a finished trip without a receipt has one direct upload path under the `Estimated`
+card; the blue, green and red tonal cards follow the reading;
 item rows follow 7.18. *Phase C, review and several receipts:* the review of every case and `Change Line` do not change;
 `Add Another Receipt` uploads a new receipt directly, with no sheet; the all-match note (a green alert, “Everything you checked is on
 the receipt” / “Nothing to add or fix.”) and the red attach-failure card (“Couldn’t attach the receipt”, `Try Again`, `Attach Later`)
