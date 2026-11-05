@@ -16,7 +16,7 @@ const ORGANIC = { id: 'organic', name: 'Organic Bananas' }
 const PANTRY = { id: 'pantry', name: 'Pantry' }
 
 const item = (id: string, name: string, overrides: Partial<TicketItem> = {}): TicketItem => ({
-	id, ticket_id: 't', name, category: 'Produce', price: 2, quantity: 1, unit: 'unit', created_at: null, normalized_name: null, ...overrides,
+	id, ticket_id: 't', name, category: 'Produce', price: 2, quantity: 1, unit: 'unit', created_at: null, normalized_name: null, shopping_session_item_id: null, ...overrides,
 })
 const items = [item('bananas', 'ORG BANANAS'), item('milk', 'Milk'), item('rice', 'Rice')]
 const matches: TicketItemMatch[] = [

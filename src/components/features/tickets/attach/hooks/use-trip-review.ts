@@ -1,6 +1,7 @@
 'use client'
 
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
+import { toast } from 'sonner'
 
 import {
 	attachTicketToSession,
@@ -9,14 +10,31 @@ import {
 	getTicketSessionMatches,
 	type TicketSessionCandidate,
 	type TicketSessionMatch,
+	type AttachTicketToSessionInput,
 } from '@/lib/api/endpoints'
 
-import { buildAttachReview } from '../helpers/build-attach-review'
+import { buildAttachReview, type PriorReceiptLine } from '../helpers/build-attach-review'
+import type { LineDecision } from '../helpers/line-decision'
+import { changeReviewDecision, createReviewDecisions } from '../helpers/review-decisions'
+import { describeAttachSuccess } from '../helpers/describe-attach-success'
 import { readTicketForReview, type TripReviewTicket } from '../helpers/read-ticket-for-review'
 import { getTripReviewPhase } from '../helpers/trip-review-phase'
 
-type SessionItem = { id: string; name: string; checked: boolean }
+type SessionItem = { id: string; name: string; checked: boolean; quantity?: number | null; unit?: string | null }
 type AttachError = { message: string; attached: boolean }
+
+function readPriorReceiptLines(value: unknown): PriorReceiptLine[] {
+	if (!value || typeof value !== 'object' || !('receipts' in value) || !Array.isArray(value.receipts)) return []
+	return value.receipts.flatMap(receipt => {
+		if (!receipt || typeof receipt !== 'object' || !('lines' in receipt) || !Array.isArray(receipt.lines)) return []
+		return receipt.lines.flatMap((line: unknown) => {
+			if (!line || typeof line !== 'object' || !('shopping_session_item_id' in line) || typeof line.shopping_session_item_id !== 'string') return []
+			return [{ shopping_session_item_id: line.shopping_session_item_id,
+				quantity: 'quantity' in line && typeof line.quantity === 'number' ? line.quantity : null,
+				unit: 'unit' in line && typeof line.unit === 'string' ? line.unit : null }]
+		})
+	})
+}
 
 function readSessionItems(value: unknown): SessionItem[] {
 	if (!value || typeof value !== 'object' || !('items' in value) || !Array.isArray(value.items)) return []
@@ -27,6 +45,8 @@ function readSessionItems(value: unknown): SessionItem[] {
 			id: item.id,
 			name: item.name,
 			checked: 'checked' in item && item.checked === true,
+			quantity: 'quantity' in item && typeof item.quantity === 'number' ? item.quantity : null,
+			unit: 'unit' in item && typeof item.unit === 'string' ? item.unit : null,
 		}]
 	})
 }
@@ -57,9 +77,11 @@ export function useTripReview({ ticketId, trip, ticket: providedTicket = null, o
 	const [sessionItems, setSessionItems] = useState<SessionItem[]>([])
 	const [reviewLoading, setReviewLoading] = useState(false)
 	const [reviewError, setReviewError] = useState<string | null>(null)
-	const [addedItemIds, setAddedItemIds] = useState<string[]>([])
-	const [linkedItems, setLinkedItems] = useState<ReadonlyMap<string, string>>(new Map())
-	const [linkingLineId, setLinkingLineId] = useState<string | null>(null)
+	const [decisions, setDecisions] = useState(createReviewDecisions)
+	const [editingLineId, setEditingLineId] = useState<string | null>(null)
+	const [previousLines, setPreviousLines] = useState<PriorReceiptLine[]>([])
+	const requestInFlight = useRef(false)
+	const lastAttempt = useRef<AttachTicketToSessionInput | null>(null)
 	const [totalInput, setTotalInput] = useState(providedTicket?.totalAmount == null ? '' : String(providedTicket.totalAmount))
 	const [submitting, setSubmitting] = useState(false)
 	const [submitError, setSubmitError] = useState<AttachError | null>(null)
@@ -67,6 +89,7 @@ export function useTripReview({ ticketId, trip, ticket: providedTicket = null, o
 	const loadReview = useCallback(async (target: TicketSessionCandidate, known: TripReviewTicket | null) => {
 		setMatches([])
 		setSessionItems([])
+		setPreviousLines([])
 		setReviewError(null)
 		setReviewLoading(true)
 
@@ -91,6 +114,7 @@ export function useTripReview({ ticketId, trip, ticket: providedTicket = null, o
 		else {
 			setMatches(matchResult.data ?? [])
 			setSessionItems(readSessionItems(sessionResult.data))
+			setPreviousLines(readPriorReceiptLines(sessionResult.data))
 		}
 		setReviewLoading(false)
 	}, [ticketId])
@@ -104,8 +128,9 @@ export function useTripReview({ ticketId, trip, ticket: providedTicket = null, o
 		if (!trip) return
 		setOpenState(true)
 		setSubmitError(null)
-		setAddedItemIds([])
-		setLinkedItems(new Map())
+		setDecisions(createReviewDecisions())
+		setEditingLineId(null)
+		lastAttempt.current = null
 		void loadReview(trip, ticket)
 	}
 
@@ -119,32 +144,30 @@ export function useTripReview({ ticketId, trip, ticket: providedTicket = null, o
 		sessionItems,
 		receiptStore: ticket.receiptStore,
 		totalAmount: totalInput.trim() === '' ? null : Number(totalInput),
-		addedItemIds,
-		linkedItems,
-	}) : null, [trip, ticket, matches, sessionItems, totalInput, addedItemIds, linkedItems])
+		decisions,
+		previousLines,
+		coveredItemIds: new Set(previousLines.flatMap(line => line.shopping_session_item_id ? [line.shopping_session_item_id] : [])),
+	}) : null, [trip, ticket, matches, sessionItems, totalInput, decisions, previousLines])
 	const totalIsValid = totalInput.trim() === '' || (Number.isFinite(Number(totalInput)) && Number(totalInput) >= 0)
 	const phase = getTripReviewPhase({ open, loading: reviewLoading, failed: reviewError !== null, hasReview: review !== null })
 
-	const toggleAdded = (id: string, checked: boolean) => {
-		setAddedItemIds(current => checked ? [...current, id] : current.filter(itemId => itemId !== id))
-		if (checked) setLinkedItems(current => {
-			const next = new Map(current)
-			next.delete(id)
-			return next
-		})
+	const setDecision = (lineId: string, decision: LineDecision) => {
+		const line = ticket?.lines.find(candidate => candidate.id === lineId)
+		if (!line) return
+		setDecisions(current => changeReviewDecision(current, line, matches.find(match => match.ticket_item_id === lineId), decision))
+		setEditingLineId(null)
 	}
 
-	const linkLine = (lineId: string, itemId: string) => {
-		setLinkedItems(current => new Map(current).set(lineId, itemId))
-		setAddedItemIds(current => current.filter(itemId => itemId !== lineId))
-		setLinkingLineId(null)
-	}
-
-	const submit = async () => {
-		if (!trip || !review || submitting) return
+	const submit = async (completeSession = true, retry = false) => {
+		if (!trip || !review || requestInFlight.current || !totalIsValid) return
+		const payload = retry ? lastAttempt.current : { ...review.payload, complete_session: completeSession }
+		if (!payload) return
+		lastAttempt.current = payload
+		requestInFlight.current = true
 		setSubmitting(true)
 		setSubmitError(null)
-		const result = await attachTicketToSession(ticketId, review.payload)
+		const result = await attachTicketToSession(ticketId, payload)
+		requestInFlight.current = false
 		setSubmitting(false)
 		if (result.error) {
 			const reason = result.details && typeof result.details === 'object' && 'reason' in result.details
@@ -153,16 +176,19 @@ export function useTripReview({ ticketId, trip, ticket: providedTicket = null, o
 			if (reason === 'RECEIPT_ATTACHED') onAlreadyAttached?.()
 			return
 		}
+		const notice = describeAttachSuccess(result.data)
+		toast.success(notice.title, { description: notice.description })
 		setOpen(false)
 		onAttached(trip)
 	}
 
 	return {
-		trip, lines: ticket?.lines ?? [],
+		trip, lines: ticket?.lines ?? [], receiptStore: ticket?.receiptStore ?? null,
 		open, setOpen, openReview, closeReview, phase,
 		sessionItems, matches, reviewLoading, reviewError,
 		retryReview: () => trip && void loadReview(trip, ticket),
-		addedItemIds, toggleAdded, linkedItems, linkingLineId, setLinkingLineId, linkLine,
+		decisions, setDecision, editingLineId, setEditingLineId,
+		retrySubmit: () => submit(true, true),
 		totalInput, setTotalInput, totalIsValid, submitting, submitError, submit, review,
 	}
 }

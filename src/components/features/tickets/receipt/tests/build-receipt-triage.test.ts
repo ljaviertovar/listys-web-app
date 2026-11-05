@@ -16,7 +16,7 @@ function item(id: string, overrides: Partial<TicketItem> = {}): TicketItem {
 		quantity: 1,
 		unit: 'unit',
 		created_at: null,
-		normalized_name: null,
+		normalized_name: null, shopping_session_item_id: null,
 		...overrides,
 	}
 }

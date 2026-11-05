@@ -53,14 +53,14 @@ describe('readTicketForReview', () => {
 				id: 't',
 				total_amount: 12.5,
 				store: { id: 's1', name: 'Metro', extra: 1 },
-				items: [{ id: 'a', name: 'Milk', price: 3 }, { id: 'b', name: 'Eggs' }],
+				items: [{ id: 'a', name: 'Milk', price: 3, quantity: 2, unit: 'each', normalized_name: 'milk' }, { id: 'b', name: 'Eggs' }],
 			}),
-		).toEqual({ lines: [{ id: 'a', name: 'Milk' }, { id: 'b', name: 'Eggs' }], receiptStore: { id: 's1', name: 'Metro' }, totalAmount: 12.5 })
+		).toEqual({ lines: [{ id: 'a', name: 'Milk', price: 3, quantity: 2, unit: 'each', normalized_name: 'milk' }, { id: 'b', name: 'Eggs', price: null, quantity: null, unit: null, normalized_name: null }], receiptStore: { id: 's1', name: 'Metro' }, totalAmount: 12.5 })
 	})
 
 	it('treats a missing store or total as none, and skips malformed lines', () => {
 		expect(readTicketForReview({ items: [{ id: 'a', name: 'Milk' }, { id: 1 }, null], store: null })).toEqual({
-			lines: [{ id: 'a', name: 'Milk' }],
+			lines: [{ id: 'a', name: 'Milk', price: null, quantity: null, unit: null, normalized_name: null }],
 			receiptStore: null,
 			totalAmount: null,
 		})

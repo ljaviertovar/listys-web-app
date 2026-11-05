@@ -50,7 +50,7 @@ export function useAttachToSession({
 
 	// A receipt is only offered the trip it was uploaded from, so there is never a choice to make.
 	const ticket = useMemo(() => ({
-		lines: items.map(item => ({ id: item.id, name: item.name })),
+		lines: items.map(({ id, name, price, quantity, unit, normalized_name }) => ({ id, name, price, quantity, unit, normalized_name })),
 		receiptStore,
 		totalAmount,
 	}), [items, receiptStore, totalAmount])

@@ -33,7 +33,7 @@ export function TicketAttachCard({
 				</div>
 				<div className='min-w-0 flex-1'>
 					<h2 className='text-sm font-semibold'>You uploaded this receipt from a trip</h2>
-					<p className='mt-1 text-sm text-muted-foreground'>Attach it to finish the trip and save its prices.</p>
+					<p className='mt-1 text-sm text-muted-foreground'>Attach it to update the trip and save its prices.</p>
 				</div>
 			</div>
 			{actions.candidatesError ? (

@@ -8,7 +8,7 @@ import { buildReceiptTriage } from '../helpers/build-receipt-triage'
 import { buildSelectionBreakdown } from '../helpers/receipt-selection-breakdown'
 
 const item = (id: string, overrides: Partial<TicketItem> = {}): TicketItem => ({
-	id, ticket_id: 't', name: id, category: 'Other', price: 1, quantity: 1, unit: 'unit', created_at: null, normalized_name: null, ...overrides,
+	id, ticket_id: 't', name: id, category: 'Other', price: 1, quantity: 1, unit: 'unit', created_at: null, normalized_name: null, shopping_session_item_id: null, ...overrides,
 })
 const match = (id: string, kind: TicketItemMatch['match'], suggestion: TicketItemMatch['suggestion'] = null): TicketItemMatch => ({
 	ticket_item_id: id, match: kind, base_list_item: kind === 'none' ? null : { id: `base-${id}`, name: id }, suggestion,
