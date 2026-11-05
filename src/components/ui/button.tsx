@@ -68,6 +68,8 @@ const buttonVariants = cva(
 				link: 'text-primary underline-offset-4 hover:underline',
 			},
 			size: {
+				// The visible 32px action keeps a 44px pointer target without changing row layout.
+				'quiet-touch': 'relative h-8 px-2 text-sm after:absolute after:-inset-y-1.5 after:inset-x-0',
 				xs: "h-6 gap-1 px-2.5 text-xs has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2 [&_svg:not([class*='size-'])]:size-3",
 				sm: 'h-8 gap-1 px-3 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2',
 				default:

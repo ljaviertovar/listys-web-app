@@ -6,7 +6,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { formatCurrency } from '@/utils'
 import { DashboardEmptyState } from './dashboard-empty-state'
 import { DashboardSectionCard } from './dashboard-section-card'
-import { RowIcon } from './row-icon'
+import { RowIcon } from '@/components/commons'
 import { ShoppingCart02Icon } from '@hugeicons/core-free-icons'
 
 export function MonthSpendingCard() {

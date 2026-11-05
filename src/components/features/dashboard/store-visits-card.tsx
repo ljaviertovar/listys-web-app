@@ -4,7 +4,7 @@ import { formatCurrency } from '@/utils'
 import { DashboardEmptyState } from './dashboard-empty-state'
 import { DashboardRow } from './dashboard-row'
 import { DashboardSectionCard } from './dashboard-section-card'
-import { RowIcon } from './row-icon'
+import { RowIcon } from '@/components/commons'
 import type { DashboardModel } from './helpers/build-dashboard-model'
 
 interface Props { visits: DashboardModel['storeVisits'] }

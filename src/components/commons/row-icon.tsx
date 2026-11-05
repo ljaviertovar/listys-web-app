@@ -3,6 +3,7 @@ import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react'
 import { cn } from '@/utils'
 
 const TONES = {
+	neutral: { medium: 'bg-slate-100 text-slate-600 dark:bg-muted dark:text-slate-300' },
 	primary: {
 		medium: 'bg-blue-100 text-blue-700 dark:bg-primary/20 dark:text-blue-300',
 	},
@@ -25,6 +26,8 @@ const TONES = {
 } as const
 
 const SIZES = {
+	stat: { box: 'size-7 rounded-lg', icon: 'size-4' },
+	saved: { box: 'size-16 rounded-[20px]', icon: 'size-8' },
 	xs: { box: 'size-6 rounded-lg', icon: 'size-3.5' },
 	sm: { box: 'size-8 rounded-lg', icon: 'size-4.5' },
 	md: { box: 'size-9 rounded-xl', icon: 'size-4.5' },
@@ -39,19 +42,22 @@ interface Props {
 	/** The 100-level fill every dashboard row, empty state and "Up Next" row shares; it is the default. */
 	emphasis?: 'medium'
 	className?: string
+	testId?: string
+	spinning?: boolean
 }
 
 /** The rounded, tinted square that carries the icon at the start of a dashboard row or at the top of an empty card. */
-export function RowIcon({ icon, tone, size, emphasis = 'medium', className }: Props) {
+export function RowIcon({ icon, tone, size, emphasis = 'medium', className, testId = `decorative-${tone}-icon`, spinning = false }: Props) {
 	return (
 		<span
 			aria-hidden='true'
+			data-testid={testId}
 			className={cn('flex shrink-0 items-center justify-center', SIZES[size].box, TONES[tone][emphasis], className)}
 		>
 			<HugeiconsIcon
 				icon={icon}
 				strokeWidth={1.5}
-				className={SIZES[size].icon}
+				className={cn(SIZES[size].icon, spinning && 'animate-spin motion-reduce:animate-none')}
 			/>
 		</span>
 	)

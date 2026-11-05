@@ -8,6 +8,7 @@ interface Props {
 	title: string
 	desc: ReactNode
 	children?: ReactNode
+	aside?: ReactNode
 	/**
 	 * `banner` is the original white band with a bottom border. `screen` is the A1 header: no band, on the page ground,
 	 * with the back link above a 30px title, the way the dashboard greeting is set.
@@ -17,7 +18,7 @@ interface Props {
 	back?: { href: string; label: string }
 }
 
-function PageHeaderContent({ title, desc, children, variant = 'banner', back }: Props) {
+function PageHeaderContent({ title, desc, children, variant = 'banner', back, aside }: Props) {
 	if (variant === 'screen') {
 		return (
 			<header
@@ -25,7 +26,7 @@ function PageHeaderContent({ title, desc, children, variant = 'banner', back }: 
 				data-variant='screen'
 				className='mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 pt-3 md:flex-row md:items-end md:justify-between md:px-6 md:pt-6 lg:px-8'
 			>
-				<div className='flex min-w-0 flex-col gap-2'>
+				<div className='flex min-w-0 flex-1 flex-col gap-2'>
 					{back ? (
 						<BackLink
 							href={back.href}
@@ -33,9 +34,12 @@ function PageHeaderContent({ title, desc, children, variant = 'banner', back }: 
 							variant='screen'
 						/>
 					) : null}
-					<h1 className='font-display text-2xl leading-[1.17] font-bold tracking-tight text-balance md:text-3xl lg:text-4xl'>
+					<div className='flex items-center justify-between gap-3'>
+					<h1 className='min-w-0 font-display text-2xl leading-[1.17] font-bold tracking-tight text-balance md:text-3xl lg:text-4xl'>
 						{title}
 					</h1>
+					{aside}
+					</div>
 					<div className='text-sm leading-normal text-slate-500 md:text-base dark:text-muted-foreground'>{desc}</div>
 				</div>
 				{children}
@@ -47,7 +51,7 @@ function PageHeaderContent({ title, desc, children, variant = 'banner', back }: 
 		<header data-testid='page-header' className='w-full border-b bg-card'>
 			<div className='w-full max-w-7xl m-auto flex items-center justify-between align-center gap-4 px-4 py-3 md:px-6 lg:px-8 lg:py-4'>
 				<div className='space-y-0.5'>
-					<h1 className='text-lg font-bold tracking-tight md:text-2xl truncate w-full max-w-[25ch]'>{title}</h1>
+					<div className='flex items-center justify-between gap-3'><h1 className='text-lg font-bold tracking-tight md:text-2xl truncate w-full max-w-[25ch]'>{title}</h1>{aside}</div>
 				<div className='text-sm text-muted-foreground md:text-base tabular-nums'>{desc}</div>
 				</div>
 			</div>

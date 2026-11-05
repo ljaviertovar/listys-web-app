@@ -5,7 +5,7 @@ import { CreateBaseListDialog, StartShoppingDialog } from '@/components/features
 import { cn } from '@/utils'
 import { DashboardEmptyState } from './dashboard-empty-state'
 import { DashboardSectionCard } from './dashboard-section-card'
-import { RowIcon } from './row-icon'
+import { RowIcon } from '@/components/commons'
 import { pluralize, type DashboardModel } from './helpers/build-dashboard-model'
 
 interface Props {

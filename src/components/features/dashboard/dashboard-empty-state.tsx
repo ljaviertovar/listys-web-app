@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import type { IconSvgElement } from '@hugeicons/react'
 
-import { RowIcon } from './row-icon'
+import { RowIcon } from '@/components/commons'
 
 interface Props {
 	testId: string

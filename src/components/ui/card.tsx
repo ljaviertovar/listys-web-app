@@ -10,11 +10,13 @@ function Card({
 	layout = 'default',
 	side = 'left',
 	interactive = false,
+	tone = 'default',
 	...props
 }: React.ComponentProps<'div'> & {
 	/** `compact`, `tight` and `flush` drop the gap between the parts of the card and shrink its padding (a card of list rows). */
-	size?: 'default' | 'sm' | 'compact' | 'tight' | 'flush'
-	variant?: 'default' | 'premium' | 'accent' | 'ghost'
+	size?: 'default' | 'sm' | 'compact' | 'tight' | 'flush' | 'receipt' | 'stat' | 'saved'
+	variant?: 'default' | 'premium' | 'accent' | 'ghost' | 'stat'
+	tone?: 'default' | 'info' | 'success' | 'danger' | 'muted'
 	layout?: 'default' | 'horizontal'
 	side?: 'left' | 'right'
 	/** Lifts the shadow on hover: a card that holds rows or links to somewhere. */
@@ -27,6 +29,7 @@ function Card({
 			data-variant={variant}
 			data-layout={layout}
 			data-side={side}
+			data-tone={tone}
 			className={cn(
 				'group/card flex flex-col overflow-hidden rounded-3xl border-0 bg-card text-sm text-card-foreground shadow-card transition-shadow duration-300 motion-reduce:transition-none dark:border dark:shadow-none',
 				layout === 'default' && 'gap-6 py-3 md:py-4',
@@ -34,6 +37,14 @@ function Card({
 				size === 'compact' && 'gap-0 py-3 md:py-4',
 				size === 'tight' && 'gap-0 p-3 md:p-4',
 				size === 'flush' && 'gap-0 p-3 md:p-4',
+				size === 'receipt' && 'gap-0 p-3.5 md:p-3.5',
+				size === 'stat' && 'gap-3 p-3 md:p-3',
+				size === 'saved' && 'gap-4 p-6 md:p-6',
+				variant === 'stat' && 'rounded-2xl shadow-none ring-1 ring-inset ring-slate-200 dark:ring-border',
+				tone === 'info' && 'bg-blue-50 text-blue-900 shadow-none ring-1 ring-inset ring-blue-100 dark:bg-blue-500/10 dark:text-blue-200 dark:ring-blue-500/30',
+				tone === 'success' && 'bg-green-50 text-green-900 shadow-none ring-1 ring-inset ring-green-200 dark:bg-green-500/10 dark:text-green-200 dark:ring-green-500/30',
+				tone === 'danger' && 'bg-red-50 text-red-900 shadow-none ring-1 ring-inset ring-red-200 dark:bg-red-500/10 dark:text-red-200 dark:ring-red-500/30',
+				tone === 'muted' && 'bg-muted shadow-none ring-0',
 				interactive && 'hover:shadow-card-hover',
 				'has-data-[slot=card-banner]:p-0',
 				variant === 'premium' &&

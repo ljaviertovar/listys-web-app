@@ -16,12 +16,13 @@ function RadioGroup({ className, ...props }: React.ComponentProps<typeof RadioGr
 	)
 }
 
-function RadioGroupItem({ className, ...props }: React.ComponentProps<typeof RadioGroupPrimitive.Item>) {
+function RadioGroupItem({ className, size = 'default', ...props }: React.ComponentProps<typeof RadioGroupPrimitive.Item> & { size?: 'default' | 'card' }) {
 	return (
 		<RadioGroupPrimitive.Item
 			data-slot='radio-group-item'
 			className={cn(
 				'border-input text-primary focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive aspect-square size-4 shrink-0 rounded-full border shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50',
+				size === 'card' && 'size-5 border-2 shadow-none data-[state=checked]:border-primary',
 				className
 			)}
 			{...props}

@@ -1,6 +1,6 @@
 'use client'
 
-import type { ReactNode } from 'react'
+import type { ComponentProps, ReactNode } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ArrowDown01Icon } from '@hugeicons/core-free-icons'
 
@@ -25,6 +25,9 @@ interface CategorySectionProps {
 	panelClassName?: string
 	/** Classes of the section itself, for example to drop its top divider when it opens a card. */
 	className?: string
+	icon?: ComponentProps<typeof CategoryHeading>['icon']
+	tone?: ComponentProps<typeof CategoryHeading>['tone']
+	description?: string
 }
 
 /**
@@ -41,6 +44,9 @@ export function CategorySection({
 	testId,
 	panelClassName,
 	className,
+	icon,
+	tone,
+	description,
 }: CategorySectionProps) {
 	return (
 		<div className={cn('border-t border-slate-100 dark:border-border', className)}>
@@ -57,11 +63,14 @@ export function CategorySection({
 							title={title}
 							count={count}
 							complete={complete}
+							icon={icon}
+							tone={tone}
+							description={description}
 							testId={`${testId}-heading`}
 						/>
 						<span
 							aria-hidden='true'
-							className='flex size-9 items-center justify-center text-slate-500'
+							className={cn('flex size-9 items-center justify-center text-slate-500', description && 'self-start mt-0.5')}
 						>
 							<HugeiconsIcon
 								icon={ArrowDown01Icon}

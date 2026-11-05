@@ -100,24 +100,28 @@ export function SearchableChoiceList({
 
 interface ChoiceRowProps {
 	option: ChoiceOption
+	variant?: 'default' | 'card'
+	testId?: string
 }
 
 /** One radio row of a choice list; also used on its own by lists that do not need the search field. */
-export function ChoiceRow({ option }: ChoiceRowProps) {
+export function ChoiceRow({ option, variant = 'default', testId = `choice-${option.value}` }: ChoiceRowProps) {
 	const id = useId()
 	return (
 		<label
 			htmlFor={id}
-			data-testid='choice-option'
+			data-testid={testId}
 			data-disabled={option.disabled ? '' : undefined}
 			className={cn(
 				'flex min-h-12 items-center gap-3 rounded-xl px-3 py-2',
-				option.disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer hover:bg-muted has-data-[state=checked]:bg-accent',
+				variant === 'card' && 'min-h-14 rounded-2xl border border-slate-200 bg-card px-3.5 py-3 has-data-[state=checked]:border-primary has-data-[state=checked]:bg-blue-50 has-data-[state=checked]:ring-1 has-data-[state=checked]:ring-primary dark:border-border dark:has-data-[state=checked]:bg-blue-500/10',
+				option.disabled ? 'cursor-not-allowed opacity-50' : variant === 'card' ? 'cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-500/10' : 'cursor-pointer hover:bg-muted has-data-[state=checked]:bg-accent',
 			)}
 		>
 			<RadioGroupItem
 				id={id}
 				value={option.value}
+				size={variant === 'card' ? 'card' : 'default'}
 				disabled={option.disabled}
 			/>
 			<span className='flex min-w-0 flex-1 flex-col'>

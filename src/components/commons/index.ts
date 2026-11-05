@@ -30,3 +30,7 @@ export {
 } from "./searchable-choice-list/searchable-choice-list";
 export { ConfirmSheet } from "./sheet-dialog/confirm-sheet";
 export { SheetDialog } from "./sheet-dialog/sheet-dialog";
+
+export { RowIcon } from './row-icon'
+export { StatusCard } from './status-card'
+export { StatTile } from './stat-tile/stat-tile'
