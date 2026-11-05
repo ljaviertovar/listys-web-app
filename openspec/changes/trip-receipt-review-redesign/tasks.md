@@ -79,7 +79,7 @@ Prerequisite inspection (2026-11-05): `trips-and-receipt-attach` is archived und
 ## 7. Integration checks
 
 - [x] 7.1 Run `pnpm lint`, `pnpm typecheck`, `pnpm test` and `pnpm check:native-props`; all pass
-- [ ] 7.2 Run `openspec validate trip-receipt-review-redesign --strict` and fix any reported issue
+- [x] 7.2 Run `openspec validate trip-receipt-review-redesign --strict` and fix any reported issue
 - [x] 7.3 Confirm the feature migration is the one of 0b.1, review any drift-repair migration as additive and record-preserving, and confirm every API change is additive and documented in `docs/reference/api-v1.md` (`git diff --stat` under `supabase/`, `src/app/api/` and `src/lib/api/` matches design D15 to D17)
 
 ## Workflow follow-up
@@ -95,5 +95,4 @@ Verification 0b.1 (2026-11-05): Docker engine unavailable, so no local Supabase 
 
 Verification 0b.2: all 31 rollback-only SQL checks pass in temporary in-memory PostgreSQL, including unchanged legacy quantity behavior, active attachment/replay, multiple stores, summed price/quantity, one purchase, per-store statistics and receipt deletion. These checks ran against synthetic data and did not access hosted records.
 
-Verification 7.1 (2026-11-05): TypeScript check, full Vitest (123 files / 844 tests), full ESLint (0 errors; 30 pre-existing warnings), and native-props guard (8 tests) pass. The retired-copy scan is clean. E2E was typechecked but not run because no E2E_SUPABASE_* variables are configured and the existing global teardown resets tables. Visual review at 390px and 1280px was reported complete in the preceding session. Strict OpenSpec validation could not run because the OpenSpec CLI is not installed in this environment.
-ode_modules/.bin/tsc --noEmit, full Vitest (123 files / 844 tests), full ESLint (0 errors; 30 pre-existing warnings), and native-props guard (8 tests) pass. Retired-copy scan is clean. E2E was typechecked but not run because no E2E_SUPABASE_* variables are configured and the existing global teardown resets tables. Visual review at 390px and 1280px was reported complete in the preceding session. openspec validate --strict could not run because the OpenSpec CLI is not installed in this environment.
+Verification 7.1 (2026-11-05): TypeScript check, full Vitest (123 files / 844 tests), full ESLint (0 errors; 30 pre-existing warnings), and native-props guard (8 tests) pass. The retired-copy scan is clean. E2E was typechecked but not run because no E2E_SUPABASE_* variables are configured and the existing global teardown resets tables. Visual review at 390px and 1280px was reported complete in the preceding session. Strict OpenSpec validation passed with OpenSpec CLI 1.16.0, invoked from the npm global path.
