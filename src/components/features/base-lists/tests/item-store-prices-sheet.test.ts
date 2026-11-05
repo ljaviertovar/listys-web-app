@@ -6,6 +6,9 @@ vi.mock('@/components/commons', async importOriginal => ({
 	...await importOriginal<typeof import('@/components/commons')>(),
 	SheetDialog: ({ children, testId }: { children: React.ReactNode; testId: string }) => createElement('div', { 'data-testid': testId }, children),
 }))
+vi.mock('@/components/features/tickets', () => ({
+	UploadTicketDialog: ({ label }: { label: string }) => createElement('button', null, label),
+}))
 
 import { ItemStorePricesSheet } from '../items/item-store-prices-sheet'
 
@@ -40,6 +43,37 @@ describe('ItemStorePricesSheet', () => {
 		}))
 
 		expect(html).toContain('Some prices use different units and can’t be compared.')
+		expect(html).not.toContain('Cheapest')
+	})
+
+	it('shows the empty state and the usual store when an item has no price history', () => {
+		const html = renderToStaticMarkup(createElement(ItemStorePricesSheet, {
+			open: true,
+			onOpenChange: vi.fn(),
+			itemName: 'Oats',
+			prices: [],
+			testId: 'prices-sheet-oats',
+			usualStore: { id: 'usual', name: 'Metro', source: 'manual', purchase_count: 0 },
+		}))
+
+		expect(html).toContain('data-testid="prices-sheet-oats-empty"')
+		expect(html).toContain('No prices yet')
+		expect(html).toContain('Metro')
+	})
+
+	it('shows a store without a price and explains a one-store history', () => {
+		const html = renderToStaticMarkup(createElement(ItemStorePricesSheet, {
+			open: true,
+			onOpenChange: vi.fn(),
+			itemName: 'Oats',
+			prices: [],
+			history: [{ store: { id: 'metro', name: 'Metro' }, last_price: null, last_quantity: null, last_unit: null, last_price_at: null, purchase_count: 1 }],
+			testId: 'prices-sheet-oats',
+		}))
+
+		expect(html).toContain('Metro')
+		expect(html).toContain('No price yet')
+		expect(html).toContain('Bought at one store so far')
 		expect(html).not.toContain('Cheapest')
 	})
 })
