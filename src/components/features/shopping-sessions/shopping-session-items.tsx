@@ -6,17 +6,19 @@ import { TaskAdd01Icon } from '@hugeicons/core-free-icons'
 import { CategorySection, EmptyStateCard } from '@/components/commons'
 import { groupByCategory } from '@/utils'
 import type { ShoppingSessionItem } from '@/types'
+import { Card } from '@/components/ui/card'
 import type { CategoryGroup } from '@/utils/group-by-category'
 
 import { STARTED_SESSION_PARAM } from './helpers/started-session'
 import { splitSessionSections } from './helpers/split-session-sections'
-import { ShoppingSessionItemRow } from './shopping-session-item-row'
+import { ShoppingSessionItemRow, type TripItemStoreInfo } from './shopping-session-item-row'
 
 interface ShoppingSessionItemsProps {
 	items: ShoppingSessionItem[]
 	isCompleted?: boolean
 	/** Average price of each item the list knows a price for, by session item id; a finished session passes none. */
 	priceByItemId?: Record<string, number>
+	storeInfoByItemId?: Record<string, TripItemStoreInfo>
 	/** Fold every category: only the first visit after the session is started. Later renders keep what the user opened or closed. */
 	startCollapsed?: boolean
 	storeId?: string | null
@@ -32,7 +34,7 @@ function sortForShopping(items: ShoppingSessionItem[]) {
 }
 
 /** The items of a session in one card, a collapsible category each with how many are in the cart ("1/2"). */
-export function ShoppingSessionItems({ items, isCompleted = false, priceByItemId, startCollapsed = false, storeId = null, storeName }: ShoppingSessionItemsProps) {
+export function ShoppingSessionItems({ items, isCompleted = false, priceByItemId, storeInfoByItemId, startCollapsed = false, storeId = null, storeName }: ShoppingSessionItemsProps) {
 	const groups = useMemo(() => groupByCategory(sortForShopping(items)), [items])
 	const sections = useMemo(() => splitSessionSections(sortForShopping(items)), [items])
 	const storeGroups = useMemo(() => groupByCategory(sections.storeItems), [sections.storeItems])
@@ -63,10 +65,10 @@ export function ShoppingSessionItems({ items, isCompleted = false, priceByItemId
 	}
 
 	return (
-		<section
+		<Card
+			size='receipt'
 			aria-label='Items by category'
 			data-testid='session-items-card'
-			className='rounded-3xl bg-card p-3 shadow-card md:p-4'
 		>
 			{storeId ? (
 				<>
@@ -76,6 +78,7 @@ export function ShoppingSessionItems({ items, isCompleted = false, priceByItemId
 							groups={storeGroups}
 							isCompleted={isCompleted}
 							priceByItemId={priceByItemId}
+						storeInfoByItemId={storeInfoByItemId}
 							defaultOpen={!startCollapsed}
 							prefix='session-store-category'
 						/>
@@ -91,6 +94,7 @@ export function ShoppingSessionItems({ items, isCompleted = false, priceByItemId
 							groups={otherGroups}
 							isCompleted={isCompleted}
 							priceByItemId={priceByItemId}
+						storeInfoByItemId={storeInfoByItemId}
 							defaultOpen={!startCollapsed}
 							prefix='session-other-category'
 						/>
@@ -101,11 +105,12 @@ export function ShoppingSessionItems({ items, isCompleted = false, priceByItemId
 					groups={groups}
 					isCompleted={isCompleted}
 					priceByItemId={priceByItemId}
+						storeInfoByItemId={storeInfoByItemId}
 					defaultOpen={!startCollapsed}
 					prefix='session-category'
 				/>
 			)}
-		</section>
+		</Card>
 	)
 }
 
@@ -113,11 +118,12 @@ interface SessionCategoryGroupsProps {
 	groups: CategoryGroup<ShoppingSessionItem>[]
 	isCompleted: boolean
 	priceByItemId?: Record<string, number>
+	storeInfoByItemId?: Record<string, TripItemStoreInfo>
 	defaultOpen: boolean
 	prefix: string
 }
 
-function SessionCategoryGroups({ groups, isCompleted, priceByItemId, defaultOpen, prefix }: SessionCategoryGroupsProps) {
+function SessionCategoryGroups({ groups, isCompleted, priceByItemId, storeInfoByItemId, defaultOpen, prefix }: SessionCategoryGroupsProps) {
 	return groups.map((group, index) => {
 		const done = group.items.filter(item => item.checked).length
 
@@ -126,7 +132,7 @@ function SessionCategoryGroups({ groups, isCompleted, priceByItemId, defaultOpen
 				key={group.key}
 				category={group.key}
 				title={group.title}
-				count={`${done}/${group.items.length}`}
+				count={isCompleted ? String(group.items.length) : `${done}/${group.items.length}`}
 				complete={done === group.items.length}
 				defaultOpen={defaultOpen}
 				className={index === 0 ? 'border-t-0' : undefined}
@@ -135,7 +141,7 @@ function SessionCategoryGroups({ groups, isCompleted, priceByItemId, defaultOpen
 				<ul className='divide-y divide-slate-200/70 dark:divide-border'>
 					{group.items.map(item => (
 						<li key={item.id}>
-							<ShoppingSessionItemRow item={item} isCompleted={isCompleted} averagePrice={priceByItemId?.[item.id]} />
+							<ShoppingSessionItemRow item={item} isCompleted={isCompleted} averagePrice={priceByItemId?.[item.id]} storeInfo={storeInfoByItemId?.[item.id]} />
 						</li>
 					))}
 				</ul>

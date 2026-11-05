@@ -1,14 +1,16 @@
 'use client'
 
 import Link from 'next/link'
-import { Alert02Icon, Attachment01Icon, ShoppingCart02Icon } from '@hugeicons/core-free-icons'
+import { Alert02Icon, Attachment01Icon, ShoppingBag02Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 
 import { ActionLink, DataFigure, DataLine, EntityLabel, InlineCounter } from '@/components/commons'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { formatCurrency, formatDate, formatTime } from '@/utils'
+import { formatCurrency, formatTripDate } from '@/utils'
+import type { TripReceipt } from '@/types'
+import { getTripStores } from './helpers/get-trip-stores'
 
 interface Session {
 	id: string
@@ -22,7 +24,7 @@ interface Session {
 	shopping_session_items?: Array<{ id: string; checked: boolean | null }> | null
 	base_list: { name: string } | null
 	store?: { id: string; name: string } | null
-	receipt?: { id: string } | null
+	receipts?: TripReceipt[]
 }
 
 interface Props {
@@ -30,7 +32,7 @@ interface Props {
 	href?: string
 }
 
-/** The trip's own page with the receipt choice already open, keeping whatever the details link carries. */
+/** The trip's own page with focus on the receipt card, keeping whatever the details link carries. */
 function addReceiptHref(detailsHref: string) {
 	return `${detailsHref}${detailsHref.includes('?') ? '&' : '?'}receipt=add`
 }
@@ -43,7 +45,8 @@ function addReceiptHref(detailsHref: string) {
  */
 export function HistorySessionCard({ session, href }: Props) {
 	const detailsHref = href ?? `/shopping/${session.id}`
-	const receiptState = session.receipt === undefined ? 'unknown' : session.receipt ? 'attached' : 'none'
+	const receiptState = session.receipts === undefined ? 'unknown' : session.receipts.length ? 'attached' : 'none'
+	const stores = getTripStores(session.store, session.receipts ?? [])
 	const completedDate = session.completed_at ? new Date(session.completed_at) : null
 	const purchasedCount =
 		session.purchased_count ??
@@ -54,7 +57,7 @@ export function HistorySessionCard({ session, href }: Props) {
 
 	return (
 		<Card
-			size='tight'
+			size='receipt'
 			data-testid={`history-card-${session.id}`}
 		>
 			<div className='flex flex-col gap-2.5'>
@@ -64,7 +67,7 @@ export function HistorySessionCard({ session, href }: Props) {
 						className='flex size-9 shrink-0 items-center justify-center rounded-xl bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300'
 					>
 						<HugeiconsIcon
-							icon={ShoppingCart02Icon}
+							icon={ShoppingBag02Icon}
 							strokeWidth={1.5}
 							className='size-4.5'
 						/>
@@ -80,12 +83,13 @@ export function HistorySessionCard({ session, href }: Props) {
 
 				{hasClassification ? (
 					<div className='flex flex-wrap items-center gap-x-2.5 gap-y-1.5'>
-						{session.store ? (
+						{stores.map(store => (
 							<EntityLabel
-								name={session.store.name}
-								testId={`history-store-${session.id}`}
+								key={store.id}
+								name={store.name}
+								testId={`history-store-${session.id}-${store.id}`}
 							/>
-						) : null}
+						))}
 						{receiptState === 'attached' ? (
 							<Badge
 								data-testid={`history-receipt-marker-${session.id}`}
@@ -96,7 +100,7 @@ export function HistorySessionCard({ session, href }: Props) {
 									strokeWidth={1.8}
 									aria-hidden='true'
 								/>
-								Receipt attached
+								{(session.receipts?.length ?? 0) > 1 ? `${session.receipts?.length} receipts` : 'Receipt attached'}
 							</Badge>
 						) : null}
 						{receiptState === 'none' ? (
@@ -118,12 +122,11 @@ export function HistorySessionCard({ session, href }: Props) {
 				<DataLine testId={`history-data-${session.id}`}>
 					{completedDate ? (
 						<>
-							Completed on <DataFigure>{formatDate(completedDate)}</DataFigure>
+							<DataFigure>{formatTripDate(completedDate)}</DataFigure>
 						</>
 					) : (
 						'Date unknown'
 					)}
-					{completedDate ? <DataFigure>{formatTime(completedDate)}</DataFigure> : null}
 					{session.total_amount == null ? null : <DataFigure>{formatCurrency(session.total_amount)}</DataFigure>}
 				</DataLine>
 

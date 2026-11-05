@@ -1,124 +1,71 @@
 'use client'
 
-import { useReducer } from 'react'
+import { useEffect, useReducer } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { Alert02Icon, Attachment01Icon, CheckmarkCircle02Icon, Loading03Icon, ShoppingBag01Icon } from '@hugeicons/core-free-icons'
 
+import { RowIcon, StatusCard } from '@/components/commons'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { TicketStatusChip } from '@/components/features/tickets/ticket-status-chip'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { UploadTicketDialog } from '@/components/features/tickets'
-import { useTicketStatus } from '@/components/features/tickets/receipt/hooks/use-ticket-status'
 import type { TicketSessionCandidate } from '@/lib/api/endpoints'
 
-import { AddReceiptSheet } from './add-receipt-sheet'
-import { ChooseUploadedReceiptSheet } from './choose-uploaded-receipt-sheet'
 import type { TripReceiptState } from './helpers/get-trip-receipt-state'
 import { getTripReceiptCard } from './helpers/get-trip-receipt-card'
-import { createTripReceiptFlow, shouldOpenAddOnLoad, tripReceiptFlowReducer } from './helpers/trip-receipt-flow'
-import { useAvailableReceipts } from './hooks/use-available-receipts'
+import { createTripReceiptFlow, tripReceiptFlowReducer } from './helpers/trip-receipt-flow'
 import { TripReceiptReview } from './trip-receipt-review'
+import { TripReceiptReadingListener } from './trip-receipt-reading-listener'
 
 interface TripReceiptsCardProps {
-	/** Where the trip stands with its receipt; a trip with an attached receipt does not render this card. */
 	state: Exclude<TripReceiptState, { kind: 'attached' }>
-	/** True on the visit that follows completing the trip: the card then confirms the save and asks for the receipt. */
 	justSaved?: boolean
-	/** Items the trip saved, and the list they went to. */
 	itemCount: number
 	listName: string
-	/** The trip as the review needs it. Omitted when the viewer did not run the trip: they are told the state and offered nothing. */
 	trip?: TicketSessionCandidate
-	/** Opens the Add Receipt choice on arrival, for the link of a trip card that already said the user wants to add one. */
+	/** Legacy link from Trips now focuses the direct upload card, without opening a sheet. */
 	openAddOnLoad?: boolean
+	testId?: string
 }
 
-/**
- * A completed trip with no receipt attached. Having no receipt never makes the trip incomplete: this card only says where the
- * receipt stands (none yet, being read, ready, unreadable) and offers the next step. Attaching is confirmed in the review,
- * which opens from here only once a receipt is chosen or read.
- */
-export function TripReceiptsCard({ state, justSaved = false, itemCount, listName, trip, openAddOnLoad = false }: TripReceiptsCardProps) {
+export function TripReceiptsCard({ state, justSaved = false, itemCount, listName, trip, openAddOnLoad = false, testId = 'trip-receipts-card' }: TripReceiptsCardProps) {
 	const canManage = Boolean(trip)
-	const [flow, dispatch] = useReducer(
-		tripReceiptFlowReducer,
-		shouldOpenAddOnLoad({ requested: openAddOnLoad, canManage, state }),
-		createTripReceiptFlow,
-	)
-
-	// Right after saving, "Choose Uploaded Receipt" only appears when there is something to choose.
-	const available = useAvailableReceipts(trip?.id ?? '', canManage && justSaved && state.kind === 'none')
-	const hasAvailableReceipts = available.state.status === 'ready' && available.state.receipts.some(receipt => receipt.selectable)
-
-	const card = getTripReceiptCard({ state, justSaved, canManage, itemCount, listName, hasAvailableReceipts })
-	const cardState = state.kind === 'none' ? (justSaved ? 'saved' : 'no-receipt') : state.kind
-
-	const uploadNew = () => dispatch({ type: 'upload-new' })
-	const chooseUploaded = () => dispatch({ type: 'choose-uploaded' })
-	const review = (ticketId: string) => dispatch({ type: 'review', ticketId })
-
+	const [flow, dispatch] = useReducer(tripReceiptFlowReducer, undefined, createTripReceiptFlow)
+	const card = getTripReceiptCard({ state, justSaved, canManage, itemCount, listName })
+	const saved = state.kind === 'none' && justSaved
+	const cardState = state.kind === 'none' ? saved ? 'saved' : 'no-receipt' : state.kind
+	const headingId = `${testId}-title`
+	useEffect(() => {
+		if (openAddOnLoad && canManage) document.getElementById(headingId)?.focus()
+	}, [openAddOnLoad, canManage, headingId])
+	const actions = card.actions.map(action => {
+		switch (action) {
+			case 'upload': return <Button key={action} type='button' size='primary' onClick={() => dispatch({ type: 'upload-new' })}>Upload New Receipt</Button>
+			case 'review': return state.kind === 'read' ? <Button key={action} type='button' size='primary' onClick={() => dispatch({ type: 'review', ticketId: state.ticketId })}>Review Receipt</Button> : null
+			case 'open-receipt': return state.kind === 'failed' ? <Button key={action} asChild variant='outline' size='primary'><Link href={`/tickets/${state.ticketId}`}>Open Receipt</Link></Button> : null
+			case 'view-trip': return trip ? <Button key={action} asChild variant='outline' size='primary'><Link href={`/shopping/${trip.id}`}>View Trip</Link></Button> : null
+		}
+	})
 	return (
-		<Card size='tight' data-testid='trip-receipts-card' data-state={cardState}>
-			<div className='flex flex-col gap-3'>
-				<div className='flex min-w-0 flex-col gap-1'>
-					<div className='flex flex-wrap items-center gap-2'>
-						<h2 className='font-display text-base leading-[1.5] font-semibold'>{card.title}</h2>
-						{state.kind === 'reading' ? <TripReceiptReadingChip ticketId={state.ticketId} /> : null}
-					</div>
-					<p className='text-sm leading-normal text-muted-foreground'>{card.message}</p>
+		<section data-testid={testId} data-state={cardState}>
+			{saved ? <Card size='saved' data-testid='trip-saved-card'>
+				<div className='flex flex-col items-center gap-4 text-center'>
+					<RowIcon icon={ShoppingBag01Icon} tone='success' size='saved' testId='trip-saved-icon' />
+					<h1 className='font-display text-xl font-semibold tracking-tight'>{card.title}</h1>
+					<p className='text-sm leading-normal text-slate-500 dark:text-muted-foreground'>{card.message}</p>
+					<Alert variant='warning'><AlertTitle>No receipt yet</AlertTitle><AlertDescription>Having no receipt never leaves the trip incomplete.</AlertDescription></Alert>
+					<div className='flex w-full flex-col gap-2'>{actions}</div>
+					<p className='text-xs leading-normal text-slate-500 dark:text-muted-foreground'>You can add a receipt later from Trips, with no deadline.</p>
 				</div>
-
-				{card.actions.length > 0 ? (
-					<div className='flex flex-col gap-2 sm:flex-row'>
-						{card.actions.map(action => {
-							switch (action) {
-								case 'add-receipt':
-									return <Button key={action} type='button' size='primary' className='sm:w-auto' onClick={() => dispatch({ type: 'open-add' })}>Add Receipt</Button>
-								case 'upload':
-									return <Button key={action} type='button' size='primary' className='sm:w-auto' onClick={uploadNew}>Upload a Receipt</Button>
-								case 'choose':
-									return <Button key={action} type='button' variant='secondary' size='primary' className='sm:w-auto' onClick={chooseUploaded}>Choose Uploaded Receipt</Button>
-								case 'review':
-									return state.kind === 'read' ? (
-										<Button key={action} type='button' size='primary' className='sm:w-auto' onClick={() => review(state.ticketId)}>Review Receipt</Button>
-									) : null
-								case 'open-receipt':
-									return state.kind === 'failed' ? (
-										<Button key={action} asChild variant='secondary' size='primary' className='sm:w-auto'>
-											<Link href={`/tickets/${state.ticketId}`}>Open Receipt</Link>
-										</Button>
-									) : null
-								case 'keep-separate':
-									return (
-										<Button key={action} asChild variant='secondary' size='primary' className='sm:w-auto'>
-											<Link href='/dashboard'>Keep It Separate</Link>
-										</Button>
-									)
-							}
-						})}
-					</div>
-				) : null}
-			</div>
-
-			{trip ? (
-				<>
-					<AddReceiptSheet open={flow.add} onOpenChange={open => dispatch({ type: 'set-add', open })} onUploadNew={uploadNew} onChooseUploaded={chooseUploaded} />
-					<UploadTicketDialog trigger={null} open={flow.upload} onOpenChange={open => dispatch({ type: 'set-upload', open })} shoppingSessionId={trip.id} />
-					<ChooseUploadedReceiptSheet sessionId={trip.id} open={flow.choose} onOpenChange={open => dispatch({ type: 'set-choose', open })} onChoose={review} onUploadNew={uploadNew} />
-					{flow.reviewTicketId ? <TripReceiptReview key={flow.reviewTicketId} ticketId={flow.reviewTicketId} trip={trip} onClose={() => dispatch({ type: 'close-review' })} /> : null}
-				</>
-			) : null}
-		</Card>
-	)
-}
-
-/** The reading status of the receipt just uploaded; the trip refreshes by itself when the reading ends, read or failed. */
-function TripReceiptReadingChip({ ticketId }: { ticketId: string }) {
-	const router = useRouter()
-	const status = useTicketStatus({ ticketId, initialStatus: 'processing', onTerminal: () => router.refresh() })
-	return (
-		<span role='status' aria-live='polite' data-testid='trip-receipt-reading-status'>
-			<TicketStatusChip status={status} testId='trip-receipt-status-chip' />
-		</span>
+			</Card> : <StatusCard testId={`${testId}-state`} headingId={headingId}
+				tone={state.kind === 'reading' ? 'info' : state.kind === 'read' ? 'success' : state.kind === 'failed' ? 'danger' : 'default'}
+				icon={state.kind === 'reading' ? Loading03Icon : state.kind === 'read' ? CheckmarkCircle02Icon : state.kind === 'failed' ? Alert02Icon : Attachment01Icon}
+				spinning={state.kind === 'reading'} title={card.title} description={card.message} actions={actions.length ? actions : undefined} />}
+			{state.kind === 'reading' ? <TripReceiptReadingListener ticketId={state.ticketId} /> : null}
+			{trip ? <>
+				<UploadTicketDialog trigger={null} open={flow.upload} onOpenChange={open => dispatch({ type: 'set-upload', open })} shoppingSessionId={trip.id} />
+				{flow.reviewTicketId ? <TripReceiptReview key={flow.reviewTicketId} ticketId={flow.reviewTicketId} trip={trip} onClose={() => dispatch({ type: 'close-review' })} /> : null}
+			</> : null}
+		</section>
 	)
 }

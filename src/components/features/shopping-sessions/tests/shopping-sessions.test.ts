@@ -87,7 +87,7 @@ describe('ShoppingSessionActions', () => {
 describe('HistorySessionCard receipt status', () => {
 	const session = { id: 's1', name: 'Weekly shop', status: 'completed', started_at: null, completed_at: null, total_amount: 20, base_list: { name: 'Groceries' } }
 	const render = (receipt: { id: string } | null | undefined, href?: string) =>
-		renderToStaticMarkup(createElement(HistorySessionCard, { session: { ...session, receipt }, href }))
+		renderToStaticMarkup(createElement(HistorySessionCard, { session: { ...session, receipts: receipt === undefined ? undefined : receipt ? [{ ...receipt, store: null, total_amount: 20, items_count: 1 }] : [] }, href }))
 
 	it('shows the trip as completed and its receipt as attached, with no action to add one', () => {
 		const html = render({ id: 'ticket-1' })

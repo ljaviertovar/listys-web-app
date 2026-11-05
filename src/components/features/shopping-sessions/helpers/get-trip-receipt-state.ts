@@ -13,14 +13,13 @@ export type TripReceiptState =
  * reading failed the trip says so. An attached receipt settles everything else.
  */
 export function getTripReceiptState({
-	attachedReceipt,
+	receipts,
 	pendingReceipt,
 }: {
-	attachedReceipt: { id: string } | null | undefined
+	receipts: ReadonlyArray<{ id: string }> | null | undefined
 	pendingReceipt: { id: string; ocr_status: string | null } | null | undefined
 }): TripReceiptState {
-	if (attachedReceipt) return { kind: 'attached' }
-	if (!pendingReceipt) return { kind: 'none' }
+	if (!pendingReceipt) return receipts?.length ? { kind: 'attached' } : { kind: 'none' }
 
 	const status = toTicketStatus(pendingReceipt.ocr_status)
 	if (status === 'completed') return { kind: 'read', ticketId: pendingReceipt.id }

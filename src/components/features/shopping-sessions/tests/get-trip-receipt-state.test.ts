@@ -4,23 +4,27 @@ import { getTripReceiptState } from '../helpers/get-trip-receipt-state'
 
 describe('getTripReceiptState', () => {
 	it('has no receipt when none is attached or waiting', () => {
-		expect(getTripReceiptState({ attachedReceipt: null, pendingReceipt: null })).toEqual({ kind: 'none' })
-		expect(getTripReceiptState({ attachedReceipt: undefined, pendingReceipt: undefined })).toEqual({ kind: 'none' })
+		expect(getTripReceiptState({ receipts: [], pendingReceipt: null })).toEqual({ kind: 'none' })
+		expect(getTripReceiptState({ receipts: undefined, pendingReceipt: undefined })).toEqual({ kind: 'none' })
 	})
 
-	it('is attached whenever a receipt is attached, whatever else was uploaded from the trip', () => {
-		expect(getTripReceiptState({ attachedReceipt: { id: 'a' }, pendingReceipt: { id: 'p', ocr_status: 'processing' } })).toEqual({ kind: 'attached' })
+	it('keeps following a pending receipt when another receipt is attached', () => {
+		expect(getTripReceiptState({ receipts: [{ id: 'a' }, { id: 'b' }], pendingReceipt: { id: 'p', ocr_status: 'processing' } })).toEqual({ kind: 'reading', ticketId: 'p' })
+	})
+
+	it('is attached with two receipts and no pending upload', () => {
+		expect(getTripReceiptState({ receipts: [{ id: 'a' }, { id: 'b' }], pendingReceipt: null })).toEqual({ kind: 'attached' })
 	})
 
 	it.each(['pending', 'processing', null, 'something-new'])('waits while the uploaded receipt is %s', status => {
-		expect(getTripReceiptState({ attachedReceipt: null, pendingReceipt: { id: 'p', ocr_status: status } })).toEqual({ kind: 'reading', ticketId: 'p' })
+		expect(getTripReceiptState({ receipts: [], pendingReceipt: { id: 'p', ocr_status: status } })).toEqual({ kind: 'reading', ticketId: 'p' })
 	})
 
 	it('offers the review once the uploaded receipt is read', () => {
-		expect(getTripReceiptState({ attachedReceipt: null, pendingReceipt: { id: 'p', ocr_status: 'completed' } })).toEqual({ kind: 'read', ticketId: 'p' })
+		expect(getTripReceiptState({ receipts: [], pendingReceipt: { id: 'p', ocr_status: 'completed' } })).toEqual({ kind: 'read', ticketId: 'p' })
 	})
 
 	it('reports a receipt that could not be read', () => {
-		expect(getTripReceiptState({ attachedReceipt: null, pendingReceipt: { id: 'p', ocr_status: 'failed' } })).toEqual({ kind: 'failed', ticketId: 'p' })
+		expect(getTripReceiptState({ receipts: [], pendingReceipt: { id: 'p', ocr_status: 'failed' } })).toEqual({ kind: 'failed', ticketId: 'p' })
 	})
 })

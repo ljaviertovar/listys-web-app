@@ -1,147 +1,55 @@
 'use client'
 
-import { useEffect, useId, useRef, useState } from 'react'
-import { Delete02Icon, Edit02Icon } from '@hugeicons/core-free-icons'
+import { useId, useState } from 'react'
+import { Message01Icon } from '@hugeicons/core-free-icons'
 
+import { ItemStorePricesSheet } from '@/components/features/base-lists/items/item-store-prices-sheet'
+import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
-import { ConfirmSheet, RowMenu } from '@/components/commons'
-import { AveragePrice, ItemEditForm, ItemNote, ItemQuantityChip, ItemTrailing } from '@/components/features/list-items'
-import { cn, formatCurrency, formatItemName } from '@/utils'
+import { EntityLabel } from '@/components/commons'
+import { AveragePrice, ItemNote, ItemQuantityChip } from '@/components/features/list-items'
+import { cn, formatCurrency, formatItemName, isUsablePrice } from '@/utils'
 import type { ShoppingSessionItem } from '@/types'
-
+import type { ItemStoreSummary } from '@/components/features/base-lists/items/helpers/item-store-summary'
+import { formatAlsoAt } from '@/components/features/base-lists/items/helpers/item-store-summary'
 import { useSessionItemActions } from './hooks/use-session-item-actions'
+
+export type TripItemStoreInfo = Pick<ItemStoreSummary, 'usual_store' | 'other_stores'> & Partial<Pick<ItemStoreSummary, 'store_prices' | 'store_history'>> & { purchaseStats?: { purchaseCount: number; intervalDays: number | null; lastBought: string | null } }
 
 interface ShoppingSessionItemRowProps {
 	item: ShoppingSessionItem
-	/** A finished session is only read: nothing is ticked, edited or deleted. */
 	isCompleted?: boolean
-	/** The list's average price for this item, when it has one. */
 	averagePrice?: number | null
+	storeInfo?: TripItemStoreInfo
 }
 
-/**
- * One item of a shopping session: a 44px checkbox target, its name (struck through once it is in the cart), its quantity
- * chip, the list's average price when known, its note, and a "⋯" menu. Editing swaps the row for the form in place.
- */
-export function ShoppingSessionItemRow({ item, isCompleted = false, averagePrice = null }: ShoppingSessionItemRowProps) {
+/** Trip rows show what was bought; editing and item menus belong to the reusable list. */
+export function ShoppingSessionItemRow({ item, isCompleted = false, averagePrice = null, storeInfo }: ShoppingSessionItemRowProps) {
 	const checkboxId = useId()
-	const rowRef = useRef<HTMLDivElement>(null)
-	const returnFocusToMenu = useRef(false)
-	const [editing, setEditing] = useState(false)
-	const [deleteOpen, setDeleteOpen] = useState(false)
-	const [deleting, setDeleting] = useState(false)
-	const { checked, toggling, toggle, save, remove } = useSessionItemActions(item)
+	const [pricesOpen, setPricesOpen] = useState(false)
+	const { checked, toggling, toggle } = useSessionItemActions(item)
 	const name = formatItemName(item.name)
-
-	useEffect(() => {
-		if (!editing && returnFocusToMenu.current) {
-			returnFocusToMenu.current = false
-			rowRef.current?.querySelector<HTMLButtonElement>('[data-testid$="-menu"]')?.focus()
-		}
-	}, [editing])
-
-	const closeEditor = () => {
-		returnFocusToMenu.current = true
-		setEditing(false)
-	}
-
-	if (editing) {
-		return (
-			<ItemEditForm
-				item={item}
-				onSubmit={async values => {
-					await save(values)
-					closeEditor()
-				}}
-				onCancel={closeEditor}
-			/>
-		)
-	}
-
+	const activeChecked = checked && !isCompleted
+	const alsoAt = formatAlsoAt(storeInfo?.other_stores ?? [])
 	return (
-		<div
-			ref={rowRef}
-			data-testid={`session-item-${item.id}`}
-			data-checked={checked}
-			className='flex min-h-17 items-center gap-0.5 py-1 pr-1.5 pl-0.5'
-		>
-			<label
-				htmlFor={isCompleted ? undefined : checkboxId}
-				className={cn('flex min-w-0 flex-1 items-center gap-0.5', !isCompleted && 'cursor-pointer')}
-			>
-				{isCompleted ? (
-					<span className='w-3.5 shrink-0' />
-				) : (
-					<span className='flex size-11 shrink-0 items-center justify-center'>
-						<Checkbox
-							id={checkboxId}
-							checked={checked}
-							onCheckedChange={toggle}
-							disabled={toggling}
-							aria-label={checked ? `${name}, collected` : `Mark ${name} as collected`}
-							size='lg'
-						/>
-					</span>
-				)}
-				<span className='flex min-w-0 flex-1 flex-col items-start gap-1.5 pl-0.5'>
-					<span
-						className={cn(
-							'w-full break-words text-sm leading-[1.3] font-semibold',
-							checked && 'text-slate-600 line-through dark:text-muted-foreground',
-						)}
-					>
-						{name}
-					</span>
-					{item.notes ? <ItemNote wrap>{item.notes}</ItemNote> : null}
-				</span>
-				<ItemTrailing>
-					{isCompleted ? (
-						item.price !== null ? (
-							<span data-testid={`session-item-${item.id}-receipt-price`} className='inline-flex shrink-0 items-baseline text-xs leading-[1.3] text-slate-500 dark:text-muted-foreground'>
-								<span className='sr-only'>Paid price </span>
-								<b className='font-mono font-semibold text-foreground tabular-nums'>{formatCurrency(item.price)}</b>
-							</span>
-						) : null
-					) : (
-						<AveragePrice price={averagePrice} testId={`session-item-${item.id}-average-price`} />
-					)}
-					<ItemQuantityChip
-						quantity={item.quantity}
-						unit={item.unit}
-						muted={checked}
-					/>
-				</ItemTrailing>
-			</label>
-			{isCompleted ? null : (
-				<RowMenu
-					label={`More options for ${name}`}
-					testId={`session-item-${item.id}-menu`}
-					actions={[
-						{ label: 'Edit Item', icon: Edit02Icon, onSelect: () => setEditing(true) },
-						{ label: 'Delete Item', icon: Delete02Icon, onSelect: () => setDeleteOpen(true), tone: 'danger' },
-					]}
-				/>
-			)}
-			<ConfirmSheet
-				open={deleteOpen}
-				onOpenChange={setDeleteOpen}
-				title='Delete Item?'
-				consequence={`This removes ${name} from this shopping session. This action can’t be undone.`}
-				cancelLabel='Keep Item'
-				confirmLabel='Delete Item'
-				loadingLabel='Deleting Item…'
-				tone='danger'
-				loading={deleting}
-				onConfirm={async () => {
-					setDeleting(true)
-					try {
-						if (await remove()) setDeleteOpen(false)
-					} finally {
-						setDeleting(false)
-					}
-				}}
-				testId={`delete-session-item-${item.id}-sheet`}
-			/>
+		<div data-testid={`session-item-${item.id}`} data-checked={checked} className='flex min-h-17 items-start gap-1 px-3 py-3'>
+			{!isCompleted ? <span className='-ml-2 flex size-11 shrink-0 items-center justify-center'>
+				<Checkbox id={checkboxId} checked={checked} onCheckedChange={toggle} disabled={toggling} aria-label={checked ? `${name}, collected` : `Mark ${name} as collected`} size='lg' />
+			</span> : null}
+			<div className='grid min-w-0 flex-1 grid-cols-[auto_minmax(0,1fr)] items-center gap-x-2 gap-y-1.5'>
+				<ItemQuantityChip quantity={item.quantity} unit={item.unit} muted={activeChecked} />
+				<label htmlFor={!isCompleted ? checkboxId : undefined} className={cn('min-w-0 truncate text-sm leading-normal font-semibold', !isCompleted && 'cursor-pointer', activeChecked && 'text-slate-400 line-through dark:text-muted-foreground')}>{name}</label>
+				{item.notes ? <div className='col-start-2 min-w-0'><ItemNote icon={Message01Icon} testId={`session-item-${item.id}-note`}>{item.notes}</ItemNote></div> : null}
+				{storeInfo?.usual_store || alsoAt ? <div className='col-span-2 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1'>
+					{storeInfo?.usual_store ? <EntityLabel name={storeInfo.usual_store.name} testId={`session-item-${item.id}-usual-store`} /> : null}
+					{alsoAt ? <span data-testid={`session-item-${item.id}-other-stores`} className='text-xs text-slate-500 dark:text-muted-foreground'>{alsoAt}</span> : null}
+				</div> : null}
+			</div>
+			<div className='shrink-0 pt-0.5 text-right'>
+				{isCompleted ? item.price != null ? <span data-testid={`session-item-${item.id}-receipt-price`} className='font-mono text-sm font-semibold tabular-nums'>{formatCurrency(item.price)}</span> : <span className='text-xs text-slate-500'>No price yet</span>
+					: isUsablePrice(averagePrice) ? <Button type='button' variant='ghost' size='quiet-touch' aria-label={`Prices by store for ${name}`} onClick={() => setPricesOpen(true)}><AveragePrice price={averagePrice} size='row' muted={activeChecked} testId={`session-item-${item.id}-average-price`} /></Button> : <span className='text-xs text-slate-500'>No price yet</span>}
+			</div>
+			{!isCompleted ? <ItemStorePricesSheet open={pricesOpen} onOpenChange={setPricesOpen} itemName={name} prices={storeInfo?.store_prices ?? []} history={storeInfo?.store_history} usualStore={storeInfo?.usual_store} {...storeInfo?.purchaseStats} testId={`trip-item-prices-${item.id}`} /> : null}
 		</div>
 	)
 }

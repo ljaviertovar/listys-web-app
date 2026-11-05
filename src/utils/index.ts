@@ -1,6 +1,7 @@
 export { cn } from './cn'
 export { formatCurrency } from './format-currency'
 export { formatDate, formatTime } from './format-date'
+export { formatTripDate } from './format-trip-date'
 export { mergeItems } from './merge-items'
 export { broadcastListActivity } from './broadcast-activity'
 export { formatItemName } from './format-item-name'
