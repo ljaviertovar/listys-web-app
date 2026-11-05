@@ -44,6 +44,7 @@ export type TicketSessionMatch = {
 }
 
 export type AttachTicketToSessionInput = {
+  complete_session?: boolean
   shopping_session_id: string
   links?: Array<{ ticket_item_id: string; shopping_session_item_id: string | null }>
   added_item_ids?: string[]

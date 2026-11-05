@@ -48,6 +48,25 @@ describe('POST /api/v1/tickets/:ticketId/attach-to-session', () => {
 		}))
 	})
 
+	it.each([undefined, true, false])('passes completion choice %s without changing the legacy default', async complete_session => {
+		const supabase = signIn({ data: [result], error: null })
+		expect((await post({ ...payload, complete_session })).status).toBe(200)
+		expect(supabase.rpc).toHaveBeenCalledWith('attach_receipt_to_session', expect.objectContaining({ p_complete_session: complete_session ?? true }))
+	})
+
+	it('rejects a non-boolean completion choice before the RPC', async () => {
+		const supabase = signIn({ data: [result], error: null })
+		expect((await post({ ...payload, complete_session: 'false' })).status).toBe(422)
+		expect(supabase.rpc).not.toHaveBeenCalled()
+	})
+
+	it.each(['SESSION_HAS_RECEIPT', 'STORE_MISMATCH'])('does not expose the retired %s conflict', async reason => {
+		signIn({ data: null, error: { code: 'P0001', message: reason } })
+		const response = await post(payload)
+		expect(response.status).toBe(500)
+		expect(JSON.stringify(await response.json())).not.toContain(reason)
+	})
+
 	it('returns replay as a successful idempotent response', async () => {
 		signIn({ data: [{ ...result, replayed: true, completed_now: false }], error: null })
 		const response = await post(payload)
@@ -55,7 +74,7 @@ describe('POST /api/v1/tickets/:ticketId/attach-to-session', () => {
 		expect((await response.json()).data.replayed).toBe(true)
 	})
 
-	it.each(['RECEIPT_NOT_READ', 'RECEIPT_ATTACHED', 'RECEIPT_ADDED_TO_LIST', 'SESSION_HAS_RECEIPT', 'SESSION_OUT_OF_WINDOW', 'STORE_MISMATCH'])(
+	it.each(['RECEIPT_NOT_READ', 'RECEIPT_ATTACHED', 'RECEIPT_ADDED_TO_LIST', 'SESSION_HAS_STORE_RECEIPT', 'SESSION_OUT_OF_WINDOW'])(
 		'maps %s to a safe 409 conflict', async reason => {
 			signIn({ data: null, error: { code: 'P0001', message: reason, details: TEST_UUID_2 } })
 			const response = await post(payload)

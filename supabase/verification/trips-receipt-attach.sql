@@ -143,6 +143,79 @@ BEGIN
 END;
 $$;
 
+
+-- Multi-receipt checks use isolated synthetic records and are rolled back with the earlier checks.
+DO $$
+DECLARE
+  owner_id UUID := gen_random_uuid(); list_id UUID; group_id UUID; trip_id UUID; milk_id UUID;
+  store_a UUID; store_b UUID; receipt_a UUID; receipt_b UUID; receipt_duplicate UUID;
+  line_a UUID; line_b UUID; summary RECORD; conflict_detail TEXT; conflict_seen BOOLEAN := FALSE;
+BEGIN
+  RESET ROLE;
+  INSERT INTO auth.users(id,aud,role,email) VALUES(owner_id,'authenticated','authenticated',owner_id || '@verify.invalid');
+  INSERT INTO public.groups(user_id,name) VALUES(owner_id,'Multi receipt verification') RETURNING id INTO group_id;
+  INSERT INTO public.base_lists(user_id,group_id,name) VALUES(owner_id,group_id,'Multi receipt list') RETURNING id INTO list_id;
+  PERFORM set_config('request.jwt.claims',json_build_object('sub',owner_id,'role','authenticated')::TEXT,TRUE);
+  SET LOCAL ROLE authenticated;
+  INSERT INTO public.stores(user_id,name,normalized_name) VALUES(owner_id,'No Frills','no frills') RETURNING id INTO store_a;
+  INSERT INTO public.stores(user_id,name,normalized_name) VALUES(owner_id,'Costco','costco') RETURNING id INTO store_b;
+  INSERT INTO public.base_list_items(base_list_id,name,quantity,unit,purchase_count)
+    VALUES(list_id,'Milk',1,'each',0);
+  INSERT INTO public.shopping_sessions(user_id,base_list_id,name,store_id)
+    VALUES(owner_id,list_id,'Two stores',store_a) RETURNING id INTO trip_id;
+  INSERT INTO public.shopping_session_items(shopping_session_id,name,normalized_name,quantity,unit)
+    VALUES(trip_id,'Milk','milk',1,'each') RETURNING id INTO milk_id;
+  INSERT INTO public.tickets(user_id,image_path,ocr_status,uploaded_from_session_id,store_id,total_amount)
+    VALUES(owner_id,'verify/multi-a.jpg','completed',trip_id,store_a,86.40) RETURNING id INTO receipt_a;
+  INSERT INTO public.ticket_items(ticket_id,name,quantity,unit,price)
+    VALUES(receipt_a,'Milk',2,'each',4.49) RETURNING id INTO line_a;
+  SELECT * INTO summary FROM public.attach_receipt_to_session(receipt_a,trip_id,'[]',ARRAY[]::UUID[],86.40,250,FALSE);
+  INSERT INTO verification_results VALUES ('4a attach without completing stays shopping',
+    NOT summary.completed_now AND (SELECT status='active' FROM public.shopping_sessions WHERE id=trip_id),'active expected');
+  INSERT INTO verification_results VALUES ('4b line destination is persisted',
+    (SELECT shopping_session_item_id=milk_id FROM public.ticket_items WHERE id=line_a),'milk target expected');
+  INSERT INTO verification_results VALUES ('4c shopping attachment does not count list purchases yet',
+    (SELECT purchase_count=0 FROM public.base_list_items WHERE base_list_id=list_id AND normalized_name='milk'),'0 expected');
+  SELECT * INTO summary FROM public.attach_receipt_to_session(receipt_a,trip_id,'[]',ARRAY[]::UUID[],86.40,250,TRUE);
+  INSERT INTO verification_results VALUES ('4d replay cannot complete the trip',
+    summary.replayed AND (SELECT status='active' FROM public.shopping_sessions WHERE id=trip_id),'replayed and active expected');
+  INSERT INTO public.tickets(user_id,image_path,ocr_status,uploaded_from_session_id,store_id,total_amount)
+    VALUES(owner_id,'verify/multi-b.jpg','completed',trip_id,store_b,41.12) RETURNING id INTO receipt_b;
+  INSERT INTO public.ticket_items(ticket_id,name,quantity,unit,price)
+    VALUES(receipt_b,'Milk',1,'each',3.99) RETURNING id INTO line_b;
+  INSERT INTO verification_results VALUES ('4e another store remains a candidate',
+    EXISTS(SELECT 1 FROM public.ticket_session_candidates(receipt_b) WHERE id=trip_id),'candidate expected');
+  SELECT * INTO summary FROM public.attach_receipt_to_session(receipt_b,trip_id,'[]',ARRAY[]::UUID[],41.12,250,TRUE);
+  INSERT INTO verification_results VALUES ('4f second store adds its total',
+    (SELECT total_amount=127.52 AND status='completed' FROM public.shopping_sessions WHERE id=trip_id),'127.52 expected');
+  INSERT INTO verification_results VALUES ('4g same item sums both receipt prices and quantities',
+    (SELECT price=8.48 AND quantity=3 FROM public.shopping_session_items WHERE id=milk_id),'8.48 / 3 expected');
+  INSERT INTO verification_results VALUES ('4h completion counts the item only once',
+    (SELECT purchase_count=1 FROM public.base_list_items WHERE base_list_id=list_id AND normalized_name='milk'),'1 expected');
+  INSERT INTO verification_results VALUES ('4i statistics belong to each receipt store',
+    (SELECT COUNT(*)=2 AND SUM(stats.last_price)=8.48 AND SUM(stats.purchase_count)=2
+      FROM public.base_list_item_store_stats stats JOIN public.base_list_items bli ON bli.id=stats.base_list_item_id
+      WHERE bli.base_list_id=list_id),'2 store purchases / 8.48 expected');
+  INSERT INTO public.tickets(user_id,image_path,ocr_status,uploaded_from_session_id,store_id)
+    VALUES(owner_id,'verify/multi-duplicate.jpg','completed',trip_id,store_b) RETURNING id INTO receipt_duplicate;
+  BEGIN
+    PERFORM public.attach_receipt_to_session(receipt_duplicate,trip_id,'[]',ARRAY[]::UUID[],5,250,TRUE);
+  EXCEPTION WHEN unique_violation THEN
+    GET STACKED DIAGNOSTICS conflict_detail = PG_EXCEPTION_DETAIL;
+    conflict_seen := conflict_detail = 'SESSION_HAS_STORE_RECEIPT';
+  END;
+  INSERT INTO verification_results VALUES ('4j second receipt from same store is rejected',conflict_seen,'store conflict expected');
+  DELETE FROM public.tickets WHERE id=receipt_b;
+  INSERT INTO verification_results VALUES ('4k deleting one receipt recalculates total',
+    (SELECT total_amount=86.40 FROM public.shopping_sessions WHERE id=trip_id),'86.40 expected');
+  INSERT INTO verification_results VALUES ('4l deleting a receipt preserves item prices',
+    (SELECT price=8.48 FROM public.shopping_session_items WHERE id=milk_id),'8.48 expected');
+  DELETE FROM public.tickets WHERE id=receipt_a;
+  INSERT INTO verification_results VALUES ('4m deleting last receipt keeps last total',
+    (SELECT total_amount=86.40 FROM public.shopping_sessions WHERE id=trip_id),'86.40 expected');
+END;
+$$;
+
 SELECT check_name, ok, detail FROM verification_results ORDER BY check_name;
 
 ROLLBACK;

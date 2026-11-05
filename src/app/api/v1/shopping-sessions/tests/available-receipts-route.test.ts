@@ -89,16 +89,16 @@ describe('GET /api/v1/shopping-sessions/:sessionId/available-receipts', () => {
 	})
 
 	it.each([
-		['a completed trip at another store', { status: 'completed', store_id: TEST_UUID }, TEST_UUID_3, false],
+		['a completed trip at another store', { status: 'completed', store_id: TEST_UUID }, TEST_UUID_3, true],
 		['a completed trip at the same store', { status: 'completed', store_id: TEST_UUID_3 }, TEST_UUID_3, true],
 		['a completed trip with no store', { status: 'completed', store_id: null }, TEST_UUID_3, true],
-		['an active trip at another store (the receipt store wins)', { status: 'active', store_id: TEST_UUID }, TEST_UUID_3, true],
+		['an active trip at another store', { status: 'active', store_id: TEST_UUID }, TEST_UUID_3, true],
 		['a receipt without a confirmed store', { status: 'completed', store_id: TEST_UUID }, null, true],
 	] as const)('marks the receipt for %s', async (_label, session, receiptStore, selectable) => {
 		signIn({ id: TEST_UUID, ...session }, [receipt({ store_id: receiptStore })])
 		const body = await (await get()).json()
 		expect(body.data[0].selectable).toBe(selectable)
-		expect(body.data[0].reason).toBe(selectable ? null : 'STORE_MISMATCH')
+		expect(body.data[0].reason).toBe(null)
 	})
 
 	it('returns an empty list when nothing is available', async () => {

@@ -401,6 +401,7 @@ export type Database = {
       }
       ticket_items: {
         Row: {
+          shopping_session_item_id: string | null
           category: string | null
           created_at: string | null
           id: string
@@ -412,6 +413,7 @@ export type Database = {
           unit: string | null
         }
         Insert: {
+          shopping_session_item_id?: string | null
           category?: string | null
           created_at?: string | null
           id?: string
@@ -423,6 +425,7 @@ export type Database = {
           unit?: string | null
         }
         Update: {
+          shopping_session_item_id?: string | null
           category?: string | null
           created_at?: string | null
           id?: string
@@ -435,6 +438,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "ticket_items_shopping_session_item_id_fkey"
+            columns: ["shopping_session_item_id"]
+            isOneToOne: false
+            referencedRelation: "shopping_session_items"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "ticket_items_ticket_id_fkey"
             columns: ["ticket_id"]
             isOneToOne: false
@@ -445,6 +455,7 @@ export type Database = {
       }
       tickets: {
         Row: {
+          attached_total_amount: number | null
           base_list_id: string | null
           created_at: string | null
           group_id: string | null
@@ -464,6 +475,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          attached_total_amount?: number | null
           base_list_id?: string | null
           created_at?: string | null
           group_id?: string | null
@@ -483,6 +495,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          attached_total_amount?: number | null
           base_list_id?: string | null
           created_at?: string | null
           group_id?: string | null
@@ -755,6 +768,7 @@ export type Database = {
       }
       attach_receipt_to_session: {
         Args: {
+          p_complete_session?: boolean
           p_links?: Json
           p_max_items?: number
           p_session_id: string

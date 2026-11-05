@@ -106,6 +106,7 @@ const attachTicketLinkSchema = z.object({
 }).strict()
 
 export const attachTicketToSessionSchema = z.object({
+  complete_session: z.boolean().optional(),
   shopping_session_id: z.string().uuid(),
   links: z.array(attachTicketLinkSchema).max(MAX_TICKET_ITEMS_MERGE).optional(),
   added_item_ids: z.array(z.string().uuid()).max(MAX_TICKET_ITEMS_MERGE).optional(),

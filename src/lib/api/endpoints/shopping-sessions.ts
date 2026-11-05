@@ -8,6 +8,7 @@ export type AvailableReceipt = {
   total_amount: number | null
   item_count: number
   selectable: boolean
+  /** Legacy reason retained in the type for callers; the endpoint now returns null. */
   reason: 'STORE_MISMATCH' | null
 }
 

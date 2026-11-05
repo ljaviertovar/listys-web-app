@@ -344,7 +344,8 @@ export async function attachTicketToSession(ticketId: string, input: unknown) {
       shopping_session_item_id: link.shopping_session_item_id,
     })) ?? [],
     p_added_item_ids: payload.added_item_ids ?? [],
-    ...(payload.total_amount !== undefined ? { p_total_amount: payload.total_amount } : {}),
+    p_total_amount: payload.total_amount ?? null,
+    p_complete_session: payload.complete_session ?? true,
     p_max_items: MAX_ITEMS_PER_BASE_LIST,
   })
 
