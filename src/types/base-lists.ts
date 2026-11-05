@@ -1,5 +1,5 @@
 import type { Database } from '@/types/database.types'
-import type { StorePriceEntry } from '@/components/features/base-lists/items/helpers/item-store-summary'
+import type { StoreHistoryEntry, StorePriceEntry } from '@/components/features/base-lists/items/helpers/item-store-summary'
 
 export type BaseList = Database['public']['Tables']['base_lists']['Row']
 export type InsertBaseList = Database['public']['Tables']['base_lists']['Insert']
@@ -15,6 +15,7 @@ export type BaseListItemWithStoreSummary = BaseListItem & {
   purchase_total?: number
   other_stores?: Array<{ id: string; name: string; purchase_count: number }>
   store_prices?: StorePriceEntry[]
+  store_history?: StoreHistoryEntry[]
 }
 
 export type BaseListWithItems = BaseList & {

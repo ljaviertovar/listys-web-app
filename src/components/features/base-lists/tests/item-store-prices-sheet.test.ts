@@ -2,8 +2,9 @@ import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
 
-vi.mock('@/components/commons', () => ({
-	SheetDialog: ({ children, testId, title, description }: { children: React.ReactNode; testId: string; title: string; description: string }) => createElement('div', { 'data-testid': testId }, title, description, children),
+vi.mock('@/components/commons', async importOriginal => ({
+	...await importOriginal<typeof import('@/components/commons')>(),
+	SheetDialog: ({ children, testId }: { children: React.ReactNode; testId: string }) => createElement('div', { 'data-testid': testId }, children),
 }))
 
 import { ItemStorePricesSheet } from '../items/item-store-prices-sheet'
@@ -19,12 +20,11 @@ describe('ItemStorePricesSheet', () => {
 			open: true, onOpenChange: vi.fn(), itemName: 'Yogurt', prices, testId: 'prices-sheet-yogurt',
 		}))
 
-		expect(html).toContain('Last receipt prices for Yogurt.')
 		expect(html).toContain('2 each')
 		expect(html).toContain('$4.00 / each')
 		expect(html).toContain('$4.49')
-		expect(html).toContain('Lowest on last receipts')
-		expect(html).toContain('title="A very long grocery store name that must remain available to assistive technology"')
+		expect(html).toContain('Cheapest')
+		expect(html).toContain('A very long grocery store name that must remain available to assistive technology')
 	})
 
 	it('explains incomparable units without highlighting a price', () => {
@@ -40,6 +40,6 @@ describe('ItemStorePricesSheet', () => {
 		}))
 
 		expect(html).toContain('Some prices use different units and can’t be compared.')
-		expect(html).not.toContain('Lowest on last receipts')
+		expect(html).not.toContain('Cheapest')
 	})
 })

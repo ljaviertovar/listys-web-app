@@ -236,7 +236,7 @@ describe('getBaseList', () => {
     const list = {
       id: TEST_UUID,
       name: 'Weekly',
-      items: [{ id: 'i1', name: 'Milk', usual_store: null, purchase_total: 0, other_stores: [], store_prices: [] }],
+      items: [{ id: 'i1', name: 'Milk', usual_store: null, purchase_total: 0, other_stores: [], store_prices: [], store_history: [] }],
       is_owner: false,
     }
     const supabase = setupMock()
@@ -279,6 +279,7 @@ describe('getBaseList', () => {
     expect(result.data?.items?.[0].store_prices).toEqual([{
       store: { id: 'store-1', name: 'Metro' },
       last_price: 3.99,
+      purchase_count: 1,
       last_quantity: 1,
       last_unit: 'pcs',
       last_price_at: '2026-10-28T03:00:00.000Z',

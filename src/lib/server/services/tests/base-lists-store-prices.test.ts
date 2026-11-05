@@ -34,12 +34,15 @@ describe('getBaseList store price DTO', () => {
 		const list = await getBaseList('list-1')
 
 		expect(query.select).toHaveBeenCalledWith(expect.stringContaining('last_quantity, last_unit, last_price_at'))
+		expect(list.items[0].store_history).toHaveLength(2)
+		expect(list.items[0].store_history.find(row => row.store.id === 'store-2')).toMatchObject({ last_price: null, purchase_count: 1 })
 		expect(list.items[0].store_prices).toEqual([{
 			store: { id: 'store-1', name: 'Market' },
 			last_price: 5.49,
 			last_quantity: 2,
 			last_unit: 'each',
 			last_price_at: '2026-03-01',
+			purchase_count: 2,
 		}])
 	})
 
@@ -55,5 +58,6 @@ describe('getBaseList store price DTO', () => {
 
 		const list = await getBaseList('list-1')
 		expect(list.items[0].store_prices).toEqual([])
+		expect(list.items[0].store_history).toEqual([])
 	})
 })

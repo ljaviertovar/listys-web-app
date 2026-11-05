@@ -14,6 +14,7 @@ vi.mock('@/components/features/list-items', () => ({
   ItemNote: ({ children }: { children: string }) => createElement('span', { 'data-testid': 'mock-item-note' }, children),
   ItemTrailing: ({ children }: { children: unknown }) => createElement('span', null, children as never),
 }))
+vi.mock('../items/item-store-prices-sheet', () => ({ ItemStorePricesSheet: () => null }))
 vi.mock('@/components/features/stores', () => ({ StorePickerDialog: () => null }))
 vi.mock('@/utils', async importOriginal => {
   const actual = await importOriginal<typeof import('@/utils')>()
@@ -94,13 +95,13 @@ describe('BaseListItemRow store labels', () => {
 		expect(html).toContain('data-disabled="true"')
 	})
 
-	it('offers receipt prices only to the owner when a store price exists', () => {
+	it('offers receipt prices to the owner even without recorded prices', () => {
 		const storePrice = {
 			store: { id: 'store-1', name: 'No Frills' }, last_price: 5.49,
 			last_quantity: 1, last_unit: null, last_price_at: '2026-03-04T00:00:00Z',
 		}
 		expect(render({ store_prices: [storePrice] })).toContain('Prices by Store')
-		expect(render({ store_prices: [] })).not.toContain('Prices by Store')
+		expect(render({ store_prices: [] })).toContain('Prices by Store')
 		expect(render({ store_prices: [storePrice] }, false)).not.toContain('Prices by Store')
 	})
 })

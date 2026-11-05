@@ -1,6 +1,5 @@
 'use client'
 
-import { useRef, useState } from 'react'
 import { Delete02Icon, Edit02Icon, Pin02Icon, Store01Icon, ShoppingBasket01Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 
@@ -11,7 +10,8 @@ import { Badge } from '@/components/ui/badge'
 import { formatItemName, isUsablePrice } from '@/utils'
 import type { BaseListItemWithStoreSummary } from '@/types'
 
-import { useBaseListItemActions } from './hooks/use-base-list-item-actions'
+import { useBaseListItemRow } from './hooks/use-base-list-item-row'
+import { getItemPurchaseStats } from './helpers/item-purchase-stats'
 import { formatAlsoAt } from './helpers/item-store-summary'
 import { buildUsualStorePickerInfo } from './helpers/usual-store-picker-info'
 import { ItemStorePricesSheet } from './item-store-prices-sheet'
@@ -28,30 +28,12 @@ interface BaseListItemRowProps {
  * Editing swaps the row for the form in place.
  */
 export function BaseListItemRow({ item, isLocked = false, isOwner = true }: BaseListItemRowProps) {
-	const [editing, setEditing] = useState(false)
-	const [storePickerOpen, setStorePickerOpen] = useState(false)
-	const [pricesOpen, setPricesOpen] = useState(false)
-	const [usualStorePending, setUsualStorePending] = useState(false)
-	const usualStorePendingRef = useRef(false)
-	const {
-		save,
-		remove,
-		setUsualStore,
-	} = useBaseListItemActions(item)
+	const { save, remove, setUsualStore, editing, setEditing, storePickerOpen, setStorePickerOpen,
+		pricesOpen, setPricesOpen, usualStorePending, handleStorePick, changeUsualStore } = useBaseListItemRow(item)
+	const purchaseStats = getItemPurchaseStats(item)
 	const name = formatItemName(item.name)
 	const alsoAt = formatAlsoAt(item.other_stores ?? [])
 	const pickerInfo = buildUsualStorePickerInfo(item)
-	const handleStorePick = async (pick: Parameters<typeof setUsualStore>[0]) => {
-		if (usualStorePendingRef.current) return
-		usualStorePendingRef.current = true
-		setUsualStorePending(true)
-		try {
-			if (await setUsualStore(pick)) setStorePickerOpen(false)
-		} finally {
-			usualStorePendingRef.current = false
-			setUsualStorePending(false)
-		}
-	}
 
 	if (editing) {
 		return (
@@ -117,7 +99,7 @@ export function BaseListItemRow({ item, isLocked = false, isOwner = true }: Base
 					actions={[
 					{ label: 'Edit Item', icon: Edit02Icon, onSelect: () => setEditing(true) },
 						...(isOwner ? [{ label: item.usual_store ? 'Change Usual Store…' : 'Set Usual Store…', icon: Store01Icon, onSelect: () => setStorePickerOpen(true) }] : []),
-						...(isOwner && (item.store_prices?.length ?? 0) > 0 ? [{ label: 'Prices by Store', icon: ShoppingBasket01Icon, onSelect: () => setPricesOpen(true) }] : []),
+						...(isOwner ? [{ label: 'Prices by Store', icon: ShoppingBasket01Icon, onSelect: () => setPricesOpen(true) }] : []),
 						...(isOwner && item.usual_store?.source === 'manual'
 						? [{ label: 'Use Automatic Store', icon: Store01Icon, onSelect: () => setUsualStore(null) }]
 						: []),
@@ -137,11 +119,15 @@ export function BaseListItemRow({ item, isLocked = false, isOwner = true }: Base
 				pending={usualStorePending}
 				testId={`base-list-item-${item.id}-store-picker`}
 			/> : null}
-			{isOwner && (item.store_prices?.length ?? 0) > 0 ? <ItemStorePricesSheet
+			{isOwner ? <ItemStorePricesSheet
 				open={pricesOpen}
 				onOpenChange={setPricesOpen}
 				itemName={name}
 				prices={item.store_prices ?? []}
+				history={item.store_history}
+				usualStore={item.usual_store ? { ...item.usual_store, purchase_count: item.usual_store.purchase_count ?? 0 } : null}
+				{...purchaseStats}
+				onChangeUsualStore={changeUsualStore}
 				testId={`item-store-prices-${item.id}-sheet`}
 			/> : null}
 		</div>
