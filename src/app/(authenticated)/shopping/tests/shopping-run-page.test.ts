@@ -208,7 +208,7 @@ describe('shopping session page receipt status', () => {
 
 	it('only tells a viewer who did not run the trip, and does not read their receipts', async () => {
 		vi.mocked(getShoppingSession).mockResolvedValue({ data: { ...session('completed'), user_id: 'someone-else' }, error: null } as never)
-		mocks.pendingReceipt = { id: 'ticket-9', ocr_status: 'completed' }
+		mocks.pendingReceipt = { id: 'ticket-9', ocr_status: 'completed', total_items: 1 }
 		const html = await render({ receipt: 'add' })
 		expect(html).toContain('Trip saved')
 		expect(html).not.toContain('Upload New Receipt')
