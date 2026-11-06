@@ -168,18 +168,32 @@ export async function getShoppingSession(id: string) {
     return { error: error.message }
   }
 
-  const { data: receipt, error: receiptError } = await supabase
+  const { data: attachedReceipts, error: receiptError } = await supabase
     .from('tickets')
-    .select('id, total_amount')
+    .select('id, attached_total_amount, total_items, store:stores(id, name), items:ticket_items(shopping_session_item_id, quantity, unit)')
     .eq('shopping_session_id', id)
     .eq('user_id', user.id)
-    .maybeSingle()
+    .order('created_at', { ascending: true })
+    .order('id', { ascending: true })
 
   if (receiptError) {
     return { error: receiptError.message }
   }
 
-  return { data: { ...shoppingSession, receipt } }
+  const receipts = (attachedReceipts ?? []).map(receipt => ({
+    id: receipt.id,
+    total_amount: receipt.attached_total_amount,
+    store: receipt.store ? { id: receipt.store.id, name: receipt.store.name } : null,
+    items_count: receipt.total_items ?? receipt.items?.length ?? 0,
+    covered_item_ids: (receipt.items ?? []).flatMap(item => item.shopping_session_item_id ? [item.shopping_session_item_id] : []),
+    lines: (receipt.items ?? []).map(item => ({
+      shopping_session_item_id: item.shopping_session_item_id,
+      quantity: item.quantity,
+      unit: item.unit,
+    })),
+  }))
+
+  return { data: { ...shoppingSession, receipts, receipt: receipts[0] ?? null } }
 }
 
 export async function getShoppingHistory() {

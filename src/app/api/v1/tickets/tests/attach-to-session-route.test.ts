@@ -4,7 +4,9 @@ import { createQueryBuilder, createSupabaseMock, TEST_UUID,TEST_UUID_2, TEST_UUI
 import { ApiServiceError, ErrorCode } from '@/lib/api/http'
 
 vi.mock('@/lib/api/auth', () => ({ createAuthenticatedClient: vi.fn() }))
+vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
 
+import { revalidatePath } from 'next/cache'
 import { createAuthenticatedClient } from '@/lib/api/auth'
 import { POST } from '../[ticketId]/attach-to-session/route'
 
@@ -13,10 +15,10 @@ const payload = { shopping_session_id: TEST_UUID_2, links: [{ ticket_item_id: TE
 const result = { completed_now: true, matched_count: 1, checked_now_count: 1, added_count: 0, priced_count: 1, over_limit_count: 0, replayed: false }
 
 /** `origin` is the trip the receipt was uploaded from; the payload below attaches it to TEST_UUID_2. */
-function signIn(rpc: { data?: unknown; error?: unknown }, origin: string | null = TEST_UUID_2) {
+function signIn(rpc: { data?: unknown; error?: unknown }, origin: string | null = TEST_UUID_2, itemCount = 2) {
 	const { supabase } = createSupabaseMock({
 		rpcResults: { attach_receipt_to_session: rpc },
-		tables: { tickets: { data: { uploaded_from_session_id: origin }, error: null } },
+		tables: { tickets: { data: { uploaded_from_session_id: origin, ocr_status: 'completed', total_items: itemCount }, error: null } },
 	})
 	mockedAuth.mockResolvedValue({ supabase, user: { id: 'user-1' } } as never)
 	return supabase
@@ -46,6 +48,17 @@ describe('POST /api/v1/tickets/:ticketId/attach-to-session', () => {
 			p_session_id: TEST_UUID_2,
 			p_total_amount: 12.4,
 		}))
+		expect(revalidatePath).toHaveBeenCalledWith(`/shopping/${TEST_UUID_2}`)
+		expect(revalidatePath).toHaveBeenCalledWith(`/tickets/${TEST_UUID}`)
+		expect(revalidatePath).toHaveBeenCalledWith('/trips')
+		expect(revalidatePath).toHaveBeenCalledWith('/dashboard')
+	})
+
+	it('rejects an old completed receipt with no product lines before any attachment side effect', async () => {
+		const supabase = signIn({ data: [result], error: null }, TEST_UUID_2, 0)
+		expect((await post(payload)).status).toBe(422)
+		expect(supabase.rpc).not.toHaveBeenCalled()
+		expect(revalidatePath).not.toHaveBeenCalled()
 	})
 
 	it.each([undefined, true, false])('passes completion choice %s without changing the legacy default', async complete_session => {

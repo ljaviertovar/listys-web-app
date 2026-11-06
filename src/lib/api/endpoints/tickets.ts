@@ -5,8 +5,8 @@ export async function getTickets() {
   return apiGet<Ticket[]>('/api/v1/tickets')
 }
 
-export async function getTicket(id: string) {
-  return apiGet(`/api/v1/tickets/${id}`)
+export async function getTicket<T = Ticket>(id: string) {
+  return apiGet<T>(`/api/v1/tickets/${id}`)
 }
 
 /** Assigns one of the user's stores to the receipt, or clears it with null. */

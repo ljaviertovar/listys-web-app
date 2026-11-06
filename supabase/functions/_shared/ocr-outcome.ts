@@ -1,7 +1,7 @@
 // Shared by the OCR Edge Functions. Plain TypeScript with no Deno or network imports, so Vitest can test it too.
 //
-// A read that failed must never look like a receipt with no items: the receipt screen reads "completed" with zero items as
-// "nothing to find", while "failed" says the read broke and offers the retry the user needs.
+// A result without product lines is unreadable, even when a provider extracted a store or total.
+// Mark it failed so the receipt screen offers a retry instead of attachment.
 
 export const OCR_READ_FAILED_MESSAGE = 'We couldn’t read this receipt. Try again, or upload a clearer photo.'
 
@@ -101,13 +101,12 @@ export function extractChatCompletionText(data: unknown): OcrAnswer {
 }
 
 /**
- * What to record once every photo has been tried. Items found always win. Without any, a photo that failed means the read
- * failed; photos that were all read and held no item mean the receipt really has none to find.
+ * A readable receipt needs product lines. A store or total alone must not enable review or attachment.
+ * Evaluate all photos together so an empty photo does not discard products found in another.
  */
 export function decideOcrOutcome(images: OcrImageOutcome[], mergedItemCount: number): OcrOutcome {
   const failedCount = images.filter(image => image.failure !== null).length
 
   if (mergedItemCount > 0) return { status: 'completed', partial: failedCount > 0 }
-  if (failedCount > 0) return { status: 'failed', error: OCR_READ_FAILED_MESSAGE }
-  return { status: 'completed', partial: false }
+  return { status: 'failed', error: OCR_READ_FAILED_MESSAGE }
 }

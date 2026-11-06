@@ -324,12 +324,15 @@ export async function attachTicketToSession(ticketId: string, input: unknown) {
   // the user chose it from. Checked here rather than in the RPC, which stays the single writer of the attachment itself.
   const { data: ticket, error: ticketError } = await supabase
     .from('tickets')
-    .select('uploaded_from_session_id')
+    .select('uploaded_from_session_id, ocr_status, total_items')
     .eq('id', ticketId)
     .eq('user_id', user.id)
     .maybeSingle()
   if (ticketError) throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'Something went wrong. Please try again.')
   if (!ticket) throw new ApiServiceError(404, ErrorCode.NOT_FOUND, 'Not found')
+  if (ticket.ocr_status === 'completed' && ticket.total_items === 0) {
+    throw new ApiServiceError(422, ErrorCode.VALIDATION_ERROR, 'This receipt has no readable items. Try reading it again or upload a clearer photo.')
+  }
   if (ticket.uploaded_from_session_id !== null && ticket.uploaded_from_session_id !== payload.shopping_session_id) {
     throw new ApiServiceError(409, ErrorCode.CONFLICT, 'This receipt cannot be attached to that trip.', {
       reason: 'RECEIPT_NOT_FROM_TRIP',

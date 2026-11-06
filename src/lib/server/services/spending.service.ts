@@ -21,9 +21,12 @@ export type SpendingSummaryDto = {
 /** Stores listed in the breakdown: the rest of the spend is still in `total`. */
 const MAX_SPENDING_STORES = 5
 
-type AmountRow = { total_amount: number | null; store: { id: string; name: string } | Array<{ id: string; name: string }> | null }
+type StoreReference = { id: string; name: string }
+type AmountRow = { total_amount: number | null; store: StoreReference | StoreReference[] | null }
+type TripAmountRow = AmountRow & { id: string }
+type AttachedReceiptAmountRow = AmountRow & { shopping_session_id: string; attached_total_amount: number | null }
 
-/** Adds up what each store received. A trip with a receipt attached carries the receipt's total, so receipts attached to a trip are not counted twice. */
+/** Groups trips by attached receipt totals; trips without receipts use their selected store and trip total. */
 function sumByStore(rows: AmountRow[]): SpendingStoreDto[] {
 	const totals = new Map<string, SpendingStoreDto>()
 	for (const row of rows) {
@@ -40,20 +43,20 @@ function sumByStore(rows: AmountRow[]): SpendingStoreDto[] {
 
 export async function getSpending(request: Request) {
 	const { from, to } = parseSearchParams(request, spendingQuerySchema)
-	const { supabase } = await createAuthenticatedClient()
+	const { supabase, user } = await createAuthenticatedClient()
 	const [{ data, error }, trips, receipts] = await Promise.all([
 		supabase.rpc('spending_summary', { p_from: from, p_to: to }),
 		supabase
 			.from('shopping_sessions')
-			.select('total_amount, store:stores(id, name)')
+			.select('id, total_amount, store:stores(id, name)')
+			.eq('user_id', user.id)
 			.eq('status', 'completed')
 			.gte('completed_at', from)
-			.lt('completed_at', to)
-			.not('total_amount', 'is', null)
-			.not('store_id', 'is', null),
+			.lt('completed_at', to),
 		supabase
 			.from('tickets')
 			.select('total_amount, store:stores(id, name)')
+			.eq('user_id', user.id)
 			.is('shopping_session_id', null)
 			.gte('created_at', from)
 			.lt('created_at', to)
@@ -67,12 +70,33 @@ export async function getSpending(request: Request) {
 	}
 
 	// The breakdown is a detail of the summary: if it cannot be read the total still shows, without the stores.
-	const breakdownFailed = Boolean(trips.error || receipts.error)
-	if (breakdownFailed) console.error('[spending] could not load the store breakdown', { code: (trips.error ?? receipts.error)?.code })
+	const tripRows = (trips.data ?? []) as TripAmountRow[]
+	const tripIds = tripRows.map(trip => trip.id)
+	const attachedReceipts = !trips.error && tripIds.length > 0
+		? await supabase.from('tickets')
+			.select('shopping_session_id, attached_total_amount, total_amount, store:stores(id, name)')
+			.eq('user_id', user.id)
+			.in('shopping_session_id', tripIds)
+		: { data: [], error: trips.error }
+
+	const breakdownFailed = Boolean(trips.error || receipts.error || attachedReceipts.error)
+	if (breakdownFailed) console.error('[spending] could not load the store breakdown', { code: (trips.error ?? receipts.error ?? attachedReceipts.error)?.code })
 
 	const summary = Array.isArray(data) ? data[0] : data
 	const total = Number(summary?.total ?? 0)
-	const byStore = breakdownFailed ? [] : sumByStore([...((trips.data ?? []) as AmountRow[]), ...((receipts.data ?? []) as AmountRow[])])
+	const attachedByTrip = new Map<string, AttachedReceiptAmountRow[]>()
+	for (const receipt of (attachedReceipts.data ?? []) as AttachedReceiptAmountRow[]) {
+		const receiptsForTrip = attachedByTrip.get(receipt.shopping_session_id) ?? []
+		receiptsForTrip.push(receipt)
+		attachedByTrip.set(receipt.shopping_session_id, receiptsForTrip)
+	}
+	const tripBreakdownRows = tripRows.flatMap(trip => {
+		const tripReceipts = attachedByTrip.get(trip.id)
+		return tripReceipts?.length
+			? tripReceipts.map(receipt => ({ total_amount: receipt.attached_total_amount ?? receipt.total_amount, store: receipt.store }))
+			: [{ total_amount: trip.total_amount, store: trip.store }]
+	})
+	const byStore = breakdownFailed ? [] : sumByStore([...tripBreakdownRows, ...((receipts.data ?? []) as AmountRow[])])
 	const listed = byStore.slice(0, MAX_SPENDING_STORES)
 	const listedTotal = listed.reduce((sum, store) => sum + store.total, 0)
 	return {
