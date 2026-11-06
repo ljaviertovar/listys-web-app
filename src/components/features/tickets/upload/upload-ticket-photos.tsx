@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, type ChangeEvent, type DragEvent } from 'react'
+import { type ChangeEvent, type DragEvent } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Add01Icon, Alert02Icon, Cancel01Icon, Loading03Icon, Upload06Icon } from '@hugeicons/core-free-icons'
 
@@ -26,7 +26,6 @@ interface Props {
 
 /** The photo field of the upload form: the way in (click or drop), the photos chosen, and what was left out and why. */
 export function UploadTicketPhotos({ inputId, descriptionId, errorId, previews, rejections, max, uploading, onAdd, onRemove, onDismissRejection }: Props) {
-	const inputRef = useRef<HTMLInputElement>(null)
 	const hasPhotos = previews.length > 0
 	const full = previews.length >= max
 	const describedBy = [descriptionId, errorId].filter(Boolean).join(' ')
@@ -37,10 +36,24 @@ export function UploadTicketPhotos({ inputId, descriptionId, errorId, previews, 
 		event.target.value = ''
 	}
 
-	const handleDrop = (event: DragEvent<HTMLButtonElement>) => {
+	const handleDrop = (event: DragEvent<HTMLElement>) => {
 		event.preventDefault()
 		if (event.dataTransfer.files.length > 0) onAdd(event.dataTransfer.files)
 	}
+	const fileInput = (
+		<input
+			id={inputId}
+			type='file'
+			accept='image/png,image/jpeg'
+			multiple
+			onChange={handleChange}
+			className='absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0'
+			aria-label='Upload receipt images'
+			aria-required='true'
+			aria-invalid={errorId ? true : undefined}
+			aria-describedby={describedBy}
+		/>
+	)
 
 	return (
 		<div
@@ -98,8 +111,7 @@ export function UploadTicketPhotos({ inputId, descriptionId, errorId, previews, 
 					{!full && !uploading ? (
 						<li className='aspect-[3/4]'>
 							<Button
-								type='button'
-								onClick={() => inputRef.current?.click()}
+								asChild
 								onDrop={handleDrop}
 								onDragOver={event => event.preventDefault()}
 								variant='dropzone'
@@ -108,20 +120,22 @@ export function UploadTicketPhotos({ inputId, descriptionId, errorId, previews, 
 								aria-describedby={describedBy}
 								className='h-full w-full'
 							>
-								<HugeiconsIcon
-									icon={Add01Icon}
-									strokeWidth={1.8}
-									className='size-5'
-								/>
-								Add More
+								<span className='relative h-full w-full'>
+									<HugeiconsIcon
+										icon={Add01Icon}
+										strokeWidth={1.8}
+										className='size-5'
+									/>
+									Add More
+									{fileInput}
+								</span>
 							</Button>
 						</li>
 					) : null}
 				</ul>
 			) : (
 				<Button
-					type='button'
-					onClick={() => inputRef.current?.click()}
+					asChild
 					onDrop={handleDrop}
 					onDragOver={event => event.preventDefault()}
 					variant='dropzone'
@@ -130,22 +144,25 @@ export function UploadTicketPhotos({ inputId, descriptionId, errorId, previews, 
 					aria-describedby={describedBy}
 					className='min-h-36 w-full'
 				>
-					<span className='flex size-10 items-center justify-center rounded-xl bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300'>
-						<HugeiconsIcon
-							icon={Upload06Icon}
-							strokeWidth={1.8}
-							className='size-5'
-						/>
-					</span>
-					<span className='font-display text-sm font-semibold text-slate-900 sm:hidden dark:text-foreground'>
-						<span className='text-blue-700 dark:text-blue-400'>Choose Photos</span>
-					</span>
-					<span className='hidden flex-col items-center gap-0.5 sm:flex'>
-						<span className='font-display text-sm font-semibold text-slate-900 dark:text-foreground'>Drag and drop photos here</span>
-						<span className='font-display text-sm font-semibold text-blue-700 dark:text-blue-400'>or Choose Photos</span>
-					</span>
-					<span className='max-w-[26ch] text-xs leading-normal text-slate-500 dark:text-muted-foreground'>
-						Up to {max} photos · PNG or JPG (no HEIC) · {MAX_TICKET_IMAGE_MB} MB each
+					<span className='relative min-h-36 w-full'>
+						<span className='flex size-10 items-center justify-center rounded-xl bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300'>
+							<HugeiconsIcon
+								icon={Upload06Icon}
+								strokeWidth={1.8}
+								className='size-5'
+							/>
+						</span>
+						<span className='font-display text-sm font-semibold text-slate-900 sm:hidden dark:text-foreground'>
+							<span className='text-blue-700 dark:text-blue-400'>Choose Photos</span>
+						</span>
+						<span className='hidden flex-col items-center gap-0.5 sm:flex'>
+							<span className='font-display text-sm font-semibold text-slate-900 dark:text-foreground'>Drag and drop photos here</span>
+							<span className='font-display text-sm font-semibold text-blue-700 dark:text-blue-400'>or Choose Photos</span>
+						</span>
+						<span className='max-w-[26ch] text-xs leading-normal text-slate-500 dark:text-muted-foreground'>
+							Up to {max} photos · PNG or JPG (no HEIC) · {MAX_TICKET_IMAGE_MB} MB each
+						</span>
+						{fileInput}
 					</span>
 				</Button>
 			)}
@@ -186,19 +203,6 @@ export function UploadTicketPhotos({ inputId, descriptionId, errorId, previews, 
 				)
 			})}
 
-			<input
-				id={inputId}
-				ref={inputRef}
-				type='file'
-				accept='image/png,image/jpeg'
-				multiple
-				onChange={handleChange}
-				className='hidden'
-				aria-label='Upload receipt images'
-				aria-required='true'
-				aria-invalid={errorId ? true : undefined}
-			aria-describedby={describedBy}
-			/>
 		</div>
 	)
 }
