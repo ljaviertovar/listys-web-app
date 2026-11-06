@@ -15,6 +15,8 @@ const alertVariants = cva(
 				info: 'border-blue-500/60 bg-blue-500/10 text-blue-700 dark:text-blue-400 *:[svg]:text-blue-700 dark:*:[svg]:text-blue-400',
 				warning:
 					'border-amber-500/60 bg-amber-500/10 text-amber-700 dark:text-amber-400 *:[svg]:text-amber-700 dark:*:[svg]:text-amber-400',
+				'receipt-warning':
+					'grid-cols-[auto_1fr] gap-x-3 rounded-2xl border-amber-200 bg-amber-50 text-amber-800 px-3 py-3 [&>span]:row-span-2 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200',
 			},
 		},
 		defaultVariants: {

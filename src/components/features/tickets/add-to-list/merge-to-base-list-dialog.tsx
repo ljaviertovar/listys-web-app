@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { useMergeToBaseList } from './hooks/use-merge-to-base-list'
 import { MergeReviewStep } from './merge-review-step'
 import { shouldShowReceiptStoreUnconfirmedNote } from './helpers/receipt-store-note'
@@ -71,11 +72,12 @@ export function MergeToBaseListDialog({ open, defaultBaseListId, onOpenChange, t
 				onOpenAutoFocus={onOpenAutoFocus}
 				onCloseAutoFocus={onCloseAutoFocus}
 				sheetOnPhones
+				variant='sheet'
 				className='sm:max-w-125'
 			>
-				<DialogHeader>
+				<DialogHeader variant='sheet' className='shrink-0'>
 					<DialogTitle ref={titleRef} tabIndex={-1} variant='sheet'>{reviewing ? 'Review Matches' : 'Add or Update Items'}</DialogTitle>
-					<DialogDescription>
+					<DialogDescription variant='sheet'>
 						{reviewing
 							? `Check how these items are added to “${listName}”. Nothing is added until you confirm.`
 							: mode === 'new'
@@ -84,64 +86,66 @@ export function MergeToBaseListDialog({ open, defaultBaseListId, onOpenChange, t
 					</DialogDescription>
 				</DialogHeader>
 
-				{loadingData ? (
-					<div className='flex items-center justify-center py-8'>
-						<HugeiconsIcon
-							icon={Loading03Icon}
-							strokeWidth={2}
-							className='h-8 w-8 animate-spin text-primary motion-reduce:animate-none'
-						/>
-					</div>
-				) : loadFailed ? (
-					<div data-testid='merge-to-base-list-error' className='flex flex-col items-center gap-4 py-8 text-center'>
-						<p role='alert' className='text-sm text-destructive'>{error}</p>
-						<Button type='button' size='primary' variant='secondary' onClick={loadData}>
-							Try Again
-						</Button>
-					</div>
-				) : (
-					<form
-						onSubmit={handleSubmit}
-						noValidate
-						className='space-y-8'
-					>
-						{review.state.status === 'ready' && reviewing ? (
-							<MergeReviewStep
-								review={review.state.review}
-								listItems={review.state.listItems}
-								decisions={review.decisions}
-								onDecide={review.decide}
-								disabled={loading}
-							/>
-						) : null}
-
-						{reviewing ? null : hasLists ? (
-							<RadioGroup
-								value={mode}
-								onValueChange={(value: 'existing' | 'new') => {
-									setMode(value)
-									setError(null)
-								}}
-							>
-								<div className='flex items-center space-x-3'>
-									<RadioGroupItem
-										value='existing'
-										id={`${fieldId}-existing`}
-									/>
-									<Label htmlFor={`${fieldId}-existing`}>Add to existing list</Label>
-								</div>
-								<div className='flex items-center space-x-3'>
-									<RadioGroupItem
-										value='new'
-										id={`${fieldId}-new`}
-									/>
-									<Label htmlFor={`${fieldId}-new`}>Create new list</Label>
-								</div>
-							</RadioGroup>
+						<ScrollArea size='sheet' scrollHint className='min-h-0 flex-none'>
+					<div className='px-1 py-1'>
+						{loadingData ? (
+							<div className='flex items-center justify-center py-8'>
+								<HugeiconsIcon
+									icon={Loading03Icon}
+									strokeWidth={2}
+									className='h-8 w-8 animate-spin text-primary motion-reduce:animate-none'
+								/>
+							</div>
+						) : loadFailed ? (
+							<div data-testid='merge-to-base-list-error' className='flex flex-col items-center gap-4 py-8 text-center'>
+								<p role='alert' className='text-sm text-destructive'>{error}</p>
+								<Button type='button' size='primary' variant='secondary' onClick={loadData}>
+									Try Again
+								</Button>
+							</div>
 						) : (
-							<p data-testid='merge-to-base-list-no-lists' className='text-sm text-muted-foreground'>
-								You have no lists yet. Name one and these items will start it.
-							</p>
+							<form
+								onSubmit={handleSubmit}
+								noValidate
+								className='space-y-8'
+							>
+								{review.state.status === 'ready' && reviewing ? (
+									<MergeReviewStep
+										review={review.state.review}
+										listItems={review.state.listItems}
+										decisions={review.decisions}
+										onDecide={review.decide}
+										disabled={loading}
+									/>
+								) : null}
+
+								{reviewing ? null : hasLists ? (
+									<RadioGroup
+										value={mode}
+										onValueChange={(value: 'existing' | 'new') => {
+											setMode(value)
+											setError(null)
+										}}
+									>
+										<div className='flex items-center space-x-3'>
+											<RadioGroupItem
+												value='existing'
+												id={`${fieldId}-existing`}
+											/>
+											<Label htmlFor={`${fieldId}-existing`}>Add to existing list</Label>
+										</div>
+										<div className='flex items-center space-x-3'>
+											<RadioGroupItem
+												value='new'
+												id={`${fieldId}-new`}
+											/>
+											<Label htmlFor={`${fieldId}-new`}>Create new list</Label>
+										</div>
+									</RadioGroup>
+								) : (
+									<p data-testid='merge-to-base-list-no-lists' className='text-sm text-muted-foreground'>
+										You have no lists yet. Name one and these items will start it.
+									</p>
 						)}
 						{shouldShowReceiptStoreUnconfirmedNote(storeConfirmed, reviewing) ? (
 							<p data-testid='receipt-store-unconfirmed-note' className='text-sm text-muted-foreground'>
@@ -241,7 +245,9 @@ export function MergeToBaseListDialog({ open, defaultBaseListId, onOpenChange, t
 							</Button>
 						</div>
 					</form>
-				)}
+						)}
+					</div>
+				</ScrollArea>
 			</DialogContent>
 		</Dialog>
 	)

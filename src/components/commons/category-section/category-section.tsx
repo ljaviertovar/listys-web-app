@@ -65,12 +65,11 @@ export function CategorySection({
 							complete={complete}
 							icon={icon}
 							tone={tone}
-							description={description}
 							testId={`${testId}-heading`}
 						/>
 						<span
 							aria-hidden='true'
-							className={cn('flex size-9 items-center justify-center text-slate-500', description && 'self-start mt-0.5')}
+							className='flex size-9 items-center justify-center text-slate-500'
 						>
 							<HugeiconsIcon
 								icon={ArrowDown01Icon}
@@ -80,6 +79,7 @@ export function CategorySection({
 						</span>
 					</CollapsibleTrigger>
 				</h3>
+				{description ? <p data-testid={`${testId}-description`} className='mb-2.5 ml-11 text-xs leading-normal text-slate-500 dark:text-muted-foreground'>{description}</p> : null}
 				<CollapsibleContent>
 					<div className={cn('overflow-hidden rounded-2xl bg-muted dark:bg-muted/50', panelClassName)}>{children}</div>
 				</CollapsibleContent>

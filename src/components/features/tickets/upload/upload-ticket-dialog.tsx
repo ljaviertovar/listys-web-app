@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/dialog'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button, type ButtonProps } from '@/components/ui/button'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { useDialogFocus } from '@/hooks'
 import { cn } from '@/utils'
 
@@ -106,7 +107,7 @@ export function UploadTicketDialog({
 				variant='sheet'
 				className='sm:max-w-[520px]'
 			>
-				<DialogHeader variant='sheet'>
+				<DialogHeader variant='sheet' className='shrink-0'>
 					<DialogTitle ref={titleRef} tabIndex={-1} variant='sheet'>
 						Upload Receipt
 					</DialogTitle>
@@ -128,26 +129,30 @@ export function UploadTicketDialog({
 						</Button>
 					</DialogClose>
 				</DialogHeader>
-				<Alert
-					variant='info'
-					role='note'
-					data-testid='upload-ticket-info'
-				>
-					<HugeiconsIcon
-						icon={InformationCircleIcon}
-						strokeWidth={1.8}
-						aria-hidden='true'
-					/>
-					<AlertTitle>Review before saving</AlertTitle>
-					<AlertDescription>
-						We read the store, date and total from the receipt. You confirm them before anything is saved.
-					</AlertDescription>
-				</Alert>
-				<UploadTicketForm
-					onSuccess={handleSuccess}
-					initialFiles={initialFiles}
-						shoppingSessionId={shoppingSessionId}
-				/>
+				<ScrollArea size='sheet' scrollHint className='min-h-0 flex-none'>
+					<div className='flex flex-col gap-4 px-1 py-1'>
+						<Alert
+							variant='info'
+							role='note'
+							data-testid='upload-ticket-info'
+						>
+							<HugeiconsIcon
+								icon={InformationCircleIcon}
+								strokeWidth={1.8}
+								aria-hidden='true'
+							/>
+							<AlertTitle>Review before saving</AlertTitle>
+							<AlertDescription>
+								We read the store, date and total from the receipt. You confirm them before anything is saved.
+							</AlertDescription>
+						</Alert>
+						<UploadTicketForm
+							onSuccess={handleSuccess}
+							initialFiles={initialFiles}
+							shoppingSessionId={shoppingSessionId}
+						/>
+					</div>
+				</ScrollArea>
 			</DialogContent>
 		</Dialog>
 	)

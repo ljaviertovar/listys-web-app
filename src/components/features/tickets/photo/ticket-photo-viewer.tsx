@@ -14,6 +14,8 @@ import type { PhotoView } from './hooks/use-photo-view'
 interface Props {
 	open: boolean
 	onOpenChange: (open: boolean) => void
+	/** Keeps the viewer layered above a parent sheet without adding another dark overlay. */
+	nested?: boolean
 	title: string
 	urls: string[]
 	view: PhotoView
@@ -28,7 +30,7 @@ interface Props {
  * middle, the strip of shots when there are several (underneath on a phone, down the left side from `lg`), and the zoom, rotate and
  * fit controls at the bottom. The arrow keys move between photos and `+`, `-` and `0` zoom.
  */
-export function TicketPhotoViewer({ open, onOpenChange, title, urls, view, error, onCompare }: Props) {
+export function TicketPhotoViewer({ open, onOpenChange, nested = false, title, urls, view, error, onCompare }: Props) {
 	const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
 		if (!applyPhotoViewerShortcut(event.key, view)) return
 		event.preventDefault()
@@ -41,6 +43,7 @@ export function TicketPhotoViewer({ open, onOpenChange, title, urls, view, error
 		>
 			<DialogContent
 				hideClose
+				nested={nested}
 				variant='viewer'
 				data-testid='ticket-photo-viewer'
 				// Focus lands on the panel itself, not on the close button, so the arrow keys and + / - work at once without a ring on it.

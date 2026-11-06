@@ -21,7 +21,7 @@ export function StatTile({ testId, value, label, icon, iconTone = 'neutral', var
 				{icon ? <RowIcon icon={icon} tone={iconTone} size='stat' testId={`${testId}-icon`} /> : null}
 				<span className={variant === 'white' ? 'font-mono text-2xl leading-none font-semibold tabular-nums' : 'font-mono text-xl leading-none font-semibold tabular-nums'}>{value}</span>
 			</div>
-			<span className='text-xs leading-normal text-slate-500 dark:text-muted-foreground'>{label}</span>
+			<span className={variant === 'white' ? 'text-xs leading-normal font-semibold text-slate-600 dark:text-muted-foreground' : 'text-xs leading-normal text-slate-500 dark:text-muted-foreground'}>{label}</span>
 		</Card>
 	)
 }

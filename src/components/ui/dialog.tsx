@@ -18,12 +18,14 @@ const DialogClose = DialogPrimitive.Close;
 
 const DialogOverlay = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Overlay>,
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>
->(({ className, ...props }, ref) => (
+  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay> & { tone?: 'default' | 'sheet' | 'nested' }
+>(({ className, tone = 'default', ...props }, ref) => (
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
       "fixed inset-0 z-50 transition-opacity motion-reduce:transition-none bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out motion-reduce:data-[state=open]:animate-none motion-reduce:data-[state=closed]:animate-none data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 motion-reduce:animate-none motion-reduce:duration-0",
+      tone === 'sheet' && 'bg-slate-900/40',
+      tone === 'nested' && 'bg-transparent',
       className,
     )}
     {...props}
@@ -36,7 +38,7 @@ const CENTERED_ENTER_EXIT =
 
 /** The same panel as a bottom sheet below `sm` (slides up, rounded on top only) and as the centred dialog from `sm`. */
 const SHEET_ON_PHONES =
-  "max-sm:top-auto max-sm:bottom-0 max-sm:left-0 max-sm:max-w-none max-sm:translate-x-0 max-sm:translate-y-0 max-sm:rounded-b-none max-sm:rounded-t-3xl max-sm:max-h-[92dvh] max-sm:overflow-y-auto max-sm:data-[state=closed]:slide-out-to-bottom max-sm:data-[state=open]:slide-in-from-bottom sm:data-[state=closed]:zoom-out-95 sm:data-[state=open]:zoom-in-95 sm:data-[state=closed]:slide-out-to-left-1/2 sm:data-[state=closed]:slide-out-to-top-[48%] sm:data-[state=open]:slide-in-from-left-1/2 sm:data-[state=open]:slide-in-from-top-[48%]";
+  "max-sm:top-auto max-sm:bottom-0 max-sm:left-0 max-sm:max-w-none max-sm:translate-x-0 max-sm:translate-y-0 max-sm:rounded-b-none max-sm:rounded-t-3xl max-sm:max-h-[92dvh] max-sm:data-[state=closed]:slide-out-to-bottom max-sm:data-[state=open]:slide-in-from-bottom sm:data-[state=closed]:zoom-out-95 sm:data-[state=open]:zoom-in-95 sm:data-[state=closed]:slide-out-to-left-1/2 sm:data-[state=closed]:slide-out-to-top-[48%] sm:data-[state=open]:slide-in-from-left-1/2 sm:data-[state=open]:slide-in-from-top-[48%]";
 
 /** `sheet` is the A1 form panel (sheets and dialogs that hold a form); `viewer` is the dark full-screen surface of the receipt photo. */
 const dialogContentVariants = cva("", {
@@ -44,7 +46,7 @@ const dialogContentVariants = cva("", {
     variant: {
       default: "",
       sheet:
-        "gap-5 rounded-3xl border-0 p-5 sm:p-6 max-h-[92dvh] overflow-y-auto max-sm:pb-[max(1.5rem,env(safe-area-inset-bottom))]",
+        "gap-5 rounded-3xl border-0 p-4 md:p-6 max-h-[92dvh] max-sm:pt-8 max-sm:pb-[max(1.5rem,env(safe-area-inset-bottom))]",
       viewer: "gap-0 rounded-none border-0 bg-ink p-0 text-white",
     },
   },
@@ -59,6 +61,8 @@ const DialogContent = React.forwardRef<
       hideClose?: boolean;
       /** Below `sm` the dialog becomes a bottom sheet, the way a phone expects a form to open. */
       sheetOnPhones?: boolean;
+      /** A child sheet keeps the parent's scrim rather than darkening it a second time. */
+      nested?: boolean;
     }
 >(
   (
@@ -68,12 +72,13 @@ const DialogContent = React.forwardRef<
       variant = "default",
       hideClose = false,
       sheetOnPhones = false,
+      nested = false,
       ...props
     },
     ref,
   ) => (
     <DialogPortal>
-      <DialogOverlay />
+      <DialogOverlay tone={nested ? 'nested' : variant === 'sheet' ? 'sheet' : 'default'} />
       <DialogPrimitive.Content
         ref={ref}
         data-variant={variant}
@@ -81,10 +86,12 @@ const DialogContent = React.forwardRef<
           "fixed left-[50%] top-[50%] z-50 grid grid-cols-[minmax(0,1fr)] w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-card p-6 shadow-xl transition-[opacity,transform] motion-reduce:transition-none duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out motion-reduce:data-[state=open]:animate-none motion-reduce:data-[state=closed]:animate-none data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 motion-reduce:animate-none motion-reduce:duration-0 rounded-3xl overscroll-contain",
           dialogContentVariants({ variant }),
           sheetOnPhones ? SHEET_ON_PHONES : CENTERED_ENTER_EXIT,
+          sheetOnPhones && 'flex max-h-[92dvh] flex-col overflow-hidden p-4 md:p-6 max-sm:overflow-hidden',
           className,
         )}
         {...props}
       >
+        {sheetOnPhones && variant === 'sheet' ? <span aria-hidden="true" className="absolute top-2 left-1/2 h-1 w-9 -translate-x-1/2 rounded-full bg-slate-300 sm:hidden" /> : null}
         {children}
         {hideClose ? null : (
           <DialogPrimitive.Close asChild>
@@ -154,7 +161,7 @@ const dialogTitleVariants = cva("", {
       default: "text-lg font-semibold leading-none tracking-tight",
       // The heading of an A1 form sheet.
       sheet:
-        "font-display text-xl leading-[1.3] font-semibold tracking-tight text-foreground",
+        "font-display text-xl leading-[1.3] font-semibold tracking-tight text-foreground focus:outline-none",
       // A confirmation or a list dialog: bold and tight.
       strong: "text-lg leading-none font-bold tracking-tight text-foreground",
       // The title bar of the dark viewer.
