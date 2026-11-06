@@ -18,7 +18,7 @@ interface Props {
 export function ActiveShoppingBadge({ tone = 'default', size = 'default', className, label = 'Shopping' }: Props) {
 	return (
 		<Badge
-			variant={tone === 'on-dark' ? 'on-dark' : 'completed'}
+			variant={tone === 'on-dark' ? 'on-dark' : 'shopping'}
 			size={size}
 			data-testid='active-shopping-badge'
 			className={className}
@@ -27,7 +27,7 @@ export function ActiveShoppingBadge({ tone = 'default', size = 'default', classN
 				aria-hidden='true'
 				className={cn(
 					'size-2 animate-pulse rounded-full motion-reduce:animate-none',
-					tone === 'on-dark' ? 'bg-green-400' : 'bg-green-600 dark:bg-green-400',
+					tone === 'on-dark' ? 'bg-green-400' : 'bg-blue-600 dark:bg-blue-400',
 				)}
 			/>
 			{label}

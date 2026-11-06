@@ -33,7 +33,7 @@ export function SessionBar({ id, name, progress, otherCount = 0 }: SessionBarPro
 			<Link
 				href={`/shopping/${id}`}
 				className={cn(
-					'flex items-center gap-2 rounded-3xl bg-slate-900 py-2.5 pr-2.5 pl-4 text-white shadow-[0_16px_32px_-12px_rgba(15,23,42,0.5)]',
+					'flex min-w-0 flex-1 items-center gap-2 rounded-3xl bg-slate-900 py-2.5 pr-2.5 pl-4 text-white shadow-[0_16px_32px_-12px_rgba(15,23,42,0.5)]',
 					'focus-ring',
 				)}
 			>
@@ -82,7 +82,7 @@ export function SessionBar({ id, name, progress, otherCount = 0 }: SessionBarPro
 				</Button>
 			</Link>
 			{otherCount > 0 ? (
-				<Link href='/shopping-lists' aria-label={`+${otherCount} more in progress`} data-testid='active-session-more-link' className='shrink-0 rounded-2xl bg-slate-800 px-3 py-2 text-center text-xs font-semibold leading-tight text-white focus-ring'>
+				<Link href='/shopping-lists' aria-label={`+${otherCount} more in progress`} data-testid='active-session-more-link' className='shrink-0 whitespace-nowrap rounded-2xl bg-slate-800 px-3 py-2 text-center text-xs font-semibold leading-tight text-white focus-ring'>
 					+{otherCount} more<span className='sr-only'> shopping sessions in progress</span>
 				</Link>
 			) : null}
