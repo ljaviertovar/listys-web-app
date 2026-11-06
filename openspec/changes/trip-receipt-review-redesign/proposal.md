@@ -169,3 +169,10 @@ Ninguna.
 - Dependencia: parte del estado de `receipt-session-reconciliation` después de `trips-and-receipt-attach` (revisión
   abierta desde el viaje, cantidad comprada que reemplaza la habitual). Ese change debe archivarse antes que este. No
   modifica ningún requisito que `trips-and-receipt-attach` ya modifica.
+
+## Corrective audit pass approved 2026-11-06
+
+Implement the eleven findings of the v4 visual audit without replacing existing local work: fail empty OCR results in both
+providers and at historical read/attach boundaries; explain permanent store conflicts; correct sheets, Change Line, review
+hierarchy, trip header/navigation, estimates, receipt rows, the saved warning and the origin-trip receipt action. No new
+endpoint, database migration or historical data rewrite. PNG v4 composition is reconciled into the canonical HTML and DESIGN.md.

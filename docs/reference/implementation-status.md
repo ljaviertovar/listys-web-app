@@ -3,6 +3,12 @@
 Reviewed on 2026-10-28 against the working tree and the approved development Supabase project. This document owns observed behavior and implementation gaps;
 [PRD v2](../prd/PRD-v2.md) remains the MVP baseline. Code presence does not establish deployment or E2E validation.
 
+## Receipt review v4 corrective audit (2026-11-06)
+
+The approved corrections in trip-receipt-review-redesign are implemented in the working tree: zero-line OCR is unreadable in both providers; historical empty receipts cannot enter review or attachment; duplicate-store conflicts offer recovery rather than Retry; shared sheets, Change Line, trip summaries and receipt origin hierarchy follow the revised v4 reference. Mobile trip navigation uses the status already loaded by the page. DESIGN.md, the canonical HTML section 8 and the delta specs reflect the same decisions.
+
+Validation: 843 Vitest tests passed, followed by 168 affected tests after final adjustments; TypeScript and the 8 native-props checks passed. Scoped ESLint has no errors (six existing OCR warnings). Playwright CLI exercised the signed-in development app and 12 interaction checks, with 320/390/1280 px screenshots; isolated presentation fixtures covered OCR anomalies and all visual states, without mocking Supabase. See the [local corrective report](../../test-results/v4-corrections-1106/REPORT.md). Temporary fixture routes were removed. The full local-Supabase E2E suite was not run because that environment is not provisioned. On 2026-11-06, at the user?s request, Supabase CLI deployed the corrected Gemini function (version 31) and OpenAI function (version 8) to the linked test project listys (fjhdpaorehlocayttgcb). Both are ACTIVE with verify_jwt=true. Authenticated empty-body smoke requests returned the expected 400 before any database write or OCR-provider call. No migration was applied.
+
 ## Implemented product flows
 
 ### PRD v3 Phase 4: store tags and store-scoped sessions

@@ -955,9 +955,20 @@ the wheel and mouse drag, and the keys `← →`, `+`, `-` and `0`. Compare puts
 with a vertical, keyboard-operable separator and the selection bar at the foot of the list. Zoom is relative to the photo's fitted size, so every step
 is the same enlargement whatever the shape of the photo or the screen.
 
-A receipt that was read but has no items (completed, 0 items found) keeps its items card but swaps the list for a warning: a 64px amber tile,
-`No items detected` (Jakarta 700 18), the explanation and three tips for a clearer photo. Its action card offers `Upload a Clearer Photo` (primary),
-`Try Again` (secondary, reads the same photo again) and the soft-red `Delete Receipt`; there are no totals.
+A receipt with zero product lines is unreadable even when a store or total was recognized. Both OCR providers mark it failed.
+Historical completed/zero-line records are presented as failed without rewriting them; no review or attachment is offered.
+The trip uses the red card with Open Receipt and Upload New Receipt; the receipt page offers recovery and never ready/empty totals.
+
+**V4 corrective composition (2026-11-06).** Form sheets have a decorative mobile grip and a slate-900 scrim at 40%; nested sheets
+keep the existing scrim without adding another tint. The photo viewer retains its dark overlay. Review starts with its title
+and one introduction, with no candidate/date description. Change Line places RECEIPT LINE/name on the left, price/quantity on
+the right, and search/results within Match a trip item before Leave out; result states use the trailing column. A permanent
+duplicate-store conflict explains that a receipt is already attached and offers View Trip Receipts / Close Review, without Retry.
+Shopping is blue at the right of an active trip's title; active headers omit date/amount. Completed trips select Trips in the
+mobile navigation, active trips Lists. Estimated puts its title and ≈ amount at left and coverage at right, including ≈ in
+the completed header. Receipt rows put the attachment tag between store and data, with a lower action row on narrow phones
+when needed for legibility. Trip saved uses an amber rounded alert with a receipt icon. A receipt page uses the store as title
+and puts its single origin-trip action before photos, store confirmation and extracted items.
 
 ### 7.7 Base-list card
 

@@ -36,3 +36,8 @@ total real.
 
 - **WHEN** se abre una sesión completada con recibos por 127.52 y un estimado de 119.80
 - **THEN** muestra "Paid $127.52" y "Estimate was $119.80", sin presentar el estimado como pagado
+
+#### Scenario: Estimate hierarchy and header
+
+- **WHEN** se abre un viaje completado sin recibos y con precios conocidos
+- **THEN** Estimated y el importe aproximado aparecen a la izquierda y la cobertura a la derecha; el importe de cabecera también lleva ≈

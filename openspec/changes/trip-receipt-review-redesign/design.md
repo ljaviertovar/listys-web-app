@@ -462,3 +462,13 @@ Sin decisión del usuario (se dejan fuera de este change a propósito y se regis
   canvas.
 
 - (Resuelta) Los textos de ayuda de sección salen del tablero F7 · 9 y están en el spec de copy; ver D14.
+
+## D23 · Corrective v4 audit pass (approved 2026-11-06)
+
+- Zero extracted product lines means failed, even with a recognized store or total. Shared decideOcrOutcome covers both providers. Historical completed/zero-line receipts are presented as failed, not rewritten; attachment rejects them before the RPC.
+- The existing SESSION_HAS_STORE_RECEIPT reason selects a permanent-conflict card with View Trip Receipts and Close Review. Transient failures keep the original retry payload and single-flight protection.
+- Sheet variants provide a mobile grip and slate-900/40 scrim. Nested sheets add no second tint; photo viewers keep the dark overlay. Change Line places its search/results below Match and before Leave out, with independent keyboard navigation and focus restoration.
+- Review has no redundant candidate/date description. The active header puts Shopping blue beside its title without a date/amount line. Completed estimates use the left amount/right coverage composition and ≈ in the header.
+- Receipt rows show store, then attachment tag, then item/amount data; actions may use a lower row on narrow phones rather than truncate the store or crush the figures. Trip saved uses the shared amber receipt-warning variant with its icon.
+- A no-DOM marker sends the server-loaded trip completion state to a small layout context; mobile navigation selects Lists or Trips without a second HTTP request. The receipt's origin-trip action is a single full-width surface above photo/store/items, with store as page title.
+- No migration or deployed-data repair. Local behavior tests and 390/1280/320px visual checks precede any hosted Edge Function deployment. Temporary visual routes must be removed.

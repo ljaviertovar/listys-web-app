@@ -1,5 +1,16 @@
 # Tasks
 
+## 8. Corrective implementation after the v4 audit (approved 2026-11-06)
+
+- [x] 8.1 Reject zero-item OCR results in both providers, present historical empty results as failed, prevent their review/attachment, and cover the outcome and presentation rules without rewriting stored receipts.
+- [x] 8.2 Distinguish the permanent SESSION_HAS_STORE_RECEIPT conflict from transient attachment failures; keep retry payloads and single-flight protection, with behavior tests.
+- [x] 8.3 Correct shared sheet scrims, nested overlays, mobile handles and Change Line composition/search; verify keyboard, cancellation and focus restoration.
+- [x] 8.4 Match active/completed trip headers, Estimated, receipt rows and Trip saved to v4; select the mobile destination from the loaded trip status without another request.
+- [x] 8.5 Move the origin-trip receipt action above photos/items and use its store as the receipt-page title, retaining a single action surface.
+- [x] 8.6 Reconcile DESIGN.md, the canonical HTML and the affected change specifications with the approved corrections, keeping historical tasks intact.
+- [x] 8.7 Run lint, typecheck, the relevant behavior suites, native-props guard and strict OpenSpec validation; fix regressions.
+- [x] 8.8 Recheck all 16 v4 screens at 390/1280px and affected components at 320px using Playwright CLI and Chrome DOM/CSS inspection; include isolated visual fixtures for OCR anomalies, record before/after evidence and remove temporary routes.
+
 ## 0. Prerequisites
 
 - [x] 0.1 Confirm `trips-and-receipt-attach` is archived or at least merged into the working branch (its `use-trip-review.ts`, `trip-receipt-review.tsx` and migration `20261103000000_trips_receipt_attach.sql` exist) and that the other session's pieces are committed (`Badge` `tag` / `tag-attention`, `commons/data-line`, `commons/entity-label`, `commons/inline-counter`); verify with `git status` and `ls`, and stop to ask the user if either is missing

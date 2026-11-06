@@ -148,22 +148,58 @@ MUST NOT depender solo del color. El icono de lectura MUST dejar de girar si el 
 
 ### Requirement: The trip review appears only with a receipt ready
 
-La revisión de cómo un recibo actualizará el viaje, titulada "Attach to <trip>" y con el texto "Review how this receipt will
-update the trip", SHALL mostrarse solo cuando el recibo subido desde el viaje ya está leído y el usuario abre su revisión.
-MUST NOT mostrarse ni anunciarse durante la subida, la lectura o la carga de la revisión.
-
-#### Scenario: Loading the review
-
-- **WHEN** el usuario abre la revisión y las coincidencias aún cargan
-- **THEN** ve un estado de carga del viaje sin el texto "Review how this receipt will update the trip"
+La revisión SHALL abrir únicamente con artículos legibles. Su título SHALL ser "Review receipt" en una compra activa o
+"Attach to <trip>" en un viaje completado. La introducción, tienda, contadores y secciones SHALL aparecer directamente
+bajo el título, sin una segunda descripción con fecha, nombre del viaje o "Review how this receipt will update the trip".
 
 #### Scenario: Review ready
 
-- **WHEN** las coincidencias del recibo con el viaje terminan de cargar
-- **THEN** la revisión muestra "Review how this receipt will update the trip", su título "Attach to <trip>", la tienda, los tres
-  contadores y sus secciones de líneas
+- **WHEN** el usuario abre la revisión de un recibo con artículos
+- **THEN** ve el título y la introducción una sola vez, seguidos de tienda, contadores y secciones
+
+#### Scenario: Loading the review
+
+- **WHEN** las coincidencias todavía cargan
+- **THEN** ve un mensaje de carga accesible y todavía no se ofrecen decisiones ni acciones de adjuntar
 
 ## ADDED Requirements
+
+### Requirement: A receipt without product lines is unreadable
+
+Gemini y OpenAI SHALL clasificar como failed cualquier lectura que no obtenga artículos, aunque haya una tienda o un total.
+Las fotos SHALL evaluarse en conjunto. La app SHALL presentar también como ilegibles los recibos históricos completed con
+cero artículos, sin reescribirlos, y MUST NOT permitir revisarlos ni adjuntarlos. La API SHALL rechazarlos con 422 antes de la RPC.
+
+#### Scenario: Empty image or total only
+
+- **WHEN** ninguna foto produce artículos, aunque se reconozca un total
+- **THEN** se muestra la tarjeta roja con Open Receipt y Upload New Receipt, nunca Your receipt is ready
+
+#### Scenario: Products on another photo
+
+- **WHEN** una foto no tiene artículos pero otra contiene productos
+- **THEN** se conservan los productos y la lectura puede completarse
+
+#### Scenario: Historical empty success
+
+- **WHEN** se abre un recibo histórico completed con cero artículos
+- **THEN** se ofrecen las acciones de recuperación sin modificar registros ni permitir adjuntarlo
+
+### Requirement: Trip navigation follows completion
+
+El estado del viaje cargado por la página SHALL seleccionar Lists mientras está activo y Trips cuando está completado,
+incluyendo Trip saved y la apertura directa de una URL. MUST NOT requerir una segunda consulta del viaje.
+
+#### Scenario: Direct completed trip
+
+- **WHEN** se abre directamente la URL de un viaje completado
+- **THEN** la única pestaña actual es Trips
+
+#### Scenario: Active trip
+
+- **WHEN** se abre un viaje activo
+- **THEN** la única pestaña actual es Lists y el pill Shopping es azul, junto al título, sin fecha/importe bajo la cabecera
+
 
 ### Requirement: A trip with receipts lists them and takes another
 

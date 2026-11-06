@@ -542,3 +542,19 @@ La revisión de un recibo en un viaje activo SHALL permitir adjuntar sin complet
 
 - **WHEN** el propietario cierra la hoja sin pulsar ninguna acción
 - **THEN** el recibo, la lista y el viaje no cambian y el recibo queda en la tarjeta de recibos con "Pending attachment"
+
+### Requirement: Permanent store conflicts explain how to recover
+
+El conflicto 409 SESSION_HAS_STORE_RECEIPT SHALL mostrar "This trip already has a receipt from this store.", indicar que
+nada cambió y ofrecer View Trip Receipts y Close Review. MUST NOT ofrecer Retry para ese conflicto. Los errores transitorios
+SHALL conservar Try Again y Attach Later, con el mismo payload y una sola petición por intento.
+
+#### Scenario: Another receipt from the same store
+
+- **WHEN** el viaje ya tiene un recibo confirmado de esa tienda
+- **THEN** se explica el conflicto sin sugerir reintentos ni modificar el total o los artículos
+
+#### Scenario: Search belongs to the match choice
+
+- **WHEN** se elige Match a trip item en Change Line
+- **THEN** su buscador y resultados aparecen antes de Leave out, con el estado de cada ítem a la derecha; cancelar conserva la decisión y devuelve el foco a Change

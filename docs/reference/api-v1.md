@@ -216,3 +216,7 @@ handlers is outside this documentation change.
 API/database checks, and `200` or `503`. See the [deployment checks](../runbooks/deploy.md#publish-and-check).
 
 Store-price memory: base-list item responses retain numeric `store_prices` and add optional `purchase_count` to each row. Additive `store_history` includes each visible store with nullable `last_price`, purchase count, last-purchase and last-price dates, quantity and unit. Stores without a receipt price remain visible; a manually chosen usual store can have zero purchases. These reads do not update learning or the usual store.
+
+### Empty receipt attachment (v4 corrective audit)
+
+POST /api/v1/tickets/{ticketId}/attach-to-session rejects a historical completed receipt with total_items = 0 using 422 VALIDATION_ERROR before calling the attachment RPC. The existing error envelope is unchanged. The 409 SESSION_HAS_STORE_RECEIPT reason remains a permanent conflict: the UI explains it and offers View Trip Receipts / Close Review rather than a transient Retry.
