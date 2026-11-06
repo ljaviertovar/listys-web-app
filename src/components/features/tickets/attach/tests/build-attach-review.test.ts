@@ -35,10 +35,14 @@ describe('attach review decisions and request', () => {
 		expect(review.sections[2].lines[0].result).toContain('usual quantity 2 → 5')
 		expect(review.allMatch).toBe(true)
 	})
-	it('preserves the original trip store when a receipt comes from a second store', () => {
+	it('shows the receipt store instead of the trip store when they differ', () => {
 		const store = { id: 'original', name: 'No Frills' }
 		const review = buildAttachReview({ ...base, candidate: { ...candidate, store }, receiptStore: { id: 'second', name: 'Costco' } })
-		expect(review.resultingStore).toEqual(store)
+		expect(review.resultingStore).toEqual({ id: 'second', name: 'Costco' })
 		expect(review.storeMismatch).toBe(false)
+	})
+	it('does not infer a receipt store from the trip when the receipt store is unconfirmed', () => {
+		const review = buildAttachReview({ ...base, candidate: { ...candidate, store: { id: 'original', name: 'No Frills' } } })
+		expect(review.resultingStore).toBeNull()
 	})
 })

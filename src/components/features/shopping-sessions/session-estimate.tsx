@@ -22,15 +22,15 @@ export function SessionEstimate({ total, pricedCount, itemCount, completed = fal
 			aria-label='Estimated total'
 			data-testid='session-estimate-card'
 		>
-			<div className='flex items-end justify-between gap-3'>
+			<div className='flex flex-wrap items-end justify-between gap-3'>
 			<div className='flex min-w-0 flex-col gap-1'>
 				<span className='text-xs leading-[1.3] text-slate-500 dark:text-muted-foreground'>{completed ? 'Estimated' : 'Estimated total'}</span>
-				<span className='text-xs leading-[1.3] text-slate-500 dark:text-muted-foreground'>
-					{itemCount} {itemCount === 1 ? 'item' : 'items'} · {pricedCount} with known prices
-				</span>
-			</div>
 			<span className='font-mono text-2xl leading-none font-semibold tracking-tight text-foreground tabular-nums'>
 				{completed ? '≈ ' : ''}{formatCurrency(total)}
+			</span>
+			</div>
+			<span className='text-right text-xs leading-normal text-slate-500 dark:text-muted-foreground'>
+				{itemCount} {itemCount === 1 ? 'item' : 'items'} · {pricedCount} with known prices
 			</span>
 		</div>
 		</Card>

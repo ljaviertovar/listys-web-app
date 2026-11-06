@@ -70,7 +70,7 @@ function StatusNote({ status, itemsCount }: { status: TicketStatus; itemsCount: 
 
 /** A receipt in the list: who it is, when it was uploaded, its status chip and one line about where it stands. */
 export function TicketCard({ id, storeName, status, itemsCount, uploadedLabel }: TicketCardProps) {
-	const ticketStatus = toTicketStatus(status)
+	const ticketStatus = toTicketStatus(status, itemsCount)
 	// Only a receipt that has finished (or failed) has details worth a labelled link.
 	const showDetails = ticketStatus === 'completed' || ticketStatus === 'failed'
 

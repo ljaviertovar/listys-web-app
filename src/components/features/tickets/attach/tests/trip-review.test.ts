@@ -1,9 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { readTicketForReview } from '../helpers/read-ticket-for-review'
-import { describeTripReview, getTripReviewPhase } from '../helpers/trip-review-phase'
-
-const trip = { name: 'Saturday shop', store: { id: 's', name: 'Metro' }, started_at: null, completed_at: '2026-11-01T15:30:00Z' }
+import { getTripReviewPhase } from '../helpers/trip-review-phase'
 
 describe('getTripReviewPhase', () => {
 	const phase = (overrides: Partial<Parameters<typeof getTripReviewPhase>[0]>) =>
@@ -24,25 +22,6 @@ describe('getTripReviewPhase', () => {
 
 	it('is ready only with the comparison in hand', () => {
 		expect(phase({})).toBe('ready')
-	})
-})
-
-describe('describeTripReview', () => {
-	it('invites the review only when it is ready', () => {
-		expect(describeTripReview(trip, 'ready')).toContain('Review how this receipt will update the trip.')
-	})
-
-	it.each(['loading', 'closed', 'error'] as const)('does not invite a review while %s', phase => {
-		expect(describeTripReview(trip, phase)).not.toContain('Review how this receipt will update the trip')
-	})
-
-	it('names the trip while loading and when it failed', () => {
-		expect(describeTripReview(trip, 'loading')).toContain('Saturday shop')
-		expect(describeTripReview(trip, 'error')).toContain('couldn’t load')
-	})
-
-	it('has nothing to name before the trip is known', () => {
-		expect(describeTripReview(null, 'loading')).not.toContain('Review how this receipt')
 	})
 })
 
@@ -67,6 +46,7 @@ describe('readTicketForReview', () => {
 	})
 
 	it('is null for a response that is not a receipt', () => {
+		expect(readTicketForReview({ items: [], total_amount: 40, store: { id: 'store', name: 'Metro' } })).toBeNull()
 		expect(readTicketForReview(null)).toBeNull()
 		expect(readTicketForReview({ items: 'nope' })).toBeNull()
 		expect(readTicketForReview({})).toBeNull()

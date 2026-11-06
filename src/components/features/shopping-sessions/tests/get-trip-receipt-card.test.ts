@@ -6,7 +6,7 @@ describe('trip receipt actions', () => {
 	it.each([
 		[{ kind: 'none' }, ['upload']],
 		[{ kind: 'reading', ticketId: 'r' }, []],
-		[{ kind: 'read', ticketId: 'r' }, ['review']],
+		[{ kind: 'read', ticketId: 'r' }, []],
 		[{ kind: 'failed', ticketId: 'r' }, ['open-receipt', 'upload']],
 	] as const)('offers the direct action for %j', (state, actions) => {
 		expect(getTripReceiptCard({ ...base, state }).actions).toEqual(actions)

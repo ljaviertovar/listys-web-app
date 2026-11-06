@@ -21,7 +21,7 @@ import { readTicketForReview, type TripReviewTicket } from '../helpers/read-tick
 import { getTripReviewPhase } from '../helpers/trip-review-phase'
 
 type SessionItem = { id: string; name: string; checked: boolean; quantity?: number | null; unit?: string | null }
-type AttachError = { message: string; attached: boolean }
+type AttachError = { message: string; attached: boolean; reason?: string | null }
 
 function readPriorReceiptLines(value: unknown): PriorReceiptLine[] {
 	if (!value || typeof value !== 'object' || !('receipts' in value) || !Array.isArray(value.receipts)) return []
@@ -172,7 +172,7 @@ export function useTripReview({ ticketId, trip, ticket: providedTicket = null, o
 		if (result.error) {
 			const reason = result.details && typeof result.details === 'object' && 'reason' in result.details
 				? result.details.reason : null
-			setSubmitError({ message: result.error, attached: reason === 'RECEIPT_ATTACHED' })
+			setSubmitError({ message: result.error, attached: reason === 'RECEIPT_ATTACHED', reason: typeof reason === 'string' ? reason : null })
 			if (reason === 'RECEIPT_ATTACHED') onAlreadyAttached?.()
 			return
 		}

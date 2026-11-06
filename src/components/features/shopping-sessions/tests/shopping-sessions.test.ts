@@ -97,16 +97,15 @@ describe('HistorySessionCard receipt status', () => {
 		expect(html).not.toContain('history-add-receipt-s1')
 	})
 
-	it('shows a trip without a receipt as completed, marks the missing receipt and offers Add Receipt', () => {
+	it('shows a trip without a receipt as completed and marks the missing receipt without an add action', () => {
 		const html = render(null)
 		expect(html).toContain('Completed')
 		expect(html).toContain('data-testid="history-no-receipt-s1"')
-		expect(html).toContain('href="/shopping/s1?receipt=add"')
-		expect(html).toContain('Add Receipt')
+		expect(html).not.toContain('history-add-receipt-s1')
 	})
 
-	it('opens the trip it came from with the receipt choice, keeping the list filter', () => {
-		expect(render(null, '/shopping/s1?from=trips&list=l1')).toContain('href="/shopping/s1?from=trips&amp;list=l1&amp;receipt=add"')
+	it('opens the trip details and keeps the list filter', () => {
+		expect(render(null, '/shopping/s1?from=trips&list=l1')).toContain('href="/shopping/s1?from=trips&amp;list=l1"')
 	})
 
 	it('shows neither receipt state when it is not known', () => {

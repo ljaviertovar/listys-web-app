@@ -2,7 +2,7 @@
 
 import { useEffect, useReducer } from 'react'
 import Link from 'next/link'
-import { Alert02Icon, Attachment01Icon, CheckmarkCircle02Icon, Loading03Icon, ShoppingBag01Icon } from '@hugeicons/core-free-icons'
+import { Alert02Icon, CheckmarkCircle02Icon, Invoice01Icon, Loading03Icon, ShoppingBag01Icon } from '@hugeicons/core-free-icons'
 
 import { RowIcon, StatusCard } from '@/components/commons'
 import { Button } from '@/components/ui/button'
@@ -43,7 +43,7 @@ export function TripReceiptsCard({ state, justSaved = false, itemCount, listName
 			case 'upload': return <Button key={action} type='button' size='primary' onClick={() => dispatch({ type: 'upload-new' })}>Upload New Receipt</Button>
 			case 'review': return state.kind === 'read' ? <Button key={action} type='button' size='primary' onClick={() => dispatch({ type: 'review', ticketId: state.ticketId })}>Review Receipt</Button> : null
 			case 'open-receipt': return state.kind === 'failed' ? <Button key={action} asChild variant='outline' size='primary'><Link href={`/tickets/${state.ticketId}`}>Open Receipt</Link></Button> : null
-			case 'view-trip': return trip ? <Button key={action} asChild variant='outline' size='primary'><Link href={`/shopping/${trip.id}`}>View Trip</Link></Button> : null
+			case 'view-trip': return trip ? <Button key={action} asChild variant='outline' size='primary'><Link href={`/shopping/${trip.id}?details=1`}>View Trip</Link></Button> : null
 		}
 	})
 	return (
@@ -53,13 +53,13 @@ export function TripReceiptsCard({ state, justSaved = false, itemCount, listName
 					<RowIcon icon={ShoppingBag01Icon} tone='success' size='saved' testId='trip-saved-icon' />
 					<h1 className='font-display text-xl font-semibold tracking-tight'>{card.title}</h1>
 					<p className='text-sm leading-normal text-slate-500 dark:text-muted-foreground'>{card.message}</p>
-					<Alert variant='warning'><AlertTitle>No receipt yet</AlertTitle><AlertDescription>Having no receipt never leaves the trip incomplete.</AlertDescription></Alert>
+					<Alert variant='receipt-warning'><RowIcon icon={Invoice01Icon} tone='warning' size='sm' testId='trip-saved-no-receipt-icon' /><AlertTitle>No receipt yet</AlertTitle><AlertDescription>Having no receipt never leaves the trip incomplete.</AlertDescription></Alert>
 					<div className='flex w-full flex-col gap-2'>{actions}</div>
 					<p className='text-xs leading-normal text-slate-500 dark:text-muted-foreground'>You can add a receipt later from Trips, with no deadline.</p>
 				</div>
 			</Card> : <StatusCard testId={`${testId}-state`} headingId={headingId}
 				tone={state.kind === 'reading' ? 'info' : state.kind === 'read' ? 'success' : state.kind === 'failed' ? 'danger' : 'default'}
-				icon={state.kind === 'reading' ? Loading03Icon : state.kind === 'read' ? CheckmarkCircle02Icon : state.kind === 'failed' ? Alert02Icon : Attachment01Icon}
+				icon={state.kind === 'reading' ? Loading03Icon : state.kind === 'read' ? CheckmarkCircle02Icon : state.kind === 'failed' ? Alert02Icon : undefined}
 				spinning={state.kind === 'reading'} title={card.title} description={card.message} actions={actions.length ? actions : undefined} />}
 			{state.kind === 'reading' ? <TripReceiptReadingListener ticketId={state.ticketId} /> : null}
 			{trip ? <>

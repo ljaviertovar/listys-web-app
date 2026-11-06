@@ -73,7 +73,7 @@ export function buildAttachReview({ candidate, lines, matches, receiptStore, tot
 		sections: (Object.keys(groups) as ReviewSectionId[]).map(id => ({ id, lines: groups[id] })),
 		counts, checkedNotOnReceipt, notCheckedNotOnReceipt,
 		allMatch: counts.matched > 0 && counts.added === 0 && counts.leftOut === 0 && checkedNotOnReceipt.length === 0,
-		resultingStore: candidate.store ?? receiptStore,
+		resultingStore: receiptStore,
 		storeMismatch: false,
 		confirmLabel: candidate.status === 'active' ? 'Attach and Complete Trip' : 'Attach to Trip',
 		payload: {

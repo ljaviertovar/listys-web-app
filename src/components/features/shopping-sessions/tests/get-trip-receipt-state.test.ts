@@ -25,6 +25,7 @@ describe('getTripReceiptState', () => {
 	})
 
 	it('reports a receipt that could not be read', () => {
+		expect(getTripReceiptState({ receipts: [], pendingReceipt: { id: 'empty', ocr_status: 'completed', total_items: 0 } })).toEqual({ kind: 'failed', ticketId: 'empty' })
 		expect(getTripReceiptState({ receipts: [], pendingReceipt: { id: 'p', ocr_status: 'failed' } })).toEqual({ kind: 'failed', ticketId: 'p' })
 	})
 })

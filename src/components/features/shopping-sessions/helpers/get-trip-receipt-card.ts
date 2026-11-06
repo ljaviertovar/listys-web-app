@@ -13,7 +13,7 @@ export function getTripReceiptCard({ state, justSaved, canManage, itemCount, lis
 }): TripReceiptCardModel {
 	switch (state.kind) {
 		case 'reading': return { title: 'Reading your receipt…', message: 'This takes a few seconds. You can leave this page; we keep reading.', actions: [] }
-		case 'read': return { title: 'Your receipt is ready', message: 'Check it against this trip before anything changes.', actions: canManage ? ['review'] : [] }
+		case 'read': return { title: 'Your receipt is ready', message: 'Check it against this trip before anything changes.', actions: [] }
 		case 'failed': return { title: 'We couldn’t read this receipt', message: 'Open it to try again, or upload a different receipt.', actions: canManage ? ['open-receipt', 'upload'] : [] }
 		case 'none': return justSaved
 			? { title: 'Trip saved', message: `${itemCount} ${itemCount === 1 ? 'item' : 'items'} updated in ${listName}. Add your receipt to save the real prices and the total.`, actions: canManage ? ['upload', 'view-trip'] : [] }

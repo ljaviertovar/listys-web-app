@@ -1,14 +1,12 @@
 'use client'
 
-import Link from 'next/link'
 import { Alert02Icon, Attachment01Icon, ShoppingBag02Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 
 import { ActionLink, DataFigure, DataLine, EntityLabel, InlineCounter } from '@/components/commons'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { formatCurrency, formatTripDate } from '@/utils'
+import { formatCurrency, formatTime, formatTripDate } from '@/utils'
 import type { TripReceipt } from '@/types'
 import { getTripStores } from './helpers/get-trip-stores'
 
@@ -32,16 +30,11 @@ interface Props {
 	href?: string
 }
 
-/** The trip's own page with focus on the receipt card, keeping whatever the details link carries. */
-function addReceiptHref(detailsHref: string) {
-	return `${detailsHref}${detailsHref.includes('?') ? '&' : '?'}receipt=add`
-}
-
 /**
  * A completed trip in Trips (design: Mobile historial; canvas 4/7 data hierarchy). The card is plain; only its links react to taps or
  * hover. Its levels, in order: identity with the one status pill (Completed), classification (the store as an entity, then tags for the
- * receipt), the data line and the footer. A trip without a receipt gets an attention tag and a separate "Add Receipt" button: having no
- * receipt never makes the trip incomplete. A trip whose receipt state is unknown (`receipt` omitted) shows no receipt tag.
+ * receipt), the data line and the footer. A trip without a receipt gets an attention tag; adding one starts from the saved-trip screen.
+ * A trip whose receipt state is unknown (`receipt` omitted) shows no receipt tag.
  */
 export function HistorySessionCard({ session, href }: Props) {
 	const detailsHref = href ?? `/shopping/${session.id}`
@@ -52,7 +45,7 @@ export function HistorySessionCard({ session, href }: Props) {
 		session.purchased_count ??
 		(session.shopping_session_items
 			? session.shopping_session_items.filter(i => i.checked === true).length
-			: session.total_items ?? null)
+			: (session.total_items ?? null))
 	const hasClassification = receiptState !== 'unknown' || Boolean(session.store)
 
 	return (
@@ -72,7 +65,9 @@ export function HistorySessionCard({ session, href }: Props) {
 							className='size-4.5'
 						/>
 					</span>
-					<h2 className='min-w-0 flex-1 truncate font-display text-base leading-normal font-semibold tracking-[-0.005em]'>{session.name}</h2>
+					<h2 className='min-w-0 flex-1 truncate font-display text-base leading-normal font-semibold tracking-[-0.005em]'>
+						{session.name}
+					</h2>
 					<Badge
 						variant='completed'
 						dot
@@ -123,11 +118,17 @@ export function HistorySessionCard({ session, href }: Props) {
 					{completedDate ? (
 						<>
 							<DataFigure>{formatTripDate(completedDate)}</DataFigure>
+							<span> </span>
+							<DataFigure>{formatTime(completedDate)}</DataFigure>
 						</>
 					) : (
 						'Date unknown'
 					)}
-					{session.total_amount == null ? null : <DataFigure>{formatCurrency(session.total_amount)}</DataFigure>}
+					{session.total_amount == null ? null : (
+						<DataFigure>
+							<strong>{formatCurrency(session.total_amount)}</strong>
+						</DataFigure>
+					)}
 				</DataLine>
 
 				<div className='flex items-center justify-between gap-2 border-t border-slate-100 pt-3'>
@@ -141,17 +142,14 @@ export function HistorySessionCard({ session, href }: Props) {
 							testId={`history-count-${session.id}`}
 						/>
 					)}
-					<ActionLink href={detailsHref} aria-label={`View details for ${session.name}`} className='shrink-0'>
+					<ActionLink
+						href={detailsHref}
+						aria-label={`View details for ${session.name}`}
+						className='shrink-0'
+					>
 						View Details
 					</ActionLink>
 				</div>
-				{receiptState === 'none' ? (
-					<Button asChild size='primary' className='w-full sm:w-auto sm:self-start'>
-						<Link href={addReceiptHref(detailsHref)} data-testid={`history-add-receipt-${session.id}`} aria-label={`Add a receipt to ${session.name}`}>
-							Add Receipt
-						</Link>
-					</Button>
-				) : null}
 			</div>
 		</Card>
 	)

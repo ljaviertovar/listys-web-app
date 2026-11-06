@@ -78,7 +78,8 @@ export function ShoppingSessionItems({ items, isCompleted = false, priceByItemId
 							groups={storeGroups}
 							isCompleted={isCompleted}
 							priceByItemId={priceByItemId}
-						storeInfoByItemId={storeInfoByItemId}
+							storeInfoByItemId={storeInfoByItemId}
+							purchaseStore={storeId && storeName ? { id: storeId, name: storeName } : null}
 							defaultOpen={!startCollapsed}
 							prefix='session-store-category'
 						/>
@@ -94,7 +95,7 @@ export function ShoppingSessionItems({ items, isCompleted = false, priceByItemId
 							groups={otherGroups}
 							isCompleted={isCompleted}
 							priceByItemId={priceByItemId}
-						storeInfoByItemId={storeInfoByItemId}
+							storeInfoByItemId={storeInfoByItemId}
 							defaultOpen={!startCollapsed}
 							prefix='session-other-category'
 						/>
@@ -105,7 +106,7 @@ export function ShoppingSessionItems({ items, isCompleted = false, priceByItemId
 					groups={groups}
 					isCompleted={isCompleted}
 					priceByItemId={priceByItemId}
-						storeInfoByItemId={storeInfoByItemId}
+					storeInfoByItemId={storeInfoByItemId}
 					defaultOpen={!startCollapsed}
 					prefix='session-category'
 				/>
@@ -119,11 +120,12 @@ interface SessionCategoryGroupsProps {
 	isCompleted: boolean
 	priceByItemId?: Record<string, number>
 	storeInfoByItemId?: Record<string, TripItemStoreInfo>
+	purchaseStore?: { id: string; name: string } | null
 	defaultOpen: boolean
 	prefix: string
 }
 
-function SessionCategoryGroups({ groups, isCompleted, priceByItemId, storeInfoByItemId, defaultOpen, prefix }: SessionCategoryGroupsProps) {
+function SessionCategoryGroups({ groups, isCompleted, priceByItemId, storeInfoByItemId, purchaseStore, defaultOpen, prefix }: SessionCategoryGroupsProps) {
 	return groups.map((group, index) => {
 		const done = group.items.filter(item => item.checked).length
 
@@ -141,7 +143,7 @@ function SessionCategoryGroups({ groups, isCompleted, priceByItemId, storeInfoBy
 				<ul className='divide-y divide-slate-200/70 dark:divide-border'>
 					{group.items.map(item => (
 						<li key={item.id}>
-							<ShoppingSessionItemRow item={item} isCompleted={isCompleted} averagePrice={priceByItemId?.[item.id]} storeInfo={storeInfoByItemId?.[item.id]} />
+							<ShoppingSessionItemRow item={item} isCompleted={isCompleted} averagePrice={priceByItemId?.[item.id]} storeInfo={storeInfoByItemId?.[item.id]} purchaseStore={purchaseStore} />
 						</li>
 					))}
 				</ul>

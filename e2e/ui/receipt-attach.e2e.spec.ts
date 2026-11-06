@@ -34,6 +34,8 @@ test.describe('Receipt to trip reconciliation (PRD v3 Phase 5)', () => {
       await dialog.getByRole('button', { name: 'Attach and Complete Trip' }).click()
 
       await expect(page).toHaveURL(new RegExp(`/shopping/${fixture.sessionId}$`))
+      await expect(page.getByTestId('mobile-tab-trips')).toHaveAttribute('aria-current', 'page')
+      await expect(page.getByTestId('mobile-tab-shopping-lists')).not.toHaveAttribute('aria-current', 'page')
       await expect(page.getByText(/\$17\.25/)).toBeVisible()
       await expect(page.getByText('Apples')).toBeVisible()
       await expect(page.getByText('Unmentioned item')).toBeVisible()
@@ -205,6 +207,15 @@ test.describe('Receipt to trip reconciliation (PRD v3 Phase 5)', () => {
       expect((await attach(duplicate)).status()).toBe(409)
       await page.goto(`${BASE_URL}/shopping/${fixture.sessionId}`)
       await expect(page.getByTestId('session-receipt-summary')).toContainText('2 receipts')
+      await expect(page.getByTestId('mobile-tab-shopping-lists')).toHaveAttribute('aria-current', 'page')
+      await page.getByRole('button', { name: 'Review Receipt', exact: true }).click()
+      const conflictReview = page.getByTestId('attach-to-session-dialog')
+      await conflictReview.getByRole('button', { name: 'Attach Receipt', exact: true }).click()
+      await expect(conflictReview.getByTestId('attach-review-submit-error')).toBeVisible()
+      await expect(conflictReview.getByRole('button', { name: 'Try Again', exact: true })).toHaveCount(0)
+      await expect(conflictReview.getByRole('link', { name: 'View Trip Receipts', exact: true })).toHaveAttribute('href', `/shopping/${fixture.sessionId}`)
+      await conflictReview.getByRole('button', { name: 'Close Review', exact: true }).click()
+      await expect(conflictReview).toHaveCount(0)
     } finally {
       await fixture.cleanup()
     }

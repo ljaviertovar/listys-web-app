@@ -23,6 +23,7 @@ export const TICKET_STATUS_NOTE_ICON: Partial<Record<TicketStatus, IconSvgElemen
 }
 
 /** The database column is nullable and free text, so anything unknown reads as not started. */
-export function toTicketStatus(raw: string | null | undefined): TicketStatus {
+export function toTicketStatus(raw: string | null | undefined, itemCount?: number | null): TicketStatus {
+	if (raw === 'completed' && itemCount === 0) return 'failed'
 	return raw === 'processing' || raw === 'completed' || raw === 'failed' ? raw : 'pending'
 }

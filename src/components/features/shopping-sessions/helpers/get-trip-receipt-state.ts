@@ -17,11 +17,11 @@ export function getTripReceiptState({
 	pendingReceipt,
 }: {
 	receipts: ReadonlyArray<{ id: string }> | null | undefined
-	pendingReceipt: { id: string; ocr_status: string | null } | null | undefined
+	pendingReceipt: { id: string; ocr_status: string | null; total_items?: number | null } | null | undefined
 }): TripReceiptState {
 	if (!pendingReceipt) return receipts?.length ? { kind: 'attached' } : { kind: 'none' }
 
-	const status = toTicketStatus(pendingReceipt.ocr_status)
+	const status = toTicketStatus(pendingReceipt.ocr_status, pendingReceipt.total_items)
 	if (status === 'completed') return { kind: 'read', ticketId: pendingReceipt.id }
 	if (status === 'failed') return { kind: 'failed', ticketId: pendingReceipt.id }
 	return { kind: 'reading', ticketId: pendingReceipt.id }

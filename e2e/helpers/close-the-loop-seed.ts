@@ -149,10 +149,14 @@ export async function createCloseTheLoopFixture(options: {
       createReceipt: async (storeId: string) => {
         const receipt = await supabase.from('tickets').insert({
           user_id: userId, image_path: `e2e/${crypto.randomUUID()}.jpg`, store_id: storeId,
-          ocr_status: 'completed', total_items: 0, total_amount: 17.25,
+          ocr_status: 'completed', total_items: 1, total_amount: 17.25,
           uploaded_from_session_id: session.data.id, processed_at: new Date().toISOString(),
         }).select('id').single()
         if (receipt.error || !receipt.data) throw new Error('Could not create an additional local receipt.')
+        const line = await supabase.from('ticket_items').insert({
+            ticket_id: receipt.data.id, name: 'Milk', normalized_name: 'milk', quantity: 1, unit: 'each', price: 17.25,
+        })
+        if (line.error) throw new Error('Could not create a product line for the additional local receipt.')
         return receipt.data.id
       },
       cleanup: async () => {

@@ -41,6 +41,7 @@ describe('TripReceiptsCard', () => {
 		expect(html).toContain('3 items updated in Pantry')
 		expect(html).toContain('Upload New Receipt')
 		expect(html).toContain('View Trip')
+		expect(html).toContain('href="/shopping/trip-1?details=1"')
 	})
 
 	it('shows reading without a button or status chip', () => {
@@ -51,10 +52,11 @@ describe('TripReceiptsCard', () => {
 		expect(html).not.toContain('Review how this receipt will update the trip')
 	})
 
-	it('offers Review Receipt once the receipt is read, still without the review text', () => {
+	it('shows the ready message without an action button once the receipt is read', () => {
 		const html = render({ kind: 'read', ticketId: 't1' })
 		expect(html).toContain('data-state="read"')
-		expect(html).toContain('Review Receipt')
+		expect(html).toContain('Your receipt is ready')
+		expect(html).not.toContain('<button')
 		expect(html).not.toContain('Review how this receipt will update the trip')
 	})
 

@@ -29,6 +29,7 @@ export function readTicketForReview(value: unknown): TripReviewTicket | null {
 		}] : [],
 	)
 	const store = value.store
+	if (lines.length === 0) return null
 	const receiptStore = isRecord(store) && typeof store.id === 'string' && typeof store.name === 'string' ? { id: store.id, name: store.name } : null
 
 	return {
