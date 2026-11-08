@@ -10,7 +10,7 @@ import { AddItemSheet } from '@/components/features/list-items'
 import { ShareListDialog } from '@/components/features/sharing'
 import { STARTED_SESSION_PARAM, SessionSummaryCard, TripReceiptsCard, TripReceiptSummary,
 	getTripReceiptState, getTripStores, ShoppingSessionActions, ShoppingSessionItems, ShoppingSessionRealtimeListener,
-	buildSessionPriceEstimate, resolveSessionBackLink } from '@/components/features/shopping-sessions'
+	buildSessionPriceEstimate, summarizeCheckedEstimate, resolveSessionBackLink } from '@/components/features/shopping-sessions'
 import { getShoppingSession } from '@/actions'
 import { buildItemStoreSummary } from '@/components/features/base-lists/items/helpers/item-store-summary'
 import { createClient } from '@/lib/supabase/server'
@@ -60,6 +60,7 @@ export default async function ShoppingRunPage({ params, searchParams }: { params
 			.order('created_at', { ascending: false }) : Promise.resolve({ data: null }),
 	])
 	const priceEstimate = buildSessionPriceEstimate(items, pricesResult.data ?? [])
+	const checkedEstimate = summarizeCheckedEstimate(run.items, priceEstimate.priceByItemId)
 	const storeInfoByName = new Map((pricesResult.data ?? []).map(item => [item.normalized_name,
 		{ ...buildItemStoreSummary(item.store_stats, item.usual_store, item.usual_store_source), purchaseStats: getItemPurchaseStats({ purchase_count: item.purchase_count ?? 0, first_seen_at: item.first_seen_at, last_purchased_at: item.last_purchased_at }) }]))
 	const storeInfoByItemId = Object.fromEntries(items.flatMap(item => {
@@ -95,7 +96,7 @@ export default async function ShoppingRunPage({ params, searchParams }: { params
 		</PageHeader>
 		<PageContainer className='pb-[calc(7rem+max(1.125rem,env(safe-area-inset-bottom)))] lg:pb-20'>
 			<div className='flex w-full max-w-3xl flex-col gap-6'>
-				{!isCompleted && totalCount > 0 ? <SessionSummaryCard mode='active' checked={checkedCount} total={totalCount} estimate={priceEstimate.pricedCount > 0 ? priceEstimate : undefined} /> : null}
+				{!isCompleted && totalCount > 0 ? <SessionSummaryCard mode='active' checked={checkedCount} total={totalCount} estimate={priceEstimate.pricedCount > 0 ? checkedEstimate : undefined} /> : null}
 				{isCompleted && priceEstimate && !receipts.length ? <SessionSummaryCard mode='completed' estimate={priceEstimate} /> : null}
 				{isCompleted && receiptState.kind !== 'attached' && pending.length === 0 ? <TripReceiptsCard state={receiptState} itemCount={checkedCount} listName={baseListName} openAddOnLoad={first(query.receipt) === 'add'} trip={trip} /> : null}
 				{isCompleted && activeEntries.length ? <TripReceiptSummary receipts={activeEntries} mode='completed' itemCount={checkedCount} estimate={priceEstimate?.pricedCount ? priceEstimate.total : undefined} trip={trip} /> : null}

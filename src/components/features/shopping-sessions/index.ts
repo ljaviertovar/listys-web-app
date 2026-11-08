@@ -17,3 +17,4 @@ export { buildHistoryView } from './helpers/build-history-view'
 export { resolveSessionBackLink } from './helpers/resolve-session-back-link'
 
 export { getTripStores } from './helpers/get-trip-stores'
+export { summarizeCheckedEstimate } from './helpers/summarize-checked-estimate'

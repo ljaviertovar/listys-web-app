@@ -19,6 +19,25 @@ const trip: TicketSessionCandidate = {
 }
 
 describe('active trip receipts for a viewer', () => {
+	it.each(['active', 'completed'] as const)('keeps incomplete attached totals unavailable in %s mode', mode => {
+		const receipts = [
+			{ id: 'a', attached: true, total_amount: 41.12, store: null, items_count: 1 },
+			{ id: 'b', attached: true, total_amount: null, store: null, items_count: 1 },
+		]
+		const paid = () => renderToStaticMarkup(createElement(TripReceiptSummary, { mode, itemCount: 2, receipts })).match(/<h2[^>]*>Paid(?: so far)?<\/h2><p[^>]*>(.*?)<\/p>/)?.[1]
+		expect(paid()).toBe('—')
+		receipts[1].attached = false
+		expect(paid()).toBe('$41.12')
+	})
+	it.each(['active', 'completed'] as const)('sums confirmed attached totals in %s mode', mode => {
+		const html = renderToStaticMarkup(createElement(TripReceiptSummary, { mode, itemCount: 2, receipts: [
+			{ id: 'a', attached: true, total_amount: 82.5, store: null, items_count: 1 },
+			{ id: 'b', attached: true, total_amount: 41.12, store: null, items_count: 1 },
+			{ id: 'pending', attached: false, total_amount: 20, store: null, items_count: 1 },
+		] }))
+		expect(html).toContain('$123.62')
+		expect(html).not.toContain('$143.62')
+	})
 	it('does not offer attachment for a historical completed receipt with no lines', () => {
 		const html = renderToStaticMarkup(
 			createElement(TripReceiptSummary, {

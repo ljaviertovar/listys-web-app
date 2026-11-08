@@ -66,6 +66,26 @@ const render = async (searchParams: Record<string, string> = {}) =>
 	renderToStaticMarkup(await ShoppingRunPage({ params: Promise.resolve({ runId: 'run-1' }), searchParams: Promise.resolve(searchParams) }))
 
 describe('shopping session page estimate', () => {
+	it.each(['active', 'completed'] as const)('uses confirmed receipts instead of a saved trip total in %s mode', async status => {
+		vi.mocked(getShoppingSession).mockResolvedValue({ data: { ...session(status), total_amount: 999, receipts: [
+			{ id: 'r1', total_amount: 82.5, store: null, items_count: 1 },
+			{ id: 'r2', total_amount: 41.12, store: null, items_count: 1 },
+		] }, error: null } as never)
+		const html = await render()
+		expect(html.match(/<h2[^>]*>Paid(?: so far)?<\/h2><p[^>]*>(.*?)<\/p>/)?.[1]).toBe('$123.62')
+	})
+	it('excludes a priced unchecked item while preserving its row price and updates on recheck', async () => {
+		const data = session('active')
+		data.items[0].checked = false
+		vi.mocked(getShoppingSession).mockResolvedValue({ data, error: null } as never)
+		const empty = await render()
+		expect(empty).toContain('$0.00')
+		expect(empty).toContain('data-prices="{&quot;i1&quot;:3.5}"')
+		data.items[0].checked = true
+		expect(await render()).toContain('$3.50')
+		data.items[0].checked = false
+		expect(await render()).toContain('$0.00')
+	})
 	beforeEach(() => {
 		mocks.baseListItemReads.length = 0
 	})

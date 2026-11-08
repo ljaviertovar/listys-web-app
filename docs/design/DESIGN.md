@@ -1433,6 +1433,8 @@ repository's `data-testid` and test-location rules.
 
 ### 11.4 Current implementation gaps
 
+The active trip accumulator reuses the shopping summary pattern: its estimate covers checked items only, while pending rows retain their average prices. With known prices elsewhere in the trip, zero collected prices shows ≈ $0.00 and checked-item coverage; without any known prices it shows progress only. The HTML does not illustrate this zero/coverage edge. Base-list and Start Shopping estimates still cover the full list. Paid summaries in both modes use confirmed attachment totals (including corrections), not the original OCR amount; an unknown attached total keeps the paid amount unavailable.
+
 These are remaining implementation notes, not permission for two systems:
 
 1. **v2 surfaces and tokens (done, see 11.5):** `--background` is the `#F2F4F7` ground, `--secondary` the `#E9ECF0` button surface,

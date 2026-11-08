@@ -148,7 +148,7 @@ On first sign-in, the user has a base list named "Pantry" (localized) inside an 
 not affected.
 
 **FR-3: Show average price.**  
-Base items with an `average_price` display it; a session shows an estimated total from known prices.  
+Base items with an `average_price` display it. An active trip accumulates only the known average prices of checked items; checking adds and unchecking removes their contribution. Base-list and Start Shopping estimates still cover the full list. When the trip has known prices, its accumulator starts at zero with coverage of checked items; without any known prices it shows progress only. Receipt summaries sum confirmed attached receipt totals in active and completed trips, including corrections at attachment; pending receipts never contribute. An unknown attached total makes the paid amount unavailable.
 *Acceptance:* items without price data show nothing (no "$0"); the estimate is labelled as an estimate.
 
 ### Phase 2 — Flat lists (hide groups)

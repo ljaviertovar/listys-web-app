@@ -16,7 +16,7 @@ export function SessionSummaryCard(props: SessionSummaryCardProps) {
 	const testId = props.testId ?? 'session-summary-card'
 	if (props.mode === 'completed' && props.estimate.pricedCount <= 0) return null
 
-	const hasEstimate = estimate !== undefined && estimate.pricedCount > 0
+	const hasEstimate = estimate !== undefined
 	const percent = props.mode === 'active' && props.total > 0 ? Math.round((props.checked / props.total) * 100) : 0
 	const done = percent === 100
 
@@ -53,7 +53,7 @@ export function SessionSummaryCard(props: SessionSummaryCardProps) {
 						complete={done}
 					/>
 				</div> : null}
-				{estimate && estimate.pricedCount > 0 ? <>
+				{estimate ? <>
 					{!completed ? <div aria-hidden='true' className='h-px bg-border' /> : null}
 					<div className='flex flex-wrap items-end justify-between gap-3'>
 						<div className='flex min-w-0 flex-col gap-1'>
@@ -63,7 +63,7 @@ export function SessionSummaryCard(props: SessionSummaryCardProps) {
 							</span>
 						</div>
 						<span className='text-right text-xs leading-normal text-slate-500 dark:text-muted-foreground'>
-							{estimate.itemCount} {estimate.itemCount === 1 ? 'item' : 'items'} · {estimate.pricedCount} with known prices
+							{estimate.itemCount} {completed ? (estimate.itemCount === 1 ? 'item' : 'items') : 'checked'} · {estimate.pricedCount} with known prices
 						</span>
 					</div>
 				</> : null}
