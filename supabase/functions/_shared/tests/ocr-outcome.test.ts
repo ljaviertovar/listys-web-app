@@ -137,8 +137,12 @@ describe('decideOcrOutcome', () => {
 		expect(decideOcrOutcome([failed, failed], 0).status).toBe('failed')
 	})
 
-	it('completes a receipt whose photos were read and held no items', () => {
-		expect(decideOcrOutcome([read(0), read(0)], 0)).toEqual({ status: 'completed', partial: false })
+	it('fails a receipt with no product lines even when the provider read the photos successfully', () => {
+		expect(decideOcrOutcome([read(0), read(0)], 0)).toEqual({ status: 'failed', error: OCR_READ_FAILED_MESSAGE })
+		expect(decideOcrOutcome([], 0).status).toBe('failed')
+	})
+	it('keeps products found in another photo when one photo is empty', () => {
+		expect(decideOcrOutcome([read(0), read(2)], 2)).toEqual({ status: 'completed', partial: false })
 	})
 
 	it('completes with the items found when one photo failed, and says it is partial', () => {

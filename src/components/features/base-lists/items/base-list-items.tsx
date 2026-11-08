@@ -3,7 +3,7 @@
 import { useMemo } from 'react'
 import { TaskAdd01Icon } from '@hugeicons/core-free-icons'
 
-import { CategorySection, EmptyStateCard } from '@/components/commons'
+import { CategoryCollapseControl, CategorySection, EmptyStateCard, useCategorySectionExpansion } from '@/components/commons'
 import { AddItemSheet } from '@/components/features/list-items'
 import { UploadTicketDialog } from '@/components/features/tickets'
 import { groupByCategory } from '@/utils'
@@ -36,6 +36,8 @@ export function BaseListItems({ baseListId, items, isLocked = false, isOwner = t
 		() => groupByCategory([...items].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))),
 		[items],
 	)
+	const sectionDescriptors = groups.map(group => ({ id: `base-list-category-${group.key}`, defaultOpen: true }))
+	const expansion = useCategorySectionExpansion(sectionDescriptors)
 
 	if (items.length === 0) {
 		return (
@@ -66,28 +68,38 @@ export function BaseListItems({ baseListId, items, isLocked = false, isOwner = t
 			className='rounded-3xl bg-card p-3 shadow-card md:p-4'
 		>
 			{isLocked ? <BaseListLockedNotice /> : null}
-			{groups.map((group, index) => (
-				<CategorySection
-					key={group.key}
-					category={group.key}
-					title={group.title}
-					count={`${group.items.length} ${group.items.length === 1 ? 'item' : 'items'}`}
-					className={index === 0 ? 'border-t-0' : undefined}
-					testId={`base-list-category-${group.key}`}
-				>
-					<ul className='divide-y divide-slate-200/70 dark:divide-border'>
-						{group.items.map(item => (
-							<li key={item.id}>
-								<BaseListItemRow
+			<CategoryCollapseControl
+				allCollapsed={expansion.allCollapsed}
+				onToggle={expansion.toggleAll}
+				testId='base-list-category-collapse-control'
+			/>
+			{groups.map((group, index) => {
+				const id = `base-list-category-${group.key}`
+				return (
+					<CategorySection
+						key={group.key}
+						category={group.key}
+						title={group.title}
+						count={`${group.items.length} ${group.items.length === 1 ? 'item' : 'items'}`}
+						className={index === 0 ? 'border-t-0' : undefined}
+						open={expansion.isOpen(id, true)}
+						onOpenChange={open => expansion.onOpenChange(id, open)}
+						testId={id}
+					>
+						<ul className='divide-y divide-slate-200/70 dark:divide-border'>
+							{group.items.map(item => (
+								<li key={item.id}>
+									<BaseListItemRow
 									item={item}
 									isLocked={isLocked}
 									isOwner={isOwner}
-								/>
-							</li>
-						))}
-					</ul>
-				</CategorySection>
-			))}
+									/>
+								</li>
+							))}
+						</ul>
+					</CategorySection>
+				)
+			})}
 		</section>
 	)
 }

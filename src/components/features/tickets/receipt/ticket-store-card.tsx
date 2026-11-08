@@ -111,7 +111,7 @@ export function TicketStoreCard({ ticketId, store, storeSuggestion, storeName }:
 			className='flex flex-col gap-3 rounded-3xl bg-card p-3 shadow-card md:p-4'
 		>
 			<div className='flex items-start gap-3'>
-				<span className='flex size-9 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300'>
+				<span className='flex size-9 shrink-0 items-center justify-center rounded-xl bg-violet-100 text-violet-700 dark:bg-violet-500/20 dark:text-violet-300'>
 					<HugeiconsIcon
 						icon={Store01Icon}
 						strokeWidth={1.5}

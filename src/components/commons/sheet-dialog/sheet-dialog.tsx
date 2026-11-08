@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, type ReactNode } from 'react'
+import { useRef, type ComponentProps, type ReactNode } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Cancel01Icon } from '@hugeicons/core-free-icons'
 
@@ -14,6 +14,7 @@ import {
 	DialogTrigger,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { useDialogFocus } from '@/hooks'
 import { cn } from '@/utils'
 
@@ -34,6 +35,7 @@ interface SheetDialogProps {
 	autoFocus?: boolean
 	descriptionId?: string
 	ariaDescribedBy?: string
+	nested?: ComponentProps<typeof DialogContent>['nested']
 }
 
 /**
@@ -53,6 +55,7 @@ export function SheetDialog({
 	autoFocus = false,
 	descriptionId,
 	ariaDescribedBy,
+	nested,
 }: SheetDialogProps) {
 	const titleRef = useRef<HTMLHeadingElement>(null)
 	const { onOpenAutoFocus, onCloseAutoFocus } = useDialogFocus(titleRef, { autoFocus })
@@ -65,6 +68,7 @@ export function SheetDialog({
 			<DialogContent
 				hideClose
 				sheetOnPhones
+				nested={nested}
 				role={role}
 				aria-describedby={ariaDescribedBy}
 				data-testid={testId}
@@ -73,7 +77,7 @@ export function SheetDialog({
 				variant='sheet'
 				className={cn('sm:max-w-[520px]', className)}
 			>
-				<DialogHeader variant='sheet'>
+				<DialogHeader variant='sheet' className='shrink-0'>
 					<DialogTitle ref={titleRef} tabIndex={-1} variant='sheet'>
 						{title}
 					</DialogTitle>
@@ -97,7 +101,7 @@ export function SheetDialog({
 						</Button>
 					</DialogClose>
 				</DialogHeader>
-				{children}
+				<ScrollArea size='sheet' scrollHint className='min-h-0 flex-none'>{children}</ScrollArea>
 			</DialogContent>
 		</Dialog>
 	)

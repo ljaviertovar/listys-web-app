@@ -8,11 +8,15 @@ import {
 import { useActiveSessionStore } from '@/stores/active-session'
 import { cn, formatCurrency } from '@/utils'
 
+import type { ReceiptSelectionBreakdown } from './helpers/receipt-selection-breakdown'
+
 interface TicketSelectionBarProps {
 	count: number
 	total: number
 	onClear: () => void
 	onAdd: () => void
+	/** How many included lines add an item and how many update one, once the lines are compared with a list. */
+	breakdown?: ReceiptSelectionBreakdown | null
 	/** `card` sticks to the bottom of the items card; `panel` is the plain footer of the compare view's list. */
 	placement?: 'card' | 'panel'
 }
@@ -21,7 +25,7 @@ interface TicketSelectionBarProps {
  * What the ticked items add up to and the one thing to do with them. On phones it floats above the tab bar's raised upload
  * button (and above the active-session bar when one is showing) so it never covers them; from `lg`, where it is rendered inside the items card, it sticks to the bottom of that card.
  */
-export function TicketSelectionBar({ count, total, onClear, onAdd, placement = 'card' }: TicketSelectionBarProps) {
+export function TicketSelectionBar({ count, total, onClear, onAdd, breakdown = null, placement = 'card' }: TicketSelectionBarProps) {
 	const hasSessionBar = useActiveSessionStore(s => s.activeSession !== null)
 
 	if (count === 0) return null
@@ -45,10 +49,11 @@ export function TicketSelectionBar({ count, total, onClear, onAdd, placement = '
 					aria-live='polite'
 					className='text-sm leading-[1.2] font-semibold'
 				>
-					<b className='font-mono font-semibold tabular-nums'>{count}</b> selected
+					<b className='font-mono font-semibold tabular-nums'>{count}</b> included
 				</span>
 				<span className='font-mono text-xs leading-[1.2] font-medium text-slate-300 tabular-nums'>
 					{formatCurrency(total)}
+					{breakdown ? <span data-testid='ticket-selection-breakdown' className='whitespace-nowrap'> · {breakdown.added} new · {breakdown.updated} updated</span> : null}
 				</span>
 			</div>
 			<Button
@@ -64,7 +69,7 @@ export function TicketSelectionBar({ count, total, onClear, onAdd, placement = '
 				size='primary'
 				onClick={onAdd}
 			>
-				Add to a List
+				Add or Update
 			</Button>
 		</div>
 	)

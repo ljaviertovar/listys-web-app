@@ -16,11 +16,15 @@ import { MAX_IMAGES_PER_TICKET } from '@/lib/config/limits'
 
 import { UploadTicketPhotos } from './upload-ticket-photos'
 import { usePhotoPicker } from './hooks/use-photo-picker'
+import { buildUploadFormData } from './helpers/build-upload-form-data'
+import { getUploadSuccessOutcome } from './helpers/upload-success'
 
 interface Props {
 	onSuccess?: () => void
 	/** Photos the form starts with, for a dialog opened by dropping files on a tile. */
 	initialFiles?: File[]
+	/** Sent with the photos so the receipt remembers the trip it was uploaded from. */
+	shoppingSessionId?: string
 }
 
 export function UploadTicketProgress({ photoCount }: { photoCount: number }) {
@@ -39,7 +43,7 @@ export function UploadTicketProgress({ photoCount }: { photoCount: number }) {
 	)
 }
 
-export function UploadTicketForm({ onSuccess, initialFiles }: Props) {
+export function UploadTicketForm({ onSuccess, initialFiles, shoppingSessionId }: Props) {
 	const router = useRouter()
 	const photosId = useId()
 	const photosDescriptionId = useId()
@@ -83,10 +87,7 @@ export function UploadTicketForm({ onSuccess, initialFiles }: Props) {
 		setLoading(true)
 
 		try {
-			const formData = new FormData()
-			data.files.forEach(file => {
-				formData.append('files', file)
-			})
+			const formData = buildUploadFormData(data.files, shoppingSessionId)
 
 			const response = await fetch('/api/upload-ticket', {
 				method: 'POST',
@@ -100,12 +101,11 @@ export function UploadTicketForm({ onSuccess, initialFiles }: Props) {
 			}
 
 			const ticketId = result?.ticketId || result?.data?.id || result?.id || null
-			toast.success('Receipt uploaded', {
-				description: ticketId ? 'Opening your receipt…' : 'You can review its progress in your receipts.',
-			})
+			const outcome = getUploadSuccessOutcome({ ticketId, fromTrip: Boolean(shoppingSessionId) })
+			toast.success('Receipt uploaded', { description: outcome.toastDescription })
 			onSuccess?.()
-			if (ticketId) {
-				router.push(`/tickets/${ticketId}`)
+			if (outcome.openReceiptId) {
+				router.push(`/tickets/${outcome.openReceiptId}`)
 			}
 		} catch (err) {
 			console.error('Failed to upload receipt:', err)

@@ -1,6 +1,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { extractChatCompletionText, fetchWithRetry } from '../_shared/ocr-outcome.ts'
+import { decideOcrOutcome, extractChatCompletionText, fetchWithRetry } from '../_shared/ocr-outcome.ts'
+import { RECEIPT_LINE_ITEM_INSTRUCTIONS } from '../_shared/receipt-items.ts'
 import { parseOcrPayload, STORE_AND_TOTAL_INSTRUCTIONS, STORE_NAME_INSTRUCTIONS, TOTAL_INSTRUCTIONS } from '../_shared/receipt-store.ts'
 
 const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY')!
@@ -52,7 +53,7 @@ async function processImage(
     ? `IMPORTANT: Since this is part of a multi-image receipt:
        - Items at the edges might be partially visible or cut off
        - If an item appears incomplete (cut text, missing price), still include it
-       - The system will merge items from all images and remove duplicates automatically`
+       - The system only removes overlaps at photo boundaries; repeated product rows are preserved`
     : ''
 
   // The store name comes from the same request as the items: only the first photo, which carries the header, asks for it.
@@ -69,6 +70,8 @@ async function processImage(
   const prompt = `You are a receipt line-item extractor.
 
 ${positionContext}
+
+${RECEIPT_LINE_ITEM_INSTRUCTIONS}
 
 GOAL:
 Extract a COMPLETE list of purchased products from the image.
@@ -439,6 +442,15 @@ serve(async (req: Request) => {
       console.log(`Merged items: ${JSON.stringify(mergedItems, null, 2)}`)
     } catch (_e) {
       console.log('Merged items: (failed to stringify)')
+    }
+
+    const outcome = decideOcrOutcome(allItemsPerImage.map(items => ({ itemCount: items.length, failure: null })), mergedItems.length)
+    if (outcome.status === 'failed') {
+      await supabase.from('tickets').update({
+        ocr_status: 'failed', ocr_error: outcome.error, total_items: 0,
+        processed_at: new Date().toISOString(),
+      }).eq('id', ticketId)
+      return new Response(JSON.stringify({ error: outcome.error }), { status: 422, headers: { 'Content-Type': 'application/json' } })
     }
 
     // Insert items into database (RESPECT CURRENT SCHEMA)

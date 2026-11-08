@@ -5,7 +5,7 @@ import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react'
 
 import { Card } from '@/components/ui/card'
 import { cn } from '@/utils'
-import { RowIcon } from './row-icon'
+import { RowIcon } from '@/components/commons'
 import type { UpNextItem, UpNextKind } from './helpers/build-dashboard-model'
 
 // Warning, destructive and action tones of DESIGN.md §3.3. Each entry also carries its own text, so colour is never the only signal.

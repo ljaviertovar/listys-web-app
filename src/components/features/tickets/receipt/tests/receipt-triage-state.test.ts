@@ -44,9 +44,22 @@ describe('receipt triage state', () => {
 		expect(createEmptyTicketSelection().size).toBe(0)
 	})
 
-	it('uses category view for loading, failed and unavailable states, and triage only when ready', () => {
+	it('uses category view for loading, failed and unavailable states, and triage when ready or switching lists', () => {
 		expect((['loading', 'failed', 'unavailable'] as ReceiptTriageStatus[]).map(receiptItemsView)).toEqual(['categories', 'categories', 'categories'])
 		expect(receiptItemsView('ready')).toBe('triage')
+		expect(receiptItemsView('switching')).toBe('triage')
+	})
+
+	it('switches to another list keeping the choices, and a failed switch still points at the list that was asked for', () => {
+		const pantry = { id: 'list-1', name: 'Pantry' }
+		const office = { id: 'list-2', name: 'Office' }
+		const ready = receiptTriageReducer(createReceiptTriageState(true), { type: 'ready', baseList: pantry, baseLists: [pantry, office], matches: [] })
+
+		const switching = receiptTriageReducer(ready, { type: 'switching', baseList: office })
+		const failed = receiptTriageReducer(switching, { type: 'failed' })
+
+		expect(switching).toMatchObject({ status: 'switching', baseList: office, baseLists: [pantry, office] })
+		expect(failed).toMatchObject({ status: 'failed', baseList: office, baseLists: [pantry, office] })
 	})
 
 	it('bulk selects only matched rows and category-view selection remains additive', () => {

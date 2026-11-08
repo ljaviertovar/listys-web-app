@@ -1,5 +1,17 @@
 import { apiDelete, apiGet, apiPatch, apiPost } from '@/lib/api/client'
 
+/** A receipt that can still be attached to a trip. `selectable: false` carries the reason it cannot be chosen. */
+export type AvailableReceipt = {
+  id: string
+  created_at: string | null
+  store: { id: string; name: string } | null
+  total_amount: number | null
+  item_count: number
+  selectable: boolean
+  /** Legacy reason retained in the type for callers; the endpoint now returns null. */
+  reason: 'STORE_MISMATCH' | null
+}
+
 export async function createShoppingSession(data: unknown) {
   const res = await apiPost('/api/v1/shopping-sessions', data)
   if (res.error && res.details && typeof res.details === 'object' && 'activeSessionId' in res.details) {
@@ -22,6 +34,10 @@ export async function getActiveShoppingSession() {
 
 export async function getShoppingSession(id: string) {
   return apiGet(`/api/v1/shopping-sessions/${id}`)
+}
+
+export async function getAvailableReceipts(sessionId: string) {
+  return apiGet<AvailableReceipt[]>(`/api/v1/shopping-sessions/${sessionId}/available-receipts`)
 }
 
 export async function getShoppingHistory() {

@@ -1,12 +1,13 @@
 'use client'
 
-import { useRef, useState, type ReactNode } from 'react'
+import { useMemo, useRef, useState, type ReactNode } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
 import { cn } from '@/utils'
 import type { TicketItem } from '@/types'
 
+import { LinkItemDialog } from '../add-to-list/link-item-dialog'
 import { MergeToBaseListDialog } from '../add-to-list/merge-to-base-list-dialog'
 import { TicketCompareDialog } from './ticket-compare-dialog'
 import { TicketItemsCard } from './ticket-items-card'
@@ -17,6 +18,7 @@ import { usePhotoView } from '../photo/hooks/use-photo-view'
 import { useTicketImageUrls } from '../photo/hooks/use-ticket-image-urls'
 import { useTicketSelection } from './hooks/use-ticket-selection'
 import { useReceiptTriage } from './hooks/use-receipt-triage'
+import { buildSelectionBreakdown } from './helpers/receipt-selection-breakdown'
 import type { TicketStatus } from '../helpers/ticket-status'
 import { getReceiptAttachmentVisibility } from '../attach/helpers/receipt-attachment-visibility'
 
@@ -28,9 +30,11 @@ interface Props {
 	status: TicketStatus
 	ocrError?: string | null
 	storeConfirmed: boolean
-	attachedSession?: { id: string; name: string; status: string } | null
+	attachedSession?: { id: string; name: string; status: string | null } | null
 	/** What goes above the photo and the items, full width: the store the receipt was read at, rendered on the server by the page. */
 	top?: ReactNode
+	/** The origin-trip action comes before photos, store confirmation and extracted lines. */
+	before?: ReactNode
 	/** What follows the items (the summary and the receipt's actions), rendered on the server by the page. */
 	children?: ReactNode
 }
@@ -40,7 +44,7 @@ interface Props {
  * items from `lg`) and the two photo views, the items with their selection, and the bar and dialog that act on it. The compare view
  * edits the very selection the page shows, and the panel and the full-screen viewer share the photo being looked at.
  */
-export function TicketReview({ ticketId, title, imagePaths, items, status, ocrError, storeConfirmed, attachedSession = null, top, children }: Props) {
+export function TicketReview({ ticketId, title, imagePaths, items, status, ocrError, storeConfirmed, attachedSession = null, top, before, children }: Props) {
 	const router = useRouter()
 	const selection = useTicketSelection(items)
 	const photos = useTicketImageUrls(imagePaths)
@@ -53,11 +57,16 @@ export function TicketReview({ ticketId, title, imagePaths, items, status, ocrEr
 	const [attachedOverride, setAttachedOverride] = useState<{ id: string; name: string; status: string } | null>(null)
 	const attached = attachedSession ?? attachedOverride
 	const triage = useReceiptTriage({ ticketId, items, status, attached: !!attached })
+	const breakdown = useMemo(
+		() => buildSelectionBreakdown(triage.status === 'ready' ? triage.triage : [], selection.selectedIds),
+		[triage.status, triage.triage, selection.selectedIds],
+	)
 
 	const canSelect = status === 'completed'
 	const attachmentVisibility = getReceiptAttachmentVisibility(!!attached)
 	const canCompare = canSelect && items.length > 0
 	const hasPhotos = imagePaths.length > 0
+	const contentRow = before ? top ? 'lg:row-start-3' : 'lg:row-start-2' : top ? 'lg:row-start-2' : 'lg:row-start-1'
 
 	const openCompare = () => {
 		setViewerOpen(false)
@@ -78,6 +87,7 @@ export function TicketReview({ ticketId, title, imagePaths, items, status, ocrEr
 	const handleMergeSuccess = (baseListId: string) => {
 		setMergeOpen(false)
 		selection.clear()
+		triage.clearDecisions()
 		if (baseListId) {
 			router.push(`/base-lists/${baseListId}/edit`)
 		} else {
@@ -90,6 +100,7 @@ export function TicketReview({ ticketId, title, imagePaths, items, status, ocrEr
 			data-testid='ticket-review'
 			className='flex flex-col gap-4 lg:grid lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:items-start lg:gap-6'
 		>
+			{before ? <div className='min-w-0 lg:col-span-2 lg:row-start-1'>{before}</div> : null}
 			{hasPhotos ? (
 				<div className='lg:hidden'>
 					<TicketPhotoRow
@@ -101,9 +112,9 @@ export function TicketReview({ ticketId, title, imagePaths, items, status, ocrEr
 				</div>
 			) : null}
 
-			{top ? <div className='min-w-0 lg:col-span-2 lg:row-start-1'>{top}</div> : null}
+			{top ? <div className={cn('min-w-0 lg:col-span-2', before ? 'lg:row-start-2' : 'lg:row-start-1')}>{top}</div> : null}
 
-			<div className={cn('min-w-0 lg:col-start-1', top ? 'lg:row-start-2' : 'lg:row-start-1')}>
+			<div className={cn('min-w-0 lg:col-start-1', contentRow)}>
 				<TicketItemsCard
 					ticketId={ticketId}
 					items={items}
@@ -118,6 +129,7 @@ export function TicketReview({ ticketId, title, imagePaths, items, status, ocrEr
 								total={selection.total}
 								onClear={selection.clear}
 								onAdd={() => setMergeOpen(true)}
+								breakdown={breakdown}
 							/>
 						) : null
 					}
@@ -125,7 +137,7 @@ export function TicketReview({ ticketId, title, imagePaths, items, status, ocrEr
 			</div>
 
 			{/* From `lg` the photo and the summary stay in view while the long list scrolls beside them. */}
-			<div className={cn('flex min-w-0 flex-col gap-4 lg:sticky lg:top-4 lg:col-start-2', top ? 'lg:row-start-2' : 'lg:row-start-1')}>
+			<div className={cn('flex min-w-0 flex-col gap-4 lg:sticky lg:top-4 lg:col-start-2', contentRow)}>
 				{hasPhotos ? (
 					<div className='hidden lg:block'>
 						<TicketPhotoPanel
@@ -168,8 +180,11 @@ export function TicketReview({ ticketId, title, imagePaths, items, status, ocrEr
 					triage={triage}
 					canSelect={canSelect}
 					onAddToList={() => setMergeOpen(true)}
+					breakdown={breakdown}
 				/>
 			) : null}
+
+			{triage.status === 'ready' ? <LinkItemDialog {...triage.actions.linkDialog} /> : null}
 
 			{attachmentVisibility.showMergeDialog ? <MergeToBaseListDialog
 				open={mergeOpen}
@@ -178,6 +193,7 @@ export function TicketReview({ ticketId, title, imagePaths, items, status, ocrEr
 				defaultBaseListId={triage.baseList?.id}
 				selectedItemIds={Array.from(selection.selectedIds)}
 				lines={items}
+				initialDecisions={triage.baseList ? { baseListId: triage.baseList.id, decisions: triage.decisions } : null}
 				storeConfirmed={storeConfirmed}
 				onSuccess={handleMergeSuccess}
 				onReceiptAttached={sessionId => {

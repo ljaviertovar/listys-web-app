@@ -2,9 +2,10 @@
 
 import { useId, useMemo, useState, type FormEvent } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Loading03Icon } from '@hugeicons/core-free-icons'
+import { InformationCircleIcon, Loading03Icon } from '@hugeicons/core-free-icons'
 
 import { SearchableChoiceList, SheetDialog, type ChoiceOption } from '@/components/commons'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { DialogFooter } from '@/components/ui/dialog'
 import type { Store } from '@/types'
@@ -188,12 +189,19 @@ function StorePickerBody({
 			)}
 
 			{footnote ? (
-					<p
+					<Alert
+						variant='info'
+						role='note'
 						data-testid='store-picker-footnote'
-						className='text-xs leading-normal text-slate-500 dark:text-muted-foreground'
+						className='items-center'
 					>
-						{footnote}
-					</p>
+						<HugeiconsIcon
+							icon={InformationCircleIcon}
+							strokeWidth={1.8}
+							aria-hidden='true'
+						/>
+						<AlertDescription>{footnote}</AlertDescription>
+					</Alert>
 				) : null}
 
 				{error ? (

@@ -1,16 +1,23 @@
 'use client'
 
 import { useId } from 'react'
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Search01Icon } from '@hugeicons/core-free-icons'
 
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { cn } from '@/utils'
 
 export interface ChoiceOption {
 	value: string
 	label: string
 	/** A short fact at the end of the row, in mono ("3 receipts", "New store"). */
 	detail?: string
+	/** A second line under the label, for what tells two similar rows apart or why a row cannot be chosen. */
+	note?: string
+	/** The row stays listed but cannot be chosen. */
+	disabled?: boolean
 }
 
 interface SearchableChoiceListProps {
@@ -24,6 +31,7 @@ interface SearchableChoiceListProps {
 	/** Announced politely above the rows: how many match, or why there are none. */
 	status: string
 	disabled?: boolean
+	showSearchIcon?: boolean
 	testId: string
 }
 
@@ -41,6 +49,7 @@ export function SearchableChoiceList({
 	onValueChange,
 	status,
 	disabled = false,
+	showSearchIcon = false,
 	testId,
 }: SearchableChoiceListProps) {
 	const searchId = useId()
@@ -53,17 +62,21 @@ export function SearchableChoiceList({
 		>
 			<div className='flex flex-col gap-2'>
 				<Label htmlFor={searchId}>{searchLabel}</Label>
-				<Input
-					id={searchId}
-					type='search'
-					size='lg'
-					autoComplete='off'
-					maxLength={100}
-					value={query}
-					onChange={event => onQueryChange(event.target.value)}
-					placeholder={placeholder}
-					disabled={disabled}
-				/>
+				<div className='relative'>
+					{showSearchIcon ? <HugeiconsIcon icon={Search01Icon} className='pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground' aria-hidden='true' /> : null}
+					<Input
+						id={searchId}
+						type='search'
+						size='lg'
+						adornment={showSearchIcon ? 'start' : 'none'}
+						autoComplete='off'
+						maxLength={100}
+						value={query}
+						onChange={event => onQueryChange(event.target.value)}
+						placeholder={placeholder}
+						disabled={disabled}
+					/>
+				</div>
 			</div>
 			<p
 				id={statusId}
@@ -95,21 +108,34 @@ export function SearchableChoiceList({
 
 interface ChoiceRowProps {
 	option: ChoiceOption
+	variant?: 'default' | 'card'
+	testId?: string
 }
 
-function ChoiceRow({ option }: ChoiceRowProps) {
+/** One radio row of a choice list; also used on its own by lists that do not need the search field. */
+export function ChoiceRow({ option, variant = 'default', testId = `choice-${option.value}` }: ChoiceRowProps) {
 	const id = useId()
 	return (
 		<label
 			htmlFor={id}
-			data-testid='choice-option'
-			className='flex min-h-12 cursor-pointer items-center gap-3 rounded-xl px-3 py-2 hover:bg-muted has-data-[state=checked]:bg-accent'
+			data-testid={testId}
+			data-disabled={option.disabled ? '' : undefined}
+			className={cn(
+				'flex min-h-12 items-center gap-3 rounded-xl px-3 py-2',
+				variant === 'card' && 'min-h-14 rounded-2xl border border-slate-200 bg-card px-3.5 py-3 has-data-[state=checked]:border-primary has-data-[state=checked]:bg-blue-50 has-data-[state=checked]:ring-1 has-data-[state=checked]:ring-primary dark:border-border dark:has-data-[state=checked]:bg-blue-500/10',
+				option.disabled ? 'cursor-not-allowed opacity-50' : variant === 'card' ? 'cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-500/10' : 'cursor-pointer hover:bg-muted has-data-[state=checked]:bg-accent',
+			)}
 		>
 			<RadioGroupItem
 				id={id}
 				value={option.value}
+				size={variant === 'card' ? 'card' : 'default'}
+				disabled={option.disabled}
 			/>
-			<span className='min-w-0 flex-1 break-words text-sm font-medium'>{option.label}</span>
+			<span className='flex min-w-0 flex-1 flex-col'>
+				<span className='break-words text-sm font-medium'>{option.label}</span>
+				{option.note ? <span className='break-words text-xs text-slate-500 dark:text-muted-foreground'>{option.note}</span> : null}
+			</span>
 			{option.detail ? (
 				<span className='shrink-0 font-mono text-xs text-slate-500 tabular-nums dark:text-muted-foreground'>{option.detail}</span>
 			) : null}

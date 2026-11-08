@@ -102,8 +102,8 @@ test.describe('Shopping Session E2E', () => {
     await expect(page.locator('text=/no active.*session/i, button:has-text("Start Shopping")')).toBeVisible()
   })
 
-  test('should filter the shopping history by list', async ({ page }) => {
-    await page.goto(`${BASE_URL}/shopping-history`)
+  test('should filter the trips by list', async ({ page }) => {
+    await page.goto(`${BASE_URL}/trips`)
 
     // One screen with every trip and a filter that offers only lists with trips
     const filter = page.locator('[data-testid="history-list-filter"]')
@@ -119,14 +119,14 @@ test.describe('Shopping Session E2E', () => {
     await page.getByRole('option', { name: 'All lists' }).click()
     await expect(page).not.toHaveURL(/list=/)
 
-    // A saved link to the history of a group opens the same screen
+    // Saved links to the old history, or to the history of a group, open the same screen
     await page.goto(`${BASE_URL}/shopping-history/00000000-0000-4000-8000-000000000000`)
-    await expect(page).toHaveURL(`${BASE_URL}/shopping-history`)
+    await expect(page).toHaveURL(`${BASE_URL}/trips`)
   })
 
-  test('should view shopping history', async ({ page }) => {
-    // Navigate to history page
-    await page.goto(`${BASE_URL}/shopping-history`)
+  test('should view the trips', async ({ page }) => {
+    // Navigate to the trips page
+    await page.goto(`${BASE_URL}/trips`)
 
     // Should see list of past sessions
     expect(await page.locator('[data-testid="history-item"], [data-testid="session-card"]').count()).toBeGreaterThan(0)

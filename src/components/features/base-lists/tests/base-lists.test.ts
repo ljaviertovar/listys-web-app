@@ -51,6 +51,18 @@ describe('BaseListsList cards', () => {
 })
 
 describe('BaseListItems', () => {
+	it('wires the collapse control to every category section', () => {
+		const html = renderToStaticMarkup(createElement(BaseListItems, {
+			baseListId: 'l1',
+			items: [item({ id: 'milk', category: 'Dairy' }), item({ id: 'apples', category: 'Produce', name: 'Apples' })],
+		}))
+
+		expect(html).toContain('data-testid="base-list-category-collapse-control"')
+		expect(html).toContain('data-testid="base-list-category-Dairy"')
+		expect(html).toContain('data-testid="base-list-category-Produce"')
+		expect(html).toMatch(/data-testid="base-list-category-Dairy"[\s\S]*?aria-expanded="true"/)
+	})
+
 	it('disables the row menus while the list is being shopped', () => {
 		const html = renderToStaticMarkup(createElement(BaseListItems, { baseListId: 'l1', items: [item({})], isLocked: true }))
 

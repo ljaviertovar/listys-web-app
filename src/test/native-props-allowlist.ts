@@ -34,4 +34,10 @@ export const GUARD_ALLOWLIST: GuardException[] = [
 		tag: 'button',
 		reason: 'The remove control is a 44px hit area around a 24px dot drawn on the photo corner; the visible part is the inner span, not the button.',
 	},
+	{
+		file: 'components/features/tickets/upload/upload-ticket-photos.tsx',
+		tag: 'input',
+		tokens: ['opacity-0'],
+		reason: 'The native file input overlays the drop target so device taps reach the file control itself; transparency keeps its native surface from obscuring the designed dropzone.',
+	},
 ]

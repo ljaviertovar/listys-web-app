@@ -4,7 +4,11 @@ import type { ReactNode, Ref } from 'react'
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react'
 import { Delete02Icon, Edit02Icon } from '@hugeicons/core-free-icons'
 
+import { cn } from '@/utils'
+
 import { ActionLink } from '../action-link/action-link'
+import { DataLine } from '../data-line/data-line'
+import { InlineCounter } from '../inline-counter/inline-counter'
 import { RowMenu, type RowMenuAction } from '../row-menu/row-menu'
 
 type EntityCardMenu =
@@ -28,9 +32,11 @@ interface EntityCardProps {
 	/** Where the footer link goes; a card with nothing to open leaves it out and has no link. */
 	href?: string
 	icon: IconSvgElement
+	/** The icon tile's colour: blue for a list, violet for a store. */
+	tone?: 'default' | 'store'
 	title: string
 	description?: string | null
-	/** A small label next to the title (a list's Default chip). */
+	/** The classification row under the note: the card's tags and entities (a list's Default tag). */
 	badge?: ReactNode
 	/** One quiet line under the description (when the list was last shopped, who it is shared with). */
 	meta?: string | null
@@ -54,6 +60,7 @@ interface EntityCardProps {
 export function EntityCard({
 	href,
 	icon,
+	tone = 'default',
 	title,
 	description,
 	badge,
@@ -72,8 +79,15 @@ export function EntityCard({
 			data-testid={testId}
 			className='flex flex-col gap-2 rounded-3xl bg-card p-3 shadow-card md:gap-3 md:p-4'
 		>
-			<div className='flex items-start gap-3'>
-				<span className='flex size-9 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300'>
+			<div className='flex items-center gap-3'>
+				<span
+					className={cn(
+						'flex size-9 shrink-0 items-center justify-center rounded-xl',
+						tone === 'store'
+							? 'bg-violet-100 text-violet-700 dark:bg-violet-500/20 dark:text-violet-300'
+							: 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300',
+					)}
+				>
 					<HugeiconsIcon
 						icon={icon}
 						strokeWidth={1.5}
@@ -81,16 +95,7 @@ export function EntityCard({
 						className='size-4.5'
 					/>
 				</span>
-				<div className='flex min-w-0 flex-1 flex-col'>
-					<div className='flex min-w-0 flex-wrap items-center gap-x-2'>
-						<h2 className='break-words font-display text-base leading-[1.5] font-semibold'>{title}</h2>
-						{badge}
-					</div>
-					{description ? (
-						<p className='break-words text-sm leading-[1.4] text-slate-500 dark:text-muted-foreground'>{description}</p>
-					) : null}
-					{meta ? <p className='text-xs leading-[1.4] text-slate-500 dark:text-muted-foreground'>{meta}</p> : null}
-				</div>
+				<h2 className='min-w-0 flex-1 break-words font-display text-base leading-[1.5] font-semibold'>{title}</h2>
 				{menu ? (
 					<RowMenu
 						label={menu.label}
@@ -109,19 +114,30 @@ export function EntityCard({
 					/>
 				) : null}
 			</div>
+			{description || badge || meta ? (
+				<div className='flex flex-col gap-2.5'>
+					{description ? (
+						<p className='break-words text-sm leading-[1.4] text-slate-600 dark:text-muted-foreground'>{description}</p>
+					) : null}
+					{badge ? <div className='flex flex-wrap items-center gap-x-2.5 gap-y-1.5'>{badge}</div> : null}
+					{meta ? (
+						<DataLine testId={`${testId}-data`}>{meta}</DataLine>
+					) : null}
+				</div>
+			) : null}
 			<div className='flex items-center justify-between gap-3 border-t border-slate-100 pt-3 dark:border-border'>
-				<span className='text-xs leading-none text-slate-500 dark:text-muted-foreground'>
-					{count === null ? (
-						'Count unavailable'
-					) : count === 0 ? (
-						`No ${emptyLabel} yet`
-					) : (
-						<>
-							<b className='font-mono font-semibold text-foreground tabular-nums'>{count}</b>{' '}
-							{count === 1 ? unit.one : unit.many}
-						</>
-					)}
-				</span>
+				{count !== null && count > 0 ? (
+					<InlineCounter
+						count={count}
+						one={unit.one}
+						many={unit.many}
+						testId={`${testId}-count`}
+					/>
+				) : (
+					<span className='text-sm leading-none text-slate-600 dark:text-muted-foreground'>
+						{count === null ? 'Count unavailable' : `No ${emptyLabel} yet`}
+					</span>
+				)}
 				{footerAction ?? (href && linkLabel ? (
 					<ActionLink href={href} aria-label={`${linkLabel} in ${title}`} className='shrink-0'>
 						{linkLabel}

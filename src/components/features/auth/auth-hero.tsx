@@ -55,7 +55,7 @@ export function AuthHero({ mode }: { mode: AuthMode }) {
 						{copy.hero.benefits.map(benefit => (
 							<li
 								key={benefit}
-								className='flex items-center gap-3 text-[15px] leading-snug font-medium'
+								className='flex items-center gap-3 text-base leading-snug font-medium'
 							>
 								<span
 									aria-hidden='true'

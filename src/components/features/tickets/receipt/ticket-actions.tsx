@@ -4,56 +4,25 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Delete02Icon, Refresh04Icon, Loading03Icon } from '@hugeicons/core-free-icons'
+import { Refresh04Icon, Loading03Icon } from '@hugeicons/core-free-icons'
 
 import { Button } from '@/components/ui/button'
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogMedia,
-	AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
-import { deleteTicket, retryTicketOCR } from '@/lib/api/endpoints'
+import { retryTicketOCR } from '@/lib/api/endpoints'
 import type { Ticket } from '@/types'
+import { DeleteReceiptButton } from './delete-receipt-button'
 
 interface Props {
-	ticket: Ticket
+	ticket: Pick<Ticket, 'id' | 'ocr_status'> & { ocr_attempts?: number | null }
 	/** A receipt that finished without items can be read again too. */
 	allowRetry?: boolean
+	returnHref?: string
+	onRetrySuccess?: () => void
+	onDeleted?: () => void
 }
 
-export function TicketActions({ ticket, allowRetry = false }: Props) {
-	const [showDeleteDialog, setShowDeleteDialog] = useState(false)
-	const [deleting, setDeleting] = useState(false)
+export function TicketActions({ ticket, allowRetry = false, returnHref, onRetrySuccess, onDeleted }: Props) {
 	const [retrying, setRetrying] = useState(false)
 	const router = useRouter()
-
-	const handleDelete = async () => {
-		setDeleting(true)
-		try {
-			const { error } = await deleteTicket(ticket.id)
-			if (error) {
-				toast.error('Could not delete receipt', {
-					description: 'Check your connection and try again.',
-				})
-				return
-			}
-			toast.success('Receipt deleted')
-			router.push('/tickets')
-		} catch (err) {
-			console.error('Failed to delete ticket:', err)
-			toast.error('Could not delete receipt', {
-				description: 'Check your connection and try again.',
-			})
-		} finally {
-			setDeleting(false)
-		}
-	}
 
 	const handleRetry = async () => {
 		setRetrying(true)
@@ -66,6 +35,7 @@ export function TicketActions({ ticket, allowRetry = false }: Props) {
 				return
 			}
 			toast.success('Reading receipt again')
+			onRetrySuccess?.()
 			router.refresh()
 		} catch (err) {
 			console.error('Failed to retry OCR:', err)
@@ -83,7 +53,7 @@ export function TicketActions({ ticket, allowRetry = false }: Props) {
 
 	// For stuck tickets in processing state, show delete button with a warning
 	// (ocr_attempts will be set by the auto-fail function if truly stuck)
-	const isStuckProcessing = ticket.ocr_status === 'processing' && ((ticket as Ticket & { ocr_attempts?: number | null }).ocr_attempts ?? 0) >= 2 // If 2+ attempts and still processing, likely stuck
+	const isStuckProcessing = ticket.ocr_status === 'processing' && (ticket.ocr_attempts ?? 0) >= 2 // If 2+ attempts and still processing, likely stuck
 
 	const deleteWarningMessage = isStuckProcessing
 		? 'This receipt appears to be stuck in processing. You can delete it and try uploading again with a clearer photo.'
@@ -120,64 +90,7 @@ export function TicketActions({ ticket, allowRetry = false }: Props) {
 			)}
 
 			{/* Allow delete for failed/completed tickets, and stuck processing tickets */}
-			{(ticket.ocr_status !== 'processing' || isStuckProcessing) && (
-				<Button
-					variant='destructive-soft'
-					size='primary'
-					onClick={() => setShowDeleteDialog(true)}
-					className='w-full'
-				>
-					<HugeiconsIcon
-						icon={Delete02Icon}
-						strokeWidth={2}
-						className='h-4 w-4'
-					/>
-					Delete Receipt
-				</Button>
-			)}
-
-			<AlertDialog
-				open={showDeleteDialog}
-				onOpenChange={setShowDeleteDialog}
-			>
-				<AlertDialogContent size='sm'>
-					<AlertDialogHeader>
-						<AlertDialogMedia tone='destructive'>
-							<HugeiconsIcon
-								icon={Delete02Icon}
-								strokeWidth={2}
-								className='h-4 w-4'
-							/>
-						</AlertDialogMedia>
-						<AlertDialogTitle variant='strong' className='truncate'>
-							Delete Receipt?
-						</AlertDialogTitle>
-						<AlertDialogDescription>{deleteWarningMessage}</AlertDialogDescription>
-					</AlertDialogHeader>
-					<AlertDialogFooter>
-						<AlertDialogCancel variant={'outline'}>Cancel</AlertDialogCancel>
-						<AlertDialogAction
-							onClick={handleDelete}
-							disabled={deleting}
-							variant={'destructive'}
-							className='flex-1'
-						>
-							{deleting ? (
-								<>
-									<HugeiconsIcon
-										icon={Loading03Icon}
-										strokeWidth={2}
-										className='h-4 w-4 animate-spin motion-reduce:animate-none'
-									/>
-									Deleting…
-								</>
-							) : (
-								'Delete'
-							)}
-						</AlertDialogAction>
-					</AlertDialogFooter>
-				</AlertDialogContent>
-			</AlertDialog>
+			{(ticket.ocr_status !== 'processing' || isStuckProcessing) && <DeleteReceiptButton ticketId={ticket.id} returnHref={returnHref} onDeleted={onDeleted} warning={deleteWarningMessage} />}
 		</div>
 	)
 }

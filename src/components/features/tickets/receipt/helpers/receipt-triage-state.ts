@@ -11,6 +11,8 @@ export type ReceiptTriageState = {
 
 export type ReceiptTriageAction =
 	| { type: 'loading' }
+	/** Another target list was chosen: its comparison is on its way, and the screen keeps the triage layout meanwhile. */
+	| { type: 'switching'; baseList: NonNullable<TicketMatchesMeta['base_list']> }
 	| { type: 'ready'; baseList: TicketMatchesMeta['base_list']; baseLists: BaseList[]; matches: TicketItemMatch[] }
 	| { type: 'failed' }
 	| { type: 'unavailable' }
@@ -23,6 +25,8 @@ export function receiptTriageReducer(state: ReceiptTriageState, action: ReceiptT
 	switch (action.type) {
 		case 'loading':
 			return { ...state, status: 'loading' }
+		case 'switching':
+			return { ...state, status: 'switching', baseList: action.baseList }
 		case 'ready':
 			return { status: 'ready', baseList: action.baseList, baseLists: action.baseLists, matches: action.matches }
 		case 'failed':

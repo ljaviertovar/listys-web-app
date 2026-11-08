@@ -13,19 +13,25 @@ import { AddItemForm, type AddItemTarget } from './add-item-form'
 interface AddItemSheetProps extends Omit<ButtonProps, 'children'> {
 	target: AddItemTarget
 	isLocked?: boolean
+	open?: boolean
+	onOpenChange?: (open: boolean) => void
+	/** Omits the default button when another control, such as a menu item, opens the sheet. */
+	trigger?: null
 }
 
 /** "Add Item": the button and the sheet with the form that adds an item to a base list or to a shopping session. */
-export function AddItemSheet({ target, isLocked = false, ...buttonProps }: AddItemSheetProps) {
-	const [open, setOpen] = useState(false)
+export function AddItemSheet({ target, isLocked = false, open: controlledOpen, onOpenChange, trigger, ...buttonProps }: AddItemSheetProps) {
+	const [ownOpen, setOwnOpen] = useState(false)
+	const open = controlledOpen ?? ownOpen
+	const setOpen = onOpenChange ?? setOwnOpen
 
 	return (
 		<SheetDialog
 			open={open}
 			onOpenChange={setOpen}
-			trigger={
+			trigger={trigger === null ? undefined : (
 				<Button
-					variant='secondary'
+					variant='outline'
 					size='primary'
 					{...buttonProps}
 					disabled={isLocked}
@@ -39,7 +45,7 @@ export function AddItemSheet({ target, isLocked = false, ...buttonProps }: AddIt
 					/>
 					Add Item
 				</Button>
-			}
+			)}
 			title='Add New Item'
 			description={
 				target.context === 'base-list'

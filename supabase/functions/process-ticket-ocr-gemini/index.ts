@@ -2,6 +2,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { encode as base64Encode } from 'https://deno.land/std@0.168.0/encoding/base64.ts'
 import { decideOcrOutcome, extractGeminiText, fetchWithRetry } from '../_shared/ocr-outcome.ts'
+import { RECEIPT_LINE_ITEM_INSTRUCTIONS } from '../_shared/receipt-items.ts'
 import { parseOcrPayload, STORE_AND_TOTAL_INSTRUCTIONS, STORE_NAME_INSTRUCTIONS, TOTAL_INSTRUCTIONS } from '../_shared/receipt-store.ts'
 
 const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY')!
@@ -83,6 +84,7 @@ async function processImage(
 
   const prompt = `You are a strict receipt extractor. Extract every product into JSON.
   RULES: Never use null for quantity/unit (default to 1 and "unit").
+  ${RECEIPT_LINE_ITEM_INSTRUCTIONS}
   ${responseShape}
   ITEM SCHEMA: {"name": "string", "category": "string", "quantity": number, "unit": "string", "price": number|null}
   ${positionContext}

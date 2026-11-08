@@ -6,6 +6,7 @@ import {
 	CleanIcon,
 	FishFoodIcon,
 	Home01Icon,
+	Invoice01Icon,
 	JarIcon,
 	Leaf01Icon,
 	Package01Icon,
@@ -39,6 +40,7 @@ const CATEGORY_ICONS: Record<string, IconSvgElement> = {
 	Home: Home01Icon,
 	Apparel: TShirtIcon,
 	'Natural Foods': Leaf01Icon,
+	Receipts: Invoice01Icon,
 	'Bulk Food': ShoppingBag01Icon,
 	Grocery: ShoppingBag01Icon,
 }

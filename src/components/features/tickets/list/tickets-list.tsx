@@ -1,7 +1,7 @@
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Invoice01Icon } from '@hugeicons/core-free-icons'
 
-import { ActionLink } from '@/components/commons'
+import { ActionLink, DataLine, InlineCounter } from '@/components/commons'
 import { cn } from '@/utils'
 import { MAX_IMAGES_PER_TICKET, MAX_TICKET_IMAGE_MB } from '@/lib/config/limits'
 
@@ -45,10 +45,12 @@ function StatusNote({ status, itemsCount }: { status: TicketStatus; itemsCount: 
 
 	if (status === 'completed') {
 		return (
-			<span className={NOTE}>
-				<b className='font-mono text-sm font-semibold text-foreground tabular-nums'>{itemsCount}</b>{' '}
-				{itemsCount === 1 ? 'item' : 'items'}
-			</span>
+			<InlineCounter
+				count={itemsCount}
+				one='item'
+				many='items'
+				testId='ticket-card-count'
+			/>
 		)
 	}
 
@@ -68,7 +70,7 @@ function StatusNote({ status, itemsCount }: { status: TicketStatus; itemsCount: 
 
 /** A receipt in the list: who it is, when it was uploaded, its status chip and one line about where it stands. */
 export function TicketCard({ id, storeName, status, itemsCount, uploadedLabel }: TicketCardProps) {
-	const ticketStatus = toTicketStatus(status)
+	const ticketStatus = toTicketStatus(status, itemsCount)
 	// Only a receipt that has finished (or failed) has details worth a labelled link.
 	const showDetails = ticketStatus === 'completed' || ticketStatus === 'failed'
 
@@ -93,9 +95,7 @@ export function TicketCard({ id, storeName, status, itemsCount, uploadedLabel }:
 						</h2>
 						<TicketStatusChip status={ticketStatus} />
 					</div>
-					<p className='font-mono text-xs leading-[1.4] font-medium text-slate-500 tabular-nums dark:text-muted-foreground'>
-						{uploadedLabel}
-					</p>
+					<DataLine testId={`ticket-data-${id}`}>{uploadedLabel}</DataLine>
 				</div>
 			</div>
 

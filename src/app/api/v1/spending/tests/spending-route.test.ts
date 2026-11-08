@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { createSupabaseMock } from '@/test/helpers'
+import { createSupabaseMock, sequentialFrom } from '@/test/helpers'
 import { ApiServiceError, ErrorCode } from '@/lib/api/http'
 
 vi.mock('@/lib/api/auth', () => ({ createAuthenticatedClient: vi.fn() }))
@@ -60,27 +60,38 @@ describe('GET /api/v1/spending', () => {
 describe('GET /api/v1/spending store breakdown', () => {
 	beforeEach(() => vi.clearAllMocks())
 
-	it('adds up what each store received, largest first, from trips and receipts not attached to a trip', async () => {
-		signIn(undefined, {
-			shopping_sessions: { data: [
-				{ total_amount: 86.4, store: { id: 's1', name: 'No Frills' } },
-				{ total_amount: 41.12, store: { id: 's2', name: 'Costco' } },
+	it('splits multi-store trip totals by attached receipt and includes trips without receipts', async () => {
+		const { supabase } = createSupabaseMock({ rpcResults: { spending_summary: {
+			data: [{ receipts_count: 2, total: 229.65, trips_count: 2, trips_without_total: 0 }], error: null,
+		} } })
+		supabase.from = sequentialFrom({
+			shopping_sessions: [{ data: [
+				{ id: 'trip-1', total_amount: 173.43, store: { id: 's1', name: 'Metro' } },
+				{ id: 'trip-2', total_amount: 41.12, store: { id: 's2', name: 'Costco' } },
+			], error: null }],
+			tickets: [
+				{ data: [
+					{ total_amount: 10.1, store: { id: 's2', name: 'Costco' } },
+					{ total_amount: null, store: { id: 's1', name: 'Metro' } },
+					{ total_amount: 5, store: null },
+				], error: null },
+				{ data: [
+					{ shopping_session_id: 'trip-1', attached_total_amount: 84.5, total_amount: 84.5, store: { id: 's1', name: 'Metro' } },
+					{ shopping_session_id: 'trip-1', attached_total_amount: 88.93, total_amount: 88.93, store: { id: 's3', name: 'Walmart' } },
 			], error: null },
-			tickets: { data: [
-				{ total_amount: 10.1, store: { id: 's2', name: 'Costco' } },
-				{ total_amount: null, store: { id: 's1', name: 'No Frills' } },
-				{ total_amount: 5, store: null },
-			], error: null },
+			],
 		})
+		mockedAuth.mockResolvedValue({ supabase, user: { id: 'user-1' } } as never)
 
 		const response = await GET(request(`?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`))
 		const { data } = await response.json()
 
 		expect(data.stores).toEqual([
-			{ id: 's1', name: 'No Frills', total: 86.4 },
+			{ id: 's3', name: 'Walmart', total: 88.93 },
+			{ id: 's1', name: 'Metro', total: 84.5 },
 			{ id: 's2', name: 'Costco', total: 51.22 },
 		])
-		expect(data.total).toBe(125.75)
+		expect(data.total).toBe(229.65)
 	})
 
 	it('still answers with the total when the breakdown cannot be read', async () => {
@@ -98,7 +109,7 @@ describe('GET /api/v1/spending other total', () => {
 	beforeEach(() => vi.clearAllMocks())
 
 	it('reports what the total holds beyond the listed stores, such as receipts without a confirmed store', async () => {
-		signIn(undefined, { shopping_sessions: { data: [{ total_amount: 100, store: { id: 's1', name: 'No Frills' } }], error: null }, tickets: { data: [], error: null } })
+		signIn(undefined, { shopping_sessions: { data: [{ id: 'trip-1', total_amount: 100, store: { id: 's1', name: 'No Frills' } }], error: null }, tickets: { data: [], error: null } })
 
 		const { data } = await (await GET(request(`?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`))).json()
 

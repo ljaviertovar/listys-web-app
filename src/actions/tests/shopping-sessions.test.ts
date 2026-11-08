@@ -185,19 +185,24 @@ describe('updateShoppingSession status guard', () => {
 })
 
 describe('getShoppingSession receipt summary', () => {
-  it('returns the attached receipt id and printed total for the session page', async () => {
+	it('returns every attached receipt and keeps the first one for legacy callers', async () => {
     const session = { id: TEST_UUID, status: 'completed', items: [] }
     const supabase = setupMock()
     supabase.from = sequentialFrom({
       shopping_sessions: [{ data: session, error: null }],
-      tickets: [{ data: { id: 'receipt-1', total_amount: 84.5 }, error: null }],
+			tickets: [{ data: [
+				{ id: 'receipt-1', attached_total_amount: 84.5, total_items: 2, store: { id: 'store-a', name: 'Metro' }, items: [{ shopping_session_item_id: 'item-1', quantity: 2, unit: 'each' }] },
+				{ id: 'receipt-2', attached_total_amount: 88.93, total_items: 1, store: { id: 'store-b', name: 'Walmart' }, items: [{ shopping_session_item_id: 'item-2', quantity: 1, unit: 'each' }] },
+			], error: null }],
     })
 
     const result = await getShoppingSession(TEST_UUID)
 
-    expect(result).toEqual({
-      data: { ...session, receipt: { id: 'receipt-1', total_amount: 84.5 } },
-    })
+		expect(result.data?.receipts).toEqual([
+			{ id: 'receipt-1', total_amount: 84.5, items_count: 2, store: { id: 'store-a', name: 'Metro' }, covered_item_ids: ['item-1'], lines: [{ shopping_session_item_id: 'item-1', quantity: 2, unit: 'each' }] },
+			{ id: 'receipt-2', total_amount: 88.93, items_count: 1, store: { id: 'store-b', name: 'Walmart' }, covered_item_ids: ['item-2'], lines: [{ shopping_session_item_id: 'item-2', quantity: 1, unit: 'each' }] },
+		])
+		expect(result.data?.receipt).toEqual(result.data?.receipts?.[0])
     expect(supabase.from).toHaveBeenNthCalledWith(1, 'shopping_sessions')
     expect(supabase.from).toHaveBeenNthCalledWith(2, 'tickets')
   })

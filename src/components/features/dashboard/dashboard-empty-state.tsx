@@ -1,12 +1,12 @@
 import type { ReactNode } from 'react'
 import type { IconSvgElement } from '@hugeicons/react'
 
-import { RowIcon } from './row-icon'
+import { RowIcon } from '@/components/commons'
 
 interface Props {
 	testId: string
 	icon: IconSvgElement
-	tone: 'primary' | 'ocr' | 'success' | 'warning'
+	tone: 'primary' | 'ocr' | 'success' | 'warning' | 'store'
 	/** First sentence, set on its own line ("No lists yet."). */
 	title: string
 	message: string

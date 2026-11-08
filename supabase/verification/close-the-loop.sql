@@ -121,8 +121,9 @@ BEGIN
   PERFORM set_config('request.jwt.claims', json_build_object('sub', owner_id, 'role', 'authenticated')::text, TRUE);
   SET LOCAL ROLE authenticated;
 
-  INSERT INTO public.tickets (user_id, image_path, ocr_status, created_at, total_amount, store_id, store_name)
-  VALUES (owner_id, 'verify/active.jpg', 'completed', NOW(), 16.50, v_store_id, 'Verification Market') RETURNING id INTO receipt_id;
+  -- Since clarify-receipt-review a receipt is only offered the trip it was uploaded from, so this one comes from the active trip.
+  INSERT INTO public.tickets (user_id, image_path, ocr_status, created_at, total_amount, store_id, store_name, uploaded_from_session_id)
+  VALUES (owner_id, 'verify/active.jpg', 'completed', NOW(), 16.50, v_store_id, 'Verification Market', active_id) RETURNING id INTO receipt_id;
   INSERT INTO public.ticket_items (ticket_id, name, quantity, unit, price)
   VALUES (receipt_id, 'Milk', 1, 'each', 4.25) RETURNING id INTO ticket_milk_id;
   INSERT INTO public.ticket_items (ticket_id, name, quantity, unit, price)
@@ -145,7 +146,7 @@ BEGIN
 
   -- Candidate window, status, receipt/list state and owner scoping.
   SELECT COUNT(*) INTO n FROM public.ticket_session_candidates(receipt_id);
-  INSERT INTO verification_results VALUES ('Candidates include active and all completed trips inside the 48-hour window', n = 4, n::TEXT);
+  INSERT INTO verification_results VALUES ('The origin trip is the only candidate, whatever other trips the owner has', n = 1 AND EXISTS (SELECT 1 FROM public.ticket_session_candidates(receipt_id) WHERE id = active_id), n::TEXT);
   INSERT INTO verification_results VALUES ('Unread receipts have no candidates', NOT EXISTS (SELECT 1 FROM public.ticket_session_candidates(unread_receipt_id)), 'expected empty');
   INSERT INTO verification_results VALUES ('Receipts already added to a list have no candidates', NOT EXISTS (SELECT 1 FROM public.ticket_session_candidates(added_receipt_id)), 'expected empty');
   INSERT INTO verification_results VALUES ('Another owner’s trips are not candidates', NOT EXISTS (SELECT 1 FROM public.ticket_session_candidates(receipt_id) WHERE id = other_session_id), 'expected absent');
@@ -221,12 +222,13 @@ BEGIN
   INSERT INTO verification_results VALUES ('Receipt without a store inherits the completed trip store without learning an alias',
     (SELECT t.store_id = v_store_id FROM public.tickets t WHERE t.id = done_receipt_id)
       AND NOT EXISTS (SELECT 1 FROM public.store_aliases sa WHERE sa.user_id = owner_id AND sa.alias_key = 'unmappedmarket'), 'session store inherited');
+  -- 20261103000000_trips_receipt_attach removed the 48-hour window: an old completed trip now accepts a receipt.
   BEGIN
     PERFORM * FROM public.attach_receipt_to_session(second_receipt_id, old_id, '[]'::JSONB, ARRAY[]::UUID[], NULL, 250);
-    INSERT INTO verification_results VALUES ('Three-day-old trip is outside the attach window', FALSE, 'no error');
+    INSERT INTO verification_results VALUES ('Three-day-old trip still accepts a receipt (no attach window)', TRUE, 'attached');
   EXCEPTION WHEN OTHERS THEN
     GET STACKED DIAGNOSTICS msg = MESSAGE_TEXT, code = RETURNED_SQLSTATE;
-    INSERT INTO verification_results VALUES ('Three-day-old trip is outside the attach window', code = 'P0001' AND msg = 'SESSION_OUT_OF_WINDOW', code || '/' || msg);
+    INSERT INTO verification_results VALUES ('Three-day-old trip still accepts a receipt (no attach window)', FALSE, code || '/' || msg);
   END;
 
   -- The regular receipt merge records the purchase quantity/unit context added by this migration.

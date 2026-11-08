@@ -124,16 +124,71 @@ export async function getShoppingSession(id: string) {
     throw new ApiServiceError(status, status === 404 ? ErrorCode.NOT_FOUND : ErrorCode.INTERNAL_ERROR, error.message)
   }
 
-  const { data: receipt, error: receiptError } = await supabase
+  const { data: attachedReceipts, error: receiptError } = await supabase
     .from('tickets')
-    .select('id, total_amount')
+    .select('id, attached_total_amount, total_items, store:stores(id, name), items:ticket_items(shopping_session_item_id, quantity, unit)')
     .eq('shopping_session_id', id)
     .eq('user_id', user.id)
-    .maybeSingle()
+    .order('created_at', { ascending: true })
+    .order('id', { ascending: true })
 
   if (receiptError) throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'Unable to load the attached receipt.')
 
-  return { ...shoppingSession, receipt }
+  const receipts = (attachedReceipts ?? []).map(receipt => ({
+    id: receipt.id,
+    total_amount: receipt.attached_total_amount,
+    store: receipt.store ? { id: receipt.store.id, name: receipt.store.name } : null,
+    items_count: receipt.total_items ?? receipt.items?.length ?? 0,
+    covered_item_ids: (receipt.items ?? []).flatMap(item => item.shopping_session_item_id ? [item.shopping_session_item_id] : []),
+    lines: (receipt.items ?? []).map(item => ({ shopping_session_item_id: item.shopping_session_item_id, quantity: item.quantity, unit: item.unit })),
+  }))
+  return { ...shoppingSession, receipts, receipt: receipts[0] ?? null }
+}
+
+const AVAILABLE_RECEIPTS_LIMIT = 50
+
+/**
+ * The owner's receipts that can still be attached to this trip: read, attached nowhere, not added to a list, and either
+ * uploaded outside any trip or from this one. Different stores are allowed; the atomic attach operation enforces one receipt per confirmed store.
+ */
+export async function listAvailableReceipts(sessionId: string) {
+  const { supabase, user } = await createAuthenticatedClient()
+
+  const { data: session, error: sessionError } = await supabase
+    .from('shopping_sessions')
+    .select('id, status, store_id')
+    .eq('id', sessionId)
+    .eq('user_id', user.id)
+    .maybeSingle()
+
+  if (sessionError) throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'Unable to load the trip.')
+  if (!session) throw new ApiServiceError(404, ErrorCode.NOT_FOUND, 'Not found')
+
+  // sessionId is a validated UUID, so interpolating it into the filter cannot widen the query.
+  const { data: tickets, error } = await supabase
+    .from('tickets')
+    .select('id, created_at, total_amount, total_items, store_id, store:stores(id, name)')
+    .eq('user_id', user.id)
+    .eq('ocr_status', 'completed')
+    .is('shopping_session_id', null)
+    .is('base_list_id', null)
+    .or(`uploaded_from_session_id.is.null,uploaded_from_session_id.eq.${sessionId}`)
+    .order('created_at', { ascending: false })
+    .limit(AVAILABLE_RECEIPTS_LIMIT)
+
+  if (error) throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'Unable to load your receipts.')
+
+  return (tickets ?? []).map(ticket => {
+    return {
+      id: ticket.id,
+      created_at: ticket.created_at,
+      store: ticket.store ? { id: ticket.store.id, name: ticket.store.name } : null,
+      total_amount: ticket.total_amount,
+      item_count: ticket.total_items ?? 0,
+      selectable: true,
+      reason: null,
+    }
+  })
 }
 
 export async function getShoppingHistory() {
@@ -181,18 +236,21 @@ export async function getShoppingHistory() {
 
   const { data: receipts, error: receiptsError } = await supabase
     .from('tickets')
-    .select('id, shopping_session_id')
+    .select('id, shopping_session_id, attached_total_amount, total_items, store:stores(id, name)')
     .in('shopping_session_id', sessionIds)
     .eq('user_id', user.id)
+    .order('created_at', { ascending: true })
+    .order('id', { ascending: true })
 
   if (receiptsError) throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'Unable to load receipt links.')
-  const receiptMap = new Map((receipts ?? []).map(receipt => [receipt.shopping_session_id, { id: receipt.id }]))
-
-  return sessions.map(s => ({
-    ...s,
-    purchased_count: purchasedCountMap[s.id] ?? 0,
-    receipt: receiptMap.get(s.id) ?? null,
-  }))
+  return sessions.map(s => {
+    const sessionReceipts = (receipts ?? []).filter(receipt => receipt.shopping_session_id === s.id).map(receipt => ({
+      id: receipt.id, total_amount: receipt.attached_total_amount,
+      items_count: receipt.total_items ?? 0,
+      store: receipt.store ? { id: receipt.store.id, name: receipt.store.name } : null,
+    }))
+    return { ...s, purchased_count: purchasedCountMap[s.id] ?? 0, receipts: sessionReceipts, receipt: sessionReceipts[0] ?? null }
+  })
 }
 
 export async function updateShoppingSessionItem(id: string, data: unknown) {

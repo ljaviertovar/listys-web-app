@@ -14,7 +14,9 @@ export type CloseTheLoopFixture = {
   sessionId: string
   ticketId: string
   storeIds: string[]
+  getSessionStatus: () => Promise<SessionStatus | null>
   getItemState: (normalizedName?: string) => Promise<{ purchase_count: number | null; average_price: number | null } | null>
+  createReceipt: (storeId: string) => Promise<string>
   cleanup: () => Promise<void>
 }
 
@@ -30,6 +32,8 @@ export async function createCloseTheLoopFixture(options: {
   sessionStore?: string | null
   receiptStore?: string | null
   withStorePrices?: boolean
+  /** Whether the receipt was uploaded from the trip's own receipts card (default), or on its own from Receipts. */
+  uploadedFromTrip?: boolean
 } = {}): Promise<CloseTheLoopFixture> {
   const supabase = createLocalAdminClient()
   const unique = crypto.randomUUID()
@@ -109,6 +113,7 @@ export async function createCloseTheLoopFixture(options: {
       ocr_status: 'completed',
       total_items: 2,
       total_amount: 17.25,
+      uploaded_from_session_id: options.uploadedFromTrip === false ? null : session.data.id,
       processed_at: new Date().toISOString(),
     }).select('id').single()
     if (ticket.error || !ticket.data) throw new Error(`Could not create local E2E receipt: ${ticket.error?.message}`)
@@ -127,6 +132,11 @@ export async function createCloseTheLoopFixture(options: {
       sessionId: session.data.id,
       ticketId: ticket.data.id,
       storeIds,
+      getSessionStatus: async () => {
+        const result = await supabase.from('shopping_sessions').select('status').eq('id', session.data.id).maybeSingle()
+        if (result.error) throw new Error(`Could not read local E2E trip status: ${result.error.message}`)
+        return result.data?.status === 'active' || result.data?.status === 'completed' ? result.data.status : null
+      },
       getItemState: async (normalizedName = 'milk') => {
         const result = await supabase.from('base_list_items')
           .select('purchase_count,average_price')
@@ -135,6 +145,19 @@ export async function createCloseTheLoopFixture(options: {
           .maybeSingle()
         if (result.error) throw new Error(`Could not read local E2E item state: ${result.error.message}`)
         return result.data
+      },
+      createReceipt: async (storeId: string) => {
+        const receipt = await supabase.from('tickets').insert({
+          user_id: userId, image_path: `e2e/${crypto.randomUUID()}.jpg`, store_id: storeId,
+          ocr_status: 'completed', total_items: 1, total_amount: 17.25,
+          uploaded_from_session_id: session.data.id, processed_at: new Date().toISOString(),
+        }).select('id').single()
+        if (receipt.error || !receipt.data) throw new Error('Could not create an additional local receipt.')
+        const line = await supabase.from('ticket_items').insert({
+            ticket_id: receipt.data.id, name: 'Milk', normalized_name: 'milk', quantity: 1, unit: 'each', price: 17.25,
+        })
+        if (line.error) throw new Error('Could not create a product line for the additional local receipt.')
+        return receipt.data.id
       },
       cleanup: async () => {
         const result = await supabase.auth.admin.deleteUser(userId)

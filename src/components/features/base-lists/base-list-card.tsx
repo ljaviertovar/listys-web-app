@@ -8,7 +8,10 @@ import {
   Edit02Icon,
   ListViewIcon,
   Share01Icon,
+  StarIcon,
+  UserGroupIcon,
 } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 
 import {
   ConfirmSheet,
@@ -25,7 +28,7 @@ import { deleteBaseList, updateBaseList } from "@/lib/api/endpoints";
 
 import type { BaseListWithCount } from "@/types";
 
-import { buildListCardMeta } from "./helpers/list-card-meta";
+import { buildListCardMeta, buildSharedWithLabel } from "./helpers/list-card-meta";
 
 interface Props {
   baseList: BaseListWithCount;
@@ -49,6 +52,7 @@ export function BaseListCard({
   sharedWithCount,
 }: Props) {
   const shownName = displayName ?? baseList.name;
+  const sharedWith = buildSharedWithLabel(sharedWithCount);
   const [editing, setEditing] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
   const [showShare, setShowShare] = useState(false);
@@ -137,13 +141,24 @@ export function BaseListCard({
         title={shownName}
         description={baseList.notes}
         badge={
-          isDefault ? (
-            <Badge variant="neutral" data-testid={`list-card-${baseList.id}-default`}>
-              Default
-            </Badge>
+          isDefault || sharedWith ? (
+            <>
+              {isDefault ? (
+                <Badge variant="list-default" data-testid={`list-card-${baseList.id}-default`}>
+                  <HugeiconsIcon icon={StarIcon} strokeWidth={1.8} aria-hidden="true" />
+                  Default
+                </Badge>
+              ) : null}
+              {sharedWith ? (
+                <Badge variant="tag" data-testid={`list-card-${baseList.id}-shared`}>
+                  <HugeiconsIcon icon={UserGroupIcon} strokeWidth={1.8} aria-hidden="true" />
+                  {sharedWith}
+                </Badge>
+              ) : null}
+            </>
           ) : null
         }
-        meta={buildListCardMeta(lastTripAt, sharedWithCount)}
+        meta={buildListCardMeta(lastTripAt)}
         count={baseList.items_count}
         unit={{ one: "item", many: "items" }}
         emptyLabel="items"

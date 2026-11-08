@@ -1,13 +1,13 @@
 'use client'
 
-import type { ReactNode } from 'react'
+import type { ComponentProps, ReactNode } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ArrowDown01Icon } from '@hugeicons/core-free-icons'
 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { cn } from '@/utils'
 
-import { getCategoryIcon, getCategoryTone } from './helpers/category-style'
+import { CategoryHeading } from './category-heading'
 
 interface CategorySectionProps {
 	/** Normalised category name; it picks the icon and its colour. */
@@ -19,12 +19,17 @@ interface CategorySectionProps {
 	/** Turns the count green once everything in the category is done (a shopping session). */
 	complete?: boolean
 	defaultOpen?: boolean
+	open?: ComponentProps<typeof Collapsible>['open']
+	onOpenChange?: ComponentProps<typeof Collapsible>['onOpenChange']
 	children: ReactNode
 	testId: string
 	/** Classes of the surface that holds the rows. */
 	panelClassName?: string
 	/** Classes of the section itself, for example to drop its top divider when it opens a card. */
 	className?: string
+	icon?: ComponentProps<typeof CategoryHeading>['icon']
+	tone?: ComponentProps<typeof CategoryHeading>['tone']
+	description?: string
 }
 
 /**
@@ -37,14 +42,21 @@ export function CategorySection({
 	count,
 	complete = false,
 	defaultOpen = true,
+	open,
+	onOpenChange,
 	children,
 	testId,
 	panelClassName,
 	className,
+	icon,
+	tone,
+	description,
 }: CategorySectionProps) {
 	return (
 		<div className={cn('border-t border-slate-100 dark:border-border', className)}>
 			<Collapsible
+				open={open}
+				onOpenChange={onOpenChange}
 				defaultOpen={defaultOpen}
 				data-testid={testId}
 				variant='section'
@@ -52,25 +64,15 @@ export function CategorySection({
 			>
 				<h3 className='m-0'>
 					<CollapsibleTrigger variant='row'>
-						<span className='flex size-8 shrink-0 items-center justify-center rounded-lg bg-secondary dark:bg-muted'>
-							<HugeiconsIcon
-								icon={getCategoryIcon(category)}
-								strokeWidth={1.5}
-								aria-hidden='true'
-								className={cn('size-4.5', getCategoryTone(category))}
-							/>
-						</span>
-						<span className='min-w-0 flex-1 truncate font-sans text-xs leading-[1.25] font-semibold tracking-[0.04em] text-slate-700 uppercase dark:text-foreground/80'>
-							{title}
-						</span>
-						<span
-							className={cn(
-								'font-mono text-xs tabular-nums',
-								complete ? 'font-semibold text-green-700 dark:text-green-400' : 'font-medium text-slate-500 dark:text-muted-foreground',
-							)}
-						>
-							{count}
-						</span>
+						<CategoryHeading
+							category={category}
+							title={title}
+							count={count}
+							complete={complete}
+							icon={icon}
+							tone={tone}
+							testId={`${testId}-heading`}
+						/>
 						<span
 							aria-hidden='true'
 							className='flex size-9 items-center justify-center text-slate-500'
@@ -83,6 +85,7 @@ export function CategorySection({
 						</span>
 					</CollapsibleTrigger>
 				</h3>
+				{description ? <p data-testid={`${testId}-description`} className='mb-2.5 ml-11 text-xs leading-normal text-slate-500 dark:text-muted-foreground'>{description}</p> : null}
 				<CollapsibleContent>
 					<div className={cn('overflow-hidden rounded-2xl bg-muted dark:bg-muted/50', panelClassName)}>{children}</div>
 				</CollapsibleContent>

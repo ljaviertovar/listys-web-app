@@ -16,8 +16,8 @@ export const MOBILE_TAB_BAR_CLEARANCE = 'max-lg:pb-[calc(3.75rem+max(1.125rem,en
 /** Bottom offset for a 56px action bar that sits 8px above the active-session bar. */
 export const ABOVE_MOBILE_SESSION_BAR = 'bottom-[calc(7.75rem+max(1.125rem,env(safe-area-inset-bottom)))]'
 
-/** Extra space a page needs at its end while the active-session bar floats over the tab bar. */
-export const MOBILE_SESSION_BAR_CLEARANCE = 'h-15'
+/** Reserves the tab-bar offset and the session bar height so the floating bar does not cover the scroll viewport. */
+export const MOBILE_SESSION_BAR_CLEARANCE = 'h-[calc(3.75rem+max(1.125rem,env(safe-area-inset-bottom))+3.5rem)]'
 
 /** Adds 24px to the dashboard's 16px content gutter to keep A1's 40px end gap before the session-bar spacer. */
 export const MOBILE_DASHBOARD_SESSION_CLEARANCE = 'max-lg:pb-6'

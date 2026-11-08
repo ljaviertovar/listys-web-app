@@ -10,6 +10,11 @@ boundaries; the [contribution guide](contributing/CONTRIBUTING.md) owns verifica
   rather than assuming a clean clone contains every installed skill.
 - `pnpm skills:install` runs the AGENTS.md setup command, `npx skills install`; rerun it when project skills are added.
   `pnpm skills:check` and `pnpm skills:update` invoke the installed CLI's check/update commands.
+- `nextjs-saas-rest-api` is the owner of the detailed REST rules (AGENTS.md keeps only the API baseline). It was copied
+  from the maintainer's global `~/.claude/skills/nextjs-saas-rest-api` into `.agents/skills/` and `.claude/skills/`; it has
+  no entry in `skills-lock.json`, so `pnpm skills:install` does not restore it. Re-copy it (and run `pnpm copy:skills` for
+  `.github/skills/`) on a fresh clone. It is a policy reference: its install and scaffold scripts are not run on this
+  project, which already has `src/lib/api/` and `src/lib/server/services/`.
 - Read a skill's current `SKILL.md` when applying it. Do not treat an old conversation snapshot or copied command
   prompt as authoritative over the current skill.
 
@@ -32,6 +37,7 @@ boundaries; the [contribution guide](contributing/CONTRIBUTING.md) owns verifica
 | `web-design-guidelines`        | `.agents/skills/web-design-guidelines/SKILL.md`        | Reviewing existing UI code for accessibility, UX compliance, or design best-practice audits ("review my UI", "check accessibility", "audit this page").                                                      |
 | `documentation-system-builder` | `.agents/skills/documentation-system-builder/SKILL.md` | Creating, updating, or auditing project documentation: PRDs, ADRs, architecture docs, runbooks, CHANGELOG, or any `docs/` content.                                                                           |
 | `git-commit`                   | `.agents/skills/git-commit/SKILL.md`                   | When the user asks to commit changes, create a git commit, generate a Conventional Commit message, stage files intelligently, or mentions "/commit" or similar commit-related actions.                       |
+| `nextjs-saas-rest-api` | `.agents/skills/nextjs-saas-rest-api/SKILL.md` | Creating, changing, reviewing or auditing a Route Handler (`route.ts`), webhook receiver or data-saving Server Action; changing a contract clients already consume (versioning, deprecation, field changes); adding the tables, indexes, migrations or RLS behind an API. **Do not load** for UI, styling, copy, documentation, or server logic without an HTTP/Server Action boundary. |
 | `openspec-explore` | `.agents/skills/openspec-explore/SKILL.md` | Exploring OpenSpec ideas, problems or requirements; also `opsx explore`. |
 | `openspec-propose` | `.agents/skills/openspec-propose/SKILL.md` | Creating a proposed change and planning artifacts; also `opsx propose`. |
 | `openspec-update-change` | `.agents/skills/openspec-update-change/SKILL.md` | Revising existing change planning artifacts; also `opsx update`. |
@@ -51,6 +57,7 @@ boundaries; the [contribution guide](contributing/CONTRIBUTING.md) owns verifica
 | Optimize a slow data-fetching component            | `vercel-react-best-practices` + `next-best-practices`               |
 | Prepare a conventional commit for staged changes   | `git-commit`                                                        |
 | Finalize a feature and commit with proper scope    | `next-best-practices` + `git-commit`                                |
+| Add or change an API endpoint                      | `nextjs-saas-rest-api` + `next-best-practices`                      |
 
 ### OpenSpec and tool boundaries
 

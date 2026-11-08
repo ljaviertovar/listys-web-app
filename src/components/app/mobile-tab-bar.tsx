@@ -10,6 +10,7 @@ import { UploadTicketDialog } from '@/components/features/tickets'
 import { MOBILE_TAB_ITEMS } from '@/data/constants'
 import { cn } from '@/utils'
 import { checkIsActive } from './sidebar/helpers/check-is-active'
+import { useTripNavigation } from './trip-navigation'
 
 /** The screens of a list and of a running trip belong to the Lists tab although their paths start elsewhere. */
 export function isListsSection(pathname: string) {
@@ -53,12 +54,14 @@ function Tab({ item, isActive }: { item: (typeof MOBILE_TAB_ITEMS)[number]; isAc
  */
 export function MobileTabBar() {
 	const pathname = usePathname()
+	const navigation = useTripNavigation()
+	const tripSection = navigation?.route?.pathname === pathname ? navigation.route.section : null
 	const [dashboard, lists, receipts, history] = MOBILE_TAB_ITEMS
 
 	const tab = (item: (typeof MOBILE_TAB_ITEMS)[number]) => (
 		<Tab
 			item={item}
-			isActive={checkIsActive(pathname, item, true) || (item === lists && isListsSection(pathname))}
+			isActive={checkIsActive(pathname, item, true) || (item === lists && (pathname.startsWith('/shopping/') ? tripSection === 'lists' : isListsSection(pathname))) || (item === history && pathname.startsWith('/shopping/') && tripSection === 'trips')}
 		/>
 	)
 

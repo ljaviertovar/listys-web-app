@@ -90,7 +90,7 @@ describe('shopping session store reads', () => {
   it('includes the linked receipt on session detail and in completed history', async () => {
 		signInWithTables({
 			shopping_sessions: { data: { id: 'session-1', user_id: 'user-1', status: 'completed' }, error: null },
-			tickets: { data: { id: 'receipt-1' }, error: null },
+			tickets: { data: [{ id: 'receipt-1' }], error: null },
 		})
 		await expect(getShoppingSession('session-1')).resolves.toMatchObject({ receipt: { id: 'receipt-1' } })
 
@@ -100,6 +100,37 @@ describe('shopping session store reads', () => {
 			tickets: { data: [{ id: 'receipt-1', shopping_session_id: 'session-1' }], error: null },
 		})
 		await expect(getShoppingHistory()).resolves.toMatchObject([{ receipt: { id: 'receipt-1' } }])
+	})
+
+	it('returns both store receipts with confirmed totals and covered items, keeping the first legacy receipt', async () => {
+		signInWithTables({
+			shopping_sessions: { data: { id: 'session-1', user_id: 'user-1' }, error: null },
+			tickets: { data: [
+				{ id: 'a', attached_total_amount: 86.4, total_items: 2, store: { id: 'store-a', name: 'No Frills' }, items: [{ shopping_session_item_id: 'milk' }, { shopping_session_item_id: null }] },
+				{ id: 'b', attached_total_amount: 41.12, total_items: 1, store: { id: 'store-b', name: 'Costco' }, items: [{ shopping_session_item_id: 'eggs' }] },
+			], error: null },
+		})
+		const detail = await getShoppingSession('session-1')
+		expect(detail.receipts).toEqual([
+			{ id: 'a', total_amount: 86.4, items_count: 2, store: { id: 'store-a', name: 'No Frills' }, covered_item_ids: ['milk'], lines: [{ shopping_session_item_id: 'milk', quantity: undefined, unit: undefined }, { shopping_session_item_id: null, quantity: undefined, unit: undefined }] },
+			{ id: 'b', total_amount: 41.12, items_count: 1, store: { id: 'store-b', name: 'Costco' }, covered_item_ids: ['eggs'], lines: [{ shopping_session_item_id: 'eggs', quantity: undefined, unit: undefined }] },
+		])
+		expect(detail.receipt).toEqual(detail.receipts[0])
+	})
+
+	it('marks a completed trip without a receipt with a null receipt, apart from trips that have one', async () => {
+		signInWithTables({
+			shopping_sessions: {
+				data: [
+					{ id: 'with-receipt', user_id: 'user-1', status: 'completed' },
+					{ id: 'without-receipt', user_id: 'user-1', status: 'completed' },
+				],
+				error: null,
+			},
+			shopping_session_items: { data: [], error: null },
+			tickets: { data: [{ id: 'receipt-1', shopping_session_id: 'with-receipt' }], error: null },
+		})
+		await expect(getShoppingHistory()).resolves.toMatchObject([{ receipt: { id: 'receipt-1' } }, { receipt: null }])
 	})
 
 	it('keeps an unreadable store as null on session detail and history reads', async () => {

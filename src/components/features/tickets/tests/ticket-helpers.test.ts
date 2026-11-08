@@ -27,7 +27,7 @@ function item(overrides: Partial<TicketItem>): TicketItem {
 		quantity: 1,
 		unit: 'unit',
 		created_at: null,
-		normalized_name: null,
+		normalized_name: null, shopping_session_item_id: null,
 		...overrides,
 	}
 }
@@ -147,6 +147,8 @@ describe('fittedSize', () => {
 describe('toTicketStatus', () => {
 	it('reads anything that is not a known status as pending', () => {
 		expect(toTicketStatus('completed')).toBe('completed')
+		expect(toTicketStatus('completed', 0)).toBe('failed')
+		expect(toTicketStatus('completed', 2)).toBe('completed')
 		expect(toTicketStatus('failed')).toBe('failed')
 		expect(toTicketStatus(null)).toBe('pending')
 		expect(toTicketStatus('weird')).toBe('pending')

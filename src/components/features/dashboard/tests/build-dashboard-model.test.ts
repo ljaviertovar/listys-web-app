@@ -225,7 +225,7 @@ describe('buildDashboardModel', () => {
 			interval_days: 9.4, days_since: 12, cadence: 'Usually every 9 days · last bought 12 days ago',
 		}] })
 		expect(model.storeVisits).toEqual([
-			{ storeId: 's1', storeName: 'Metro', kind: 'trip', id: 'trip-1', dateLabel: '18 Feb', total: 84.2, href: '/shopping-history' },
+			{ storeId: 's1', storeName: 'Metro', kind: 'trip', id: 'trip-1', dateLabel: '18 Feb', total: 84.2, href: '/trips' },
 			{ storeId: 's2', storeName: 'Costco', kind: 'receipt', id: 'ticket-1', dateLabel: '12 Feb', total: null, href: '/tickets/ticket-1' },
 		])
 	})

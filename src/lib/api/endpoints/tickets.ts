@@ -5,8 +5,8 @@ export async function getTickets() {
   return apiGet<Ticket[]>('/api/v1/tickets')
 }
 
-export async function getTicket(id: string) {
-  return apiGet(`/api/v1/tickets/${id}`)
+export async function getTicket<T = Ticket>(id: string) {
+  return apiGet<T>(`/api/v1/tickets/${id}`)
 }
 
 /** Assigns one of the user's stores to the receipt, or clears it with null. */
@@ -44,6 +44,7 @@ export type TicketSessionMatch = {
 }
 
 export type AttachTicketToSessionInput = {
+  complete_session?: boolean
   shopping_session_id: string
   links?: Array<{ ticket_item_id: string; shopping_session_item_id: string | null }>
   added_item_ids?: string[]

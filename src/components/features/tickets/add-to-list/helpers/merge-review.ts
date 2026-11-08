@@ -87,3 +87,24 @@ export function resolvedItem(line: ReviewLine, decision: LineDecision | undefine
 	if (decision?.kind === 'link') return decision.item
 	return line.matchedItem
 }
+
+/** Matches the user already decided on the receipt screen, and the list they were decided against. */
+export interface ScreenDecisions {
+	baseListId: string
+	decisions: ReadonlyMap<string, LineDecision>
+}
+
+/**
+ * The decisions Review Matches starts with: those made on the receipt screen, but only when the dialog is adding to that same list
+ * (they are about that list's items) and only for lines the review lets the user decide.
+ */
+export function seedMergeDecisions(review: MergeReview, baseListId: string, screen: ScreenDecisions | null | undefined): Map<string, LineDecision> {
+	const seeded = new Map<string, LineDecision>()
+	if (!screen || screen.baseListId !== baseListId) return seeded
+
+	const decidable = new Set([...review.suggested, ...review.fresh, ...review.remembered].map(line => line.ticketItemId))
+	for (const [ticketItemId, decision] of screen.decisions) {
+		if (decidable.has(ticketItemId)) seeded.set(ticketItemId, decision)
+	}
+	return seeded
+}

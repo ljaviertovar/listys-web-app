@@ -17,6 +17,7 @@ describe('ShoppingSessionItems', () => {
 		const open = renderToStaticMarkup(createElement(ShoppingSessionItems, { items }))
 		const folded = renderToStaticMarkup(createElement(ShoppingSessionItems, { items, startCollapsed: true }))
 
+		expect(open).toContain('data-testid="session-category-collapse-control"')
 		expect(open).toContain('Apples')
 		expect(open).toContain('Yogurt')
 		expect(folded).toContain('data-testid="session-category-Produce"')
@@ -76,25 +77,52 @@ describe('ShoppingSessionItems', () => {
 })
 
 describe('ShoppingSessionActions', () => {
-	it('is only for the owner of the list', () => {
-		const render = (isOwner: boolean) => renderToStaticMarkup(createElement(ShoppingSessionActions, { sessionId: 's1', checked: 1, total: 4, isOwner }))
+	it('shows the floating actions trigger to everyone and restricts trip completion to the owner', () => {
+		const render = (isOwner: boolean) => renderToStaticMarkup(createElement(ShoppingSessionActions, { sessionId: 's1', checked: 1, total: 4, listName: 'Groceries', isOwner }))
 
 		expect(render(true)).toContain('Complete Shopping')
-		expect(render(false)).toBe('')
+		expect(render(true)).toContain('aria-label="Actions"')
+		expect(render(false)).toContain('aria-label="Actions"')
+		expect(render(false)).not.toContain('Complete Shopping')
 	})
 })
 
-describe('HistorySessionCard receipt marker', () => {
+describe('HistorySessionCard receipt status', () => {
 	const session = { id: 's1', name: 'Weekly shop', status: 'completed', started_at: null, completed_at: null, total_amount: 20, base_list: { name: 'Groceries' } }
+	const render = (receipt: { id: string } | null | undefined, href?: string) =>
+		renderToStaticMarkup(createElement(HistorySessionCard, { session: { ...session, receipts: receipt === undefined ? undefined : receipt ? [{ ...receipt, store: null, total_amount: 20, items_count: 1 }] : [] }, href }))
 
-	it('marks sessions with a linked receipt', () => {
-		const html = renderToStaticMarkup(createElement(HistorySessionCard, { session: { ...session, receipt: { id: 'ticket-1' } } }))
+	it('shows the trip as completed and its receipt as attached, with no action to add one', () => {
+		const html = render({ id: 'ticket-1' })
+		expect(html).toContain('Completed')
 		expect(html).toContain('data-testid="history-receipt-marker-s1"')
-		expect(html).toContain('Receipt')
+		expect(html).toContain('Receipt attached')
+		expect(html).not.toContain('history-add-receipt-s1')
 	})
 
-	it('omits the marker when there is no receipt', () => {
-		const html = renderToStaticMarkup(createElement(HistorySessionCard, { session: { ...session, receipt: null } }))
+	it('shows a trip without a receipt as completed and marks the missing receipt without an add action', () => {
+		const html = render(null)
+		expect(html).toContain('Completed')
+		expect(html).toContain('data-testid="history-no-receipt-s1"')
+		expect(html).toContain('No Receipt attached')
+		expect(html).not.toContain('history-add-receipt-s1')
+	})
+
+	it('shows the number of attached receipts when a trip has two', () => {
+		const receipts = ['ticket-1', 'ticket-2'].map(id => ({ id, store: null, total_amount: 20, items_count: 1 }))
+		const html = renderToStaticMarkup(createElement(HistorySessionCard, { session: { ...session, receipts } }))
+		expect(html).toContain('2 Receipt attached')
+		expect(html).not.toContain('No Receipt attached')
+	})
+
+	it('opens the trip details and keeps the list filter', () => {
+		expect(render(null, '/shopping/s1?from=trips&list=l1')).toContain('href="/shopping/s1?from=trips&amp;list=l1"')
+	})
+
+	it('shows neither receipt state when it is not known', () => {
+		const html = render(undefined)
 		expect(html).not.toContain('history-receipt-marker')
+		expect(html).not.toContain('history-no-receipt')
+		expect(html).not.toContain('history-add-receipt')
 	})
 })
