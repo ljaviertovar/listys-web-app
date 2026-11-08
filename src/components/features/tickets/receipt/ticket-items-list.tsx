@@ -7,7 +7,7 @@ import { Loading03Icon } from '@hugeicons/core-free-icons'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
-import { CategorySection } from '@/components/commons'
+import { CategoryCollapseControl, CategorySection, useCategorySectionExpansion } from '@/components/commons'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { buildListDisplayNames } from '@/utils'
 import type { TicketItem } from '@/types'
@@ -48,6 +48,12 @@ export function TicketItemsList({ items, selection, canSelect, triage }: TicketI
 	const activeTriage = triage && triageMode ? triage : null
 	const readyTriage = triage?.status === 'ready' ? triage : null
 	const checkAll = selection.allSelected ? true : selection.partiallySelected ? 'indeterminate' : false
+	const sectionDescriptors = readyTriage
+		? readyTriage.triage.map(section => ({ id: `receipt-triage-${section.id}`, defaultOpen: !section.startsFolded }))
+		: triageMode
+			? []
+			: groups.map(group => ({ id: `ticket-category-${group.key}`, defaultOpen: true }))
+	const expansion = useCategorySectionExpansion(sectionDescriptors)
 
 	return (
 		<div data-testid='ticket-items-list'>
@@ -62,6 +68,13 @@ export function TicketItemsList({ items, selection, canSelect, triage }: TicketI
 				</Alert>
 			) : null}
 			{activeTriage?.baseList ? <TargetListRow triage={activeTriage} baseList={activeTriage.baseList} /> : null}
+			{sectionDescriptors.length > 0 ? (
+				<CategoryCollapseControl
+					allCollapsed={expansion.allCollapsed}
+					onToggle={expansion.toggleAll}
+					testId='ticket-category-collapse-control'
+				/>
+			) : null}
 			{canSelect && !triageMode ? (
 				<label className='mt-2 flex min-h-14 cursor-pointer items-center gap-1 border-t border-slate-100 dark:border-border'>
 					<span className='flex size-11 shrink-0 items-center justify-center'>
@@ -95,13 +108,15 @@ export function TicketItemsList({ items, selection, canSelect, triage }: TicketI
 				<TicketTriageSection
 					key={section.id}
 					section={section}
+					open={expansion.isOpen(`receipt-triage-${section.id}`, !section.startsFolded)}
+					onOpenChange={open => expansion.onOpenChange(`receipt-triage-${section.id}`, open)}
 					listName={readyTriage.baseList?.name ?? ''}
 					selection={selection}
 					canSelect={canSelect}
 					actions={readyTriage.actions}
 				/>
 			)) : triageMode ? null : groups.map(group => (
-				<TicketCategorySection key={group.key} group={group} selection={selection} canSelect={canSelect} />
+				<TicketCategorySection key={group.key} group={group} selection={selection} canSelect={canSelect} expansion={expansion} />
 			))}
 		</div>
 	)
@@ -139,18 +154,22 @@ interface TicketCategorySectionProps {
 	group: TicketItemGroup
 	selection: TicketSelection
 	canSelect: boolean
+	expansion: Pick<ReturnType<typeof useCategorySectionExpansion>, 'isOpen' | 'onOpenChange'>
 }
 
 /** A category of the receipt that folds away: its coloured icon and name, how many items it holds, and its rows on a soft surface. */
-function TicketCategorySection({ group, selection, canSelect }: TicketCategorySectionProps) {
+function TicketCategorySection({ group, selection, canSelect, expansion }: TicketCategorySectionProps) {
 	const count = group.items.length
+	const id = `ticket-category-${group.key}`
 
 	return (
 		<CategorySection
 			category={group.key}
 			title={group.title}
 			count={`${count} ${count === 1 ? 'item' : 'items'}`}
-			testId={`ticket-category-${group.key}`}
+			open={expansion.isOpen(id, true)}
+			onOpenChange={open => expansion.onOpenChange(id, open)}
+			testId={id}
 		>
 			<ul className='divide-y divide-slate-200/70 dark:divide-border'>
 				{group.items.map(item => (

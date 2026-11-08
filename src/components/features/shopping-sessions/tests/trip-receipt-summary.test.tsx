@@ -19,6 +19,37 @@ const trip: TicketSessionCandidate = {
 }
 
 describe('active trip receipts for a viewer', () => {
+	it('hides the receipt section before the first receipt is uploaded', () => {
+		const html = renderToStaticMarkup(createElement(TripReceiptSummary, {
+			mode: 'active',
+			itemCount: 0,
+			receipts: [],
+		}))
+
+		expect(html).toBe('')
+	})
+
+	it('shows the paid summary for uploaded review receipts before they are attached', () => {
+		const html = renderToStaticMarkup(createElement(TripReceiptSummary, {
+			mode: 'active',
+			itemCount: 15,
+			trip,
+			receipts: [{ id: 'pending', attached: false, ocr_status: 'completed', total_amount: 88.93, store: null, items_count: 15 }],
+		}))
+
+		expect(html).toContain('data-testid="trip-receipts-card"')
+		expect(html).toContain('Receipts')
+		expect(html).toContain('data-testid="trip-receipts-section-heading-icon"')
+		expect(html).toContain('aria-expanded="true"')
+		expect(html).toContain('Paid so far')
+		expect(html).toContain('$0.00')
+		expect(html).toContain('1 receipt · 1 to review')
+		expect(html).toContain('data-testid="trip-receipt-pending"')
+		expect(html.indexOf('data-testid="trip-receipts-card"')).toBeLessThan(html.indexOf('data-testid="trip-receipt-pending"'))
+		expect(html.indexOf('data-testid="trip-receipt-data-pending"')).toBeLessThan(html.indexOf('Review Receipt'))
+		expect(html).not.toContain('Attach Receipt')
+	})
+
 	it.each(['active', 'completed'] as const)('keeps incomplete attached totals unavailable in %s mode', mode => {
 		const receipts = [
 			{ id: 'a', attached: true, total_amount: 41.12, store: null, items_count: 1 },
@@ -69,6 +100,9 @@ describe('active trip receipts for a viewer', () => {
 		expect(html).not.toContain('Attach Receipt')
 		expect(html).toContain('View Receipt')
 		expect(html).not.toContain('href="/tickets/a"')
+		expect(html.indexOf('data-testid="trip-receipt-store-b"')).toBeLessThan(html.indexOf('data-testid="trip-receipt-status-b"'))
+		expect(html.indexOf('data-testid="trip-receipt-store-a"')).toBeLessThan(html.indexOf('Attached to trip'))
+		expect(html.indexOf('data-testid="trip-receipt-data-a"')).toBeLessThan(html.indexOf('View Receipt'))
 	})
 	it.each([
 		['pending', 'Processing'],

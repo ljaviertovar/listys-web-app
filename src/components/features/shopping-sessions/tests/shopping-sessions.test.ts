@@ -17,6 +17,7 @@ describe('ShoppingSessionItems', () => {
 		const open = renderToStaticMarkup(createElement(ShoppingSessionItems, { items }))
 		const folded = renderToStaticMarkup(createElement(ShoppingSessionItems, { items, startCollapsed: true }))
 
+		expect(open).toContain('data-testid="session-category-collapse-control"')
 		expect(open).toContain('Apples')
 		expect(open).toContain('Yogurt')
 		expect(folded).toContain('data-testid="session-category-Produce"')

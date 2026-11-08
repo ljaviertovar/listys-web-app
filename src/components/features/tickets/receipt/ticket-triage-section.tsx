@@ -15,6 +15,8 @@ interface TicketTriageSectionProps {
 	selection: TicketSelection
 	canSelect: boolean
 	actions: ReceiptMatchActions
+	open?: boolean
+	onOpenChange?: (open: boolean) => void
 }
 
 const countLabel = (count: number) => `${count} ${count === 1 ? 'item' : 'items'}`
@@ -23,7 +25,7 @@ const countLabel = (count: number) => `${count} ${count === 1 ? 'item' : 'items'
  * One status of the comparison ("Needs a look", "New to <list>", "Matched to <list>"): its lines split by category, and for the
  * matched ones the bulk "Include All" with its Undo. Including a line is not confirming its match.
  */
-export function TicketTriageSection({ section, listName, selection, canSelect, actions }: TicketTriageSectionProps) {
+export function TicketTriageSection({ section, listName, selection, canSelect, actions, open, onOpenChange }: TicketTriageSectionProps) {
 	const title = section.id === 'check' ? 'Needs a look' : section.id === 'fresh' ? `New to ${listName}` : `Matched to ${listName}`
 	const ids = receiptBulkSelectionIds([section], section.id)
 	const allIncluded = ids.length > 0 && ids.every(id => selection.isSelected(id))
@@ -53,6 +55,8 @@ export function TicketTriageSection({ section, listName, selection, canSelect, a
 				title={title}
 				count={countLabel(section.lines.length)}
 				defaultOpen={!section.startsFolded}
+				open={open}
+				onOpenChange={onOpenChange}
 				testId={`receipt-triage-${section.id}`}
 			>
 				<div className='divide-y divide-slate-200/70 dark:divide-border'>

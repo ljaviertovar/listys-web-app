@@ -1,6 +1,11 @@
 // Domain-agnostic UI pieces shared by several features
 export { CategorySection } from "./category-section/category-section";
 export { CategoryHeading } from "./category-section/category-heading";
+export { CategoryCollapseControl } from "./category-section/category-collapse-control";
+export {
+  useCategorySectionExpansion,
+  type CategorySectionDescriptor,
+} from "./category-section/hooks/use-category-section-expansion";
 export {
   getCategoryIcon,
   getCategoryTone,

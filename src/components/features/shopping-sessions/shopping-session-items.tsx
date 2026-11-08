@@ -3,7 +3,7 @@
 import { useEffect, useMemo } from 'react'
 import { TaskAdd01Icon } from '@hugeicons/core-free-icons'
 
-import { CategorySection, EmptyStateCard } from '@/components/commons'
+import { CategoryCollapseControl, CategorySection, EmptyStateCard, useCategorySectionExpansion } from '@/components/commons'
 import { groupByCategory } from '@/utils'
 import type { ShoppingSessionItem } from '@/types'
 import { Card } from '@/components/ui/card'
@@ -39,6 +39,14 @@ export function ShoppingSessionItems({ items, isCompleted = false, priceByItemId
 	const sections = useMemo(() => splitSessionSections(sortForShopping(items)), [items])
 	const storeGroups = useMemo(() => groupByCategory(sections.storeItems), [sections.storeItems])
 	const otherGroups = useMemo(() => groupByCategory(sections.otherItems), [sections.otherItems])
+	const sectionDescriptors = storeId
+		? [
+			...storeGroups.map(group => ({ id: `session-store-category-${group.key}`, defaultOpen: !startCollapsed })),
+			{ id: 'session-other-stores-section', defaultOpen: sections.storeItems.length === 0 },
+			...otherGroups.map(group => ({ id: `session-other-category-${group.key}`, defaultOpen: !startCollapsed })),
+		]
+		: groups.map(group => ({ id: `session-category-${group.key}`, defaultOpen: !startCollapsed }))
+	const expansion = useCategorySectionExpansion(sectionDescriptors)
 
 	// The flag only describes this first visit: dropping it from the URL (no navigation) makes a reload or a later visit open the categories.
 	useEffect(() => {
@@ -70,6 +78,11 @@ export function ShoppingSessionItems({ items, isCompleted = false, priceByItemId
 			aria-label='Items by category'
 			data-testid='session-items-card'
 		>
+			<CategoryCollapseControl
+				allCollapsed={expansion.allCollapsed}
+				onToggle={expansion.toggleAll}
+				testId='session-category-collapse-control'
+			/>
 			{storeId ? (
 				<>
 					<section aria-label={storeName ? `At ${storeName}` : 'At this store'} data-testid='session-current-store-section'>
@@ -81,6 +94,7 @@ export function ShoppingSessionItems({ items, isCompleted = false, priceByItemId
 							storeInfoByItemId={storeInfoByItemId}
 							purchaseStore={storeId && storeName ? { id: storeId, name: storeName } : null}
 							defaultOpen={!startCollapsed}
+							expansion={expansion}
 							prefix='session-store-category'
 						/>
 					</section>
@@ -88,7 +102,8 @@ export function ShoppingSessionItems({ items, isCompleted = false, priceByItemId
 						category='other-stores'
 						title='Other Stores and Untagged'
 						count={String(sections.otherItems.length)}
-						defaultOpen={sections.storeItems.length === 0}
+						open={expansion.isOpen('session-other-stores-section', sections.storeItems.length === 0)}
+						onOpenChange={open => expansion.onOpenChange('session-other-stores-section', open)}
 						testId='session-other-stores-section'
 					>
 						<SessionCategoryGroups
@@ -97,6 +112,7 @@ export function ShoppingSessionItems({ items, isCompleted = false, priceByItemId
 							priceByItemId={priceByItemId}
 							storeInfoByItemId={storeInfoByItemId}
 							defaultOpen={!startCollapsed}
+							expansion={expansion}
 							prefix='session-other-category'
 						/>
 					</CategorySection>
@@ -108,6 +124,7 @@ export function ShoppingSessionItems({ items, isCompleted = false, priceByItemId
 					priceByItemId={priceByItemId}
 					storeInfoByItemId={storeInfoByItemId}
 					defaultOpen={!startCollapsed}
+					expansion={expansion}
 					prefix='session-category'
 				/>
 			)}
@@ -123,11 +140,13 @@ interface SessionCategoryGroupsProps {
 	purchaseStore?: { id: string; name: string } | null
 	defaultOpen: boolean
 	prefix: string
+	expansion: Pick<ReturnType<typeof useCategorySectionExpansion>, 'isOpen' | 'onOpenChange'>
 }
 
-function SessionCategoryGroups({ groups, isCompleted, priceByItemId, storeInfoByItemId, purchaseStore, defaultOpen, prefix }: SessionCategoryGroupsProps) {
+function SessionCategoryGroups({ groups, isCompleted, priceByItemId, storeInfoByItemId, purchaseStore, defaultOpen, prefix, expansion }: SessionCategoryGroupsProps) {
 	return groups.map((group, index) => {
 		const done = group.items.filter(item => item.checked).length
+		const id = `${prefix}-${group.key}`
 
 		return (
 			<CategorySection
@@ -136,9 +155,10 @@ function SessionCategoryGroups({ groups, isCompleted, priceByItemId, storeInfoBy
 				title={group.title}
 				count={isCompleted ? String(group.items.length) : `${done}/${group.items.length}`}
 				complete={done === group.items.length}
-				defaultOpen={defaultOpen}
+				open={expansion.isOpen(id, defaultOpen)}
+				onOpenChange={open => expansion.onOpenChange(id, open)}
 				className={index === 0 ? 'border-t-0' : undefined}
-				testId={`${prefix}-${group.key}`}
+				testId={id}
 			>
 				<ul className='divide-y divide-slate-200/70 dark:divide-border'>
 					{group.items.map(item => (

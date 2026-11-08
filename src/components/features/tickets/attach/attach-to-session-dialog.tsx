@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { Add01Icon, Alert02Icon, CheckmarkCircle02Icon, InformationCircleIcon, MinusSignIcon, TickDouble02Icon } from '@hugeicons/core-free-icons'
 
-import { EntityLabel, SheetDialog, StatTile, StatusCard } from '@/components/commons'
+import { CategoryCollapseControl, EntityLabel, SheetDialog, StatTile, StatusCard, useCategorySectionExpansion } from '@/components/commons'
 import { Button } from '@/components/ui/button'
 import { DialogFooter } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
@@ -22,6 +22,12 @@ export function AttachToSessionDialog({ actions }: { actions: TripReview }) {
 	const editingLine = review?.sections.flatMap(section => section.lines).find(line => line.id === actions.editingLineId)
 	const store = actions.receiptStore ?? review?.resultingStore
 	const duplicateStore = actions.submitError?.reason === 'SESSION_HAS_STORE_RECEIPT'
+	const sectionDescriptors = review ? [
+		...review.sections.filter(section => section.lines.length > 0).map(section => ({ id: `attach-review-section-${section.id}`, defaultOpen: true })),
+		...(review.checkedNotOnReceipt.length > 0 ? [{ id: 'attach-review-section-checked-not-on-receipt', defaultOpen: true }] : []),
+		...(review.notCheckedNotOnReceipt.length > 0 ? [{ id: 'attach-review-section-not-checked-not-on-receipt', defaultOpen: false }] : []),
+	] : []
+	const expansion = useCategorySectionExpansion(sectionDescriptors)
 	return (
 		<>
 			<SheetDialog open={actions.open} onOpenChange={actions.setOpen}
@@ -49,9 +55,15 @@ export function AttachToSessionDialog({ actions }: { actions: TripReview }) {
 							description={`Only the items on this receipt are checked off. The other ${review.checkedNotOnReceipt.length + review.notCheckedNotOnReceipt.length} items stay on the list for your next store.`} testId='attach-review-still-shopping' /> : null}
 						{review.allMatch ? <StatusCard tone='success' icon={CheckmarkCircle02Icon} title='Everything you checked is on the receipt' description='Nothing to add or fix.' testId='attach-review-all-match' /> : null}
 						<div>
-							{review.sections.map(section => <TripReviewSection key={section.id} id={section.id} listName={listName} lines={section.lines} onChange={actions.setEditingLineId} />)}
-							<TripReviewSection id='checked-not-on-receipt' listName={listName} items={review.checkedNotOnReceipt} onChange={actions.setEditingLineId} />
-							<TripReviewSection id='not-checked-not-on-receipt' listName={listName} items={review.notCheckedNotOnReceipt} onChange={actions.setEditingLineId} />
+							{sectionDescriptors.length > 0 ? (
+								<CategoryCollapseControl allCollapsed={expansion.allCollapsed} onToggle={expansion.toggleAll} testId='attach-review-collapse-control' />
+							) : null}
+							{review.sections.map(section => {
+								const id = `attach-review-section-${section.id}`
+				return <TripReviewSection key={section.id} id={section.id} listName={listName} lines={section.lines} onChange={actions.setEditingLineId} open={expansion.isOpen(id, true)} onOpenChange={open => expansion.onOpenChange(id, open)} />
+							})}
+							{review.checkedNotOnReceipt.length > 0 ? <TripReviewSection id='checked-not-on-receipt' listName={listName} items={review.checkedNotOnReceipt} onChange={actions.setEditingLineId} open={expansion.isOpen('attach-review-section-checked-not-on-receipt', true)} onOpenChange={open => expansion.onOpenChange('attach-review-section-checked-not-on-receipt', open)} /> : null}
+							{review.notCheckedNotOnReceipt.length > 0 ? <TripReviewSection id='not-checked-not-on-receipt' listName={listName} items={review.notCheckedNotOnReceipt} onChange={actions.setEditingLineId} open={expansion.isOpen('attach-review-section-not-checked-not-on-receipt', false)} onOpenChange={open => expansion.onOpenChange('attach-review-section-not-checked-not-on-receipt', open)} /> : null}
 						</div>
 						<label className='flex items-center justify-between gap-4 text-sm font-semibold' htmlFor='attach-total'>
 							<span className='flex flex-col gap-1'>Total paid<span className='text-xs font-normal text-muted-foreground'>Read from the receipt.</span></span>

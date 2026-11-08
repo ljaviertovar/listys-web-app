@@ -19,6 +19,8 @@ interface CategorySectionProps {
 	/** Turns the count green once everything in the category is done (a shopping session). */
 	complete?: boolean
 	defaultOpen?: boolean
+	open?: ComponentProps<typeof Collapsible>['open']
+	onOpenChange?: ComponentProps<typeof Collapsible>['onOpenChange']
 	children: ReactNode
 	testId: string
 	/** Classes of the surface that holds the rows. */
@@ -40,6 +42,8 @@ export function CategorySection({
 	count,
 	complete = false,
 	defaultOpen = true,
+	open,
+	onOpenChange,
 	children,
 	testId,
 	panelClassName,
@@ -51,6 +55,8 @@ export function CategorySection({
 	return (
 		<div className={cn('border-t border-slate-100 dark:border-border', className)}>
 			<Collapsible
+				open={open}
+				onOpenChange={onOpenChange}
 				defaultOpen={defaultOpen}
 				data-testid={testId}
 				variant='section'

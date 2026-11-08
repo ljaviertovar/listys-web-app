@@ -60,7 +60,20 @@ describe('deciding a proposed match on the receipt screen', () => {
 	const before = render(new Map(), [])
 	const confirmed = render(decide({ kind: 'link', item: ORGANIC }), [])
 
+	it('provides collapse all for the ordinary category list too', () => {
+		const html = renderToStaticMarkup(createElement(TicketItemsList, {
+			items: [item('milk', 'Milk', { category: 'Dairy' }), item('apples', 'Apples', { category: 'Produce' })],
+			selection: selection([]),
+			canSelect: false,
+		}))
+
+		expect(html).toContain('data-testid="ticket-category-collapse-control"')
+		expect(html).toContain('data-testid="ticket-category-Dairy"')
+		expect(html).toContain('data-testid="ticket-category-Produce"')
+	})
+
 	it('starts with the proposal pending and its three ways to settle it', () => {
+		expect(before).toContain('data-testid="ticket-category-collapse-control"')
 		expect(before).toContain('Needs a look')
 		expect(before).toContain('Confirm match')
 		expect(before).toContain('Possible match:')

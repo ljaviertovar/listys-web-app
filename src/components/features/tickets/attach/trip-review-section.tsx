@@ -1,4 +1,4 @@
-import { Add01Icon, MinusSignIcon, Tick02Icon, TickDouble02Icon } from '@hugeicons/core-free-icons'
+import { Add01Icon, MinusSignIcon, TickDouble02Icon } from '@hugeicons/core-free-icons'
 
 import { CategorySection } from '@/components/commons'
 import { ItemQuantityChip } from '@/components/features/list-items'
@@ -15,12 +15,16 @@ export function TripReviewSection({
 	lines = [],
 	items = [],
 	onChange,
+	open,
+	onOpenChange,
 }: {
 	id: keyof typeof TRIP_REVIEW_COPY.sections
 	listName: string
 	lines?: AttachReviewLine[]
 	items?: ReviewSessionItem[]
 	onChange: (id: string) => void
+	open?: boolean
+	onOpenChange?: (open: boolean) => void
 }) {
 	const count = lines.length + items.length
 	if (!count) return null
@@ -40,6 +44,8 @@ export function TripReviewSection({
 			}
 			tone={id === 'new' || id === 'will-be-checked' ? 'primary' : id === 'already-checked' ? 'success' : 'muted'}
 			defaultOpen={id !== 'not-checked-not-on-receipt'}
+			open={open}
+			onOpenChange={onOpenChange}
 			testId={`attach-review-section-${id}`}
 		>
 			<div className='divide-y divide-slate-200 dark:divide-border'>

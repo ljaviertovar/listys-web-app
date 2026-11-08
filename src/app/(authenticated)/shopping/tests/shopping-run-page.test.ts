@@ -188,7 +188,7 @@ describe('shopping session page receipts card', () => {
 		vi.mocked(getShoppingSession).mockResolvedValue({
 			data: { ...session('completed'), receipts: [{ id: 'ticket-1', total_amount: 38.5, store: null, items_count: 2 }] }, error: null,
 		} as never)
-		expect(await render()).not.toContain('trip-receipts-card')
+		expect(await render()).toContain('trip-receipts-card')
 
 		vi.mocked(getShoppingSession).mockResolvedValue({ data: session('active'), error: null } as never)
 		expect(await render()).not.toContain('trip-receipts-card')
@@ -207,11 +207,11 @@ describe('shopping session page receipt status', () => {
 		expect(html).toContain('Upload Receipt')
 	})
 
-	it('marks a trip with a receipt as such and draws no receipts card', async () => {
+	it('marks a trip with a receipt as such and shows the receipts card', async () => {
 		vi.mocked(getShoppingSession).mockResolvedValue({ data: { ...session('completed'), receipts: [{ id: 'ticket-1', total_amount: 38.5, store: null, items_count: 2 }] }, error: null } as never)
 		const html = await render()
 		expect(html).toContain('Receipt attached')
-		expect(html).not.toContain('trip-receipts-card')
+		expect(html).toContain('trip-receipts-card')
 	})
 
 	it.each([

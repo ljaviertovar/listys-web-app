@@ -2,9 +2,9 @@
 
 import { useState } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { ArrowRight01Icon, Attachment01Icon, Invoice01Icon } from '@hugeicons/core-free-icons'
+import { ArrowRight01Icon, Attachment01Icon } from '@hugeicons/core-free-icons'
 
-import { DataFigure, DataLine, RowIcon } from '@/components/commons'
+import { CategorySection, DataFigure, DataLine } from '@/components/commons'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -42,7 +42,7 @@ export function TripReceiptSummary({
 	const [failedId, setFailedId] = useState<string | null>(null)
 	const summary = summarizeTripReceipts(receipts)
 	const active = mode === 'active'
-	const showPaidSummary = !active || summary.attachedCount > 0
+	const showPaidSummary = !active || receipts.length > 0
 	const paid = summary.hasCompleteTotals || (active && summary.attachedCount === 0) ? formatCurrency(summary.paid) : '—'
 	const details = active
 		? `${summary.count} ${summary.count === 1 ? 'receipt' : 'receipts'} · ${summary.toReview} to review`
@@ -54,7 +54,7 @@ export function TripReceiptSummary({
 			<Button
 				type='button'
 				variant='ghost-primary'
-				size='touch'
+				size='sm-default'
 				onClick={() => setViewId(receipt.id)}
 			>
 				View Receipt
@@ -64,7 +64,7 @@ export function TripReceiptSummary({
 			<Button
 				type='button'
 				variant='ghost-primary'
-				size='touch'
+				size='sm-default'
 				onClick={() => setReviewId(receipt.id)}
 			>
 				Review Receipt
@@ -74,7 +74,7 @@ export function TripReceiptSummary({
 			<Button
 				type='button'
 				variant='ghost-primary'
-				size='touch'
+				size='sm-default'
 				onClick={() => setFailedId(receipt.id)}
 			>
 				Review Receipt
@@ -83,30 +83,26 @@ export function TripReceiptSummary({
 		) : null
 
 		return (
-			<Card key={receipt.id} data-testid={`trip-receipt-${receipt.id}`} variant='stat' size='stat' tone='muted'>
-				<div className='grid min-w-0 grid-cols-[2.25rem_minmax(0,1fr)] items-center gap-x-2'>
-					<RowIcon icon={Invoice01Icon} tone='ocr' size='md' testId={`trip-receipt-icon-${receipt.id}`} />
-					<div className='flex min-w-0 flex-col gap-1'>
-						<p data-testid={`trip-receipt-store-${receipt.id}`} className='break-words text-sm font-semibold'>
+			<li key={receipt.id} data-testid={`trip-receipt-${receipt.id}`} className='px-4 py-3.5'>
+				<div className='flex min-w-0 flex-col gap-2'>
+					<div className='grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-2'>
+						<p data-testid={`trip-receipt-store-${receipt.id}`} className='min-w-0 break-words text-sm font-semibold'>
 							{receipt.store?.name ?? 'Store not confirmed'}
 						</p>
-						<div className='flex min-w-0 flex-wrap items-center justify-between gap-x-2 gap-y-1'>
-							{receipt.attached ? (
-								<div>
-									<Badge variant='tag'>
-										<HugeiconsIcon icon={Attachment01Icon} aria-hidden='true' strokeWidth={1.8} />
-										Attached to trip
-									</Badge>
-								</div>
-							) : (
-								<TicketStatusChip
-									status={status}
-									label={status === 'pending' || status === 'processing' ? 'Processing' : status === 'completed' ? 'Ready for Review' : 'Failed'}
-									testId={`trip-receipt-status-${receipt.id}`}
-								/>
-							)}
-							{action ? <div className='shrink-0'>{action}</div> : null}
-						</div>
+						{receipt.attached ? (
+							<Badge variant='tag'>
+								<HugeiconsIcon icon={Attachment01Icon} aria-hidden='true' strokeWidth={1.8} />
+								Attached to trip
+							</Badge>
+						) : (
+							<TicketStatusChip
+								status={status}
+								label={status === 'pending' || status === 'processing' ? 'Processing' : status === 'completed' ? 'Ready for Review' : 'Failed'}
+								testId={`trip-receipt-status-${receipt.id}`}
+							/>
+						)}
+					</div>
+					<div className='grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-2'>
 						<DataLine testId={`trip-receipt-data-${receipt.id}`}>
 							<span>
 								<span className='font-semibold text-foreground'>{receipt.items_count}</span>{' '}
@@ -114,12 +110,13 @@ export function TripReceiptSummary({
 							</span>
 							<DataFigure>{receipt.total_amount == null ? '—' : formatCurrency(receipt.total_amount)}</DataFigure>
 						</DataLine>
+						{action}
 					</div>
 					{!receipt.attached && status !== 'completed' && status !== 'failed' ? (
 						<TripReceiptReadingListener ticketId={receipt.id} />
 					) : null}
 				</div>
-			</Card>
+			</li>
 		)
 	})
 
@@ -155,24 +152,32 @@ export function TripReceiptSummary({
 
 	return (
 		<section data-testid={testId}>
-			{showPaidSummary ? (
-				<Card size='receipt'>
-					<div className='flex flex-col gap-4'>
-						{header}
-						<div className='flex flex-col gap-2'>{receiptRows}</div>
-						{trip && !active ? (
-							<UploadTicketDialog
-								label='Attach Receipt'
-								triggerIcon={Attachment01Icon}
-								variant='secondary'
-								size='primary'
-								className='w-full'
-								shoppingSessionId={trip.id}
-							/>
-						) : null}
-					</div>
-				</Card>
-			) : <div className='flex flex-col gap-2'>{receiptRows}</div>}
+			<Card size='receipt' data-testid='trip-receipts-card'>
+				<div className='flex flex-col gap-4'>
+					{showPaidSummary ? header : null}
+					<CategorySection
+						category='Receipts'
+						title='Receipts'
+						count={`${receipts.length} ${receipts.length === 1 ? 'receipt' : 'receipts'}`}
+						tone='ocr'
+						testId='trip-receipts-section'
+					>
+						<ul className='divide-y divide-slate-200/70 dark:divide-border' data-testid='trip-receipt-list'>
+							{receiptRows}
+						</ul>
+					</CategorySection>
+					{trip && !active ? (
+						<UploadTicketDialog
+							label='Attach Receipt'
+							triggerIcon={Attachment01Icon}
+							variant='secondary'
+							size='primary'
+							className='w-full'
+							shoppingSessionId={trip.id}
+						/>
+					) : null}
+				</div>
+			</Card>
 			{dialogs}
 		</section>
 	)

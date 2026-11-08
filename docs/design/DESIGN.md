@@ -742,6 +742,7 @@ descriptions, badges, toasts and list or receipt data keep sentence case.
 | Size          | Height                                           | Padding and label                                                                                                                           |
 | ------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | `sm`          | 32px                                             | 0 14px, 13px, 6px gap                                                                                                                       |
+| `sm-default`  | 32px below `md`, 40px from `md`                  | The default size for receipt row actions; keeps a 44px mobile hit area                                                                      |
 | `default`     | 36px below `md`, 40px from `md`                  | 0 12px, then 0 16px from `md`; 14px / 600, 6px gap (the default size)                                                                       |
 | `lg`          | 40px                                             | 0 16px, 14px / 600                                                                                                                          |
 | `xl`          | 44px                                             | 0 24px, 16px / 600 (the library's own xl; toolbars and sheet footers from `md`)                                                             |
@@ -1434,6 +1435,8 @@ repository's `data-testid` and test-location rules.
 ### 11.4 Current implementation gaps
 
 The active trip accumulator reuses the shopping summary pattern: its estimate covers checked items only, while pending rows retain their average prices. With known prices elsewhere in the trip, zero collected prices shows ≈ $0.00 and checked-item coverage; without any known prices it shows progress only. The HTML does not illustrate this zero/coverage edge. Base-list and Start Shopping estimates still cover the full list. Paid summaries in both modes use confirmed attachment totals (including corrections), not the original OCR amount; an unknown attached total keeps the paid amount unavailable.
+
+Trip receipts use the collapsible section header from pattern D: one cyan invoice icon and receipt count in “Receipts”, with divider-separated rows inside its muted panel. Base lists, shopping trips, receipt item lists and attachment review provide a top-level “Collapse All” / “Expand All” action for their category sections. These compositions derive from the existing category pattern; the HTML does not show the bulk action.
 
 These are remaining implementation notes, not permission for two systems:
 

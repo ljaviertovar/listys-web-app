@@ -32,7 +32,7 @@ describe('item store summary', () => {
       { id: 'store-2', name: 'Metro', purchase_count: 6 },
       { id: 'store-4', name: 'Walmart', purchase_count: 2 },
     ])
-    expect(formatAlsoAt(result.other_stores)).toBe('Also at Costco, Metro +1')
+    expect(formatAlsoAt(result.other_stores)).toBe('also at Costco, Metro +1')
   })
 
   it('returns store stats when there is no usual store', () => {
@@ -41,22 +41,22 @@ describe('item store summary', () => {
     expect(result.other_stores).toHaveLength(4)
   })
 
-	it('keeps numeric price rows for compatibility and adds unpriced stores to history', () => {
-		const result = buildItemStoreSummary([
-			{ ...stats[0], last_price: 5.49, last_quantity: 2, last_unit: 'each', last_price_at: '2026-10-01T00:00:00Z' },
-			stats[1],
-		], null, null)
-		expect(result.store_history).toHaveLength(2)
-		expect(result.store_history.find(row => row.store.id === 'store-2')).toMatchObject({ last_price: null, purchase_count: 6 })
-		expect(result.store_prices).toEqual([{
-			store: { id: 'store-1', name: 'No Frills' },
-			last_price: 5.49,
-			last_quantity: 2,
-			last_unit: 'each',
-			last_price_at: '2026-10-01T00:00:00Z',
-			purchase_count: 8,
-		}])
-	})
+  it('keeps numeric price rows for compatibility and adds unpriced stores to history', () => {
+    const result = buildItemStoreSummary([
+      { ...stats[0], last_price: 5.49, last_quantity: 2, last_unit: 'each', last_price_at: '2026-10-01T00:00:00Z' },
+      stats[1],
+    ], null, null)
+    expect(result.store_history).toHaveLength(2)
+    expect(result.store_history.find(row => row.store.id === 'store-2')).toMatchObject({ last_price: null, purchase_count: 6 })
+    expect(result.store_prices).toEqual([{
+      store: { id: 'store-1', name: 'No Frills' },
+      last_price: 5.49,
+      last_quantity: 2,
+      last_unit: 'each',
+      last_price_at: '2026-10-01T00:00:00Z',
+      purchase_count: 8,
+    }])
+  })
 
   it('hides unreadable store embeds for collaborators', () => {
     const result = buildItemStoreSummary([{ ...stats[0], store: null }], null, null)
