@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { DataFigure, DataLine, EntityLabel } from '@/components/commons'
 import { AddItemSheet } from '@/components/features/list-items'
 import { ShareListDialog } from '@/components/features/sharing'
-import { STARTED_SESSION_PARAM, SessionEstimate, SessionProgressCard, TripReceiptsCard, TripReceiptSummary,
+import { STARTED_SESSION_PARAM, SessionSummaryCard, TripReceiptsCard, TripReceiptSummary,
 	getTripReceiptState, getTripStores, ShoppingSessionActions, ShoppingSessionItems, ShoppingSessionRealtimeListener,
 	buildSessionPriceEstimate, resolveSessionBackLink } from '@/components/features/shopping-sessions'
 import { getShoppingSession } from '@/actions'
@@ -67,6 +67,7 @@ export default async function ShoppingRunPage({ params, searchParams }: { params
 		return info ? [[item.id, info]] : []
 	}))
 	const pending = pendingResult.data ?? []
+	const backToSaved = first(query.from) === 'trip-saved' && isCompleted && receipts.length === 0 && pending.length === 0
 	const receiptState = getTripReceiptState({ receipts, pendingReceipt: pending[0] })
 	const stores = getTripStores(run.store, receipts)
 	const when = run.completed_at ?? run.started_at
@@ -81,25 +82,25 @@ export default async function ShoppingRunPage({ params, searchParams }: { params
 	}
 	return <>
 		<TripNavigationMarker completed={isCompleted} pathname={`/shopping/${runId}`} />
-		<PageHeader variant='screen' back={{ href: backHref, label: backLabel }} title={run.name}
+		<PageHeader variant='screen' back={backToSaved ? { href: `/shopping/${runId}`, label: 'Back to Trip Saved' } : { href: backHref, label: backLabel }} title={run.name}
 			aside={isCompleted ? <Badge variant='completed' dot>Completed</Badge> : <ActiveShoppingBadge />}
 			desc={<div className='flex flex-col gap-2'>
 				<div data-testid='trip-header-classification' className='flex flex-wrap items-center gap-x-2.5 gap-y-1.5'>
 					{stores.map(store => <EntityLabel key={store.id} name={store.name} testId={`trip-store-${store.id}`} />)}
-					{isCompleted ? <Badge variant={receipts.length ? 'tag' : 'tag-attention'}><HugeiconsIcon icon={receipts.length || pending.length ? Attachment01Icon : Alert02Icon} strokeWidth={1.8} aria-hidden='true' />{receipts.length > 1 ? `${receipts.length} receipts` : receipts.length ? 'Receipt attached' : pending.length ? `${pending.length} uploaded ${pending.length === 1 ? 'receipt' : 'receipts'}` : 'No receipt'}</Badge> : null}
+					{isCompleted ? <Badge variant={receipts.length ? 'tag' : 'tag-attention'}><HugeiconsIcon icon={receipts.length ? Attachment01Icon : Alert02Icon} strokeWidth={1.8} aria-hidden='true' />{receipts.length > 1 ? `${receipts.length} Receipt attached` : receipts.length ? 'Receipt attached' : 'No Receipt attached'}</Badge> : null}
 				</div>
 				{isCompleted ? <DataLine testId='trip-header-data'>{date ? <DataFigure>{formatTripDate(date)}</DataFigure> : null}{date ? <DataFigure>{formatTime(date)}</DataFigure> : null}{amount == null ? null : <DataFigure>{!receipts.length ? '≈ ' : ''}{formatCurrency(amount)}</DataFigure>}</DataLine> : null}
 			</div>}>
-			{!isCompleted ? <ShoppingSessionActions sessionId={runId} checked={checkedCount} total={totalCount} isOwner={isListOwner} canUploadReceipt={ranTrip} /> : null}
+			{!isCompleted ? <ShoppingSessionActions sessionId={runId} checked={checkedCount} total={totalCount} baseListId={baseListId} listName={baseListName} isOwner={isListOwner} canAttachReceipt={Boolean(trip)} /> : null}
 		</PageHeader>
 		<PageContainer className='pb-[calc(7rem+max(1.125rem,env(safe-area-inset-bottom)))] lg:pb-20'>
 			<div className='flex w-full max-w-3xl flex-col gap-6'>
-				{!isCompleted && totalCount > 0 ? <SessionProgressCard checked={checkedCount} total={totalCount} /> : null}
-				{priceEstimate && (!isCompleted || !receipts.length) ? <SessionEstimate total={priceEstimate.total} pricedCount={priceEstimate.pricedCount} itemCount={priceEstimate.itemCount} completed={isCompleted} /> : null}
+				{!isCompleted && totalCount > 0 ? <SessionSummaryCard mode='active' checked={checkedCount} total={totalCount} estimate={priceEstimate.pricedCount > 0 ? priceEstimate : undefined} /> : null}
+				{isCompleted && priceEstimate && !receipts.length ? <SessionSummaryCard mode='completed' estimate={priceEstimate} /> : null}
 				{isCompleted && receiptState.kind !== 'attached' && pending.length === 0 ? <TripReceiptsCard state={receiptState} itemCount={checkedCount} listName={baseListName} openAddOnLoad={first(query.receipt) === 'add'} trip={trip} /> : null}
-				{isCompleted && activeEntries.length ? <TripReceiptSummary receipts={activeEntries} active={false} itemCount={checkedCount} fallbackTotal={run.total_amount} estimate={priceEstimate?.pricedCount ? priceEstimate.total : undefined} trip={trip} /> : null}
-				{!isCompleted && activeEntries.length ? <TripReceiptSummary receipts={activeEntries} active itemCount={checkedCount} trip={trip} /> : null}
-				{!isCompleted ? <div data-testid='session-toolbar' className='grid grid-cols-2 gap-2 md:flex md:justify-end'>
+				{isCompleted && activeEntries.length ? <TripReceiptSummary receipts={activeEntries} mode='completed' itemCount={checkedCount} estimate={priceEstimate?.pricedCount ? priceEstimate.total : undefined} trip={trip} /> : null}
+				{!isCompleted && trip ? <TripReceiptSummary receipts={activeEntries} mode='active' itemCount={checkedCount} trip={trip} /> : null}
+				{!isCompleted ? <div data-testid='session-toolbar' className='hidden grid-cols-2 gap-2 lg:flex lg:justify-end'>
 					{baseListId && isListOwner ? <ShareListDialog baseListId={baseListId} listName={baseListName} isOwner={isListOwner} className='w-full md:w-auto' /> : null}
 					<AddItemSheet target={{ context: 'shopping-session', sessionId: runId }} className={baseListId && isListOwner ? 'w-full md:w-auto' : 'col-span-2 w-full md:col-auto md:w-auto'} />
 				</div> : null}

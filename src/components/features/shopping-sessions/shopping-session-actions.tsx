@@ -2,9 +2,11 @@
 
 import { useState } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { ArrowDown01Icon, ArrowUp01Icon, Cancel01Icon, CheckmarkCircle02Icon, ShoppingBag02Icon, Tick02Icon, Upload06Icon } from '@hugeicons/core-free-icons'
-import { UploadTicketDialog } from '@/components/features/tickets'
+import { Attachment01Icon, Cancel01Icon, CheckmarkCircle02Icon, PlusSignIcon, Share01Icon, ShoppingBag02Icon, Tick02Icon } from '@hugeicons/core-free-icons'
 
+import { AddItemSheet } from '@/components/features/list-items'
+import { ShareListDialog } from '@/components/features/sharing'
+import { UploadTicketDialog } from '@/components/features/tickets'
 import { Button } from '@/components/ui/button'
 import {
 	DropdownMenu,
@@ -23,31 +25,31 @@ interface ShoppingSessionActionsProps {
 	sessionId: string
 	checked: number
 	total: number
+	baseListId?: string | null
+	listName: string
 	/** Only the owner of the list can complete or cancel its session. */
 	isOwner?: boolean
-	canUploadReceipt?: boolean
+	/** Only the person who started the trip can attach its receipts. */
+	canAttachReceipt?: boolean
 }
 
 /**
- * What ends a shopping session. Phones get one small floating "Actions" button above the tab bar that opens its two
- * options; from `lg` they are two buttons beside the title. Both open the same sheets.
+ * Session actions stay in the floating phone menu and desktop header; item and sharing sheets open from the menu or desktop toolbar.
  */
-export function ShoppingSessionActions({ sessionId, checked, total, isOwner = false, canUploadReceipt = isOwner }: ShoppingSessionActionsProps) {
+export function ShoppingSessionActions({ sessionId, checked, total, baseListId, listName, isOwner = false, canAttachReceipt = false }: ShoppingSessionActionsProps) {
 	const [menuOpen, setMenuOpen] = useState(false)
 	const [completeOpen, setCompleteOpen] = useState(false)
 	const [cancelOpen, setCancelOpen] = useState(false)
-	const [uploadOpen, setUploadOpen] = useState(false)
-
-	if (!isOwner && !canUploadReceipt) return null
+	const [shareOpen, setShareOpen] = useState(false)
+	const [addItemOpen, setAddItemOpen] = useState(false)
+	const [receiptOpen, setReceiptOpen] = useState(false)
 
 	return (
 		<>
-			<div
+			{isOwner ? <div
 				data-testid='session-actions-inline'
 				className='hidden items-center gap-2 lg:flex'
 			>
-				{canUploadReceipt ? <Button type='button' variant='outline' size='primary' onClick={() => setUploadOpen(true)}>Upload Receipt</Button> : null}
-				{isOwner ? <>
 				<Button
 					size='primary'
 					variant='destructive-soft'
@@ -73,8 +75,7 @@ export function ShoppingSessionActions({ sessionId, checked, total, isOwner = fa
 					/>
 					Complete Shopping
 				</Button>
-				</> : null}
-			</div>
+			</div> : null}
 
 			<div
 				data-testid='session-actions-floating'
@@ -88,21 +89,16 @@ export function ShoppingSessionActions({ sessionId, checked, total, isOwner = fa
 						<Button
 							type='button'
 							data-testid='session-actions-button'
+							aria-label='Actions'
 							variant='floating'
-							size='xl'
+							size='icon-xl'
+							rounded='full'
 						>
 							<HugeiconsIcon
 								icon={ShoppingBag02Icon}
 								strokeWidth={1.5}
 								aria-hidden='true'
 								className='size-4.5'
-							/>
-							Actions
-							<HugeiconsIcon
-								icon={menuOpen ? ArrowDown01Icon : ArrowUp01Icon}
-								strokeWidth={1.8}
-								aria-hidden='true'
-								className='size-4'
 							/>
 						</Button>
 					</DropdownMenuTrigger>
@@ -113,8 +109,20 @@ export function ShoppingSessionActions({ sessionId, checked, total, isOwner = fa
 						variant='menu'
 						className='w-58'
 					>
-						{canUploadReceipt ? <DropdownMenuItem onSelect={() => setUploadOpen(true)} size='touch'><HugeiconsIcon icon={Upload06Icon} strokeWidth={1.8} aria-hidden='true' className='size-5' />Upload Receipt</DropdownMenuItem> : null}
+						{isOwner && baseListId ? <DropdownMenuItem onSelect={() => setShareOpen(true)} size='touch'>
+							<HugeiconsIcon icon={Share01Icon} strokeWidth={1.8} aria-hidden='true' className='size-5' />
+							Share
+						</DropdownMenuItem> : null}
+						<DropdownMenuItem onSelect={() => setAddItemOpen(true)} size='touch'>
+							<HugeiconsIcon icon={PlusSignIcon} strokeWidth={1.8} aria-hidden='true' className='size-5' />
+							Add Item
+						</DropdownMenuItem>
+						{canAttachReceipt ? <DropdownMenuItem onSelect={() => setReceiptOpen(true)} size='touch'>
+							<HugeiconsIcon icon={Attachment01Icon} strokeWidth={1.8} aria-hidden='true' className='size-5' />
+							Attach Receipt
+						</DropdownMenuItem> : null}
 						{isOwner ? <>
+						<DropdownMenuSeparator />
 						<DropdownMenuItem
 							onSelect={() => setCompleteOpen(true)}
 							size='touch'
@@ -145,8 +153,10 @@ export function ShoppingSessionActions({ sessionId, checked, total, isOwner = fa
 					</DropdownMenuContent>
 				</DropdownMenu>
 			</div>
+			{isOwner && baseListId ? <ShareListDialog baseListId={baseListId} listName={listName} isOwner={isOwner} trigger={null} open={shareOpen} onOpenChange={setShareOpen} /> : null}
+			<AddItemSheet target={{ context: 'shopping-session', sessionId }} trigger={null} open={addItemOpen} onOpenChange={setAddItemOpen} />
+			{canAttachReceipt ? <UploadTicketDialog trigger={null} open={receiptOpen} onOpenChange={setReceiptOpen} shoppingSessionId={sessionId} /> : null}
 
-			{canUploadReceipt ? <UploadTicketDialog trigger={null} open={uploadOpen} onOpenChange={setUploadOpen} shoppingSessionId={sessionId} /> : null}
 			{isOwner ? <><CompleteSessionSheet
 				sessionId={sessionId}
 				checked={checked}

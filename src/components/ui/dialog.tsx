@@ -158,15 +158,15 @@ DialogFooter.displayName = "DialogFooter";
 const dialogTitleVariants = cva("", {
   variants: {
     variant: {
-      default: "text-lg font-semibold leading-none tracking-tight",
+      default: "text-base font-semibold leading-none tracking-tight md:text-lg",
       // The heading of an A1 form sheet.
       sheet:
-        "font-display text-xl leading-[1.3] font-semibold tracking-tight text-foreground focus:outline-none",
+        "font-display text-lg leading-[1.3] font-semibold tracking-tight text-foreground focus:outline-none md:text-xl",
       // A confirmation or a list dialog: bold and tight.
-      strong: "text-lg leading-none font-bold tracking-tight text-foreground",
+      strong: "text-base leading-none font-bold tracking-tight text-foreground md:text-lg",
       // The title bar of the dark viewer.
       viewer:
-        "font-display text-base leading-none font-bold tracking-normal text-white",
+        "font-display text-sm leading-none font-bold tracking-normal text-white md:text-base",
     },
   },
   defaultVariants: { variant: "default" },
@@ -189,8 +189,8 @@ DialogTitle.displayName = DialogPrimitive.Title.displayName;
 const dialogDescriptionVariants = cva("", {
   variants: {
     variant: {
-      default: "text-sm text-muted-foreground",
-      sheet: "text-sm leading-normal text-slate-500 dark:text-muted-foreground",
+      default: "text-xs text-muted-foreground md:text-sm",
+      sheet: "text-xs leading-normal text-slate-500 dark:text-muted-foreground md:text-sm",
     },
   },
   defaultVariants: { variant: "default" },

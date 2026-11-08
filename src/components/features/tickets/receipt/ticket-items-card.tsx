@@ -164,12 +164,12 @@ export function TicketNoItems() {
 	)
 }
 
-export function TicketProcessingError() {
+export function TicketProcessingError({ compact = false }: { compact?: boolean } = {}) {
 	const errorTitle = 'Failed to Process Receipt'
 	const errorMessage = 'Unable to extract items from this receipt.'
 
 	return (
-		<div data-testid='ticket-processing-error' className='py-8'>
+		<div data-testid='ticket-processing-error' className={compact ? 'pt-4 pb-3' : 'py-8'}>
 			<Alert variant='warning'>
 				<HugeiconsIcon
 					icon={SpamIcon}

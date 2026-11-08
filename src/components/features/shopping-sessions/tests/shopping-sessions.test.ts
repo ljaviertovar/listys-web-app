@@ -76,11 +76,13 @@ describe('ShoppingSessionItems', () => {
 })
 
 describe('ShoppingSessionActions', () => {
-	it('is only for the owner of the list', () => {
-		const render = (isOwner: boolean) => renderToStaticMarkup(createElement(ShoppingSessionActions, { sessionId: 's1', checked: 1, total: 4, isOwner }))
+	it('shows the floating actions trigger to everyone and restricts trip completion to the owner', () => {
+		const render = (isOwner: boolean) => renderToStaticMarkup(createElement(ShoppingSessionActions, { sessionId: 's1', checked: 1, total: 4, listName: 'Groceries', isOwner }))
 
 		expect(render(true)).toContain('Complete Shopping')
-		expect(render(false)).toBe('')
+		expect(render(true)).toContain('aria-label="Actions"')
+		expect(render(false)).toContain('aria-label="Actions"')
+		expect(render(false)).not.toContain('Complete Shopping')
 	})
 })
 
@@ -101,7 +103,15 @@ describe('HistorySessionCard receipt status', () => {
 		const html = render(null)
 		expect(html).toContain('Completed')
 		expect(html).toContain('data-testid="history-no-receipt-s1"')
+		expect(html).toContain('No Receipt attached')
 		expect(html).not.toContain('history-add-receipt-s1')
+	})
+
+	it('shows the number of attached receipts when a trip has two', () => {
+		const receipts = ['ticket-1', 'ticket-2'].map(id => ({ id, store: null, total_amount: 20, items_count: 1 }))
+		const html = renderToStaticMarkup(createElement(HistorySessionCard, { session: { ...session, receipts } }))
+		expect(html).toContain('2 Receipt attached')
+		expect(html).not.toContain('No Receipt attached')
 	})
 
 	it('opens the trip details and keeps the list filter', () => {

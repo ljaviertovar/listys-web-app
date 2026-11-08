@@ -9,8 +9,11 @@ import { TicketPhotoRow } from '@/components/features/tickets/photo/ticket-photo
 import { TicketPhotoViewer } from '@/components/features/tickets/photo/ticket-photo-viewer'
 import { usePhotoView } from '@/components/features/tickets/photo/hooks/use-photo-view'
 import { useTicketImageUrls } from '@/components/features/tickets/photo/hooks/use-ticket-image-urls'
+import { TicketActions } from '@/components/features/tickets/receipt/ticket-actions'
+import { TicketProcessingError } from '@/components/features/tickets/receipt/ticket-items-card'
+import { TicketStatusChip } from '@/components/features/tickets/ticket-status-chip'
 import { Card } from '@/components/ui/card'
-import { formatCurrency, formatItemName } from '@/utils'
+import { formatCurrency, formatDate, formatItemName, formatTime } from '@/utils'
 
 import { useTripReceiptDetails } from './hooks/use-trip-receipt-details'
 
@@ -18,6 +21,8 @@ interface TripReceiptDetailsSheetProps {
 	ticketId: string
 	open: boolean
 	onOpenChange: (open: boolean) => void
+	failed?: boolean
+	returnHref?: string
 	testId?: string
 }
 
@@ -25,6 +30,8 @@ export function TripReceiptDetailsSheet({
 	ticketId,
 	open,
 	onOpenChange,
+	failed = false,
+	returnHref,
 	testId = 'trip-receipt-details-sheet',
 }: TripReceiptDetailsSheetProps) {
 	const { details, loading, error } = useTripReceiptDetails(ticketId, open)
@@ -32,9 +39,12 @@ export function TripReceiptDetailsSheet({
 	const imagePaths = details?.image_paths?.length ? details.image_paths : details?.image_path ? [details.image_path] : []
 	const photos = useTicketImageUrls(imagePaths)
 	const view = usePhotoView(photos.urls.length)
-	const storeName = details?.store_name?.trim() || 'Store not confirmed'
-	const description = details
-		? `${details.total_items ?? details.items.length} ${details.items.length === 1 ? 'item' : 'items'}${details.total_amount != null ? ` · ${formatCurrency(details.total_amount)}` : ''}`
+	const storeName = details?.store_name?.trim() || (failed ? 'Store not recognized' : 'Store not confirmed')
+	const uploadedAt = details?.created_at ? new Date(details.created_at) : null
+	const description = failed && uploadedAt && !Number.isNaN(uploadedAt.getTime())
+		? `Uploaded ${formatDate(uploadedAt)} · ${formatTime(uploadedAt)}`
+		: details && !failed
+			? `${details.total_items ?? details.items.length} ${details.items.length === 1 ? 'item' : 'items'}${details.total_amount != null ? ` · ${formatCurrency(details.total_amount)}` : ''}`
 		: undefined
 
 	return (
@@ -75,7 +85,16 @@ export function TripReceiptDetailsSheet({
 									onOpen={() => setPhotoOpen(true)}
 								/>
 							) : null}
-							<Card
+							{failed ? <>
+								<Card size='tight' data-testid={`${testId}-failed`}>
+									<div className='flex items-center justify-between gap-3'>
+										<h2 className='font-display text-base font-semibold'>Extracted Items</h2>
+										<TicketStatusChip status='failed' />
+									</div>
+									<TicketProcessingError compact />
+									<TicketActions ticket={{ id: ticketId, ocr_status: 'failed' }} returnHref={returnHref} onRetrySuccess={() => onOpenChange(false)} onDeleted={() => onOpenChange(false)} />
+								</Card>
+							</> : <><Card
 								size='tight'
 								data-testid={`${testId}-items`}
 							>
@@ -139,7 +158,7 @@ export function TripReceiptDetailsSheet({
 										<strong className='font-mono text-lg tabular-nums'>{formatCurrency(details.total_amount)}</strong>
 									</div>
 								</Card>
-							) : null}
+							) : null}</>}
 						</>
 					) : null}
 				</div>

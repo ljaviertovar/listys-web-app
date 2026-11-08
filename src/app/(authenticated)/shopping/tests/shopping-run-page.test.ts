@@ -75,9 +75,10 @@ describe('shopping session page estimate', () => {
 
 		const html = await render()
 
-		expect(html).toContain('data-testid="session-estimate-card"')
+		expect(html).toContain('data-testid="session-summary-card"')
 		expect(html).toContain('$3.50')
 		expect(html).toContain('Estimated total')
+		expect(html).not.toContain('data-testid="session-receipt-summary"')
 		expect(html).toContain('data-prices="{&quot;i1&quot;:3.5}"')
 		expect(mocks.baseListItemReads).toEqual(['list-1'])
 	})
@@ -87,7 +88,8 @@ describe('shopping session page estimate', () => {
 
 		const html = await render({ details: '1' })
 
-		expect(html).toContain('session-estimate-card')
+		expect(html).toContain('data-testid="session-summary-card"')
+		expect(html).not.toContain('role="progressbar"')
 		expect(html).toContain('≈ $3.50')
 		expect(html).toContain('data-prices="null"')
 		expect(mocks.baseListItemReads).toEqual(['list-1'])
@@ -124,12 +126,12 @@ describe('shopping session page receipts card', () => {
 		expect(html).toContain('View Receipt')
 		expect(html).not.toContain('href="/tickets/r1"')
 		expect(html).not.toContain('href="/tickets/r2"')
-		expect(html).toContain('Add Another Receipt')
+		expect(html).toContain('Attach Receipt')
 		expect(html.indexOf('Completed')).toBeLessThan(html.indexOf('trip-header-classification'))
 		expect(html.indexOf('No Frills')).toBeLessThan(html.indexOf('Costco'))
-		expect(html.indexOf('2 receipts')).toBeLessThan(html.indexOf('trip-header-data'))
+		expect(html.indexOf('2 Receipt attached')).toBeLessThan(html.indexOf('trip-header-data'))
 		vi.mocked(getShoppingSession).mockResolvedValue({ data: { ...data, user_id: 'other' }, error: null } as never)
-		expect(await render()).not.toContain('Add Another Receipt')
+		expect(await render()).not.toContain('Attach Receipt')
 	})
 	beforeEach(() => {
 		mocks.pendingReceipt = null
@@ -150,17 +152,17 @@ describe('shopping session page receipts card', () => {
 		mocks.pendingReceipt = { id: 'ticket-9', ocr_status: 'completed', total_items: 1 }
 		const uploadedReceipt = await render()
 		expect(uploadedReceipt).not.toContain('data-state="saved"')
-		expect(uploadedReceipt).toContain('1 uploaded receipt')
+		expect(uploadedReceipt).toContain('No Receipt attached')
 		expect(uploadedReceipt).toContain('data-testid="session-receipt-summary"')
-		expect(uploadedReceipt).toContain('Pending attachment')
+		expect(uploadedReceipt).toContain('Ready for Review')
 	})
 
 	it('shows the trip details on request, and draws nothing when one is attached or the trip is running', async () => {
 		vi.mocked(getShoppingSession).mockResolvedValue({ data: session('completed'), error: null } as never)
 		const later = await render({ details: '1' })
 		expect(later).toContain('data-state="no-receipt"')
-		expect(later).toContain('No receipt')
-		expect(later).toContain('Upload New Receipt')
+		expect(later).toContain('No Receipt attached')
+		expect(later).toContain('Attach Receipt')
 		expect(later).not.toContain('Keep It Separate')
 
 		vi.mocked(getShoppingSession).mockResolvedValue({
@@ -182,7 +184,7 @@ describe('shopping session page receipt status', () => {
 	it('shows the saved view for a trip without an uploaded or attached receipt', async () => {
 		const html = await render({ receipt: 'add' })
 		expect(html).toContain('Trip saved')
-		expect(html).toContain('Upload New Receipt')
+		expect(html).toContain('Upload Receipt')
 	})
 
 	it('marks a trip with a receipt as such and draws no receipts card', async () => {
@@ -193,14 +195,15 @@ describe('shopping session page receipt status', () => {
 	})
 
 	it.each([
-		['processing', 'Reading your receipt'],
-		['pending', 'Reading your receipt'],
-		['completed', 'Pending attachment'],
-		['failed', 'We couldn&#x27;t read this receipt'],
+		['processing', 'Processing'],
+		['pending', 'Processing'],
+		['completed', 'Ready for Review'],
+		['failed', 'Failed'],
 	])('shows a receipt uploaded from the trip while it is %s', async (ocrStatus, text) => {
 		mocks.pendingReceipt = { id: 'ticket-9', ocr_status: ocrStatus, total_items: 1 }
 		const html = await render({ details: '1' })
 		expect(html).toContain(text)
+		expect(html).toContain('No Receipt attached')
 		expect(html).toContain('data-testid="session-receipt-summary"')
 		if (ocrStatus === 'completed') expect(html).toContain('Review Receipt')
 		expect(html).not.toContain('Review how this receipt will update the trip')
@@ -218,6 +221,22 @@ describe('shopping session page receipt status', () => {
 
 // The origin rules live in resolveSessionBackLink and are covered there; this checks the page hands them its search params.
 describe('shopping session page back link', () => {
+	beforeEach(() => { mocks.pendingReceipt = null })
+
+	it('returns from View Trip to the Trip Saved screen when no receipt exists', async () => {
+		vi.mocked(getShoppingSession).mockResolvedValue({ data: session('completed'), error: null } as never)
+		const html = await render({ details: '1', from: 'trip-saved' })
+		expect(html).toContain('href="/shopping/run-1"')
+		expect(html).toContain('Back to Trip Saved')
+	})
+
+	it('returns to the normal origin if a receipt makes Trip Saved unavailable', async () => {
+		vi.mocked(getShoppingSession).mockResolvedValue({ data: { ...session('completed'), receipts: [{ id: 'ticket-1', total_amount: 38.5, store: null, items_count: 2 }] }, error: null } as never)
+		const html = await render({ details: '1', from: 'trip-saved' })
+		expect(html).toContain('Back to Lists')
+		expect(html).not.toContain('Back to Trip Saved')
+	})
+
 	it('goes back to the history with the list it was narrowed to', async () => {
 		vi.mocked(getShoppingSession).mockResolvedValue({ data: session('completed'), error: null } as never)
 

@@ -12,14 +12,15 @@ vi.mock('@/components/ui/dropdown-menu', async importOriginal => ({
 }))
 
 describe('trip owner receipt action', () => {
-	it('places upload before completion and cancellation in the owner menu', () => {
-		const html = renderToStaticMarkup(createElement(ShoppingSessionActions, { sessionId: 'trip', checked: 1, total: 3, isOwner: true, canUploadReceipt: true }))
+	it('keeps receipt upload out of the owner menu', () => {
+		const html = renderToStaticMarkup(createElement(ShoppingSessionActions, { sessionId: 'trip', checked: 1, total: 3, baseListId: 'list', listName: 'Pantry', isOwner: true }))
 		const menu = html.slice(html.indexOf('actions-menu-content'))
-		expect(menu.indexOf('Upload Receipt')).toBeGreaterThan(0)
-		expect(menu.indexOf('Upload Receipt')).toBeLessThan(menu.indexOf('Complete Shopping'))
+		expect(menu).not.toContain('Upload Receipt')
 		expect(menu.indexOf('Complete Shopping')).toBeLessThan(menu.indexOf('Cancel Shopping'))
 	})
-	it('does not offer an upload to a viewer who did not run the trip', () => {
-		expect(renderToStaticMarkup(createElement(ShoppingSessionActions, { sessionId: 'trip', checked: 1, total: 3, isOwner: false, canUploadReceipt: false }))).toBe('')
+	it('keeps Add Item available to a viewer who does not own the list', () => {
+		const html = renderToStaticMarkup(createElement(ShoppingSessionActions, { sessionId: 'trip', checked: 1, total: 3, listName: 'Pantry', isOwner: false }))
+		expect(html).toContain('Add Item')
+		expect(html).not.toContain('Complete Shopping')
 	})
 })

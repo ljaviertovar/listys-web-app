@@ -7,6 +7,10 @@ import type { TicketSessionMatch } from '@/lib/api/endpoints'
 import { ChangeLineSheet } from '../change-line-sheet'
 import { TripReviewLineRow } from '../trip-review-line-row'
 import { TripReviewSection } from '../trip-review-section'
+import { AttachToSessionDialog } from '../attach-to-session-dialog'
+import type { TripReview } from '../hooks/use-trip-review'
+
+vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }) }))
 
 vi.mock('@/components/commons', async importOriginal => ({
 	...await importOriginal<typeof import('@/components/commons')>(),
@@ -16,6 +20,23 @@ vi.mock('@/components/commons', async importOriginal => ({
 const line: AttachReviewLine = { id: 'a', ticketItemId: 'a', name: 'Milk', price: 4, decision: { kind: 'add' }, shoppingSessionItem: null, tag: null, result: 'Adds as a new item', canChange: true }
 
 describe('trip review application controls', () => {
+	it('offers deletion when reviewing an unattached receipt', () => {
+		const actions = {
+			open: true,
+			trip: { id: 'trip-1', name: 'Pantry trip', status: 'completed', base_list: { name: 'Pantry' } },
+			receiptId: 'receipt-1',
+			reviewLoading: false,
+			reviewError: null,
+			submitError: null,
+			receiptStore: null,
+			review: { sections: [], checkedNotOnReceipt: [], notCheckedNotOnReceipt: [], counts: { matched: 0, added: 0, leftOut: 0 }, allMatch: false, confirmLabel: 'Attach to Trip' },
+			matches: [], sessionItems: [], totalInput: '', totalIsValid: true, submitting: false,
+			setOpen: vi.fn(), closeReview: vi.fn(), setTotalInput: vi.fn(), submit: vi.fn(), setEditingLineId: vi.fn(),
+		} as unknown as TripReview
+		const html = renderToStaticMarkup(createElement(AttachToSessionDialog, { actions }))
+		expect(html).toContain('Delete Receipt')
+		expect(html).toContain('data-testid="delete-receipt-action"')
+	})
 	it('offers exactly one change action for a readable line, and none for an unreadable one', () => {
 		const render = (canChange: boolean) => renderToStaticMarkup(createElement(TripReviewLineRow, { line: { ...line, canChange }, onChange: () => {} }))
 		expect(render(true).match(/aria-label="Change Milk"/g)).toHaveLength(1)

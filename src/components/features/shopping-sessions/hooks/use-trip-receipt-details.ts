@@ -6,6 +6,7 @@ import { getTicket } from '@/lib/api/endpoints/tickets'
 import type { TicketItem } from '@/types'
 
 export interface TripReceiptDetails {
+	created_at?: string | null
 	image_path: string | null
 	image_paths?: string[] | null
 	items: TicketItem[]

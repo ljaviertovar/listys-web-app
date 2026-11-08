@@ -183,7 +183,7 @@ export function useTripReview({ ticketId, trip, ticket: providedTicket = null, o
 	}
 
 	return {
-		trip, lines: ticket?.lines ?? [], receiptStore: ticket?.receiptStore ?? null,
+		trip, receiptId: ticketId, lines: ticket?.lines ?? [], receiptStore: ticket?.receiptStore ?? null,
 		open, setOpen, openReview, closeReview, phase,
 		sessionItems, matches, reviewLoading, reviewError,
 		retryReview: () => trip && void loadReview(trip, ticket),

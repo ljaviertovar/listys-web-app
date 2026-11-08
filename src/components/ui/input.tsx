@@ -20,6 +20,7 @@ const inputVariants = cva(
 			// Room for a 44px control laid over the end of the field (the show-password toggle).
 			adornment: {
 				none: '',
+				start: 'pl-11',
 				end: 'pr-13',
 			},
 		},

@@ -48,7 +48,7 @@ export function ChangeLineSheet({ line, match, items, listName, onClose, onSave 
 						<ChoiceRow variant='card' testId={`change-line-choice-${choice.kind}`} option={{ value: choice.kind, label: labels[choice.kind], disabled: choice.disabled, note: choice.reason ?? TRIP_REVIEW_COPY.choices[choice.kind](listName) }} />
 						{choice.kind === 'match' && kind === 'match' ? <div className='rounded-2xl bg-muted p-3' onKeyDown={event => {
 							if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) event.stopPropagation()
-						}}><SearchableChoiceList testId='change-line-trip-items' searchLabel='Search trip items' query={query} onQueryChange={setQuery}
+						}}><SearchableChoiceList testId='change-line-trip-items' searchLabel='Search trip items' showSearchIcon query={query} onQueryChange={setQuery}
 							options={available.map(item => ({ value: item.id, label: formatItemName(item.name), detail: item.checked ? 'checked' : 'not checked' }))}
 							value={itemId} onValueChange={setItemId} status={`${available.length} ${available.length === 1 ? 'trip item' : 'trip items'}`} /></div> : null}
 					</div>)}

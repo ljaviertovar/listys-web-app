@@ -4,6 +4,7 @@ import { TICKET_STATUS_META, type TicketStatus } from './helpers/ticket-status'
 
 interface TicketStatusChipProps {
 	status: TicketStatus
+	label?: string
 	className?: string
 	testId?: string
 }
@@ -12,7 +13,7 @@ interface TicketStatusChipProps {
  * Status chip of the design system (canvas 3/7): the one filled pill, 22px, tinted with the colour of its status, with a 6px dot and text of
  * that colour. It is deliberately not the shape of a button (12px radius, grey, 40px) so it never reads as something to press.
  */
-export function TicketStatusChip({ status, className, testId = 'ticket-status-chip' }: TicketStatusChipProps) {
+export function TicketStatusChip({ status, label, className, testId = 'ticket-status-chip' }: TicketStatusChipProps) {
 	const meta = TICKET_STATUS_META[status]
 
 	return (
@@ -29,7 +30,7 @@ export function TicketStatusChip({ status, className, testId = 'ticket-status-ch
 				aria-hidden='true'
 				className='size-1.5 shrink-0 rounded-full bg-current'
 			/>
-			{meta.label}
+			{label ?? meta.label}
 		</span>
 	)
 }

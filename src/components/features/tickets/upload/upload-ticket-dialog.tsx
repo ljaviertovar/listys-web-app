@@ -15,7 +15,6 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from '@/components/ui/dialog'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button, type ButtonProps } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useDialogFocus } from '@/hooks'
@@ -27,7 +26,12 @@ const UploadTicketForm = dynamic(
 	{
 		ssr: false,
 		loading: () => (
-			<div role='status' aria-live='polite' data-testid='upload-ticket-form-loading' className='py-8 text-center text-sm text-muted-foreground'>
+			<div
+				role='status'
+				aria-live='polite'
+				data-testid='upload-ticket-form-loading'
+				className='py-8 text-center text-sm text-muted-foreground'
+			>
 				Preparing receipt upload…
 			</div>
 		),
@@ -38,6 +42,8 @@ const UploadTicketForm = dynamic(
 interface Props extends Omit<ButtonProps, 'children'> {
 	/** Text of the default trigger; "Upload Receipt" unless a surface asks for something more specific. */
 	label?: string
+	/** Icon for the default trigger when a surface needs to describe attaching instead of uploading. */
+	triggerIcon?: typeof Upload06Icon
 	/**
 	 * Replaces the default "Upload Receipt" button, for surfaces that open the dialog from their own control. `null` renders no
 	 * trigger at all, for a surface that opens the dialog itself through `open`.
@@ -56,6 +62,7 @@ interface Props extends Omit<ButtonProps, 'children'> {
 export function UploadTicketDialog({
 	className,
 	label = 'Upload Receipt',
+	triggerIcon = Upload06Icon,
 	trigger,
 	open: controlledOpen,
 	onOpenChange,
@@ -89,9 +96,10 @@ export function UploadTicketDialog({
 							className={cn('w-full', className)}
 						>
 							<HugeiconsIcon
-								icon={Upload06Icon}
-								strokeWidth={2}
+								icon={triggerIcon}
+								strokeWidth={triggerIcon === Upload06Icon ? 2 : 1.8}
 								className='h-4 w-4'
+								aria-hidden='true'
 							/>
 							{label}
 						</Button>
@@ -107,12 +115,22 @@ export function UploadTicketDialog({
 				variant='sheet'
 				className='sm:max-w-[520px]'
 			>
-				<DialogHeader variant='sheet' className='shrink-0'>
-					<DialogTitle ref={titleRef} tabIndex={-1} variant='sheet'>
+				<DialogHeader
+					variant='sheet'
+					className='shrink-0'
+				>
+					<DialogTitle
+						ref={titleRef}
+						tabIndex={-1}
+						variant='sheet'
+					>
 						Upload Receipt
 					</DialogTitle>
-					<DialogDescription variant='sheet' className='sr-only'>
-						Add photos of your receipt. 
+					<DialogDescription
+						variant='sheet'
+						className='sr-only'
+					>
+						Add photos of your receipt.
 					</DialogDescription>
 					<DialogClose asChild>
 						<Button
@@ -129,23 +147,12 @@ export function UploadTicketDialog({
 						</Button>
 					</DialogClose>
 				</DialogHeader>
-				<ScrollArea size='sheet' scrollHint className='min-h-0 flex-none'>
+				<ScrollArea
+					size='sheet'
+					scrollHint
+					className='min-h-0 flex-none'
+				>
 					<div className='flex flex-col gap-4 px-1 py-1'>
-						<Alert
-							variant='info'
-							role='note'
-							data-testid='upload-ticket-info'
-						>
-							<HugeiconsIcon
-								icon={InformationCircleIcon}
-								strokeWidth={1.8}
-								aria-hidden='true'
-							/>
-							<AlertTitle>Review before saving</AlertTitle>
-							<AlertDescription>
-								We read the store, date and total from the receipt. You confirm them before anything is saved.
-							</AlertDescription>
-						</Alert>
 						<UploadTicketForm
 							onSuccess={handleSuccess}
 							initialFiles={initialFiles}

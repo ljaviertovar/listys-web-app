@@ -22,7 +22,17 @@ export function TripReviewLineRow({ line, onChange }: { line: AttachReviewLine; 
 				{line.tag}
 			</Badge></div> : null}
 			<div className='flex items-center justify-between gap-2'>
-				<p className='text-xs leading-normal text-slate-500 dark:text-muted-foreground'>{line.result}</p>
+				<p className='text-xs leading-normal text-slate-500 dark:text-muted-foreground'>
+					{line.result.startsWith('Matches ') ? <>
+						Matches <strong className='font-semibold text-foreground'>{line.result.split(' · ')[0].slice('Matches '.length)}</strong>
+						{line.result.split(' · ').slice(1).map((detail, index) => {
+							const quantityChange = detail.match(/^(usual quantity )(.+?)( → )(.+)$/)
+							return <span key={`${detail}-${index}`}> · {quantityChange
+								? <>{quantityChange[1]}<strong className='font-semibold text-foreground'>{quantityChange[2]} → {quantityChange[4]}</strong></>
+								: detail}</span>
+						})}
+					</> : line.result}
+				</p>
 				{line.canChange ? <Button type='button' variant='ghost-primary' size='quiet-touch' aria-label={`Change ${name}`} onClick={() => onChange(line.id)}>Change</Button> : null}
 			</div>
 		</div>

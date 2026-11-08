@@ -38,8 +38,8 @@ export function ShoppingSessionItemRow({ item, isCompleted = false, storeInfo, p
 			<div className='grid min-w-0 flex-1 grid-cols-[auto_minmax(0,1fr)] items-center gap-x-2 gap-y-1.5'>
 				<ItemQuantityChip quantity={item.quantity} unit={item.unit} muted={activeChecked} />
 				<label htmlFor={!isCompleted ? checkboxId : undefined} className={cn('min-w-0 truncate text-sm leading-normal font-semibold', !isCompleted && 'cursor-pointer', activeChecked && 'text-slate-400 line-through dark:text-muted-foreground')}>{name}</label>
-				{item.notes ? <div className='col-start-2 min-w-0'><ItemNote icon={Message01Icon} testId={`session-item-${item.id}-note`}>{item.notes}</ItemNote></div> : null}
-				{primaryStore || alsoAt ? <div className='col-start-2 col-span-1 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1'>
+				{item.notes ? <div className='col-span-2 min-w-0'><ItemNote icon={Message01Icon} testId={`session-item-${item.id}-note`}>{item.notes}</ItemNote></div> : null}
+				{primaryStore || alsoAt ? <div className='col-span-2 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1'>
 					{primaryStore ? <EntityLabel name={primaryStore.name} manual={!purchaseStore && storeInfo?.usual_store?.source === 'manual'} testId={`session-item-${item.id}-${purchaseStore ? 'purchase-store' : 'usual-store'}`} /> : null}
 					{alsoAt ? <span data-testid={`session-item-${item.id}-other-stores`} className='text-xs text-slate-500 dark:text-muted-foreground'>{alsoAt}</span> : null}
 				</div> : null}

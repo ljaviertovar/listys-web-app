@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Add01Icon, Alert02Icon, CheckmarkCircle02Icon, InformationCircleIcon, MinusSignIcon } from '@hugeicons/core-free-icons'
+import { Add01Icon, Alert02Icon, CheckmarkCircle02Icon, InformationCircleIcon, MinusSignIcon, TickDouble02Icon } from '@hugeicons/core-free-icons'
 
 import { EntityLabel, SheetDialog, StatTile, StatusCard } from '@/components/commons'
 import { Button } from '@/components/ui/button'
@@ -12,6 +12,7 @@ import { ChangeLineSheet } from './change-line-sheet'
 import type { TripReview } from './hooks/use-trip-review'
 import { TRIP_REVIEW_COPY } from './trip-review-copy'
 import { TripReviewSection } from './trip-review-section'
+import { DeleteReceiptButton } from '../receipt/delete-receipt-button'
 
 /** Decisions stay local until attachment; closing either sheet never writes to the trip or list. */
 export function AttachToSessionDialog({ actions }: { actions: TripReview }) {
@@ -40,7 +41,7 @@ export function AttachToSessionDialog({ actions }: { actions: TripReview }) {
 						<p className='text-sm leading-normal text-slate-600 dark:text-muted-foreground'>{TRIP_REVIEW_COPY.intro(listName)}</p>
 						{store ? <EntityLabel name={store.name} testId='attach-review-store' /> : <p data-testid='attach-review-store-unconfirmed' className='text-sm text-muted-foreground'>Store not confirmed</p>}
 						<div data-testid='attach-review-summary' role='status' aria-live='polite' className='grid grid-cols-3 gap-2'>
-							<StatTile testId='attach-review-stat-matched' variant='white' value={review.counts.matched} label='Matched' icon={CheckmarkCircle02Icon} iconTone='success' />
+							<StatTile testId='attach-review-stat-matched' variant='white' value={review.counts.matched} label='Matched' icon={TickDouble02Icon} iconTone='success' />
 							<StatTile testId='attach-review-stat-new' variant='white' value={review.counts.added} label={`New to ${listName}`} icon={Add01Icon} iconTone='primary' />
 							<StatTile testId='attach-review-stat-left-out' variant='white' value={review.counts.leftOut} label='Left out' icon={MinusSignIcon} />
 						</div>
@@ -63,6 +64,7 @@ export function AttachToSessionDialog({ actions }: { actions: TripReview }) {
 								{actions.submitting ? 'Attaching…' : active ? 'Attach Receipt' : review.confirmLabel}
 							</Button>
 						</DialogFooter>
+						<DeleteReceiptButton ticketId={actions.receiptId} returnHref={`/shopping/${actions.trip.id}?details=1`} />
 					</> : null}
 				</div> : null}
 			</SheetDialog>

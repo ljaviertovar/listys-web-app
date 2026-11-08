@@ -1,6 +1,8 @@
 'use client'
 
 import { useId } from 'react'
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Search01Icon } from '@hugeicons/core-free-icons'
 
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -29,6 +31,7 @@ interface SearchableChoiceListProps {
 	/** Announced politely above the rows: how many match, or why there are none. */
 	status: string
 	disabled?: boolean
+	showSearchIcon?: boolean
 	testId: string
 }
 
@@ -46,6 +49,7 @@ export function SearchableChoiceList({
 	onValueChange,
 	status,
 	disabled = false,
+	showSearchIcon = false,
 	testId,
 }: SearchableChoiceListProps) {
 	const searchId = useId()
@@ -58,17 +62,21 @@ export function SearchableChoiceList({
 		>
 			<div className='flex flex-col gap-2'>
 				<Label htmlFor={searchId}>{searchLabel}</Label>
-				<Input
-					id={searchId}
-					type='search'
-					size='lg'
-					autoComplete='off'
-					maxLength={100}
-					value={query}
-					onChange={event => onQueryChange(event.target.value)}
-					placeholder={placeholder}
-					disabled={disabled}
-				/>
+				<div className='relative'>
+					{showSearchIcon ? <HugeiconsIcon icon={Search01Icon} className='pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground' aria-hidden='true' /> : null}
+					<Input
+						id={searchId}
+						type='search'
+						size='lg'
+						adornment={showSearchIcon ? 'start' : 'none'}
+						autoComplete='off'
+						maxLength={100}
+						value={query}
+						onChange={event => onQueryChange(event.target.value)}
+						placeholder={placeholder}
+						disabled={disabled}
+					/>
+				</div>
 			</div>
 			<p
 				id={statusId}

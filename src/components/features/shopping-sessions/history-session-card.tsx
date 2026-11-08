@@ -95,7 +95,7 @@ export function HistorySessionCard({ session, href }: Props) {
 									strokeWidth={1.8}
 									aria-hidden='true'
 								/>
-								{(session.receipts?.length ?? 0) > 1 ? `${session.receipts?.length} receipts` : 'Receipt attached'}
+								{(session.receipts?.length ?? 0) > 1 ? `${session.receipts?.length} Receipt attached` : 'Receipt attached'}
 							</Badge>
 						) : null}
 						{receiptState === 'none' ? (
@@ -108,7 +108,7 @@ export function HistorySessionCard({ session, href }: Props) {
 									strokeWidth={1.8}
 									aria-hidden='true'
 								/>
-								No receipt
+								No Receipt attached
 							</Badge>
 						) : null}
 					</div>

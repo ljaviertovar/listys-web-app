@@ -30,7 +30,7 @@ describe('TripReceiptsCard', () => {
 		const html = render({ kind: 'none' })
 		expect(html).toContain('data-state="no-receipt"')
 		expect(html).toContain('No receipt')
-		expect(html).toContain('Upload New Receipt')
+		expect(html).toContain('Attach Receipt')
 		expect(html).not.toMatch(/48 hours/)
 	})
 
@@ -39,9 +39,9 @@ describe('TripReceiptsCard', () => {
 		expect(html).toContain('data-state="saved"')
 		expect(html).toContain('Trip saved')
 		expect(html).toContain('3 items updated in Pantry')
-		expect(html).toContain('Upload New Receipt')
+		expect(html).toContain('Upload Receipt')
 		expect(html).toContain('View Trip')
-		expect(html).toContain('href="/shopping/trip-1?details=1"')
+		expect(html).toContain('href="/shopping/trip-1?details=1&amp;from=trip-saved"')
 	})
 
 	it('shows reading without a button or status chip', () => {
@@ -64,7 +64,7 @@ describe('TripReceiptsCard', () => {
 		const html = render({ kind: 'failed', ticketId: 't1' })
 		expect(html).toContain('couldn’t read this receipt')
 		expect(html).toContain('href="/tickets/t1"')
-		expect(html).toContain('Upload New Receipt')
+		expect(html).toContain('Upload Receipt')
 	})
 
 	it('only informs a viewer who did not run the trip', () => {
