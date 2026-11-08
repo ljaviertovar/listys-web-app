@@ -26,9 +26,12 @@ Cada ítem de una lista base con `average_price` mayor que cero SHALL mostrar es
 - **WHEN** la fila de un ítem con nombre largo y precio se ve a 320 CSS px
 - **THEN** el precio y las acciones permanecen visibles y el nombre completo sigue accesible
 
-### Requirement: Active session shows an estimated total
+### Requirement: A session shows an estimated total until receipts say what was paid
 
-Una sesión activa SHALL mostrar un total estimado igual a la suma de los precios promedio conocidos de sus ítems, con la etiqueta "estimate" (estimado) y la cobertura "N of M items priced". Cada ítem de la sesión con precio promedio conocido en la lista base SHOULD mostrarlo. La estimación MUST NOT presentarse como importe pagado ni sustituir al total real indicado al completar.
+Una sesión activa, y una completada sin recibos, SHALL mostrar un total estimado igual a la suma de los precios promedio
+conocidos de sus ítems, marcado como estimación y con su cobertura. Una sesión completada con recibos SHALL mostrar el
+total pagado y, aparte, "Estimate was <estimado>". La estimación MUST NOT presentarse como importe pagado ni sustituir al
+total real.
 
 #### Scenario: Partial price coverage
 
@@ -47,8 +50,18 @@ Una sesión activa SHALL mostrar un total estimado igual a la suma de los precio
 
 #### Scenario: Completed session
 
-- **WHEN** se abre una sesión completada
-- **THEN** no se muestra estimación y solo aparece el total real si se registró
+- **WHEN** se abre una sesión completada sin recibos con 10 ítems, 9 con precio conocido, y un estimado de 62.40
+- **THEN** muestra la tarjeta "Estimated" con "≈ $62.40" y "10 items · 9 with known prices"
+
+#### Scenario: Completed session with receipts
+
+- **WHEN** se abre una sesión completada con recibos por 127.52 y un estimado de 119.80
+- **THEN** muestra "Paid $127.52" y "Estimate was $119.80", sin presentar el estimado como pagado
+
+#### Scenario: Estimate hierarchy and header
+
+- **WHEN** se abre un viaje completado sin recibos y con precios conocidos
+- **THEN** Estimated y el importe aproximado aparecen a la izquierda y la cobertura a la derecha; el importe de cabecera también lleva ≈
 
 ### Requirement: Price display uses recorded data only
 

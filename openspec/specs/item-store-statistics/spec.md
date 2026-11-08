@@ -137,9 +137,11 @@ modificar contadores, precios o fechas ya guardados en los artículos.
 
 ### Requirement: Attaching a receipt records its prices per store once
 
-Al adjuntar un recibo a una sesión con tienda, cada artículo coincidente o añadido con precio SHALL guardar ese precio
-como último precio en la tienda. Los artículos cuya compra la sesión ya registró en esa tienda MUST NOT sumar otra
-compra. Si la sesión no tenía tienda y la toma del recibo, cada artículo comprado en ella SHALL sumar una compra allí.
+Al adjuntar un recibo con tienda (la suya confirmada o la que hereda de la sesión), cada artículo coincidente o añadido con
+precio SHALL guardar ese precio como último precio en la tienda del recibo, no en la de la sesión. Los artículos cuya compra
+el viaje ya registró en esa tienda MUST NOT sumar otra compra. Si la sesión no tenía tienda y la toma del recibo, cada artículo
+comprado en ella SHALL sumar una compra allí. Un artículo que aparece en el recibo de otra tienda del mismo viaje SHALL sumar
+su compra en esa tienda, no en la de la sesión.
 
 #### Scenario: Completed trip at a store
 
@@ -160,3 +162,8 @@ compra. Si la sesión no tenía tienda y la toma del recibo, cada artículo comp
 
 - **WHEN** se adjunta un recibo sin tienda a una sesión sin tienda
 - **THEN** ninguna estadística por tienda cambia
+
+#### Scenario: Second store of the trip
+
+- **WHEN** una sesión completada en "No Frills" recibe un segundo recibo, de "Costco", con "Eggs" a 3.99
+- **THEN** "Eggs" guarda 3.99 como último precio en "Costco" y su compra de ese viaje queda en "Costco", no en "No Frills"
