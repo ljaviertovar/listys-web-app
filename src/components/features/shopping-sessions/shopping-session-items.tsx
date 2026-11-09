@@ -12,8 +12,11 @@ import type { CategoryGroup } from '@/utils/group-by-category'
 import { STARTED_SESSION_PARAM } from './helpers/started-session'
 import { splitSessionSections } from './helpers/split-session-sections'
 import { ShoppingSessionItemRow, type TripItemStoreInfo } from './shopping-session-item-row'
+import { useTripSync } from './hooks/use-trip-sync'
+import { visibleTripItems } from './sync/trip-sync-state'
 
 interface ShoppingSessionItemsProps {
+	sessionId?: string
 	items: ShoppingSessionItem[]
 	isCompleted?: boolean
 	/** Average price of each item the list knows a price for, by session item id; a finished session passes none. */
@@ -34,7 +37,9 @@ function sortForShopping(items: ShoppingSessionItem[]) {
 }
 
 /** The items of a session in one card, a collapsible category each with how many are in the cart ("1/2"). */
-export function ShoppingSessionItems({ items, isCompleted = false, priceByItemId, storeInfoByItemId, startCollapsed = false, storeId = null, storeName }: ShoppingSessionItemsProps) {
+export function ShoppingSessionItems({ items: initialItems, sessionId, isCompleted = false, priceByItemId, storeInfoByItemId, startCollapsed = false, storeId = null, storeName }: ShoppingSessionItemsProps) {
+	const { state } = useTripSync(isCompleted ? null : sessionId ?? initialItems[0]?.shopping_session_id)
+	const items = useMemo(() => !isCompleted && state.initialized ? visibleTripItems(state) : initialItems, [state, initialItems, isCompleted])
 	const groups = useMemo(() => groupByCategory(sortForShopping(items)), [items])
 	const sections = useMemo(() => splitSessionSections(sortForShopping(items)), [items])
 	const storeGroups = useMemo(() => groupByCategory(sections.storeItems), [sections.storeItems])

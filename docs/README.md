@@ -28,6 +28,8 @@ the implementation reference describes repository evidence. Neither establishes 
 
 ## Scope and maintenance
 
+Conditional trip item edits and the immediate retirement of their v1 PATCH are documented in the [API v2 reference](reference/api-v2.md).
+
 - **MVP:** receipt capture/OCR, reusable lists and enrichment, shopping sessions, and history, governed by PRD v2.
 - **Direction:** PRD v3 refines the MVP in phases. Phase 1 (always sync on completion, a default "Pantry" list, visible
   average price and estimated total), Phase 2 (flat lists: groups hidden from the interface, history filtered by list) and

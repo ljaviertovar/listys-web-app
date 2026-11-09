@@ -8,6 +8,7 @@ export type LegacyResult<T = any> = {
   meta?: Record<string, unknown>
   errorCode?: string
   details?: unknown
+  status?: number
   [key: string]: any
 }
 
@@ -60,7 +61,7 @@ async function request<T = any>(path: string, init?: RequestInit): Promise<Legac
     })
 
     if (res.status === 204) {
-      return { data: undefined as T }
+      return { data: undefined as T, status: res.status }
     }
 
     const contentType = res.headers.get('content-type') || ''
@@ -70,11 +71,12 @@ async function request<T = any>(path: string, init?: RequestInit): Promise<Legac
       const isAuthPage = looksLikeHtml && (raw.includes('/auth/signin') || raw.includes('Sign in') || raw.includes('signin'))
 
       if (isAuthPage || res.status === 401 || res.status === 403) {
-        return { error: 'Unauthorized', errorCode: 'UNAUTHORIZED' }
+        return { error: 'Unauthorized', errorCode: 'UNAUTHORIZED', status: res.status }
       }
 
       return {
         error: `Unexpected non-JSON response (status ${res.status})`,
+        status: res.status,
         details: { contentType, preview: raw.slice(0, 180) },
       }
     }
@@ -87,25 +89,26 @@ async function request<T = any>(path: string, init?: RequestInit): Promise<Legac
           error: payload.error.message,
           errorCode: payload.error.code,
           details: payload.error.details,
+          status: res.status,
         }
       }
 
-      return { error: 'Request failed' }
+      return { error: 'Request failed', status: res.status }
     }
 
     if ('data' in payload) {
-      return { data: payload.data, meta: payload.meta }
+      return { data: payload.data, meta: payload.meta, status: res.status }
     }
 
-    return { error: 'Malformed success response' }
+    return { error: 'Malformed success response', status: res.status }
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Network error'
     return { error: message }
   }
 }
 
-export async function apiGet<T = any>(path: string) {
-  return request<T>(path, { method: 'GET' })
+export async function apiGet<T = any>(path: string, signal?: AbortSignal) {
+  return request<T>(path, { method: 'GET', signal })
 }
 
 export async function apiPost<T = any>(path: string, body?: unknown | FormData) {
@@ -115,9 +118,10 @@ export async function apiPost<T = any>(path: string, body?: unknown | FormData) 
   })
 }
 
-export async function apiPatch<T = any>(path: string, body?: unknown) {
+export async function apiPatch<T = any>(path: string, body?: unknown, signal?: AbortSignal) {
   return request<T>(path, {
     method: 'PATCH',
+    signal,
     body: body !== undefined ? JSON.stringify(body) : undefined,
   })
 }

@@ -160,6 +160,12 @@ export async function createCloseTheLoopFixture(options: {
         return receipt.data.id
       },
       cleanup: async () => {
+        // Remove this fixture's parents with the service client before Auth's
+        // restricted role runs cascades through receipt/statistics guards.
+        const receipts = await supabase.from('tickets').delete().eq('user_id', userId)
+        if (receipts.error) throw new Error('Could not remove local fixture receipts.')
+        const list = await supabase.from('base_lists').delete().eq('id', baseList.data.id).eq('user_id', userId)
+        if (list.error) throw new Error('Could not remove local fixture list.')
         const result = await supabase.auth.admin.deleteUser(userId)
         if (result.error) throw new Error(`Could not remove local E2E user: ${result.error.message}`)
       },

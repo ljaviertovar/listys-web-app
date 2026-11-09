@@ -19,6 +19,7 @@ import { changeReviewDecision, createReviewDecisions } from '../helpers/review-d
 import { describeAttachSuccess } from '../helpers/describe-attach-success'
 import { readTicketForReview, type TripReviewTicket } from '../helpers/read-ticket-for-review'
 import { getTripReviewPhase } from '../helpers/trip-review-phase'
+import { useTripSync } from '@/components/features/shopping-sessions/hooks/use-trip-sync'
 
 type SessionItem = { id: string; name: string; checked: boolean; quantity?: number | null; unit?: string | null }
 type AttachError = { message: string; attached: boolean; reason?: string | null }
@@ -71,6 +72,7 @@ interface UseTripReviewOptions {
  * review leaves the receipt and the trip as they were.
  */
 export function useTripReview({ ticketId, trip, ticket: providedTicket = null, onAttached, onAlreadyAttached, onClosed }: UseTripReviewOptions) {
+	const { controller, barrier } = useTripSync(trip?.id)
 	const [open, setOpenState] = useState(false)
 	const [ticket, setTicket] = useState<TripReviewTicket | null>(providedTicket)
 	const [matches, setMatches] = useState<TicketSessionMatch[]>([])
@@ -86,7 +88,7 @@ export function useTripReview({ ticketId, trip, ticket: providedTicket = null, o
 	const [submitting, setSubmitting] = useState(false)
 	const [submitError, setSubmitError] = useState<AttachError | null>(null)
 
-	const loadReview = useCallback(async (target: TicketSessionCandidate, known: TripReviewTicket | null) => {
+	const loadReviewData = useCallback(async (target: TicketSessionCandidate, known: TripReviewTicket | null) => {
 		setMatches([])
 		setSessionItems([])
 		setPreviousLines([])
@@ -118,6 +120,16 @@ export function useTripReview({ ticketId, trip, ticket: providedTicket = null, o
 		}
 		setReviewLoading(false)
 	}, [ticketId])
+	const loadReview = useCallback(async (target: TicketSessionCandidate, known: TripReviewTicket | null) => {
+		setReviewLoading(true)
+		try {
+			const load = () => loadReviewData(target, known)
+			await barrier(load)
+		} catch (error) {
+			setReviewError(error instanceof Error ? error.message : 'Save your trip changes and try again.')
+			setReviewLoading(false)
+		}
+	}, [barrier, loadReviewData])
 
 	const setOpen = (next: boolean) => {
 		setOpenState(next)
@@ -166,7 +178,16 @@ export function useTripReview({ ticketId, trip, ticket: providedTicket = null, o
 		requestInFlight.current = true
 		setSubmitting(true)
 		setSubmitError(null)
-		const result = await attachTicketToSession(ticketId, payload)
+		let result
+		try {
+			const attach = () => attachTicketToSession(ticketId, payload)
+			result = await barrier(attach)
+		} catch (error) {
+			requestInFlight.current = false
+			setSubmitting(false)
+			setSubmitError({ message: error instanceof Error ? error.message : 'Save your trip changes and try again.', attached: false })
+			return
+		}
 		requestInFlight.current = false
 		setSubmitting(false)
 		if (result.error) {
@@ -177,6 +198,7 @@ export function useTripReview({ ticketId, trip, ticket: providedTicket = null, o
 			return
 		}
 		const notice = describeAttachSuccess(result.data)
+		void controller?.refresh()
 		toast.success(notice.title, { description: notice.description })
 		setOpen(false)
 		onAttached(trip)

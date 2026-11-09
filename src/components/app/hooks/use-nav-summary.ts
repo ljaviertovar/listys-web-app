@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 
 import { createClient } from '@/lib/supabase/client'
 import { summarizeUser, type UserSummary } from '@/components/features/auth'
+import { useSessionProgress } from '../active-session/hooks/use-session-progress'
 
 export interface NavSummary {
 	user: UserSummary | null
@@ -18,7 +19,7 @@ export interface NavSummary {
 const EMPTY: NavSummary = { user: null, listsCount: null, receiptsWaiting: null, progress: null }
 
 interface Options {
-	/** Nothing is fetched while false: the mobile menu is closed, or the sidebar is collapsed. */
+	/** Navigation metadata is fetched only while expanded; trip progress stays shared. */
 	enabled: boolean
 	sessionId: string | null
 	/** Changes when the numbers may have changed (the page, the menu opening); the summary is fetched again. */
@@ -27,11 +28,12 @@ interface Options {
 
 /**
  * What the navigation shows beyond the links: the account, the counts next to "Shopping Lists" and "Receipts"
- * (the same ones the dashboard shows) and how far along the running session is. It loads only while `enabled`, so no
- * page pays for it until the menu is opened, and it fetches again whenever `refreshKey` changes.
+ * (the same ones the dashboard shows). Metadata loads while enabled and refreshes on navigation;
+ * trip progress comes from the shared optimistic state instead of a separate database read.
  */
 export function useNavSummary({ enabled, sessionId, refreshKey }: Options): NavSummary {
 	const [summary, setSummary] = useState<NavSummary>(EMPTY)
+	const progress = useSessionProgress(sessionId, String(refreshKey ?? ''))
 
 	useEffect(() => {
 		if (!enabled) return
@@ -43,7 +45,7 @@ export function useNavSummary({ enabled, sessionId, refreshKey }: Options): NavS
 			const user = data?.user
 			if (!user) return
 
-			const [lists, receipts, items] = await Promise.all([
+			const [lists, receipts] = await Promise.all([
 				supabase.from('base_lists').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
 				supabase
 					.from('tickets')
@@ -51,9 +53,6 @@ export function useNavSummary({ enabled, sessionId, refreshKey }: Options): NavS
 					.eq('user_id', user.id)
 					.eq('ocr_status', 'completed')
 					.is('base_list_id', null),
-				sessionId
-					? supabase.from('shopping_session_items').select('checked').eq('shopping_session_id', sessionId)
-					: Promise.resolve(null),
 			])
 
 			if (cancelled) return
@@ -61,9 +60,7 @@ export function useNavSummary({ enabled, sessionId, refreshKey }: Options): NavS
 				user: summarizeUser(user),
 				listsCount: lists.count ?? null,
 				receiptsWaiting: receipts.count ?? null,
-				progress: items?.data
-					? { checked: items.data.filter(item => item.checked === true).length, total: items.data.length }
-					: null,
+				progress: null,
 			})
 		}
 
@@ -73,5 +70,5 @@ export function useNavSummary({ enabled, sessionId, refreshKey }: Options): NavS
 		}
 	}, [enabled, sessionId, refreshKey])
 
-	return summary
+	return { ...summary, progress }
 }

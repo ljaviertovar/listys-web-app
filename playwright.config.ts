@@ -80,12 +80,14 @@ export default defineConfig({
    * attached to the hosted project.
    */
   webServer: {
-    command: `pnpm exec next dev --port ${appPort}`,
+    command: `node node_modules/next/dist/bin/next dev --webpack --port ${appPort}`,
     url: appUrl,
     reuseExistingServer: false,
-    stdout: 'ignore',
+    timeout: 180_000,
+    stdout: 'pipe',
     stderr: 'pipe',
     env: {
+      E2E_NEXT_DIST_DIR: process.env.E2E_NEXT_DIST_DIR || '.next/e2e',
       NEXT_PUBLIC_SUPABASE_URL: process.env.E2E_SUPABASE_URL ?? '',
       NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: process.env.E2E_SUPABASE_PUBLISHABLE_KEY ?? '',
       NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.E2E_SUPABASE_PUBLISHABLE_KEY ?? '',

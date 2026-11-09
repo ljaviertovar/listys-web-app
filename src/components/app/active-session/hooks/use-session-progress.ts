@@ -1,8 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-
-import { createClient } from '@/lib/supabase/client'
+import { useTripSync } from '@/components/features/shopping-sessions/hooks/use-trip-sync'
+import { visibleTripItems } from '@/components/features/shopping-sessions/sync/trip-sync-state'
 
 export interface SessionProgress {
 	checked: number
@@ -10,27 +9,13 @@ export interface SessionProgress {
 }
 
 /**
- * How many items of the running session are in the cart. It is read when the session or `refreshKey` changes (the bar
- * passes the page), so it is fresh each time the user comes back from the session screen; null until it loads.
+ * The bar shares the trip's optimistic items, including checks still being saved.
+ * Keep refreshKey in the call signature for existing callers; reconnection is owned by the registry.
  */
 export function useSessionProgress(sessionId: string | null, refreshKey: string): SessionProgress | null {
-	const [progress, setProgress] = useState<SessionProgress | null>(null)
-
-	useEffect(() => {
-		if (!sessionId) return
-		let cancelled = false
-
-		const load = async () => {
-			const { data } = await createClient().from('shopping_session_items').select('checked').eq('shopping_session_id', sessionId)
-			if (cancelled || !data) return
-			setProgress({ checked: data.filter(item => item.checked === true).length, total: data.length })
-		}
-
-		load().catch(() => {})
-		return () => {
-			cancelled = true
-		}
-	}, [sessionId, refreshKey])
-
-	return sessionId ? progress : null
+	void refreshKey
+	const { state } = useTripSync(sessionId)
+	if (!sessionId || !state.initialized) return null
+	const items = visibleTripItems(state)
+	return { checked: items.filter(item => item.checked === true).length, total: items.length }
 }

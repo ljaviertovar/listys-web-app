@@ -10,7 +10,7 @@ import { AddItemSheet } from '@/components/features/list-items'
 import { ShareListDialog } from '@/components/features/sharing'
 import { STARTED_SESSION_PARAM, SessionSummaryCard, TripReceiptsCard, TripReceiptSummary,
 	getTripReceiptState, getTripStores, ShoppingSessionActions, ShoppingSessionItems, ShoppingSessionRealtimeListener,
-	buildSessionPriceEstimate, summarizeCheckedEstimate, resolveSessionBackLink } from '@/components/features/shopping-sessions'
+	buildSessionPriceEstimate, summarizeCheckedEstimate, resolveSessionBackLink, TripSyncStatus } from '@/components/features/shopping-sessions'
 import { getShoppingSession } from '@/actions'
 import { buildItemStoreSummary } from '@/components/features/base-lists/items/helpers/item-store-summary'
 import { createClient } from '@/lib/supabase/server'
@@ -79,7 +79,7 @@ export default async function ShoppingRunPage({ params, searchParams }: { params
 	const activeEntries = [...pending.map(receipt => ({ id: receipt.id, attached: false, ocr_status: receipt.ocr_status,
 		store: receipt.store, items_count: receipt.total_items ?? 0, total_amount: receipt.total_amount })), ...attachedEntries]
 	if (isCompleted && receipts.length === 0 && pending.length === 0 && !showDetails) {
-		return <><TripNavigationMarker completed pathname={`/shopping/${runId}`} /><PageContainer><div className='mx-auto flex w-full max-w-xl flex-col gap-4'><BackLink href={resolveSessionBackLink('trips', first(query.list)).href} label='Back to Trips' variant='screen' /><TripReceiptsCard state={{ kind: 'none' }} justSaved itemCount={checkedCount} listName={baseListName} trip={trip} /></div></PageContainer></>
+		return <><TripNavigationMarker completed pathname={`/shopping/${runId}`} /><PageContainer><div className='mx-auto flex w-full max-w-xl flex-col gap-4'><BackLink href={resolveSessionBackLink('trips', first(query.list)).href} label='Back to Trips' variant='screen' /><TripSyncStatus sessionId={runId} items={run.items} active={false} /><TripReceiptsCard state={{ kind: 'none' }} justSaved itemCount={checkedCount} listName={baseListName} trip={trip} /></div></PageContainer></>
 	}
 	return <>
 		<TripNavigationMarker completed={isCompleted} pathname={`/shopping/${runId}`} />
@@ -96,7 +96,8 @@ export default async function ShoppingRunPage({ params, searchParams }: { params
 		</PageHeader>
 		<PageContainer className='pb-[calc(7rem+max(1.125rem,env(safe-area-inset-bottom)))] lg:pb-20'>
 			<div className='flex w-full max-w-3xl flex-col gap-6'>
-				{!isCompleted && totalCount > 0 ? <SessionSummaryCard mode='active' checked={checkedCount} total={totalCount} estimate={priceEstimate.pricedCount > 0 ? checkedEstimate : undefined} /> : null}
+				<TripSyncStatus sessionId={runId} items={run.items} active={!isCompleted} />
+				{!isCompleted && totalCount > 0 ? <SessionSummaryCard mode='active' sessionId={runId} priceByItemId={Object.fromEntries(priceEstimate.priceByItemId)} checked={checkedCount} total={totalCount} estimate={priceEstimate.pricedCount > 0 ? checkedEstimate : undefined} /> : null}
 				{isCompleted && priceEstimate && !receipts.length ? <SessionSummaryCard mode='completed' estimate={priceEstimate} /> : null}
 				{isCompleted && receiptState.kind !== 'attached' && pending.length === 0 ? <TripReceiptsCard state={receiptState} itemCount={checkedCount} listName={baseListName} openAddOnLoad={first(query.receipt) === 'add'} trip={trip} /> : null}
 				{isCompleted && activeEntries.length ? <TripReceiptSummary receipts={activeEntries} mode='completed' itemCount={checkedCount} estimate={priceEstimate?.pricedCount ? priceEstimate.total : undefined} trip={trip} /> : null}
@@ -105,7 +106,7 @@ export default async function ShoppingRunPage({ params, searchParams }: { params
 					{baseListId && isListOwner ? <ShareListDialog baseListId={baseListId} listName={baseListName} isOwner={isListOwner} className='w-full md:w-auto' /> : null}
 					<AddItemSheet target={{ context: 'shopping-session', sessionId: runId }} className={baseListId && isListOwner ? 'w-full md:w-auto' : 'col-span-2 w-full md:col-auto md:w-auto'} />
 				</div> : null}
-				<ShoppingSessionItems storeInfoByItemId={storeInfoByItemId} items={items} isCompleted={isCompleted} priceByItemId={!isCompleted && priceEstimate ? Object.fromEntries(priceEstimate.priceByItemId) : undefined} startCollapsed={justStarted && !isCompleted} storeId={run.store_id} storeName={run.store?.name ?? null} />
+				<ShoppingSessionItems sessionId={runId} storeInfoByItemId={storeInfoByItemId} items={items} isCompleted={isCompleted} priceByItemId={!isCompleted && priceEstimate ? Object.fromEntries(priceEstimate.priceByItemId) : undefined} startCollapsed={justStarted && !isCompleted} storeId={run.store_id} storeName={run.store?.name ?? null} />
 			</div>
 		</PageContainer>
 		{!isCompleted ? <ShoppingSessionRealtimeListener sessionId={runId} /> : null}

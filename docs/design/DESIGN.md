@@ -1025,6 +1025,12 @@ never "$0.00" (the v4 canvas writes “No price yet”, 7.18). The caption is on
 
 ### 7.9 Progress
 
+**Active-trip synchronization.** A quiet inline status beneath the trip header reports `Saving…`, `Saved`, or `Not saved` with
+`Retry`. Errors preserve the visible checks. Cross-device conflicts use the existing informational tonal notice pattern (`StatusCard`),
+show the saved item value and offer `Apply My Change` and `Discard My Change`. Unavailable items/trips only offer discard; conflicts
+block completion until resolved. Reuse shared button sizes/variants, keep keyboard focus visible and announce status politely without
+a toast for every check. Rows, category counts, progress and estimated total read the same optimistic items.
+
 The progress bar is 8px high, with a `surface-secondary` track and action-blue fill (on the dark hero: a white 16% track and a
 `#60A5FA` to `#3B82F6` fill). It is paired with `n of m items` and a
 percentage using tabular numerals. Announce meaningful milestones, not every remote update. At 100%, change the adjacent
@@ -1433,6 +1439,9 @@ they must not duplicate button, card, badge, dialog, or input primitives. New ap
 repository's `data-testid` and test-location rules.
 
 ### 11.4 Current implementation gaps
+
+The HTML has no dedicated autosave/conflict composition. The active-trip synchronization status derives from its inline feedback and
+informational tonal notice patterns, using the established `StatusCard` and shared button APIs; it adds no separate visual tokens.
 
 The active trip accumulator reuses the shopping summary pattern: its estimate covers checked items only, while pending rows retain their average prices. With known prices elsewhere in the trip, zero collected prices shows ≈ $0.00 and checked-item coverage; without any known prices it shows progress only. The HTML does not illustrate this zero/coverage edge. Base-list and Start Shopping estimates still cover the full list. Paid summaries in both modes use confirmed attachment totals (including corrections), not the original OCR amount; an unknown attached total keeps the paid amount unavailable.
 

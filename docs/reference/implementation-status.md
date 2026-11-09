@@ -1,5 +1,17 @@
 # Implementation status
 
+## Active-trip synchronization
+
+`reliable-active-trip-autosave` introduces a shared optimistic trip store, durable checks, explicit cross-device conflicts and conditional
+PATCH v2. Manual item writes go through active-trip RPCs with session-first locking; receipt mutations participate in versioning.
+Its additive migration must be deployed together with the application/permitted RPCs before these guarantees apply to a target.
+Repository changes and local verification do not establish that the hosted database has received the migration.
+
+Local verification on 2026-11-08 passed 294 directed Vitest tests, 23 navigation/client checks, five real-database Playwright scenarios
+and seven browser scenarios run in directed groups, including slow/lost responses, two devices, recovery, termination and receipt barriers.
+TypeScript, the eight native-props checks and strict OpenSpec validation passed; lint has no errors and 31 existing warnings.
+See the [verification record](../../openspec/changes/reliable-active-trip-autosave/verification.md) for commands, visual evidence and limits.
+
 Reviewed on 2026-10-28 against the working tree and the approved development Supabase project. This document owns observed behavior and implementation gaps;
 [PRD v2](../prd/PRD-v2.md) remains the MVP baseline. Code presence does not establish deployment or E2E validation.
 

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -11,10 +11,11 @@ import { completeShoppingSession } from '@/lib/api/endpoints'
 import { useActiveSessionStore } from '@/stores/active-session'
 
 import { listFullMessage } from './helpers/list-full-message'
+import { useTripSync } from './hooks/use-trip-sync'
 
 /**
- * The last progress seen for each session. Ticking an item re-renders the page from the server, which remounts this sheet, so
- * a ref inside it always starts at the new progress and never sees the move to 100%; the module outlives the remount.
+ * Progress history outlives route navigation, so returning to an already-complete
+ * checklist does not reopen the confirmation just because the sheet remounted.
  */
 const lastProgressBySession = new Map<string, number>()
 
@@ -32,7 +33,9 @@ interface CompleteSessionSheetProps {
  * no option to skip it.
  */
 export function CompleteSessionSheet({ sessionId, checked, total, open, onOpenChange }: CompleteSessionSheetProps) {
+	const { controller, barrier } = useTripSync(sessionId)
 	const [loading, setLoading] = useState(false)
+	const requestInFlight = useRef(false)
 	const router = useRouter()
 	const clearActiveSession = useActiveSessionStore(s => s.clearActiveSession)
 
@@ -49,10 +52,14 @@ export function CompleteSessionSheet({ sessionId, checked, total, open, onOpenCh
 	}, [sessionId, progress, onOpenChange])
 
 	const handleComplete = async () => {
+		if (requestInFlight.current) return
+		requestInFlight.current = true
 		setLoading(true)
 		try {
-			const { data, error } = await completeShoppingSession(sessionId, {})
+			const complete = () => completeShoppingSession(sessionId, {})
+			const { data, error } = await barrier(complete)
 			if (error) throw new Error(error)
+			controller?.receive([], false)
 			const fullMessage = listFullMessage(data?.sync?.over_limit_count ?? 0)
 			if (fullMessage) toast.info(fullMessage)
 			// Clear store optimistically
@@ -63,8 +70,9 @@ export function CompleteSessionSheet({ sessionId, checked, total, open, onOpenCh
 			router.refresh()
 		} catch (err) {
 			console.error('Failed to complete session:', err)
-			toast.error('Failed to complete the shopping session')
+			toast.error('Could not complete shopping', { description: err instanceof Error ? err.message : 'Save your changes and try again.' })
 		} finally {
+			requestInFlight.current = false
 			setLoading(false)
 		}
 	}
