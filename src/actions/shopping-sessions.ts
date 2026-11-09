@@ -5,13 +5,12 @@ import {
   createShoppingSessionSchema,
   updateShoppingSessionSchema,
   completeShoppingSessionSchema,
-  updateShoppingSessionItemSchema,
-  createShoppingSessionItemSchema,
 } from '@/lib/validations/shopping-session'
 import { ApiServiceError } from '@/lib/api/http'
 import { completeSessionViaRpc } from '@/lib/server/services/complete-session-rpc'
 import { mapStartShoppingSessionRpcError } from '@/lib/server/services/rpc-errors'
 import { revalidatePath } from 'next/cache'
+import { updateShoppingSessionItem as updateItem, createShoppingSessionItem as createItem, deleteShoppingSessionItem as deleteItem } from '@/lib/server/services/shopping-sessions.service'
 
 export async function createShoppingSession(data: unknown) {
   const supabase = await createClient()
@@ -250,105 +249,30 @@ export async function getShoppingHistory() {
 
 // Shopping Session Items
 export async function updateShoppingSessionItem(id: string, data: unknown) {
-  const supabase = await createClient()
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    return { error: 'Unauthorized' }
-  }
-
-  const validation = updateShoppingSessionItemSchema.safeParse(data)
-  if (!validation.success) {
-    return { error: validation.error.issues[0].message }
-  }
-
-  const { data: item, error } = await supabase
-    .from('shopping_session_items')
-    .update(validation.data)
-    .eq('id', id)
-    .select()
-    .single()
-
-  if (error) {
-    return { error: error.message }
-  }
-
-  // Note: We don't revalidate here to avoid UI flicker during optimistic updates
-  return { data: item }
+  try { return { data: await updateItem(id, data), error: undefined } }
+  catch (error) { return itemActionError(error) }
 }
 
-export async function toggleShoppingSessionItem(id: string, checked: boolean) {
-  return updateShoppingSessionItem(id, { checked })
+export async function toggleShoppingSessionItem(id: string, checked: boolean, expectedVersion?: number) {
+  return updateShoppingSessionItem(id, { checked, ...(expectedVersion !== undefined ? { expected_version: expectedVersion } : {}) })
 }
 
 export async function createShoppingSessionItem(data: unknown) {
-  const supabase = await createClient()
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    return { error: 'Unauthorized' }
-  }
-
-  const validation = createShoppingSessionItemSchema.safeParse(data)
-  if (!validation.success) {
-    return { error: validation.error.issues[0].message }
-  }
-
-  // Get the max sort_order for this shopping session
-  const { data: existingItems } = await supabase
-    .from('shopping_session_items')
-    .select('sort_order')
-    .eq('shopping_session_id', validation.data.shopping_session_id)
-    .order('sort_order', { ascending: false })
-    .limit(1)
-
-  const nextSortOrder = existingItems?.[0]?.sort_order ? existingItems[0].sort_order + 1 : 0
-
-  const { data: item, error } = await supabase
-    .from('shopping_session_items')
-    .insert({
-      ...validation.data,
-      sort_order: nextSortOrder,
-      checked: false,
-    })
-    .select()
-    .single()
-
-  if (error) {
-    return { error: error.message }
-  }
-
-  revalidatePath(`/shopping/${validation.data.shopping_session_id}`)
-  return { data: item }
+  try {
+    const item = await createItem(data)
+    revalidatePath(`/shopping/${item.shopping_session_id}`)
+    return { data: item, error: undefined }
+  } catch (error) { return itemActionError(error) }
 }
 
 export async function deleteShoppingSessionItem(id: string) {
-  const supabase = await createClient()
+  try { return await deleteItem(id) }
+  catch (error) { return itemActionError(error) }
+}
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    return { error: 'Unauthorized' }
-  }
-
-  const { error } = await supabase
-    .from('shopping_session_items')
-    .delete()
-    .eq('id', id)
-
-  if (error) {
-    return { error: error.message }
-  }
-
-  return { success: true }
+function itemActionError(error: unknown) {
+  if (error instanceof ApiServiceError) return { data: undefined, error: error.message, errorCode: error.code, details: error.details }
+  return { data: undefined, error: 'Could not save this item. Please try again.' }
 }
 
 export async function cancelShoppingSession(id: string) {

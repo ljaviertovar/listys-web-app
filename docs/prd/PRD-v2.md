@@ -195,6 +195,10 @@ This turns lists from static CRUD into adaptive objects.
 
 - Creating session clones items and applies dynamic ordering.
 - API supports check/uncheck and editing notes/quantity.
+- Active-trip checks update rows, sections, progress and the estimated total immediately, then autosave after 700 ms idle
+  (maximum scheduling wait 2 seconds when transport is available). Pending checks survive reload where local storage is available.
+- Editing from multiple devices uses per-item server versions. An outdated differing intention requires explicit reapply/discard;
+  temporary network failures preserve it. Completion and receipt review wait for this device's confirmed checks, including conflict resolution.
 - Completing session updates status, timestamps, and optional sync to base list.
 
 ---

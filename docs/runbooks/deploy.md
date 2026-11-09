@@ -29,6 +29,27 @@ presence in the repository does not prove deployment.
 
 ## Publish and check
 
+### Conditional trip item editing release
+
+For `reliable-active-trip-autosave`, review `20261108041549_reliable_active_trip_autosave.sql` before applying it to the explicitly
+selected target. It adds the version column/trigger and authenticated item RPCs, configures the normalizer search path and revokes direct
+client DML. It does not delete/recalculate existing rows; the DELETE statement defines the explicit item-delete RPC rather than executing
+a deletion during migration. Do not blanket-push historical migrations to provision tests.
+
+The migration also moves the seven-argument receipt implementation into `private` and installs a public ownership-checked wrapper;
+keep this step with the DML revocation so existing receipt attachment remains functional.
+
+Deploy the schema before activating its consumers. Coordinate the permission change, PATCH v2 application and immediate v1 retirement
+in a controlled release window: old clients receive `410 CLIENT_UPDATE_REQUIRED` and must reload. Verify existing receipt RPCs under the
+final grants and owner/collaborator permissions before opening writes. Do not claim cross-device protection while an unconditional
+writer remains enabled. Run the rollback-only `supabase/tests/trip-item-versions.sql` and isolated two-context Playwright scenarios on
+the local verification environment; the tests do not reset shared data and never use hosted application credentials.
+
+After activation, verify two saves with the same expected version produce one effective update and one conflict; confirm a late save
+after completion is rejected. Observe operation outcome/error code, request ID and duration without logging item/receipt content.
+Rollback preserves the column and pending queues: suspend manual item writes or disable the new UI and fix forward. Do not restore
+unconditional v1 writes or remove version data as a rollback.
+
 Publish through the confirmed hosting platform. `pnpm start` serves a built Next.js app for a suitable server deployment.
 If the environment uses Vercel, follow its approved preview/production process; automatic deployment is unverified.
 

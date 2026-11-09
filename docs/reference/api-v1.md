@@ -59,7 +59,7 @@ strings. The inventory maps directly to [`src/app/api/v1/`](../../src/app/api/v1
 | `/shopping-sessions/{sessionId}/complete` | POST | Complete the session and always apply its checked items to the base list, in one database transaction. |
 | `/shopping-sessions/{sessionId}/items` | POST | Create a session item. |
 | `/shopping-sessions/{sessionId}/available-receipts` | GET | List the caller's receipts that can still be attached to this trip. |
-| `/shopping-session-items/{itemId}` | PATCH, DELETE | Update/delete a session item. |
+| `/shopping-session-items/{itemId}` | PATCH, DELETE | PATCH retired: `410 CLIENT_UPDATE_REQUIRED`, reload and use the [v2 conditional editor](api-v2.md). DELETE remains an explicit active-trip operation. |
 | `/shopping-sessions/active` | GET | Deprecated alias; see compatibility table. |
 | `/shopping-sessions/{sessionId}/cancel` | POST | Deprecated alias; see compatibility table. |
 | `/tickets` | GET, POST | List receipts (each with `store`: the confirmed store's `id` and `name`, or null) or upload multipart photos. |

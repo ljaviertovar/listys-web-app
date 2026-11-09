@@ -5,6 +5,7 @@ import { SidebarProvider } from '@/components/ui/sidebar'
 import { ActiveSessionBar, AppSidebar, Header, MobileTabBar, TripNavigationProvider } from '@/components/app'
 
 import { createClient } from '@/lib/supabase/server'
+import { TripSyncProvider } from '@/components/features/shopping-sessions/trip-sync-provider'
 
 import { cn } from '@/utils'
 
@@ -21,6 +22,7 @@ export default async function AuthenticatedLayout({ children }: { children: Reac
 	const defaultOpen = cookieStore.get('sidebar_state')?.value !== 'false'
 
 	return (
+		<TripSyncProvider key={user.sub} userId={user.sub}>
 		<TripNavigationProvider>
 			<SidebarProvider
 				defaultOpen={defaultOpen}
@@ -55,5 +57,6 @@ export default async function AuthenticatedLayout({ children }: { children: Reac
 				</div>
 			</SidebarProvider>
 		</TripNavigationProvider>
+		</TripSyncProvider>
 	)
 }

@@ -52,7 +52,7 @@ describe('Auth guard', () => {
     ['deleteShoppingSessionItem', () => deleteShoppingSessionItem(TEST_UUID)],
     ['cancelShoppingSession', () => cancelShoppingSession(TEST_UUID)],
   ])('%s returns Unauthorized', async (_name, fn) => {
-    expect(await fn()).toEqual({ error: 'Unauthorized' })
+    expect(await fn()).toMatchObject({ error: 'Unauthorized' })
   })
 })
 
@@ -233,21 +233,17 @@ describe('createShoppingSessionItem', () => {
     expect(result.error).toBeTruthy()
   })
 
-  it('auto-assigns next sort_order', async () => {
-    const newItem = { id: 'item-1', name: 'Bread', sort_order: 5 }
-    const supabase = setupMock()
-    supabase.from = sequentialFrom({
-      shopping_session_items: [
-        { data: [{ sort_order: 4 }], error: null }, // existing max sort_order
-        { data: newItem, error: null },              // insert
-      ],
-    })
+  it('creates through the active-trip RPC and returns its version', async () => {
+    const newItem = { id: TEST_UUID, shopping_session_id: TEST_UUID, name: 'Bread', normalized_name: 'bread', sort_order: 5,
+      checked: false, version: 1, quantity: 1, unit: null, notes: null, category: null, price: null, is_other_store: false, created_at: null, updated_at: null }
+    const supabase = setupMock({ rpcResults: { create_shopping_session_item_active: { data: newItem, error: null } } })
 
     const result = await createShoppingSessionItem({
       shopping_session_id: TEST_UUID,
       name: 'Bread',
     })
     expect(result.data).toEqual(newItem)
+    expect(supabase.rpc).toHaveBeenCalledWith('create_shopping_session_item_active', { p_session_id: TEST_UUID, p_fields: { name: 'Bread', quantity: 1 } })
   })
 })
 
@@ -255,17 +251,18 @@ describe('createShoppingSessionItem', () => {
 // toggleShoppingSessionItem
 // ────────────────────────────────────
 describe('toggleShoppingSessionItem', () => {
-  it('delegates to updateShoppingSessionItem', async () => {
-    const updated = { id: TEST_UUID, checked: true }
-    const supabase = setupMock()
-    supabase.from = sequentialFrom({
-      shopping_session_items: [
-        { data: updated, error: null },
-      ],
-    })
-
-    const result = await toggleShoppingSessionItem(TEST_UUID, true)
+  it('passes the expected version to the conditional writer', async () => {
+    const updated = { id: TEST_UUID, shopping_session_id: TEST_UUID, name: 'Milk', normalized_name: 'milk', sort_order: 0,
+      checked: true, version: 2, quantity: 1, unit: null, notes: null, category: null, price: null, is_other_store: false, created_at: null, updated_at: null }
+    const supabase = setupMock({ rpcResults: { update_shopping_session_item_versioned: { data: { outcome: 'updated', item: updated }, error: null } } })
+    const result = await toggleShoppingSessionItem(TEST_UUID, true, 1)
     expect(result.data).toEqual(updated)
+    expect(supabase.rpc).toHaveBeenCalledWith('update_shopping_session_item_versioned', { p_item_id: TEST_UUID, p_expected_version: 1, p_fields: { checked: true } })
+  })
+  it('rejects old action calls without a version', async () => {
+    const supabase = setupMock()
+    expect(await toggleShoppingSessionItem(TEST_UUID, true)).toMatchObject({ errorCode: 'CLIENT_UPDATE_REQUIRED' })
+    expect(supabase.rpc).not.toHaveBeenCalled()
   })
 })
 

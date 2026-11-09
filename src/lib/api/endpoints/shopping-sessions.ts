@@ -1,4 +1,5 @@
 import { apiDelete, apiGet, apiPatch, apiPost } from '@/lib/api/client'
+import type { SessionItemDto } from '@/lib/validations/shopping-session-item'
 
 /** A receipt that can still be attached to a trip. `selectable: false` carries the reason it cannot be chosen. */
 export type AvailableReceipt = {
@@ -33,7 +34,7 @@ export async function getActiveShoppingSession() {
 }
 
 export async function getShoppingSession(id: string) {
-  return apiGet(`/api/v1/shopping-sessions/${id}`)
+  return apiGet(`/api/v1/shopping-sessions/${id}`, AbortSignal.timeout(30_000))
 }
 
 export async function getAvailableReceipts(sessionId: string) {
@@ -45,11 +46,11 @@ export async function getShoppingHistory() {
 }
 
 export async function updateShoppingSessionItem(id: string, data: unknown) {
-  return apiPatch(`/api/v1/shopping-session-items/${id}`, data)
+  return apiPatch<SessionItemDto>(`/api/v2/shopping-session-items/${id}`, data, AbortSignal.timeout(30_000))
 }
 
-export async function toggleShoppingSessionItem(id: string, checked: boolean) {
-  return updateShoppingSessionItem(id, { checked })
+export async function toggleShoppingSessionItem(id: string, checked: boolean, expectedVersion: number) {
+  return updateShoppingSessionItem(id, { checked, expected_version: expectedVersion })
 }
 
 export async function createShoppingSessionItem(data: { shopping_session_id: string } & Record<string, unknown>) {

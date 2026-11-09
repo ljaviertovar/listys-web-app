@@ -7,6 +7,7 @@ import { toast } from 'sonner'
 import { ConfirmSheet } from '@/components/commons'
 import { cancelShoppingSession } from '@/lib/api/endpoints'
 import { useActiveSessionStore } from '@/stores/active-session'
+import { useTripSync } from './hooks/use-trip-sync'
 
 interface CancelSessionSheetProps {
 	sessionId: string
@@ -17,6 +18,7 @@ interface CancelSessionSheetProps {
 /** "Cancel Shopping?": discards the running session. It never reaches the history and cannot be undone, and the sheet says so. */
 export function CancelSessionSheet({ sessionId, open, onOpenChange }: CancelSessionSheetProps) {
 	const [loading, setLoading] = useState(false)
+	const { controller } = useTripSync(sessionId)
 	const router = useRouter()
 	const clearActiveSession = useActiveSessionStore(s => s.clearActiveSession)
 
@@ -25,6 +27,7 @@ export function CancelSessionSheet({ sessionId, open, onOpenChange }: CancelSess
 		try {
 			const { error } = await cancelShoppingSession(sessionId)
 			if (error) throw new Error(error)
+			controller?.receive([], false)
 			// Clear store optimistically
 			clearActiveSession(sessionId)
 			router.push('/dashboard')

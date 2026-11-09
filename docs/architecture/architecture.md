@@ -209,6 +209,38 @@ images, and Edge Functions run the OCR provider workflow outside the request/res
 Zustand stores hold browser-only state such as the active shopping session. Feature listeners use Supabase realtime where
 needed to reflect session or list-item changes without making the database an unprotected client API.
 
+The authenticated `TripSyncProvider` owns an account-scoped registry of trip controllers. The catalog in `src/stores/active-session.ts`
+continues to select active sessions; the feature's `sync/` module owns their content. Rows, categories, progress, actions and estimated
+total derive from confirmed items plus pending checks. The controller survives route navigation within the authenticated layout.
+
+Its outbox coalesces checks per item, starts after 700 ms idle or 2 seconds of continuous input when transport is available, and sends
+one request at a time per trip. A sent snapshot has a local sequence separate from the server version; confirming it cannot erase a
+later click. Only IDs, checked intentions, origin versions, local sequences and conflicts are persisted, using versioned keys per user
+and trip. No item names, prices, receipt content or auth tokens are stored by this outbox. Storage failure is visible; delivery when the
+browser is closed is not guaranteed. Logout stops account controllers and removes their in-memory state, without exposing stored work
+to another account.
+
+`shopping_session_items.version` is a positive integer controlled by a trigger after name normalization. Effective editable-field
+changes increment it, including internal receipt changes; timestamps alone do not. The normalizer has its own trusted extension search
+path so it works from empty-search-path RPCs. Manual item RPCs authenticate, authorize owner/collaborator access and lock the session
+before its items. PATCH checks the expected version atomically; create/delete also require an active trip. Direct client INSERT/UPDATE/
+DELETE grants are revoked while SELECT retains RLS. Privileged RPCs use explicit identity/access checks and an empty search path;
+RLS is not assumed to protect their elevated execution.
+
+Receipt reconciliation's previous invoker implementation lives in `private`; its public entry point checks ownership of the receipt,
+session and base list and locks receipt then session before invoking it with the required privileges. The legacy six-argument receipt
+contract still delegates to this checked entry point. Client item DML stays revoked; receipt access does not reopen that bypass.
+
+Realtime updates the confirmed base without rebasing pending intentions over external versions. Reconnect/focus revalidates snapshots;
+stale responses cannot downgrade known versions. Conflicting intentions are resolved if already satisfied, otherwise retained separately
+for explicit reapply/discard. Transient failures retry with jittered backoff up to 30 seconds; terminal input/access errors pause sending.
+Focus and reconnection revalidate the trip without retrying terminal errors. A restored authenticated session resumes a 401;
+upgrade and validation errors remain paused. Coalescing preserves first-change item order. A later remote value that satisfies a
+retained conflict resolves that intention without a new write.
+`flush()` drains this device's queue before completion and receipt review/confirmation, freezing local edits during the transition.
+Completion and receipt RPCs share the session lock; a late manual save receives `SESSION_NOT_ACTIVE`. An offline queue on another phone
+cannot be included in that barrier. See the [v2 contract](../reference/api-v2.md) for compatibility and error handling.
+
 ### 7. Verification layer
 
 Unit/integration tests live with their owning domain module's `tests/` folder or the established local test folder.

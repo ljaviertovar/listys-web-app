@@ -20,6 +20,8 @@ import { cn } from '@/utils'
 
 import { CancelSessionSheet } from './cancel-session-sheet'
 import { CompleteSessionSheet } from './complete-session-sheet'
+import { useTripSync } from './hooks/use-trip-sync'
+import { visibleTripItems } from './sync/trip-sync-state'
 
 interface ShoppingSessionActionsProps {
 	sessionId: string
@@ -37,6 +39,12 @@ interface ShoppingSessionActionsProps {
  * Session actions stay in the floating phone menu and desktop header; item and sharing sheets open from the menu or desktop toolbar.
  */
 export function ShoppingSessionActions({ sessionId, checked, total, baseListId, listName, isOwner = false, canAttachReceipt = false }: ShoppingSessionActionsProps) {
+	const { state } = useTripSync(sessionId)
+	if (state.initialized) {
+		const items = visibleTripItems(state)
+		checked = items.filter(item => item.checked).length
+		total = items.length
+	}
 	const [menuOpen, setMenuOpen] = useState(false)
 	const [completeOpen, setCompleteOpen] = useState(false)
 	const [cancelOpen, setCancelOpen] = useState(false)

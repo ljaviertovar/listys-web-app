@@ -1,16 +1,27 @@
+'use client'
+
 import { Card } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { cn, formatCurrency } from '@/utils'
+import { useTripSync } from './hooks/use-trip-sync'
+import { visibleTripItems } from './sync/trip-sync-state'
+import { summarizeCheckedEstimate } from './helpers/summarize-checked-estimate'
 
 type PriceEstimate = { total: number; pricedCount: number; itemCount: number }
 
-type SessionSummaryCardProps = { testId?: string } & (
+type SessionSummaryCardProps = { testId?: string; sessionId?: string; priceByItemId?: Record<string, number> } & (
 	| { mode: 'active'; checked: number; total: number; estimate?: PriceEstimate }
 	| { mode: 'completed'; estimate: PriceEstimate }
 )
 
 /** Shows shopping progress while active and only the estimate after completion. */
 export function SessionSummaryCard(props: SessionSummaryCardProps) {
+	const { state } = useTripSync(props.mode === 'active' ? props.sessionId : null)
+	if (props.mode === 'active' && state.initialized) {
+		const items = visibleTripItems(state)
+		props = { ...props, checked: items.filter(item => item.checked).length, total: items.length,
+			estimate: props.estimate ? summarizeCheckedEstimate(items, new Map(Object.entries(props.priceByItemId ?? {}))) : undefined }
+	}
 	const completed = props.mode === 'completed'
 	const estimate = props.estimate
 	const testId = props.testId ?? 'session-summary-card'

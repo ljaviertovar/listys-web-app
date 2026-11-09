@@ -1,15 +1,16 @@
-import { withApiHandler, success, noContent } from '@/lib/api/http'
-import { parseJsonBody, parseRouteParams } from '@/lib/api/zod'
+import { withApiHandler, failure, ErrorCode, noContent } from '@/lib/api/http'
+import { parseRouteParams } from '@/lib/api/zod'
+import { createAuthenticatedClient } from '@/lib/api/auth'
 import { itemIdParamsSchema } from '@/lib/validations/api/common'
-import { updateShoppingSessionItemSchema } from '@/lib/validations/shopping-session'
-import { deleteShoppingSessionItem, updateShoppingSessionItem } from '@/lib/server/services/shopping-sessions.service'
+import { deleteShoppingSessionItem } from '@/lib/server/services/shopping-sessions.service'
 
 export async function PATCH(request: Request, { params }: { params: Promise<unknown> }) {
-  return withApiHandler(async () => {
+  return withApiHandler(async ({ requestId }) => {
+    await createAuthenticatedClient()
     const { itemId } = await parseRouteParams(params, itemIdParamsSchema)
-    const body = await parseJsonBody(request, updateShoppingSessionItemSchema)
-    const data = await updateShoppingSessionItem(itemId, body)
-    return success(data)
+    const response = failure(410, ErrorCode.CLIENT_UPDATE_REQUIRED, 'Reload Listys before saving more changes.', { requestId })
+    response.headers.set('Link', `</api/v2/shopping-session-items/${itemId}>; rel="successor-version"`)
+    return response
   })
 }
 

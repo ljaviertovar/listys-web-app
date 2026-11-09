@@ -4,11 +4,14 @@ import {
   createShoppingSessionSchema,
   updateShoppingSessionSchema,
   completeShoppingSessionSchema,
-  updateShoppingSessionItemSchema,
   createShoppingSessionItemSchema,
 } from '@/lib/validations/shopping-session'
 import { completeSessionViaRpc } from '@/lib/server/services/complete-session-rpc'
 import { mapStartShoppingSessionRpcError } from '@/lib/server/services/rpc-errors'
+import { updateSessionItemViaRpc, throwSessionItemRpcError } from './session-item-rpc'
+import { toSessionItemDto } from '@/lib/validations/shopping-session-item'
+import { parseWithSchema } from '@/lib/api/zod'
+import { itemIdParamsSchema } from '@/lib/validations/api/common'
 
 export async function createShoppingSession(data: unknown) {
   const { supabase } = await createAuthenticatedClient()
@@ -116,7 +119,6 @@ export async function getShoppingSession(id: string) {
       store:stores(id, name)
     `)
     .eq('id', id)
-    .eq('user_id', user.id)
     .single()
 
   if (error) {
@@ -255,25 +257,7 @@ export async function getShoppingHistory() {
 
 export async function updateShoppingSessionItem(id: string, data: unknown) {
   const { supabase } = await createAuthenticatedClient()
-
-  const validation = updateShoppingSessionItemSchema.safeParse(data)
-  if (!validation.success) {
-    throw new ApiServiceError(422, ErrorCode.VALIDATION_ERROR, validation.error.issues[0]?.message ?? 'Invalid payload')
-  }
-
-  const { data: item, error } = await supabase
-    .from('shopping_session_items')
-    .update(validation.data)
-    .eq('id', id)
-    .select()
-    .single()
-
-  if (error) {
-    const status = error.code === 'PGRST116' ? 404 : 500
-    throw new ApiServiceError(status, status === 404 ? ErrorCode.NOT_FOUND : ErrorCode.INTERNAL_ERROR, error.message)
-  }
-
-  return item
+  return updateSessionItemViaRpc(supabase, id, data)
 }
 
 export async function createShoppingSessionItem(data: unknown) {
@@ -284,37 +268,24 @@ export async function createShoppingSessionItem(data: unknown) {
     throw new ApiServiceError(422, ErrorCode.VALIDATION_ERROR, validation.error.issues[0]?.message ?? 'Invalid payload')
   }
 
-  const { data: existingItems } = await supabase
-    .from('shopping_session_items')
-    .select('sort_order')
-    .eq('shopping_session_id', validation.data.shopping_session_id)
-    .order('sort_order', { ascending: false })
-    .limit(1)
-
-  const nextSortOrder = existingItems?.[0]?.sort_order ? existingItems[0].sort_order + 1 : 0
-
-  const { data: item, error } = await supabase
-    .from('shopping_session_items')
-    .insert({ ...validation.data, sort_order: nextSortOrder, checked: false })
-    .select()
-    .single()
-
-  if (error) {
-    throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, error.message)
-  }
-
-  return item
+  const input = validation.data
+  const { data: item, error } = await supabase.rpc('create_shopping_session_item_active', {
+    p_session_id: input.shopping_session_id,
+    p_fields: { name: input.name, quantity: input.quantity,
+      ...(input.unit !== undefined ? { unit: input.unit } : {}),
+      ...(input.notes !== undefined ? { notes: input.notes } : {}),
+      ...(input.category !== undefined ? { category: input.category } : {}) },
+  })
+  if (error) throwSessionItemRpcError(error)
+  try { return toSessionItemDto(item) }
+  catch { throwSessionItemRpcError({ message: 'INVALID_RPC_RESPONSE' }) }
 }
 
 export async function deleteShoppingSessionItem(id: string) {
   const { supabase } = await createAuthenticatedClient()
-
-  const { error } = await supabase.from('shopping_session_items').delete().eq('id', id)
-
-  if (error) {
-    throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, error.message)
-  }
-
+  parseWithSchema(itemIdParamsSchema, { itemId: id })
+  const { error } = await supabase.rpc('delete_shopping_session_item_active', { p_item_id: id })
+  if (error) throwSessionItemRpcError(error)
   return { success: true }
 }
 

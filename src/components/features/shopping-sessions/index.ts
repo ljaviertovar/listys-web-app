@@ -12,6 +12,8 @@ export { buildSessionPriceEstimate } from './helpers/build-session-price-estimat
 export { ShoppingSessionActions } from './shopping-session-actions'
 export { ShoppingSessionItemRow } from './shopping-session-item-row'
 export { ShoppingSessionItems } from './shopping-session-items'
+export { TripSyncProvider } from './trip-sync-provider'
+export { TripSyncStatus } from './trip-sync-status'
 export { STARTED_SESSION_PARAM, startedSessionHref } from './helpers/started-session'
 export { buildHistoryView } from './helpers/build-history-view'
 export { resolveSessionBackLink } from './helpers/resolve-session-back-link'

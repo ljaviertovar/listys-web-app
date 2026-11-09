@@ -279,6 +279,7 @@ export type Database = {
       }
       shopping_session_items: {
         Row: {
+          version: number
           category: string | null
           checked: boolean | null
           created_at: string | null
@@ -295,6 +296,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          version?: number
           category?: string | null
           checked?: boolean | null
           created_at?: string | null
@@ -311,6 +313,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          version?: number
           category?: string | null
           checked?: boolean | null
           created_at?: string | null
@@ -707,6 +710,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      update_shopping_session_item_versioned: {
+        Args: { p_item_id: string; p_expected_version: number; p_fields: Json }
+        Returns: Json
+      }
+      create_shopping_session_item_active: {
+        Args: { p_session_id: string; p_fields: Json }
+        Returns: Database['public']['Tables']['shopping_session_items']['Row']
+      }
+      delete_shopping_session_item_active: {
+        Args: { p_item_id: string }
+        Returns: string
+      }
       cleanup_orphaned_storage_images: {
         Args: never
         Returns: {

@@ -338,3 +338,103 @@ Las filas del viaje SHALL mostrar cantidad, nombre, nota, tiendas y precio segú
 
 - **WHEN** el usuario abre un viaje completado donde "PC Grk Strwbry" se marcó durante la compra
 - **THEN** su fila no muestra checkbox ni el nombre tachado
+
+### Requirement: Attached receipt totals determine the paid summary in every trip state
+
+La tarjeta de recibos SHALL calcular el pagado como suma de los totales confirmados de sus recibos adjuntos, tanto en trips activos como completados. SHALL usar el importe confirmado al adjuntar, incluida su corrección, y excluir recibos pendientes. MUST NOT sumar precios de ítems ni usar el estimado o un total guardado del trip como sustituto.
+
+#### Scenario: Multiple attached receipts during shopping
+
+- **WHEN** un trip activo tiene recibos adjuntos por 86.40 y 41.12 y otro pendiente por 20.00
+- **THEN** `Paid so far` muestra 127.52, sin incluir los 20.00 pendientes
+
+#### Scenario: Same receipts after completion
+
+- **WHEN** se completa el trip anterior sin cambiar sus recibos
+- **THEN** `Paid` muestra los mismos 127.52
+
+#### Scenario: Corrected attachment total
+
+- **WHEN** un recibo leído como 86.40 se adjunta con total confirmado 82.50 y otro adjunto tiene total 41.12
+- **THEN** la tarjeta muestra 123.62 tanto en modo activo como completado
+- **AND** el total leído originalmente se conserva y no se suma en lugar del confirmado
+
+#### Scenario: Receipt becomes attached
+
+- **WHEN** se confirma la revisión de un recibo por 20.00 en un trip con otros adjuntos por 41.12
+- **THEN** el pagado pasa a 61.12 sin volver a contar los otros recibos
+
+#### Scenario: An attached receipt is deleted
+
+- **WHEN** se elimina un recibo adjunto por 20.00 y queda otro por 41.12
+- **THEN** la tarjeta recalcula el pagado como 41.12 en cualquiera de los dos estados del trip
+
+### Requirement: The paid summary preserves unavailable and pending states
+
+La tarjeta SHALL mostrar el pagado solo si hay recibos adjuntos y todos tienen total confirmado conocido; en caso contrario el importe SHALL ser no disponible. Un trip activo sin recibos adjuntos SHALL conservar las filas de pendientes sin tarjeta de pagado. Un total confirmado de cero SHALL ser un importe conocido válido.
+
+#### Scenario: Attached receipt with an unknown total
+
+- **WHEN** hay recibos adjuntos por 41.12 y por importe desconocido
+- **THEN** la tarjeta muestra un guion como importe no disponible en ambos estados del trip, sin presentar 41.12 como total completo
+
+#### Scenario: Pending receipts do not hide known attached totals
+
+- **WHEN** el único adjunto tiene total 41.12 y hay otro pendiente sin total conocido
+- **THEN** la tarjeta muestra 41.12
+
+#### Scenario: Zero total is known
+
+- **WHEN** el único recibo adjunto tiene total confirmado 0.00
+- **THEN** la tarjeta muestra 0.00 y no lo trata como importe desconocido
+
+#### Scenario: No attached receipts
+
+- **WHEN** el trip activo solo tiene recibos pendientes
+- **THEN** muestra sus estados sin tarjeta `Paid so far`
+- **AND** después de completar no presenta el estimado ni un total antiguo como pagado de esos recibos
+
+### Requirement: Receipt review waits for local checked intentions
+
+Antes de abrir la revisión de un recibo contra un trip activo, la interfaz SHALL confirmar sus checks locales pendientes y cargar los datos actuales del trip. Antes de confirmar el adjunto SHALL comprobar de nuevo que no quedan pendientes ni conflictos. Si la sincronización falla, SHALL conservar la intención y ofrecer reintento sin adjuntar el recibo.
+
+#### Scenario: Open review while checks are saving
+
+- **WHEN** el usuario abre la revisión con checks pendientes o en vuelo
+- **THEN** se espera su confirmación antes de cargar la revisión
+
+#### Scenario: Confirmation encounters an unresolved check
+
+- **WHEN** se intenta confirmar un recibo y existe un check local sin confirmar o un conflicto
+- **THEN** el adjunto espera la sincronización y la resolución del conflicto
+- **AND** un fallo no modifica el trip ni el recibo por esa acción
+
+### Requirement: Receipt mutations participate in item versioning
+
+Las modificaciones efectivas de campos editables de un ítem causadas por adjuntar un recibo SHALL incrementar su versión del servidor en la misma transacción. Los ítems nuevos SHALL obtener una versión inicial. Un check pendiente basado en datos anteriores al recibo MUST NOT sobrescribir sus cambios sin reconciliación.
+
+#### Scenario: Receipt changes an existing item
+
+- **WHEN** un recibo cambia el check o la cantidad de un ítem existente
+- **THEN** el ítem refleja una versión superior al confirmar el adjunto
+- **AND** una edición con la versión anterior recibe conflicto o rechazo por sesión completada
+
+#### Scenario: Receipt adds an item
+
+- **WHEN** el adjunto añade un ítem nuevo al trip
+- **THEN** ese ítem aparece con una versión válida para futuras lecturas
+
+### Requirement: Receipt attachment coordinates with manual saves
+
+El adjunto de recibos SHALL coordinarse transaccionalmente con los guardados manuales y la finalización de la misma sesión. SHALL conservar la posibilidad existente de adjuntar recibos a trips completados, sin permitir por ello checks manuales tardíos ni duplicar el aprendizaje de la lista.
+
+#### Scenario: Attach after a queued save
+
+- **WHEN** un check se confirma antes de que comience la transacción del adjunto
+- **THEN** el adjunto parte del estado confirmado y conserva las reglas existentes de reconciliación
+
+#### Scenario: Attach to completed trip
+
+- **WHEN** el propietario adjunta un recibo válido a un trip completado
+- **THEN** se mantienen las reglas actuales de recibos y precios reales
+- **AND** el trip no vuelve a aceptar ediciones manuales de checks
