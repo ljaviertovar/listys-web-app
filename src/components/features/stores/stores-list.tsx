@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Edit02Icon, GitMergeIcon, SparklesIcon, Store01Icon } from '@hugeicons/core-free-icons'
+import { Edit02Icon, GitMergeIcon, SparklesIcon, Store03Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 
 import { ConfirmSheet, EmptyStateCard, EntityCard, EntityCardSkeleton, ListToolbar } from '@/components/commons'
@@ -29,7 +29,7 @@ export function StoresList({ stores }: StoresListProps) {
 	if (stores.length === 0) {
 		return (
 			<EmptyStateCard
-				icon={Store01Icon}
+				icon={Store03Icon}
 				title='No stores yet'
 				description='A store is added when you confirm or save it on a receipt. Open a receipt to start.'
 				testId='stores-empty'
@@ -58,7 +58,7 @@ export function StoresList({ stores }: StoresListProps) {
 				{stores.filter(store => store.id !== actions.hiddenStoreId).map(store => (
 					<EntityCard
 						key={store.id}
-						icon={Store01Icon}
+						icon={Store03Icon}
 						tone='store'
 						title={store.name}
 							href={`/stores/${store.id}`}

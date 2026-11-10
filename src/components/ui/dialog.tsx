@@ -161,7 +161,7 @@ const dialogTitleVariants = cva("", {
       default: "text-base font-semibold leading-none tracking-tight md:text-lg",
       // The heading of an A1 form sheet.
       sheet:
-        "font-display text-lg leading-[1.3] font-semibold tracking-tight text-foreground focus:outline-none md:text-xl",
+        "font-display text-xl leading-[1.3] font-semibold tracking-tight text-foreground focus:outline-none",
       // A confirmation or a list dialog: bold and tight.
       strong: "text-base leading-none font-bold tracking-tight text-foreground md:text-lg",
       // The title bar of the dark viewer.

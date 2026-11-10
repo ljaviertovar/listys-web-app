@@ -1,4 +1,4 @@
-import { Store01Icon } from '@hugeicons/core-free-icons'
+import { Store03Icon } from '@hugeicons/core-free-icons'
 
 import { formatCurrency } from '@/utils'
 import { DashboardEmptyState } from './dashboard-empty-state'
@@ -15,7 +15,7 @@ export function StoreVisitsCard({ visits }: Props) {
 			{visits.length === 0 ? (
 				<DashboardEmptyState
 					testId='dashboard-store-visits-empty'
-					icon={Store01Icon}
+					icon={Store03Icon}
 					tone='store'
 					title='No store visits yet.'
 					message='Confirm a receipt’s store or choose one when you start a trip.'
@@ -29,7 +29,7 @@ export function StoreVisitsCard({ visits }: Props) {
 							title={visit.storeName}
 							meta={visit.dateLabel}
 							monoMeta
-							leading={<RowIcon icon={Store01Icon} tone='store' size='md' />}
+							leading={<RowIcon icon={Store03Icon} tone='store' size='md' />}
 							trailing={visit.total !== null ? <span className='shrink-0 font-mono text-sm font-semibold tabular-nums'>{formatCurrency(visit.total)}</span> : undefined}
 							testId={`dashboard-store-visit-${visit.storeId}`}
 						/>

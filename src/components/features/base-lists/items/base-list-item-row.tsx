@@ -1,6 +1,6 @@
 'use client'
 
-import { Delete02Icon, Edit02Icon, Pin02Icon, Store01Icon, ShoppingBasket01Icon } from '@hugeicons/core-free-icons'
+import { Delete02Icon, Edit02Icon, Pin02Icon, Store03Icon, ShoppingBasket01Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 
 import { RowMenu } from '@/components/commons'
@@ -63,7 +63,7 @@ export function BaseListItemRow({ item, isLocked = false, isOwner = true }: Base
 						data-testid={`base-list-item-${item.id}-usual-store`}
 					>
 						<HugeiconsIcon
-							icon={item.usual_store.source === 'manual' ? Pin02Icon : Store01Icon}
+							icon={item.usual_store.source === 'manual' ? Pin02Icon : Store03Icon}
 							strokeWidth={1.8}
 							aria-hidden='true'
 						/>
@@ -98,10 +98,10 @@ export function BaseListItemRow({ item, isLocked = false, isOwner = true }: Base
 				testId={`base-list-item-${item.id}-menu`}
 					actions={[
 					{ label: 'Edit Item', icon: Edit02Icon, onSelect: () => setEditing(true) },
-						...(isOwner ? [{ label: item.usual_store ? 'Change Usual Store…' : 'Set Usual Store…', icon: Store01Icon, onSelect: () => setStorePickerOpen(true) }] : []),
+						...(isOwner ? [{ label: item.usual_store ? 'Change Usual Store…' : 'Set Usual Store…', icon: Store03Icon, onSelect: () => setStorePickerOpen(true) }] : []),
 						...(isOwner ? [{ label: 'Prices by Store', icon: ShoppingBasket01Icon, onSelect: () => setPricesOpen(true) }] : []),
 						...(isOwner && item.usual_store?.source === 'manual'
-						? [{ label: 'Use Automatic Store', icon: Store01Icon, onSelect: () => setUsualStore(null) }]
+						? [{ label: 'Use Automatic Store', icon: Store03Icon, onSelect: () => setUsualStore(null) }]
 						: []),
 					{ label: 'Delete Item', icon: Delete02Icon, onSelect: remove, tone: 'danger' },
 				]}

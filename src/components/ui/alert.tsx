@@ -15,8 +15,11 @@ const alertVariants = cva(
 				info: 'border-blue-500/60 bg-blue-500/10 text-blue-700 dark:text-blue-400 *:[svg]:text-blue-700 dark:*:[svg]:text-blue-400',
 				warning:
 					'border-amber-500/60 bg-amber-500/10 text-amber-700 dark:text-amber-400 *:[svg]:text-amber-700 dark:*:[svg]:text-amber-400',
+				// The blue sibling of receipt-warning: guidance that is not a problem (Prices by Store without data).
+				'receipt-info':
+					'grid-cols-[auto_1fr] gap-x-3 rounded-2xl border-blue-200 bg-blue-50 px-3 py-3 text-blue-900 [&>span]:row-span-2 **:data-[slot=alert-title]:text-sm **:data-[slot=alert-title]:leading-[1.3] **:data-[slot=alert-description]:leading-[1.4] dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-200',
 				'receipt-warning':
-					'grid-cols-[auto_1fr] gap-x-3 rounded-2xl border-amber-200 bg-amber-50 text-amber-800 px-3 py-3 [&>span]:row-span-2 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200',
+					'grid-cols-[auto_1fr] gap-x-3 rounded-2xl border-amber-200 bg-amber-50 px-3 py-3 text-amber-800 [&>span]:row-span-2 **:data-[slot=alert-title]:text-sm **:data-[slot=alert-title]:leading-[1.3] **:data-[slot=alert-description]:leading-[1.4] dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200',
 			},
 		},
 		defaultVariants: {

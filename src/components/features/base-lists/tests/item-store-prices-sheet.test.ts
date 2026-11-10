@@ -73,7 +73,7 @@ describe('ItemStorePricesSheet', () => {
 
 		expect(html).toContain('Metro')
 		expect(html).toContain('No price yet')
-		expect(html).toContain('Bought at one store so far')
+		expect(html).toContain('Buy it at another store and attach that receipt to compare prices')
 		expect(html).not.toContain('Cheapest')
 	})
 })

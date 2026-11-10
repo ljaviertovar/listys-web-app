@@ -95,7 +95,7 @@ describe('active trip receipts for a viewer', () => {
 			}),
 		)
 		expect(html).toContain('$41.12')
-		expect(html).toContain('Ready for Review')
+		expect(html).toContain('Attach Pending')
 		expect(html).not.toContain('Review Receipt')
 		expect(html).not.toContain('Attach Receipt')
 		expect(html).toContain('View Receipt')
@@ -107,7 +107,7 @@ describe('active trip receipts for a viewer', () => {
 	it.each([
 		['pending', 'Processing'],
 		['processing', 'Processing'],
-		['completed', 'Ready for Review'],
+		['completed', 'Attach Pending'],
 		['failed', 'Failed'],
 	])('shows the %s receipt as a status chip', (ocr_status, label) => {
 		const html = renderToStaticMarkup(

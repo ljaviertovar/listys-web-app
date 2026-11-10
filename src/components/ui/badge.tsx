@@ -35,10 +35,10 @@ const badgeVariants = cva(
         "store-manual":
           "border-violet-300 bg-card text-violet-900 dark:border-violet-400/50 dark:text-violet-200 [&>svg]:text-violet-600 dark:[&>svg]:text-violet-300",
         // Tag (canvas 3/7): the only bordered box. A fact about the object, never its progress; it always carries an icon and no green or red.
-        tag: "h-5.5 gap-1 rounded-md border-slate-200 bg-card px-2 font-medium text-slate-700 dark:border-border dark:text-slate-200 [&>svg]:size-3.25! [&>svg]:text-slate-500",
+        tag: "h-5.5 gap-1 rounded-md border-slate-200 bg-card px-2 has-[>svg]:pl-1.5 font-medium text-slate-700 dark:border-border dark:text-slate-200 [&>svg]:size-3.25! [&>svg]:text-slate-500",
         // The attention tag: something is missing (no receipt, no price). Amber, never an action.
         "tag-attention":
-          "h-5.5 gap-1 rounded-md border-amber-200 bg-amber-50 px-2 font-medium text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/15 dark:text-amber-200 [&>svg]:size-3.25! [&>svg]:text-amber-600",
+          "h-5.5 gap-1 rounded-md border-amber-200 bg-amber-50 px-2 has-[>svg]:pl-1.5 font-medium text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/15 dark:text-amber-200 [&>svg]:size-3.25! [&>svg]:text-amber-600",
         // The list every account starts with (Pantry): a yellow tag, with its star.
         "list-default":
           "h-5.5 gap-1 rounded-md border-amber-200 bg-amber-100 px-2 font-medium text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/20 dark:text-amber-200 [&>svg]:size-3.25! [&>svg]:text-amber-600",

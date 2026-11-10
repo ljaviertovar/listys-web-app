@@ -2,7 +2,7 @@
 
 import type { ReactNode } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Loading03Icon, Store01Icon } from '@hugeicons/core-free-icons'
+import { Loading03Icon, Store03Icon } from '@hugeicons/core-free-icons'
 
 import { StoreNameDialog, StorePickerDialog, suggestStoreName } from '@/components/features/stores'
 import { Button } from '@/components/ui/button'
@@ -113,7 +113,7 @@ export function TicketStoreCard({ ticketId, store, storeSuggestion, storeName }:
 			<div className='flex items-start gap-3'>
 				<span className='flex size-9 shrink-0 items-center justify-center rounded-xl bg-violet-100 text-violet-700 dark:bg-violet-500/20 dark:text-violet-300'>
 					<HugeiconsIcon
-						icon={Store01Icon}
+						icon={Store03Icon}
 						strokeWidth={1.5}
 						aria-hidden='true'
 						className='size-4.5'

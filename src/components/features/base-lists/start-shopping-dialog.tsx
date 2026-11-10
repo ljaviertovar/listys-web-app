@@ -4,7 +4,7 @@ import { useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Alert02Icon, Loading03Icon, ShoppingCart02Icon, Store01Icon } from '@hugeicons/core-free-icons'
+import { Alert02Icon, Loading03Icon, ShoppingCart02Icon, Store03Icon } from '@hugeicons/core-free-icons'
 
 import { Button, type ButtonProps } from '@/components/ui/button'
 import { DialogFooter } from '@/components/ui/dialog'
@@ -185,7 +185,7 @@ export function StartShoppingDialog({
 				</div>
 				<div className='flex items-center justify-between gap-3 rounded-2xl bg-muted px-3.5 py-3'>
 					<span className='flex min-w-0 items-center gap-2 text-sm text-foreground'>
-						<HugeiconsIcon icon={Store01Icon} strokeWidth={1.6} aria-hidden='true' className='size-4.5 shrink-0' />
+						<HugeiconsIcon icon={Store03Icon} strokeWidth={1.6} aria-hidden='true' className='size-4.5 shrink-0' />
 						<span className='truncate'>{selectedStore?.name ?? 'Whole list'}</span>
 					</span>
 					<Button type='button' size='sm' variant='secondary' onClick={() => setStorePickerOpen(true)} disabled={loading}>

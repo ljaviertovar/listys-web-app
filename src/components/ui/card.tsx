@@ -14,7 +14,7 @@ function Card({
 	...props
 }: React.ComponentProps<'div'> & {
 	/** `compact`, `tight` and `flush` drop the gap between the parts of the card and shrink its padding (a card of list rows). */
-	size?: 'default' | 'sm' | 'compact' | 'tight' | 'flush' | 'receipt' | 'stat' | 'saved'
+	size?: 'default' | 'sm' | 'compact' | 'tight' | 'flush' | 'receipt' | 'trip' | 'list' | 'stat' | 'saved'
 	variant?: 'default' | 'premium' | 'accent' | 'ghost' | 'stat'
 	tone?: 'default' | 'info' | 'success' | 'danger' | 'muted'
 	layout?: 'default' | 'horizontal'
@@ -37,8 +37,12 @@ function Card({
 				size === 'compact' && 'gap-0 py-3 md:py-4',
 				size === 'tight' && 'gap-0 p-3 md:p-4',
 				size === 'flush' && 'gap-0 p-3 md:p-4',
-				size === 'receipt' && 'gap-0 p-4 md:p-6',
-				size === 'stat' && 'gap-3 p-4 md:p-6',
+				// Canvas v4: a trip or receipt card is 12px on phones and 16px from md (the DS card padding); `trip` is the 14px trips-list card.
+				size === 'receipt' && 'gap-0 p-3 md:p-4',
+				size === 'trip' && 'gap-0 p-3.5 md:p-4',
+				// A card of collapsible categories: the 44px Collapse All button carries its own top space (canvas v4).
+				size === 'list' && 'gap-0 px-3 pt-1 pb-0 md:px-4',
+				size === 'stat' && 'gap-2.5 p-3 md:p-4',
 				size === 'saved' && 'gap-4 p-4 md:p-6',
 				variant === 'stat' && 'rounded-2xl shadow-none ring-1 ring-inset ring-slate-200 dark:ring-border',
 				tone === 'info' && 'bg-blue-50 text-blue-900 shadow-none ring-1 ring-inset ring-blue-100 dark:bg-blue-500/10 dark:text-blue-200 dark:ring-blue-500/30',

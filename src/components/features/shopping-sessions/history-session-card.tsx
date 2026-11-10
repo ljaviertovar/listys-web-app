@@ -1,6 +1,8 @@
 'use client'
 
-import { Alert02Icon, Attachment01Icon, ShoppingBag02Icon } from '@hugeicons/core-free-icons'
+import { ShoppingBag03Icon } from '@hugeicons/core-free-icons'
+// AttachmentIcon and AttachmentOffIcon exist only in Hugeicons 4; every other icon stays on 3.x so none of them is redrawn.
+import { AttachmentIcon, AttachmentOffIcon } from '@hugeicons/core-free-icons-v4'
 import { HugeiconsIcon } from '@hugeicons/react'
 
 import { ActionLink, DataFigure, DataLine, EntityLabel, InlineCounter } from '@/components/commons'
@@ -50,7 +52,7 @@ export function HistorySessionCard({ session, href }: Props) {
 
 	return (
 		<Card
-			size='receipt'
+			size='trip'
 			data-testid={`history-card-${session.id}`}
 		>
 			<div className='flex flex-col gap-2.5'>
@@ -60,7 +62,7 @@ export function HistorySessionCard({ session, href }: Props) {
 						className='flex size-9 shrink-0 items-center justify-center rounded-xl bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300'
 					>
 						<HugeiconsIcon
-							icon={ShoppingBag02Icon}
+							icon={ShoppingBag03Icon}
 							strokeWidth={1.5}
 							className='size-4.5'
 						/>
@@ -91,7 +93,7 @@ export function HistorySessionCard({ session, href }: Props) {
 								variant='tag'
 							>
 								<HugeiconsIcon
-									icon={Attachment01Icon}
+									icon={AttachmentIcon}
 									strokeWidth={1.8}
 									aria-hidden='true'
 								/>
@@ -104,7 +106,7 @@ export function HistorySessionCard({ session, href }: Props) {
 								variant='tag-attention'
 							>
 								<HugeiconsIcon
-									icon={Alert02Icon}
+									icon={AttachmentOffIcon}
 									strokeWidth={1.8}
 									aria-hidden='true'
 								/>

@@ -3,6 +3,9 @@
 import { useId } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
+import { ListViewIcon } from '@hugeicons/core-free-icons'
+
+import { RowIcon } from '@/components/commons'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
@@ -37,22 +40,28 @@ export function HistoryListFilter({ options, selectedListId, testId = 'history-l
 			>
 				<SelectTrigger
 					id={fieldId}
-					size='lg'
+					size='filter'
 				>
 					<SelectValue />
 				</SelectTrigger>
-				<SelectContent>
-					<SelectItem value={ALL_LISTS}>All lists</SelectItem>
+				<SelectContent size='filter'>
+					<SelectItem size='filter' value={ALL_LISTS}><ListOption name='All lists' /></SelectItem>
 					{options.map(option => (
 						<SelectItem
 							key={option.id}
+							size='filter'
 							value={option.id}
 						>
-							{option.name}
+							<ListOption name={option.name} />
 						</SelectItem>
 					))}
 				</SelectContent>
 			</Select>
 		</div>
 	)
+}
+
+/** The list in the filter, with the tile the canvas draws before its name; it is also what the closed trigger shows. */
+function ListOption({ name }: { name: string }) {
+	return <><RowIcon icon={ListViewIcon} tone='primary' size='stat' testId='history-filter-option-icon' />{name}</>
 }

@@ -36,11 +36,15 @@ export function ChangeLineSheet({ line, match, items, listName, onClose, onSave 
 		<SheetDialog open nested onOpenChange={open => !open && onClose()} title='Change Line' testId='change-line-sheet'>
 			<div className='flex flex-col gap-4'>
 				<Card variant='stat' size='stat' tone='muted'>
-					<div className='grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1'>
-						<span className='text-xs font-semibold uppercase tracking-wide text-slate-500'>Receipt line</span>
-						<span className='text-right font-mono text-sm font-semibold'>{line.price == null ? '—' : formatCurrency(line.price)}</span>
-						<span className='min-w-0 break-words font-mono text-sm font-semibold'>{formatItemName(line.name)}</span>
-						<div className='justify-self-end'><ItemQuantityChip quantity={line.quantity} unit={line.unit} /></div>
+					<div className='flex min-w-0 items-center justify-between gap-3 px-0.5'>
+						<div className='flex min-w-0 flex-col gap-1'>
+							<span className='text-xs font-semibold uppercase tracking-wide text-slate-500'>Receipt line</span>
+							<span className='min-w-0 break-words font-mono text-base font-semibold'>{formatItemName(line.name)}</span>
+						</div>
+						<div className='flex shrink-0 flex-col items-end gap-1.5'>
+							<span className='font-mono text-sm font-semibold'>{line.price == null ? '—' : formatCurrency(line.price)}</span>
+							<ItemQuantityChip quantity={line.quantity} unit={line.unit} />
+						</div>
 					</div>
 				</Card>
 				<RadioGroup aria-label='What this receipt line will do' value={kind} onValueChange={value => setKind(value as LineDecision['kind'])}>

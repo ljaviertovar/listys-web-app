@@ -2,7 +2,7 @@ import type { ComponentProps } from 'react'
 import { redirect } from 'next/navigation'
 
 import { HugeiconsIcon } from '@hugeicons/react'
-import { ShoppingBag02Icon } from '@hugeicons/core-free-icons'
+import { ShoppingBag03Icon } from '@hugeicons/core-free-icons'
 
 import { Card } from '@/components/ui/card'
 
@@ -61,7 +61,7 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
 								aria-hidden='true'
 							>
 								<HugeiconsIcon
-									icon={ShoppingBag02Icon}
+									icon={ShoppingBag03Icon}
 									strokeWidth={1.5}
 									className='size-6.5'
 								/>

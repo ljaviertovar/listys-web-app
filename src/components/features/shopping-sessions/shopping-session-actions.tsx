@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Attachment01Icon, Cancel01Icon, CheckmarkCircle02Icon, PlusSignIcon, Share01Icon, ShoppingBag02Icon, Tick02Icon } from '@hugeicons/core-free-icons'
+import { Attachment01Icon, Cancel01Icon, CheckmarkCircle02Icon, PlusSignIcon, Share01Icon, ShoppingBag03Icon, Tick02Icon } from '@hugeicons/core-free-icons'
 
 import { AddItemSheet } from '@/components/features/list-items'
 import { ShareListDialog } from '@/components/features/sharing'
@@ -103,7 +103,7 @@ export function ShoppingSessionActions({ sessionId, checked, total, baseListId, 
 							rounded='full'
 						>
 							<HugeiconsIcon
-								icon={ShoppingBag02Icon}
+								icon={ShoppingBag03Icon}
 								strokeWidth={1.5}
 								aria-hidden='true'
 								className='size-4.5'

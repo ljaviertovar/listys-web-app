@@ -1,4 +1,4 @@
-import { Add01Icon, MinusSignIcon, TickDouble02Icon } from '@hugeicons/core-free-icons'
+import { Add01Icon, InformationCircleIcon, MinusSignCircleIcon, Tick02Icon, TickDouble02Icon } from '@hugeicons/core-free-icons'
 
 import { CategorySection } from '@/components/commons'
 import { ItemQuantityChip } from '@/components/features/list-items'
@@ -38,11 +38,16 @@ export function TripReviewSection({
 			icon={
 				id === 'new'
 					? Add01Icon
-					: id === 'will-be-checked' || id === 'already-checked'
-						? TickDouble02Icon
-						: MinusSignIcon
+					: id === 'will-be-checked'
+						? Tick02Icon
+						: id === 'already-checked'
+							? TickDouble02Icon
+							: id === 'checked-not-on-receipt'
+								? InformationCircleIcon
+								: MinusSignCircleIcon
 			}
 			tone={id === 'new' || id === 'will-be-checked' ? 'primary' : id === 'already-checked' ? 'success' : 'muted'}
+			panelClassName='px-3'
 			defaultOpen={id !== 'not-checked-not-on-receipt'}
 			open={open}
 			onOpenChange={onOpenChange}
@@ -60,7 +65,7 @@ export function TripReviewSection({
 					<div
 						key={item.id}
 						data-testid={`attach-review-missing-${item.id}`}
-						className='flex min-h-14 items-center gap-2 px-3 py-3'
+						className='flex min-h-14 items-center gap-2 py-3'
 					>
 						<ItemQuantityChip
 							quantity={item.quantity}

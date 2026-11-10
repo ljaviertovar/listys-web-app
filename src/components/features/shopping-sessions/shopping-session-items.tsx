@@ -79,7 +79,7 @@ export function ShoppingSessionItems({ items: initialItems, sessionId, isComplet
 
 	return (
 		<Card
-			size='receipt'
+			size='list'
 			aria-label='Items by category'
 			data-testid='session-items-card'
 		>
@@ -91,7 +91,7 @@ export function ShoppingSessionItems({ items: initialItems, sessionId, isComplet
 			{storeId ? (
 				<>
 					<section aria-label={storeName ? `At ${storeName}` : 'At this store'} data-testid='session-current-store-section'>
-						<h2 className='px-2 pb-2 text-sm font-semibold text-foreground'>{storeName ? `At ${storeName}` : 'At this store'}</h2>
+						<h2 className='px-0.5 pt-0.5 pb-1 text-sm font-semibold text-foreground'>{storeName ? `At ${storeName}` : 'At this store'}</h2>
 						<SessionCategoryGroups
 							groups={storeGroups}
 							isCompleted={isCompleted}

@@ -2,11 +2,11 @@ import type { NavItemO, NavLink, SidebarData } from '@/types'
 import {
 	DashboardSquare02Icon,
 	FolderLibraryIcon,
-	ShoppingCart02Icon,
+	ShoppingBag03Icon,
 	Invoice01Icon,
 	UserSettings01Icon,
 	Settings02Icon,
-	Store01Icon,
+	Store03Icon,
 } from '@hugeicons/core-free-icons'
 
 export const NAV_ITEMS: NavItemO[] = [
@@ -44,7 +44,7 @@ export const SIDEBAR_DATA: SidebarData = {
 				{
 					title: 'Trips',
 					url: '/trips',
-					icon: ShoppingCart02Icon,
+					icon: ShoppingBag03Icon,
 				},
 			],
 		},
@@ -59,7 +59,7 @@ export const SIDEBAR_DATA: SidebarData = {
 				{
 					title: 'My Stores',
 					url: '/stores',
-					icon: Store01Icon,
+					icon: Store03Icon,
 				},
 			],
 		},
@@ -86,7 +86,7 @@ export const MOBILE_TAB_ITEMS: { title: string; url: string; icon: NonNullable<N
 	{ title: 'Dashboard', url: '/dashboard', icon: DashboardSquare02Icon },
 	{ title: 'Lists', url: '/shopping-lists', icon: FolderLibraryIcon },
 	{ title: 'Receipts', url: '/tickets', icon: Invoice01Icon },
-	{ title: 'Trips', url: '/trips', icon: ShoppingCart02Icon },
+	{ title: 'Trips', url: '/trips', icon: ShoppingBag03Icon },
 ]
 
 export const USER_NAV_ITEMS: NavLink[] = [
