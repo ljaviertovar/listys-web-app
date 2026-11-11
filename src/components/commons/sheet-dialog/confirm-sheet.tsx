@@ -90,7 +90,7 @@ export function ConfirmSheet({
 				) : null}
 				{children}
 			</div>
-			<DialogFooter variant='sheet'>
+			<DialogFooter variant='sheet' className='mt-4'>
 				<Button
 					size='primary'
 					type='button'

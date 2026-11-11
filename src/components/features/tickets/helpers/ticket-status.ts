@@ -5,15 +5,15 @@ export type TicketStatus = 'pending' | 'processing' | 'completed' | 'failed'
 
 interface TicketStatusMeta {
 	label: string
-	/** Tinted surface (the 100-level of the status colour) with the 700-level text and dot; the label says it too, so colour never carries it alone. */
-	tone: string
+	/** The `Badge` variant that tints the pill (the 100-level of the status colour with the 700-level text and dot); the label says it too, so colour never carries it alone. */
+	variant: 'neutral' | 'processing' | 'completed' | 'failed'
 }
 
 export const TICKET_STATUS_META: Record<TicketStatus, TicketStatusMeta> = {
-	pending: { label: 'Waiting to Read', tone: 'bg-slate-100 text-slate-700 dark:bg-muted dark:text-foreground' },
-	processing: { label: 'Reading Receipt', tone: 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300' },
-	completed: { label: 'Ready to Review', tone: 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300' },
-	failed: { label: 'Failed', tone: 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-300' },
+	pending: { label: 'Pending', variant: 'neutral' },
+	processing: { label: 'Reading', variant: 'processing' },
+	completed: { label: 'Processed', variant: 'completed' },
+	failed: { label: 'Failed', variant: 'failed' },
 }
 
 /** Icon beside the one-line status message of a receipt card. */
@@ -26,4 +26,14 @@ export const TICKET_STATUS_NOTE_ICON: Partial<Record<TicketStatus, IconSvgElemen
 export function toTicketStatus(raw: string | null | undefined, itemCount?: number | null): TicketStatus {
 	if (raw === 'completed' && itemCount === 0) return 'failed'
 	return raw === 'processing' || raw === 'completed' || raw === 'failed' ? raw : 'pending'
+}
+
+/** A receipt that finished reading but found no item lines: it was read, so it is not an error, though it has nothing to review. */
+export function isReadWithoutItems(raw: string | null | undefined, itemCount?: number | null): boolean {
+	return raw === 'completed' && itemCount === 0
+}
+
+/** The status shown on a receipt's chip: `toTicketStatus`, except that a receipt read without items is still "Processed". */
+export function toTicketChipStatus(raw: string | null | undefined, itemCount?: number | null): TicketStatus {
+	return isReadWithoutItems(raw, itemCount) ? 'completed' : toTicketStatus(raw, itemCount)
 }

@@ -1,4 +1,9 @@
-import { cn, formatCurrency } from '@/utils'
+import { Alert02Icon } from '@hugeicons/core-free-icons'
+
+import { RowIcon } from '@/components/commons'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Card } from '@/components/ui/card'
+import { formatCurrency } from '@/utils'
 import type { Ticket } from '@/types'
 
 import { TicketActions } from './ticket-actions'
@@ -25,48 +30,46 @@ export function TicketSummaryCard({ ticket, itemsCount, pricedItemsCount, total 
 	const linesMissed = showTotals && showReceiptTotal && total < receiptTotal * (1 - TOTAL_GAP_RATIO)
 
 	return (
-		<section
+		<Card
 			data-testid='ticket-summary-card'
+			role='region'
 			aria-label='Receipt summary'
-			className='flex flex-col rounded-3xl bg-card p-3 shadow-card md:p-4'
+			size='receipt'
 		>
-			{showTotals || showReceiptTotal ? (
-				<>
-					{showTotals ? (
-						<>
-							<div className='flex min-h-12 items-center justify-between text-sm text-slate-500 dark:text-muted-foreground'>
-								<span>Extracted items</span>
-								<b className='font-mono font-semibold text-foreground tabular-nums'>{itemsCount}</b>
-							</div>
-							<div className='flex min-h-12 items-center justify-between border-t border-slate-100 text-sm font-semibold dark:border-border'>
-								<span>Extracted Item Total</span>
-								<b className='font-mono text-xl leading-none font-bold tabular-nums'>{formatCurrency(total)}</b>
-							</div>
-						</>
-					) : null}
-					{showReceiptTotal ? (
-						<div className='flex min-h-12 items-center justify-between border-t border-slate-100 text-sm font-semibold dark:border-border'>
-							<span>Receipt Total</span>
-							<b className='font-mono text-xl leading-none font-bold tabular-nums'>{formatCurrency(receiptTotal)}</b>
+			<div className='flex flex-col gap-3'>
+				{showTotals ? (
+					<>
+						<div className='flex items-center justify-between gap-3 text-sm leading-[1.3] text-slate-600 dark:text-muted-foreground'>
+							<span>Extracted items</span>
+							<b className='font-mono font-semibold whitespace-nowrap text-foreground tabular-nums'>{itemsCount}</b>
 						</div>
-					) : null}
-					{linesMissed ? (
-							<p
-								role='note'
-								data-testid='ticket-total-gap-note'
-								className='pb-2 text-xs leading-normal text-amber-800 dark:text-amber-300'
-							>
-								The items we read add up to less than the receipt total. Some lines may be missing: check the photo.
-							</p>
-						) : null}
-						{showTotals && !linesMissed && pricedItemsCount < itemsCount ? (
-						<p className='pb-2 text-xs leading-normal text-slate-500 dark:text-muted-foreground'>
-							Based on prices found for {pricedItemsCount} of {itemsCount} items. This may differ from the total printed on your receipt.
-						</p>
-					) : null}
-				</>
-			) : null}
-			<div className={cn('flex flex-col gap-2', (showTotals || showReceiptTotal) && 'mt-2')}>
+						<div className='border-t border-slate-100 dark:border-border' />
+						<div className='flex items-center justify-between gap-3 text-sm leading-[1.3] font-semibold'>
+							<span>Extracted Item Total</span>
+							<b className='font-mono text-base font-bold whitespace-nowrap tabular-nums'>{formatCurrency(total)}</b>
+						</div>
+					</>
+				) : null}
+				{showReceiptTotal ? (
+					<>
+						{showTotals ? <div className='border-t border-slate-100 dark:border-border' /> : null}
+						<div className='flex items-center justify-between gap-3 text-sm leading-[1.3] font-semibold'>
+							<span>Receipt Total</span>
+							<b className='font-mono text-base font-bold whitespace-nowrap tabular-nums'>{formatCurrency(receiptTotal)}</b>
+						</div>
+					</>
+				) : null}
+				{linesMissed ? (
+					<Alert variant='receipt-warning' role='note' data-testid='ticket-total-gap-note'>
+						<RowIcon icon={Alert02Icon} tone='warning' size='sm' testId='ticket-total-gap-icon' />
+						<AlertDescription>The items we read add up to less than the receipt total. Some lines may be missing: check the photo.</AlertDescription>
+					</Alert>
+				) : null}
+				{showTotals && !linesMissed && pricedItemsCount < itemsCount ? (
+					<p className='text-xs leading-normal text-slate-500 dark:text-muted-foreground'>
+						Based on prices found for {pricedItemsCount} of {itemsCount} items. This may differ from the total printed on your receipt.
+					</p>
+				) : null}
 				{noItems ? (
 					<UploadTicketDialog
 						label='Upload a New Receipt'
@@ -78,6 +81,6 @@ export function TicketSummaryCard({ ticket, itemsCount, pricedItemsCount, total 
 					allowRetry={noItems}
 				/>
 			</div>
-		</section>
+		</Card>
 	)
 }

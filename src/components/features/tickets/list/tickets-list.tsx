@@ -1,26 +1,22 @@
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Invoice01Icon } from '@hugeicons/core-free-icons'
 
-import { ActionLink, DataLine, InlineCounter } from '@/components/commons'
+import { ActionLink, DataFigure, DataLine, InlineCounter, RowIcon } from '@/components/commons'
+import { Card } from '@/components/ui/card'
+import { Progress } from '@/components/ui/progress'
 import { cn } from '@/utils'
 import { MAX_IMAGES_PER_TICKET, MAX_TICKET_IMAGE_MB } from '@/lib/config/limits'
 
+import { NoStoreBadge } from '../no-store-badge'
 import { TicketStatusChip } from '../ticket-status-chip'
-import { TICKET_STATUS_NOTE_ICON, toTicketStatus, type TicketStatus } from '../helpers/ticket-status'
+import { TICKET_STATUS_NOTE_ICON, toTicketChipStatus, type TicketStatus } from '../helpers/ticket-status'
 import { UploadAnotherTile } from '../upload/upload-another-tile'
 import { UploadTicketDialog } from '../upload/upload-ticket-dialog'
+import type { TicketListItemData } from './helpers/build-ticket-list-item'
 
-interface TicketCardProps {
-	id: string
-	storeName: string | null
-	/** Raw `ocr_status` column; anything unknown reads as pending. */
-	status: string | null
-	itemsCount: number | null
-	/** Already formatted on the server, so no date has to cross the client boundary. */
-	uploadedLabel: string
-}
+type TicketCardProps = TicketListItemData
 
-const NOTE = 'text-sm leading-[1.3] text-slate-600 dark:text-muted-foreground'
+const NOTE = 'text-xs leading-[1.3] text-slate-500 dark:text-muted-foreground'
 
 function StatusNote({ status, itemsCount }: { status: TicketStatus; itemsCount: number }) {
 	const noteIcon = TICKET_STATUS_NOTE_ICON[status]
@@ -31,14 +27,13 @@ function StatusNote({ status, itemsCount }: { status: TicketStatus; itemsCount: 
 				data-testid='ticket-card-progress'
 				className='flex min-w-0 flex-1 flex-col gap-2'
 			>
-				<span
-					role='progressbar'
-					aria-label='Reading your receipt'
-					className='block h-1.5 overflow-hidden rounded-full bg-slate-200 dark:bg-muted'
-				>
-					<span className='block h-full w-2/5 animate-pulse rounded-full bg-blue-600 motion-reduce:animate-none' />
-				</span>
-				<span className={NOTE}>Reading your receipt…</span>
+				<Progress
+					indeterminate
+					size='sm'
+					tone='track'
+					aria-label='Reading receipt'
+				/>
+				<span className={NOTE}>Reading store and items…</span>
 			</div>
 		)
 	}
@@ -59,47 +54,50 @@ function StatusNote({ status, itemsCount }: { status: TicketStatus; itemsCount: 
 			{noteIcon ? (
 				<HugeiconsIcon
 					icon={noteIcon}
-					strokeWidth={1.8}
+					strokeWidth={1.5}
 					className='size-4 shrink-0'
 				/>
 			) : null}
-			{status === 'failed' ? 'Couldn’t read this receipt' : 'Your receipt is uploaded and waiting to be read.'}
+			{status === 'failed' ? 'Couldn’t read this receipt' : 'Waiting in line to be read'}
 		</span>
 	)
 }
 
 /** A receipt in the list: who it is, when it was uploaded, its status chip and one line about where it stands. */
-export function TicketCard({ id, storeName, status, itemsCount, uploadedLabel }: TicketCardProps) {
-	const ticketStatus = toTicketStatus(status, itemsCount)
+export function TicketCard({ id, title, status, itemsCount, photoCount, uploadedLabel, totalLabel, storeConfirmed }: TicketCardProps) {
+	const ticketStatus = toTicketChipStatus(status, itemsCount)
 	// Only a receipt that has finished (or failed) has details worth a labelled link.
 	const showDetails = ticketStatus === 'completed' || ticketStatus === 'failed'
+	const needsStore = ticketStatus === 'completed' && !storeConfirmed
 
 	return (
-		<article
+		<Card
+			size='receipt'
 			data-testid={`ticket-card-${id}`}
 			data-status={ticketStatus}
-			className='flex flex-col gap-2 rounded-3xl bg-card p-3 shadow-card md:gap-3 md:p-4'
 		>
-			<div className='flex items-start gap-3'>
-				<span className='flex size-9 shrink-0 items-center justify-center rounded-xl bg-cyan-100 text-cyan-700 dark:bg-cyan-500/20 dark:text-cyan-300'>
-					<HugeiconsIcon
-						icon={Invoice01Icon}
-						strokeWidth={1.5}
-						className='size-4.5'
-					/>
-				</span>
-				<div className='flex min-w-0 flex-1 flex-col gap-2'>
-					<div className='flex min-h-6.5 items-center justify-between gap-2'>
-						<h2 className='min-w-0 truncate font-display text-base leading-normal font-semibold '>
-							{storeName || 'Store not recognized'}
-						</h2>
+			<div className='flex items-center gap-3'>
+				<RowIcon
+					icon={Invoice01Icon}
+					tone='ocr'
+					size='md'
+					testId={`ticket-card-icon-${id}`}
+				/>
+				<div className='flex min-w-0 flex-1 flex-col gap-1'>
+					<div className='flex items-center justify-between gap-2'>
+						<h2 className='min-w-0 truncate font-display text-base leading-normal font-semibold tracking-tight'>{title}</h2>
 						<TicketStatusChip status={ticketStatus} />
 					</div>
-					<DataLine testId={`ticket-data-${id}`}>{uploadedLabel}</DataLine>
+					<div className='flex flex-col items-start gap-1.5'>
+						{needsStore ? (
+							<NoStoreBadge testId={`ticket-card-no-store-${id}`} />
+						) : null}
+						<TicketDataLine id={id} storeConfirmed={storeConfirmed} photoCount={photoCount} uploadedLabel={uploadedLabel} totalLabel={totalLabel} />
+					</div>
 				</div>
 			</div>
 
-			<div className='flex items-center justify-between gap-3 border-t border-slate-200/70 pt-3 dark:border-border'>
+			<div className='mt-3 flex min-h-13 items-center justify-between gap-3 border-t border-slate-100 dark:border-border'>
 				<StatusNote
 					status={ticketStatus}
 					itemsCount={itemsCount ?? 0}
@@ -114,41 +112,53 @@ export function TicketCard({ id, storeName, status, itemsCount, uploadedLabel }:
 					</ActionLink>
 				) : null}
 			</div>
-		</article>
+		</Card>
+	)
+}
+
+function TicketDataLine({ id, storeConfirmed, photoCount, uploadedLabel, totalLabel }: Pick<TicketCardProps, 'id' | 'storeConfirmed' | 'photoCount' | 'uploadedLabel' | 'totalLabel'>) {
+	return (
+		<DataLine testId={`ticket-data-${id}`}>
+			{!storeConfirmed && photoCount > 0 ? (
+				<>
+					<DataFigure emphasis='count'>{photoCount}</DataFigure> {photoCount === 1 ? 'photo' : 'photos'}
+				</>
+			) : null}
+			{uploadedLabel}
+			{totalLabel ? <DataFigure>{totalLabel}</DataFigure> : null}
+		</DataLine>
 	)
 }
 
 /** The receipts screen before the first upload: one message and the one primary action, with the limits spelled out. */
 export function TicketsEmptyState() {
 	return (
-		<section
+		<Card
+			size='receipt'
 			data-testid='tickets-empty-state'
 			aria-labelledby='tickets-empty-title'
-			className='flex flex-col items-center gap-4 rounded-3xl bg-card p-3 text-center shadow-card md:gap-5 md:p-4'
+			className='items-center text-center'
 		>
-			<span className='flex size-16 items-center justify-center rounded-3xl bg-cyan-100 text-cyan-700 md:size-18 dark:bg-cyan-950 dark:text-cyan-300'>
-				<HugeiconsIcon
-					icon={Invoice01Icon}
-					strokeWidth={1.5}
-					className='size-8'
-				/>
-			</span>
-			<div className='flex flex-col gap-1'>
-				<h2
-					id='tickets-empty-title'
-					className='font-display text-lg leading-[1.3] font-bold '
-				>
-					No receipts yet
-				</h2>
-				<p className='text-sm leading-normal text-slate-500 dark:text-muted-foreground'>
-					Upload your first receipt to get started.
-				</p>
-			</div>
-			<UploadTicketDialog className='w-auto' />
-			<p className='font-mono text-xs leading-[1.3] font-medium text-slate-500 dark:text-muted-foreground'>
+			<RowIcon
+				icon={Invoice01Icon}
+				tone='primary'
+				size='empty'
+				testId='tickets-empty-icon'
+			/>
+			<h2
+				id='tickets-empty-title'
+				className='mt-4 font-display text-lg leading-[1.39] font-semibold tracking-[-0.01em]'
+			>
+				No receipts yet
+			</h2>
+			<p className='mt-1.5 max-w-65 text-sm leading-normal text-slate-500 dark:text-muted-foreground'>
+				Upload your first receipt to get started.
+			</p>
+			<UploadTicketDialog className='mt-5 w-auto' />
+			<p className='mt-3 font-mono text-xs leading-[1.4] font-medium text-slate-500 dark:text-muted-foreground'>
 				1–{MAX_IMAGES_PER_TICKET} photos · PNG or JPG · {MAX_TICKET_IMAGE_MB} MB each
 			</p>
-		</section>
+		</Card>
 	)
 }
 
@@ -168,7 +178,7 @@ export function TicketsList({ tickets }: TicketsListProps) {
 	return (
 		<ul
 			data-testid='tickets-list'
-			className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:gap-6 xl:grid-cols-3'
+			className='grid grid-cols-1 gap-3 sm:grid-cols-2 lg:gap-6 xl:grid-cols-3'
 		>
 			{tickets.map(ticket => (
 				<li key={ticket.id}>

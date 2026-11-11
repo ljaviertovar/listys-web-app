@@ -1,6 +1,6 @@
 'use client'
 
-import { useId } from 'react'
+import { useId, type ReactNode } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Search01Icon } from '@hugeicons/core-free-icons'
 
@@ -13,9 +13,9 @@ export interface ChoiceOption {
 	value: string
 	label: string
 	/** A short fact at the end of the row, in mono ("3 receipts", "New store"). */
-	detail?: string
+	detail?: ReactNode
 	/** A second line under the label, for what tells two similar rows apart or why a row cannot be chosen. */
-	note?: string
+	note?: ReactNode
 	/** The row stays listed but cannot be chosen. */
 	disabled?: boolean
 }
@@ -32,6 +32,8 @@ interface SearchableChoiceListProps {
 	status: string
 	disabled?: boolean
 	showSearchIcon?: boolean
+	/** `card` is the sheet picker of the canvas: option cards, the search field named only for assistive tech, and the count announced but not drawn. */
+	variant?: 'default' | 'card'
 	testId: string
 }
 
@@ -50,6 +52,7 @@ export function SearchableChoiceList({
 	status,
 	disabled = false,
 	showSearchIcon = false,
+	variant = 'default',
 	testId,
 }: SearchableChoiceListProps) {
 	const searchId = useId()
@@ -58,17 +61,17 @@ export function SearchableChoiceList({
 	return (
 		<div
 			data-testid={testId}
-			className='flex flex-col gap-3'
+			className={variant === 'card' ? 'flex flex-col gap-4' : 'flex flex-col gap-3'}
 		>
 			<div className='flex flex-col gap-2'>
-				<Label htmlFor={searchId}>{searchLabel}</Label>
+				<Label htmlFor={searchId} className={variant === 'card' ? 'sr-only' : undefined}>{searchLabel}</Label>
 				<div className='relative'>
-					{showSearchIcon ? <HugeiconsIcon icon={Search01Icon} className='pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground' aria-hidden='true' /> : null}
+					{showSearchIcon || variant === 'card' ? <HugeiconsIcon icon={Search01Icon} className='pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground' aria-hidden='true' /> : null}
 					<Input
 						id={searchId}
 						type='search'
 						size='lg'
-						adornment={showSearchIcon ? 'start' : 'none'}
+						adornment={showSearchIcon || variant === 'card' ? 'start' : 'none'}
 						autoComplete='off'
 						maxLength={100}
 						value={query}
@@ -81,13 +84,14 @@ export function SearchableChoiceList({
 			<p
 				id={statusId}
 				aria-live='polite'
-				className='text-xs text-slate-500 dark:text-muted-foreground'
+				className={variant === 'card' ? 'sr-only' : 'text-xs text-slate-500 dark:text-muted-foreground'}
 			>
 				{status}
 			</p>
 			{options.length > 0 ? (
 				<div className='max-h-72 overflow-y-auto'>
 					<RadioGroup
+						spacing={variant === 'card' ? 'snug' : 'default'}
 						value={value}
 						onValueChange={onValueChange}
 						aria-labelledby={statusId}
@@ -97,6 +101,7 @@ export function SearchableChoiceList({
 							<ChoiceRow
 								key={option.value}
 								option={option}
+								variant={variant === 'card' ? 'card' : 'default'}
 							/>
 						))}
 					</RadioGroup>
@@ -122,14 +127,15 @@ export function ChoiceRow({ option, variant = 'default', testId = `choice-${opti
 			data-disabled={option.disabled ? '' : undefined}
 			className={cn(
 				'flex min-h-12 items-center gap-3 rounded-xl px-3 py-2',
-				variant === 'card' && 'min-h-14 rounded-2xl border border-slate-200 bg-card px-3.5 py-2 has-data-[state=checked]:border-primary has-data-[state=checked]:bg-blue-50 has-data-[state=checked]:ring-1 has-data-[state=checked]:ring-primary dark:border-border dark:has-data-[state=checked]:bg-blue-500/10',
+				variant === 'card' && 'min-h-14 rounded-2xl bg-card px-3.5 py-2 ring-1 ring-slate-900/10 ring-inset has-data-[state=checked]:bg-blue-50 has-data-[state=checked]:ring-2 has-data-[state=checked]:ring-primary dark:ring-border dark:has-data-[state=checked]:bg-blue-500/10',
+				variant === 'card' && option.note && 'min-h-15',
 				option.disabled ? 'cursor-not-allowed opacity-50' : variant === 'card' ? 'cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-500/10' : 'cursor-pointer hover:bg-muted has-data-[state=checked]:bg-accent',
 			)}
 		>
 			<RadioGroupItem
 				id={id}
 				value={option.value}
-				size={variant === 'card' ? 'card' : 'default'}
+				size={variant === 'card' ? 'ring' : 'default'}
 				disabled={option.disabled}
 			/>
 			<span className='flex min-w-0 flex-1 flex-col'>

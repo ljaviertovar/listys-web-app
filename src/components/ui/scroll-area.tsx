@@ -8,7 +8,8 @@ interface Props {
 	children: React.ReactNode
 	className?: string
 	scrollHint?: boolean
-	size?: 'default' | 'sheet'
+	/** `sheet` is a fixed-height body; `sheet-fit` takes the height of its content up to the same limit, so a short sheet does not leave a blank gap. */
+	size?: 'default' | 'sheet' | 'sheet-fit'
 }
 
 export function ScrollArea({ children, className, scrollHint = false, size = 'default' }: Props) {
@@ -32,8 +33,8 @@ export function ScrollArea({ children, className, scrollHint = false, size = 'de
 	}, [children, scrollHint, updateScrollHint])
 
 	return (
-		<RadixScrollArea.Root className={cn('relative w-full h-full', size === 'sheet' && 'h-[min(60dvh,34rem)]', className)}>
-			<RadixScrollArea.Viewport ref={viewportRef} onScroll={updateScrollHint} className='h-full w-full rounded-[inherit]'>{children}</RadixScrollArea.Viewport>
+		<RadixScrollArea.Root className={cn('relative w-full h-full', size === 'sheet' && 'h-[min(60dvh,34rem)]', size === 'sheet-fit' && 'h-auto', className)}>
+			<RadixScrollArea.Viewport ref={viewportRef} onScroll={updateScrollHint} className={cn('h-full w-full rounded-[inherit]', size === 'sheet-fit' && 'max-h-[min(60dvh,34rem)]')}>{children}</RadixScrollArea.Viewport>
 			<RadixScrollArea.Scrollbar
 				orientation='vertical'
 				className='flex select-none touch-none p-0.5 bg-transparent transition-colors duration-160 ease-out hover:bg-border/40 w-2.5'

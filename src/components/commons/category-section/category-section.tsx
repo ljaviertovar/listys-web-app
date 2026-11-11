@@ -2,7 +2,7 @@
 
 import type { ComponentProps, ReactNode } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { ArrowDown01Icon } from '@hugeicons/core-free-icons'
+import { ArrowDown01Icon, ArrowUp01Icon } from '@hugeicons/core-free-icons'
 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { cn } from '@/utils'
@@ -30,6 +30,8 @@ interface CategorySectionProps {
 	icon?: ComponentProps<typeof CategoryHeading>['icon']
 	tone?: ComponentProps<typeof CategoryHeading>['tone']
 	description?: string
+	/** `up` points the chevron up while the section is open, the way the receipt review draws it; the default points down. */
+	chevron?: 'down' | 'up'
 }
 
 /**
@@ -51,6 +53,7 @@ export function CategorySection({
 	icon,
 	tone,
 	description,
+	chevron = 'down',
 }: CategorySectionProps) {
 	return (
 		<div className={cn('border-t border-slate-100 dark:border-border', className)}>
@@ -78,9 +81,9 @@ export function CategorySection({
 							className='flex size-9 items-center justify-center text-slate-500'
 						>
 							<HugeiconsIcon
-								icon={ArrowDown01Icon}
+								icon={chevron === 'up' ? ArrowUp01Icon : ArrowDown01Icon}
 								strokeWidth={1.8}
-								className='size-4.5 transition-transform group-data-[state=closed]/category:-rotate-90 motion-reduce:transition-none'
+								className={cn('size-4.5 transition-transform motion-reduce:transition-none', chevron === 'up' ? 'group-data-[state=closed]/category:rotate-180' : 'group-data-[state=closed]/category:-rotate-90')}
 							/>
 						</span>
 					</CollapsibleTrigger>

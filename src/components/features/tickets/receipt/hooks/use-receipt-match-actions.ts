@@ -64,8 +64,8 @@ export function useReceiptMatchActions({ items, baseListId, decisions, decide }:
 	const lineName = useCallback((itemId: string) => formatItemName(itemsById.get(itemId)?.name ?? ''), [itemsById])
 
 	const confirm = useCallback((itemId: string, target: MatchedItem) => {
-		resolve(itemId, { kind: 'link', item: target }, `“${lineName(itemId)}” will update “${formatItemName(target.name)}”`)
-	}, [resolve, lineName])
+		resolve(itemId, { kind: 'link', item: target }, `Matched to ${formatItemName(target.name)}`)
+	}, [resolve])
 
 	const addAsNew = useCallback((itemId: string) => {
 		resolve(itemId, { kind: 'new' }, `“${lineName(itemId)}” will be added as a new item`)
@@ -83,6 +83,10 @@ export function useReceiptMatchActions({ items, baseListId, decisions, decide }:
 		onClose: () => setLinkingId(null),
 		onLink: (target: MatchedItem) => {
 			if (linkingId) confirm(linkingId, target)
+			setLinkingId(null)
+		},
+		onAddAsNew: () => {
+			if (linkingId) addAsNew(linkingId)
 			setLinkingId(null)
 		},
 	}

@@ -46,7 +46,7 @@ function render(decisions: ReadonlyMap<string, LineDecision>, selected: string[]
 		baseLists: [PANTRY],
 		triage: buildReceiptTriage(items, matches, decisions),
 		matches,
-		actions: { confirm: vi.fn(), addAsNew: vi.fn(), chooseAnother: vi.fn(), linkDialog: { lineName: null, currentItemId: null, items: [], onClose: vi.fn(), onLink: vi.fn() } },
+		actions: { confirm: vi.fn(), addAsNew: vi.fn(), chooseAnother: vi.fn(), linkDialog: { lineName: null, currentItemId: null, items: [], onClose: vi.fn(), onLink: vi.fn(), onAddAsNew: vi.fn() } },
 		changeList: vi.fn(),
 		retry: vi.fn(),
 	}
@@ -75,8 +75,8 @@ describe('deciding a proposed match on the receipt screen', () => {
 	it('starts with the proposal pending and its three ways to settle it', () => {
 		expect(before).toContain('data-testid="ticket-category-collapse-control"')
 		expect(before).toContain('Needs a look')
-		expect(before).toContain('Confirm match')
-		expect(before).toContain('Possible match:')
+		expect(before).toContain('Match suggested')
+		expect(before).toContain('Possible match')
 		expect(before).toMatch(/Confirm Match[\s\S]*Choose Another[\s\S]*Add as New/)
 	})
 
@@ -84,16 +84,16 @@ describe('deciding a proposed match on the receipt screen', () => {
 		expect(confirmed).not.toContain('Needs a look')
 		expect(confirmed).toContain('Matched to Pantry')
 		expect(confirmed).toContain('3 items')
-		expect(confirmed).toContain('Matches')
+		expect(confirmed).toContain('Matched to')
 		expect(confirmed).toContain('Change')
-		expect(confirmed).not.toContain('Confirm match')
+		expect(confirmed).not.toContain('Match suggested')
 	})
 
 	it('puts a line added as new in "New to" and shows what it will do', () => {
 		const asNew = render(decide({ kind: 'new' }), [])
 
 		expect(asNew).toContain('New to Pantry')
-		expect(asNew).toContain('Adds as new item')
+		expect(asNew).toContain('Added as')
 		expect(asNew).not.toContain('Needs a look')
 	})
 

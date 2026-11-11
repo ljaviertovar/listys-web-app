@@ -1,12 +1,13 @@
 'use client'
 
-import { useEffect, useMemo, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import { toast } from 'sonner'
 
 import { buildListDisplayNames } from '@/utils'
 
 import { loadMergeListTargets, modeForListCount, submitTicketItemsToList, type BaseList, type MergeMode } from '../helpers/merge-ticket-items'
 import type { ScreenDecisions } from '../helpers/merge-review'
+import type { MergeOutcome } from '../merge-result-sheet'
 import { useMergeReview } from './use-merge-review'
 
 interface UseMergeToBaseListInput {
@@ -21,12 +22,14 @@ interface UseMergeToBaseListInput {
 	onOpenChange: (open: boolean) => void
 	onSuccess: (baseListId: string) => void
 	onReceiptAttached?: (sessionId: string) => void
+	/** True from the moment the lines are sent until the answer arrives; the sheet is already closed then, so the screen shows it. */
+	onSavingChange?: (saving: boolean) => void
 }
 
 /** `choose` picks the list (or names a new one); `review` decides how lines without a same-name item are added. */
 export type MergeStep = 'choose' | 'review'
 
-export function useMergeToBaseList({ open, defaultBaseListId, ticketId, selectedItemIds, lines, initialDecisions, onOpenChange, onSuccess, onReceiptAttached }: UseMergeToBaseListInput) {
+export function useMergeToBaseList({ open, defaultBaseListId, ticketId, selectedItemIds, lines, initialDecisions, onOpenChange, onSuccess, onReceiptAttached, onSavingChange }: UseMergeToBaseListInput) {
 	const [mode, setMode] = useState<MergeMode>('existing')
 	const [baseLists, setBaseLists] = useState<BaseList[]>([])
 	const [selectedBaseListId, setSelectedBaseListId] = useState('')
@@ -39,6 +42,9 @@ export function useMergeToBaseList({ open, defaultBaseListId, ticketId, selected
 	const [error, setError] = useState<string | null>(null)
 	const [step, setStep] = useState<MergeStep>('choose')
 	const [wasOpen, setWasOpen] = useState(open)
+	const [outcome, setOutcome] = useState<MergeOutcome | null>(null)
+	// What "Try Again" sends once more: the links of the last attempt.
+	const lastLinks = useRef<ReturnType<typeof useMergeReview>['links'] | undefined>(undefined)
 	const review = useMergeReview()
 
 	// Every opening starts at the list choice (state adjusted during render, not in an effect).
@@ -97,37 +103,51 @@ export function useMergeToBaseList({ open, defaultBaseListId, ticketId, selected
 		review.reset()
 	}
 
+	const targetListName = mode === 'new' ? newListName.trim() : listLabels.get(selectedBaseListId) ?? baseLists.find(list => list.id === selectedBaseListId)?.name ?? ''
+
+	// The choice sheet closes as soon as the lines are sent: the receipt's bar says "Saving…", and the answer comes back as a sheet over the receipt.
 	const submit = async (links?: ReturnType<typeof useMergeReview>['links']) => {
-		const result = await submitTicketItemsToList({
-			mode,
-			ticketId,
-			selectedItemIds,
-			selectedBaseListId,
-			newListName,
-			links,
-		})
-
-		if (result.kind === 'invalid' || result.kind === 'error') {
-			setError(result.message)
-			return
-		}
-		if (result.kind === 'attached') {
-			onOpenChange(false)
-			onReceiptAttached?.(result.sessionId)
-			return
-		}
-
-		if (result.kind === 'merged') {
-			toast.success('Items added to your list', result.counts ? {
-				description: `${result.counts.added} added · ${result.counts.updated} updated · ${result.counts.skipped} skipped`,
-			} : undefined)
-		} else {
-			toast.success(`List created with ${result.itemCount} ${result.itemCount === 1 ? 'item' : 'items'}`)
-		}
-
+		lastLinks.current = links
+		const itemCount = selectedItemIds.length
+		const listName = targetListName
+		setOutcome(null)
 		onOpenChange(false)
-		onSuccess(result.baseListId)
+		onSavingChange?.(true)
+
+		try {
+			const result = await submitTicketItemsToList({
+				mode,
+				ticketId,
+				selectedItemIds,
+				selectedBaseListId,
+				newListName,
+				links,
+			})
+
+			if (result.kind === 'invalid' || result.kind === 'error') {
+				setOutcome({ kind: 'failed', listName, itemCount, message: result.message })
+				return
+			}
+			if (result.kind === 'attached') {
+				onReceiptAttached?.(result.sessionId)
+				return
+			}
+
+			if (result.kind === 'merged') {
+				toast.success(`Receipt saved to ${listName}`)
+				setOutcome({ kind: 'saved', baseListId: result.baseListId, listName, itemCount, counts: result.counts ?? null })
+			} else {
+				toast.success(`List created with ${result.itemCount} ${result.itemCount === 1 ? 'item' : 'items'}`)
+				setOutcome({ kind: 'saved', baseListId: result.baseListId, listName, itemCount, counts: { added: result.itemCount, updated: 0, skipped: 0 } })
+			}
+
+			onSuccess(result.baseListId)
+		} finally {
+			onSavingChange?.(false)
+		}
 	}
+
+	const retry = () => submit(lastLinks.current)
 
 	const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault()
@@ -181,5 +201,8 @@ export function useMergeToBaseList({ open, defaultBaseListId, ticketId, selected
 		step,
 		backToChoose,
 		review,
+		outcome,
+		dismissOutcome: () => setOutcome(null),
+		retry,
 	}
 }

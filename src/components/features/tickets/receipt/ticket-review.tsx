@@ -11,6 +11,7 @@ import { LinkItemDialog } from '../add-to-list/link-item-dialog'
 import { MergeToBaseListDialog } from '../add-to-list/merge-to-base-list-dialog'
 import { TicketCompareDialog } from './ticket-compare-dialog'
 import { TicketItemsCard } from './ticket-items-card'
+import { TicketSavedItemsCard } from './ticket-saved-items-card'
 import { TicketSelectionBar } from './ticket-selection-bar'
 import { TicketPhotoPanel, TicketPhotoRow } from '../photo/ticket-photo-entry'
 import { TicketPhotoViewer } from '../photo/ticket-photo-viewer'
@@ -30,9 +31,15 @@ interface Props {
 	status: TicketStatus
 	ocrError?: string | null
 	storeConfirmed: boolean
+	/** The receipt's date as the page shows it, for the summary that follows a save. */
+	receiptDate?: string | null
+	/** The lines are already on a list or a trip: the receipt is shown as it was saved, with nothing left to include. */
+	saved?: boolean
 	attachedSession?: { id: string; name: string; status: string | null } | null
 	/** What goes above the photo and the items, full width: the store the receipt was read at, rendered on the server by the page. */
 	top?: ReactNode
+	/** Replaces the items card when the receipt gave nothing to review (it could not be read, or had no lines). */
+	unreadable?: ReactNode
 	/** The origin-trip action comes before photos, store confirmation and extracted lines. */
 	before?: ReactNode
 	/** What follows the items (the summary and the receipt's actions), rendered on the server by the page. */
@@ -44,7 +51,7 @@ interface Props {
  * items from `lg`) and the two photo views, the items with their selection, and the bar and dialog that act on it. The compare view
  * edits the very selection the page shows, and the panel and the full-screen viewer share the photo being looked at.
  */
-export function TicketReview({ ticketId, title, imagePaths, items, status, ocrError, storeConfirmed, attachedSession = null, top, before, children }: Props) {
+export function TicketReview({ ticketId, title, imagePaths, items, status, ocrError, storeConfirmed, receiptDate = null, saved = false, attachedSession = null, top, unreadable, before, children }: Props) {
 	const router = useRouter()
 	const selection = useTicketSelection(items)
 	const photos = useTicketImageUrls(imagePaths)
@@ -54,6 +61,7 @@ export function TicketReview({ ticketId, title, imagePaths, items, status, ocrEr
 	const [viewerOpen, setViewerOpen] = useState(false)
 	const [compareOpen, setCompareOpen] = useState(false)
 	const [mergeOpen, setMergeOpen] = useState(false)
+	const [saving, setSaving] = useState(false)
 	const [attachedOverride, setAttachedOverride] = useState<{ id: string; name: string; status: string } | null>(null)
 	const attached = attachedSession ?? attachedOverride
 	const triage = useReceiptTriage({ ticketId, items, status, attached: !!attached })
@@ -62,9 +70,9 @@ export function TicketReview({ ticketId, title, imagePaths, items, status, ocrEr
 		[triage.status, triage.triage, selection.selectedIds],
 	)
 
-	const canSelect = status === 'completed'
+	const canSelect = status === 'completed' && !saved
 	const attachmentVisibility = getReceiptAttachmentVisibility(!!attached)
-	const canCompare = canSelect && items.length > 0
+	const canCompare = status === 'completed' && items.length > 0
 	const hasPhotos = imagePaths.length > 0
 	const contentRow = before ? top ? 'lg:row-start-3' : 'lg:row-start-2' : top ? 'lg:row-start-2' : 'lg:row-start-1'
 
@@ -84,15 +92,10 @@ export function TicketReview({ ticketId, title, imagePaths, items, status, ocrEr
 		}
 	}
 
-	const handleMergeSuccess = (baseListId: string) => {
-		setMergeOpen(false)
+	// The summary sheet that follows a save offers "View List"; the receipt only forgets what was sent.
+	const handleMergeSuccess = () => {
 		selection.clear()
 		triage.clearDecisions()
-		if (baseListId) {
-			router.push(`/base-lists/${baseListId}/edit`)
-		} else {
-			router.refresh()
-		}
 	}
 
 	return (
@@ -115,7 +118,7 @@ export function TicketReview({ ticketId, title, imagePaths, items, status, ocrEr
 			{top ? <div className={cn('min-w-0 lg:col-span-2', before ? 'lg:row-start-2' : 'lg:row-start-1')}>{top}</div> : null}
 
 			<div className={cn('min-w-0 lg:col-start-1', contentRow)}>
-				<TicketItemsCard
+				{unreadable ?? (saved && status === 'completed' ? <TicketSavedItemsCard items={items} /> : <TicketItemsCard
 					ticketId={ticketId}
 					items={items}
 					status={status}
@@ -130,10 +133,11 @@ export function TicketReview({ ticketId, title, imagePaths, items, status, ocrEr
 								onClear={selection.clear}
 								onAdd={() => setMergeOpen(true)}
 								breakdown={breakdown}
+								saving={saving}
 							/>
 						) : null
 					}
-				/>
+				/>)}
 			</div>
 
 			{/* From `lg` the photo and the summary stay in view while the long list scrolls beside them. */}
@@ -181,12 +185,13 @@ export function TicketReview({ ticketId, title, imagePaths, items, status, ocrEr
 					canSelect={canSelect}
 					onAddToList={() => setMergeOpen(true)}
 					breakdown={breakdown}
+					saving={saving}
 				/>
 			) : null}
 
-			{triage.status === 'ready' ? <LinkItemDialog {...triage.actions.linkDialog} /> : null}
+			{triage.status === 'ready' ? <LinkItemDialog {...triage.actions.linkDialog} listName={triage.baseList?.name} /> : null}
 
-			{attachmentVisibility.showMergeDialog ? <MergeToBaseListDialog
+			{attachmentVisibility.showMergeDialog && !saved ? <MergeToBaseListDialog
 				open={mergeOpen}
 				onOpenChange={setMergeOpen}
 				ticketId={ticketId}
@@ -195,6 +200,9 @@ export function TicketReview({ ticketId, title, imagePaths, items, status, ocrEr
 				lines={items}
 				initialDecisions={triage.baseList ? { baseListId: triage.baseList.id, decisions: triage.decisions } : null}
 				storeConfirmed={storeConfirmed}
+				breakdown={breakdown}
+				receipt={{ storeName: title, date: receiptDate }}
+				onSavingChange={setSaving}
 				onSuccess={handleMergeSuccess}
 				onReceiptAttached={sessionId => {
 					setAttachedOverride({ id: sessionId, name: 'your trip', status: 'active' })

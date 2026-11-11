@@ -14,7 +14,7 @@ function Card({
 	...props
 }: React.ComponentProps<'div'> & {
 	/** `compact`, `tight` and `flush` drop the gap between the parts of the card and shrink its padding (a card of list rows). */
-	size?: 'default' | 'sm' | 'compact' | 'tight' | 'flush' | 'receipt' | 'trip' | 'list' | 'stat' | 'saved'
+	size?: 'default' | 'sm' | 'compact' | 'tight' | 'flush' | 'receipt' | 'trip' | 'list' | 'stat' | 'saved' | 'notice'
 	variant?: 'default' | 'premium' | 'accent' | 'ghost' | 'stat'
 	tone?: 'default' | 'info' | 'success' | 'danger' | 'muted'
 	layout?: 'default' | 'horizontal'
@@ -44,6 +44,8 @@ function Card({
 				size === 'list' && 'gap-0 px-3 pt-1 pb-0 md:px-4',
 				size === 'stat' && 'gap-2.5 p-3 md:p-4',
 				size === 'saved' && 'gap-4 p-4 md:p-6',
+				// A notice that explains a state and what to do about it (a receipt that could not be read): 16px padding, 12px between its parts.
+				size === 'notice' && 'gap-3 p-4',
 				variant === 'stat' && 'rounded-2xl shadow-none ring-1 ring-inset ring-slate-200 dark:ring-border',
 				tone === 'info' && 'bg-blue-50 text-blue-900 shadow-none ring-1 ring-inset ring-blue-100 dark:bg-blue-500/10 dark:text-blue-200 dark:ring-blue-500/30',
 				tone === 'success' && 'bg-green-50 text-green-900 shadow-none ring-1 ring-inset ring-green-200 dark:bg-green-500/10 dark:text-green-200 dark:ring-green-500/30',

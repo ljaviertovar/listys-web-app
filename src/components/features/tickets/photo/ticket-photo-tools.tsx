@@ -1,7 +1,7 @@
 'use client'
 
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Add01Icon, MinusSignIcon, RotateTopRightIcon } from '@hugeicons/core-free-icons'
+import { Add01Icon, MinusSignIcon, Rotate01Icon } from '@hugeicons/core-free-icons'
 
 import { Button } from '@/components/ui/button'
 import { cn } from '@/utils'
@@ -39,7 +39,7 @@ export function TicketPhotoControls({ view, className }: TicketPhotoControlsProp
 				<span
 					role='status'
 					aria-label='Zoom level'
-					className='min-w-14 text-center font-mono text-sm font-semibold text-white tabular-nums'
+					className='min-w-16 text-center font-mono text-sm font-semibold text-white tabular-nums'
 				>
 					{formatZoom(view.zoom)}
 				</span>
@@ -67,16 +67,16 @@ export function TicketPhotoControls({ view, className }: TicketPhotoControlsProp
 					size='icon-xl'
 				>
 					<HugeiconsIcon
-						icon={RotateTopRightIcon}
+						icon={Rotate01Icon}
 						strokeWidth={1.8}
-						className='size-5'
+						className='size-5 -scale-x-100'
 					/>
 				</Button>
 				<Button
 					type='button'
 					onClick={view.fit}
 					variant='on-dark'
-					size='icon-xl'
+					size='toolbar'
 				>
 					Fit
 				</Button>
@@ -134,7 +134,7 @@ export function TicketPhotoThumbs({
 							src={url}
 							alt=''
 							className={cn(
-								'h-15 w-11 rounded-lg object-cover',
+								'h-15 w-11 rounded-xl object-cover',
 								index === current &&
 									(tone === 'dark'
 										? 'ring-2 ring-blue-400 ring-offset-2 ring-offset-ink'

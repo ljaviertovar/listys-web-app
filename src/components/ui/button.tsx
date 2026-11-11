@@ -62,9 +62,15 @@ const buttonVariants = cva(
 					'bg-slate-900/80 text-white shadow-none hover:bg-slate-900 focus-visible:ring-2 focus-visible:ring-blue-400 disabled:opacity-40',
 				overlay:
 					'bg-white/10 text-white shadow-none hover:bg-white/20 focus-visible:ring-2 focus-visible:ring-blue-400 disabled:opacity-30',
-				// A drop target that is also a button: dashed outline, blue on hover.
+				// A drop target that is also a button: the blue dashed invitation, on the muted wash.
 				dropzone:
-					'border-2 border-dashed border-slate-300 bg-transparent text-foreground shadow-none text-blue-700 hover:border-blue-400 hover:bg-blue-50/50 focus-visible:border-blue-500 data-[dragging=true]:border-blue-500 data-[dragging=true]:bg-blue-50/70 dark:border-border dark:text-blue-400 dark:hover:bg-muted',
+					'border-[1.5px] border-dashed border-primary bg-muted text-blue-700 shadow-none hover:bg-blue-50/60 focus-visible:border-blue-500 data-[dragging=true]:border-blue-500 data-[dragging=true]:bg-blue-50/70 dark:text-blue-400 dark:hover:bg-muted',
+				// The smaller drop target beside photos already chosen ("Add More"): a quieter slate dash.
+				'dropzone-quiet':
+					'border-[1.5px] border-dashed border-slate-400 bg-muted text-blue-700 shadow-none hover:border-blue-500 hover:bg-blue-50/60 focus-visible:border-blue-500 data-[dragging=true]:border-blue-500 dark:border-border dark:text-blue-400 dark:hover:bg-muted',
+				// The "add one" row at the end of a list of choices: a dotted blue outline on a faint blue wash.
+				'dotted-option':
+					'border-[1.5px] border-dotted border-blue-300 bg-blue-50/50 text-blue-700 shadow-none hover:bg-blue-50',
 				link: 'text-primary underline-offset-4 hover:underline',
 			},
 			size: {
@@ -83,6 +89,10 @@ const buttonVariants = cva(
 				// Primary actions use the compact mobile height and the native lg height from md up.
 				primary:
 					'h-10 gap-1.5 px-3 has-data-[icon=inline-end]:pr-2.5 has-data-[icon=inline-start]:pl-2.5 md:h-11 md:gap-1.5 md:px-4 md:has-data-[icon=inline-end]:pr-3 md:has-data-[icon=inline-start]:pl-3',
+				// A labelled control of the dark viewer's top bar (Compare, Done): 44px tall, 16px sides, 8px between icon and label.
+				toolbar: 'h-11 gap-2 px-4',
+				// A full-width row of a choice list: as tall as its two lines, content at the start.
+				option: 'h-auto min-h-14 w-full justify-start gap-3 px-3.5 py-2 text-left whitespace-normal',
 				// Link actions follow the same compact mobile height while retaining their link-specific padding.
 				'link-action': 'h-10 gap-1.5 px-3 has-data-[icon=inline-end]:pr-2.5 has-data-[icon=inline-start]:pl-2.5 md:h-11 md:gap-1.5 md:px-3',
 				// A text link with no padding of its own, so it sits flush with the edge of the row it ends ("View Details").
@@ -95,6 +105,9 @@ const buttonVariants = cva(
 				'2xl': 'h-13 gap-2.5 px-7 text-base has-data-[icon=inline-end]:pr-5 has-data-[icon=inline-start]:pl-5',
 				// Content decides the height: a drop target or any block-shaped action that holds several lines.
 				block: 'h-auto min-h-11 flex-col gap-2 px-6 py-6 text-center whitespace-normal',
+				// The drop target of the upload sheet (148px) and its square "Add More" sibling (88px).
+				dropzone: 'h-auto min-h-37 flex-col gap-2.5 px-4 py-5 text-center whitespace-normal',
+				tile: 'size-22 flex-col gap-1 p-0 text-xs leading-none',
 				icon: 'size-9',
 				'icon-xs': "size-6 [&_svg:not([class*='size-'])]:size-3",
 				'icon-sm': 'size-8',

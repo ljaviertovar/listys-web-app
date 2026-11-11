@@ -213,8 +213,8 @@ export function StartShoppingDialog({
 					</div>
 				) : null}
 			</div>
-			{isEmpty ? null : <p className='px-1 text-xs leading-normal text-muted-foreground'>One trip at a time per list.</p>}
-				<DialogFooter variant='inline'>
+			{isEmpty ? null : <p className='mt-3 px-1 text-xs leading-normal text-muted-foreground'>One trip at a time per list.</p>}
+				<DialogFooter variant='inline' className='mt-4'>
 				<Button
 					size='primary'
 					type='button'

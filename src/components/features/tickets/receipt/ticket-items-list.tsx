@@ -1,13 +1,13 @@
 'use client'
 
-import { useId, useMemo } from 'react'
+import { useId, useMemo, useState } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Loading03Icon } from '@hugeicons/core-free-icons'
+import { CheckmarkCircle02Icon, ListViewIcon, Loading03Icon } from '@hugeicons/core-free-icons'
 
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
-import { CategoryCollapseControl, CategorySection, useCategorySectionExpansion } from '@/components/commons'
+import { CategoryCollapseControl, CategorySection, RowIcon, useCategorySectionExpansion } from '@/components/commons'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { buildListDisplayNames } from '@/utils'
 import type { TicketItem } from '@/types'
@@ -54,6 +54,13 @@ export function TicketItemsList({ items, selection, canSelect, triage }: TicketI
 			? []
 			: groups.map(group => ({ id: `ticket-category-${group.key}`, defaultOpen: true }))
 	const expansion = useCategorySectionExpansion(sectionDescriptors)
+	const [reviewingAll, setReviewingAll] = useState(false)
+	const allMatched = readyTriage !== null && readyTriage.triage.length === 1 && readyTriage.triage[0].id === 'matched'
+	// Only a receipt the list already knows line by line says so and waits for "Review All"; one that got there by the user's own
+	// decisions keeps its lines in view, with whatever is included.
+	const knownByList = readyTriage !== null && readyTriage.matches.every(match => match.match === 'name' || match.match === 'alias')
+	const linesHidden = allMatched && knownByList && !reviewingAll && selection.count === 0
+	const showControls = !linesHidden && activeTriage?.status !== 'switching' && (canSelect || sectionDescriptors.length > 0)
 
 	return (
 		<div data-testid='ticket-items-list'>
@@ -68,46 +75,58 @@ export function TicketItemsList({ items, selection, canSelect, triage }: TicketI
 				</Alert>
 			) : null}
 			{activeTriage?.baseList ? <TargetListRow triage={activeTriage} baseList={activeTriage.baseList} /> : null}
-			{sectionDescriptors.length > 0 ? (
-				<CategoryCollapseControl
-					allCollapsed={expansion.allCollapsed}
-					onToggle={expansion.toggleAll}
-					testId='ticket-category-collapse-control'
-				/>
-			) : null}
-			{canSelect && !triageMode ? (
-				<label className='mt-2 flex min-h-14 cursor-pointer items-center gap-1 border-t border-slate-100 dark:border-border'>
-					<span className='flex size-11 shrink-0 items-center justify-center'>
-						<Checkbox
-							checked={checkAll}
-							onCheckedChange={selection.toggleAll}
-							aria-label='Include all items'
-							size='lg'
-						/>
-					</span>
-					<span
-						aria-live='polite'
-						className='text-sm leading-[1.3] font-medium'
-					>
-						{selection.count === 0 ? 'Include all items to add to a list' : `${selection.count} of ${items.length} included`}
-					</span>
-				</label>
-			) : null}
 			{activeTriage?.status === 'switching' ? (
-				<div data-testid='receipt-triage-switching' role='status' className='my-3 flex items-center gap-3 rounded-2xl bg-muted px-4 py-6 dark:bg-muted/50'>
-					<HugeiconsIcon icon={Loading03Icon} strokeWidth={2} aria-hidden='true' className='size-5 shrink-0 animate-spin text-primary motion-reduce:animate-none' />
-					<p className='text-sm font-medium'>Comparing with {activeTriage.baseList?.name}…</p>
+				<div data-testid='receipt-triage-switching' role='status' aria-busy='true' className='flex flex-col items-center gap-3 px-4 py-7 text-center'>
+					<HugeiconsIcon icon={Loading03Icon} strokeWidth={1.5} aria-hidden='true' className='size-10.5 animate-spin text-primary motion-reduce:animate-none' />
+					<p className='text-sm leading-[1.4] font-medium text-slate-500 dark:text-muted-foreground'>Comparing with {activeTriage.baseList?.name}…</p>
 				</div>
 			) : null}
-			{readyTriage && readyTriage.triage.length === 1 && readyTriage.triage[0].id === 'matched' ? (
-				<p data-testid='receipt-all-match' role='note' className='py-3 text-sm leading-normal text-muted-foreground'>
-					<b className='font-semibold text-foreground'>All {readyTriage.triage[0].lines.length} {readyTriage.triage[0].lines.length === 1 ? 'item matches' : 'items match'} {readyTriage.baseList?.name}.</b> Same names as last time. Nothing needs a look.
-				</p>
+			{allMatched && readyTriage ? (
+				<>
+					<Alert variant='receipt-success' role='status' data-testid='receipt-all-match' className='mt-3'>
+						<RowIcon icon={CheckmarkCircle02Icon} tone='success' size='sm' testId='receipt-all-match-icon' />
+						<AlertTitle>
+							All {readyTriage.triage[0].lines.length} {readyTriage.triage[0].lines.length === 1 ? 'item matches' : 'items match'} your {readyTriage.baseList?.name}
+						</AlertTitle>
+						<AlertDescription>Same names and sizes as last time. Nothing needs a look.</AlertDescription>
+					</Alert>
+					{linesHidden ? (
+						<Button type='button' variant='outline' size='lg' className='mt-2 w-full' onClick={() => setReviewingAll(true)} data-testid='receipt-review-all'>
+							Review All {readyTriage.triage[0].lines.length}
+						</Button>
+					) : null}
+				</>
 			) : null}
-			{readyTriage ? readyTriage.triage.map(section => (
+			{showControls ? (
+				<div className='mt-1 flex items-center justify-between gap-2 pl-3'>
+					{canSelect ? (
+						<label className='flex min-h-11 cursor-pointer items-center pr-3 font-display text-sm leading-none font-semibold'>
+							<span className='-ml-2.5 flex size-11 shrink-0 items-center justify-center'>
+								<Checkbox
+									checked={checkAll}
+									onCheckedChange={selection.toggleAll}
+									aria-label='Include all items'
+									size='lg'
+								/>
+							</span>
+							Include All
+						</label>
+					) : <span />}
+					{sectionDescriptors.length > 0 ? (
+						<CategoryCollapseControl
+							allCollapsed={expansion.allCollapsed}
+							onToggle={expansion.toggleAll}
+							testId='ticket-category-collapse-control'
+						/>
+					) : null}
+				</div>
+			) : null}
+			{linesHidden ? null : readyTriage ? readyTriage.triage.map((section, index) => (
 				<TicketTriageSection
 					key={section.id}
 					section={section}
+					first={index === 0}
+					bulkInclude={readyTriage.triage.length > 1}
 					open={expansion.isOpen(`receipt-triage-${section.id}`, !section.startsFolded)}
 					onOpenChange={open => expansion.onOpenChange(`receipt-triage-${section.id}`, open)}
 					listName={readyTriage.baseList?.name ?? ''}
@@ -115,8 +134,8 @@ export function TicketItemsList({ items, selection, canSelect, triage }: TicketI
 					canSelect={canSelect}
 					actions={readyTriage.actions}
 				/>
-			)) : triageMode ? null : groups.map(group => (
-				<TicketCategorySection key={group.key} group={group} selection={selection} canSelect={canSelect} expansion={expansion} />
+			)) : triageMode ? null : groups.map((group, index) => (
+				<TicketCategorySection key={group.key} group={group} first={index === 0} selection={selection} canSelect={canSelect} expansion={expansion} />
 			))}
 		</div>
 	)
@@ -133,17 +152,22 @@ function TargetListRow({ triage, baseList }: TargetListRowProps) {
 	const listLabels = useMemo(() => buildListDisplayNames(triage.baseLists), [triage.baseLists])
 
 	return (
-		<div data-testid='receipt-target-list' className='flex flex-col gap-2 border-b border-slate-100 py-3 dark:border-border sm:flex-row sm:items-center'>
-			<div className='flex min-w-0 flex-1 flex-col gap-0.5'>
-				<span id={labelId} className='text-sm font-medium'>Add to</span>
-				<span className='text-xs leading-normal text-muted-foreground'>Each line is compared with this list.</span>
+		<div data-testid='receipt-target-list' className='mt-3 flex flex-col gap-2 border-t border-slate-100 pt-3 dark:border-border'>
+			<div className='flex min-w-0 flex-col gap-0.5'>
+				<span id={labelId} className='text-sm leading-[1.3] font-semibold'>Add to</span>
+				<span className='text-xs leading-[1.4] text-slate-500 dark:text-muted-foreground'>Each line is compared with this list.</span>
 			</div>
 			<Select value={baseList.id} onValueChange={triage.changeList}>
-				<SelectTrigger size='lg' aria-labelledby={labelId} data-testid='receipt-target-list-select' className='sm:w-auto sm:min-w-48'>
+				<SelectTrigger size='filter' aria-labelledby={labelId} data-testid='receipt-target-list-select'>
 					<SelectValue />
 				</SelectTrigger>
-				<SelectContent>
-					{triage.baseLists.map(list => <SelectItem key={list.id} value={list.id}>{listLabels.get(list.id) ?? list.name}</SelectItem>)}
+				<SelectContent size='filter'>
+					{triage.baseLists.map(list => (
+						<SelectItem key={list.id} size='filter' value={list.id}>
+							<RowIcon icon={ListViewIcon} tone='primary' size='stat' testId='receipt-target-list-option-icon' />
+							{listLabels.get(list.id) ?? list.name}
+						</SelectItem>
+					))}
 				</SelectContent>
 			</Select>
 		</div>
@@ -154,11 +178,13 @@ interface TicketCategorySectionProps {
 	group: TicketItemGroup
 	selection: TicketSelection
 	canSelect: boolean
+	/** The first section opens the card, so it has no divider above it. */
+	first?: boolean
 	expansion: Pick<ReturnType<typeof useCategorySectionExpansion>, 'isOpen' | 'onOpenChange'>
 }
 
 /** A category of the receipt that folds away: its coloured icon and name, how many items it holds, and its rows on a soft surface. */
-function TicketCategorySection({ group, selection, canSelect, expansion }: TicketCategorySectionProps) {
+function TicketCategorySection({ group, selection, canSelect, first = false, expansion }: TicketCategorySectionProps) {
 	const count = group.items.length
 	const id = `ticket-category-${group.key}`
 
@@ -170,6 +196,8 @@ function TicketCategorySection({ group, selection, canSelect, expansion }: Ticke
 			open={expansion.isOpen(id, true)}
 			onOpenChange={open => expansion.onOpenChange(id, open)}
 			testId={id}
+			className={first ? 'border-t-0' : undefined}
+			panelClassName='px-3'
 		>
 			<ul className='divide-y divide-slate-200/70 dark:divide-border'>
 				{group.items.map(item => (

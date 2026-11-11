@@ -2,8 +2,9 @@
 
 import type { ReactNode } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { ListViewIcon, Loading03Icon, PackageSearchIcon, SpamIcon, Tick02Icon } from '@hugeicons/core-free-icons'
+import { Invoice01Icon, Loading03Icon, PackageSearchIcon, SpamIcon, Tick02Icon } from '@hugeicons/core-free-icons'
 
+import { RowIcon } from '@/components/commons'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 
 import { TicketItemsList, type TicketItemsTriage } from './ticket-items-list'
@@ -70,17 +71,11 @@ export function TicketItemsCard({ ticketId, items, status, ocrError, selection, 
 			className='rounded-3xl bg-card p-3 shadow-card md:p-4'
 		>
 			<div className='flex items-center gap-3 px-0.5'>
-				<span className='flex size-10 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300'>
-					<HugeiconsIcon
-						icon={ListViewIcon}
-						strokeWidth={1.5}
-						className='size-5'
-					/>
-				</span>
+				<RowIcon icon={Invoice01Icon} tone='ocr' size='lg' testId='ticket-items-icon' />
 				<div className='flex min-w-0 flex-1 flex-col gap-0.5'>
 					<h2
 						id='ticket-items-title'
-						className='font-display text-base leading-normal font-semibold '
+						className='font-display text-base leading-normal font-semibold'
 					>
 						Extracted Items
 					</h2>
@@ -91,10 +86,12 @@ export function TicketItemsCard({ ticketId, items, status, ocrError, selection, 
 						</span>
 					) : null}
 				</div>
-				<TicketStatusListener
-					ticketId={ticketId}
-					initialStatus={status}
-				/>
+				{status === 'completed' ? null : (
+					<TicketStatusListener
+						ticketId={ticketId}
+						initialStatus={status}
+					/>
+				)}
 			</div>
 			<ItemsBody
 				items={items}

@@ -6,11 +6,14 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { toast } from 'sonner'
-import { Loading03Icon } from '@hugeicons/core-free-icons'
+import { InformationCircleIcon, Loading03Icon, Upload06Icon } from '@hugeicons/core-free-icons'
 
+import { RowIcon } from '@/components/commons'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
-import { DialogClose, DialogFooter } from '@/components/ui/dialog'
+import { DialogClose } from '@/components/ui/dialog'
+import { cn } from '@/utils'
 import { uploadTicketSchema, type UploadTicketInput } from '@/lib/validations/ticket'
 import { MAX_IMAGES_PER_TICKET } from '@/lib/config/limits'
 
@@ -25,25 +28,11 @@ interface Props {
 	initialFiles?: File[]
 	/** Sent with the photos so the receipt remembers the trip it was uploaded from. */
 	shoppingSessionId?: string
+	/** Tells the sheet that photos are being sent, so it can keep the person from closing it. */
+	onBusyChange?: (busy: boolean) => void
 }
 
-export function UploadTicketProgress({ photoCount }: { photoCount: number }) {
-	return (
-		<div data-testid='upload-ticket-progress' className='flex flex-col gap-2'>
-			<span role='progressbar' aria-label='Uploading receipt' className='block h-1.5 overflow-hidden rounded-full bg-slate-200'>
-				<span className='block h-full w-2/5 animate-pulse rounded-full bg-blue-600 motion-reduce:animate-none' />
-			</span>
-			<div className='flex items-center justify-between text-xs text-slate-500'>
-				<span className='font-mono font-medium tabular-nums'>
-					Uploading {photoCount} {photoCount === 1 ? 'photo' : 'photos'}
-				</span>
-				<span>Keep this open until it finishes.</span>
-			</div>
-		</div>
-	)
-}
-
-export function UploadTicketForm({ onSuccess, initialFiles, shoppingSessionId }: Props) {
+export function UploadTicketForm({ onSuccess, initialFiles, shoppingSessionId, onBusyChange }: Props) {
 	const router = useRouter()
 	const photosId = useId()
 	const photosDescriptionId = useId()
@@ -78,10 +67,15 @@ export function UploadTicketForm({ onSuccess, initialFiles, shoppingSessionId }:
 		)
 	}, [previews, setValue])
 
+	useEffect(() => {
+		onBusyChange?.(loading)
+	}, [loading, onBusyChange])
+
 	// One valid photo is enough: the store is read from the receipt itself, so there is nothing else to fill in.
 	const canSubmit = previews.length > 0 && !loading
-	// With several photos the button says how many go up, so a photo that was left out is not a surprise.
-	const uploadLabel = previews.length > 1 ? `Upload ${previews.length} Photos` : 'Upload'
+	// When a photo was left out the button says how many go up, so that is not a surprise.
+	const uploadLabel = rejections.length > 0 ? `Upload ${previews.length} ${previews.length === 1 ? 'Photo' : 'Photos'}` : 'Upload'
+	const asList = loading || rejections.length > 0
 
 	const onSubmit = async (data: UploadTicketInput) => {
 		setLoading(true)
@@ -119,25 +113,29 @@ export function UploadTicketForm({ onSuccess, initialFiles, shoppingSessionId }:
 		<form
 			data-testid='upload-ticket-form'
 			onSubmit={handleSubmit(onSubmit)}
-			className='flex flex-col gap-5'
+			className='flex flex-col gap-4'
 		>
+			{asList ? null : (
+				<p className='text-sm leading-normal text-slate-600 dark:text-muted-foreground'>Upload photos of your shopping receipt. We’ll extract the items automatically.</p>
+			)}
+
 			<div className='flex flex-col gap-2'>
-				<div className='flex items-center justify-between'>
-					<Label htmlFor={photosId}>
-						Photos <span aria-hidden='true' className='text-destructive'>*</span>
-					</Label>
-					<span
-						aria-live='polite'
-						className='font-mono text-xs font-medium text-slate-500 tabular-nums'
-					>
-						{previews.length} / {MAX_IMAGES_PER_TICKET}
-					</span>
-				</div>
+				{loading ? null : (
+					<div className={cn('flex items-center', rejections.length > 0 ? 'gap-1.5' : 'justify-between')}>
+						<Label htmlFor={photosId}>Photos</Label>
+						<span
+							aria-live='polite'
+							className='font-mono text-xs font-medium text-slate-500 tabular-nums'
+						>
+							{rejections.length > 0 ? `${previews.length}/${MAX_IMAGES_PER_TICKET}` : `${previews.length} / ${MAX_IMAGES_PER_TICKET}`}
+						</span>
+					</div>
+				)}
 
 				<UploadTicketPhotos
-						inputId={photosId}
+					inputId={photosId}
 					descriptionId={photosDescriptionId}
-						errorId={errors.files ? `${photosId}-error` : undefined}
+					errorId={errors.files ? `${photosId}-error` : undefined}
 					previews={previews}
 					rejections={rejections}
 					max={MAX_IMAGES_PER_TICKET}
@@ -147,56 +145,69 @@ export function UploadTicketForm({ onSuccess, initialFiles, shoppingSessionId }:
 					onDismissRejection={dismissRejection}
 				/>
 				{errors.files && <p id={`${photosId}-error`} role='alert' className='text-sm text-destructive'>{errors.files.message}</p>}
-
-				{previews.length > 1 && !loading ? (
-					<p className='text-xs leading-normal text-slate-500'>
-						For long receipts, add the photos from top to bottom. Duplicates at the edges are merged automatically.
-					</p>
-				) : null}
 			</div>
 
 			{loading ? (
-				<UploadTicketProgress photoCount={previews.length} />
+				<Alert variant='receipt-notice' role='status' data-testid='upload-ticket-progress'>
+					<RowIcon icon={InformationCircleIcon} tone='primary' size='sm' testId='upload-ticket-progress-icon' />
+					<AlertTitle>Keep this open until it finishes</AlertTitle>
+					<AlertDescription>Then we read the store, date and items for you.</AlertDescription>
+				</Alert>
+			) : previews.length > 0 && rejections.length === 0 ? (
+				<Alert variant='receipt-notice' role='note' data-testid='upload-ticket-review-note'>
+					<span className='flex size-5.5 items-center justify-center'><HugeiconsIcon icon={InformationCircleIcon} strokeWidth={1.8} aria-hidden='true' className='size-4.5 text-blue-700' /></span>
+					<AlertTitle>Review before saving</AlertTitle>
+					<AlertDescription>We read the <strong className='font-semibold text-slate-900'>store, date and total</strong> from the receipt. You confirm them before anything is saved.</AlertDescription>
+				</Alert>
 			) : null}
 
-			{/* On a phone the buttons take the full width under the note; from `sm` the note sits left and the buttons right. */}
-			<div className='mt-1 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between sm:gap-4'>
-				<p className='text-xs text-slate-500'>
-					<span className='text-destructive'>*</span> Required fields
-				</p>
-				<DialogFooter variant='inline'>
+			{/* On a phone the actions stack with Upload on top; from `sm` Cancel sits left and Upload right. */}
+			<div className='flex flex-col gap-2 sm:flex-row-reverse sm:justify-start sm:gap-3'>
+				<Button
+					type='submit'
+					size='primary'
+					disabled={!canSubmit}
+					className='w-full sm:w-auto'
+				>
+					{loading ? (
+						<>
+							<HugeiconsIcon
+								icon={Loading03Icon}
+								strokeWidth={1.5}
+								className='size-4.5 animate-spin motion-reduce:animate-none'
+							/>
+							Uploading {previews.length} {previews.length === 1 ? 'photo' : 'photos'}…
+						</>
+					) : (
+						<>
+							{rejections.length > 0 ? null : (
+								<HugeiconsIcon
+									icon={Upload06Icon}
+									strokeWidth={1.8}
+									className='size-4.5'
+								/>
+							)}
+							{uploadLabel}
+						</>
+					)}
+				</Button>
+				{asList ? null : (
 					<DialogClose asChild>
 						<Button
 							type='button'
 							variant='secondary'
 							size='primary'
 							disabled={loading}
-							className='flex-1 sm:flex-none'
+							className='w-full sm:w-auto'
 						>
 							Cancel
 						</Button>
 					</DialogClose>
-					<Button
-						type='submit'
-						size='primary'
-						disabled={!canSubmit}
-						className='flex-1 sm:flex-none'
-					>
-						{loading ? (
-							<>
-								<HugeiconsIcon
-									icon={Loading03Icon}
-									strokeWidth={2}
-									className='size-4 animate-spin motion-reduce:animate-none'
-								/>
-								Uploading…
-							</>
-						) : (
-							uploadLabel
-						)}
-					</Button>
-				</DialogFooter>
+				)}
 			</div>
+			{rejections.length > 0 ? (
+				<p className='text-center text-xs leading-[1.4] text-slate-500 dark:text-muted-foreground'>The photos that failed are left out; the rest still upload.</p>
+			) : null}
 		</form>
 	)
 }

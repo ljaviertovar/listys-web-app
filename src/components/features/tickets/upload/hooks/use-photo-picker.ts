@@ -14,6 +14,8 @@ export interface PhotoPreview {
 export interface PhotoRejection {
 	id: string
 	name: string
+	/** Bytes, so the list can say how big the refused file was. */
+	size: number
 	reason: Exclude<PhotoVerdict, 'ok'>
 }
 
@@ -57,7 +59,7 @@ export function usePhotoPicker(max: number) {
 					liveUrls.current.add(url)
 					accepted.push({ id: crypto.randomUUID(), file, url })
 				} else {
-					refused.push({ id: crypto.randomUUID(), name: file.name, reason: verdict })
+					refused.push({ id: crypto.randomUUID(), name: file.name, size: file.size, reason: verdict })
 				}
 			}
 

@@ -30,6 +30,7 @@ interface Props {
 	onAddToList: () => void
 	triage?: TicketItemsTriage
 	breakdown?: ReceiptSelectionBreakdown | null
+	saving?: boolean
 }
 
 /** Share of the screen the photo takes (its height on a phone, its width from `lg`). The handle moves it within these limits. */
@@ -42,7 +43,7 @@ const KEY_SPLIT_STEP = 0.05
  * The photo next to the extracted items in one screen, so a line can be checked against the paper and ticked without scrolling back
  * and forth: the photo above the list on a phone, on its left from `lg`. The handle between them resizes the two by pointer or keyboard.
  */
-export function TicketCompareDialog({ open, onOpenChange, title, urls, view, items, selection, canSelect, onAddToList, triage, breakdown }: Props) {
+export function TicketCompareDialog({ open, onOpenChange, title, urls, view, items, selection, canSelect, onAddToList, triage, breakdown, saving = false }: Props) {
 	// `null` keeps the default of each layout (38% of the height on a phone, 60% of the width beside the list).
 	const [split, setSplit] = useState<number | null>(null)
 	const sideBySide = useMediaQuery('(min-width: 64rem)')
@@ -84,12 +85,12 @@ export function TicketCompareDialog({ open, onOpenChange, title, urls, view, ite
 							<HugeiconsIcon
 								icon={Cancel01Icon}
 								strokeWidth={1.8}
-								className='size-5'
+								className='size-5.5'
 							/>
 						</Button>
 					</DialogClose>
 					<div className='flex min-w-0 flex-1 items-baseline justify-center gap-3 lg:justify-start lg:pl-1'>
-						<DialogTitle ref={titleRef} tabIndex={-1} variant='viewer'>
+						<DialogTitle ref={titleRef} tabIndex={-1} variant='viewer-compact'>
 							Compare
 						</DialogTitle>
 						<span className='hidden truncate font-mono text-xs leading-none font-medium text-slate-400 tabular-nums lg:inline'>
@@ -98,7 +99,7 @@ export function TicketCompareDialog({ open, onOpenChange, title, urls, view, ite
 						</span>
 					</div>
 					<DialogClose asChild>
-						<Button size='primary'>Done</Button>
+						<Button size='toolbar'>Done</Button>
 					</DialogClose>
 				</div>
 				<DialogDescription className='sr-only'>
@@ -209,14 +210,14 @@ export function TicketCompareDialog({ open, onOpenChange, title, urls, view, ite
 							else return
 							event.preventDefault()
 						}}
-						className='-mb-px flex h-11 shrink-0 cursor-row-resize touch-none items-center justify-center rounded-t-3xl bg-card focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none lg:mb-0 lg:-mr-px lg:h-auto lg:w-4 lg:cursor-col-resize lg:rounded-none'
+						className='-mb-px flex h-7 shrink-0 cursor-row-resize touch-none items-center justify-center rounded-t-3xl bg-card focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none lg:mb-0 lg:-mr-px lg:h-auto lg:w-4 lg:cursor-col-resize lg:rounded-none'
 					>
-						<span className='block h-1.5 w-10 rounded-full bg-slate-300 lg:h-10 lg:w-1.5' />
+						<span className='block h-1.25 w-10 rounded-full bg-slate-300 lg:h-10 lg:w-1.5' />
 					</div>
 
 					<div className='flex min-h-0 min-w-0 flex-1 flex-col bg-card text-card-foreground'>
 						<div className='min-h-0 flex-1 overflow-y-auto px-3.5 pb-6 lg:px-5'>
-							<div className='flex items-center gap-3 px-0.5 pt-1 pb-2 lg:pt-4'>
+							<div className='flex items-center gap-3 px-0.5 pt-1 pb-3 lg:pt-4'>
 								<h2 className='flex-1 font-display text-base leading-normal font-semibold '>
 									Extracted Items
 								</h2>
@@ -239,6 +240,7 @@ export function TicketCompareDialog({ open, onOpenChange, title, urls, view, ite
 								onClear={selection.clear}
 								onAdd={onAddToList}
 								breakdown={breakdown}
+								saving={saving}
 								placement='panel'
 							/>
 						</div>

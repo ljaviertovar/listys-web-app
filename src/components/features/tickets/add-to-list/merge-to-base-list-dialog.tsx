@@ -1,21 +1,21 @@
 'use client'
 
-import { useId, useRef } from 'react'
+import { useId } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Loading03Icon, ListViewIcon } from '@hugeicons/core-free-icons'
 
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { useDialogFocus } from '@/hooks'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { ChoiceRow, RowIcon, SheetDialog } from '@/components/commons'
+import { RadioGroup } from '@/components/ui/radio-group'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { useMergeToBaseList } from './hooks/use-merge-to-base-list'
 import { MergeReviewStep } from './merge-review-step'
+import { MergeResultSheet } from './merge-result-sheet'
 import { shouldShowReceiptStoreUnconfirmedNote } from './helpers/receipt-store-note'
 import type { ScreenDecisions } from './helpers/merge-review'
+import type { ReceiptSelectionBreakdown } from '../receipt/helpers/receipt-selection-breakdown'
 
 interface Props {
 	open: boolean
@@ -28,14 +28,18 @@ interface Props {
 	/** Matches the user already decided on the receipt screen; the review starts from them when adding to the same list. */
 	initialDecisions?: ScreenDecisions | null
 	storeConfirmed: boolean
+	/** How many of the included lines add an item and how many update one, for the option that adds to the list. */
+	breakdown?: ReceiptSelectionBreakdown | null
 	onSuccess: (baseListId: string) => void
 	onReceiptAttached?: (sessionId: string) => void
+	/** The receipt screen shows "Saving…" while the lines are on their way (this sheet is closed by then). */
+	onSavingChange?: (saving: boolean) => void
+	/** Where the lines come from, for the summary sheet that follows a save. */
+	receipt: { storeName: string; date: string | null }
 }
 
-export function MergeToBaseListDialog({ open, defaultBaseListId, onOpenChange, ticketId, selectedItemIds, lines, initialDecisions, storeConfirmed, onSuccess, onReceiptAttached }: Props) {
+export function MergeToBaseListDialog({ open, defaultBaseListId, onOpenChange, ticketId, selectedItemIds, lines, initialDecisions, storeConfirmed, breakdown = null, onSuccess, onReceiptAttached, onSavingChange, receipt }: Props) {
 	const fieldId = useId()
-	const titleRef = useRef<HTMLHeadingElement>(null)
-	const { onOpenAutoFocus, onCloseAutoFocus } = useDialogFocus(titleRef)
 	const {
 		mode,
 		setMode,
@@ -55,7 +59,10 @@ export function MergeToBaseListDialog({ open, defaultBaseListId, onOpenChange, t
 		step,
 		backToChoose,
 		review,
-	} = useMergeToBaseList({ open, defaultBaseListId, ticketId, selectedItemIds, lines, initialDecisions, onOpenChange, onSuccess, onReceiptAttached })
+		outcome,
+		dismissOutcome,
+		retry,
+	} = useMergeToBaseList({ open, defaultBaseListId, ticketId, selectedItemIds, lines, initialDecisions, onOpenChange, onSuccess, onReceiptAttached, onSavingChange })
 
 	const hasLists = baseLists.length > 0
 	const reviewing = step === 'review' && review.state.status === 'ready'
@@ -63,31 +70,21 @@ export function MergeToBaseListDialog({ open, defaultBaseListId, onOpenChange, t
 	const itemsLabel = `${selectedItemIds.length} ${selectedItemIds.length === 1 ? 'Item' : 'Items'}`
 
 	return (
-		<Dialog
+		<>
+		<SheetDialog
 			open={open}
 			onOpenChange={isOpen => !loading && onOpenChange(isOpen)}
+			testId='merge-to-base-list-dialog'
+			title={reviewing ? 'Review Matches' : 'Add or Update Items'}
+			descriptionVariant={reviewing ? 'sheet' : 'body'}
+			description={reviewing
+				? `Check how these items are added to “${listName}”. Nothing is added until you confirm.`
+				: mode === 'new'
+					? <>Create a new list with the <span className='font-mono font-semibold text-foreground'>{selectedItemIds.length}</span> selected item{selectedItemIds.length !== 1 ? 's' : ''}.</>
+					: <><span className='font-mono font-semibold text-foreground'>{selectedItemIds.length}</span> selected item{selectedItemIds.length !== 1 ? 's' : ''}. New products are added to the list; products already on it are updated.</>}
+			className='sm:max-w-125'
 		>
-			<DialogContent
-				data-testid='merge-to-base-list-dialog'
-				onOpenAutoFocus={onOpenAutoFocus}
-				onCloseAutoFocus={onCloseAutoFocus}
-				sheetOnPhones
-				variant='sheet'
-				className='sm:max-w-125'
-			>
-				<DialogHeader variant='sheet' className='shrink-0'>
-					<DialogTitle ref={titleRef} tabIndex={-1} variant='sheet'>{reviewing ? 'Review Matches' : 'Add or Update Items'}</DialogTitle>
-					<DialogDescription variant='sheet'>
-						{reviewing
-							? `Check how these items are added to “${listName}”. Nothing is added until you confirm.`
-							: mode === 'new'
-								? `Create a new list with the ${selectedItemIds.length} selected item${selectedItemIds.length !== 1 ? 's' : ''}.`
-								: `${selectedItemIds.length} selected item${selectedItemIds.length !== 1 ? 's' : ''}. New products are added to the list, and products already on it are updated and keep their quantity.`}
-					</DialogDescription>
-				</DialogHeader>
-
-						<ScrollArea size='sheet' scrollHint className='min-h-0 flex-none'>
-					<div className='px-1 py-1'>
+					<div className='px-0.5 py-1'>
 						{loadingData ? (
 							<div className='flex items-center justify-center py-8'>
 								<HugeiconsIcon
@@ -107,7 +104,7 @@ export function MergeToBaseListDialog({ open, defaultBaseListId, onOpenChange, t
 							<form
 								onSubmit={handleSubmit}
 								noValidate
-								className='space-y-8'
+								className={reviewing ? 'space-y-8' : 'space-y-4'}
 							>
 								{review.state.status === 'ready' && reviewing ? (
 									<MergeReviewStep
@@ -121,26 +118,24 @@ export function MergeToBaseListDialog({ open, defaultBaseListId, onOpenChange, t
 
 								{reviewing ? null : hasLists ? (
 									<RadioGroup
+										aria-label='Destination'
+										spacing='snug'
 										value={mode}
 										onValueChange={(value: 'existing' | 'new') => {
 											setMode(value)
 											setError(null)
 										}}
 									>
-										<div className='flex items-center space-x-3'>
-											<RadioGroupItem
-												value='existing'
-												id={`${fieldId}-existing`}
-											/>
-											<Label htmlFor={`${fieldId}-existing`}>Add to existing list</Label>
-										</div>
-										<div className='flex items-center space-x-3'>
-											<RadioGroupItem
-												value='new'
-												id={`${fieldId}-new`}
-											/>
-											<Label htmlFor={`${fieldId}-new`}>Create new list</Label>
-										</div>
+										<ChoiceRow
+											variant='card'
+											testId='merge-mode-existing'
+											option={{ value: 'existing', label: 'Add to existing list', note: breakdown ? `${breakdown.added} new · ${breakdown.updated} updated` : undefined }}
+										/>
+										<ChoiceRow
+											variant='card'
+											testId='merge-mode-new'
+											option={{ value: 'new', label: 'Create new list', note: `All ${selectedItemIds.length} ${selectedItemIds.length === 1 ? 'item is' : 'items are'} added as new` }}
+										/>
 									</RadioGroup>
 								) : (
 									<p data-testid='merge-to-base-list-no-lists' className='text-sm text-muted-foreground'>
@@ -169,24 +164,19 @@ export function MergeToBaseListDialog({ open, defaultBaseListId, onOpenChange, t
 										aria-required='true'
 										aria-invalid={error?.toLowerCase().includes('list') ? true : undefined}
 										aria-describedby={error?.toLowerCase().includes('list') ? `${fieldId}-error` : undefined}
-										size='lg'
+										size='filter'
 									>
 										<SelectValue placeholder='Select a shopping list' />
 									</SelectTrigger>
-									<SelectContent>
+									<SelectContent size='filter'>
 										{baseLists.map(list => (
 											<SelectItem
 												key={list.id}
+												size='filter'
 												value={list.id}
 											>
-												<div className='flex items-center gap-2'>
-													<HugeiconsIcon
-														icon={ListViewIcon}
-														strokeWidth={2}
-														className='h-4 w-4'
-													/>
-													{listLabels.get(list.id) ?? list.name}
-												</div>
+												<RowIcon icon={ListViewIcon} tone='primary' size='stat' testId='merge-list-option-icon' />
+												{listLabels.get(list.id) ?? list.name}
 											</SelectItem>
 										))}
 									</SelectContent>
@@ -213,14 +203,13 @@ export function MergeToBaseListDialog({ open, defaultBaseListId, onOpenChange, t
 
 						{error && <p id={`${fieldId}-error`} role='alert' className='text-sm text-destructive'>{error}</p>}
 
-						<div className='w-full flex justify-between gap-4 pt-2'>
+						<div className='grid w-full grid-cols-2 gap-2'>
 							<Button
 								type='button'
 								variant='secondary'
 								size='primary'
 								disabled={loading}
 								onClick={() => (reviewing ? backToChoose() : onOpenChange(false))}
-								className='flex-1'
 							>
 								{reviewing ? 'Back' : 'Cancel'}
 							</Button>
@@ -228,7 +217,6 @@ export function MergeToBaseListDialog({ open, defaultBaseListId, onOpenChange, t
 								type='submit'
 								size='primary'
 								disabled={loading || (mode === 'existing' ? !selectedBaseListId : !newListName.trim())}
-								className='flex-1'
 							>
 								{loading ? (
 									<>
@@ -247,8 +235,8 @@ export function MergeToBaseListDialog({ open, defaultBaseListId, onOpenChange, t
 					</form>
 						)}
 					</div>
-				</ScrollArea>
-			</DialogContent>
-		</Dialog>
+		</SheetDialog>
+		<MergeResultSheet outcome={outcome} receipt={receipt} onRetry={retry} onClose={dismissOutcome} />
+		</>
 	)
 }

@@ -32,6 +32,10 @@ const TONES = {
 const SIZES = {
 	stat: { box: 'size-7 rounded-lg', icon: 'size-4' },
 	saved: { box: 'size-16 rounded-[20px]', icon: 'size-8' },
+	// The tile at the top of an empty card (64px, 16px radius).
+	empty: { box: 'size-16 rounded-2xl', icon: 'size-7.5' },
+	// The tile of a drop target (48px, 16px radius).
+	dropzone: { box: 'size-12 rounded-2xl', icon: 'size-6' },
 	xs: { box: 'size-6 rounded-lg', icon: 'size-3.5' },
 	sm: { box: 'size-8 rounded-lg', icon: 'size-4.5' },
 	md: { box: 'size-9 rounded-xl', icon: 'size-4.5' },

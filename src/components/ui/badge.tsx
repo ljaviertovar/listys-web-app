@@ -20,7 +20,7 @@ const badgeVariants = cva(
           "hover:bg-muted hover:text-muted-foreground dark:hover:bg-muted/50",
         link: "text-primary underline-offset-4 hover:underline",
         // Status tints (the 100-level fill with the 700-level text): a receipt or session in its state. `neutral` is "not started".
-        processing: "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300",
+        processing: "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300",
         completed: "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300",
         shopping: "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300",
         // Over ink or photo surfaces (the dashboard hero).
@@ -29,7 +29,9 @@ const badgeVariants = cva(
         pending: "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300",
         merged: "bg-primary/10 text-primary",
         category: "bg-primary/10 text-primary",
-        neutral: "bg-slate-100 text-slate-700 dark:bg-muted dark:text-foreground",
+        neutral: "bg-slate-100 text-slate-600 dark:bg-muted dark:text-foreground",
+        // Something that needs a look but is not an error (a receipt read without a confirmed store): amber fill, amber text, no border.
+        warning: "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300",
         // A store, in violet so it reads apart from lists, trips and receipts: a store learned from receipts, and one chosen by the user (white, with a darker ring).
         store: "border-violet-200 bg-violet-50 text-violet-900 dark:border-violet-500/30 dark:bg-violet-500/15 dark:text-violet-200 [&>svg]:text-violet-600 dark:[&>svg]:text-violet-300",
         "store-manual":

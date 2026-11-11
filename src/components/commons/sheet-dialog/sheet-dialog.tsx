@@ -25,6 +25,8 @@ interface SheetDialogProps {
 	trigger?: ReactNode
 	title: ReactNode
 	description?: ReactNode
+	/** `body` sets the description as the 14px lead-in sentence of the sheet instead of the caption under a title. */
+	descriptionVariant?: 'sheet' | 'body'
 	children: ReactNode
 	/** `alertdialog` for a confirmation the user has to answer, so assistive tech announces it that way. */
 	role?: 'dialog' | 'alertdialog'
@@ -36,6 +38,8 @@ interface SheetDialogProps {
 	descriptionId?: string
 	ariaDescribedBy?: string
 	nested?: ComponentProps<typeof DialogContent>['nested']
+	/** The body takes the height of its content (up to the usual limit), so a short sheet leaves no blank gap. Pass `false` to hold the fixed height. */
+	fit?: boolean
 }
 
 /**
@@ -48,6 +52,7 @@ export function SheetDialog({
 	trigger,
 	title,
 	description,
+	descriptionVariant = 'sheet',
 	children,
 	role = 'dialog',
 	testId,
@@ -56,6 +61,7 @@ export function SheetDialog({
 	descriptionId,
 	ariaDescribedBy,
 	nested,
+	fit = true,
 }: SheetDialogProps) {
 	const titleRef = useRef<HTMLHeadingElement>(null)
 	const { onOpenAutoFocus, onCloseAutoFocus } = useDialogFocus(titleRef, { autoFocus })
@@ -82,7 +88,7 @@ export function SheetDialog({
 						{title}
 					</DialogTitle>
 					{description ? (
-						<DialogDescription id={descriptionId} variant='sheet'>
+						<DialogDescription id={descriptionId} variant={descriptionVariant}>
 							{description}
 						</DialogDescription>
 					) : null}
@@ -91,7 +97,7 @@ export function SheetDialog({
 							aria-label='Close'
 							variant='quiet'
 							size='icon-xl'
-							className='absolute -top-1.5 -right-2'
+							className='absolute top-0 -right-2 sm:-top-2.25'
 						>
 							<HugeiconsIcon
 								icon={Cancel01Icon}
@@ -101,7 +107,7 @@ export function SheetDialog({
 						</Button>
 					</DialogClose>
 				</DialogHeader>
-				<ScrollArea size='sheet' scrollHint className='min-h-0 flex-none'>{children}</ScrollArea>
+				<ScrollArea size={fit ? 'sheet-fit' : 'sheet'} scrollHint className='min-h-0 flex-none'>{children}</ScrollArea>
 			</DialogContent>
 		</Dialog>
 	)

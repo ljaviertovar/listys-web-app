@@ -12,15 +12,17 @@ import type { Ticket } from '@/types'
 import { DeleteReceiptButton } from './delete-receipt-button'
 
 interface Props {
-	ticket: Pick<Ticket, 'id' | 'ocr_status'> & { ocr_attempts?: number | null }
+	ticket: Pick<Ticket, 'id' | 'ocr_status'> & { ocr_attempts?: number | null; base_list_id?: string | null }
 	/** A receipt that finished without items can be read again too. */
 	allowRetry?: boolean
+	/** The retry button's label; "Read Receipt Again" unless the surface asks for something shorter. */
+	retryLabel?: string
 	returnHref?: string
 	onRetrySuccess?: () => void
 	onDeleted?: () => void
 }
 
-export function TicketActions({ ticket, allowRetry = false, returnHref, onRetrySuccess, onDeleted }: Props) {
+export function TicketActions({ ticket, allowRetry = false, retryLabel = 'Read Receipt Again', returnHref, onRetrySuccess, onDeleted }: Props) {
 	const [retrying, setRetrying] = useState(false)
 	const router = useRouter()
 
@@ -49,7 +51,7 @@ export function TicketActions({ ticket, allowRetry = false, returnHref, onRetryS
 
 	// Allow a new read for failed or pending tickets (do NOT show while processing).
 	const showRetryButton = ticket.ocr_status === 'failed' || ticket.ocr_status === 'pending' || allowRetry
-	const retryButtonLabel = 'Read Receipt Again'
+	const retryButtonLabel = retryLabel
 
 	// For stuck tickets in processing state, show delete button with a warning
 	// (ocr_attempts will be set by the auto-fail function if truly stuck)
@@ -81,8 +83,8 @@ export function TicketActions({ ticket, allowRetry = false, returnHref, onRetryS
 					) : (
 						<HugeiconsIcon
 							icon={Refresh04Icon}
-							strokeWidth={2}
-							className='mr-2 h-4 w-4'
+							strokeWidth={1.8}
+							className='size-4.5'
 						/>
 					)}
 					{retrying ? 'Starting…' : retryButtonLabel}
@@ -90,7 +92,7 @@ export function TicketActions({ ticket, allowRetry = false, returnHref, onRetryS
 			)}
 
 			{/* Allow delete for failed/completed tickets, and stuck processing tickets */}
-			{(ticket.ocr_status !== 'processing' || isStuckProcessing) && <DeleteReceiptButton ticketId={ticket.id} returnHref={returnHref} onDeleted={onDeleted} warning={deleteWarningMessage} />}
+			{(ticket.ocr_status !== 'processing' || isStuckProcessing) && <DeleteReceiptButton ticketId={ticket.id} returnHref={returnHref} onDeleted={onDeleted} warning={deleteWarningMessage} saved={!!ticket.base_list_id} />}
 		</div>
 	)
 }

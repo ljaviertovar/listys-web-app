@@ -2,13 +2,14 @@
 
 import { type ChangeEvent, type DragEvent } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Add01Icon, Alert02Icon, Cancel01Icon, Loading03Icon, Upload06Icon } from '@hugeicons/core-free-icons'
+import { Add01Icon, Cancel01Icon, Upload06Icon } from '@hugeicons/core-free-icons'
 
+import { RowIcon } from '@/components/commons'
 import { MAX_TICKET_IMAGE_MB } from '@/lib/config/limits'
 import { Button } from '@/components/ui/button'
 
-import { rejectionMessage } from './helpers/classify-photo'
 import type { PhotoPreview, PhotoRejection } from './hooks/use-photo-picker'
+import { UploadPhotoRows } from './upload-photo-rows'
 
 interface Props {
 	inputId: string
@@ -24,10 +25,14 @@ interface Props {
 	onDismissRejection: (id: string) => void
 }
 
-/** The photo field of the upload form: the way in (click or drop), the photos chosen, and what was left out and why. */
+/**
+ * The photo field of the upload form: the way in (click or drop), the photos chosen, and what was left out and why. It is a drop
+ * target while empty, a row of squares once there are photos, and a list when a photo was refused or the photos are being sent.
+ */
 export function UploadTicketPhotos({ inputId, descriptionId, errorId, previews, rejections, max, uploading, onAdd, onRemove, onDismissRejection }: Props) {
 	const hasPhotos = previews.length > 0
 	const full = previews.length >= max
+	const asList = uploading || rejections.length > 0
 	const describedBy = [descriptionId, errorId].filter(Boolean).join(' ')
 
 	const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -63,14 +68,21 @@ export function UploadTicketPhotos({ inputId, descriptionId, errorId, previews, 
 			<p id={descriptionId} className='sr-only'>
 				Up to {max} photos · PNG or JPG (no HEIC) · {MAX_TICKET_IMAGE_MB} MB each
 			</p>
-			{hasPhotos ? (
-				<ul className='grid grid-cols-3 gap-3'>
+			{asList ? (
+				<UploadPhotoRows
+					previews={previews}
+					rejections={rejections}
+					uploading={uploading}
+					onDismissRejection={onDismissRejection}
+				/>
+			) : hasPhotos ? (
+				<ul className='flex flex-wrap gap-3 pt-1.5'>
 					{previews.map((photo, index) => (
 						<li
 							key={photo.id}
-							className='relative aspect-[3/4]'
+							className='relative size-22'
 						>
-							<div className='size-full overflow-hidden rounded-xl bg-slate-100 dark:bg-muted'>
+							<div className='size-full overflow-hidden rounded-2xl bg-linear-to-br from-slate-200 to-slate-300 dark:bg-muted'>
 								{/* eslint-disable-next-line @next/next/no-img-element -- a local object URL preview */}
 								<img
 									src={photo.url}
@@ -78,49 +90,35 @@ export function UploadTicketPhotos({ inputId, descriptionId, errorId, previews, 
 									className='size-full object-cover'
 								/>
 							</div>
-							{uploading ? (
-								<span
-									aria-hidden='true'
-									className='absolute inset-0 flex items-center justify-center rounded-xl bg-slate-900/45 text-white'
-								>
+							<button
+								type='button'
+								onClick={() => onRemove(photo.id)}
+								title='Remove Image'
+								aria-label={`Remove photo ${index + 1}`}
+								className='absolute -top-2.25 -right-2.25 flex size-11 items-start justify-end p-0.75 focus-visible:outline-none [&:focus-visible>span]:ring-2 [&:focus-visible>span]:ring-blue-500'
+							>
+								<span className='flex size-6 items-center justify-center rounded-full bg-slate-900 text-white ring-2 ring-white'>
 									<HugeiconsIcon
-										icon={Loading03Icon}
+										icon={Cancel01Icon}
 										strokeWidth={2}
-										className='size-6 animate-spin motion-reduce:animate-none'
+										className='size-3.5'
 									/>
 								</span>
-							) : (
-								<button
-									type='button'
-									onClick={() => onRemove(photo.id)}
-									title='Remove Image'
-									aria-label={`Remove photo ${index + 1}`}
-									className='absolute -top-3 -right-3 flex size-11 items-center justify-center rounded-full focus-visible:outline-none [&:focus-visible>span]:ring-2 [&:focus-visible>span]:ring-blue-500'
-								>
-									<span className='flex size-6 items-center justify-center rounded-full bg-slate-900 text-white ring-2 ring-white'>
-										<HugeiconsIcon
-											icon={Cancel01Icon}
-											strokeWidth={2.5}
-											className='size-3'
-										/>
-									</span>
-								</button>
-							)}
+							</button>
 						</li>
 					))}
-					{!full && !uploading ? (
-						<li className='aspect-[3/4]'>
+					{!full ? (
+						<li>
 							<Button
 								asChild
 								onDrop={handleDrop}
 								onDragOver={event => event.preventDefault()}
-								variant='dropzone'
-								size='block'
+								variant='dropzone-quiet'
+								size='tile'
 								rounded='2xl'
 								aria-describedby={describedBy}
-								className='h-full w-full'
 							>
-								<span className='relative h-full w-full'>
+								<span className='relative'>
 									<HugeiconsIcon
 										icon={Add01Icon}
 										strokeWidth={1.8}
@@ -139,70 +137,31 @@ export function UploadTicketPhotos({ inputId, descriptionId, errorId, previews, 
 					onDrop={handleDrop}
 					onDragOver={event => event.preventDefault()}
 					variant='dropzone'
-					size='block'
-					rounded='2xl'
+					size='dropzone'
+					rounded='3xl'
 					aria-describedby={describedBy}
-					className='min-h-36 w-full'
+					className='w-full'
 				>
-					<span className='relative min-h-36 w-full'>
-						<span className='flex size-10 items-center justify-center rounded-xl bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300'>
-							<HugeiconsIcon
-								icon={Upload06Icon}
-								strokeWidth={1.8}
-								className='size-5'
-							/>
-						</span>
-						<span className='font-display text-sm font-semibold text-slate-900 sm:hidden dark:text-foreground'>
-							<span className='text-blue-700 dark:text-blue-400'>Choose Photos</span>
-						</span>
+					<span className='relative'>
+						<RowIcon
+							icon={Upload06Icon}
+							tone='primary'
+							size='dropzone'
+							testId='upload-ticket-dropzone-icon'
+						/>
+						<span className='font-display text-sm leading-[1.2] font-semibold text-blue-700 sm:hidden dark:text-blue-400'>Choose Photos</span>
 						<span className='hidden flex-col items-center gap-0.5 sm:flex'>
-							<span className='font-display text-sm font-semibold text-slate-900 dark:text-foreground'>Drag and drop photos here</span>
+							<span className='font-display text-sm font-semibold text-foreground'>Drag and drop photos here</span>
 							<span className='font-display text-sm font-semibold text-blue-700 dark:text-blue-400'>or Choose Photos</span>
 						</span>
-						<span className='max-w-[26ch] text-xs leading-normal text-slate-500 dark:text-muted-foreground'>
-							Up to {max} photos · PNG or JPG (no HEIC) · {MAX_TICKET_IMAGE_MB} MB each
+						<span className='flex max-w-65 flex-col font-sans text-xs leading-[1.45] font-normal text-slate-500 dark:text-muted-foreground'>
+							<span>Up to {max} photos · PNG or JPG (no HEIC) ·</span>
+							<span>{MAX_TICKET_IMAGE_MB} MB each</span>
 						</span>
 						{fileInput}
 					</span>
 				</Button>
 			)}
-
-			{rejections.map(rejection => {
-				const message = rejectionMessage(rejection.name, rejection.reason)
-				return (
-					<div
-						key={rejection.id}
-						role='alert'
-						data-testid='upload-ticket-rejection'
-						className='flex items-start gap-2.5 rounded-xl bg-red-50 py-3 pr-1.5 pl-3 text-red-900 dark:bg-red-950/60 dark:text-red-200'
-					>
-						<HugeiconsIcon
-							icon={Alert02Icon}
-							strokeWidth={1.8}
-							className='mt-0.5 size-4.5 shrink-0 text-red-700 dark:text-red-400'
-						/>
-						<div className='flex min-w-0 flex-1 flex-col gap-0.5'>
-							<span className='font-mono text-xs leading-snug font-semibold break-all'>{message.title}</span>
-							<span className='text-xs leading-snug'>{message.hint}</span>
-						</div>
-						<Button
-							type='button'
-							onClick={() => onDismissRejection(rejection.id)}
-							aria-label={`Dismiss message about ${rejection.name}`}
-							variant='destructive-ghost'
-							size='icon-xl'
-							className='shrink-0'
-						>
-							<HugeiconsIcon
-								icon={Cancel01Icon}
-								strokeWidth={1.8}
-								className='size-4'
-							/>
-						</Button>
-					</div>
-				)
-			})}
-
 		</div>
 	)
 }
