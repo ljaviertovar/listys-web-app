@@ -45,7 +45,7 @@ export function ShareCollaborators({ collaborators, isOwner, isLoading, onRemove
 				>
 					Collaborators
 				</h3>
-				<span className='inline-flex h-5.5 min-w-5.5 items-center justify-center rounded-full bg-slate-100 px-1.5 font-mono text-xs font-semibold text-slate-700 tabular-nums dark:bg-muted dark:text-foreground'>
+				<span className='inline-flex h-5.5 min-w-5.5 items-center justify-center rounded-full bg-slate-100 px-1.5 font-mono text-xs font-semibold text-text-secondary tabular-nums dark:bg-muted dark:text-foreground'>
 					{collaborators.length}
 				</span>
 			</div>
@@ -56,7 +56,7 @@ export function ShareCollaborators({ collaborators, isOwner, isLoading, onRemove
 					<Skeleton className='h-14 w-full rounded-2xl' />
 				</div>
 			) : collaborators.length === 0 ? (
-				<p className='py-2 text-sm text-slate-500 dark:text-muted-foreground'>No one else has joined yet.</p>
+				<p className='py-2 text-sm text-muted-foreground dark:text-muted-foreground'>No one else has joined yet.</p>
 			) : (
 				<ul className='divide-y divide-slate-100 dark:divide-border'>
 					{collaborators.map(collaborator => {
@@ -81,7 +81,7 @@ export function ShareCollaborators({ collaborators, isOwner, isLoading, onRemove
 												'inline-flex h-5.5 items-center rounded-full px-2 text-xs leading-none font-semibold',
 												collaborator.role === 'owner'
 													? 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300'
-													: 'bg-slate-100 text-slate-700 dark:bg-muted dark:text-foreground',
+													: 'bg-slate-100 text-text-secondary dark:bg-muted dark:text-foreground',
 											)}
 										>
 											{formatCollaboratorRole(collaborator.role)}
