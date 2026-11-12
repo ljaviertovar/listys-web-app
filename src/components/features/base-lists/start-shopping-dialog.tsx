@@ -172,7 +172,7 @@ export function StartShoppingDialog({
 							className='size-6'
 						/>
 					</span>
-					<p className='text-sm leading-normal text-slate-600 dark:text-muted-foreground'>
+					<p className='text-sm leading-normal text-body dark:text-muted-foreground'>
 						{isEmpty ? (
 							'This base list has no items. Add items before starting a shopping session.'
 						) : (

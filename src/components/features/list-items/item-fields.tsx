@@ -29,11 +29,11 @@ export function ItemFields({ form, idPrefix, disabled = false, withCategory = fa
 	return (
 		<div
 			data-testid={`${idPrefix}-fields`}
-			className='flex flex-col gap-5'
+			className={withCategory ? 'flex flex-col gap-3 md:gap-5' : 'flex flex-col gap-5'}
 		>
 			<FormField
 				htmlFor={`${idPrefix}-name`}
-				label='Name'
+				label='Item Name'
 				required
 				error={errors.name?.message}
 				testId={`${idPrefix}-name-field`}
@@ -130,7 +130,7 @@ export function ItemFields({ form, idPrefix, disabled = false, withCategory = fa
 									aria-invalid={!!errors.category}
 									size='lg'
 								>
-									<SelectValue placeholder='Select category' />
+								<SelectValue placeholder='Choose a category' />
 								</SelectTrigger>
 								<SelectContent>
 									{CATEGORIES.map(category => (
@@ -157,7 +157,7 @@ export function ItemFields({ form, idPrefix, disabled = false, withCategory = fa
 				<Textarea
 					id={`${idPrefix}-notes`}
 					{...register('notes')}
-					placeholder={withCategory ? 'Add any notes…' : 'Notes, eg. specific brand, flavor, etc.'}
+					placeholder={withCategory ? 'Brand, size…' : 'Notes, eg. specific brand, flavor, etc.'}
 					disabled={disabled}
 					aria-invalid={!!errors.notes}
 					aria-describedby={errors.notes ? `${idPrefix}-notes-error` : undefined}

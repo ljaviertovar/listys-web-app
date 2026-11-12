@@ -7,7 +7,7 @@ import {
   Delete02Icon,
   Edit02Icon,
   ListViewIcon,
-  Share01Icon,
+  Share08Icon,
   StarIcon,
   UserGroupIcon,
 } from "@hugeicons/core-free-icons";
@@ -40,6 +40,7 @@ interface Props {
   /** When the list was last shopped (a completed trip), and how many people it is shared with. */
   lastTripAt?: string | null;
   sharedWithCount?: number;
+  onPendingVisibilityChange?: (isVisible: boolean) => void;
 }
 
 /** A base list: its card, the inline rename form, the share sheet and the delete confirmation with its Undo. */
@@ -50,6 +51,7 @@ export function BaseListCard({
   isDefault = false,
   lastTripAt,
   sharedWithCount,
+  onPendingVisibilityChange,
 }: Props) {
   const shownName = displayName ?? baseList.name;
   const sharedWith = buildSharedWithLabel(sharedWithCount);
@@ -59,6 +61,7 @@ export function BaseListCard({
   const menuTriggerRef = useRef<HTMLButtonElement>(null);
   const wasEditing = useRef(false);
   const wasDeleteOpen = useRef(false);
+  const wasDeletionPending = useRef(false);
   const router = useRouter();
   const deletion = useUndoableAction();
 
@@ -72,6 +75,13 @@ export function BaseListCard({
     wasEditing.current = editing;
     wasDeleteOpen.current = showDelete;
   }, [editing, showDelete]);
+
+  useEffect(() => {
+    if (wasDeletionPending.current !== deletion.pending) {
+      onPendingVisibilityChange?.(!deletion.pending);
+      wasDeletionPending.current = deletion.pending;
+    }
+  }, [deletion.pending, onPendingVisibilityChange]);
 
   const handleUpdate = async ({ name, second }: EntityEditValues) => {
     try {
@@ -136,6 +146,7 @@ export function BaseListCard({
   return (
     <>
       <EntityCard
+        size="list"
         href={`/base-lists/${baseList.id}/edit`}
         icon={ListViewIcon}
         title={shownName}
@@ -182,12 +193,13 @@ export function BaseListCard({
           label: `More options for ${shownName}`,
           actions: [
             { label: "Edit List", icon: Edit02Icon, onSelect: () => setEditing(true) },
-            { label: "Share", icon: Share01Icon, onSelect: () => setShowShare(true) },
+            { label: "Share", icon: Share08Icon, onSelect: () => setShowShare(true) },
             {
               label: "Delete List",
               icon: Delete02Icon,
               onSelect: () => setShowDelete(true),
               tone: "danger",
+              separatorBefore: true,
             },
           ],
         }}
@@ -205,20 +217,24 @@ export function BaseListCard({
       <ConfirmSheet
         open={showDelete}
         onOpenChange={setShowDelete}
-        title={`Delete “${shownName}”?`}
-        consequence={
+        title="Delete List?"
+        description={
           baseList.items_count > 0 ? (
             <>
-              The{" "}
-              <b className="font-mono font-semibold">{baseList.items_count}</b>{" "}
-              {baseList.items_count === 1 ? "item" : "items"} in this list{" "}
-              {baseList.items_count === 1 ? "is" : "are"} deleted with it.
-              People it is shared with lose access. This can’t be undone.
+              <b className="font-semibold text-foreground">{shownName}</b> and its {baseList.items_count} {baseList.items_count === 1 ? "item" : "items"} will be deleted.
+              {" "}Past trips stay in your history.
             </>
           ) : (
-            "People it is shared with lose access. This can’t be undone."
+            <>
+              <b className="font-semibold text-foreground">{shownName}</b> will be deleted.
+            </>
           )
         }
+        consequence={
+          <>Shared members lose access too.</>
+        }
+        consequenceTitle="This can't be undone"
+        consequenceTone="warning"
         confirmLabel="Delete List"
         loadingLabel="Deleting…"
         tone="danger"

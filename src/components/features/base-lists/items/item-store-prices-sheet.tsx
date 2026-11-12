@@ -33,14 +33,17 @@ export function ItemStorePricesSheet({ open, onOpenChange, itemName, prices, his
 	const comparison = compareStorePrices(priced)
 	return <SheetDialog open={open} onOpenChange={onOpenChange} title='Prices by Store' description={itemName} testId={testId}>
 		<div className='mt-3 flex flex-col gap-4' data-testid={`${testId}-content`}>
-			{usualStore ? <div className='flex flex-col gap-1'><EntityLabel name={usualStore.name} testId={`${testId}-usual-store`} /><p className='text-xs text-slate-500'>Usual store · {usualStore.source === 'manual' ? 'set by you' : 'automatic'}</p></div>
+			{usualStore ? <div className='flex flex-wrap items-center gap-x-2.5 gap-y-1'>
+				<EntityLabel name={usualStore.name} manual={usualStore.source === 'manual'} testId={`${testId}-usual-store`} />
+				<Badge variant='tag'><HugeiconsIcon icon={RepeatIcon} strokeWidth={1.8} aria-hidden='true' />Usual</Badge>
+			</div>
 				: rows.length === 0 ? <div><Badge variant='tag'><HugeiconsIcon icon={Edit02Icon} aria-hidden='true' strokeWidth={1.8} />Added by hand</Badge></div> : null}
 			{rows.length || purchaseCount ? <div className='grid grid-cols-3 gap-2'>
 				<StatTile testId={`${testId}-times-bought`} value={purchaseCount} label='Times bought' variant='white' icon={ShoppingCart02Icon} iconTone='primary' />
 				<StatTile testId={`${testId}-between-trips`} value={intervalDays == null ? '—' : `~${Math.round(intervalDays)}`} unit={intervalDays == null ? undefined : 'd'} label='Between trips' variant='white' icon={Clock01Icon} iconTone='accent' />
 				<StatTile testId={`${testId}-last-bought`} value={lastBought ? shortDate(lastBought).split(' ')[0] : '—'} unit={lastBought ? shortDate(lastBought).split(' ')[1] : undefined} label='Last bought' variant='white' icon={Calendar01Icon} iconTone='success' />
 			</div> : null}
-			{rows.length ? <div className='flex flex-col gap-1'><h3 className='text-xs leading-tight font-semibold tracking-wide text-slate-700 uppercase'>Last price by store</h3><p className='text-xs leading-[1.4] text-slate-500'>Only prices from your own receipts.</p></div> : null}
+			{rows.length ? <div className='flex flex-col gap-1'><h3 className='text-xs leading-tight font-semibold tracking-wide text-text-secondary uppercase'>Last price by store</h3><p className='text-xs leading-[1.4] text-muted-foreground'>Only prices from your own receipts.</p></div> : null}
 			{comparison.notComparable ? <p className='text-xs text-muted-foreground'>Some prices use different units and can’t be compared.</p> : null}
 			{rows.length ? <div className='flex max-h-[min(60vh,480px)] flex-col divide-y divide-slate-200 overflow-y-auto rounded-2xl bg-muted px-3 dark:divide-border'>
 				{rows.map(entry => {
@@ -49,26 +52,26 @@ export function ItemStorePricesSheet({ open, onOpenChange, itemName, prices, his
 					const hasContext = quantity !== null && quantity > 0 && (quantity !== 1 || unit.toLowerCase() !== 'each')
 					return <div key={entry.store.id} data-testid={`${testId}-store-${entry.store.id}`} className='flex min-h-15 items-center gap-2 py-1.5'>
 						<div className='flex min-w-0 flex-1 flex-col gap-1.5'>
-							<span className='flex flex-wrap items-center gap-x-2 gap-y-1'>
-								<EntityLabel name={entry.store.name} size='lg' testId={`${testId}-entity-${entry.store.id}`} />
+							<span className='flex flex-wrap items-center gap-x-2.5 gap-y-1'>
+								<EntityLabel name={entry.store.name} manual={usualStore?.id === entry.store.id && usualStore.source === 'manual'} testId={`${testId}-entity-${entry.store.id}`} />
 								{entry.store.id === comparison.cheapestStoreId ? <Badge variant='tag'><HugeiconsIcon icon={Tag01Icon} strokeWidth={1.8} aria-hidden='true' />Cheapest</Badge> : null}
 								{entry.store.id === usualStore?.id ? <Badge variant='tag'><HugeiconsIcon icon={RepeatIcon} strokeWidth={1.8} aria-hidden='true' />Usual</Badge> : null}
 							</span>
-							<p className='text-xs leading-[1.4] text-slate-600'>{entry.last_price_at ? `Last ${shortDate(entry.last_price_at)}` : 'No price yet'} · <b className='font-mono font-semibold text-foreground'>{entry.purchase_count}</b> {entry.purchase_count === 1 ? 'time' : 'times'}</p>
-							{hasContext ? <p className='text-xs text-slate-500'>{quantity} {unit}</p> : null}
+							<p className='text-xs leading-[1.4] text-body'>{entry.last_price_at ? `Last ${shortDate(entry.last_price_at)}` : 'No price yet'} · <b className='font-mono font-semibold text-foreground'>{entry.purchase_count}</b> {entry.purchase_count === 1 ? 'time' : 'times'}</p>
+							{hasContext ? <p className='text-xs text-muted-foreground'>{quantity} {unit}</p> : null}
 						</div>
 						<div className='flex shrink-0 flex-col items-end gap-1 text-right'><p className='font-mono text-sm font-semibold tabular-nums'>{entry.last_price == null ? '—' : formatCurrency(entry.last_price)}</p>
-							{hasContext && quantity && entry.last_price != null ? <p className='text-xs text-slate-500'>{formatCurrency(entry.last_price / quantity)} / {unit}</p> : null}
+							{hasContext && quantity && entry.last_price != null ? <p className='text-xs text-muted-foreground'>{formatCurrency(entry.last_price / quantity)} / {unit}</p> : null}
 						</div>
 					</div>
 				})}
 			</div> : <Alert variant='receipt-info' data-testid={`${testId}-empty`}>
-				<RowIcon icon={InformationCircleIcon} tone='primary' size='sm' testId={`${testId}-empty-icon`} />
+				<RowIcon icon={InformationCircleIcon} tone='primary' size='alert' testId={`${testId}-empty-icon`} />
 				<AlertTitle>No prices yet</AlertTitle>
 				<AlertDescription>Prices come from your receipts. Upload one with this item to see what it costs and where.</AlertDescription>
 			</Alert>}
 			{rows.length === 0 ? <UploadTicketDialog label='Attach Receipt' triggerIcon={Attachment01Icon} variant='default' size='primary' className='w-full' /> : null}
-			{rows.length === 1 ? <p className='flex items-start gap-2 rounded-2xl bg-muted p-3 text-xs leading-[1.4] text-slate-600'><HugeiconsIcon icon={InformationCircleIcon} strokeWidth={1.8} aria-hidden='true' className='mt-px size-4 shrink-0 text-slate-500' />Buy it at another store and attach that receipt to compare prices.</p> : null}
+			{rows.length === 1 ? <p className='flex items-start gap-2 rounded-2xl bg-muted p-3 text-xs leading-[1.4] text-body'><HugeiconsIcon icon={InformationCircleIcon} strokeWidth={1.8} aria-hidden='true' className='mt-px size-4 shrink-0 text-muted-foreground' />Buy it at another store and attach that receipt to compare prices.</p> : null}
 			{onChangeUsualStore ? <Button type='button' variant='secondary' size='primary' onClick={onChangeUsualStore}>Change Usual Store</Button> : null}
 		</div>
 	</SheetDialog>

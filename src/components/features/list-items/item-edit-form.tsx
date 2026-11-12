@@ -72,15 +72,6 @@ export function ItemEditForm({ item, onSubmit, onCancel }: ItemEditFormProps) {
 			<div className='grid grid-cols-2 gap-3'>
 				<Button
 					size='primary'
-					type='button'
-					variant='secondary'
-					onClick={onCancel}
-					disabled={loading}
-				>
-					Cancel
-				</Button>
-				<Button
-					size='primary'
 					type='submit'
 					disabled={loading}
 				>
@@ -93,6 +84,15 @@ export function ItemEditForm({ item, onSubmit, onCancel }: ItemEditFormProps) {
 						/>
 					) : null}
 					{loading ? 'Saving Changes…' : 'Save Changes'}
+				</Button>
+				<Button
+					size='primary'
+					type='button'
+					variant='secondary'
+					onClick={onCancel}
+					disabled={loading}
+				>
+					Cancel
 				</Button>
 			</div>
 		</form>

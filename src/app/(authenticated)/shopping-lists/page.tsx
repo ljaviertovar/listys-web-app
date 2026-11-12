@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 
 import { PageContainer, PageHeader } from '@/components/app'
 import { RetryableError } from '@/components/commons'
-import { BaseListsList } from '@/components/features/base-lists'
+import { BaseListsList, CreateBaseListDialog } from '@/components/features/base-lists'
 
 import { createClient } from '@/lib/supabase/server'
 
@@ -76,10 +76,11 @@ export default async function ShoppingListsPage() {
 			<PageHeader
 				variant='screen'
 				title='Lists'
-				desc='All your lists in one place. Start with the things you always buy.'
+				desc=''
+				aside={<CreateBaseListDialog size='primary' />}
 			/>
 
-			<PageContainer>
+			<PageContainer contentClassName='space-y-2 md:space-y-6'>
 				{error ? (
 					<RetryableError
 						message='We couldn’t load your lists.'
