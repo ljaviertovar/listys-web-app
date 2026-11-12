@@ -1,58 +1,462 @@
-# DS implementation plan — Listys
+# Auditoría del diseño final — Listys
 
-- DS: docs/design/design-system.html — version v1.1.0
-- Visual report: docs/design/audit-findings/report.html
-- Status: awaiting approval (previews: docs/design/audit-findings/report.html#preview). Do not implement until this line says `approved <date>`; user adjustments, if any, are listed here when approved.
-- Source audited: this repository @ a50e665, 2026-11-09 (run 1: whole app, working tree clean; runs 2 and 3: scoped, working tree has only the untracked DS and this folder)
-- Open: 44 issues (Critical 0 · High 4 · Medium 24 · Low 16)
-- Since last audit: run 2 (mode C, scope: the Prices by Store sheet against the references V4·17, V4·18 and V4·19). DS-001 to DS-023 stay open and were not re-verified in this run. New: DS-024 to DS-034 (Batch 4). Last used ID: DS-045. **Run 3 (mode C, scope: the trip receipt review, Change Line and the trip detail against references V4·11, V4·12, V4·13, V4·15 and V4·16):** new DS-035 to DS-045 (Batch 5); **DS-022 is withdrawn** (the references draw the cart on the Trips tab, so the DS rule "cart = start shopping only" is what changes: Open design decision 22); DS-026, DS-027, DS-020 and DS-030 gained locations.
-- Stack detected: Next.js 16 (App Router), React 19, Tailwind CSS 4 (`@theme inline` in `src/app/globals.css`, tokens stored as OKLCH), shadcn components (`radix-ui` + `class-variance-authority`) in `src/components/ui/`, Hugeicons, next-themes with a `.dark` class. Fonts: Plus Jakarta Sans, Inter, IBM Plex Mono via `next/font`. The landing page (`src/app/(marketing)/`, `src/components/marketing/`) has its own documented exceptions and is out of scope of the DS.
+- DS: `docs/design/design-system.html` — v1.8.0.
+- Informe visual: `docs/design/audit-findings/report.html`.
+- Status: awaiting approval
+- Fuente auditada: 2924cb3 + working tree, 2026-11-11. La modificación previa de `e2e/ui/shopping.e2e.spec.ts` no se auditó ni modificó.
+- Modo B: actualización incremental del DS + auditoría de 20 HTML finales suministrados por el usuario.
+- Alcance confirmado: 22 hallazgos (Critical 1 · High 6 · Medium 13 · Low 2): 19 nuevos de diseño desde la primera auditoría, DS-023 actualizado y 2 hallazgos runtime conservados (DS-061/062). Esta actualización completa añade DS-063–066.
+- Registro conservado: 65 IDs abiertos; 43 proceden de la auditoría anterior y requieren reverificación. No se declaran 65 fallos nuevos confirmados. DS-022 sigue retirado; ningún ID se cierra automáticamente.
+- Ajustes del usuario: los 20 HTML son el diseño final para las pantallas que cubren; no hay autorización para implementar este plan en código. Último ID usado: DS-066.
+- Stack observado: Next.js 16.1.0, React 19.2.3, Tailwind 4, shadcn (Radix/CVA), Hugeicons, Sonner y next-themes. Fuentes: Plus Jakarta Sans, Inter, IBM Plex Mono.
 
-## Instructions for the implementing agent
-- Work through the batches in order (Batch 0 first): later batches assume the tokens from Batch 1 exist. Batch 4 (Prices by Store) starts with a note about a pending DS update: read it before implementing; it only needs DS-009 for the divider token and says what to use until then.
-- Each issue is self-contained. When you finish one, tick its acceptance criteria and set its status to `done (pending verification)`.
-- Don't change DS values to make the code match; if a DS value looks wrong, note it under the issue and leave it for the design owner.
-- Don't implement items under "Open design decisions".
-- Follow the repository rules in `AGENTS.md`: shadcn-native props and variants (`className` is for layout only), Tailwind only, theme tokens in `src/app/globals.css`, visual validation with Chrome DevTools at phone and desktop widths in light and dark.
-- Don't edit `docs/design/design-system.html` or `docs/design/audit-findings/` except to tick criteria and set statuses in this file.
-- Don't delete this file, `report.html` or `assets/`. When you're done, ask for the design-system audit to be run again (`/appds:verify`): it verifies the fixes, regenerates this folder, and empties it once everything is resolved and approved.
+## Instrucciones de implementación
 
-## Token map
-The single reference for values. Code should consume these tokens instead of literals. "Dark" is specified in the DS and **not yet reviewed in the app** (see DS-010). Hex is the canonical value; the code stores OKLCH, which is acceptable and preferred. OKLCH for the changed values: #0F172A = `oklch(0.2077 0.0398 265.7549)`, #5B6B82 = `oklch(0.5233 0.0413 257.4182)`, #DBEAFE = `oklch(0.9319 0.0316 255.5855)`, #E2E8F0 = `oklch(0.9288 0.0126 255.5078)`, #1D4ED8 = `oklch(0.4882 0.2172 264.3763)`, #B91C1C = `oklch(0.5054 0.1905 27.5181)`, #93C5FD = `oklch(0.8091 0.0956 251.8128)`, #0B1120 = `oklch(0.1802 0.0325 266.6248)`, #111827 = `oklch(0.2101 0.0318 264.6645)`, #1E293B = `oklch(0.2795 0.0368 260.0310)`, #2A3750 = `oklch(0.3370 0.0477 262.9456)`, #172033 = `oklch(0.2449 0.0388 264.3540)`, #F8FAFC = `oklch(0.9842 0.0034 247.8575)`, #94A3B8 = `oklch(0.7107 0.0351 256.7878)`, #334155 = `oklch(0.3717 0.0392 257.2870)`, #475569 = `oklch(0.4455 0.0374 257.2808)`, #EEF0F3 = `oklch(0.9545 0.0046 258.3249)`, #D5DAE1 = `oklch(0.8866 0.0110 256.6993)`. Values for the remaining feedback, entity, collaboration and scan tokens are in the DS, Foundations › Color (convert them the same way).
+Revisar las comparativas del informe antes de aprobar. Tras autorización, ejecutar primero Batch 0 y después los lotes dependientes. No implementar decisiones abiertas ni aplicar ciegamente los 43 hallazgos heredados: reverificarlos frente al código actual y DS v1.8.0. El DS vigente prevalece sobre textos de la auditoría antigua.
 
-| DS token | Light | Dark | Current code equivalent | Action |
-|---|---|---|---|---|
-| `text/primary` | #0F172A | #F8FAFC | `--foreground` #333333 / dark #E5E5E5 | change (DS-005, DS-010) |
-| `text/secondary (ink-soft)` | #334155 | #E2E8F0 | none (slate-700 literal) | create (DS-009) |
-| `text/body` | #475569 | #CBD5E1 | none (slate-600 literal) | create (DS-009) |
-| `text/muted` | #5B6B82 | #94A3B8 | `--muted-foreground` #6B7280 / dark #A3A3A3 | change (DS-006, DS-010) |
-| `text/faint` | #94A3B8 | #64748B | none (slate-400 literal) | create, decoration only (DS-009) |
-| `text/on-inverse-muted` | #CBD5E1 | #CBD5E1 | none (slate-300 literal) | create (DS-009) |
-| `bg/canvas` | #F2F4F7 | #0B1120 | `--background` #F2F4F7 / dark #171717 | light ✓, dark change (DS-010) |
-| `bg/surface` | #FFFFFF | #111827 | `--card` #FFFFFF / dark #262626 | light ✓, dark change (DS-010) |
-| `bg/surface-secondary` | #E9ECF0 | #1E293B | `--secondary` #E9ECF0 / dark #262626 | light ✓, dark change (DS-010) |
-| `bg/surface-tertiary` | #DEE2E8 | #2A3750 | `--secondary-hover` #DEE2E8 / dark #333333 | light ✓, dark change (DS-010) |
-| `bg/panel` | #F6F7F9 | #172033 | `--muted` #F6F7F9 / dark #1F1F1F | light ✓, dark change (DS-010) |
-| `bg/inverse` | #0F172A | #1E293B | none (slate-900 literal) | create (DS-009) |
-| `action/primary` | #2563EB | #60A5FA | `--primary`, `--ring` (exact) | aligned ✓ |
-| `action/primary-hover` | #1D4ED8 | #93C5FD | none (`bg-primary/90`) | create (DS-009, DS-012) |
-| `action/subtle` | #DBEAFE | #1E3A8A | `--accent` #E0F2FE / dark #1E3A8A | light change (DS-007), dark ✓ |
-| `action/on-subtle` | #1E3A8A | #BFDBFE | `--accent-foreground` #1E3A8A / dark #BFDBFE | aligned ✓ |
-| `text/on-action` | #FFFFFF | #0F172A | `--primary-foreground` (exact) | aligned ✓ |
-| `border/default` | #E2E8F0 | #334155 | `--border`, `--input` #E5E7EB / dark #404040 | change (DS-008, DS-010) |
-| `border/divider` | #EEF0F3 | #1E293B | none | create (DS-009) |
-| `border/outline` | #D5DAE1 | #334155 | none (slate-200 literal) | create (DS-009) |
-| `feedback/error-solid` | #DC2626 | #EF4444 | `--destructive` (exact in both themes) | aligned ✓ |
-| `feedback/{success,warning,error,info}[-subtle,-tint]` | see DS Foundations | see DS Foundations | amber/green/red/blue 50/100/700 literals | create (DS-009) |
-| `entity/{list,receipt,trip,store}[-on], collab/*, scan/*` | see DS Foundations | see DS Foundations | blue/cyan/green/violet literals | create (DS-009) |
-| `radius/field (alerts, fields, menus)` | 16px | 16px | `rounded-2xl` (`--radius` 0.5rem + 8px): exact | aligned ✓ (alert base and destructive-soft: DS-016) |
-| `text/on-inverse-action` | #93C5FD | #93C5FD | none (blue-300 literal) | create (DS-009, DS-023) |
-| `feedback/*-strong (success #14532D, warning #78350F, error #7F1D1D, info #1E3A8A)` | see DS Foundations | see DS Foundations | green/amber/red/blue-900 literals | create (DS-009, DS-016) |
+Usar componentes, props y variantes instalados; apariencia en su API compartida, className solo para layout. Tokens en `src/app/globals.css`; evitar CSS paralelo, valores literales y duplicados. Las extensiones deben usar la API de la biblioteca. No alterar lógica ni accesibilidad de terceros por motivos visuales. Respetar permisos, bloqueos de listas y reglas de migraciones no destructivas. Cargar las skills pertinentes para cualquier futura modificación de API, Supabase o UI.
 
-## Batch 0 — Source-of-truth handover
-Do this before any other batch, so no agent keeps following the old sources. Deleting the old files is **not** listed here because the user has not yet confirmed which to delete (see Open design decisions); when they answer, a "Delete `<file>`" item per confirmed file is added to this batch. Files the user keeps must be relabelled as historical references that point to the DS.
+Después de cambios de código: tests correspondientes al comportamiento modificado, lint/typecheck según alcance, inspección visual móvil y escritorio con DOM y medidas, y DS gate. No escribir tests de colores, clases o texto estático. Las pruebas no se ejecutaron durante esta auditoría: la skill no ejecuta el repositorio. No marcar como verificados teclado, lectores o navegación por leer código o ver una referencia.
+
+## Token map y contrato visual
+
+| Rol | Light | Dark / regla | Mapeo actual y acción |
+|---|---|---|---|
+| Canvas | #F2F4F7 | #0B1120 del DS previo | background: light coincide; dark pendiente DS-010 |
+| Surface | #FFFFFF | #111827 | card; conservar como capa compartida |
+| Ink | #0F172A | #F8FAFC | foreground actual neutral; DS-005/010 |
+| Muted | #5B6B82 | #94A3B8 | normalización accesible del DS; canvas usa #64748B en notas; confirmar propuesta |
+| Primary | #2563EB | #60A5FA | primary; conservar |
+| Primary hover | #1D4ED8 | #93C5FD | mapear token existente del DS; DS-009/012 |
+| Secondary | #E9ECF0 | #1E293B | secondary; hover #DEE2E8 en claro |
+| Tienda | #5B21B6 | colores entity/store del DS | EntityLabel sin caja; DS-055 |
+| Panel | #F6F7F9 | #172033 | muted; no introducir otra escala |
+| Card list | radio 24px; padding 14px | adaptación DS | size de EntityCard; DS-052 |
+| Cantidad | chip 22px, número mono 12/600 | tema DS | ItemQuantityChip; DS-054 |
+| Fila de lista | min 68px; nombre 14/600, nota 12 | tema DS | no precio en lista; DS-054/055 |
+| Categorías | 4px top, 12px sides, 10px bottom | escala/size compartido | Card size=list; DS-057 |
+| Inputs y acciones | 16px en entrada móvil, 44px efectivos | foco y safe area | canvas dibuja algunos botones de 40px: no es excepción accesible aprobada |
+
+## Batch 0 — Handover pendiente y limpieza de instrucciones
+
+DS-001–DS-004 heredados siguen pendientes de reverificación; las instrucciones leídas aún presentan los documentos viejos como canónicos y el workflow dice que el DS no existe. Corregir las referencias antes de cambios UI. No eliminar `DESIGN.md` ni el HTML anterior sin decisión expresa del usuario. Esta ejecución solo escribe archivos propiedad de la skill.
+
+## Batch 1 — Datos y composición del dashboard
+Dependencias: DS-047 (gasto), DS-048 (elegibilidad) y modelos de DS-050 antes de DS-046; después DS-049/051. Si cambia el contrato HTTP, revisar la API primero y mantener compatibilidad explícita.
+
+### DS-046 · Dashboard: gasto primero y composición según datos · High
+- **Tipo:** desalineación frente al diseño final.
+- **Dónde:** `src/components/features/dashboard/dashboard-view.tsx:80`
+- **DS:** `docs/design/design-system.html#p-section`
+- **Observado:** El hero y Up Next aparecen antes del grid Lists, Likely Needed, gasto y tiendas.
+- **Esperado:** Pocos datos: saludo → gasto → Likely Needed → Lists. Con datos: saludo → gasto completo → hero → Up Next → Lists → Last Trip per Store.
+- **Guía:** Recomponer los componentes existentes. Conservar el flujo activo no cubierto por estas referencias. Escritorio: adaptación de la jerarquía móvil, sin referencia final suministrada.
+- **Aceptación:**
+  - [ ] Fixtures de 1 y 7 recibos: comprobar orden y secciones; inspeccionar móvil y escritorio.
+  - [ ] Inspección visual móvil y escritorio y tests de comportamiento que correspondan; DS gate tras cambiar código.
+- **Dependencias:** DS-009.
+- **Evidencia:** código estático actual y observación visual de los HTML de referencia; app en ejecución no verificada.
+- **Visual:** `report.html#ds-046`
+- **Estado:** open
+
+### DS-047 · Gasto mensual respaldado por recibos · High
+- **Tipo:** desalineación frente al diseño final.
+- **Dónde:** `src/components/features/dashboard/month-spending-card.tsx:30`
+- **DS:** `docs/design/design-system.html#p-section`
+- **Observado:** El consumidor muestra From N trips and M receipts y suma ambos conteos; faltan comparación mensual, promedio y categorías.
+- **Esperado:** La referencia excluye viajes sin recibo. Estado completo: mes, total, delta, tiendas, recibos, promedio y categorías; pocos datos: total y procedencia.
+- **Guía:** Revisar primero el contrato de getSpending y la procedencia de total: el consumidor no prueba doble conteo. Obtener agregados respaldados por recibos. Cargar las skills de API y Supabase si cambia ese límite; no inventar cifras ni resolverlo solo con texto.
+- **Aceptación:**
+  - [ ] Viaje sin recibo no suma; recibo asociado cuenta una vez; no inventar porcentaje sin mes comparable; probar cálculo e integración.
+  - [ ] Inspección visual móvil y escritorio y tests de comportamiento que correspondan; DS gate tras cambiar código.
+- **Dependencias:** DS-009.
+- **Evidencia:** código estático actual y observación visual de los HTML de referencia; app en ejecución no verificada.
+- **Visual:** `report.html#ds-047`
+- **Estado:** open
+
+### DS-048 · Likely Needed con progreso de historial insuficiente · Medium
+- **Tipo:** desalineación frente al diseño final.
+- **Dónde:** `src/components/features/dashboard/likely-needed-card.tsx:19`
+- **DS:** `docs/design/design-system.html#p-section`
+- **Observado:** El vacío habla de unos pocos viajes; el modelo solo expone hasHistory e items, sin conteo ni progreso.
+- **Esperado:** Con 1 de 3 recibos: aviso azul, progreso 1/3 y Start Shopping. No simular predicciones antes del umbral mostrado.
+- **Guía:** Extender el modelo de vista con conteo fiable y elegibilidad; usar Alert, Progress y StartShoppingDialog. Si no hay lista utilizable, ofrecer añadir items.
+- **Aceptación:**
+  - [ ] Casos 0,1,2,3 recibos; no equiparar cualquier historial con predicción disponible.
+  - [ ] Inspección visual móvil y escritorio y tests de comportamiento que correspondan; DS gate tras cambiar código.
+- **Dependencias:** DS-009.
+- **Evidencia:** código estático actual y observación visual de los HTML de referencia; app en ejecución no verificada.
+- **Visual:** `report.html#ds-048`
+- **Estado:** open
+
+### DS-049 · Saludo: icono horario junto al título · Medium
+- **Tipo:** desalineación frente al diseño final.
+- **Dónde:** `src/components/features/dashboard/dashboard-greeting.tsx:43`
+- **DS:** `docs/design/design-system.html#p-screenheader`
+- **Observado:** Badge de fecha y sol sobre el H1.
+- **Esperado:** Icono del periodo junto al saludo de 24px/700; contexto debajo, sin fecha extra.
+- **Guía:** Reutilizar hora local e hidratación estable; elegir glifo por periodo y retirar el badge de fecha.
+- **Aceptación:**
+  - [ ] Comprobar mañana, tarde y noche; sin fecha duplicada ni salto al hidratar.
+  - [ ] Inspección visual móvil y escritorio y tests de comportamiento que correspondan; DS gate tras cambiar código.
+- **Dependencias:** DS-009.
+- **Evidencia:** código estático actual y observación visual de los HTML de referencia; app en ejecución no verificada.
+- **Visual:** `report.html#ds-049`
+- **Estado:** open
+
+### DS-050 · Metadatos completos en filas del dashboard · Medium
+- **Tipo:** desalineación frente al diseño final.
+- **Dónde:** `src/components/features/dashboard/lists-section-card.tsx:51`
+- **DS:** `docs/design/design-system.html#p-section`
+- **Observado:** Lista: nombre y cantidad en una línea, sin Default/último viaje. store-visits-card muestra fecha sin cantidad de items.
+- **Esperado:** Lista: nombre + Default; cantidad y Last trip / No trips yet debajo. Tienda: nombre, fecha + items y total al extremo.
+- **Guía:** Extender build-dashboard-model con datos reales; reutilizar DashboardRow, Badge y RowIcon. Verificar origen de last_visit antes de llamar viaje a un recibo independiente.
+- **Aceptación:**
+  - [ ] Pantry, lista sin viajes y tienda sin total: datos correctos; Start y enlaces siguen operativos.
+  - [ ] Inspección visual móvil y escritorio y tests de comportamiento que correspondan; DS gate tras cambiar código.
+- **Dependencias:** DS-009.
+- **Evidencia:** código estático actual y observación visual de los HTML de referencia; app en ejecución no verificada.
+- **Visual:** `report.html#ds-050`
+- **Estado:** open
+
+### DS-051 · Hero sin viaje compacto con Quick start · Medium
+- **Tipo:** desalineación frente al diseño final.
+- **Dónde:** `src/components/features/dashboard/no-session-banner.tsx:40`
+- **DS:** `docs/design/design-system.html#p-hero`
+- **Observado:** 160px superiores vacíos; otherLists excluye la lista principal; falta No trip in progress.
+- **Esperado:** Hero oscuro compacto con la imagen de fondo actual de HeroSurface, sus recortes móvil/escritorio y scrim existente: estado neutral, Ready for your next trip?, Quick start incluyendo la lista principal, CTA y último viaje.
+- **Guía:** Conservar HeroSurface y StartShoppingDialog, incluida la imagen actual: public/images/dashboard/mobile-session.webp y public/images/dashboard/desktop-session.webp, object-cover y el scrim vigente de hero-surface.tsx. No sustituirla por fondo plano ni por la imagen ausente del canvas. Retirar el hueco ornamental mediante composición/variantes; no copiar altura fija del canvas.
+- **Aceptación:**
+  - [ ] 390px y nombres largos: accesos útiles, CTA visible y sin hueco superior de 160px; comprobar que la foto actual y su scrim se mantienen tanto en móvil como en escritorio.
+  - [ ] Inspección visual móvil y escritorio y tests de comportamiento que correspondan; DS gate tras cambiar código.
+- **Dependencias:** DS-009.
+- **Evidencia:** código estático actual y observación visual de los HTML de referencia; app en ejecución no verificada.
+- **Visual:** `report.html#ds-051`
+- **Estado:** open
+
+## Batch 2 — Listas, items, formularios y estados
+
+Tokens compartidos DS-009 antes del ajuste visual; DS-054 antes de DS-055; DS-053 antes de DS-056/057/059. DS-060 mantiene bloqueado el texto dependiente de D-FINAL-1.
+
+### DS-052 · Tarjeta de lista: nota y tag Default neutro · Medium
+- **Tipo:** desalineación frente al diseño final.
+- **Dónde:** `src/components/commons/entity-card/entity-card.tsx:80`
+- **DS:** `docs/design/design-system.html#p-objcard`
+- **Observado:** Padding móvil 12px; nota sin icono; BaseListCard usa list-default ámbar.
+- **Esperado:** Padding 14px; identidad → nota con icono → tags neutros Default/Shared → último viaje → footer.
+- **Guía:** Extender size/variant de EntityCard y configurar Badge tag existente. Reutilizar nota adecuada; revisar otros consumidores para no cambiar tarjetas de tiendas por accidente.
+- **Aceptación:**
+  - [ ] Pantry, lista sin nota y nombre largo mantienen anatomía; sin Default ámbar ni overrides de apariencia en el consumidor.
+  - [ ] Inspección visual móvil y escritorio y tests de comportamiento que correspondan; DS gate tras cambiar código.
+- **Dependencias:** DS-009.
+- **Evidencia:** código estático actual y observación visual de los HTML de referencia; app en ejecución no verificada.
+- **Visual:** `report.html#ds-052`
+- **Estado:** open
+
+### DS-053 · Cabecera y acciones del detalle de lista · High
+- **Tipo:** desalineación frente al diseño final.
+- **Dónde:** `src/app/(authenticated)/base-lists/[baseListId]/edit/page.tsx:79`
+- **DS:** `docs/design/design-system.html#p-screenheader`
+- **Observado:** Descripción genérica; faltan nota, Default/Shared y último viaje; acciones separadas por un toolbar de conteo.
+- **Esperado:** Volver, nombre, nota, tags, cantidad y último viaje; Start Shopping ancho completo y Share/Add Item en dos columnas. Vacía: cabecera + vacío.
+- **Guía:** Componer PageHeader, DataLine, Badge y controles existentes con datos reales; omitir hechos desconocidos y mantener permisos/bloqueos.
+- **Aceptación:**
+  - [ ] Pantry, normal, compartida, vacía y viaje activo; sin metadatos ficticios.
+  - [ ] Inspección visual móvil y escritorio y tests de comportamiento que correspondan; DS gate tras cambiar código.
+- **Dependencias:** DS-009.
+- **Evidencia:** código estático actual y observación visual de los HTML de referencia; app en ejecución no verificada.
+- **Visual:** `report.html#ds-053`
+- **Estado:** open
+
+### DS-054 · Producto de lista: cantidad izquierda y sin precio · High
+- **Tipo:** desalineación frente al diseño final.
+- **Dónde:** `src/components/features/base-lists/items/base-list-item-row.tsx:83`
+- **DS:** `docs/design/design-system.html#p-itemrow`
+- **Observado:** ItemTrailing derecho contiene AveragePrice y cantidad, además del menú.
+- **Esperado:** Cantidad/unidad inline antes del nombre 14/600; nota y tiendas debajo; ⋯ de 44px a la derecha, sin precio.
+- **Guía:** Recomponer BaseListItemRow con ItemQuantityChip antes del nombre; retirar AveragePrice solo de la lista base, sin duplicar fila para Pantry.
+- **Aceptación:**
+  - [ ] Con/sin average_price no aparece precio; nombres largos no ocultan menú; no alterar filas de viaje/recibo.
+  - [ ] Inspección visual móvil y escritorio y tests de comportamiento que correspondan; DS gate tras cambiar código.
+- **Dependencias:** DS-009.
+- **Evidencia:** código estático actual y observación visual de los HTML de referencia; app en ejecución no verificada.
+- **Visual:** `report.html#ds-054`
+- **Estado:** open
+
+### DS-055 · Tienda habitual como entidad sin chip · Medium
+- **Tipo:** desalineación frente al diseño final.
+- **Dónde:** `src/components/features/base-lists/items/base-list-item-row.tsx:61`
+- **DS:** `docs/design/design-system.html#p-itemrow`
+- **Observado:** Badge store/store-manual con borde/relleno y pin; Also at en otra línea.
+- **Esperado:** Icono de tienda y nombre violeta sin caja; Also at gris al lado cuando cabe, reflow cuando no.
+- **Guía:** Reutilizar EntityLabel; mantener origen manual/automático accesible y Use Automatic Store para propietario. DS-045 cubre capitalización compartida; no duplicarla.
+- **Aceptación:**
+  - [ ] Tienda automática/manual, alternativas y nombres largos; misma entidad visual y permisos conservados.
+  - [ ] Inspección visual móvil y escritorio y tests de comportamiento que correspondan; DS gate tras cambiar código.
+- **Dependencias:** DS-009.
+- **Evidencia:** código estático actual y observación visual de los HTML de referencia; app en ejecución no verificada.
+- **Visual:** `report.html#ds-055`
+- **Estado:** open
+
+### DS-056 · Filtro con icono y contador separados · Medium
+- **Tipo:** desalineación frente al diseño final.
+- **Dónde:** `src/components/features/base-lists/items/usual-store-filter.tsx:40`
+- **DS:** `docs/design/design-system.html#c-input`
+- **Observado:** Sin icono y contador mezclado con All Stores en el valor.
+- **Esperado:** Show Items From; tile violeta 28px, All Stores a izquierda, contador mono 12px a derecha antes del chevron.
+- **Guía:** Componer Select existente y su variante documentada con icono; conservar query store y semántica del conteo.
+- **Aceptación:**
+  - [ ] Filtrar/limpiar conserva URL y filas; nombres largos no ocultan contador o chevron.
+  - [ ] Inspección visual móvil y escritorio y tests de comportamiento que correspondan; DS gate tras cambiar código.
+- **Dependencias:** DS-009.
+- **Evidencia:** código estático actual y observación visual de los HTML de referencia; app en ejecución no verificada.
+- **Visual:** `report.html#ds-056`
+- **Estado:** open
+
+### DS-057 · Categorías: contador numérico y padding · Low
+- **Tipo:** desalineación frente al diseño final.
+- **Dónde:** `src/components/features/base-lists/items/base-list-items.tsx:83`
+- **DS:** `docs/design/design-system.html#p-category`
+- **Observado:** El count añade items; contenedor usa 12px en todos sus lados.
+- **Esperado:** Contador solo número; card 4px arriba, 12px laterales, 10px abajo y Collapse All de 44px.
+- **Guía:** Reutilizar Card size=list y ajustar su API compartida si falta espaciado. No cambiar conteos de progreso de viajes.
+- **Aceptación:**
+  - [ ] Abierto/cerrado: número compacto, expansión conservada y espacios según referencia.
+  - [ ] Inspección visual móvil y escritorio y tests de comportamiento que correspondan; DS gate tras cambiar código.
+- **Dependencias:** DS-009.
+- **Evidencia:** código estático actual y observación visual de los HTML de referencia; app en ejecución no verificada.
+- **Visual:** `report.html#ds-057`
+- **Estado:** open
+
+### DS-058 · Formularios: etiquetas y orden de acciones · Medium
+- **Tipo:** desalineación frente al diseño final.
+- **Dónde:** `src/components/features/base-lists/create-base-list-dialog.tsx:12`
+- **DS:** `docs/design/design-system.html#c-dialog`
+- **Observado:** New Base List/Create New Base List; campos Name; ItemEditForm Cancel→Save; AddItemForm usa Done/Cancel.
+- **Esperado:** New List, List Name, Item Name; edición lista Cancel→Save; edición item Save Changes→Cancel; alta en sheet: principal antes de Cancel.
+- **Guía:** Parametrizar wrappers compartidos con labels y disposición, sin cambiar todos los dominios. Conservar validación, datos en error y bloqueo de envío; 44px efectivos aunque referencia dibuje 40px.
+- **Aceptación:**
+  - [ ] Normal/error en los cuatro formularios; cancelar no guarda, error conserva campos y no hay envío doble.
+  - [ ] Inspección visual móvil y escritorio y tests de comportamiento que correspondan; DS gate tras cambiar código.
+- **Dependencias:** DS-009.
+- **Evidencia:** código estático actual y observación visual de los HTML de referencia; app en ejecución no verificada.
+- **Visual:** `report.html#ds-058`
+- **Estado:** open
+
+### DS-059 · Lista vacía: identidad azul y Upload Receipt principal · Medium
+- **Tipo:** desalineación frente al diseño final.
+- **Dónde:** `src/components/features/base-lists/items/base-list-items.tsx:45`
+- **DS:** `docs/design/design-system.html#p-empty`
+- **Observado:** TaskAdd ámbar; Add Item primario y UploadReceipt secundario, apilados.
+- **Esperado:** Icono de lista azul; Add Items secundario izquierda, Upload Receipt primario derecha; son dos vías del mismo objetivo.
+- **Guía:** Componer EmptyStateCard, AddItemSheet y UploadTicketDialog con props. Permitir label contextual en el wrapper; a 320px apilar si hace falta sin invertir prioridad.
+- **Aceptación:**
+  - [ ] Sin filtro ni Start Shopping en vacío; ambos botones abren su flujo; un error no se muestra como vacío.
+  - [ ] Inspección visual móvil y escritorio y tests de comportamiento que correspondan; DS gate tras cambiar código.
+- **Dependencias:** DS-009.
+- **Evidencia:** código estático actual y observación visual de los HTML de referencia; app en ejecución no verificada.
+- **Visual:** `report.html#ds-059`
+- **Estado:** open
+
+### DS-060 · Confirmación de borrado con descripción y aviso separados · Medium
+- **Tipo:** desalineación frente al diseño final.
+- **Dónde:** `src/components/features/base-lists/base-list-card.tsx:208`
+- **DS:** `docs/design/design-system.html#c-dialog`
+- **Observado:** Título incluye nombre y explicación completa en bloque rojo; no separa historial y acceso compartido.
+- **Esperado:** Delete List?; nombre/cantidad en descripción; consecuencias en aviso ámbar. Recuperación bloqueada por D-FINAL-1.
+- **Guía:** Reutilizar ConfirmSheet y Alert warning por su API. Verificar conservación de historial antes de prometerla. No cambiar semántica de borrado hasta decidir D-FINAL-1.
+- **Aceptación:**
+  - [ ] Nombre y consecuencias accesibles; comprobar lista sin/con items y miembros; texto de recuperación coherente con Undo.
+  - [ ] Inspección visual móvil y escritorio y tests de comportamiento que correspondan; DS gate tras cambiar código.
+- **Dependencias:** D-FINAL-1 (texto de recuperación).
+- **Evidencia:** código estático actual y observación visual de los HTML de referencia; app en ejecución no verificada.
+- **Visual:** `report.html#ds-060`
+- **Estado:** open
+
+## Batch 3 — Toast real, hallazgo previo actualizado
+
+### DS-023 · Toast montado: Sonner arriba frente al toast inverso del DS · Medium
+- **Type:** misaligned — proveedor y presentación
+- **Where:** `src/app/layout.tsx:110` (Sonner `Toaster position=top-center`); `src/components/features/base-lists/items/hooks/use-base-list-item-actions.ts`; `src/hooks/use-undoable-action.ts`.
+- **DS reference:** `docs/design/design-system.html#c-toast`
+- **Expected:** superficie inversa, radio 16px, texto 14px, sobre tab bar y safe area; Undo con área efectiva 44px.
+- **Observed:** el proveedor realmente montado es Sonner, arriba sin tema DS. El informe anterior apuntaba a un primitive Radix que no corrige este flujo.
+- **Fix guidance:** configurar Sonner existente mediante su API y tokens; no duplicar proveedores ni modificar un toast no montado.
+- **Acceptance criteria:**
+  - [ ] Toast sobre navegación sin tapar CTA, reflow a 320px.
+  - [ ] Undo conserva su callback y comunica fallo de restauración.
+  - [ ] Foco, lector, duración y safe area comprobados en ejecución.
+- **Depends on:** DS-009
+- **Evidence:** runtime verificado 2026-11-11 (R07–R11): Undo funciona con teclado, aria-live=polite, 24px de alto, Sonner blanco superior; error de restauración y recuperación tras fallo de DELETE comprobados. Safe area física y lector auditivo pendientes.
+- **Visual:** report.html#ds-023
+- **Status:** open
+
+## Verificación runtime — 2026-11-11 (modo C)
+
+Pruebas con la sesión iniciada por el usuario, sin cambios de código ni migraciones. La lista y productos `DS runtime QA 2026-11-11` se crearon exclusivamente para estas pruebas y se eliminaron al terminar. Las solicitudes interrumpidas fueron exclusivamente de esa fixture. Evidencia: [checks.json](assets/runtime/checks.json), capturas en el informe #runtime. No se guardaron cookies, tokens, correos, recibos reales ni importes de la cuenta en los artefactos.
+
+### DS-061 · Cancelar edición de producto pierde el foco · High
+- **Type:** misaligned — accesibilidad de interacción.
+- **Where:** `src/components/features/base-lists/items/base-list-item-row.tsx` (rama editing y onCancel), `src/components/features/list-items/item-edit-form.tsx` (Cancel).
+- **DS reference:** `docs/design/design-system.html#c-dialog` y patrones de formularios; restauración de foco al control que abrió la edición.
+- **Expected:** Cancel devuelve el foco al RowMenu del mismo producto; el teclado continúa desde ese producto.
+- **Observed:** al cancelar la edición inline de la fixture, `document.activeElement` es BODY; sigue así después de 1,5s. En contraste, cancelar EntityEditCard de lista sí restaura el foco.
+- **Fix guidance:** restaurar foco en el trigger existente de la fila al desmontar la edición, siguiendo el patrón ya usado en BaseListCard; no añadir wrappers ni alterar internals Radix.
+- **Acceptance criteria:**
+  - [ ] Abrir Edit Item con teclado, cancelar y comprobar foco en su trigger contextual.
+  - [ ] Guardar correctamente también preserva un destino de foco válido; error conserva foco y valores en formulario.
+- **Depends on:** none.
+- **Evidence:** runtime-verified, R05; inspección DOM con Playwright.
+- **Visual:** report.html#ds-061
+- **Status:** open
+
+### DS-062 · Start Shopping falla con 500 y bloquea pruebas de historial · Critical
+- **Type:** fallo funcional de flujo primario; causa del servidor aún no diagnosticada.
+- **Where:** `src/components/features/base-lists/start-shopping-dialog.tsx` (handleConfirm); frontera `POST /api/v1/shopping-sessions`.
+- **DS reference:** patrón Start Shopping y feedback de error; iniciar viaje no debe perder el contexto de la lista.
+- **Expected:** con lista propia y un producto válido, iniciar crea una sesión y abre su pantalla; el viaje se puede completar y conservar en historial al borrar la lista.
+- **Observed:** dos intentos sobre la lista de prueba devuelven 500 `INTERNAL_ERROR`, mensaje público seguro “Something went wrong. Please try again.”; no hay navegación al viaje. Una respuesta tiene request_id `2e257c9d-0729-4a21-8035-8ac13b0f1e43`. No se infiere causa de base de datos.
+- **Fix guidance:** diagnosticar la solicitud en el servidor, cargar las reglas API/Supabase pertinentes y corregir la causa concreta. No cambiar el DS para aceptar el fallo ni ejecutar migraciones destructivas.
+- **Acceptance criteria:**
+  - [ ] Crear viaje desde fixture propia devuelve éxito y permite abrir y completar el viaje.
+  - [ ] Después, comprobar en fixture que el viaje permanece al borrar su lista.
+  - [ ] Cubrir el fallo diagnosticado con prueba del comportamiento; errores públicos seguros.
+- **Depends on:** none; bloquea R16 y fixtures históricas.
+- **Evidence:** runtime-verified, R16; dos solicitudes reales del consumidor.
+- **Visual:** report.html#ds-062
+- **Status:** open
+
+
+## Batch 4 — Mapeo completo de iconos y patrones omitidos
+
+### DS-063 · Glifos de categoría: Dairy, Produce y Pantry · Medium
+- **Tipo:** desalineación frente al diseño final.
+- **Dónde:** `src/components/commons/category-section/helpers/category-style.ts:29`
+- **DS:** `docs/design/design-system.html#final-icon-map`
+- **Observado:** Dairy usa CheeseIcon; Produce Apple01Icon y Pantry JarIcon.
+- **Esperado:** Dairy botella de leche, Produce hoja y Pantry líneas según SVG finales, con 18px/1.5 en tile gris 32px.
+- **Guía:** Verificar MilkBottleIcon, Leaf01Icon y Menu02Icon en el paquete instalado contra el atlas. Usar la biblioteca cuando expresa el glifo final. Si la geometría no coincide, documentar y resolver esa equivalencia antes de añadir un asset propio. Actualizar cada uso de la categoría, no una copia para Pantry.
+- **Aceptación:**
+  - [ ] Capturas de Bakery/Dairy/Produce/Pantry contrastadas con las 20 referencias; no cambiar Dairy en Deli si son conceptos separados.
+  - [ ] Inspección visual de todos los contextos afectados y DS gate tras implementar.
+- **Dependencias:** DS-009; mapa final de iconos.
+- **Evidencia:** código estático + SVG/HTML de referencia; runtime no verificado.
+- **Visual:** `report.html#ds-063`
+- **Estado:** open
+
+### DS-064 · Iconos de acción y auxiliares vinculados al contexto final · Low
+- **Tipo:** desalineación frente al diseño final.
+- **Dónde:** `src/components/features/base-lists/items/base-list-item-row.tsx:107`
+- **DS:** `docs/design/design-system.html#final-icon-map`
+- **Observado:** Prices by Store usa ShoppingBasket01Icon, nota Note01Icon y error AlertCircleIcon; no existe un mapa que garantice la geometría final.
+- **Esperado:** Prices by Store usa tag de precio; nota con Note01Icon en todos los contextos; error con triángulo. Resto del atlas mapea 37 geometrías y conserva las coincidencias de navegación.
+- **Guía:** Configurar los iconos de wrappers mediante sus props y mapeos centrales. No sustituir SVG por emoji ni por caracteres. Verificar Tag01Icon/Alert02Icon y adoptar Note01Icon como icono único de nota y señalar cualquier diferencia geométrica residual. Mantener nombres accesibles; no rehacer la semántica de Radix.
+- **Aceptación:**
+  - [ ] Menús de lista/item, notas, error y vacío muestran el glifo esperado; Trips sigue con bolsa y Upload con Upload06Icon.
+  - [ ] Inspección visual de todos los contextos afectados y DS gate tras implementar.
+- **Dependencias:** DS-055, DS-058; mapa final de iconos.
+- **Evidencia:** código estático + SVG/HTML de referencia; runtime no verificado.
+- **Visual:** `report.html#ds-064`
+- **Estado:** open
+
+### DS-065 · Up Next: representar los tres avisos de la referencia completa · High
+- **Tipo:** desalineación frente al diseño final.
+- **Dónde:** `src/components/features/dashboard/up-next-list.tsx:17`
+- **DS:** `docs/design/design-system.html#p-section`
+- **Observado:** KINDS solo contempla receipt-waiting/failed, partner-shopping, list-running-low/stale. No hay tipos dedicados a viaje sin recibo y cambios de precio; falta el contador 3 to review.
+- **Esperado:** Tres avisos independientes con origen real: revisión de recibo (Invoice), viaje sin recibo (Attachment) y cambios de precio (Tag), cantidad a revisar y texto contextual.
+- **Guía:** Añadir modelos de vista solo si sus fuentes de datos permiten determinar esos estados. No fabricar avisos ni representar precio pendiente con un aviso de lista antigua. Cargar las skills de API/Supabase si hace falta exponer datos. Componer las filas con RowIcon y los tokens correctos.
+- **Aceptación:**
+  - [ ] Con los tres eventos reales se ven las tres filas y contador correcto; sin eventos no aparece el bloque. Cada enlace abre su contexto.
+  - [ ] Inspección visual de todos los contextos afectados y DS gate tras implementar.
+- **Dependencias:** DS-047 y modelo de dashboard; fuente de avisos verificada.
+- **Evidencia:** código estático + SVG/HTML de referencia; runtime no verificado.
+- **Visual:** `report.html#ds-065`
+- **Estado:** open
+
+### DS-066 · Cabecera de todas las listas: conteo y New List junto al título · Medium
+- **Tipo:** desalineación frente al diseño final.
+- **Dónde:** `src/app/(authenticated)/shopping-lists/page.tsx:84`
+- **DS:** `docs/design/design-system.html#p-objcard`
+- **Observado:** PageHeader usa descripción genérica; debajo aparece otro toolbar con cantidad y New Base List.
+- **Esperado:** Lists con la descripción “All your lists in one place. Start with the things you always buy.”, contador debajo y New List al extremo. La misma cabecera se conserva en los ocho estados del listado.
+- **Guía:** Componer PageHeader y ListToolbar/InlineCounter por su API compartida para reproducir el header final; conservar carga, error y página vacía. DS-058 ya cubre renombrar el botón, no duplicar esa tarea.
+- **Aceptación:**
+  - [ ] Estados 01–08: título Lists y descripción visibles en cada vista prevista, con conteo correcto y acción New List; el texto explicativo del informe no sustituye la descripción dentro de la pantalla.
+  - [ ] Inspección visual de todos los contextos afectados y DS gate tras implementar.
+- **Dependencias:** DS-058.
+- **Evidencia:** código estático + SVG/HTML de referencia; runtime no verificado.
+- **Visual:** `report.html#ds-066`
+- **Estado:** open
+
+## Decisión confirmada — imagen del hero
+
+Decisión confirmada del usuario: la tarjeta “Ready for your next trip?” conserva la imagen de fondo actual de HeroSurface: mobile-session.webp en móvil y desktop-session.webp desde 768px, object-cover y el scrim actual. Solo se actualizan composición y contenido; no se sustituye la foto por un fondo plano.
+
+## Decisiones confirmadas — notas y cabecera de Lists
+
+Note01Icon, el bloc/cuaderno con anillas de Hugeicons, es el único glifo de nota. Sustituye la decisión anterior de Message01Icon. Usar el mismo dibujo en tarjetas, cabeceras, productos y viajes: trazo 1.5, 14px compacto o 16px en descripción, decorativo y color muted. ItemNote ya lo usa; retirar el override Message01Icon de ShoppingSessionItemRow y centralizar la pieza compartida en commons si la usan tarjetas/cabeceras. Conservar wrap, testId, texto y accesibilidad; no crear bocadillos alternativos.
+
+Las ocho pantallas del listado V4-listas-01–08 mantienen una cabecera común: título Lists, descripción “All your lists in one place. Start with the things you always buy.”, cantidad y acción New List. El estado de menú, edición, error, confirmación o Undo no elimina el título ni la descripción. V4-listas-09 es el detalle de una lista vacía, no el listado.
+
+DS-066 debe incluir la descripción dentro de PageHeader y de todas las capturas previstas del listado, no solo como texto del informe. Revisar los ocho estados y los anchos móvil/escritorio. DS-064 incluye la homogeneización del glifo de nota; no requiere un asset propio ni una decisión adicional de iconografía.
+
+## Decisiones abiertas
+
+- **D-FINAL-1 — Borrado y Undo:** la confirmación final afirma que no se puede deshacer y la siguiente pantalla permite Undo. Recomendado: conservar la acción diferida existente y explicar la ventana de Undo; después de esa ventana el borrado será definitivo. No aplicar ese texto ni cambiar persistencia sin decisión. Verificar de forma independiente la promesa de conservar viajes históricos.
+- **Accesibilidad de referencias:** se propone conservar muted #5B6B82, 44px efectivos y mínimo 12px. Los diseños finales contienen #64748B sobre panel (4.44:1), CTA de 40px y etiqueta de 11px. Mantener diseño y aprobar estas normalizaciones pequeñas es la recomendación; no se ha aprobado una excepción de accesibilidad.
+- **Dark y escritorio:** las referencias son de 390px claro. Se conserva el DS previo como base; no afirmar equivalencia visual ni inventar una aprobación.
+- **Documentos anteriores:** decidir su retiro en una tarea posterior; no hay autorización de borrado.
+
+## Comparativas por pantalla y fidelidad
+
+El informe contiene 20 comparativas completas con tres imágenes de 390px: código recreado desde fuente, referencia HTML original y propuesta tras el plan. La vista de código NO es una captura de una sesión autenticada ni ejecuta módulos de app; usa fixtures para comparar estados. No había servidor local abierto al iniciar esta revisión. Se conserva por separado la evidencia runtime ya guardada por otra verificación; no se reutiliza como si cubriera las 20 pantallas. El layout se reconstruyó leyendo los componentes, sus variantes y tokens: no es el resultado garantizado de Next.js/Radix ni prueba foco, posición real de un portal o datos del usuario.
+
+Las propuestas conservan la anatomía y los SVG exactos de las referencias, con normalización de muted a #5B6B82 y 44px efectivos. Son cambios sugeridos pendientes de aprobación. La equivalencia geométrica de un SVG con el paquete instalado se distingue de una coincidencia semántica: no autoriza iconos propios sin comprobar la biblioteca. El texto contradictorio de borrado sigue marcado D-FINAL-1 y no se decide por dibujarlo. El HTML original conserva su fallback del asset /_blob ausente solo en la columna Referencia. Por decisión explícita del usuario, la propuesta conserva la imagen actual de HeroSurface con sus recortes y scrim; esta decisión ya está confirmada y no bloquea DS-051.
+
+## Supuestos y alcance
+
+Paleta y tipografía se conservan; las diferencias claras de anatomía se incorporan al DS por instrucción del usuario. Los 20 HTML cubren estados, no 20 rutas diferentes. Los sufijos de archivo no son variantes permanentes de componentes. Las etiquetas del producto siguen en inglés; esta auditoría está en español. Estados de loading, red y permisos no dibujados mantienen reglas existentes. Referencias externas a la carpeta y la landing no forman parte de esta aprobación visual.
+
+## Resultado de las comprobaciones antes no verificadas
+
+| ID | Resultado | Comprobación | Evidencia |
+|---|---|---|---|
+| R01 | PASS | Crear lista | Teclado: foco inicial en título; 9 Tab dentro del diálogo; Escape y retorno al trigger. Error Name asociado mediante aria-describedby. |
+| R02 | PASS | Editar lista | Error de nombre vacío asociado; Cancel devuelve foco al menú de la tarjeta. |
+| R03 | PASS | Añadir producto | 13 Tab contenidos; Name vacío y Quantity=0 con aria-invalid y errores asociados. Inputs móviles de 16px. |
+| R04 | PASS | Menú y edición de producto | Enter abre RowMenu; ArrowDown selecciona Edit Item; edición enfoca Name; validación conserva formulario. |
+| R05 | FAIL | Retorno de foco del producto | Cancel de ItemEditForm deja document.activeElement en BODY, también tras 1,5s. DS-061. |
+| R06 | PASS | Sheets secundarios | Set Usual Store, Prices by Store, Share y Upload: nombres/roles en árbol accesible, Escape cierra. Upload: 8 Tab contenidos; no se enviaron invitaciones ni archivos. |
+| R07 | PASS | Undo por teclado | Borrado de producto y de lista temporal restaurados con botón Undo mediante foco y Enter. |
+| R08 | PASS | Errores de red de Undo/borrado | Interrupción selectiva de solicitudes HTTP de la fixture: restauración muestra Could not undo; fallo de DELETE de lista recupera tarjeta (6,397s). Sin mocks de Supabase. |
+| R09 | PASS | Ventana y persistencia de borrado | Sin Undo: DELETE de la lista temporal devuelve 204 a los 6,610s; GET posterior 404; tarjeta ausente tras recarga. Fixture eliminada. |
+| R10 | PASS | Reflow | 6 pantallas × 3 anchos (320/375/1280) × 2 temas: 36/36 sin scroll horizontal de página. Además Lists comprobada a 390 y 768px. |
+| R11 | FAIL | Toast y dark frente al DS | Sonner real: superficie blanca, arriba (x16/y16/ancho288 a 320px), Undo 47,31×24px, aria-live=polite; no solapa tab bar, pero difiere del DS. Oscuro neutral confirmado frente a navy especificado. DS-023 y DS-010. |
+| R12 | PARTIAL | Zoom y viewport corto | Escala de texto raíz 200%: inputs 32px y sin overflow horizontal del diálogo. No es zoom nativo del navegador. Con viewport 390×400, tras estabilizar animación y Tab, Create List queda y338–378 dentro de 400px. |
+| R13 | BLOCKED | Safe area y teclado físico móvil | No hay dispositivo iOS/Android conectado. Se comprobó viewport corto; no se equipara a teclado virtual real. Chrome no admite Emulation.setSafeAreaInsets en esta sesión. |
+| R14 | PARTIAL | Gasto y moneda | GET spending=200; rango de noviembre Toronto 2026-11-01T04:00Z–2026-12-01T05:00Z; desglose+other coincide con total. Mes vacío=0; rango inválido=422. DTO no incluye moneda; formatCurrency usa USD por defecto. No se demuestra deduplicación ni moneda mixta con estos datos. DS-047. |
+| R15 | PARTIAL | Predicciones | GET likely_needed=200, meta.has_history=true e items=[] en la cuenta. Fuente RPC exige purchase_count>=3, no un contador de tres recibos. Fixtures temporales de varios meses/recibos no ejecutadas; umbral final continúa en DS-048. |
+| R16 | BLOCKED | Historial tras completar viaje y borrar lista | Dos intentos desde lista temporal: POST shopping-sessions devuelve 500 INTERNAL_ERROR. No se completó viaje; no puede afirmarse preservación histórica con esta prueba. DS-062. |
+| R17 | PARTIAL | Lector de pantalla | Se inspeccionaron árboles accesibles, nombres, errores, alertdialog y aria-live. No se escuchó NVDA/Narrator/VoiceOver: anuncios y experiencia auditiva no comprobados. |
+| R18 | PASS | Movimiento reducido | prefers-reduced-motion:reduce emulado: dialog con animation-duration=0s y transition-duration=0s. |
+
+Se ejecutaron pruebas interactivas en la app ya iniciada. No se ejecutaron builds, lint, Vitest ni scripts del repositorio. No se declara completado lo que requiere hardware, lector auditivo o fixtures que el error 500 bloqueó. El diseño final oscuro/escritorio sigue sin referencia aprobada: renderizarlo no constituye esa aprobación.
+
+## Validación de los artefactos
+
+Catálogo e informe comprobados a 320, 375 y 1280px sin scroll horizontal de página; 60/60 vistas de las 20 pantallas cargadas, más 4 capturas runtime preservadas. 65 IDs únicos y coincidentes entre informe/plan, sin duplicados ni enlaces DS rotos. 30 instancias de muestras de patrones y 37 geometrías en el DS. Filtros y salto por pantalla comprobados. Esto valida documentos; la sección runtime conserva su propia evidencia y limitaciones.
+
+## Informativo — entradas DS
+
+Actualizadas definiciones existentes de Header, Card – Object, Item row, Category, Select, Dialog, Toast, Empty, Hero y Section card; no se creó un kit nuevo ni se exportaron tokens al código. No se detecta un componente nuevo en código que requiera una definición independiente en este alcance. Registro de fuentes y hashes en DS Examples.
+
+## Backlog heredado — 43 IDs pendientes de reverificación
+
+Se conserva la evidencia de la auditoría 2026-11-09 en su idioma original para no perder tareas. No representa una comprobación actual ni un permiso de implementación. Algunas partes ya cambiaron; confirmar y retirar hallazgos resueltos en una futura verificación, sin recrearlos con otro ID. Las ubicaciones antiguas pueden haberse desplazado. DS-023 está actualizado arriba; DS-022 sigue retirado.
 
 ### DS-001 · Point AGENTS.md to the new DS as the only design source · High
+**Vigencia:** pendiente de reverificación; evidencia registrada 2026-11-09, no aplicar sin cotejar DS v1.8.0.
 - **Type:** reference update
 - **Where:** `AGENTS.md:489-491` (section "Documentation Ownership")
 - **DS reference:** Overview (docs/design/design-system.html#overview)
@@ -67,7 +471,9 @@ Do this before any other batch, so no agent keeps following the old sources. Del
 - **Visual:** report.html#ds-001
 - **Status:** open
 
+
 ### DS-002 · Update the DS workflow doc: the DS now exists · High
+**Vigencia:** pendiente de reverificación; evidencia registrada 2026-11-09, no aplicar sin cotejar DS v1.8.0.
 - **Type:** reference update
 - **Where:** `docs/contributing/design-system-workflow.md:10-11` (status line); `:13-21` (section "Older design documents"); `:25-26`, `:31-33`, `:37-38` ("until it exists" clauses); `:48` (table row "The DS does not exist yet (today)")
 - **DS reference:** Overview (docs/design/design-system.html#overview)
@@ -82,7 +488,9 @@ Do this before any other batch, so no agent keeps following the old sources. Del
 - **Visual:** report.html#ds-002
 - **Status:** open
 
+
 ### DS-003 · Repoint remaining docs and agent notes that cite the old sources · Medium
+**Vigencia:** pendiente de reverificación; evidencia registrada 2026-11-09, no aplicar sin cotejar DS v1.8.0.
 - **Type:** reference update
 - **Where:** `docs/contributing/CONTRIBUTING.md:6`; `docs/README.md:21`; `README.md:59`; `PRODUCT.md:81` ("The blue-and-cyan palette recorded in `docs/design/DESIGN.md` is binding"); `docs/reference/implementation-status.md:20`, `:219`, `:274`, `:289` (links to DESIGN.md §11.4 gaps); `.impeccable/surfaces/src-components-marketing-landing-page.md:20`, `:28`
 - **DS reference:** Overview (docs/design/design-system.html#overview)
@@ -96,7 +504,9 @@ Do this before any other batch, so no agent keeps following the old sources. Del
 - **Visual:** report.html#ds-003
 - **Status:** open
 
+
 ### DS-004 · Remove code comments that cite DESIGN.md sections · Low
+**Vigencia:** pendiente de reverificación; evidencia registrada 2026-11-09, no aplicar sin cotejar DS v1.8.0.
 - **Type:** code comment
 - **Where:** `src/components/features/dashboard/dashboard-row.tsx:10` ("…set in mono (DESIGN.md §4.1)"); `src/components/features/dashboard/up-next-list.tsx:11` ("…tones of DESIGN.md §3.3…")
 - **DS reference:** Foundations › Typography, Color (docs/design/design-system.html#foundations)
@@ -110,9 +520,9 @@ Do this before any other batch, so no agent keeps following the old sources. Del
 - **Visual:** report.html#ds-004
 - **Status:** open
 
-## Batch 1 — Foundations (tokens and styles)
 
 ### DS-005 · Foreground (ink) is neutral grey #333333, not slate ink #0F172A · Medium
+**Vigencia:** pendiente de reverificación; evidencia registrada 2026-11-09, no aplicar sin cotejar DS v1.8.0.
 - **Type:** misaligned: token
 - **Where:** `src/app/globals.css:12` `--foreground`; `:14` `--card-foreground`; `:16` `--popover-foreground`; `:40` `--sidebar-foreground` (all light theme)
 - **DS reference:** Foundations › Color › text/primary (docs/design/design-system.html#foundations)
@@ -129,7 +539,9 @@ Do this before any other batch, so no agent keeps following the old sources. Del
 - **Visual:** report.html#ds-005
 - **Status:** open
 
+
 ### DS-006 · Muted text fails AA on the canvas (4.39:1) · High
+**Vigencia:** pendiente de reverificación; evidencia registrada 2026-11-09, no aplicar sin cotejar DS v1.8.0.
 - **Type:** misaligned: token, accessibility
 - **Where:** `src/app/globals.css:24` `--muted-foreground`
 - **DS reference:** Foundations › Color › text/muted (docs/design/design-system.html#foundations)
@@ -145,7 +557,9 @@ Do this before any other batch, so no agent keeps following the old sources. Del
 - **Visual:** report.html#ds-006
 - **Status:** open
 
+
 ### DS-007 · Accent surface is sky blue #E0F2FE, DS uses blue #DBEAFE · Medium
+**Vigencia:** pendiente de reverificación; evidencia registrada 2026-11-09, no aplicar sin cotejar DS v1.8.0.
 - **Type:** misaligned: token
 - **Where:** `src/app/globals.css:25` `--accent`; `:43` `--sidebar-accent`
 - **DS reference:** Foundations › Color › action/subtle (docs/design/design-system.html#foundations)
@@ -161,7 +575,9 @@ Do this before any other batch, so no agent keeps following the old sources. Del
 - **Visual:** report.html#ds-007
 - **Status:** open
 
+
 ### DS-008 · Hairline border is grey-200 #E5E7EB, DS border/default is slate #E2E8F0 · Low
+**Vigencia:** pendiente de reverificación; evidencia registrada 2026-11-09, no aplicar sin cotejar DS v1.8.0.
 - **Type:** misaligned: token
 - **Where:** `src/app/globals.css:30` `--border`; `:31` `--input`; `:45` `--sidebar-border`
 - **DS reference:** Foundations › Color › border/default (docs/design/design-system.html#foundations)
@@ -176,7 +592,9 @@ Do this before any other batch, so no agent keeps following the old sources. Del
 - **Visual:** report.html#ds-008
 - **Status:** open
 
+
 ### DS-009 · Add the semantic tokens components currently fake with slate/amber/green literals · Medium
+**Vigencia:** pendiente de reverificación; evidencia registrada 2026-11-09, no aplicar sin cotejar DS v1.8.0.
 - **Type:** missing tokens
 - **Where:** `src/app/globals.css` (`:root`, `.dark` and `@theme inline`)
 - **DS reference:** Foundations › Color (docs/design/design-system.html#foundations)
@@ -193,7 +611,9 @@ Do this before any other batch, so no agent keeps following the old sources. Del
 - **Visual:** report.html#ds-009
 - **Status:** open
 
+
 ### DS-010 · Dark theme is neutral grey; the DS specifies navy · Medium
+**Vigencia:** pendiente de reverificación; evidencia registrada 2026-11-09, no aplicar sin cotejar DS v1.8.0.
 - **Type:** misaligned: token (dark mode)
 - **Where:** `src/app/globals.css:66-115` (`.dark`)
 - **DS reference:** Foundations › Color (Dark column) (docs/design/design-system.html#foundations)
@@ -210,7 +630,9 @@ Do this before any other batch, so no agent keeps following the old sources. Del
 - **Visual:** report.html#ds-010
 - **Status:** open
 
+
 ### DS-011 · tailwind.config.ts is a v3 leftover that Tailwind v4 never loads · Low
+**Vigencia:** pendiente de reverificación; evidencia registrada 2026-11-09, no aplicar sin cotejar DS v1.8.0.
 - **Type:** dead config
 - **Where:** `tailwind.config.ts:13-53` (colors wrapped as `hsl(var(--x))`); `components.json:11` (`"config": "tailwind.config.ts"`)
 - **DS reference:** Foundations › Color (docs/design/design-system.html#foundations)
@@ -226,9 +648,9 @@ Do this before any other batch, so no agent keeps following the old sources. Del
 - **Visual:** report.html#ds-011
 - **Status:** open
 
-## Batch 2 — Core components
 
 ### DS-012 · Primary and danger hover lighten instead of darkening · Medium
+**Vigencia:** pendiente de reverificación; evidencia registrada 2026-11-09, no aplicar sin cotejar DS v1.8.0.
 - **Type:** misaligned: interaction state
 - **Where:** `src/components/ui/button.tsx:21` default; `:26` destructive; `:31` hero; `:33` fab
 - **DS reference:** Core Components › Button › Hover (docs/design/design-system.html#c-button)
@@ -245,7 +667,9 @@ Do this before any other batch, so no agent keeps following the old sources. Del
 - **Visual:** report.html#ds-012
 - **Status:** open
 
+
 ### DS-013 · No pressed state · Medium
+**Vigencia:** pendiente de reverificación; evidencia registrada 2026-11-09, no aplicar sin cotejar DS v1.8.0.
 - **Type:** misaligned: interaction state
 - **Where:** `src/components/ui/button.tsx:17` (base classes; no `active:` rule anywhere in the file)
 - **DS reference:** Core Components › Button › Pressed (docs/design/design-system.html#c-button)
@@ -262,7 +686,9 @@ Do this before any other batch, so no agent keeps following the old sources. Del
 - **Visual:** report.html#ds-013
 - **Status:** open
 
+
 ### DS-014 · Outline variant is a white bordered button with blue icons · Medium
+**Vigencia:** pendiente de reverificación; evidencia registrada 2026-11-09, no aplicar sin cotejar DS v1.8.0.
 - **Type:** misaligned: variant
 - **Where:** `src/components/ui/button.tsx:13-14` `SECONDARY_BUTTON_STYLE` and `:22` `outline`; Used in 10 files, e.g. `features/dashboard/dashboard-greeting.tsx`, `features/list-items/add-item-sheet.tsx`, `features/sharing/share-list-dialog.tsx`, `app/error.tsx`
 - **DS reference:** Core Components › Button › Outline (docs/design/design-system.html#c-button)
@@ -278,7 +704,9 @@ Do this before any other batch, so no agent keeps following the old sources. Del
 - **Visual:** report.html#ds-014
 - **Status:** open
 
+
 ### DS-015 · A receipt being read shows amber, the same as Pending · High
+**Vigencia:** pendiente de reverificación; evidencia registrada 2026-11-09, no aplicar sin cotejar DS v1.8.0.
 - **Type:** misaligned: status color
 - **Where:** `src/components/ui/badge.tsx:23` `processing`; `src/components/features/tickets/helpers/ticket-status.ts:14` (`processing: { label: "Reading Receipt", tone: "bg-amber-100 text-amber-700 …" }`); `src/components/features/tickets/receipt/ticket-item-row.tsx:28` (`"No price"` uses `variant: "processing"`)
 - **DS reference:** Core Components › Badge › Status (docs/design/design-system.html#c-badge)
@@ -295,7 +723,9 @@ Do this before any other batch, so no agent keeps following the old sources. Del
 - **Visual:** report.html#ds-015
 - **Status:** open
 
+
 ### DS-016 · Alert base and destructive-soft radii (8/12px) and translucent tones differ from the DS (16px, icon tile, tonal fills) · Medium
+**Vigencia:** pendiente de reverificación; evidencia registrada 2026-11-09, no aplicar sin cotejar DS v1.8.0.
 - **Type:** misaligned: component
 - **Where:** `src/components/ui/alert.tsx:7` base `rounded-lg` (8px); `:14` `destructive-soft` `rounded-xl` (12px); `:15-17` `info` and `warning` (`bg-blue-500/10`, `border-blue-500/60`, whole alert `text-blue-700`); `:18` `receipt-warning` is `rounded-2xl` (16px) and already matches the radius; Used in `features/shopping-sessions/trip-receipts-card.tsx`, `features/tickets/receipt/ticket-items-card.tsx`, `ticket-items-list.tsx`, `app/(authenticated)/invite/[token]/page.tsx`
 - **DS reference:** Core Components › Alert and status card (docs/design/design-system.html#c-alert)
@@ -312,7 +742,9 @@ Do this before any other batch, so no agent keeps following the old sources. Del
 - **Visual:** report.html#ds-016
 - **Status:** open
 
+
 ### DS-017 · Default card title is weight 500, DS card title is 600 · Medium
+**Vigencia:** pendiente de reverificación; evidencia registrada 2026-11-09, no aplicar sin cotejar DS v1.8.0.
 - **Type:** misaligned: typography
 - **Where:** `src/components/ui/card.tsx:93` `cardTitleVariants` `default: "text-base font-medium"`
 - **DS reference:** Foundations › Typography › H6 (card title) (docs/design/design-system.html#foundations)
@@ -328,7 +760,9 @@ Do this before any other batch, so no agent keeps following the old sources. Del
 - **Visual:** report.html#ds-017
 - **Status:** open
 
+
 ### DS-018 · Card variants premium, accent and ghost add borders the DS forbids · Low
+**Vigencia:** pendiente de reverificación; evidencia registrada 2026-11-09, no aplicar sin cotejar DS v1.8.0.
 - **Type:** unused variants
 - **Where:** `src/components/ui/card.tsx:50-53` (`premium`: `border … ring-1`, `accent`: `border border-primary/30 bg-primary/5`, `ghost`: `border-dashed border-2`)
 - **DS reference:** Foundations › Elevation and borders (docs/design/design-system.html#foundations)
@@ -344,7 +778,9 @@ Do this before any other batch, so no agent keeps following the old sources. Del
 - **Visual:** report.html#ds-018
 - **Status:** open
 
+
 ### DS-019 · Unchecked checkbox boundary is #94A3B8 (2.56:1) and sizes are 16/22px · Medium
+**Vigencia:** pendiente de reverificación; evidencia registrada 2026-11-09, no aplicar sin cotejar DS v1.8.0.
 - **Type:** misaligned: component, accessibility
 - **Where:** `src/components/ui/checkbox.tsx:16` default `h-4 w-4 rounded-sm border-primary`; `:18` lg `size-5.5 rounded-md border-slate-400 bg-white`
 - **DS reference:** Core Components › Checkbox, radio and switch (docs/design/design-system.html#c-checkbox)
@@ -361,26 +797,9 @@ Do this before any other batch, so no agent keeps following the old sources. Del
 - **Visual:** report.html#ds-019
 - **Status:** open
 
-### DS-023 · Toast is the stock shadcn toast, not the dark inverse toast of the DS · Medium
-- **Type:** misaligned: component
-- **Where:** `src/components/ui/toast.tsx` `toastVariants` (`rounded-md border p-6 pr-8 shadow-lg`; default `border bg-background text-foreground`); `ToastAction` (`h-8 rounded-md border bg-transparent px-3 hover:bg-secondary`); `ToastClose` (lucide `X`); `ToastViewport` (`fixed top-4`, top centre)
-- **DS reference:** Core Components › Toast (docs/design/design-system.html#c-toast)
-- **Expected:** bg/inverse surface (#0F172A, dark #1E293B), 16px radius, no border, padding 8px 8px 8px 16px, 12px gap, menu shadow; a 20px success glyph, the message Inter 500/14 in text/on-inverse; the action ("Undo") a 32px borderless text button, 12px radius, in text/on-inverse-action (#93C5FD). On phones it sits above the tab bar.
-- **Observed:** Default variant is a bordered white/background card with 24px padding and a 6px radius; the action is an outlined button; the close is a Lucide icon; it appears at the top centre
-- **Why it matters:** Every confirmation ("6 items added to Pantry" with Undo) looks like a different app than the rest of the interface; the destructive variant also uses the solid red button color for a whole toast.
-- **Fix guidance:** Rebuild the default variant on the DS-009 inverse tokens and the 16px radius; style the action as a text button; replace the Lucide close with Hugeicons (DS-021). Keep the destructive variant only if a use exists.
-- **Acceptance criteria:**
-  - [ ] A confirmation toast renders on the inverse surface with the success glyph and a text "Undo"
-  - [ ] Text and action contrast ≥ 4.5:1 on the toast in light and dark
-  - [ ] No border or 24px padding remains; reduced motion removes the slide
-- **Depends on:** DS-009, DS-021
-- **Evidence:** static source
-- **Visual:** report.html#ds-023
-- **Status:** open
-
-## Batch 3 — Patterns and screens
 
 ### DS-020 · Replace slate literals with semantic tokens (78 files outside the landing page) · Medium
+**Vigencia:** pendiente de reverificación; evidencia registrada 2026-11-09, no aplicar sin cotejar DS v1.8.0.
 - **Type:** token not used
 - **Where:** 78 files under `src/components/**` and `src/app/**` excluding `components/marketing/` and `app/(marketing)/`: 78 × `text-slate-500`, 21 × `text-slate-600`, 16 × `text-slate-400`, 14 × `bg-slate-900`, 10 × `text-slate-700`, 10 × `bg-slate-100`, 9 × `text-slate-300`, 9 × `border-slate-100`, 5 × `text-slate-900`, 4 × `border-slate-200` (counts are occurrences of each class in those files). Run 2 confirmed this includes `features/base-lists/items/item-store-prices-sheet.tsx` (7 × `text-slate-500`) and `commons/stat-tile/stat-tile.tsx` (labels), where `text-slate-500` sits on the #F6F7F9 panel at 4.44:1 (below AA); Batch 4 rebuilds those lines, so migrate them there. Run 3: the left-out lines of the trip review (`features/tickets/attach/trip-review-line-row.tsx:17-18`) use `text-slate-400` with a strike-through on the panel at 2.39:1; move them to `text/muted` (5.06:1) and keep the strike-through, which carries the meaning.
 - **DS reference:** Foundations › Color (docs/design/design-system.html#foundations)
@@ -397,7 +816,9 @@ Do this before any other batch, so no agent keeps following the old sources. Del
 - **Visual:** report.html#ds-020
 - **Status:** open
 
+
 ### DS-021 · Seven files still use Lucide icons; the project standard is Hugeicons · Low
+**Vigencia:** pendiente de reverificación; evidencia registrada 2026-11-09, no aplicar sin cotejar DS v1.8.0.
 - **Type:** misaligned: icon family
 - **Where:** `src/components/ui/dialog.tsx`, `ui/radio-group.tsx`, `ui/toast.tsx`; `src/components/app/sidebar/nav-group.tsx`; `src/components/features/pwa/install-app-button.tsx`; `src/app/error.tsx`, `src/app/(authenticated)/error.tsx`
 - **DS reference:** Foundations › Iconography and brand (docs/design/design-system.html#foundations)
@@ -413,16 +834,9 @@ Do this before any other batch, so no agent keeps following the old sources. Del
 - **Visual:** report.html#ds-021
 - **Status:** open
 
-## Batch 4 — Prices by Store sheet (reference V4·17, V4·18, V4·19)
-Scope of the second run. The user supplied three reference screens (`docs/design/audit-findings/assets/prices-by-store-reference.png`): V4·17 "in the existing sheet" (several stores), V4·18 "one store" and V4·19 "no data yet", and afterwards an **updated reference** (`assets/prices-by-store-reference-v2.png`, a crop of the V4·17 sheet down to the second row) that the user asked to follow. **Where v2 and V4·17 differ, v2 wins.** V4·18 and V4·19 were not redrawn; this plan keeps their content (the info callouts, the full-width buttons) and gives them the v2 look (assumption in Pending assumptions). The sheet is `src/components/features/base-lists/items/item-store-prices-sheet.tsx`, opened from the "Prices by Store" action of a list item row (owner only).
-
-**Read this first.** The reference is newer than DS v1.1.0: the DS specimen (Patterns › Sheets, `#p-sheets`) shows an earlier layout (no icons on the stat tiles, tag under the price, "Lowest on last receipts", dates as "Feb 19", right-aligned footer button, no single-store or empty state). Expected values below come from the updated reference plus tokens and components the DS already defines. Where the reference departs from a DS rule, the issue follows the reference and the departure is listed as a suggestion under Open design decisions (10, 12 and 16) so the owner can align it with the DS later; the report shows both versions. Where the DS has no definition yet the issue says **(pending DS update)**. Recommended order: run `/appds:update` once so the DS absorbs the reference (see Open design decision 8), then implement this batch. Don't edit the DS from here.
-
-Tokens this batch uses, all in the Token map: `bg/panel`, `border/divider`, `text/primary`, `text/body`, `text/muted`, `feedback/info-{subtle,tint,strong}`, `feedback/error`, `entity/store`. Until DS-009 creates them, use the closest existing semantic token (`--muted` for `bg/panel`, `--muted-foreground` for `text/muted`) and never add a slate or hex literal.
-
-Already aligned (no issue): the sheet shell (bottom sheet on phones with 36×4 grabber, title on the left, 44px close, 24px top radius, centred dialog from `sm` at 520px), the tag shape (22px, 6px radius, 1px ring #E2E8F0, text #334155, 13px icon), the price (mono 600/14, tabular, right-aligned), the panel colour (`--muted` = #F6F7F9) and radius (16px), the "Cheapest" rule (only among at least two prices with the same normalized unit), the "different units" notice, long store names truncating with the full name in the DOM, and the date format "21 Feb" (it already matches the reference; the DS specimen is the outdated one).
 
 ### DS-024 · The empty state is skipped when the item has a usual store, so the sheet shows 0 / — / — tiles, a "0 times" row and a false one-store hint · Medium
+**Vigencia:** pendiente de reverificación; evidencia registrada 2026-11-09, no aplicar sin cotejar DS v1.8.0.
 - **Type:** misaligned: state
 - **Where:** `src/components/features/base-lists/items/item-store-prices-sheet.tsx:31-33` (rows), `:38-43` (tiles and heading, always rendered), `:45` and `:67` (empty state only when `rows.length === 0`), `:68` (hint when `rows.length === 1`); `src/components/features/base-lists/items/helpers/item-store-summary.ts:93-95` (adds a placeholder history row for the usual store); call site `base-list-item-row.tsx:122-132` passes `history={item.store_history}`
 - **DS reference:** Patterns › Sheets (docs/design/design-system.html#p-sheets); reference V4·19
@@ -439,7 +853,9 @@ Already aligned (no issue): the sheet shell (bottom sheet on phones with 36×4 g
 - **Visual:** report.html#ds-024
 - **Status:** open
 
+
 ### DS-025 · Empty state is a centred grey card with "Upload a Receipt"; the reference is an info callout and a full-width primary button · Medium
+**Vigencia:** pendiente de reverificación; evidencia registrada 2026-11-09, no aplicar sin cotejar DS v1.8.0.
 - **Type:** misaligned: component
 - **Where:** `item-store-prices-sheet.tsx:67` (`Card size='saved' tone='muted' variant='stat'`, `h3`, `p`, `UploadTicketDialog label='Upload a Receipt'`)
 - **DS reference:** Core Components › Alert and status card (docs/design/design-system.html#c-alert); reference V4·19
@@ -456,7 +872,9 @@ Already aligned (no issue): the sheet shell (bottom sheet on phones with 36×4 g
 - **Visual:** report.html#ds-025
 - **Status:** open
 
+
 ### DS-026 · Footer buttons are 40px tall on phones and "Change Usual Store" uses the outline variant; the DS sheet footer is 44px and the reference uses the grey secondary button · Medium
+**Vigencia:** pendiente de reverificación; evidencia registrada 2026-11-09, no aplicar sin cotejar DS v1.8.0.
 - **Type:** misaligned: variant, touch target
 - **Where:** `item-store-prices-sheet.tsx:69` (`variant='outline' size='primary'`); the upload trigger inside `UploadTicketDialog` (`upload-ticket-dialog.tsx:94`, default `size='primary'`); run 3: the same `size='primary'` footers in `features/tickets/attach/attach-to-session-dialog.tsx:72-78` and `change-line-sheet.tsx:56-59`, and the button of `features/shopping-sessions/trip-receipt-summary.tsx:170-178` (all should be `size='xl'`, 44px)
 - **DS reference:** Core Components › Button (docs/design/design-system.html#c-button); Patterns › Sheets (`#p-sheets`); reference V4·17
@@ -473,7 +891,9 @@ Already aligned (no issue): the sheet shell (bottom sheet on phones with 36×4 g
 - **Visual:** report.html#ds-026
 - **Status:** open
 
+
 ### DS-027 · Store rows are separate grey cards inside a second scroll area; the reference and the DS use one grouped panel with dividers · Medium
+**Vigencia:** pendiente de reverificación; evidencia registrada 2026-11-09, no aplicar sin cotejar DS v1.8.0.
 - **Type:** misaligned: pattern, accessibility
 - **Where:** `item-store-prices-sheet.tsx:45-66` (container `max-h-[min(60vh,480px)] overflow-y-auto`, one `Card variant='stat' size='stat' tone='muted'` per store); run 3: the same nested scroller in `src/components/commons/searchable-choice-list/searchable-choice-list.tsx:89` (`max-h-72 overflow-y-auto`) inside the Change Line sheet
 - **DS reference:** Patterns › Sheets (docs/design/design-system.html#p-sheets); reference V4·17
@@ -490,7 +910,9 @@ Already aligned (no issue): the sheet shell (bottom sheet on phones with 36×4 g
 - **Visual:** report.html#ds-027
 - **Status:** open
 
+
 ### DS-028 · Row content: store name at 12px (reference 14px), tags and quantity on separate lines, no "Last", "0 times" noise · Medium
+**Vigencia:** pendiente de reverificación; evidencia registrada 2026-11-09, no aplicar sin cotejar DS v1.8.0.
 - **Type:** misaligned: pattern
 - **Where:** `src/components/features/base-lists/items/item-store-prices-sheet.tsx:46-65`; `src/components/commons/entity-label/entity-label.tsx:16-32` (used as the row title)
 - **DS reference:** Patterns › Sheets (docs/design/design-system.html#p-sheets); Core Components › Badge (`#c-badge`); reference v2
@@ -509,7 +931,9 @@ Already aligned (no issue): the sheet shell (bottom sheet on phones with 36×4 g
 - **Visual:** report.html#ds-028
 - **Status:** open
 
+
 ### DS-029 · The price difference against the cheapest store is not shown · Medium
+**Vigencia:** pendiente de reverificación; evidencia registrada 2026-11-09, no aplicar sin cotejar DS v1.8.0.
 - **Type:** design improvement (from the reference)
 - **Where:** `item-store-prices-sheet.tsx:61-63` (price column); `helpers/compare-store-prices.ts:3-7` (the result only carries `cheapestStoreId`, `comparableCount`, `notComparable`)
 - **DS reference:** Core Components › Counters › Delta (docs/design/design-system.html#c-counters); reference v2 ("↑ $0.50" under $6.29)
@@ -527,7 +951,9 @@ Already aligned (no issue): the sheet shell (bottom sheet on phones with 36×4 g
 - **Visual:** report.html#ds-029
 - **Status:** open
 
+
 ### DS-030 · Stat tiles use the grey variant without icons or units; the reference is a white tile with an icon, a 24px value and a small unit · Medium
+**Vigencia:** pendiente de reverificación; evidencia registrada 2026-11-09, no aplicar sin cotejar DS v1.8.0.
 - **Type:** misaligned: component (pending DS update)
 - **Where:** `item-store-prices-sheet.tsx:38-42` (three `StatTile` with the default `muted` variant, no icon); `src/components/commons/stat-tile/stat-tile.tsx:19-25`; `src/components/ui/card.tsx:41` (`size === 'stat'`: `gap-3 p-4 md:p-6`). `Card size='stat'` is also used by `features/tickets/attach/change-line-sheet.tsx:38` and by the white `StatTile`s of `attach-to-session-dialog.tsx`: check them after changing the size.; run 3: the white tiles of the review sheet (`features/tickets/attach/attach-to-session-dialog.tsx:49-53`) use the same `Card size='stat'` and take the same 12px padding
 - **DS reference:** Core Components › Counters and stat tile (docs/design/design-system.html#c-counters); reference v2
@@ -545,7 +971,9 @@ Already aligned (no issue): the sheet shell (bottom sheet on phones with 36×4 g
 - **Visual:** report.html#ds-030
 - **Status:** open
 
+
 ### DS-031 · The section heading is sentence-case 14px ink; the reference uses the uppercase category caption · Low
+**Vigencia:** pendiente de reverificación; evidencia registrada 2026-11-09, no aplicar sin cotejar DS v1.8.0.
 - **Type:** misaligned: typography
 - **Where:** `item-store-prices-sheet.tsx:43` (`h3 text-sm font-semibold` and a `p text-xs text-slate-500`); `src/components/commons/category-section/category-heading.tsx:47` (the same style, written inline)
 - **DS reference:** Foundations › Typography › Category caption (docs/design/design-system.html#foundations); reference v2 ("LAST PRICE BY STORE")
@@ -562,7 +990,9 @@ Already aligned (no issue): the sheet shell (bottom sheet on phones with 36×4 g
 - **Visual:** report.html#ds-031
 - **Status:** open
 
+
 ### DS-032 · The one-store hint is plain grey text; the reference is an info callout with a different instruction · Low
+**Vigencia:** pendiente de reverificación; evidencia registrada 2026-11-09, no aplicar sin cotejar DS v1.8.0.
 - **Type:** misaligned: component
 - **Where:** `item-store-prices-sheet.tsx:68`
 - **DS reference:** Core Components › Alert and status card (docs/design/design-system.html#c-alert); reference V4·18
@@ -577,7 +1007,9 @@ Already aligned (no issue): the sheet shell (bottom sheet on phones with 36×4 g
 - **Visual:** report.html#ds-032
 - **Status:** open
 
+
 ### DS-033 · Tag icons: "Cheapest" uses a circled check and "Usual" a pin; the reference uses a price tag and a repeat glyph · Low
+**Vigencia:** pendiente de reverificación; evidencia registrada 2026-11-09, no aplicar sin cotejar DS v1.8.0.
 - **Type:** misaligned: icon (pending DS update)
 - **Where:** `item-store-prices-sheet.tsx:56` (`CheckmarkCircle02Icon`), `:57` (`Pin02Icon`)
 - **DS reference:** Patterns › Sheets (docs/design/design-system.html#p-sheets: the DS specimen uses `Tick02Icon`); Foundations › Iconography (`#f-icons`: the pin means "manual store"); reference v2
@@ -592,7 +1024,9 @@ Already aligned (no issue): the sheet shell (bottom sheet on phones with 36×4 g
 - **Visual:** report.html#ds-033
 - **Status:** open
 
+
 ### DS-034 · Stores are listed alphabetically; the DS lists them cheapest first · Low
+**Vigencia:** pendiente de reverificación; evidencia registrada 2026-11-09, no aplicar sin cotejar DS v1.8.0.
 - **Type:** design improvement
 - **Where:** `helpers/item-store-summary.ts:96` (`store_history` sorted by name; its only consumer is this sheet, `base-list-item-row.tsx:127`)
 - **DS reference:** Patterns › Sheets (docs/design/design-system.html#p-sheets: stores ordered by price, a store without a price last)
@@ -609,14 +1043,9 @@ Already aligned (no issue): the sheet shell (bottom sheet on phones with 36×4 g
 - **Visual:** report.html#ds-034
 - **Status:** open
 
-## Batch 5 — Trip receipt review, Change Line and trip detail (references V4·11, V4·12, V4·13, V4·15, V4·16)
-Scope of the third run. The user supplied five reference screens (`assets/ref-v4-11-attach-review-all-cases.png`, `ref-v4-12-change-line.png`, `ref-v4-13-attach-review-all-match.png`, `ref-v4-15-trip-one-receipt.png`, `ref-v4-16-trip-receipt-per-store.png`). The code that draws them is `features/tickets/attach/` (review sheet and Change Line), `features/shopping-sessions/` (trip receipts card, items) and `app/(authenticated)/shopping/[runId]/page.tsx` (trip header).
-
-**Result in one line:** the structure of all five screens is already built; what differs is glyphs, a few labels, the receipt rows of the trip card and the callout shape. The DS (v1.1.0) matches the code on most of these points, so the issues below are **references ahead of the DS** and are marked **(pending DS update)**; the recommended order is the same as Batch 4: run `/appds:update` once (Open design decision 8), then implement. Don't edit the DS from here.
-
-Already aligned (no issue): the review sheet structure (title, intro, store entity, three white stat tiles with an icon and a value, six collapsible sections with a tile, caption, mono count and help line, grey panel rows with dividers, `Change` links, total paid, primary above secondary in the footer), the section captions and their order, the default folded state of "Not checked, not on the receipt", the tag shapes ("Remembered", "Linked by you", "No price", "No name" as amber attention tags), the strike-through price of left-out lines, the success callout "Everything you checked is on the receipt", the Change Line sheet (receipt-line card, three choice cards, selected card with the primary ring and blue fill, nested search field with a live count, radio rows with "checked / not checked" in mono, Save and Cancel), the trip header (back link, title, "Completed" pill, store entities, date line, amount in mono), the Paid card header ("Paid", mono total, items and stores, "Estimate was …"), the trip item rows (quantity chip, name, receipt price or "No price yet", note, store entity) and the tab bar with the cart on Trips.
 
 ### DS-035 · Review tiles use a double tick, a plus and a bare minus; the reference draws a circled check, a plus and a circled minus · Low
+**Vigencia:** pendiente de reverificación; evidencia registrada 2026-11-09, no aplicar sin cotejar DS v1.8.0.
 - **Type:** misaligned: icon (pending DS update)
 - **Where:** `src/components/features/tickets/attach/attach-to-session-dialog.tsx:50` (`TickDouble02Icon`), `:52` (`MinusSignIcon`)
 - **DS reference:** Patterns › State – Trip and receipt (docs/design/design-system.html#p-tripflow: Review summary uses `TickDouble02Icon`, `Add01Icon`, `MinusSignIcon`); references V4·11 and V4·13
@@ -631,7 +1060,9 @@ Already aligned (no issue): the review sheet structure (title, intro, store enti
 - **Visual:** report.html#ds-035
 - **Status:** open
 
+
 ### DS-036 · Several review sections share the same icon and tone; the reference gives each its own · Medium
+**Vigencia:** pendiente de reverificación; evidencia registrada 2026-11-09, no aplicar sin cotejar DS v1.8.0.
 - **Type:** misaligned: icon and tone (pending DS update)
 - **Where:** `src/components/features/tickets/attach/trip-review-section.tsx:38-45` (`icon` and `tone` by section id)
 - **DS reference:** Patterns › List – Category section (docs/design/design-system.html#p-category); references V4·11 and V4·13
@@ -656,7 +1087,9 @@ Already aligned (no issue): the review sheet structure (title, intro, store enti
 - **Visual:** report.html#ds-036
 - **Status:** open
 
+
 ### DS-037 · "No price" and "No name" use the same warning triangle; the reference uses a coin and a question mark · Low
+**Vigencia:** pendiente de reverificación; evidencia registrada 2026-11-09, no aplicar sin cotejar DS v1.8.0.
 - **Type:** misaligned: icon (pending DS update)
 - **Where:** `src/components/features/tickets/attach/trip-review-line-row.tsx:21` (`Alert02Icon` for both)
 - **DS reference:** Core Components › Badge › Attention tag (docs/design/design-system.html#c-badge); references V4·11
@@ -670,7 +1103,9 @@ Already aligned (no issue): the review sheet structure (title, intro, store enti
 - **Visual:** report.html#ds-037
 - **Status:** open
 
+
 ### DS-038 · "Checked, not on the receipt" rows have no price slot; the reference shows a dash · Low
+**Vigencia:** pendiente de reverificación; evidencia registrada 2026-11-09, no aplicar sin cotejar DS v1.8.0.
 - **Type:** misaligned: pattern
 - **Where:** `trip-review-section.tsx:59-71` (rows built from `items`: quantity chip and name only)
 - **DS reference:** Patterns › List – Item row › Finished trip (docs/design/design-system.html#p-itemrow: "No price yet"); reference V4·11 ("Paper Towels 6 Rolls … —")
@@ -684,7 +1119,9 @@ Already aligned (no issue): the review sheet structure (title, intro, store enti
 - **Visual:** report.html#ds-038
 - **Status:** open
 
+
 ### DS-039 · The review intro says "this trip"; the reference says "the trip" · Low
+**Vigencia:** pendiente de reverificación; evidencia registrada 2026-11-09, no aplicar sin cotejar DS v1.8.0.
 - **Type:** copy
 - **Where:** `src/components/features/tickets/attach/trip-review-copy.ts:2` (`intro`)
 - **DS reference:** references V4·11 and V4·13: "Each receipt line updates the trip and your Pantry list. Nothing changes until you attach."
@@ -698,7 +1135,9 @@ Already aligned (no issue): the review sheet structure (title, intro, store enti
 - **Visual:** report.html#ds-039
 - **Status:** open
 
+
 ### DS-040 · Notices inside the review sheet are 24px status cards; the DS uses the 16px alert inside sheets · Medium
+**Vigencia:** pendiente de reverificación; evidencia registrada 2026-11-09, no aplicar sin cotejar DS v1.8.0.
 - **Type:** misaligned: component
 - **Where:** `attach-to-session-dialog.tsx:54-56` (`StatusCard` for "The trip is still shopping" and "Everything you checked is on the receipt"), `:38-45` (load and submit errors); `src/components/commons/status-card.tsx:22` (`Card size='receipt'`: 24px radius, `p-4 md:p-6`)
 - **DS reference:** Core Components › Alert and status card (docs/design/design-system.html#c-alert: "an alert reports something inside a card or a sheet; the status card is the same message at page level and takes the card radius"); references V4·11 and V4·13 (the callout reads at the 16px radius of the tiles; confirm in the design file)
@@ -714,7 +1153,9 @@ Already aligned (no issue): the review sheet structure (title, intro, store enti
 - **Visual:** report.html#ds-040
 - **Status:** open
 
+
 ### DS-041 · Change Line shows the receipt text in Title Case; the DS and the reference show it as printed · Low
+**Vigencia:** pendiente de reverificación; evidencia registrada 2026-11-09, no aplicar sin cotejar DS v1.8.0.
 - **Type:** misaligned: content
 - **Where:** `src/components/features/tickets/attach/change-line-sheet.tsx:42` (`formatItemName(line.name)`)
 - **DS reference:** Patterns › Sheet – Change Line (docs/design/design-system.html#p-sheets: "SK SOUR PEG"); reference V4·12 ("SK SOUR PEG")
@@ -728,7 +1169,9 @@ Already aligned (no issue): the review sheet structure (title, intro, store enti
 - **Visual:** report.html#ds-041
 - **Status:** open
 
+
 ### DS-042 · The trip header tag says "2 Receipt attached"; the reference says "2 receipts" with a receipt glyph · Medium
+**Vigencia:** pendiente de reverificación; evidencia registrada 2026-11-09, no aplicar sin cotejar DS v1.8.0.
 - **Type:** misaligned: copy and icon
 - **Where:** `src/app/(authenticated)/shopping/[runId]/page.tsx:91` (`${receipts.length} Receipt attached`, `Attachment01Icon`)
 - **DS reference:** Patterns › Header – Detail (docs/design/design-system.html#p-screenheader: "Receipt attached"); references V4·15 ("Receipt attached") and V4·16 ("2 receipts")
@@ -743,7 +1186,9 @@ Already aligned (no issue): the review sheet structure (title, intro, store enti
 - **Visual:** report.html#ds-042
 - **Status:** open
 
+
 ### DS-043 · Trip receipts card: a folding "Receipts" section with tags; the reference is one grey row per receipt with a thumbnail · Medium
+**Vigencia:** pendiente de reverificación; evidencia registrada 2026-11-09, no aplicar sin cotejar DS v1.8.0.
 - **Type:** misaligned: pattern (pending DS update)
 - **Where:** `src/components/features/shopping-sessions/trip-receipt-summary.tsx:158-168` (`CategorySection` "Receipts", ocr tile, "N receipts" count), `:86-120` (rows: store, tag "Attached to trip", items and total, link), `:165` (`divide-y`)
 - **DS reference:** Patterns › State – Trip and receipt (docs/design/design-system.html#p-tripflow: rows with `Invoice01Icon`, name, "Attached to trip" tag and amount); references V4·15 and V4·16
@@ -760,7 +1205,9 @@ Already aligned (no issue): the review sheet structure (title, intro, store enti
 - **Visual:** report.html#ds-043
 - **Status:** open
 
+
 ### DS-044 · The button under the receipts says "Attach Receipt"; the DS and the reference say "Add Another Receipt" · Low
+**Vigencia:** pendiente de reverificación; evidencia registrada 2026-11-09, no aplicar sin cotejar DS v1.8.0.
 - **Type:** copy
 - **Where:** `trip-receipt-summary.tsx:170-178` (`UploadTicketDialog label='Attach Receipt'`, `Attachment01Icon`)
 - **DS reference:** Patterns › State – Trip and receipt (docs/design/design-system.html#p-tripflow: "Add Another Receipt"); references V4·15 and V4·16
@@ -774,7 +1221,9 @@ Already aligned (no issue): the review sheet structure (title, intro, store enti
 - **Visual:** report.html#ds-044
 - **Status:** open
 
+
 ### DS-045 · "also at Costco" is lowercase in trip item rows; the reference capitalises it · Low
+**Vigencia:** pendiente de reverificación; evidencia registrada 2026-11-09, no aplicar sin cotejar DS v1.8.0.
 - **Type:** copy
 - **Where:** `shopping-session-item-row.tsx:44` (`formatAlsoAt` output rendered as is); `helpers/item-store-summary.ts:104-110` (`formatAlsoAt`, shared with the list rows)
 - **DS reference:** references V4·15 and V4·16 ("No Frills  Also at Costco"); Patterns › List – Item row (docs/design/design-system.html#p-itemrow: lists keep "· also at Costco" lowercase after the dot)
@@ -788,58 +1237,34 @@ Already aligned (no issue): the review sheet structure (title, intro, store enti
 - **Visual:** report.html#ds-045
 - **Status:** open
 
-## Pending assumptions
-Choices made without the user's full confirmation. The issues that follow them say so; they are implementable, and if the owner reverses one, the DS and this plan are updated first.
-- **Dark mode uses the navy values** from the old spec (§3.4), derived and contrast-checked in the DS but never reviewed in the running app (DS-010).
-- **One 20px checkbox size** with a 44px target, resolving a conflict inside the old spec (DS-019).
-- **Muted text #5B6B82** (user-confirmed) and **faint #94A3B8 restricted to decoration** (DS-006, DS-020).
-- **Alert radius 16px**, from the old HTML reference (the written spec said 22px, off the radius scale) (DS-016). **Toast** follows the reference's dark inverse toast (DS-023).
-- **Disabled opacity 50%**, matching what the code already ships (no issue: aligned).
-- **Single violet hue with two named roles** (store entity and collaboration), user-confirmed; no code change.
-- **The reference V4·17–19 supersedes the DS v1.1.0 "Prices by Store" specimen**, which is older (Batch 4). The DS has not been updated yet; run `/appds:update` first (Open design decision 8).
-- **The updated reference v2 wins over V4·17**; V4·18 and V4·19 (not redrawn) keep their content and take the v2 look: bare violet store label, white icon tiles, the tag glyphs (DS-028, DS-030, DS-033).
-- **The references V4·11 to V4·16 supersede the DS v1.1.0 "State – Trip and receipt" pattern** where they differ (glyphs, receipt rows, callouts, copy). The DS has not been updated (Open design decision 8). Where a reference contradicts itself or the DS and it matters, it is an open decision (18 to 23) and nothing is implemented.
-- **The Prices by Store sheet keeps its item name under the title in the code**; v2 does not show one (the crop starts below the title). Not changed by this plan (Open design decision 17).
+## Matriz exhaustiva de pantallas y patrones
 
-## Informational — DS entries added from code
-None. No component, variant or state found in code was added to the DS in either run. Run 2 found the opposite case: the user-supplied reference is ahead of the DS (Batch 4 note and Open design decision 8); that is a DS update to run with `/appds:update`, not a code task. Code-only variants that were judged not to earn a place yet are listed under Open design decisions.
+| HTML | Patrones DS | IDs |
+|---|---|---|
+| `V3-F6-pulido-04.html` | p-screenheader, p-section, p-hero, p-nav | DS-046, DS-047, DS-049, DS-050, DS-051, DS-065 |
+| `V3-F6-pulido-06.html` | p-screenheader, p-section, p-nav | DS-046, DS-047, DS-048, DS-049 |
+| `V4-lista-items-01.html` | p-screenheader, p-itemrow, p-category, p-nav | DS-053, DS-054, DS-055, DS-056, DS-057, DS-063 |
+| `V4-lista-items-02.html` | p-screenheader, p-itemrow, p-category, c-menu | DS-054, DS-055, DS-064 |
+| `V4-lista-items-03.html` | p-screenheader, p-itemrow, p-category, p-form | DS-058, DS-064 |
+| `V4-lista-items-04.html` | p-screenheader, p-itemrow, p-category, p-form | DS-058, DS-064 |
+| `V4-lista-items-05.html` | p-screenheader, p-itemrow, p-category, p-form | DS-058, DS-064 |
+| `V4-lista-items-06.html` | p-screenheader, p-itemrow, p-category, c-toast | DS-023, DS-054 |
+| `V4-listas-01.html` | p-objcard, p-nav | DS-052, DS-058, DS-066 |
+| `V4-listas-02.html` | p-objcard, c-menu | DS-052, DS-064, DS-066 |
+| `V4-listas-03.html` | p-objcard, p-form | DS-052, DS-058, DS-066 |
+| `V4-listas-04.html` | p-objcard, p-form | DS-058, DS-064, DS-066 |
+| `V4-listas-05.html` | p-objcard, p-form | DS-060, DS-066 |
+| `V4-listas-06.html` | p-objcard, c-toast | DS-023, DS-066 |
+| `V4-listas-07.html` | p-objcard, p-form | DS-058, DS-066 |
+| `V4-listas-08.html` | p-objcard, p-form | DS-058, DS-064, DS-066 |
+| `V4-listas-09.html` | p-objcard, p-empty | DS-053, DS-059 |
+| `V4-pantry-06.html` | p-screenheader, p-itemrow, p-category, p-nav | DS-053, DS-054, DS-055, DS-056, DS-057, DS-063 |
+| `V4-pantry-07.html` | p-itemrow, p-category, p-nav, c-menu | DS-053, DS-054, DS-055, DS-056, DS-063, DS-064 |
+| `V4-tienda-habitual-01.html` | p-screenheader, p-itemrow, p-category, p-nav | DS-053, DS-054, DS-055, DS-056, DS-063 |
 
-## Unverified — needs runtime testing
-Nothing below was executed: the repository was read, not run.
-- Keyboard navigation and focus order of dialogs, sheets, menus, the category sections and the tab bar: tab through each with the keyboard only.
-- Screen-reader output (names of icon-only buttons such as "More options for <name>", checkbox names "Include <name>", progress values): test with VoiceOver or NVDA on a trip and a receipt review.
-- Rendered appearance of the components not read in this audit: `ui/dialog.tsx`, `sheet.tsx`, `alert-dialog.tsx`, `dropdown-menu.tsx`, `progress.tsx`, `avatar.tsx`, `sidebar.tsx`, `select.tsx`, `toast.tsx`, `tooltip.tsx`, `skeleton.tsx`, `app/mobile-tab-bar.tsx`. Compare each with the DS in Chrome DevTools at 390px and 1280px; the next audit can then classify them.
-- Dark-mode rendering of every screen (DS-010).
-- Touch-target sizes at runtime (the 44px rule and the documented compact exceptions): measure in DevTools.
-- Field boundary contrast (see Open design decisions): measure `shadow-field` ring against the canvas in the browser.
-- Prices by Store (run 2, nothing was run): open the sheet from a list item with (a) three stores, (b) one store, (c) a usual store and no receipts, (d) no store at all, at 390px and 1280px in light and dark. Check: the DS-024 state selection, 44px footer buttons, two tags plus a 40-character store name, a previous-year date in the "Last bought" tile ("21 Feb 2025"), a list of 8 stores (one scrollbar), focus order and focus return to the row menu, and the screen-reader reading of a row (store, date, tags, price, difference).
-- Trip review, Change Line and trip detail (run 3, nothing was run): open the review for a trip with all six sections, with everything matching, with a duplicate-store error and while the trip is still active; Change Line with a long list of trip items (one scrollbar); a trip with 0, 1 and 2 receipts (header tag, receipt panels); keyboard order inside the folding sections and the radio group; the reading of a section header by a screen reader (caption, count, expanded state). Check light and dark at 390px and 1280px.
-- Reference sizes read from the PNGs are **not** claimed in this batch beyond what is visible (shape, glyph, order, label): the font sizes of the store entity and of the receipt-line card in V4·12 could not be measured reliably; confirm them in the design file.
-- Reference details that cannot be read from the PNGs: the exact text colour of the grey "Change Usual Store" button (it is not in v2; the plan keeps the DS secondary #1D4ED8), the exact Hugeicons glyphs of the two tags and of the calendar, and the exact icon-tile hues (read as blue-100/violet-100/green-100 with the 700 icons). Confirm in the design file.
 
-## Open design decisions
-Not to be implemented until the owner answers.
-1. **Old reference files (needed to finish Batch 0).** Delete `docs/design/DESIGN.md` and `docs/design/listys-design-system.html`, delete only one, or keep both as historical references? *Recommendation:* delete both once DS-001 to DS-004 are done, because the DS replaces them and `CHANGELOG.md` keeps the history. Keeping them invites two sources of truth.
-2. **Field boundary contrast (WCAG 1.4.11).** The elevated field's ring (`--shadow-field`, 10% ink) is about 1.2:1 against the canvas. The label, placeholder and focus ring identify the field. *Recommendation:* keep the soft look, review it in usability testing, and strengthen the rest ring only if people miss fields.
-3. **Code-only button sizes.** `touch`, `mobile-action`, `sm-default`, `quiet-touch`, `link-action`, `hero-action`, `block`, `avatar` exist in `button.tsx` beside the DS scale (xs/sm/md/lg/xl/2xl and the responsive "primary" role). *Recommendation:* map each to a DS size in a later `/appds:update` instead of adding eight sizes to the DS.
-4. **Code-only badge variants.** `merged` (used for "Confirm match" in `ticket-item-row.tsx:27`) and `category` use a `primary/10` tint with no DS definition. *Recommendation:* give "Confirm match" the DS info tag (blue-50 fill, blue-100 ring, icon) and drop `category` if unused.
-5. **Wordmark and phone-header type sizes.** `features/auth/auth-screen.tsx:8` uses `text-[22px]` and the old spec uses a 19px wordmark; both are outside the closed type scale (12/14/16/18/20/24/30/36). *Recommendation:* 20px (`text-xl`) for the wordmark.
-6. **Receipt status vocabulary.** The old spec lists "Ready" and "Processed" for the same state and the code ships "Processing", "Ready for Review", "Reading Receipt". Colors are fixed by DS-015; the labels need a copy decision.
-7. **Landing page scope.** The landing page uses a white ground, 6px radius and mock-up internals with their own sizes (e.g. 39 `text-[Npx]` uses of 8–30px and 5 arbitrary hex values in 4 files, all in `components/marketing/`). The DS excludes it. Confirm, or ask for a marketing section in the DS.
+### Consolidación del catálogo — 1.8.0 (2026-11-11)
 
-8. **Absorb the reference into the DS before Batch 4.** DS v1.1.0 shows an older Prices by Store. *Recommendation:* run `/appds:update` once to add: the white stat tile with an icon, a 24px value and a unit suffix; the 14px store entity (`EntityLabel` size `md`); the category caption inside sheets; grouped store rows with inline tags and the Delta under the price; the tag glyphs (price tag, repeat) in the iconography; info callouts for the one-store and empty states; full-width footer buttons; the label "Cheapest" (the specimen says "Lowest on last receipts") and the date "21 Feb" (the specimen says "Feb 19"). Run 3 adds: the circled glyphs of the review tiles, the six section icons, the coin and question-mark attention tags, the 16px alert inside sheets, the receipt row with a 56px tile and no "Receipts" caption, "Add Another Receipt", the label "2 receipts", the raw receipt text in Change Line, and the "Trips = cart" rule of decision 22. Then implement Batches 4 and 5.
-9. **Store row identity.** *Resolved by reference v2:* bare violet icon and violet name at 14px, in every state. The DS needs the 14px size (decision 8).
-10. **Stat tiles: fill and icon hues (suggestion).** The reference draws white tiles with blue, violet and green icons. The DS says "nest grey inside white" (a stat tile is a grey #F6F7F9 panel) and keeps violet for the store and collaboration roles and green for success. *Recommendation:* grey tiles with one icon hue (primary blue), which also matches the grey store panel below. The plan follows the reference; the report shows both with a switch.
-11. **Icon of the "Usual" tag.** *Resolved by reference v2:* the repeat glyph (DS-033). The list-row chip keeps the store / pin icon because it is a different element.
-12. **Usual-store line and "Added by hand" tag inside the sheet.** The code shows them at the top of the sheet; the reference shows them in the item header behind the sheet (the reference background is an item screen that this app does not have: the sheet opens from a list row). *Recommendation:* drop the top line when store rows exist (the "Usual" tag says it) and keep "set by you / automatic" in the tag's accessible name; keep "Added by hand" in the empty state only until an item screen shows it. Not implemented in Batch 4.
-13. **"Change Usual Store" with one store.** V4·18 hides the button; the code shows it whenever the item has a handler. *Recommendation:* hide it only if the store picker offers just stores with purchase history; if the picker lists all the user's stores, keep it. Check `features/stores/store-picker-dialog.tsx` first.
-14. **Colour of the price difference.** *Resolved:* the DS Delta already says red for a bad change and the reference uses red; DS-029 follows it with #B91C1C.
-15. **One label for "upload a receipt".** The app uses Upload Receipt, Upload a Receipt, Upload New Receipt, Upload a New Receipt and Upload Another Receipt. *Recommendation:* use the reference label "Upload New Receipt" in this sheet (DS-025) and decide the app-wide wording separately. Run 3 adds "Attach Receipt" (completed trip card, DS-044 changes it to "Add Another Receipt") and "Add Another Receipt", so the app has seven wordings for one action.
-16. **Font of the meta line (suggestion).** The reference draws "Last 21 Feb · 2 times" in the sans face with the count in semibold; the DS Receipt meta role is mono 500/12 for dates and counts under titles. *Recommendation:* mono, as the DS says, if you want the sheet to read like the rest of the data lines; the plan follows the reference (DS-028). Shown in the report switch.
-17. **Item name under the title (suggestion).** v2 shows no item name; the code shows it as the sheet description, and the sheet opens from a list row where the name is not visible. *Recommendation:* keep it (as the DS specimen does). Shown in the report switch.
-18. **Chevron of the folding sections.** The references V4·11, V4·13 and V4·16 draw up when a section is open and down when it is closed; V4·15 draws down on open sections; the DS and the code draw down when open and right when closed. *Recommendation:* up when open, down when closed (three references agree, and it is the common accordion convention); redraw V4·15. Not implemented until you choose.
-19. **"Collapse All / Expand All" in the review sheet.** The DS documents it and the code renders it above the sections; V4·11 and V4·13 show none. *Recommendation:* keep it (six sections can be long); confirm whether its omission in the references was deliberate.
-20. **"Delete receipt" at the bottom of the review sheet.** The code renders it under the footer buttons; the references end with Cancel. *Recommendation:* keep it until the receipt screen offers the same action with its own confirmation and Undo; then remove it from the sheet. Not changed by Batch 5.
-21. **Source of the 56px receipt tile (DS-043).** A thumbnail of the first photo (needs a signed URL, a loading state and a fallback) or a static receipt glyph. *Recommendation:* the static glyph first; thumbnails as a separate change.
-22. **Icon of the Trips tab (DS-022 withdrawn).** The code and references V4·15 and V4·16 use the shopping cart on the Trips tab; the DS iconography reserves the cart for "Start Shopping" and gives the trip the bag. *Resolved by the references:* the cart stays in the navigation; the DS rule becomes "the cart is the Trips destination and the Start Shopping action; the bag is the trip on its own cards" (part of decision 8).
-23. **Date line of a finished trip.** V4·16 and the code show "Sat 7 Feb · 18:40 · $127.52"; V4·15 shows "Sat 7 Feb · $86.40"; the DS shows "Feb 19, 2026 · 17 items · $62.40". *Recommendation:* weekday, day and month, time, amount (V4·16 and the code); update the DS.
+Actualización documental: se sustituyeron muestras/reglas contradictorias en Components y Product Patterns. Card: listas 14px, categorías 4/12/10px; inputs elevados también dentro de formularios blancos; filtro 52px; StatTile blanco 24px; menús sin cesta ni atajos ficticios; selección móvil azul; primarios 44px. Hero activo usa los mismos assets/scrim reales de HeroSurface y progreso 16%. Note01Icon y Lists con título/descripción conservados. Ningún hallazgo de código se cierra por este ajuste; runtime DS-061/062 y resto de evidencia permanecen vigentes.
+
+Verificación documental 1.8.0: catálogo y reporte renderizados a 320, 375 y 1280px. Sin scroll horizontal de página ni de las 33 muestras incrustadas del catálogo; 64 imágenes del reporte cargadas, 20 pantallas con sus tres vistas. Enlaces e IDs sin duplicados o destinos rotos; 65 IDs del plan/reporte coinciden y los 65 assets están utilizados. Esto no ejecuta ni valida la aplicación.

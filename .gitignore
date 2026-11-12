@@ -65,3 +65,7 @@ e2e/fixtures/*.png
 /e2e
 /scripts
 /output
+
+#design
+/docs/design/audit-findings/assets/**
+/public/docs/**

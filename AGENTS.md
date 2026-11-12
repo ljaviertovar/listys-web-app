@@ -486,9 +486,9 @@ The full tooling and delegation policy is defined in [docs/tooling-delegation.md
 - [docs/README.md](docs/README.md) is the documentation index and topic-ownership map.
 - [docs/contributing/CONTRIBUTING.md](docs/contributing/CONTRIBUTING.md) defines the human contribution and verification
   workflow.
-- [docs/design/listys-design-system.html](docs/design/listys-design-system.html) is the canonical visual reference;
-  [docs/design/DESIGN.md](docs/design/DESIGN.md) owns the written rules, implementation mapping, and documented gaps.
-  `docs/design/audit-findings/` is managed by the `build-app-design-system` skill (see "Design System").
+- [docs/design/design-system.html](docs/design/design-system.html) is the only source of truth for UI tokens, components,
+  patterns, and visual behavior. Older design documents remain historical references. `docs/design/audit-findings/` is
+  managed by the `build-app-design-system` skill (see "Design System").
 - Keep this file authoritative for automated-contributor engineering constraints; link to canonical product,
   architecture, operational, and contribution documents instead of duplicating their requirements.
 - Update affected canonical documentation in the same change whenever governed behavior changes.

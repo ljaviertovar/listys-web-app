@@ -3,18 +3,16 @@
 [AGENTS.md](../../AGENTS.md) links here: read this file before creating or changing UI, running the Design System gate or
 audit, or touching `docs/design/`. Engineering constraints stay in AGENTS.md; if the two disagree, AGENTS.md wins.
 
-The Listys Design System (DS) is the source of truth for how every new or redesigned component looks and behaves. It
-is an HTML DS at `docs/design/design-system.html`, built and maintained by the `build-app-design-system` skill
-(`.claude/skills/build-app-design-system/SKILL.md`), which also checks that the code matches it.
+The Listys Design System (DS) at `docs/design/design-system.html` is the only source of truth for how components look
+and behave. It is maintained by the `build-app-design-system` skill, which also checks code against it.
 
-**Status: the DS has not been initialized yet.** Until `docs/design/design-system.html` exists, the older design
-documents below stay authoritative. Once it exists, it is the **only** source of truth and they become references.
+**Status: the DS exists** (`docs/design/design-system.html`, v1.8.0) and is the only source of truth. Earlier design
+documents are historical references.
 
 ## Older design documents
 
-- [docs/design/listys-design-system.html](../design/listys-design-system.html) (visual reference) and
-  [docs/design/DESIGN.md](../design/DESIGN.md) (written specification and implementation mapping) were not built by
-  the skill. Follow them only until the DS above exists; `/appds:init` uses them as input but builds a new DS.
+- [docs/design/listys-design-system.html](../design/listys-design-system.html) and
+  [docs/design/DESIGN.md](../design/DESIGN.md) are retained as historical references; they do not override the DS.
 - When an implementation plan contains **Batch 0 — Source-of-truth handover**, do it first: update the listed
   references in instructions and docs (including `AGENTS.md` and `docs/`) exactly as written, delete only the files the
   plan lists as confirmed by the user, and fix the listed code comments. This is your job, not the skill's: the skill
@@ -22,15 +20,11 @@ documents below stay authoritative. Once it exists, it is the **only** source of
 
 ## Before you write UI
 
-- Read the DS (until it exists, the matching section of `docs/design/DESIGN.md` and the relevant examples in
-  `listys-design-system.html`). Use its tokens, radii, surfaces, type scale, sizes, variants, states and copy rules; do
-  not invent values or follow another design reference when it conflicts with the DS.
+- Read the DS. Use its tokens, radii, surfaces, type scale, sizes, variants, states and copy rules; do not invent values
+  or follow another design reference when it conflicts with the DS.
 - Express the design through the shared layer (theme tokens in `src/app/globals.css`, variants and sizes in
   `src/components/ui/`), as the Styling rules in [AGENTS.md](../../AGENTS.md) require. When the DS draws something no existing variant or token
   can express, add the variant or token there and reuse it by name.
-- Until the DS exists: if the old HTML is silent (for example dark mode), follow `docs/design/DESIGN.md` and record the
-  gap in its section 11.4; if the code or `DESIGN.md` disagrees with the HTML, the HTML wins for the target look, so
-  update `DESIGN.md` in the same change instead of silently diverging.
 - When no HTML example covers the component, derive it from the closest DS pattern and say which one was used. Do not
   ship a one-off look.
 - Never edit the DS (`docs/design/design-system.html`) or `docs/design/audit-findings/` yourself; only the skill
@@ -45,7 +39,7 @@ documents below stay authoritative. Once it exists, it is the **only** source of
 | The user asks to audit the app, check DS alignment, report drift or find missing components | **Audit**: `/appds:audit` |
 | The user confirms the audit's plan was implemented | **Verify**: `/appds:verify` |
 | New components or screens must be added to the DS itself | **Update**: `/appds:update` |
-| The DS does not exist yet (today) | **Init**: `/appds:init` (asks Figma or HTML; this repo uses HTML). Only when the user asks for it |
+| The DS needs a new component or screen definition | **Update**: `$appds-update` |
 
 In Codex use `$appds-gate`, `$appds-audit`, `$appds-verify`, `$appds-update`, `$appds-init`; other agents ask for the
 skill by name. The gate does not apply to logic-only changes, tests, copy edits that do not change styling, or non-UI

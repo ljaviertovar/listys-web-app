@@ -3,8 +3,7 @@
 Use the [root setup guide](../../README.md) for development. [PRD v2](../prd/PRD-v2.md) governs the MVP; collaboration
 is experimental. [AGENTS.md](../../AGENTS.md) owns engineering constraints and the
 [project structure](../architecture/project-structure.md) owns placement rules. For visual work, use the canonical
-[Design System HTML](../design/listys-design-system.html) with its [written specification](../design/DESIGN.md); UI changes
-also pass the DS gate (`/appds:gate`) described in the
+[Design System](../design/design-system.html); older design files are historical references. UI changes also pass the DS gate (`$appds-gate`) described in the
 [Design System workflow](design-system-workflow.md).
 
 ## Verification before a PR
