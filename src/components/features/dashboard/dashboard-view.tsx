@@ -20,12 +20,14 @@ interface Props {
 }
 
 /**
- * The dashboard layout: greeting, the shopping-session hero next to what needs attention, then the three section cards.
+ * The dashboard layout: greeting and monthly summary, then shopping activity, lists and store sections.
  * An account without data keeps the same layout (approved design A1): the cards show their empty states and the one
  * next step each section has.
  */
 export function DashboardView({ model, firstName, isGuest = false, hasLists }: Props) {
 	const hasUpNext = model.upNext.length > 0
+	const shouldShowLikelyNeeded = model.likelyNeeded.items.length > 0 || (model.likelyNeeded.receiptsCount ?? 0) < 3
+	const showActivityHero = Boolean(model.activeSession || model.lastTrip || model.startTarget || hasUpNext)
 	// Without lists the hero already is the upload button, so the header one would just repeat it.
 	const showHeaderUpload = hasLists
 
@@ -46,39 +48,39 @@ export function DashboardView({ model, firstName, isGuest = false, hasLists }: P
 				) : null}
 			</header>
 
-			<div className='grid grid-cols-1 items-stretch gap-6 lg:grid-cols-5'>
-				<div className={cn(hasUpNext ? 'lg:col-span-3' : 'lg:col-span-5')}>
-					{model.activeSession ? (
-						<ActiveSessionBanner
-							session={model.activeSession}
-							isGuest={isGuest}
-							otherSessionCount={model.otherSessionCount}
-						/>
-					) : (
-						<NoSessionBanner
-							quickStart={model.quickStart}
-							startTarget={model.startTarget}
-							addItemsTarget={model.addItemsTarget}
-							lastTrip={model.lastTrip}
-							hasLists={hasLists}
-						/>
-					)}
-				</div>
-				{hasUpNext ? (
-					<div className='lg:col-span-2'>
-						<UpNextList items={model.upNext} />
-					</div>
-				) : null}
-			</div>
+			<MonthSpendingCard />
 
-			<div className='grid grid-cols-1 items-stretch gap-5 sm:grid-cols-2 2xl:grid-cols-4'>
-				<ListsSectionCard
-					lists={model.lists}
-					activeSessionIds={model.activeSessionIds}
-				/>
-				<LikelyNeededCard likelyNeeded={model.likelyNeeded} />
-				<MonthSpendingCard />
-				<StoreVisitsCard visits={model.storeVisits} />
+			{showActivityHero ? (
+				<div className='grid grid-cols-1 items-stretch gap-6 lg:grid-cols-5'>
+					<div className={cn(hasUpNext ? 'lg:col-span-3' : 'lg:col-span-5')}>
+						{model.activeSession ? (
+							<ActiveSessionBanner
+								session={model.activeSession}
+								isGuest={isGuest}
+								otherSessionCount={model.otherSessionCount}
+							/>
+						) : (
+							<NoSessionBanner
+								quickStart={model.quickStart}
+								startTarget={model.startTarget}
+								addItemsTarget={model.addItemsTarget}
+								lastTrip={model.lastTrip}
+								hasLists={hasLists}
+							/>
+						)}
+					</div>
+					{hasUpNext ? (
+						<div className='lg:col-span-2'>
+							<UpNextList items={model.upNext} />
+						</div>
+					) : null}
+				</div>
+			) : null}
+
+			<div className='grid grid-cols-1 items-stretch gap-5 max-sm:-mt-1.5 max-sm:gap-4 sm:grid-cols-2 2xl:grid-cols-3'>
+				<ListsSectionCard lists={model.lists} activeSessionIds={model.activeSessionIds} />
+				{showActivityHero ? <StoreVisitsCard visits={model.storeVisits} /> : null}
+				{shouldShowLikelyNeeded ? <LikelyNeededCard likelyNeeded={model.likelyNeeded} startTarget={model.startTarget} /> : null}
 			</div>
 
 		</div>

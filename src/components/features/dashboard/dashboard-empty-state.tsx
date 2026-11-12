@@ -28,11 +28,11 @@ export function DashboardEmptyState({ testId, icon, tone, title, message, action
 				<RowIcon
 					icon={icon}
 					tone={tone}
-					size='xl'
+					size='empty'
 					emphasis='medium'
 					className='mb-2'
 				/>
-				<p className='max-w-[280px] py-2 text-sm leading-[1.55] text-slate-500 dark:text-muted-foreground'>
+				<p className='max-w-[280px] py-2 text-sm leading-[1.55] text-muted-foreground dark:text-muted-foreground'>
 					{title}
 					<br />
 					{message}

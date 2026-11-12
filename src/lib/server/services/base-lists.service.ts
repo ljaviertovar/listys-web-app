@@ -137,7 +137,7 @@ export async function getBaseLists() {
 
   const { data: baseLists, error } = await supabase
     .from('base_lists')
-    .select('id, name, notes, group_id, created_at, items:base_list_items(count)')
+    .select('id, name, notes, group_id, created_at, is_default, items:base_list_items(count)')
     .eq('user_id', user.id)
     .order('name', { ascending: true })
     .order('created_at', { ascending: true })
@@ -150,16 +150,22 @@ export async function getBaseLists() {
 }
 
 export async function getLikelyNeededItems(limit: number) {
-  const { supabase } = await createAuthenticatedClient()
-  const { data, error } = await supabase.rpc('likely_needed_items', { p_limit: limit })
+	const { supabase, user } = await createAuthenticatedClient()
+	const [{ data, error }, { count: receiptsCount, error: countError }] = await Promise.all([
+		supabase.rpc('likely_needed_items', { p_limit: limit }),
+		supabase.from('tickets').select('id', { count: 'exact', head: true }).eq('user_id', user.id).eq('ocr_status', 'completed'),
+	])
 
-  if (error) {
+	if (error || countError) {
+		console.error('[likely-needed] could not load eligibility', { code: error?.code ?? countError?.code })
     throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'Could not load likely-needed items')
   }
 
   const rows = data ?? []
-  const hasHistory = rows[0]?.has_history ?? false
-  const items = rows.flatMap(row => {
+	const receiptCount = receiptsCount ?? 0
+	const eligible = receiptCount >= 3
+	const hasHistory = receiptCount > 0
+	const items = (eligible ? rows : []).flatMap(row => {
     if (
       row.id === null || row.name === null || row.base_list_id === null || row.base_list_name === null ||
       row.interval_days === null || row.days_since === null
@@ -177,7 +183,7 @@ export async function getLikelyNeededItems(limit: number) {
     }]
   })
 
-  return { data: items, meta: { limit, has_history: hasHistory } }
+	return { data: items, meta: { limit, has_history: hasHistory, receipts_count: receiptCount, eligible } }
 }
 
 export async function getBaseListsByGroup(groupId: string) {

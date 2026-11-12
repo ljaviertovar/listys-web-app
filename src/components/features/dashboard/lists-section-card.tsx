@@ -1,11 +1,12 @@
 import Link from 'next/link'
-import { ListViewIcon } from '@hugeicons/core-free-icons'
+import { ListViewIcon, StarIcon } from '@hugeicons/core-free-icons'
+import { HugeiconsIcon } from '@hugeicons/react'
 
 import { CreateBaseListDialog, StartShoppingDialog } from '@/components/features/base-lists'
-import { cn } from '@/utils'
 import { DashboardEmptyState } from './dashboard-empty-state'
 import { DashboardSectionCard } from './dashboard-section-card'
 import { RowIcon } from '@/components/commons'
+import { Badge } from '@/components/ui/badge'
 import { pluralize, type DashboardModel } from './helpers/build-dashboard-model'
 
 interface Props {
@@ -31,24 +32,28 @@ export function ListsSectionCard({ lists, activeSessionIds }: Props) {
 					action={<CreateBaseListDialog />}
 				/>
 			) : (
-				<ul className='flex flex-1 flex-col gap-0.5'>
-					{lists.items.map(list => (
+				<ul className='flex flex-1 flex-col gap-px'>
+					{lists.items.slice(0, 3).map(list => (
 						<li
 							key={list.id}
 							data-testid={`dashboard-list-${list.id}`}
-							className='flex items-center gap-2.5 rounded-[14px] p-2 transition-colors duration-150 hover:bg-background dark:hover:bg-muted'
+							className='flex items-center gap-2.5 rounded-[18px] bg-muted/70 p-2 transition-colors duration-150 hover:bg-background dark:bg-muted/50 dark:hover:bg-muted'
 						>
 							<RowIcon
 								icon={ListViewIcon}
 								tone='primary'
-								size='sm'
+								size='md'
 							/>
 							<Link
 								href={`/base-lists/${list.id}/edit`}
-								className='-my-2 flex min-h-11 min-w-0 flex-1 items-center rounded-md text-sm text-slate-700 dark:text-foreground/80 focus-ring'
+								className='-my-2 flex min-h-14 min-w-0 flex-1 items-center rounded-md text-sm text-text-secondary dark:text-foreground/80 focus-ring'
 							>
-								<span>
-									{list.name} <span className='text-slate-400'>· {pluralize(list.itemsCount, 'item')}</span>
+								<span className='flex min-w-0 flex-col gap-1'>
+										<span className='flex min-w-0 flex-wrap items-center gap-1.5 font-semibold text-foreground'>
+										<span className='min-w-0 truncate'>{list.name}</span>
+										{list.isDefault ? <Badge variant='list-default'><HugeiconsIcon icon={StarIcon} strokeWidth={1.8} aria-hidden='true' />Default</Badge> : null}
+									</span>
+									<span className='text-xs leading-normal text-muted-foreground'>{pluralize(list.itemsCount, 'item')} <span aria-hidden='true'>·</span> {list.lastTrip ? `Last trip ${list.lastTrip}` : 'No trips yet'}</span>
 								</span>
 							</Link>
 							<StartShoppingDialog
@@ -65,19 +70,6 @@ export function ListsSectionCard({ lists, activeSessionIds }: Props) {
 							</StartShoppingDialog>
 						</li>
 					))}
-					{lists.hiddenCount > 0 ? (
-						<li className='px-2'>
-							<Link
-								href='/shopping-lists'
-								className={cn(
-									'inline-flex min-h-9 items-center rounded-md text-sm font-medium text-slate-500 hover:text-blue-700 hover:underline',
-									'focus-ring',
-								)}
-							>
-								+ {lists.hiddenCount} more
-							</Link>
-						</li>
-					) : null}
 				</ul>
 			)}
 		</DashboardSectionCard>

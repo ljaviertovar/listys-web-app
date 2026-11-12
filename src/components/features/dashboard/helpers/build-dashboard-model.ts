@@ -10,6 +10,7 @@ type OcrStatus = 'pending' | 'processing' | 'completed' | 'failed' | null
 export interface DashboardBaseListInput {
 	id: string
 	name: string
+	is_default?: boolean | null
 	created_at?: string | null
 	items?: { count: number }[]
 }
@@ -33,6 +34,7 @@ export interface DashboardTripInput {
 	completed_at: string | null
 	purchased_count?: number
 	base_list: { name: string } | null
+	receipts?: Array<{ id: string; total_amount: number | null }>
 }
 
 export interface DashboardLikelyNeededInput {
@@ -47,7 +49,7 @@ export interface DashboardLikelyNeededInput {
 export interface DashboardStoreInput {
 	id: string
 	name: string
-	last_visit: { kind: 'trip' | 'receipt'; id: string; at: string; total_amount: number | null } | null
+	last_visit: { kind: 'trip' | 'receipt'; id: string; at: string; total_amount: number | null; items_count?: number | null } | null
 }
 
 export interface DashboardActiveSessionInput {
@@ -70,6 +72,7 @@ export interface DashboardModelInput {
 	activeSessions?: DashboardActiveSessionInput[]
 	likelyNeeded?: DashboardLikelyNeededInput[]
 	likelyNeededHasHistory?: boolean
+	likelyNeededReceiptCount?: number
 	stores?: DashboardStoreInput[]
 	/** The signed-in user, to tell their own trips from a collaborator's. */
 	currentUserId?: string | null
@@ -92,6 +95,8 @@ export interface ListPreview {
 	/** The name the screen uses: lists that share a name read "Weekly" and "Weekly (2)". */
 	name: string
 	itemsCount: number
+	isDefault?: boolean
+	lastTrip?: string | null
 }
 
 export interface LikelyNeededPreview extends DashboardLikelyNeededInput { cadence: string }
@@ -102,11 +107,12 @@ export interface StoreVisitPreview {
 	kind: 'trip' | 'receipt'
 	id: string
 	dateLabel: string
+	itemsCount?: number | null
 	total: number | null
 	href: string
 }
 
-export type UpNextKind = 'receipt-waiting' | 'receipt-failed' | 'list-running-low' | 'partner-shopping' | 'list-stale'
+export type UpNextKind = 'receipt-waiting' | 'receipt-failed' | 'trip-no-receipt' | 'list-running-low' | 'partner-shopping' | 'list-stale'
 
 export interface UpNextItem {
 	id: string
@@ -128,7 +134,7 @@ export interface DashboardModel {
 	otherSessionCount: number
 	/** A few of the user's lists, flat: there is no group level any more. */
 	lists: { items: ListPreview[]; hiddenCount: number }
-	likelyNeeded: { hasHistory: boolean; items: LikelyNeededPreview[] }
+	likelyNeeded: { hasHistory: boolean; receiptsCount?: number; items: LikelyNeededPreview[] }
 	storeVisits: StoreVisitPreview[]
 	upNext: UpNextItem[]
 	/** Lists with items, up to a few; they are the shortcuts under the hero. */
@@ -197,6 +203,17 @@ export function currentMonthRange(now: Date, timeZone: string) {
 	}
 }
 
+/** The calendar month immediately before the visitor-local current month. */
+export function previousMonthRange(now: Date, timeZone: string) {
+	const local = zonedParts(now, timeZone)
+	const year = local.month === 1 ? local.year - 1 : local.year
+	const month = local.month === 1 ? 12 : local.month - 1
+	return {
+		from: localMidnightToUtc(year, month, 1, timeZone),
+		to: localMidnightToUtc(local.year, local.month, 1, timeZone),
+	}
+}
+
 function daysBetween(from: string, now: Date) {
 	const diff = now.getTime() - new Date(from).getTime()
 	return Math.max(0, Math.floor(diff / DAY_MS))
@@ -227,12 +244,19 @@ function buildActiveSession(
 	}
 }
 
-function buildLists(baseLists: DashboardBaseListInput[], listNames: Map<string, string>) {
+function buildLists(baseLists: DashboardBaseListInput[], trips: DashboardTripInput[], listNames: Map<string, string>) {
+	const lastTripByList = new Map<string, string>()
+	for (const trip of trips) {
+		if (!trip.completed_at || lastTripByList.has(trip.base_list_id)) continue
+		lastTripByList.set(trip.base_list_id, formatShortDate(trip.completed_at))
+	}
 	return {
 		items: baseLists.slice(0, MAX_LISTS_PREVIEW).map(list => ({
 			id: list.id,
 			name: listNames.get(list.id) ?? list.name,
 			itemsCount: itemsCountOf(list),
+			isDefault: Boolean(list.is_default),
+			lastTrip: lastTripByList.get(list.id) ?? null,
 		})),
 		hiddenCount: Math.max(baseLists.length - MAX_LISTS_PREVIEW, 0),
 	}
@@ -254,6 +278,7 @@ function buildStoreVisits(stores: DashboardStoreInput[]): StoreVisitPreview[] {
 			kind: visit.kind,
 			id: visit.id,
 			dateLabel: formatShortDate(visit.at),
+			itemsCount: visit.items_count ?? null,
 			total: visit.total_amount,
 			href: visit.kind === 'trip' ? '/trips' : `/tickets/${visit.id}`,
 		}]
@@ -308,6 +333,18 @@ function buildUpNext(
 			title: 'A receipt couldn’t be read',
 			detail: 'Open it to try again or upload a clearer photo',
 			href: `/tickets/${failed.id}`,
+		})
+	}
+
+	const tripWithoutReceipt = trips.find(trip => Array.isArray(trip.receipts) && trip.receipts.length === 0)
+	if (tripWithoutReceipt) {
+		const listName = listNames.get(tripWithoutReceipt.base_list_id) ?? tripWithoutReceipt.base_list?.name ?? tripWithoutReceipt.name
+		items.push({
+			id: `trip-no-receipt-${tripWithoutReceipt.id}`,
+			kind: 'trip-no-receipt',
+			title: 'Trip without a receipt',
+			detail: `Add a receipt to ${listName}`,
+			href: `/shopping/${tripWithoutReceipt.id}?details=1`,
 		})
 	}
 
@@ -367,6 +404,7 @@ export function buildDashboardModel({
 	activeSessions,
 	likelyNeeded = [],
 	likelyNeededHasHistory = false,
+	likelyNeededReceiptCount = 0,
 	stores = [],
 	currentUserId = null,
 	now = new Date(),
@@ -394,9 +432,10 @@ export function buildDashboardModel({
 		activeSession: buildActiveSession(latestSession, listNames),
 		activeSessionIds,
 		otherSessionCount: Math.max(sessions.length - 1, 0),
-		lists: buildLists(baseLists, listNames),
+		lists: buildLists(baseLists, trips, listNames),
 		likelyNeeded: {
 			hasHistory: likelyNeededHasHistory,
+		receiptsCount: likelyNeededReceiptCount,
 			items: likelyNeeded.map(item => ({ ...item, cadence: formatCadence(item.interval_days, item.days_since) })),
 		},
 		storeVisits: buildStoreVisits(stores),

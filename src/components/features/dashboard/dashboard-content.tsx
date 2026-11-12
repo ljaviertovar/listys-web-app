@@ -71,6 +71,7 @@ export async function DashboardContent() {
 		trips: historyResult.data ?? [],
 		likelyNeeded: likelyNeededResult.data ?? [],
 		likelyNeededHasHistory: Boolean(likelyNeededResult.meta?.has_history),
+		likelyNeededReceiptCount: Number(likelyNeededResult.meta?.receipts_count ?? 0),
 		stores: storesResult.data ?? [],
 			currentUserId: user?.id ?? null,
 		activeSession: activeSessions?.[0] ?? null,
