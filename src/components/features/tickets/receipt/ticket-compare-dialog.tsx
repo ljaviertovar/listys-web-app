@@ -221,7 +221,7 @@ export function TicketCompareDialog({ open, onOpenChange, title, urls, view, ite
 								<h2 className='flex-1 font-display text-base leading-normal font-semibold '>
 									Extracted Items
 								</h2>
-								<span className='text-xs leading-[1.3] text-slate-500'>
+								<span className='text-xs leading-[1.3] text-muted-foreground'>
 									<b className='font-mono font-semibold text-foreground tabular-nums'>{items.length}</b> items found
 								</span>
 							</div>

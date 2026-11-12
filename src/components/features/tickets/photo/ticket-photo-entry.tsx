@@ -59,7 +59,7 @@ export function TicketPhotoRow({ count, thumbnailUrl, onOpen, triggerRef }: Tick
 			</span>
 			<span className='flex min-w-0 flex-1 flex-col gap-0.5 font-sans'>
 				<span className='text-sm leading-[1.3] font-semibold'>Receipt Photo</span>
-				<span className='text-sm leading-[1.2] text-slate-600 dark:text-muted-foreground'>
+				<span className='text-sm leading-[1.2] text-body dark:text-muted-foreground'>
 					<b className='font-mono text-base font-bold text-foreground tabular-nums'>{count}</b> {plural} · Tap to enlarge
 				</span>
 			</span>
@@ -153,7 +153,7 @@ export function TicketPhotoPanel({ urls, count, view, error, onOpenFullScreen, t
 					/>
 					<span
 						aria-hidden='true'
-						className='font-mono text-xs font-medium text-slate-500 tabular-nums'
+						className='font-mono text-xs font-medium text-muted-foreground tabular-nums'
 					>
 						{view.index + 1} / {urls.length}
 					</span>

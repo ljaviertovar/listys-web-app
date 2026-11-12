@@ -1,6 +1,6 @@
 'use client'
 
-import { ShoppingBag03Icon } from '@hugeicons/core-free-icons'
+import { ShoppingBag03Icon, Store03Icon } from '@hugeicons/core-free-icons'
 // AttachmentIcon and AttachmentOffIcon exist only in Hugeicons 4; every other icon stays on 3.x so none of them is redrawn.
 import { AttachmentIcon, AttachmentOffIcon } from '@hugeicons/core-free-icons-v4'
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -80,13 +80,18 @@ export function HistorySessionCard({ session, href }: Props) {
 
 				{hasClassification ? (
 					<div className='flex flex-wrap items-center gap-x-2.5 gap-y-1.5'>
-						{stores.map(store => (
+						{stores[0] ? (
 							<EntityLabel
-								key={store.id}
-								name={store.name}
-								testId={`history-store-${session.id}-${store.id}`}
+								name={stores[0].name}
+								testId={`history-store-${session.id}-${stores[0].id}`}
 							/>
-						))}
+						) : null}
+						{stores.length > 1 ? (
+							<Badge variant='tag'>
+								<HugeiconsIcon icon={Store03Icon} strokeWidth={1.8} aria-hidden='true' />
+								+{stores.length - 1} {stores.length === 2 ? 'store' : 'stores'}
+							</Badge>
+						) : null}
 						{receiptState === 'attached' ? (
 							<Badge
 								data-testid={`history-receipt-marker-${session.id}`}
@@ -135,7 +140,7 @@ export function HistorySessionCard({ session, href }: Props) {
 
 				<div className='flex items-center justify-between gap-2 border-t border-slate-100 pt-3'>
 					{purchasedCount === null ? (
-						<span className='text-sm leading-none text-slate-600'>Item count unavailable</span>
+						<span className='text-sm leading-none text-body'>Item count unavailable</span>
 					) : (
 						<InlineCounter
 							count={purchasedCount}

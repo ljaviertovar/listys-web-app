@@ -1,6 +1,3 @@
-import { Alert02Icon, Clock01Icon } from '@hugeicons/core-free-icons'
-import type { IconSvgElement } from '@hugeicons/react'
-
 export type TicketStatus = 'pending' | 'processing' | 'completed' | 'failed'
 
 interface TicketStatusMeta {
@@ -10,16 +7,10 @@ interface TicketStatusMeta {
 }
 
 export const TICKET_STATUS_META: Record<TicketStatus, TicketStatusMeta> = {
-	pending: { label: 'Pending', variant: 'neutral' },
+	pending: { label: 'Reading', variant: 'processing' },
 	processing: { label: 'Reading', variant: 'processing' },
 	completed: { label: 'Processed', variant: 'completed' },
 	failed: { label: 'Failed', variant: 'failed' },
-}
-
-/** Icon beside the one-line status message of a receipt card. */
-export const TICKET_STATUS_NOTE_ICON: Partial<Record<TicketStatus, IconSvgElement>> = {
-	pending: Clock01Icon,
-	failed: Alert02Icon,
 }
 
 /** The database column is nullable and free text, so anything unknown reads as not started. */

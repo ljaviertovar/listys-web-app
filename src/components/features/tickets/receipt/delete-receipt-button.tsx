@@ -53,7 +53,7 @@ export function DeleteReceiptButton({ ticketId, returnHref = '/tickets', onDelet
 		<SheetDialog open={open} onOpenChange={next => { if (!deleting) setOpen(next) }} title='Delete this receipt?' role='alertdialog' testId='delete-receipt-sheet' fit>
 			<div className='flex flex-col gap-4'>
 				<Alert variant='receipt-warning' role='note' data-testid='delete-receipt-warning'>
-					<RowIcon icon={Alert02Icon} tone='warning' size='sm' testId='delete-receipt-warning-icon' />
+					<RowIcon icon={Alert02Icon} tone='warning' size='alert' testId='delete-receipt-warning-icon' />
 					<AlertTitle>{warningTitle}</AlertTitle>
 					{warningRest.length > 0 ? <AlertDescription>{warningRest.join(' ')}</AlertDescription> : null}
 				</Alert>

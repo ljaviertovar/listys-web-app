@@ -37,7 +37,7 @@ export function MergeResultSheet({ outcome, receipt, onRetry, onClose }: MergeRe
 			<SheetDialog open onOpenChange={open => !open && onClose()} title="Couldn't Save" testId='merge-failed-sheet' fit>
 				<div className='flex flex-col gap-4'>
 					<Alert variant='receipt-danger' data-testid='merge-failed-alert'>
-						<RowIcon icon={Alert02Icon} tone='danger' size='sm' testId='merge-failed-icon' />
+						<RowIcon icon={Alert02Icon} tone='danger' size='alert' testId='merge-failed-icon' />
 						<AlertTitle>{outcome.listName ? `${outcome.listName} wasn’t updated` : 'Nothing was saved'}</AlertTitle>
 						<AlertDescription>
 							{outcome.message} Nothing was lost: your review and the {outcome.itemCount} selected {outcome.itemCount === 1 ? 'item is' : 'items are'} kept.
@@ -57,7 +57,7 @@ export function MergeResultSheet({ outcome, receipt, onRetry, onClose }: MergeRe
 	return (
 		<SheetDialog open onOpenChange={open => !open && close()} title={outcome.listName ? `Saved to ${outcome.listName}` : 'Saved'} testId='merge-saved-sheet' fit>
 			<div className='flex flex-col gap-4'>
-				<p data-testid='merge-saved-from' className='text-sm leading-normal text-slate-600 dark:text-muted-foreground'>
+				<p data-testid='merge-saved-from' className='text-sm leading-normal text-body dark:text-muted-foreground'>
 					From <b className='font-semibold text-foreground'>{receipt.storeName}</b>
 					{receipt.date ? ` · ${receipt.date}` : ''} · {outcome.itemCount} {outcome.itemCount === 1 ? 'item' : 'items'}.
 				</p>

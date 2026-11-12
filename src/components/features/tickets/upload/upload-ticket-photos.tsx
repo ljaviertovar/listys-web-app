@@ -154,7 +154,7 @@ export function UploadTicketPhotos({ inputId, descriptionId, errorId, previews, 
 							<span className='font-display text-sm font-semibold text-foreground'>Drag and drop photos here</span>
 							<span className='font-display text-sm font-semibold text-blue-700 dark:text-blue-400'>or Choose Photos</span>
 						</span>
-						<span className='flex max-w-65 flex-col font-sans text-xs leading-[1.45] font-normal text-slate-500 dark:text-muted-foreground'>
+						<span className='flex max-w-65 flex-col font-sans text-xs leading-[1.45] font-normal text-muted-foreground dark:text-muted-foreground'>
 							<span>Up to {max} photos · PNG or JPG (no HEIC) ·</span>
 							<span>{MAX_TICKET_IMAGE_MB} MB each</span>
 						</span>

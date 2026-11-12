@@ -58,13 +58,13 @@ export function TripReceiptsCard({ state, justSaved = false, itemCount, listName
 					<div className='flex flex-col items-center text-center'>
 						<RowIcon icon={ShoppingBag03Icon} tone='success' size='saved' testId='trip-saved-icon' />
 						<h1 id={headingId} className='mt-[18px] font-display text-lg leading-[1.39] font-semibold tracking-tight'>{card.title}</h1>
-						<p className='mt-1.5 max-w-70 text-sm leading-normal text-slate-500 dark:text-muted-foreground'>{card.message}</p>
-						<Alert variant='receipt-warning' className='mt-[18px]'><RowIcon icon={Invoice01Icon} tone='warning' size='sm' testId='trip-saved-no-receipt-icon' /><AlertTitle>No receipt yet</AlertTitle><AlertDescription>Having no receipt never leaves the trip incomplete.</AlertDescription></Alert>
+						<p className='mt-1.5 max-w-70 text-sm leading-normal text-muted-foreground dark:text-muted-foreground'>{card.message}</p>
+						<Alert variant='receipt-warning' className='mt-[18px]'><RowIcon icon={Invoice01Icon} tone='warning' size='alert' testId='trip-saved-no-receipt-icon' /><AlertTitle>No receipt yet</AlertTitle><AlertDescription>Having no receipt never leaves the trip incomplete.</AlertDescription></Alert>
 						<div className='mt-[18px] flex w-full flex-col gap-2'>{actions}</div>
-						<p className='mt-3.5 max-w-70 text-xs leading-[1.4] text-slate-500 dark:text-muted-foreground'>You can add a receipt later from Trips, with no deadline.</p>
+						<p className='mt-3.5 max-w-70 text-xs leading-[1.4] text-muted-foreground dark:text-muted-foreground'>You can add a receipt later from Trips, with no deadline.</p>
 					</div>
 				</Card> : state.kind === 'none' ? <Alert variant='receipt-warning' data-testid={`${testId}-state`}>
-					<RowIcon icon={Invoice01Icon} tone='warning' size='sm' testId='trip-no-receipt-icon' />
+					<RowIcon icon={Invoice01Icon} tone='warning' size='alert' testId='trip-no-receipt-icon' />
 					<AlertTitle id={headingId} tabIndex={-1}>No receipt</AlertTitle>
 					<AlertDescription>{card.message}</AlertDescription>
 					{actions.length ? <div className='col-start-2 mt-2 flex gap-2'>{actions}</div> : null}

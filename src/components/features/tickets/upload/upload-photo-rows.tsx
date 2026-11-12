@@ -71,7 +71,7 @@ export function UploadPhotoRows({ previews, rejections, uploading, onDismissReje
 								aria-label={`Uploading ${photo.file.name}`}
 							/>
 						) : (
-							<span className='text-xs leading-[1.4] text-slate-500 dark:text-muted-foreground'>{formatPhotoSize(photo.file.size)} · Ready</span>
+							<span className='text-xs leading-[1.4] text-muted-foreground dark:text-muted-foreground'>{formatPhotoSize(photo.file.size)} · Ready</span>
 						)}
 					</span>
 					{uploading ? null : (

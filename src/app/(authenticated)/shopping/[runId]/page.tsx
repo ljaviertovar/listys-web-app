@@ -1,5 +1,6 @@
 // AttachmentIcon and AttachmentOffIcon exist only in Hugeicons 4; every other icon stays on 3.x so none of them is redrawn.
 import { AttachmentIcon, AttachmentOffIcon } from '@hugeicons/core-free-icons-v4'
+import { Store03Icon } from '@hugeicons/core-free-icons'
 import { getItemPurchaseStats } from '@/components/features/base-lists/items/helpers/item-purchase-stats'
 import { redirect } from 'next/navigation'
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -17,7 +18,7 @@ import { buildItemStoreSummary } from '@/components/features/base-lists/items/he
 import { createClient } from '@/lib/supabase/server'
 import type { TicketSessionCandidate } from '@/lib/api/endpoints'
 import type { ShoppingSessionWithItems, TripReceipt } from '@/types'
-import { formatCurrency, formatTime, formatTripDate } from '@/utils'
+import { formatCurrency, formatTripDate } from '@/utils'
 
 type SearchParams = { from?: string | string[]; list?: string | string[]; started?: string | string[]; receipt?: string | string[]; details?: string | string[] }
 
@@ -84,19 +85,20 @@ export default async function ShoppingRunPage({ params, searchParams }: { params
 	}
 	return <>
 		<TripNavigationMarker completed={isCompleted} pathname={`/shopping/${runId}`} />
-		<PageHeader variant='screen' back={backToSaved ? { href: `/shopping/${runId}`, label: 'Back to Trip Saved' } : { href: backHref, label: backLabel }} title={run.name}
+		<PageHeader variant='screen' screenStyle='entity-detail' back={backToSaved ? { href: `/shopping/${runId}`, label: 'Back to Trip Saved' } : { href: backHref, label: backLabel }} title={run.name}
 			aside={isCompleted ? <Badge variant='completed' dot>Completed</Badge> : <ActiveShoppingBadge />}
 			desc={<div className='flex flex-col gap-2'>
-				<div data-testid='trip-header-classification' className='flex flex-wrap items-center gap-x-2.5 gap-y-1.5'>
-					{stores.map(store => <EntityLabel key={store.id} name={store.name} testId={`trip-store-${store.id}`} />)}
+				{stores.length > 0 || isCompleted ? <div data-testid='trip-header-classification' className='flex flex-wrap items-center gap-x-2.5 gap-y-1.5'>
+					{stores[0] ? <EntityLabel name={stores[0].name} testId={`trip-store-${stores[0].id}`} /> : null}
+					{stores.length > 1 ? <Badge variant='tag'><HugeiconsIcon icon={Store03Icon} strokeWidth={1.8} aria-hidden='true' />+{stores.length - 1} {stores.length === 2 ? 'store' : 'stores'}</Badge> : null}
 					{isCompleted ? <Badge variant={receipts.length ? 'tag' : 'tag-attention'}><HugeiconsIcon icon={receipts.length ? AttachmentIcon : AttachmentOffIcon} strokeWidth={1.8} aria-hidden='true' />{receipts.length > 1 ? `${receipts.length} Receipt attached` : receipts.length ? 'Receipt attached' : 'No Receipt attached'}</Badge> : null}
-				</div>
-				{isCompleted ? <DataLine testId='trip-header-data'>{date ? <span>{formatTripDate(date)}</span> : null}{date ? <span>{formatTime(date)}</span> : null}{amount == null ? null : <DataFigure>{!receipts.length ? '≈ ' : ''}{formatCurrency(amount)}</DataFigure>}</DataLine> : null}
+				</div> : null}
+				{isCompleted ? <DataLine testId='trip-header-data'>{date ? <>Completed on {formatTripDate(date)}</> : null}{amount == null ? null : <DataFigure>{!receipts.length ? '≈ ' : ''}{formatCurrency(amount)}</DataFigure>}</DataLine> : null}
 			</div>}>
-			{!isCompleted ? <ShoppingSessionActions sessionId={runId} checked={checkedCount} total={totalCount} baseListId={baseListId} listName={baseListName} isOwner={isListOwner} canAttachReceipt={Boolean(trip)} /> : null}
 		</PageHeader>
 		<PageContainer className='pb-[calc(7rem+max(1.125rem,env(safe-area-inset-bottom)))] lg:pb-20'>
 			<div className='flex w-full max-w-3xl flex-col gap-6'>
+				{!isCompleted ? <ShoppingSessionActions sessionId={runId} checked={checkedCount} total={totalCount} baseListId={baseListId} listName={baseListName} isOwner={isListOwner} canAttachReceipt={Boolean(trip)} /> : null}
 				<TripSyncStatus sessionId={runId} items={run.items} active={!isCompleted} />
 				{!isCompleted && totalCount > 0 ? <SessionSummaryCard mode='active' sessionId={runId} priceByItemId={Object.fromEntries(priceEstimate.priceByItemId)} checked={checkedCount} total={totalCount} estimate={priceEstimate.pricedCount > 0 ? checkedEstimate : undefined} /> : null}
 				{isCompleted && priceEstimate && !receipts.length ? <SessionSummaryCard mode='completed' estimate={priceEstimate} /> : null}

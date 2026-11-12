@@ -92,7 +92,7 @@ export function TicketTriageSection({ section, listName, selection, canSelect, a
 				</ul>
 			</CategorySection>
 			{pending.length > 0 ? (
-				<p data-testid='receipt-answer-remembered' className='px-0.5 pt-3 text-xs leading-[1.4] text-slate-500 dark:text-muted-foreground'>
+				<p data-testid='receipt-answer-remembered' className='px-0.5 pt-3 text-xs leading-[1.4] text-muted-foreground dark:text-muted-foreground'>
 					{pending.length === 1
 						? <>Your answer is remembered: next time “{formatItemName(pending[0].item.name)}” links on its own.</>
 						: 'Your answers are remembered: next time these lines link on their own.'}

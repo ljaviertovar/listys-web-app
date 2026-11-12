@@ -2,7 +2,7 @@
 
 import { useId, useMemo, useState } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { CheckmarkCircle02Icon, ListViewIcon, Loading03Icon } from '@hugeicons/core-free-icons'
+import { Alert02Icon, CheckmarkCircle02Icon, ListViewIcon, Loading03Icon } from '@hugeicons/core-free-icons'
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
@@ -65,12 +65,12 @@ export function TicketItemsList({ items, selection, canSelect, triage }: TicketI
 	return (
 		<div data-testid='ticket-items-list'>
 			{triage?.status === 'failed' ? (
-				<Alert variant='warning' data-testid='receipt-triage-fallback' className='mt-3'>
-					<AlertDescription>
-						<span className='flex flex-wrap items-center justify-between gap-2'>
-							<span>Couldn’t compare these lines with your list.</span>
-							<Button type='button' variant='quiet' size='sm' onClick={triage.retry}>Try Again</Button>
-						</span>
+				<Alert variant='receipt-warning' data-testid='receipt-triage-fallback' className='mt-3'>
+					<RowIcon icon={Alert02Icon} tone='warning' size='alert' testId='receipt-triage-fallback-icon' />
+					<AlertTitle>Couldn’t compare these lines</AlertTitle>
+					<AlertDescription className='flex flex-col items-start gap-2'>
+						<span>Try again to compare them with your list.</span>
+						<Button type='button' variant='destructive' size='alert-action' onClick={triage.retry}>Retry</Button>
 					</AlertDescription>
 				</Alert>
 			) : null}
@@ -78,13 +78,13 @@ export function TicketItemsList({ items, selection, canSelect, triage }: TicketI
 			{activeTriage?.status === 'switching' ? (
 				<div data-testid='receipt-triage-switching' role='status' aria-busy='true' className='flex flex-col items-center gap-3 px-4 py-7 text-center'>
 					<HugeiconsIcon icon={Loading03Icon} strokeWidth={1.5} aria-hidden='true' className='size-10.5 animate-spin text-primary motion-reduce:animate-none' />
-					<p className='text-sm leading-[1.4] font-medium text-slate-500 dark:text-muted-foreground'>Comparing with {activeTriage.baseList?.name}…</p>
+					<p className='text-sm leading-[1.4] font-medium text-muted-foreground dark:text-muted-foreground'>Comparing with {activeTriage.baseList?.name}…</p>
 				</div>
 			) : null}
 			{allMatched && readyTriage ? (
 				<>
 					<Alert variant='receipt-success' role='status' data-testid='receipt-all-match' className='mt-3'>
-						<RowIcon icon={CheckmarkCircle02Icon} tone='success' size='sm' testId='receipt-all-match-icon' />
+						<RowIcon icon={CheckmarkCircle02Icon} tone='success' size='alert' testId='receipt-all-match-icon' />
 						<AlertTitle>
 							All {readyTriage.triage[0].lines.length} {readyTriage.triage[0].lines.length === 1 ? 'item matches' : 'items match'} your {readyTriage.baseList?.name}
 						</AlertTitle>
@@ -155,7 +155,7 @@ function TargetListRow({ triage, baseList }: TargetListRowProps) {
 		<div data-testid='receipt-target-list' className='mt-3 flex flex-col gap-2 border-t border-slate-100 pt-3 dark:border-border'>
 			<div className='flex min-w-0 flex-col gap-0.5'>
 				<span id={labelId} className='text-sm leading-[1.3] font-semibold'>Add to</span>
-				<span className='text-xs leading-[1.4] text-slate-500 dark:text-muted-foreground'>Each line is compared with this list.</span>
+				<span className='text-xs leading-[1.4] text-muted-foreground dark:text-muted-foreground'>Each line is compared with this list.</span>
 			</div>
 			<Select value={baseList.id} onValueChange={triage.changeList}>
 				<SelectTrigger size='filter' aria-labelledby={labelId} data-testid='receipt-target-list-select'>

@@ -41,7 +41,7 @@ export function SessionSummaryCard(props: SessionSummaryCardProps) {
 				{props.mode === 'active' ? <div className='flex flex-col gap-3'>
 					<div className='flex items-end justify-between gap-2'>
 						<div className='flex flex-col gap-1'>
-							<span className='text-xs leading-[1.3] text-slate-500 dark:text-muted-foreground'>Collected</span>
+							<span className='text-xs leading-[1.3] text-muted-foreground dark:text-muted-foreground'>Collected</span>
 							<span className='font-display text-base leading-[1.3] font-semibold'>
 								<b className='font-mono font-semibold tabular-nums'>{props.checked}</b> of{' '}
 								<b className='font-mono font-semibold tabular-nums'>{props.total}</b> {props.total === 1 ? 'item' : 'items'}
@@ -68,12 +68,12 @@ export function SessionSummaryCard(props: SessionSummaryCardProps) {
 					{!completed ? <div aria-hidden='true' className='h-px bg-border' /> : null}
 					<div className='flex flex-wrap items-end justify-between gap-3'>
 						<div className='flex min-w-0 flex-col gap-1'>
-							<span className='text-xs leading-[1.3] text-slate-500 dark:text-muted-foreground'>{completed ? 'Estimated' : 'Estimated total'}</span>
+							<span className='text-xs leading-[1.3] text-muted-foreground dark:text-muted-foreground'>{completed ? 'Estimated' : 'Estimated total'}</span>
 							<span className='font-mono text-2xl leading-none font-semibold tracking-tight text-foreground tabular-nums'>
 								≈ {formatCurrency(estimate.total)}
 							</span>
 						</div>
-						<span className='text-right text-xs leading-normal text-slate-500 dark:text-muted-foreground'>
+						<span className='text-right text-xs leading-normal text-muted-foreground dark:text-muted-foreground'>
 							{estimate.itemCount} {completed ? (estimate.itemCount === 1 ? 'item' : 'items') : 'checked'} · {estimate.pricedCount} with known prices
 						</span>
 					</div>

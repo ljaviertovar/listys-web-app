@@ -34,7 +34,7 @@ export function useUndoableAction() {
 				setPending(false)
 			},
 			show: ({ onUndo, onClose }) => {
-				toast(message, {
+				toast.success(message, {
 					duration: UNDO_WINDOW_MS,
 					action: { label: 'Undo', onClick: onUndo },
 					onAutoClose: onClose,

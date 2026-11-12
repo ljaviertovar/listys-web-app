@@ -145,7 +145,7 @@ function TicketStoreForm({
 			</label>
 			<label
 				htmlFor={nameId}
-				className='pl-8 text-xs leading-[1.4] text-slate-500'
+				className='pl-8 text-xs leading-[1.4] text-muted-foreground'
 			>
 				Store name
 			</label>
@@ -186,7 +186,7 @@ function TicketStoreForm({
 		>
 			<p
 				id={descriptionId}
-				className='text-sm leading-normal text-slate-600 dark:text-muted-foreground'
+				className='text-sm leading-normal text-body dark:text-muted-foreground'
 			>
 				{rawName ? (
 					<>
@@ -200,7 +200,7 @@ function TicketStoreForm({
 			{stores.status === 'loading' ? (
 				<div
 					role='status'
-					className='flex items-center justify-center gap-2 py-6 text-sm text-slate-500 dark:text-muted-foreground'
+					className='flex items-center justify-center gap-2 py-6 text-sm text-muted-foreground dark:text-muted-foreground'
 				>
 					<HugeiconsIcon
 						icon={Loading03Icon}
@@ -256,7 +256,7 @@ function TicketStoreForm({
 							<>
 								{newStoreCard}
 								{matches.length > 0 ? (
-									<span className='px-0.5 pt-1 text-xs leading-[1.4] text-slate-500'>Or it’s one of your stores</span>
+									<span className='px-0.5 pt-1 text-xs leading-[1.4] text-muted-foreground'>Or it’s one of your stores</span>
 								) : null}
 							</>
 						) : null}
@@ -270,7 +270,7 @@ function TicketStoreForm({
 						{allStores.length > 0 && matches.length === 0 ? (
 							<p
 								role='status'
-								className='py-2 text-sm text-slate-500'
+								className='py-2 text-sm text-muted-foreground'
 							>
 								No store matches this search.
 							</p>
@@ -297,7 +297,7 @@ function TicketStoreForm({
 								</span>
 								<span className='flex min-w-0 flex-1 flex-col gap-1'>
 									<span className='text-sm leading-[1.3] font-semibold'>Add a New Store</span>
-									<span className='text-xs leading-[1.4] font-normal text-slate-500'>Create a store for these items</span>
+									<span className='text-xs leading-[1.4] font-normal text-muted-foreground'>Create a store for these items</span>
 								</span>
 							</Button>
 						)}
@@ -354,7 +354,7 @@ interface StoreRowProps {
 
 function StoreRow({ store, inline }: StoreRowProps) {
 	const count = (
-		<span className='font-sans text-sm leading-tight text-slate-600'>
+		<span className='font-sans text-sm leading-tight text-body'>
 			<b className='font-mono text-base leading-[1.2] font-bold text-foreground tabular-nums'>{store.receipt_count}</b>{' '}
 			{store.receipt_count === 1 ? 'receipt' : 'receipts'}
 		</span>

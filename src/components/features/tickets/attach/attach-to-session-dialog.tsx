@@ -44,7 +44,7 @@ export function AttachToSessionDialog({ actions }: { actions: TripReview }) {
 							actions={duplicateStore ? <><Button asChild size='primary'><Link href={`/shopping/${actions.trip.id}`} onClick={actions.closeReview}>View Trip Receipts</Link></Button><Button type='button' variant='secondary' size='primary' onClick={actions.closeReview}>Close Review</Button></>
 								: <><Button type='button' size='primary' disabled={actions.submitting} onClick={() => void actions.retrySubmit()}>{actions.submitting ? 'Attaching…' : 'Try Again'}</Button><Button type='button' variant='secondary' size='primary' disabled={actions.submitting} onClick={actions.closeReview}>Attach Later</Button></>} />
 					) : <>
-						<p className='text-sm leading-normal text-slate-600 dark:text-muted-foreground'>{TRIP_REVIEW_COPY.intro(listName)}</p>
+						<p className='text-sm leading-normal text-body dark:text-muted-foreground'>{TRIP_REVIEW_COPY.intro(listName)}</p>
 						{store ? <EntityLabel name={store.name} testId='attach-review-store' /> : <p data-testid='attach-review-store-unconfirmed' className='text-sm text-muted-foreground'>Store not confirmed</p>}
 						<div data-testid='attach-review-summary' role='status' aria-live='polite' className='grid grid-cols-3 gap-2'>
 							<StatTile testId='attach-review-stat-matched' variant='white' value={review.counts.matched} label='Matched' icon={CheckmarkCircle02Icon} iconTone='success' />

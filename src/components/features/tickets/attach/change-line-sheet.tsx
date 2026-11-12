@@ -38,7 +38,7 @@ export function ChangeLineSheet({ line, match, items, listName, onClose, onSave 
 				<Card variant='stat' size='stat' tone='muted'>
 					<div className='flex min-w-0 items-center justify-between gap-3 px-0.5'>
 						<div className='flex min-w-0 flex-col gap-1'>
-							<span className='text-xs font-semibold uppercase tracking-wide text-slate-500'>Receipt line</span>
+							<span className='text-xs font-semibold uppercase tracking-wide text-muted-foreground'>Receipt line</span>
 							<span className='min-w-0 break-words font-mono text-base font-semibold'>{formatItemName(line.name)}</span>
 						</div>
 						<div className='flex shrink-0 flex-col items-end gap-1.5'>

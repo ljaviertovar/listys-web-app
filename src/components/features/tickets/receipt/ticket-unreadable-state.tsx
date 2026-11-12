@@ -1,5 +1,5 @@
 import { HugeiconsIcon } from '@hugeicons/react'
-import { AlertCircleIcon, Alert02Icon, Tick02Icon } from '@hugeicons/core-free-icons'
+import { Alert02Icon, Tick02Icon } from '@hugeicons/core-free-icons'
 
 import { RowIcon } from '@/components/commons'
 import { Card } from '@/components/ui/card'
@@ -48,7 +48,7 @@ export function TicketUnreadableState({ ticketId, kind }: TicketUnreadableStateP
 			>
 				<div className='flex items-start gap-3'>
 					<RowIcon
-						icon={failed ? AlertCircleIcon : Alert02Icon}
+						icon={Alert02Icon}
 						tone={failed ? 'danger' : 'warning'}
 						size='lg'
 						testId='ticket-unreadable-icon'
@@ -60,7 +60,7 @@ export function TicketUnreadableState({ ticketId, kind }: TicketUnreadableStateP
 						>
 							{copy.title}
 						</h2>
-						<p className='text-xs leading-[1.4] text-slate-500 dark:text-muted-foreground'>{copy.help}</p>
+						<p className='text-xs leading-[1.4] text-muted-foreground dark:text-muted-foreground'>{copy.help}</p>
 					</div>
 				</div>
 				<ul
@@ -70,7 +70,7 @@ export function TicketUnreadableState({ ticketId, kind }: TicketUnreadableStateP
 					{copy.tips.map(tip => (
 						<li
 							key={tip}
-							className='flex items-start gap-2.5 text-sm leading-[1.4] text-slate-700 dark:text-foreground/80'
+							className='flex items-start gap-2.5 text-sm leading-[1.4] text-text-secondary dark:text-foreground/80'
 						>
 							<span className='mt-px flex size-5 shrink-0 items-center justify-center rounded-full bg-secondary text-blue-700 dark:bg-muted dark:text-blue-300'>
 								<HugeiconsIcon

@@ -68,7 +68,7 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
 							</span>
 							<div className='flex flex-col gap-1.5'>
 								<h3 className='text-base font-semibold tracking-tight'>No trips yet</h3>
-								<p className='mx-auto max-w-[280px] text-sm leading-[1.55] text-slate-500'>
+								<p className='mx-auto max-w-[280px] text-sm leading-[1.55] text-muted-foreground'>
 									Your trips will appear here once you complete your first shopping session.
 								</p>
 							</div>

@@ -136,14 +136,14 @@ function StorePickerBody({
 						className='flex flex-col gap-1 rounded-2xl bg-muted px-3.5 py-3'
 					>
 						<p className='text-sm font-semibold text-foreground'>{context.headline}</p>
-						<p className='text-xs leading-normal text-slate-500 dark:text-muted-foreground'>{context.body}</p>
+						<p className='text-xs leading-normal text-muted-foreground dark:text-muted-foreground'>{context.body}</p>
 					</div>
 				) : null}
 
 				{stores.status === 'loading' ? (
 				<div
 					role='status'
-					className='flex items-center justify-center gap-2 py-6 text-sm text-slate-500 dark:text-muted-foreground'
+					className='flex items-center justify-center gap-2 py-6 text-sm text-muted-foreground dark:text-muted-foreground'
 				>
 					<HugeiconsIcon
 						icon={Loading03Icon}

@@ -80,7 +80,7 @@ export function TicketItemsCard({ ticketId, items, status, ocrError, selection, 
 						Extracted Items
 					</h2>
 					{status === 'completed' ? (
-						<span className='text-xs leading-[1.3] text-slate-500 dark:text-muted-foreground'>
+						<span className='text-xs leading-[1.3] text-muted-foreground dark:text-muted-foreground'>
 							<b className='font-mono font-semibold text-foreground tabular-nums'>{items.length}</b>{' '}
 							{items.length === 1 ? 'item' : 'items'} found
 						</span>
@@ -133,7 +133,7 @@ export function TicketNoItems() {
 			</span>
 			<div className='flex flex-col items-center gap-1.5'>
 				<h3 className='font-display text-base leading-[1.3] font-bold md:text-lg'>No items detected</h3>
-				<p className='max-w-[300px] text-sm leading-normal text-slate-500 dark:text-muted-foreground'>
+				<p className='max-w-[300px] text-sm leading-normal text-muted-foreground dark:text-muted-foreground'>
 					We couldn’t find items in this receipt. Upload a new receipt with a clearer photo, or read this receipt again.
 				</p>
 			</div>
@@ -144,7 +144,7 @@ export function TicketNoItems() {
 				{TIPS.map(tip => (
 					<li
 						key={tip}
-						className='flex items-start gap-2.5 text-sm leading-[1.4] text-slate-700 dark:text-foreground/80'
+						className='flex items-start gap-2.5 text-sm leading-[1.4] text-text-secondary dark:text-foreground/80'
 					>
 						<span className='mt-px flex size-5 shrink-0 items-center justify-center rounded-full bg-secondary text-blue-700 dark:bg-muted dark:text-blue-300'>
 							<HugeiconsIcon

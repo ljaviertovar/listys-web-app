@@ -6,15 +6,15 @@ import { ArrowRight01Icon, Attachment01Icon } from '@hugeicons/core-free-icons'
 // AttachmentIcon and AttachmentOffIcon exist only in Hugeicons 4; every other icon stays on 3.x so none of them is redrawn.
 import { AttachmentIcon, AttachmentOffIcon } from '@hugeicons/core-free-icons-v4'
 
-import { CategorySection } from '@/components/commons'
+import { CategorySection, EntityLabel } from '@/components/commons'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { UploadTicketDialog } from '@/components/features/tickets'
+import { NoStoreBadge, UploadTicketDialog } from '@/components/features/tickets'
 import { TicketStatusChip } from '@/components/features/tickets/ticket-status-chip'
 import type { TicketSessionCandidate } from '@/lib/api/endpoints'
 import { formatCurrency } from '@/utils'
-import { toTicketStatus } from '@/components/features/tickets/helpers/ticket-status'
+import { toTicketChipStatus, toTicketStatus } from '@/components/features/tickets/helpers/ticket-status'
 
 import { summarizeTripReceipts, type TripReceiptEntry } from './helpers/summarize-trip-receipts'
 import { TripReceiptDetailsSheet } from './trip-receipt-details-sheet'
@@ -52,6 +52,7 @@ export function TripReceiptSummary({
 
 	const receiptRows = receipts.map(receipt => {
 		const status = toTicketStatus(receipt.ocr_status, receipt.items_count)
+		const chipStatus = toTicketChipStatus(receipt.ocr_status, receipt.items_count)
 		const action = receipt.attached ? (
 			<Button
 				type='button'
@@ -91,30 +92,29 @@ export function TripReceiptSummary({
 			<li key={receipt.id} data-testid={`trip-receipt-${receipt.id}`} className='py-3'>
 				<div className='flex min-w-0 flex-col gap-2'>
 					<div className='grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-2'>
-						<p data-testid={`trip-receipt-store-${receipt.id}`} className='min-w-0 break-words text-sm leading-[1.3] font-semibold'>
-							{receipt.store?.name ?? 'Store not confirmed'}
-						</p>
+						<p className='min-w-0 break-words text-sm leading-[1.3] font-semibold'>Receipt</p>
+						<TicketStatusChip status={chipStatus} testId={`trip-receipt-status-${receipt.id}`} />
+					</div>
+					<div data-testid={`trip-receipt-classification-${receipt.id}`} className='flex min-w-0 flex-wrap items-center gap-x-2.5 gap-y-1.5'>
+						{receipt.store ? (
+							<EntityLabel name={receipt.store.name} testId={`trip-receipt-store-${receipt.id}`} />
+						) : (
+							<NoStoreBadge testId={`trip-receipt-store-${receipt.id}`} />
+						)}
 						{receipt.attached ? (
-							<Badge variant='tag'>
+							<Badge data-testid={`trip-receipt-attachment-${receipt.id}`} variant='tag'>
 								<HugeiconsIcon icon={AttachmentIcon} aria-hidden='true' strokeWidth={1.8} />
-								Attached to trip
-							</Badge>
-						) : status === 'completed' ? (
-							// Read but not attached: it still needs reviewing and attaching, so it carries the amber attention tag, worded as what is missing (canvas v4 note 0).
-							<Badge variant='tag-attention' data-testid={`trip-receipt-status-${receipt.id}`} data-status={status}>
-								<HugeiconsIcon icon={AttachmentOffIcon} strokeWidth={1.8} aria-hidden='true' />
-								Attach Pending
+								Receipt attached
 							</Badge>
 						) : (
-							<TicketStatusChip
-								status={status}
-								label={status === 'pending' || status === 'processing' ? 'Processing' : 'Failed'}
-								testId={`trip-receipt-status-${receipt.id}`}
-							/>
+							<Badge data-testid={`trip-receipt-attachment-${receipt.id}`} variant='tag-attention'>
+								<HugeiconsIcon icon={AttachmentOffIcon} strokeWidth={1.8} aria-hidden='true' />
+								No Receipt attached
+							</Badge>
 						)}
 					</div>
 					<div className='grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-2'>
-						<p data-testid={`trip-receipt-data-${receipt.id}`} className='text-sm leading-[1.2] text-slate-600 dark:text-muted-foreground'>
+						<p data-testid={`trip-receipt-data-${receipt.id}`} className='text-sm leading-[1.2] text-body dark:text-muted-foreground'>
 							<b className='font-mono text-base font-bold text-foreground tabular-nums'>{receipt.items_count}</b>{' '}
 							{receipt.items_count === 1 ? 'item' : 'items'} · {receipt.total_amount == null ? '—' : formatCurrency(receipt.total_amount)}
 						</p>
@@ -131,10 +131,10 @@ export function TripReceiptSummary({
 	const header = (
 		<div className='grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3'>
 			<div className='flex min-w-0 flex-col gap-1'>
-				<h2 className='font-sans text-xs leading-[1.3] font-normal text-slate-500 dark:text-muted-foreground'>{active ? 'Paid so far' : 'Paid'}</h2>
+				<h2 className='font-sans text-xs leading-[1.3] font-normal text-muted-foreground dark:text-muted-foreground'>{active ? 'Paid so far' : 'Paid'}</h2>
 				<p className='font-mono text-2xl font-semibold tabular-nums tracking-tight'>{paid}</p>
 			</div>
-			<div className='flex max-w-40 flex-col items-end gap-1 text-right text-xs leading-normal text-slate-500 dark:text-muted-foreground'>
+			<div className='flex max-w-40 flex-col items-end gap-1 text-right text-xs leading-normal text-muted-foreground dark:text-muted-foreground'>
 				<p>{details}</p>
 				{!active && estimate != null ? <p>Estimate was <span className='font-mono'>{formatCurrency(estimate)}</span></p> : null}
 			</div>

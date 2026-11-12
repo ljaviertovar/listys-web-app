@@ -39,7 +39,7 @@ export function TicketSummaryCard({ ticket, itemsCount, pricedItemsCount, total 
 			<div className='flex flex-col gap-3'>
 				{showTotals ? (
 					<>
-						<div className='flex items-center justify-between gap-3 text-sm leading-[1.3] text-slate-600 dark:text-muted-foreground'>
+						<div className='flex items-center justify-between gap-3 text-sm leading-[1.3] text-body dark:text-muted-foreground'>
 							<span>Extracted items</span>
 							<b className='font-mono font-semibold whitespace-nowrap text-foreground tabular-nums'>{itemsCount}</b>
 						</div>
@@ -61,12 +61,12 @@ export function TicketSummaryCard({ ticket, itemsCount, pricedItemsCount, total 
 				) : null}
 				{linesMissed ? (
 					<Alert variant='receipt-warning' role='note' data-testid='ticket-total-gap-note'>
-						<RowIcon icon={Alert02Icon} tone='warning' size='sm' testId='ticket-total-gap-icon' />
+						<RowIcon icon={Alert02Icon} tone='warning' size='alert' testId='ticket-total-gap-icon' />
 						<AlertDescription>The items we read add up to less than the receipt total. Some lines may be missing: check the photo.</AlertDescription>
 					</Alert>
 				) : null}
 				{showTotals && !linesMissed && pricedItemsCount < itemsCount ? (
-					<p className='text-xs leading-normal text-slate-500 dark:text-muted-foreground'>
+					<p className='text-xs leading-normal text-muted-foreground dark:text-muted-foreground'>
 						Based on prices found for {pricedItemsCount} of {itemsCount} items. This may differ from the total printed on your receipt.
 					</p>
 				) : null}

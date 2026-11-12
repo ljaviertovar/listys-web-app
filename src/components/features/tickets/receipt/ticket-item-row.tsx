@@ -73,7 +73,7 @@ export function TicketItemRow({ item, canSelect = false, selected = false, onSel
 				</span>
 				<span className='flex shrink-0 flex-col items-end gap-1.5'>
 					<span className='font-mono text-sm leading-none font-semibold tabular-nums'>{item.price !== null ? formatCurrency(item.price) : '—'}</span>
-					<span className='inline-flex h-5.5 items-center gap-1 rounded-lg bg-secondary px-2 text-xs leading-none font-medium text-slate-600 dark:bg-muted dark:text-muted-foreground'>
+					<span className='inline-flex h-5.5 items-center gap-1 rounded-lg bg-secondary px-2 text-xs leading-none font-medium text-body dark:bg-muted dark:text-muted-foreground'>
 						<b className='font-mono font-semibold text-foreground tabular-nums'>{item.quantity ?? 1}</b>
 						{item.unit || 'unit'}
 					</span>
@@ -110,7 +110,7 @@ function ProposedMatch({ line, name, listName, actions }: ProposedMatchProps) {
 				<div className='flex min-w-0 items-center gap-2.5'>
 					<HugeiconsIcon icon={linked ? Link01Icon : AddCircleIcon} strokeWidth={1.8} aria-hidden='true' className='size-4.5 shrink-0 text-primary' />
 					<div className='flex min-w-0 flex-col gap-0.5'>
-						<span className='text-xs leading-[1.2] font-semibold tracking-wide text-slate-500 uppercase dark:text-muted-foreground'>{linked ? 'Matched to' : 'Added as'}</span>
+						<span className='text-xs leading-[1.2] font-semibold tracking-wide text-muted-foreground uppercase dark:text-muted-foreground'>{linked ? 'Matched to' : 'Added as'}</span>
 						<span className='truncate text-sm leading-[1.3] font-semibold'>{decision.kind === 'link' ? formatItemName(decision.item.name) : 'New item'}</span>
 					</div>
 				</div>
@@ -124,9 +124,9 @@ function ProposedMatch({ line, name, listName, actions }: ProposedMatchProps) {
 	return (
 		<div data-testid={`receipt-match-proposal-${line.item.id}`} className='mb-2 flex flex-col gap-2.5 rounded-2xl bg-blue-50 p-3 ring-1 ring-blue-100 ring-inset dark:bg-blue-500/10 dark:ring-blue-500/30'>
 			<div className='flex min-w-0 flex-col gap-0.5'>
-				<span className='text-xs leading-[1.2] font-semibold tracking-wide text-slate-500 uppercase dark:text-muted-foreground'>Possible match</span>
+				<span className='text-xs leading-[1.2] font-semibold tracking-wide text-muted-foreground uppercase dark:text-muted-foreground'>Possible match</span>
 				<span className='text-sm leading-[1.3] font-semibold'>{formatItemName(suggestion.name)}</span>
-				{listName ? <span className='text-xs leading-[1.4] text-slate-500 dark:text-muted-foreground'>In {listName}</span> : null}
+				{listName ? <span className='text-xs leading-[1.4] text-muted-foreground dark:text-muted-foreground'>In {listName}</span> : null}
 			</div>
 			<Button type='button' size='lg' className='w-full' onClick={settle(() => actions.confirm(line.item.id, suggestion))}>
 				<HugeiconsIcon icon={Tick02Icon} strokeWidth={1.8} aria-hidden='true' />

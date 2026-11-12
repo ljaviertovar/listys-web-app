@@ -116,7 +116,7 @@ export function UploadTicketForm({ onSuccess, initialFiles, shoppingSessionId, o
 			className='flex flex-col gap-4'
 		>
 			{asList ? null : (
-				<p className='text-sm leading-normal text-slate-600 dark:text-muted-foreground'>Upload photos of your shopping receipt. We’ll extract the items automatically.</p>
+				<p className='text-sm leading-normal text-body dark:text-muted-foreground'>Upload photos of your shopping receipt. We’ll extract the items automatically.</p>
 			)}
 
 			<div className='flex flex-col gap-2'>
@@ -125,7 +125,7 @@ export function UploadTicketForm({ onSuccess, initialFiles, shoppingSessionId, o
 						<Label htmlFor={photosId}>Photos</Label>
 						<span
 							aria-live='polite'
-							className='font-mono text-xs font-medium text-slate-500 tabular-nums'
+							className='font-mono text-xs font-medium text-muted-foreground tabular-nums'
 						>
 							{rejections.length > 0 ? `${previews.length}/${MAX_IMAGES_PER_TICKET}` : `${previews.length} / ${MAX_IMAGES_PER_TICKET}`}
 						</span>
@@ -149,13 +149,13 @@ export function UploadTicketForm({ onSuccess, initialFiles, shoppingSessionId, o
 
 			{loading ? (
 				<Alert variant='receipt-notice' role='status' data-testid='upload-ticket-progress'>
-					<RowIcon icon={InformationCircleIcon} tone='primary' size='sm' testId='upload-ticket-progress-icon' />
-					<AlertTitle>Keep this open until it finishes</AlertTitle>
-					<AlertDescription>Then we read the store, date and items for you.</AlertDescription>
+					<RowIcon icon={Loading03Icon} tone='primary' size='alert' spinning testId='upload-ticket-progress-icon' />
+					<AlertTitle>Uploading your receipt</AlertTitle>
+					<AlertDescription>Keep this open while we upload your photos.</AlertDescription>
 				</Alert>
 			) : previews.length > 0 && rejections.length === 0 ? (
 				<Alert variant='receipt-notice' role='note' data-testid='upload-ticket-review-note'>
-					<span className='flex size-5.5 items-center justify-center'><HugeiconsIcon icon={InformationCircleIcon} strokeWidth={1.8} aria-hidden='true' className='size-4.5 text-blue-700' /></span>
+					<RowIcon icon={InformationCircleIcon} tone='primary' size='alert' testId='upload-ticket-review-note-icon' />
 					<AlertTitle>Review before saving</AlertTitle>
 					<AlertDescription>We read the <strong className='font-semibold text-slate-900'>store, date and total</strong> from the receipt. You confirm them before anything is saved.</AlertDescription>
 				</Alert>
@@ -206,7 +206,7 @@ export function UploadTicketForm({ onSuccess, initialFiles, shoppingSessionId, o
 				)}
 			</div>
 			{rejections.length > 0 ? (
-				<p className='text-center text-xs leading-[1.4] text-slate-500 dark:text-muted-foreground'>The photos that failed are left out; the rest still upload.</p>
+				<p className='text-center text-xs leading-[1.4] text-muted-foreground dark:text-muted-foreground'>The photos that failed are left out; the rest still upload.</p>
 			) : null}
 		</form>
 	)

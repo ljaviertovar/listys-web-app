@@ -111,7 +111,7 @@ export function TripReceiptDetailsSheet({
 									</span>
 									<div className='flex min-w-0 flex-1 flex-col gap-0.5'>
 										<h2 className='font-display text-base leading-normal font-semibold'>Receipt items</h2>
-										<span className='text-xs leading-[1.3] text-slate-500 dark:text-muted-foreground'>
+										<span className='text-xs leading-[1.3] text-muted-foreground dark:text-muted-foreground'>
 											<b className='font-mono font-semibold text-foreground tabular-nums'>{details.items.length}</b>{' '}
 											{details.items.length === 1 ? 'item' : 'items'} found
 										</span>
@@ -125,7 +125,7 @@ export function TripReceiptDetailsSheet({
 												data-testid={`${testId}-item-${item.id}`}
 												className='flex min-h-14 items-center gap-2 py-1.5 pr-3.5 pl-3.5'
 											>
-												<span className='inline-flex h-5.5 shrink-0 items-center gap-1 rounded-md bg-secondary px-2 text-xs leading-none font-medium text-slate-600 dark:bg-muted dark:text-muted-foreground'>
+												<span className='inline-flex h-5.5 shrink-0 items-center gap-1 rounded-md bg-secondary px-2 text-xs leading-none font-medium text-body dark:bg-muted dark:text-muted-foreground'>
 													<b className='font-mono font-semibold text-foreground tabular-nums'>{item.quantity ?? 1}</b>
 													{item.unit || 'unit'}
 												</span>

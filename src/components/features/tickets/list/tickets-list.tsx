@@ -1,70 +1,20 @@
-import { HugeiconsIcon } from '@hugeicons/react'
 import { Invoice01Icon } from '@hugeicons/core-free-icons'
 
-import { ActionLink, DataFigure, DataLine, InlineCounter, RowIcon } from '@/components/commons'
+import { ActionLink, DataFigure, DataLine, EntityLabel, InlineCounter, RowIcon } from '@/components/commons'
 import { Card } from '@/components/ui/card'
-import { Progress } from '@/components/ui/progress'
-import { cn } from '@/utils'
 import { MAX_IMAGES_PER_TICKET, MAX_TICKET_IMAGE_MB } from '@/lib/config/limits'
 
 import { NoStoreBadge } from '../no-store-badge'
 import { TicketStatusChip } from '../ticket-status-chip'
-import { TICKET_STATUS_NOTE_ICON, toTicketChipStatus, type TicketStatus } from '../helpers/ticket-status'
+import { toTicketChipStatus } from '../helpers/ticket-status'
 import { UploadAnotherTile } from '../upload/upload-another-tile'
 import { UploadTicketDialog } from '../upload/upload-ticket-dialog'
 import type { TicketListItemData } from './helpers/build-ticket-list-item'
 
 type TicketCardProps = TicketListItemData
 
-const NOTE = 'text-xs leading-[1.3] text-slate-500 dark:text-muted-foreground'
-
-function StatusNote({ status, itemsCount }: { status: TicketStatus; itemsCount: number }) {
-	const noteIcon = TICKET_STATUS_NOTE_ICON[status]
-
-	if (status === 'processing') {
-		return (
-			<div
-				data-testid='ticket-card-progress'
-				className='flex min-w-0 flex-1 flex-col gap-2'
-			>
-				<Progress
-					indeterminate
-					size='sm'
-					tone='track'
-					aria-label='Reading receipt'
-				/>
-				<span className={NOTE}>Reading store and items…</span>
-			</div>
-		)
-	}
-
-	if (status === 'completed') {
-		return (
-			<InlineCounter
-				count={itemsCount}
-				one='item'
-				many='items'
-				testId='ticket-card-count'
-			/>
-		)
-	}
-
-	return (
-		<span className={cn('flex items-center gap-2', NOTE, status === 'failed' && 'font-medium text-red-700 dark:text-red-400')}>
-			{noteIcon ? (
-				<HugeiconsIcon
-					icon={noteIcon}
-					strokeWidth={1.5}
-					className='size-4 shrink-0'
-				/>
-			) : null}
-			{status === 'failed' ? 'Couldn’t read this receipt' : 'Waiting in line to be read'}
-		</span>
-	)
-}
-
-/** A receipt in the list: who it is, when it was uploaded, its status chip and one line about where it stands. */
-export function TicketCard({ id, title, status, itemsCount, photoCount, uploadedLabel, totalLabel, storeConfirmed }: TicketCardProps) {
+/** A receipt card keeps status with its title, the linked store in classification, and count/action in its footer. */
+export function TicketCard({ id, title, status, itemsCount, photoCount, uploadedLabel, totalLabel, storeName, storeConfirmed }: TicketCardProps) {
 	const ticketStatus = toTicketChipStatus(status, itemsCount)
 	// Only a receipt that has finished (or failed) has details worth a labelled link.
 	const showDetails = ticketStatus === 'completed' || ticketStatus === 'failed'
@@ -76,32 +26,36 @@ export function TicketCard({ id, title, status, itemsCount, photoCount, uploaded
 			data-testid={`ticket-card-${id}`}
 			data-status={ticketStatus}
 		>
-			<div className='flex items-center gap-3'>
+			<div className='flex items-start gap-3'>
 				<RowIcon
 					icon={Invoice01Icon}
 					tone='ocr'
 					size='md'
 					testId={`ticket-card-icon-${id}`}
 				/>
-				<div className='flex min-w-0 flex-1 flex-col gap-1'>
+				<div className='flex min-w-0 flex-1 flex-col gap-2.5'>
 					<div className='flex items-center justify-between gap-2'>
 						<h2 className='min-w-0 truncate font-display text-base leading-normal font-semibold tracking-tight'>{title}</h2>
 						<TicketStatusChip status={ticketStatus} />
 					</div>
-					<div className='flex flex-col items-start gap-1.5'>
+					<div className='flex min-w-0 flex-wrap items-center gap-x-2.5 gap-y-1.5'>
+						{storeName ? <EntityLabel name={storeName} testId={`ticket-card-store-${id}`} /> : null}
 						{needsStore ? (
 							<NoStoreBadge testId={`ticket-card-no-store-${id}`} />
 						) : null}
-						<TicketDataLine id={id} storeConfirmed={storeConfirmed} photoCount={photoCount} uploadedLabel={uploadedLabel} totalLabel={totalLabel} />
 					</div>
+					<TicketDataLine id={id} storeConfirmed={storeConfirmed} photoCount={photoCount} uploadedLabel={uploadedLabel} totalLabel={totalLabel} />
 				</div>
 			</div>
 
-			<div className='mt-3 flex min-h-13 items-center justify-between gap-3 border-t border-slate-100 dark:border-border'>
-				<StatusNote
-					status={ticketStatus}
-					itemsCount={itemsCount ?? 0}
-				/>
+			<div className='flex min-h-13 items-center justify-between gap-3 border-t border-slate-100 dark:border-border'>
+				{itemsCount === null ? (
+					<span className='text-sm leading-none text-body dark:text-muted-foreground'>
+						{ticketStatus === 'processing' ? 'Items pending' : 'Item count unavailable'}
+					</span>
+				) : (
+					<InlineCounter count={itemsCount} one='item' many='items' testId={`ticket-card-count-${id}`} />
+				)}
 				{showDetails ? (
 					<ActionLink
 						href={`/tickets/${id}`}
@@ -151,11 +105,11 @@ export function TicketsEmptyState() {
 			>
 				No receipts yet
 			</h2>
-			<p className='mt-1.5 max-w-65 text-sm leading-normal text-slate-500 dark:text-muted-foreground'>
+			<p className='mt-1.5 max-w-65 text-sm leading-normal text-muted-foreground dark:text-muted-foreground'>
 				Upload your first receipt to get started.
 			</p>
 			<UploadTicketDialog className='mt-5 w-auto' />
-			<p className='mt-3 font-mono text-xs leading-[1.4] font-medium text-slate-500 dark:text-muted-foreground'>
+			<p className='mt-3 font-mono text-xs leading-[1.4] font-medium text-muted-foreground dark:text-muted-foreground'>
 				1–{MAX_IMAGES_PER_TICKET} photos · PNG or JPG · {MAX_TICKET_IMAGE_MB} MB each
 			</p>
 		</Card>

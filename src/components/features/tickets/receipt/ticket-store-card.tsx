@@ -49,7 +49,7 @@ export function TicketStoreCard({ ticketId, store, storeSuggestion, storeName }:
 	switch (state.kind) {
 		case 'confirmed':
 			title = state.store.name
-			detail = <p className='text-sm leading-[1.4] text-slate-600 dark:text-muted-foreground'>Confirmed for this receipt.</p>
+			detail = <p className='text-sm leading-[1.4] text-body dark:text-muted-foreground'>Confirmed for this receipt.</p>
 			actionsRow = (
 				<>
 					<Button type='button' variant='secondary' size='primary' disabled={busy} onClick={actions.openPicker}>
@@ -85,7 +85,7 @@ export function TicketStoreCard({ ticketId, store, storeSuggestion, storeName }:
 			break
 		case 'unmatched':
 			title = state.rawName
-			detail = <p className='text-sm leading-[1.4] text-slate-600 dark:text-muted-foreground'>This store isn’t in My Stores yet.</p>
+			detail = <p className='text-sm leading-[1.4] text-body dark:text-muted-foreground'>This store isn’t in My Stores yet.</p>
 			actionsRow = (
 				<>
 					<Button type='button' variant='secondary' size='primary' disabled={busy} onClick={actions.openPicker}>
@@ -100,7 +100,7 @@ export function TicketStoreCard({ ticketId, store, storeSuggestion, storeName }:
 		case 'unrecognized':
 			title = 'Store not found on the receipt'
 			detail = (
-				<p className='text-xs leading-[1.4] text-slate-500 dark:text-muted-foreground'>
+				<p className='text-xs leading-[1.4] text-muted-foreground dark:text-muted-foreground'>
 					The items were read fine. Pick the store so prices and tags land in the right place.
 				</p>
 			)
@@ -124,7 +124,7 @@ export function TicketStoreCard({ ticketId, store, storeSuggestion, storeName }:
 			aria-labelledby={`${ticketId}-store-title`}
 		>
 			<div className='flex flex-col gap-3'>
-				<span className='text-xs leading-[1.25] font-semibold tracking-[0.04em] text-slate-500 uppercase dark:text-muted-foreground'>
+				<span className='text-xs leading-[1.25] font-semibold tracking-[0.04em] text-muted-foreground uppercase dark:text-muted-foreground'>
 					Store
 				</span>
 				<div className='flex items-center gap-3'>
@@ -183,5 +183,5 @@ export function TicketStoreCard({ ticketId, store, storeSuggestion, storeName }:
 }
 
 function RawName({ name }: { name: string }) {
-	return <span className='truncate font-mono text-xs leading-[1.3] font-medium text-slate-500 dark:text-muted-foreground'>Read as “{name}”</span>
+	return <span className='truncate font-mono text-xs leading-[1.3] font-medium text-muted-foreground dark:text-muted-foreground'>Read as “{name}”</span>
 }

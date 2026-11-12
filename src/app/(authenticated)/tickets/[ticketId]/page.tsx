@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 
 import { PageHeader, PageContainer } from '@/components/app'
 import { DataFigure, DataLine } from '@/components/commons'
-import { ReceiptAddedToListNote, TicketAttachCard, NoStoreBadge, TicketReview, TicketStatusChip, TicketStoreCard, TicketSummaryCard, TicketUnreadableState, getReceiptTripSurface, isReadWithoutItems, sumLineTotals, toTicketStatus } from '@/components/features/tickets'
+import { ReceiptAddedToListNote, TicketAttachCard, TicketReview, TicketStatusChip, TicketStoreCard, TicketSummaryCard, TicketUnreadableState, getReceiptTripSurface, isReadWithoutItems, sumLineTotals, toTicketStatus } from '@/components/features/tickets'
 
 import { getTicket } from '@/lib/api/endpoints'
 
@@ -54,9 +54,8 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 	const readWithoutItems = isReadWithoutItems(ticket.ocr_status, ticketItems.length)
 	// Until the lines are on a list or a trip the screen is a review; after, it is the receipt of that store.
 	const isReviewing = isReadReceipt && !ticket.base_list_id && !ticket.shopping_session
-	// A saved receipt of no confirmed store is titled by its date, and says so with the amber chip the list uses.
-	const savedWithoutStore = isReadReceipt && !isReviewing && !store
-	const headerTitle = isReviewing ? 'Review receipt' : (isUnreadable || savedWithoutStore) && uploadedAt ? `Receipt · ${formatShortDate(uploadedAt)}` : storeLabel
+	// Receipt details use the upload date for identity; the store is summarized in its own card below.
+	const headerTitle = uploadedAt ? `Receipt · ${formatShortDate(uploadedAt)}` : 'Receipt'
 	const tripSurface = getReceiptTripSurface({
 		attached: !!ticket.shopping_session,
 		addedToList: !!ticket.base_list_id,
@@ -67,38 +66,16 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 		<>
 			<PageHeader
 				variant='screen'
+				screenStyle='entity-detail'
 				back={{ href: '/tickets', label: 'Receipts' }}
 				title={headerTitle}
-				aside={isReadReceipt || isUnreadable ? <TicketStatusChip status={readWithoutItems ? 'completed' : receiptStatus} /> : undefined}
+				aside={<TicketStatusChip status={readWithoutItems ? 'completed' : receiptStatus} />}
 				desc={
-					isReadReceipt && uploadedAt ? (
-						<div className='flex flex-col items-start gap-1.5'>
-							{savedWithoutStore ? <NoStoreBadge testId='ticket-no-store-chip' /> : null}
-							<DataLine testId='ticket-data'>
-								<>
-									<DataFigure>{extractedItemsCount}</DataFigure> {extractedItemsCount === 1 ? 'item' : 'items'}
-								</>
-								<DataFigure>{formatDate(uploadedAt)}</DataFigure>
-								{typeof ticket.total_amount === 'number' ? <DataFigure>{formatCurrency(ticket.total_amount)}</DataFigure> : null}
-							</DataLine>
-						</div>
-					) : isUnreadable && uploadedAt ? (
-						<DataLine testId='ticket-data'>
-							<>
-								<DataFigure>{readWithoutItems ? 0 : imagePaths.length}</DataFigure> {readWithoutItems ? 'items found' : imagePaths.length === 1 ? 'photo' : 'photos'}
-							</>
-							{`Uploaded ${formatTime(uploadedAt)}`}
-						</DataLine>
-					) : uploadedAt ? (
-						<DataLine testId='ticket-data'>
-							<>
-								Uploaded <DataFigure>{formatDate(uploadedAt)}</DataFigure>
-							</>
-							<DataFigure>{formatTime(uploadedAt)}</DataFigure>
-						</DataLine>
-					) : (
-						'Upload date unknown'
-					)
+					<DataLine testId='ticket-data'>
+						{readWithoutItems ? <><DataFigure>0</DataFigure> items found</> : isUnreadable ? <><DataFigure>{imagePaths.length}</DataFigure> {imagePaths.length === 1 ? 'photo' : 'photos'}</> : null}
+						{uploadedAt ? <>Uploaded <DataFigure>{formatTime(uploadedAt)}</DataFigure></> : 'Upload date unknown'}
+						{isReadReceipt && typeof ticket.total_amount === 'number' ? <DataFigure>{formatCurrency(ticket.total_amount)}</DataFigure> : null}
+					</DataLine>
 				}
 			/>
 			<PageContainer>

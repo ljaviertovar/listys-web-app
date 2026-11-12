@@ -20,9 +20,10 @@ describe('trip item display rules', () => {
 		expect(html).not.toContain('role="checkbox"')
 		expect(html).not.toContain('eggs-average-price')
 	})
-	it('hides prices and permits ticking while shopping', () => {
+	it('shows the average price and permits ticking while shopping', () => {
 		const html = render(false)
-		expect(html).not.toContain('$6.29')
+		expect(html).toContain('$6.29')
+		expect(html).toContain('avg')
 		expect(html).not.toContain('$4.49')
 		expect(html).toContain('role="checkbox"')
 	})
