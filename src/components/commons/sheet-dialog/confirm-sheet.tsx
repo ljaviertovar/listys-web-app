@@ -3,12 +3,14 @@
 import type { ReactNode } from 'react'
 import { useId } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { AlertCircleIcon, Loading03Icon } from '@hugeicons/core-free-icons'
+import { Alert02Icon, AlertCircleIcon, Loading03Icon } from '@hugeicons/core-free-icons'
 
 import { Button } from '@/components/ui/button'
 import { DialogFooter } from '@/components/ui/dialog'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 
 import { SheetDialog } from './sheet-dialog'
+import { RowIcon } from '../row-icon'
 
 interface ConfirmSheetProps {
 	open: boolean
@@ -16,8 +18,11 @@ interface ConfirmSheetProps {
 	title: ReactNode
 	/** Plain explanation under the title. */
 	description?: ReactNode
-	/** What the action costs, in a red box: a destructive confirm names its consequences here. */
+	/** What the action costs, in a feedback panel. */
 	consequence?: ReactNode
+	/** Short heading that summarizes the consequence warning. */
+	consequenceTitle?: ReactNode
+	consequenceTone?: 'danger' | 'warning'
 	/** Extra content between the explanation and the buttons, such as an option to tick. */
 	children?: ReactNode
 	/** Icon tile shown before the description; leave it out for a plain sheet. */
@@ -40,6 +45,8 @@ export function ConfirmSheet({
 	title,
 	description,
 	consequence,
+	consequenceTitle,
+	consequenceTone = 'danger',
 	children,
 	media,
 	cancelLabel = 'Cancel',
@@ -69,24 +76,24 @@ export function ConfirmSheet({
 					<div className='flex items-center gap-3.5'>
 						{media}
 						{description ? (
-							<p id={descriptionId} className='text-sm leading-normal text-slate-600 dark:text-muted-foreground'>{description}</p>
+							<p id={descriptionId} className='text-sm leading-normal text-body dark:text-muted-foreground'>{description}</p>
 						) : null}
 					</div>
 				) : null}
 				{consequence ? (
-					<div
+					<Alert
 						id={consequenceId}
 						role='note'
-						className='flex items-start gap-3 rounded-2xl bg-red-50 px-3.5 py-3 text-sm leading-normal text-red-900 dark:bg-red-950/40 dark:text-red-200'
+						variant={consequenceTone === 'warning' ? 'receipt-warning' : 'receipt-danger'}
 					>
-						<HugeiconsIcon
-							icon={AlertCircleIcon}
-							strokeWidth={1.6}
-							aria-hidden='true'
-							className='mt-px size-5 shrink-0'
+						<RowIcon
+							icon={consequenceTone === 'warning' ? Alert02Icon : AlertCircleIcon}
+							tone={consequenceTone}
+							size='alert'
 						/>
-						<span>{consequence}</span>
-					</div>
+						{consequenceTitle ? <AlertTitle>{consequenceTitle}</AlertTitle> : null}
+						<AlertDescription>{consequence}</AlertDescription>
+					</Alert>
 				) : null}
 				{children}
 			</div>

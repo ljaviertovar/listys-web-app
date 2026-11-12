@@ -14,8 +14,8 @@ const inputVariants = cva(
 			},
 			size: {
 				default: 'h-9 rounded-xl px-3 py-1 text-sm',
-				// Touch height of the app's forms (44px).
-				lg: 'h-11 rounded-2xl px-3.5 text-base md:text-sm',
+				// Mobile form fields match the 48px reference; they return to 44px from md.
+				lg: 'h-12 rounded-2xl px-3.5 text-base md:h-11 md:text-sm',
 			},
 			// Room for a 44px control laid over the end of the field (the show-password toggle).
 			adornment: {

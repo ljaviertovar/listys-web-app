@@ -68,7 +68,7 @@ export function FormField({ htmlFor, label, labelAction, hint, required = false,
 			) : hint ? (
 				<p
 					id={`${htmlFor}-hint`}
-					className='text-xs leading-[1.3] text-slate-500 dark:text-muted-foreground'
+					className='text-xs leading-[1.3] text-muted-foreground dark:text-muted-foreground'
 				>
 					{hint}
 				</p>

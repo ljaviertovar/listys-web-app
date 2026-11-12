@@ -10,25 +10,24 @@ const alertVariants = cva(
 			variant: {
 				default: 'bg-card text-card-foreground',
 				destructive: 'text-destructive bg-card *:[svg]:text-current',
-				// A failed action reported at the top of a form: soft red wash, no border, red-700 text.
-				'destructive-soft': 'rounded-xl border-transparent bg-red-50 px-3.5 font-medium text-red-700 dark:bg-red-950/60 dark:text-red-300 *:[svg]:text-current',
-				info: 'border-blue-500/60 bg-blue-500/10 text-blue-700 dark:text-blue-400 *:[svg]:text-blue-700 dark:*:[svg]:text-blue-400',
-				warning:
-					'border-amber-500/60 bg-amber-500/10 text-amber-700 dark:text-amber-400 *:[svg]:text-amber-700 dark:*:[svg]:text-amber-400',
+				'destructive-soft': 'rounded-2xl border-0 bg-feedback-error-tint px-3.5 font-medium text-feedback-error dark:bg-feedback-error-tint dark:text-feedback-error *:[svg]:text-current',
+				info: 'rounded-2xl border-0 bg-feedback-info-subtle text-feedback-info-strong *:[svg]:text-current',
+				warning: 'rounded-2xl border-0 bg-feedback-warning-subtle text-feedback-warning-strong *:[svg]:text-current',
+				success: 'rounded-2xl border-0 bg-feedback-success-subtle text-feedback-success-strong *:[svg]:text-current',
 				// The blue sibling of receipt-warning: guidance that is not a problem (Prices by Store without data).
 				'receipt-info':
-					'grid-cols-[auto_1fr] gap-x-3 rounded-2xl border-blue-200 bg-blue-50 px-3 py-3 text-blue-900 [&>span]:row-span-2 **:data-[slot=alert-title]:text-sm **:data-[slot=alert-title]:leading-[1.3] **:data-[slot=alert-description]:leading-[1.4] dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-200',
+					'grid-cols-[auto_1fr] gap-x-3 rounded-2xl border-0 bg-feedback-info-subtle px-3 py-3 text-feedback-info-strong [&>span]:row-span-2 **:data-[slot=alert-title]:text-sm **:data-[slot=alert-title]:leading-[1.3] **:data-[slot=alert-description]:leading-[1.4]',
 				// The green sibling of receipt-warning: a comparison that found nothing to decide ("All 14 items match your Pantry").
 				'receipt-success':
-					'grid-cols-[auto_1fr] gap-x-3 rounded-2xl border-green-100 bg-green-50 px-3 py-3 text-green-900 [&>span]:row-span-2 **:data-[slot=alert-title]:text-sm **:data-[slot=alert-title]:leading-[1.3] **:data-[slot=alert-description]:text-xs **:data-[slot=alert-description]:leading-[1.4] **:data-[slot=alert-description]:text-slate-600 dark:border-green-500/30 dark:bg-green-500/10 dark:text-green-200 dark:**:data-[slot=alert-description]:text-green-200',
+					'grid-cols-[auto_1fr] gap-x-3 rounded-2xl border-0 inset-ring-1 inset-ring-feedback-success-tint bg-feedback-success-subtle px-3 py-3 text-feedback-success-strong [&>span]:row-span-2 **:data-[slot=alert-title]:text-sm **:data-[slot=alert-title]:leading-[1.3] **:data-[slot=alert-description]:text-xs **:data-[slot=alert-description]:leading-[1.4] **:data-[slot=alert-description]:text-body',
 				// A note about the receipt flow that is not a state of the receipt (the upload's "Review before saving"): blue, body 14/1.5.
 				'receipt-notice':
-					'grid-cols-[auto_1fr] gap-x-3 rounded-2xl border-0 inset-ring-1 inset-ring-blue-100 bg-blue-50 px-3 py-3 text-blue-900 [&>span]:row-span-2 **:data-[slot=alert-title]:text-sm **:data-[slot=alert-title]:leading-[1.4] **:data-[slot=alert-description]:text-sm **:data-[slot=alert-description]:leading-normal **:data-[slot=alert-description]:[text-wrap-style:auto] **:data-[slot=alert-description]:text-slate-600 dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-200 dark:**:data-[slot=alert-description]:text-blue-200 dark:inset-ring-blue-500/30',
+					'grid-cols-[auto_1fr] gap-x-3 rounded-2xl border-0 inset-ring-1 inset-ring-feedback-info-tint bg-feedback-info-subtle px-3 py-3 text-feedback-info-strong [&>span]:row-span-2 **:data-[slot=alert-title]:text-sm **:data-[slot=alert-title]:leading-[1.4] **:data-[slot=alert-description]:text-sm **:data-[slot=alert-description]:leading-normal **:data-[slot=alert-description]:[text-wrap-style:auto] **:data-[slot=alert-description]:text-body',
 				'receipt-warning':
-					'grid-cols-[auto_1fr] gap-x-3 rounded-2xl border-amber-200 bg-amber-50 px-3 py-3 text-amber-800 [&>span]:row-span-2 **:data-[slot=alert-title]:text-sm **:data-[slot=alert-title]:leading-[1.3] **:data-[slot=alert-description]:text-sm **:data-[slot=alert-description]:leading-normal **:data-[slot=alert-description]:text-slate-600 dark:**:data-[slot=alert-description]:text-amber-200 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200',
+					'grid-cols-[auto_1fr] gap-x-3 rounded-2xl border-0 inset-ring-1 inset-ring-feedback-warning-tint bg-feedback-warning-subtle px-3 py-3 text-feedback-warning-strong [&>span]:row-span-2 **:data-[slot=alert-title]:text-sm **:data-[slot=alert-title]:leading-[1.3] **:data-[slot=alert-description]:text-sm **:data-[slot=alert-description]:leading-normal **:data-[slot=alert-description]:text-body',
 				// The red sibling of receipt-warning: something that did not happen and what is still safe (a save that did not go through).
 				'receipt-danger':
-					'grid-cols-[auto_1fr] gap-x-3 rounded-2xl border-red-200 bg-red-50 px-3 py-3 text-red-800 [&>span]:row-span-2 **:data-[slot=alert-title]:text-sm **:data-[slot=alert-title]:leading-[1.3] **:data-[slot=alert-description]:leading-[1.4] dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-200',
+					'grid-cols-[auto_1fr] gap-x-3 rounded-2xl border-0 inset-ring-1 inset-ring-feedback-error-tint bg-feedback-error-subtle px-3 py-3 text-feedback-error-strong [&>span]:row-span-2 **:data-[slot=alert-title]:text-sm **:data-[slot=alert-title]:leading-[1.3] **:data-[slot=alert-description]:leading-[1.4]',
 			},
 		},
 		defaultVariants: {

@@ -19,7 +19,7 @@ export function EntityLabel({ name, manual = false, size = 'default', testId = '
 	return (
 		<span
 			data-testid={testId}
-			className={size === 'lg' ? 'inline-flex min-w-0 items-center gap-1.5 text-sm leading-none' : 'inline-flex min-w-0 items-center gap-1.5 text-xs leading-none'}
+			className={size === 'lg' ? 'inline-flex min-w-0 items-center gap-1.5 text-sm leading-none' : 'inline-flex h-5.5 min-w-0 items-center gap-1.5 text-xs leading-none'}
 		>
 			<HugeiconsIcon
 				icon={Store03Icon}
@@ -28,7 +28,7 @@ export function EntityLabel({ name, manual = false, size = 'default', testId = '
 				className={size === 'lg' ? 'size-4 shrink-0 text-violet-600 dark:text-violet-300' : 'size-3.5 shrink-0 text-violet-600 dark:text-violet-300'}
 			/>
 			<span className='truncate font-semibold text-violet-800 dark:text-violet-200'>{name}</span>
-			{manual ? <span className='shrink-0 font-normal text-slate-500 dark:text-muted-foreground'>· set by you</span> : null}
+			{manual ? <span className='shrink-0 font-normal text-muted-foreground dark:text-muted-foreground'>· set by you</span> : null}
 		</span>
 	)
 }

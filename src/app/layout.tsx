@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { ThemeProvider } from '@/providers/theme-provider'
-import { Toaster } from 'sonner'
+import { SonnerToaster } from '@/components/app/sonner-toaster'
 import { PwaRegister } from '@/components/features/pwa'
 
 import { IBM_Plex_Mono, Inter, Plus_Jakarta_Sans } from 'next/font/google'
@@ -107,7 +107,7 @@ export default function RootLayout({
 					<ActiveSessionInit />
 					<PwaRegister />
 					{children}
-					<Toaster position='top-center' />
+					<SonnerToaster />
 				</ThemeProvider>
 			</body>
 		</html>

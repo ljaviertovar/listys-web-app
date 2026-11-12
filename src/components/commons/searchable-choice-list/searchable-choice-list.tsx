@@ -84,7 +84,7 @@ export function SearchableChoiceList({
 			<p
 				id={statusId}
 				aria-live='polite'
-				className={variant === 'card' ? 'sr-only' : 'text-xs text-slate-500 dark:text-muted-foreground'}
+				className={variant === 'card' ? 'sr-only' : 'text-xs text-muted-foreground dark:text-muted-foreground'}
 			>
 				{status}
 			</p>
@@ -140,10 +140,10 @@ export function ChoiceRow({ option, variant = 'default', testId = `choice-${opti
 			/>
 			<span className='flex min-w-0 flex-1 flex-col'>
 				<span className={cn('break-words text-sm', variant === 'card' ? 'font-semibold' : 'font-medium')}>{option.label}</span>
-				{option.note ? <span className='break-words text-xs text-slate-500 dark:text-muted-foreground'>{option.note}</span> : null}
+				{option.note ? <span className='break-words text-xs text-muted-foreground dark:text-muted-foreground'>{option.note}</span> : null}
 			</span>
 			{option.detail ? (
-				<span className='shrink-0 font-mono text-xs text-slate-500 tabular-nums dark:text-muted-foreground'>{option.detail}</span>
+				<span className='shrink-0 font-mono text-xs text-muted-foreground tabular-nums dark:text-muted-foreground'>{option.detail}</span>
 			) : null}
 		</label>
 	)

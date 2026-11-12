@@ -48,7 +48,7 @@ export default async function AuthenticatedLayout({ children }: { children: Reac
 					<Header />
 					{/* scroll-pb keeps a focused control clear of the pinned bottom bars (the dashboard's phone session bar is 72px+). */}
 					{/* The page ground of design A1 (#F2F4F7); the dark theme keeps its own sidebar token. */}
-					<main id='main-content' tabIndex={-1} className='flex-1 scroll-pb-24 overflow-y-auto bg-background pt-15 focus:outline-none dark:bg-sidebar lg:pt-0'>
+				<main id='main-content' tabIndex={-1} className='flex-1 scroll-pb-24 overflow-y-auto bg-background pt-15 focus:outline-none max-sm:[scrollbar-width:none] max-sm:[&::-webkit-scrollbar]:hidden dark:bg-sidebar lg:pt-0'>
 						{children}
 					</main>
 					{/* Phones: reserve its full footprint after the scroll viewport to keep content clear. */}

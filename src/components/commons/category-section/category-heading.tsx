@@ -34,24 +34,24 @@ export function CategoryHeading({ category, title = category, count, complete = 
 			{tone === 'ocr' ? (
 				<RowIcon icon={headingIcon} tone='ocr' size='sm' testId={`${testId}-icon`} />
 			) : (
-				<span className={cn('flex size-8 shrink-0 items-center justify-center rounded-lg bg-secondary dark:bg-muted', description && 'self-start mt-1', tone === 'primary' && 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300', tone === 'success' && 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300', tone === 'warning' && 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300')}>
+				<span className={cn('flex size-8 shrink-0 items-center justify-center rounded-lg bg-secondary dark:bg-muted', description && 'self-start mt-1')}>
 					<HugeiconsIcon
 						icon={headingIcon}
 						strokeWidth={1.5}
 						aria-hidden='true'
-						className={cn('size-4.5', !tone && getCategoryTone(category), tone === 'muted' && 'text-slate-500')}
+						className={cn('size-4.5', !tone && getCategoryTone(category), tone === 'primary' && 'text-primary', tone === 'success' && 'text-feedback-success', tone === 'warning' && 'text-feedback-warning', tone === 'muted' && 'text-muted-foreground')}
 					/>
 				</span>
 			)}
 			<span className={cn('min-w-0 flex-1', description && 'py-3')}>
-				<span className='block font-sans text-xs leading-[1.25] font-semibold tracking-[0.04em] text-slate-700 uppercase dark:text-foreground/80'>{title}</span>
-				{description ? <span className='mt-2 block text-xs leading-normal font-normal text-slate-500 normal-case dark:text-muted-foreground'>{description}</span> : null}
+				<span className='block font-sans text-xs leading-[1.25] font-semibold tracking-[0.04em] text-text-secondary uppercase dark:text-foreground/80'>{title}</span>
+				{description ? <span className='mt-2 block text-xs leading-normal font-normal text-muted-foreground normal-case dark:text-muted-foreground'>{description}</span> : null}
 			</span>
 			<span
 				className={cn(
 					'font-mono text-xs tabular-nums',
 					description && 'self-start mt-3',
-					complete ? 'font-semibold text-green-700 dark:text-green-400' : 'font-medium text-slate-500 dark:text-muted-foreground',
+					complete ? 'font-semibold text-green-700 dark:text-green-400' : 'font-medium text-muted-foreground dark:text-muted-foreground',
 				)}
 			>
 				{count}

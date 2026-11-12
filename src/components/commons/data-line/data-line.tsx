@@ -23,7 +23,7 @@ export function DataLine({ children, testId = 'data-line' }: DataLineProps) {
 	return (
 		<p
 			data-testid={testId}
-			className='text-sm leading-[1.2] text-slate-600 dark:text-muted-foreground'
+			className='text-sm leading-[1.2] text-body dark:text-muted-foreground'
 		>
 			{facts.map((fact, index) => (
 				<Fragment key={index}>

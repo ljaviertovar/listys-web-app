@@ -1,11 +1,11 @@
 'use client'
 
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react'
-import type { Ref } from 'react'
+import { Fragment, type Ref } from 'react'
 import { MoreHorizontalIcon } from '@hugeicons/core-free-icons'
 
 import { Button } from '@/components/ui/button'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 
 export interface RowMenuAction {
 	label: string
@@ -13,6 +13,8 @@ export interface RowMenuAction {
 	onSelect: () => void
 	/** `danger` paints the action red: it deletes or discards something. */
 	tone?: 'default' | 'danger'
+	/** Adds a divider before this action to separate it from the actions above. */
+	separatorBefore?: boolean
 	disabled?: boolean
 }
 
@@ -52,24 +54,26 @@ export function RowMenu({ label, actions, disabled = false, testId, className, t
 			<DropdownMenuContent
 				align='end'
 				variant='menu'
-				className='w-52'
+				className='w-58'
 			>
 				{actions.map(action => (
-					<DropdownMenuItem
-						key={action.label}
-						disabled={action.disabled}
-						onSelect={action.onSelect}
-						size='touch'
-						variant={action.tone === 'danger' ? 'destructive' : 'default'}
-					>
-						<HugeiconsIcon
-							icon={action.icon}
-							strokeWidth={1.8}
-							aria-hidden='true'
-							className='size-4.5'
-						/>
-						{action.label}
-					</DropdownMenuItem>
+					<Fragment key={action.label}>
+						{action.separatorBefore ? <DropdownMenuSeparator variant='solid' className='mx-2 my-1' /> : null}
+						<DropdownMenuItem
+							disabled={action.disabled}
+							onSelect={action.onSelect}
+							size='touch'
+							variant={action.tone === 'danger' ? 'destructive' : 'default'}
+						>
+							<HugeiconsIcon
+								icon={action.icon}
+								strokeWidth={1.8}
+								aria-hidden='true'
+								className='size-4.5'
+							/>
+							{action.label}
+						</DropdownMenuItem>
+					</Fragment>
 				))}
 			</DropdownMenuContent>
 		</DropdownMenu>

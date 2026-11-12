@@ -46,7 +46,7 @@ const dialogContentVariants = cva("", {
     variant: {
       default: "",
       sheet:
-        "gap-5 rounded-3xl border-0 p-4 md:p-6 max-h-[92dvh] max-sm:gap-3 max-sm:pt-7 max-sm:pb-[max(1.5rem,env(safe-area-inset-bottom))]",
+        "gap-5 rounded-3xl border-0 p-4 md:p-6 max-h-[92dvh] max-sm:gap-3 max-sm:pt-7 max-sm:pb-[max(2.25rem,env(safe-area-inset-bottom))]",
       viewer: "gap-0 rounded-none border-0 bg-ink p-0 text-white",
     },
   },
@@ -193,9 +193,9 @@ const dialogDescriptionVariants = cva("", {
   variants: {
     variant: {
       default: "text-xs text-muted-foreground md:text-sm",
-      sheet: "text-xs leading-normal text-slate-500 dark:text-muted-foreground md:text-sm",
+      sheet: "text-xs leading-normal text-muted-foreground dark:text-muted-foreground md:text-sm",
       // The lead-in sentence of a sheet, set as body text under the title row.
-      body: "text-sm leading-normal text-slate-600 dark:text-muted-foreground max-sm:mt-3",
+      body: "text-sm leading-normal text-body dark:text-muted-foreground max-sm:mt-3",
     },
   },
   defaultVariants: { variant: "default" },

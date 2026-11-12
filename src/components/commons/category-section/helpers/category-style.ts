@@ -1,5 +1,4 @@
 import {
-	Apple01Icon,
 	Bread01Icon,
 	CarrotIcon,
 	CheeseIcon,
@@ -7,8 +6,9 @@ import {
 	FishFoodIcon,
 	Home01Icon,
 	Invoice01Icon,
-	JarIcon,
 	Leaf01Icon,
+	Menu02Icon,
+	MilkBottleIcon,
 	Package01Icon,
 	PopcornIcon,
 	ShoppingBag01Icon,
@@ -20,17 +20,17 @@ import {
 import type { IconSvgElement } from '@hugeicons/react'
 
 const CATEGORY_ICONS: Record<string, IconSvgElement> = {
-	Produce: Apple01Icon,
+	Produce: Leaf01Icon,
 	'Salad Greens': CarrotIcon,
 	'Salad Bar': CarrotIcon,
-	Dairy: CheeseIcon,
+	Dairy: MilkBottleIcon,
 	Deli: CheeseIcon,
 	Meat: SteakIcon,
 	Meats: SteakIcon,
 	Seafood: FishFoodIcon,
 	Bakery: Bread01Icon,
 	'Bakery Commercial': Bread01Icon,
-	Pantry: JarIcon,
+	Pantry: Menu02Icon,
 	Frozen: SnowIcon,
 	'Frozen Food': SnowIcon,
 	Beverages: SodaCanIcon,
@@ -59,7 +59,7 @@ const TONE = {
 	yellow: 'text-yellow-700 dark:text-yellow-400',
 	pink: 'text-pink-700 dark:text-pink-400',
 	lime: 'text-lime-700 dark:text-lime-400',
-	slate: 'text-slate-600 dark:text-muted-foreground',
+	slate: 'text-body dark:text-muted-foreground',
 } as const
 
 const CATEGORY_TONES: Record<string, string> = {

@@ -34,7 +34,7 @@ function Tab({ item, isActive }: { item: (typeof MOBILE_TAB_ITEMS)[number]; isAc
 				// The current tab takes the highlight of the menu items (accent surface and text).
 				isActive
 					? 'bg-accent font-semibold text-accent-foreground'
-					: 'font-medium text-slate-500 hover:bg-accent hover:text-accent-foreground',
+					: 'font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground',
 			)}
 		>
 			<HugeiconsIcon

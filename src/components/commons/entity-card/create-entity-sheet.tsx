@@ -19,8 +19,9 @@ interface CreateEntitySheetProps {
 	/** The control that opens the sheet. */
 	trigger: ReactNode
 	title: string
-	description: string
+	description?: string
 	namePlaceholder: string
+	nameLabel?: string
 	secondLabel: string
 	secondPlaceholder: string
 	secondMax: number
@@ -37,6 +38,7 @@ export function CreateEntitySheet({
 	title,
 	description,
 	namePlaceholder,
+	nameLabel = 'Name',
 	secondLabel,
 	secondPlaceholder,
 	secondMax,
@@ -83,11 +85,11 @@ export function CreateEntitySheet({
 			<form
 				onSubmit={handleSubmit(submit)}
 				noValidate
-				className='flex flex-col gap-5'
+				className='flex flex-col gap-4'
 			>
 				<FormField
 					htmlFor={`${id}-name`}
-					label='Name'
+					label={nameLabel}
 					required
 					error={errors.name?.message}
 					testId={`${testId}-name-field`}
@@ -115,22 +117,10 @@ export function CreateEntitySheet({
 						disabled={loading}
 						aria-invalid={!!errors.second}
 						aria-describedby={errors.second ? `${id}-second-error` : undefined}
-						rows={3}
+						rows={2}
 					/>
 				</FormField>
-				<p className='text-xs text-slate-500 dark:text-muted-foreground'>
-					<span className='text-destructive'>*</span> Required fields
-				</p>
-				<div className='grid grid-cols-2 gap-3'>
-					<Button
-						size='primary'
-						type='button'
-						variant='secondary'
-						disabled={loading}
-						onClick={() => setOpen(false)}
-					>
-						Cancel
-					</Button>
+				<div className='flex flex-col gap-3 sm:grid sm:grid-cols-2'>
 					<Button
 						size='primary'
 						type='submit'
@@ -146,6 +136,15 @@ export function CreateEntitySheet({
 							/>
 						) : null}
 						{loading ? 'Creating…' : submitLabel}
+					</Button>
+					<Button
+						size='primary'
+						type='button'
+						variant='secondary'
+						disabled={loading}
+						onClick={() => setOpen(false)}
+					>
+						Cancel
 					</Button>
 				</div>
 			</form>
