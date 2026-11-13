@@ -20,6 +20,7 @@ const buttonVariants = cva(
 			variant: {
 				default: 'bg-primary text-primary-foreground shadow-none hover:bg-primary-hover active:bg-primary-hover',
 				outline: SECONDARY_BUTTON_STYLE,
+				'outline-surface': 'bg-card text-foreground shadow-none ring-1 ring-inset ring-border-outline hover:bg-background',
 				// The A1 grey button: `--secondary` surface, blue text and icons, no border or shadow.
 				secondary: 'bg-secondary text-secondary-foreground shadow-none hover:bg-secondary-hover',
 				ghost: 'hover:bg-secondary hover:text-foreground data-[state=open]:bg-secondary',
@@ -78,6 +79,8 @@ const buttonVariants = cva(
 				'quiet-touch': "relative h-8 px-2 text-sm after:absolute after:content-[''] after:-inset-y-1.5 after:inset-x-0",
 				xs: "h-6 gap-1 px-2.5 text-xs has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2 [&_svg:not([class*='size-'])]:size-3",
 				sm: 'h-8 gap-1 px-3 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2',
+				// Compact screen-header action: full control height with less label and side padding.
+				'header-action': 'h-10 gap-1 px-2.5 text-xs',
 				'alert-action': "relative h-8 gap-1 px-3 text-xs after:absolute after:content-[''] after:-inset-y-1.5 after:inset-x-0 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
 				'sm-default': "relative h-8 gap-1 px-3 after:absolute after:content-[''] after:-inset-y-1.5 after:inset-x-0 md:static md:h-10 md:gap-1.5 md:px-4 md:after:hidden",
 				default:

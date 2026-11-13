@@ -11,6 +11,8 @@ interface ScheduleOptions {
 	/** What the notice says ("“Pantry” deleted"). */
 	message: string
 	run: () => Promise<{ error?: string | null } | void>
+	onUndo?: () => void
+	onFailure?: () => void
 }
 
 /**
@@ -21,16 +23,25 @@ export function useUndoableAction() {
 	const [pending, setPending] = useState(false)
 	const flushRef = useRef<(() => Promise<void>) | null>(null)
 
-	const schedule = useCallback(({ message, run }: ScheduleOptions) => {
+	const schedule = useCallback(({ message, run, onUndo, onFailure }: ScheduleOptions) => {
 		setPending(true)
 		const { flush } = startUndoable({
-			run,
+			run: async () => {
+				const result = await run()
+				if (!result?.error) {
+					flushRef.current = null
+					setPending(false)
+				}
+				return result
+			},
 			onUndone: () => {
 				flushRef.current = null
+				onUndo?.()
 				setPending(false)
 			},
 			onFailed: error => {
 				toast.error(error)
+				onFailure?.()
 				setPending(false)
 			},
 			show: ({ onUndo, onClose }) => {

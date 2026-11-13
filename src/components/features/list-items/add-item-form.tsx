@@ -61,7 +61,7 @@ export function AddItemForm({ target, isLocked = false, onCancel }: AddItemFormP
 			data-testid='add-item-form'
 			onSubmit={form.handleSubmit(submit)}
 			noValidate
-			className='flex flex-col gap-4 md:gap-5'
+			className='flex flex-col gap-1 md:gap-5'
 		>
 			{isLocked ? (
 				<p
@@ -77,7 +77,7 @@ export function AddItemForm({ target, isLocked = false, onCancel }: AddItemFormP
 				disabled={loading || isLocked}
 				withCategory
 			/>
-			<div className='flex flex-col gap-3 sm:grid sm:grid-cols-2'>
+			<div className='flex flex-col gap-1 sm:grid sm:grid-cols-2'>
 				<Button
 					size='primary'
 					type='submit'

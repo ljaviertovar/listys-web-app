@@ -7,6 +7,10 @@ const alertVariants = cva(
 	"grid gap-0.5 rounded-lg border px-4 py-3 text-left text-xs md:text-sm has-data-[slot=alert-action]:relative has-data-[slot=alert-action]:pr-18 has-[>svg]:grid-cols-[auto_1fr] has-[>svg]:gap-x-2.5 *:[svg]:row-span-2 *:[svg]:translate-y-0.5 *:[svg]:text-current *:[svg:not([class*='size-'])]:size-4 w-full relative group/alert",
 	{
 		variants: {
+			size: {
+				default: '',
+				dashboard: 'flex flex-1 flex-col gap-3 border-0 px-4 py-4',
+			},
 			variant: {
 				default: 'bg-card text-card-foreground',
 				destructive: 'text-destructive bg-card *:[svg]:text-current',
@@ -16,7 +20,7 @@ const alertVariants = cva(
 				success: 'rounded-2xl border-0 bg-feedback-success-subtle text-feedback-success-strong *:[svg]:text-current',
 				// The blue sibling of receipt-warning: guidance that is not a problem (Prices by Store without data).
 				'receipt-info':
-					'grid-cols-[auto_1fr] gap-x-3 rounded-2xl border-0 bg-feedback-info-subtle px-3 py-3 text-feedback-info-strong [&>span]:row-span-2 **:data-[slot=alert-title]:text-sm **:data-[slot=alert-title]:leading-[1.3] **:data-[slot=alert-description]:leading-[1.4]',
+					'grid-cols-[auto_1fr] gap-x-3 rounded-2xl border-0 bg-feedback-info-subtle px-3 py-3 text-feedback-info-strong [&>span]:row-span-2 **:data-[slot=alert-title]:text-sm **:data-[slot=alert-title]:leading-[1.3] **:data-[slot=alert-description]:text-sm **:data-[slot=alert-description]:leading-[1.4] **:data-[slot=alert-description]:text-body',
 				// The green sibling of receipt-warning: a comparison that found nothing to decide ("All 14 items match your Pantry").
 				'receipt-success':
 					'grid-cols-[auto_1fr] gap-x-3 rounded-2xl border-0 inset-ring-1 inset-ring-feedback-success-tint bg-feedback-success-subtle px-3 py-3 text-feedback-success-strong [&>span]:row-span-2 **:data-[slot=alert-title]:text-sm **:data-[slot=alert-title]:leading-[1.3] **:data-[slot=alert-description]:text-xs **:data-[slot=alert-description]:leading-[1.4] **:data-[slot=alert-description]:text-body',
@@ -31,17 +35,18 @@ const alertVariants = cva(
 			},
 		},
 		defaultVariants: {
+			size: 'default',
 			variant: 'default',
 		},
 	},
 )
 
-function Alert({ className, variant, ...props }: React.ComponentProps<'div'> & VariantProps<typeof alertVariants>) {
+function Alert({ className, size, variant, ...props }: React.ComponentProps<'div'> & VariantProps<typeof alertVariants>) {
 	return (
 		<div
 			data-slot='alert'
 			role='alert'
-			className={cn(alertVariants({ variant }), className)}
+			className={cn(alertVariants({ size, variant }), className)}
 			{...props}
 		/>
 	)

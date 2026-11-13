@@ -32,8 +32,10 @@ interface SearchableChoiceListProps {
 	status: string
 	disabled?: boolean
 	showSearchIcon?: boolean
+	searchable?: boolean
 	/** `card` is the sheet picker of the canvas: option cards, the search field named only for assistive tech, and the count announced but not drawn. */
 	variant?: 'default' | 'card'
+	statusVisibility?: 'sr-only' | 'visible'
 	testId: string
 }
 
@@ -52,7 +54,9 @@ export function SearchableChoiceList({
 	status,
 	disabled = false,
 	showSearchIcon = false,
+	searchable = true,
 	variant = 'default',
+	statusVisibility,
 	testId,
 }: SearchableChoiceListProps) {
 	const searchId = useId()
@@ -63,28 +67,30 @@ export function SearchableChoiceList({
 			data-testid={testId}
 			className={variant === 'card' ? 'flex flex-col gap-4' : 'flex flex-col gap-3'}
 		>
-			<div className='flex flex-col gap-2'>
-				<Label htmlFor={searchId} className={variant === 'card' ? 'sr-only' : undefined}>{searchLabel}</Label>
-				<div className='relative'>
-					{showSearchIcon || variant === 'card' ? <HugeiconsIcon icon={Search01Icon} className='pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground' aria-hidden='true' /> : null}
-					<Input
-						id={searchId}
-						type='search'
-						size='lg'
-						adornment={showSearchIcon || variant === 'card' ? 'start' : 'none'}
-						autoComplete='off'
-						maxLength={100}
-						value={query}
-						onChange={event => onQueryChange(event.target.value)}
-						placeholder={placeholder}
-						disabled={disabled}
-					/>
+			{searchable ? (
+				<div className='flex flex-col gap-2'>
+					<Label htmlFor={searchId} className={variant === 'card' ? 'sr-only' : undefined}>{searchLabel}</Label>
+					<div className='relative'>
+						{showSearchIcon || variant === 'card' ? <HugeiconsIcon icon={Search01Icon} className='pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground' aria-hidden='true' /> : null}
+						<Input
+							id={searchId}
+							type='search'
+							size='lg'
+							adornment={showSearchIcon || variant === 'card' ? 'start' : 'none'}
+							autoComplete='off'
+							maxLength={100}
+							value={query}
+							onChange={event => onQueryChange(event.target.value)}
+							placeholder={placeholder}
+							disabled={disabled}
+						/>
+					</div>
 				</div>
-			</div>
+			) : null}
 			<p
 				id={statusId}
 				aria-live='polite'
-				className={variant === 'card' ? 'sr-only' : 'text-xs text-muted-foreground dark:text-muted-foreground'}
+				className={statusVisibility === 'visible' || (statusVisibility !== 'sr-only' && variant !== 'card') ? 'text-xs text-muted-foreground dark:text-muted-foreground' : 'sr-only'}
 			>
 				{status}
 			</p>

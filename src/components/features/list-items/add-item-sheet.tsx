@@ -32,7 +32,7 @@ export function AddItemSheet({ target, label = 'Add Item', isLocked = false, ope
 			onOpenChange={setOpen}
 			trigger={trigger === null ? undefined : (
 				<Button
-					variant='outline'
+					variant='outline-surface'
 					size='primary'
 					{...buttonProps}
 					disabled={isLocked}

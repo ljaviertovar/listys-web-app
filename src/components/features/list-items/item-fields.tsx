@@ -29,7 +29,7 @@ export function ItemFields({ form, idPrefix, disabled = false, withCategory = fa
 	return (
 		<div
 			data-testid={`${idPrefix}-fields`}
-			className={withCategory ? 'flex flex-col gap-3 md:gap-5' : 'flex flex-col gap-5'}
+			className='flex flex-col gap-1'
 		>
 			<FormField
 				htmlFor={`${idPrefix}-name`}
@@ -37,6 +37,7 @@ export function ItemFields({ form, idPrefix, disabled = false, withCategory = fa
 				required
 				error={errors.name?.message}
 				testId={`${idPrefix}-name-field`}
+				density='compact'
 			>
 				<Input
 					id={`${idPrefix}-name`}
@@ -49,13 +50,14 @@ export function ItemFields({ form, idPrefix, disabled = false, withCategory = fa
 				/>
 			</FormField>
 
-			<div className='grid grid-cols-[1fr_1.2fr] items-start gap-3'>
+			<div className='grid grid-cols-2 items-start gap-3'>
 				<FormField
 					htmlFor={`${idPrefix}-quantity`}
 					label='Quantity'
 					required
 					error={errors.quantity?.message}
 					testId={`${idPrefix}-quantity-field`}
+					density='compact'
 				>
 					<Input
 						id={`${idPrefix}-quantity`}
@@ -76,6 +78,7 @@ export function ItemFields({ form, idPrefix, disabled = false, withCategory = fa
 					label='Unit'
 					error={errors.unit?.message}
 					testId={`${idPrefix}-unit-field`}
+					density='compact'
 				>
 					<Controller
 						control={control}
@@ -115,6 +118,7 @@ export function ItemFields({ form, idPrefix, disabled = false, withCategory = fa
 					label='Category'
 					error={errors.category?.message}
 					testId={`${idPrefix}-category-field`}
+					density='compact'
 				>
 					<Controller
 						control={control}
@@ -153,6 +157,7 @@ export function ItemFields({ form, idPrefix, disabled = false, withCategory = fa
 				label='Notes'
 				error={errors.notes?.message}
 				testId={`${idPrefix}-notes-field`}
+				density='compact'
 			>
 				<Textarea
 					id={`${idPrefix}-notes`}
@@ -161,7 +166,8 @@ export function ItemFields({ form, idPrefix, disabled = false, withCategory = fa
 					disabled={disabled}
 					aria-invalid={!!errors.notes}
 					aria-describedby={errors.notes ? `${idPrefix}-notes-error` : undefined}
-					
+					size='compact'
+
 				/>
 			</FormField>
 		</div>

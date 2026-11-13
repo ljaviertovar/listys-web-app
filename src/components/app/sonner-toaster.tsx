@@ -14,6 +14,7 @@ export function SonnerToaster() {
 		<section aria-label='Notifications' data-testid='app-notifications'>
 			<Sonner
 				position='bottom-center'
+				className='max-sm:!bottom-[calc(90px+env(safe-area-inset-bottom))]'
 				theme={theme}
 				offset={24}
 				mobileOffset={{ bottom: 'calc(78px + env(safe-area-inset-bottom) + 12px)' }}

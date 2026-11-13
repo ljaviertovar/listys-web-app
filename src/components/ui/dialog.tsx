@@ -46,7 +46,7 @@ const dialogContentVariants = cva("", {
     variant: {
       default: "",
       sheet:
-        "gap-5 rounded-3xl border-0 p-4 md:p-6 max-h-[92dvh] max-sm:gap-3 max-sm:pt-7 max-sm:pb-[max(2.25rem,env(safe-area-inset-bottom))]",
+        "gap-5 rounded-3xl border-0 p-4 md:p-6 max-h-[92dvh] max-sm:gap-2 max-sm:pt-6 max-sm:pb-[max(0.75rem,env(safe-area-inset-bottom))]",
       viewer: "gap-0 rounded-none border-0 bg-ink p-0 text-white",
     },
   },
@@ -137,10 +137,10 @@ const DialogFooter = ({
   ...props
 }: React.HTMLAttributes<HTMLDivElement> & {
   /**
-   * `inline` keeps the buttons on one row with a 12px gap at every width (a form footer). `sheet` stacks two actions with the primary
-   * on top below `sm` and puts them in two equal columns from `sm` (the confirm of a sheet).
+    * `inline` keeps the buttons on one row with a 12px gap at every width (a form footer). `sheet` stacks two actions with the primary
+    * on top below `sm` and puts them in two equal columns from `sm`; `sheet-stack` keeps three ordered actions stacked.
    */
-  variant?: "default" | "inline" | "sheet";
+  variant?: "default" | "inline" | "sheet" | "sheet-stack";
 }) => (
   <div
     data-variant={variant}
@@ -148,6 +148,7 @@ const DialogFooter = ({
       "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
       variant === "inline" && "flex-row gap-3 sm:space-x-0",
       variant === "sheet" && "gap-3 sm:grid sm:grid-cols-2 sm:space-x-0",
+      variant === "sheet-stack" && "gap-2",
       className,
     )}
     {...props}
@@ -161,7 +162,7 @@ const dialogTitleVariants = cva("", {
       default: "text-base font-semibold leading-none tracking-tight md:text-lg",
       // The heading of an A1 form sheet.
       sheet:
-        "font-display text-xl leading-[1.3] font-semibold tracking-tight text-foreground focus:outline-none max-sm:flex max-sm:min-h-11 max-sm:items-center",
+        "font-display text-xl leading-[1.3] font-semibold tracking-tight text-foreground focus:outline-none max-sm:flex max-sm:min-h-10 max-sm:items-center",
       // A confirmation or a list dialog: bold and tight.
       strong: "text-base leading-none font-bold tracking-tight text-foreground md:text-lg",
       // The title bar of the dark viewer.

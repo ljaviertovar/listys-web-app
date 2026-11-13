@@ -19,12 +19,13 @@ interface FormFieldProps {
 	/** Identifies the field in tests; the caller says which one it is. */
 	testId: string
 	className?: string
+	density?: 'default' | 'compact'
 }
 
 /** A labelled control of an A1 form with its validation message under it: a red alert icon and the text, never colour alone. */
-export function FormField({ htmlFor, label, labelAction, hint, required = false, error, children, testId, className }: FormFieldProps) {
+export function FormField({ htmlFor, label, labelAction, hint, required = false, error, children, testId, className, density = 'default' }: FormFieldProps) {
 	const labelNode = (
-		<Label htmlFor={htmlFor}>
+			<Label htmlFor={htmlFor} size={density === 'compact' ? 'compact' : 'default'}>
 			{label}
 			{required ? (
 				<span
@@ -40,7 +41,7 @@ export function FormField({ htmlFor, label, labelAction, hint, required = false,
 	return (
 		<div
 			data-testid={testId}
-			className={cn('flex flex-col gap-2', className)}
+			className={cn('flex flex-col', density === 'compact' ? 'gap-1' : 'gap-2', className)}
 		>
 			{labelAction ? (
 				<div className='flex items-center justify-between gap-3'>
