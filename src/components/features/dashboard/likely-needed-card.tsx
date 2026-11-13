@@ -23,7 +23,7 @@ export function LikelyNeededCard({ likelyNeeded, startTarget = null }: Props) {
 		<DashboardSectionCard testId='dashboard-likely-needed-card' title='Likely Needed' viewAll={{ href: '/shopping-lists', noun: 'lists', testId: 'dashboard-likely-needed-view-all' }}>
 			{likelyNeeded.items.length === 0 ? (
 				receiptsCount < 3 ? (
-					<Alert data-testid='dashboard-likely-needed-progress' variant='info' role='status' aria-live='polite' className='flex flex-1 flex-col gap-3 border-0 px-4 py-4'>
+					<Alert data-testid='dashboard-likely-needed-progress' variant='info' size='dashboard' role='status' aria-live='polite'>
 						<div className='flex items-center gap-2'>
 							<RowIcon icon={Invoice01Icon} tone='ocr' size='md' />
 						<AlertTitle>{receiptsCount} of 3 receipts</AlertTitle>

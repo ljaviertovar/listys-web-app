@@ -47,7 +47,7 @@ function getCategoryBarColor(name: string) {
 export function MonthSpendingCard() {
 	const spending = useMonthSpending()
 	return (
-		<Card data-testid='dashboard-month-spending-card' size='saved' className='mb-[-8px] gap-0 rounded-3xl'>
+		<Card data-testid='dashboard-month-spending-card' size='spending' className='mb-[-8px]'>
 			{spending.status === 'loading' ? (
 				<div data-testid='dashboard-month-spending-loading' aria-label='Loading monthly spending' className='flex flex-col gap-3 py-6'>
 					<Skeleton className='h-8 w-32' />
@@ -66,7 +66,6 @@ export function MonthSpendingCard() {
 				const receiptTotal = summary.receipt_total ?? summary.total
 				const changePercent = summary.change_percent ?? null
 				const previousTotal = summary.previous_receipt_total ?? null
-				const previousMonth = getPreviousMonthLabel(summary.from)
 				const stores = summary.receipt_stores ?? []
 				const storeTotal = stores.slice(0, 3).reduce((total, store) => total + store.total, 0)
 				const storeShareTotal = storeTotal
@@ -75,6 +74,7 @@ export function MonthSpendingCard() {
 				if (receiptCount === 0) {
 					return <DashboardEmptyState testId='dashboard-month-spending-empty' icon={Invoice01Icon} tone='ocr' title='No receipt spending recorded this month.' message='Upload a receipt to see your spending here.' />
 				}
+				const previousMonth = getPreviousMonthLabel(summary.from)
 				return (
 					<div data-testid='dashboard-month-spending-summary' className='flex flex-col gap-3.5'>
 						<div className='flex items-center justify-between gap-3'>
