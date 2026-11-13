@@ -1,3 +1,6 @@
+'use client'
+
+import { useCallback, useState } from 'react'
 import { ListViewIcon } from '@hugeicons/core-free-icons'
 
 import { EmptyStateCard, EntityCardSkeleton, ListToolbar } from '@/components/commons'
@@ -27,7 +30,16 @@ export function BaseListsList({
 	lastTripByList = {},
 	sharedCountByList = {},
 }: BaseListsListProps) {
-	const visible = baseLists
+	const [pendingDeletionIds, setPendingDeletionIds] = useState<Set<string>>(() => new Set())
+	const visible = baseLists.filter(baseList => !pendingDeletionIds.has(baseList.id))
+	const handlePendingVisibilityChange = useCallback((baseListId: string, visible: boolean) => {
+		setPendingDeletionIds(current => {
+			const next = new Set(current)
+			if (visible) next.delete(baseListId)
+			else next.add(baseListId)
+			return next
+		})
+	}, [])
 	// Named against every list, the shopped one included, so a suffix never changes while a trip is running.
 	const displayNames = buildListDisplayNames(baseLists)
 
@@ -50,14 +62,13 @@ export function BaseListsList({
 				count={visible.length}
 				unit={{ one: 'list', many: 'lists' }}
 				testId='base-lists-toolbar'
-			>
-				<CreateBaseListDialog />
-			</ListToolbar>
+				className='min-h-5 md:min-h-11'
+			/>
 			<div
 				data-testid='base-lists-grid'
 				className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:gap-6 xl:grid-cols-3'
 			>
-				{visible.map(baseList => (
+				{baseLists.map(baseList => (
 					<BaseListCard
 						key={baseList.id}
 						baseList={baseList}
@@ -66,6 +77,7 @@ export function BaseListsList({
 							isDefault={baseList.id === defaultListId}
 							lastTripAt={lastTripByList[baseList.id] ?? null}
 							sharedWithCount={sharedCountByList[baseList.id]}
+							onPendingVisibilityChange={isVisible => handlePendingVisibilityChange(baseList.id, isVisible)}
 					/>
 				))}
 			</div>

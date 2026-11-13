@@ -24,7 +24,7 @@ export default function Header() {
 		>
 			<Shell className='relative flex h-16 items-center gap-[26px]'>
 				<Brand />
-				<nav className='hidden min-[900px]:absolute min-[900px]:left-1/2 min-[900px]:flex min-[900px]:-translate-x-1/2 min-[900px]:gap-6 min-[900px]:text-sm min-[900px]:font-semibold min-[900px]:text-slate-700'>
+				<nav className='hidden min-[900px]:absolute min-[900px]:left-1/2 min-[900px]:flex min-[900px]:-translate-x-1/2 min-[900px]:gap-6 min-[900px]:text-sm min-[900px]:font-semibold min-[900px]:text-text-secondary'>
 					{MARKETING_SECTION_LINKS.map(link => (
 						<Link
 							key={link.href}

@@ -28,11 +28,14 @@ function Progress({
 	size = 'default',
 	tone = 'default',
 	complete = false,
+	indeterminate = false,
 	...props
 }: React.ComponentProps<typeof ProgressPrimitive.Root> &
 	VariantProps<typeof progressVariants> & {
 		/** The task is done: the fill turns green. */
 		complete?: boolean
+		/** The amount is not known (a receipt being read): a short pulsing fill instead of a measured one. */
+		indeterminate?: boolean
 	}) {
 	return (
 		<ProgressPrimitive.Root
@@ -45,8 +48,12 @@ function Progress({
 		>
 			<ProgressPrimitive.Indicator
 				data-slot='progress-indicator'
-				className={cn('size-full flex-1 transition-transform motion-reduce:transition-none', tone === 'on-dark' ? 'bg-linear-to-r from-blue-400 to-blue-500' : complete ? 'bg-green-500' : 'bg-primary')}
-				style={{ transform: `translateX(-${100 - (value || 0)}%)` }}
+				className={cn(
+					'size-full flex-1 transition-transform motion-reduce:transition-none',
+					tone === 'on-dark' ? 'bg-linear-to-r from-blue-400 to-blue-500' : complete ? 'bg-green-500' : 'bg-primary',
+					indeterminate && 'w-2/5 flex-none animate-pulse rounded-full motion-reduce:animate-none',
+				)}
+				style={indeterminate ? undefined : { transform: `translateX(-${100 - (value || 0)}%)` }}
 			/>
 		</ProgressPrimitive.Root>
 	)

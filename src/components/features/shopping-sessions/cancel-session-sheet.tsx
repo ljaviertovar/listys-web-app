@@ -11,12 +11,15 @@ import { useTripSync } from './hooks/use-trip-sync'
 
 interface CancelSessionSheetProps {
 	sessionId: string
+	listName: string
+	checked: number
+	total: number
 	open: boolean
 	onOpenChange: (open: boolean) => void
 }
 
 /** "Cancel Shopping?": discards the running session. It never reaches the history and cannot be undone, and the sheet says so. */
-export function CancelSessionSheet({ sessionId, open, onOpenChange }: CancelSessionSheetProps) {
+export function CancelSessionSheet({ sessionId, listName, checked, total, open, onOpenChange }: CancelSessionSheetProps) {
 	const [loading, setLoading] = useState(false)
 	const { controller } = useTripSync(sessionId)
 	const router = useRouter()
@@ -44,7 +47,10 @@ export function CancelSessionSheet({ sessionId, open, onOpenChange }: CancelSess
 			open={open}
 			onOpenChange={onOpenChange}
 			title='Cancel Shopping?'
-			consequence='This discards the session entirely. It won’t be saved to your history and it can’t be undone.'
+			description={`You have collected ${checked} of ${total} items. Checks are discarded.`}
+			consequenceTitle={`${listName} stays as it was`}
+			consequence='Nothing from this trip is saved to your history.'
+			consequenceTone='warning'
 			cancelLabel='Keep Shopping'
 			confirmLabel='Cancel Shopping'
 			loadingLabel='Cancelling…'

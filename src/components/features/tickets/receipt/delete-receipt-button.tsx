@@ -4,21 +4,29 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Delete02Icon, Loading03Icon } from '@hugeicons/core-free-icons'
+import { Alert02Icon, Delete02Icon, Loading03Icon } from '@hugeicons/core-free-icons'
 
+import { RowIcon, SheetDialog } from '@/components/commons'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogMedia, AlertDialogTitle } from '@/components/ui/alert-dialog'
 import { deleteTicket } from '@/lib/api/endpoints'
 
-export function DeleteReceiptButton({ ticketId, returnHref = '/tickets', onDeleted, warning = 'This will remove the receipt image and all extracted items. This action cannot be undone.' }: {
+const DEFAULT_WARNING = 'This will remove the receipt image and all extracted items. This action cannot be undone.'
+
+export function DeleteReceiptButton({ ticketId, returnHref = '/tickets', onDeleted, warning = DEFAULT_WARNING, saved = false }: {
 	ticketId: string
 	returnHref?: string
 	onDeleted?: () => void
 	warning?: string
+	/** The receipt's items already went into a list: deleting it leaves them there, and the sheet says so. */
+	saved?: boolean
 }) {
 	const [open, setOpen] = useState(false)
 	const [deleting, setDeleting] = useState(false)
 	const router = useRouter()
+	const [warningTitle, ...warningRest] = saved
+		? ['Items already saved to your list from this receipt stay there', 'Only the receipt and its photos are deleted.']
+		: warning.split(/(?<=\.)\s+/)
 
 	const handleDelete = async () => {
 		if (deleting) return
@@ -40,22 +48,24 @@ export function DeleteReceiptButton({ ticketId, returnHref = '/tickets', onDelet
 
 	return <div data-testid='delete-receipt-action'>
 		<Button type='button' variant='destructive-soft' size='primary' onClick={() => setOpen(true)} className='w-full'>
-			<HugeiconsIcon icon={Delete02Icon} strokeWidth={2} className='size-4' />Delete Receipt
+			<HugeiconsIcon icon={Delete02Icon} strokeWidth={1.5} className='size-4.5' />Delete Receipt
 		</Button>
-		<AlertDialog open={open} onOpenChange={next => { if (!deleting) setOpen(next) }}>
-			<AlertDialogContent size='sm'>
-				<AlertDialogHeader>
-					<AlertDialogMedia tone='destructive'><HugeiconsIcon icon={Delete02Icon} strokeWidth={2} className='size-4' /></AlertDialogMedia>
-					<AlertDialogTitle variant='strong'>Delete Receipt?</AlertDialogTitle>
-					<AlertDialogDescription>{warning}</AlertDialogDescription>
-				</AlertDialogHeader>
-				<AlertDialogFooter>
-					<AlertDialogCancel variant='outline' disabled={deleting}>Cancel</AlertDialogCancel>
-					<AlertDialogAction variant='destructive' disabled={deleting} onClick={event => { event.preventDefault(); void handleDelete() }} className='flex-1'>
-						{deleting ? <><HugeiconsIcon icon={Loading03Icon} strokeWidth={2} className='size-4 animate-spin' />Deleting…</> : 'Delete'}
-					</AlertDialogAction>
-				</AlertDialogFooter>
-			</AlertDialogContent>
-		</AlertDialog>
+		<SheetDialog open={open} onOpenChange={next => { if (!deleting) setOpen(next) }} title='Delete this receipt?' role='alertdialog' testId='delete-receipt-sheet' fit>
+			<div className='flex flex-col gap-4'>
+				<Alert variant='receipt-warning' role='note' data-testid='delete-receipt-warning'>
+					<RowIcon icon={Alert02Icon} tone='warning' size='alert' testId='delete-receipt-warning-icon' />
+					<AlertTitle>{warningTitle}</AlertTitle>
+					{warningRest.length > 0 ? <AlertDescription>{warningRest.join(' ')}</AlertDescription> : null}
+				</Alert>
+				<div className='flex flex-col gap-2'>
+					<Button type='button' variant='destructive-soft' size='primary' disabled={deleting} onClick={() => void handleDelete()} data-testid='delete-receipt-confirm'>
+						{deleting
+							? <><HugeiconsIcon icon={Loading03Icon} strokeWidth={1.5} className='size-4.5 animate-spin motion-reduce:animate-none' />Deleting…</>
+							: <><HugeiconsIcon icon={Delete02Icon} strokeWidth={1.5} className='size-4.5' />Delete Receipt</>}
+					</Button>
+					<Button type='button' variant='secondary' size='primary' disabled={deleting} onClick={() => setOpen(false)}>Cancel</Button>
+				</div>
+			</div>
+		</SheetDialog>
 	</div>
 }

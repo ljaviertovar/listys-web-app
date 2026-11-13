@@ -49,16 +49,16 @@ export function CreateBaseListDialog({ children, ...buttonProps }: Props) {
 								strokeWidth={1.8}
 								data-icon='inline-start'
 							/>
-							New Base List
+							New List
 						</>
 					)}
 				</Button>
 			}
-			title='Create New Base List'
-			description='Add a reusable shopping list template.'
-			namePlaceholder='e.g. Weekly Groceries, Monthly Supplies'
+			title='New List'
+			namePlaceholder='e.g. Cottage'
+			nameLabel='List Name'
 			secondLabel='Notes'
-			secondPlaceholder='Optional notes for this list'
+			secondPlaceholder='What is this list for?'
 			secondMax={500}
 			submitLabel='Create List'
 			onCreate={handleCreate}

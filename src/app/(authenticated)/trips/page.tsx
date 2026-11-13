@@ -2,7 +2,7 @@ import type { ComponentProps } from 'react'
 import { redirect } from 'next/navigation'
 
 import { HugeiconsIcon } from '@hugeicons/react'
-import { ShoppingBag02Icon } from '@hugeicons/core-free-icons'
+import { ShoppingBag03Icon } from '@hugeicons/core-free-icons'
 
 import { Card } from '@/components/ui/card'
 
@@ -61,14 +61,14 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
 								aria-hidden='true'
 							>
 								<HugeiconsIcon
-									icon={ShoppingBag02Icon}
+									icon={ShoppingBag03Icon}
 									strokeWidth={1.5}
 									className='size-6.5'
 								/>
 							</span>
 							<div className='flex flex-col gap-1.5'>
 								<h3 className='text-base font-semibold tracking-tight'>No trips yet</h3>
-								<p className='mx-auto max-w-[280px] text-sm leading-[1.55] text-slate-500'>
+								<p className='mx-auto max-w-[280px] text-sm leading-[1.55] text-muted-foreground'>
 									Your trips will appear here once you complete your first shopping session.
 								</p>
 							</div>

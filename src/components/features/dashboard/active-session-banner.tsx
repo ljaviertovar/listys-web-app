@@ -84,7 +84,7 @@ export function ActiveSessionBanner({ session, isGuest = false, otherSessionCoun
 				</Button>
 
 				{isGuest ? (
-					<Badge variant='pending'>
+					<Badge variant='tag'>
 						<HugeiconsIcon
 							icon={UserStar02Icon}
 							className='size-3'

@@ -2,8 +2,9 @@
 
 import type { ReactNode } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { ListViewIcon, Loading03Icon, PackageSearchIcon, SpamIcon, Tick02Icon } from '@hugeicons/core-free-icons'
+import { Invoice01Icon, Loading03Icon, PackageSearchIcon, SpamIcon, Tick02Icon } from '@hugeicons/core-free-icons'
 
+import { RowIcon } from '@/components/commons'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 
 import { TicketItemsList, type TicketItemsTriage } from './ticket-items-list'
@@ -19,12 +20,13 @@ interface TicketItemsCardProps {
 	status: TicketStatus
 	ocrError?: string | null
 	selection: TicketSelection
+	canSelect?: boolean
 	/** The selection bar: it floats over the page on a phone and sticks to the bottom of this card from `lg`. */
 	footer?: ReactNode
 	triage?: TicketItemsTriage
 }
 
-function ItemsBody({ items, status, selection, triage }: Omit<TicketItemsCardProps, 'ticketId'>) {
+function ItemsBody({ items, status, selection, canSelect = status === 'completed', triage }: Omit<TicketItemsCardProps, 'ticketId'>) {
 	if (status === 'pending' || status === 'processing') {
 		return (
 			<div className='flex flex-col items-center justify-center py-12'>
@@ -55,14 +57,14 @@ function ItemsBody({ items, status, selection, triage }: Omit<TicketItemsCardPro
 		<TicketItemsList
 			items={items}
 			selection={selection}
-			canSelect={status === 'completed'}
+			canSelect={canSelect}
 			triage={triage}
 		/>
 	)
 }
 
 /** The receipt's extracted items: who is reading it (status chip, live), and then the list, or why there is none yet. */
-export function TicketItemsCard({ ticketId, items, status, ocrError, selection, footer, triage }: TicketItemsCardProps) {
+export function TicketItemsCard({ ticketId, items, status, ocrError, selection, canSelect, footer, triage }: TicketItemsCardProps) {
 	return (
 		<section
 			data-testid='ticket-items-card'
@@ -70,37 +72,34 @@ export function TicketItemsCard({ ticketId, items, status, ocrError, selection, 
 			className='rounded-3xl bg-card p-3 shadow-card md:p-4'
 		>
 			<div className='flex items-center gap-3 px-0.5'>
-				<span className='flex size-10 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300'>
-					<HugeiconsIcon
-						icon={ListViewIcon}
-						strokeWidth={1.5}
-						className='size-5'
-					/>
-				</span>
+				<RowIcon icon={Invoice01Icon} tone='ocr' size='lg' testId='ticket-items-icon' />
 				<div className='flex min-w-0 flex-1 flex-col gap-0.5'>
 					<h2
 						id='ticket-items-title'
-						className='font-display text-base leading-normal font-semibold '
+						className='font-display text-base leading-normal font-semibold'
 					>
 						Extracted Items
 					</h2>
 					{status === 'completed' ? (
-						<span className='text-xs leading-[1.3] text-slate-500 dark:text-muted-foreground'>
+						<span className='text-xs leading-[1.3] text-muted-foreground dark:text-muted-foreground'>
 							<b className='font-mono font-semibold text-foreground tabular-nums'>{items.length}</b>{' '}
 							{items.length === 1 ? 'item' : 'items'} found
 						</span>
 					) : null}
 				</div>
-				<TicketStatusListener
-					ticketId={ticketId}
-					initialStatus={status}
-				/>
+				{status === 'completed' ? null : (
+					<TicketStatusListener
+						ticketId={ticketId}
+						initialStatus={status}
+					/>
+				)}
 			</div>
 			<ItemsBody
 				items={items}
 				status={status}
 				ocrError={ocrError}
 				selection={selection}
+				canSelect={canSelect}
 				triage={triage}
 			/>
 			{footer}
@@ -136,7 +135,7 @@ export function TicketNoItems() {
 			</span>
 			<div className='flex flex-col items-center gap-1.5'>
 				<h3 className='font-display text-base leading-[1.3] font-bold md:text-lg'>No items detected</h3>
-				<p className='max-w-[300px] text-sm leading-normal text-slate-500 dark:text-muted-foreground'>
+				<p className='max-w-[300px] text-sm leading-normal text-muted-foreground dark:text-muted-foreground'>
 					We couldn’t find items in this receipt. Upload a new receipt with a clearer photo, or read this receipt again.
 				</p>
 			</div>
@@ -147,7 +146,7 @@ export function TicketNoItems() {
 				{TIPS.map(tip => (
 					<li
 						key={tip}
-						className='flex items-start gap-2.5 text-sm leading-[1.4] text-slate-700 dark:text-foreground/80'
+						className='flex items-start gap-2.5 text-sm leading-[1.4] text-text-secondary dark:text-foreground/80'
 					>
 						<span className='mt-px flex size-5 shrink-0 items-center justify-center rounded-full bg-secondary text-blue-700 dark:bg-muted dark:text-blue-300'>
 							<HugeiconsIcon

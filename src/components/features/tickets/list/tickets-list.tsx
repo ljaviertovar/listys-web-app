@@ -1,154 +1,188 @@
-import { HugeiconsIcon } from '@hugeicons/react'
-import { Invoice01Icon } from '@hugeicons/core-free-icons'
+'use client'
 
-import { ActionLink, DataLine, InlineCounter } from '@/components/commons'
-import { cn } from '@/utils'
+import { useId, useState } from 'react'
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Alert02Icon, Invoice01Icon, Loading03Icon, Store03Icon } from '@hugeicons/core-free-icons'
+
+import { ActionLink, DataFigure, DataLine, EntityLabel, InlineCounter, RowIcon } from '@/components/commons'
+import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Label } from '@/components/ui/label'
+import { Progress } from '@/components/ui/progress'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { MAX_IMAGES_PER_TICKET, MAX_TICKET_IMAGE_MB } from '@/lib/config/limits'
 
+import { NoStoreBadge } from '../no-store-badge'
 import { TicketStatusChip } from '../ticket-status-chip'
-import { TICKET_STATUS_NOTE_ICON, toTicketStatus, type TicketStatus } from '../helpers/ticket-status'
+import { toTicketChipStatus } from '../helpers/ticket-status'
 import { UploadAnotherTile } from '../upload/upload-another-tile'
 import { UploadTicketDialog } from '../upload/upload-ticket-dialog'
+import type { TicketListItemData } from './helpers/build-ticket-list-item'
 
-interface TicketCardProps {
-	id: string
-	storeName: string | null
-	/** Raw `ocr_status` column; anything unknown reads as pending. */
-	status: string | null
-	itemsCount: number | null
-	/** Already formatted on the server, so no date has to cross the client boundary. */
-	uploadedLabel: string
-}
+type TicketCardProps = TicketListItemData
 
-const NOTE = 'text-sm leading-[1.3] text-slate-600 dark:text-muted-foreground'
-
-function StatusNote({ status, itemsCount }: { status: TicketStatus; itemsCount: number }) {
-	const noteIcon = TICKET_STATUS_NOTE_ICON[status]
-
-	if (status === 'processing') {
-		return (
-			<div
-				data-testid='ticket-card-progress'
-				className='flex min-w-0 flex-1 flex-col gap-2'
-			>
-				<span
-					role='progressbar'
-					aria-label='Reading your receipt'
-					className='block h-1.5 overflow-hidden rounded-full bg-slate-200 dark:bg-muted'
-				>
-					<span className='block h-full w-2/5 animate-pulse rounded-full bg-blue-600 motion-reduce:animate-none' />
-				</span>
-				<span className={NOTE}>Reading your receipt…</span>
-			</div>
-		)
-	}
-
-	if (status === 'completed') {
-		return (
-			<InlineCounter
-				count={itemsCount}
-				one='item'
-				many='items'
-				testId='ticket-card-count'
-			/>
-		)
-	}
-
-	return (
-		<span className={cn('flex items-center gap-2', NOTE, status === 'failed' && 'font-medium text-red-700 dark:text-red-400')}>
-			{noteIcon ? (
-				<HugeiconsIcon
-					icon={noteIcon}
-					strokeWidth={1.8}
-					className='size-4 shrink-0'
-				/>
-			) : null}
-			{status === 'failed' ? 'Couldn’t read this receipt' : 'Your receipt is uploaded and waiting to be read.'}
-		</span>
-	)
-}
-
-/** A receipt in the list: who it is, when it was uploaded, its status chip and one line about where it stands. */
-export function TicketCard({ id, storeName, status, itemsCount, uploadedLabel }: TicketCardProps) {
-	const ticketStatus = toTicketStatus(status, itemsCount)
+/** A receipt card keeps status with its title, the linked store in classification, and count/action in its footer. */
+export function TicketCard({
+	id,
+	title,
+	status,
+	itemsCount,
+	photoCount,
+	uploadedLabel,
+	totalLabel,
+	storeName,
+	storeConfirmed,
+}: TicketCardProps) {
+	const ticketStatus = toTicketChipStatus(status, itemsCount)
 	// Only a receipt that has finished (or failed) has details worth a labelled link.
 	const showDetails = ticketStatus === 'completed' || ticketStatus === 'failed'
+	const needsStore = ticketStatus === 'completed' && !storeConfirmed
 
 	return (
-		<article
+		<Card
+			size='receipt'
 			data-testid={`ticket-card-${id}`}
 			data-status={ticketStatus}
-			className='flex flex-col gap-2 rounded-3xl bg-card p-3 shadow-card md:gap-3 md:p-4'
 		>
-			<div className='flex items-start gap-3'>
-				<span className='flex size-9 shrink-0 items-center justify-center rounded-xl bg-cyan-100 text-cyan-700 dark:bg-cyan-500/20 dark:text-cyan-300'>
-					<HugeiconsIcon
-						icon={Invoice01Icon}
-						strokeWidth={1.5}
-						className='size-4.5'
-					/>
-				</span>
-				<div className='flex min-w-0 flex-1 flex-col gap-2'>
-					<div className='flex min-h-6.5 items-center justify-between gap-2'>
-						<h2 className='min-w-0 truncate font-display text-base leading-normal font-semibold '>
-							{storeName || 'Store not recognized'}
+			<div className='flex items-start gap-3 pb-2.5'>
+				<RowIcon
+					icon={Invoice01Icon}
+					tone='ocr'
+					size='md'
+					testId={`ticket-card-icon-${id}`}
+				/>
+				<div className='flex min-w-0 flex-1 flex-col gap-1.5'>
+					<div className='flex items-center justify-between gap-2'>
+						<h2 className='min-w-0 truncate font-display text-base leading-normal font-semibold tracking-tight'>
+							{title}
 						</h2>
 						<TicketStatusChip status={ticketStatus} />
 					</div>
-					<DataLine testId={`ticket-data-${id}`}>{uploadedLabel}</DataLine>
+					{storeName || needsStore ? (
+						<div className='flex min-w-0 flex-wrap items-center gap-x-2.5 gap-y-1.5'>
+							{storeName ? (
+								<EntityLabel
+									name={storeName}
+									testId={`ticket-card-store-${id}`}
+								/>
+							) : null}
+							{needsStore ? <NoStoreBadge testId={`ticket-card-no-store-${id}`} /> : null}
+						</div>
+					) : null}
+					<TicketDataLine
+						id={id}
+						photoCount={photoCount}
+						uploadedLabel={uploadedLabel}
+						totalLabel={totalLabel}
+					/>
 				</div>
 			</div>
 
-			<div className='flex items-center justify-between gap-3 border-t border-slate-200/70 pt-3 dark:border-border'>
-				<StatusNote
-					status={ticketStatus}
-					itemsCount={itemsCount ?? 0}
-				/>
-				{showDetails ? (
-					<ActionLink
-						href={`/tickets/${id}`}
-						testId={`ticket-details-${id}`}
-						className='shrink-0'
-					>
-						View Details
-					</ActionLink>
-				) : null}
-			</div>
-		</article>
+			{ticketStatus === 'processing' ? (
+				<div className='flex flex-col gap-1.5 border-t border-slate-100 pt-2 dark:border-border'>
+					<Progress
+						indeterminate
+						size='sm'
+						tone='track'
+						aria-label='Reading receipt'
+					/>
+					<p className='text-xs leading-normal text-muted-foreground'>Reading store and items…</p>
+				</div>
+			) : (
+				<div className='flex min-h-10 items-center justify-between gap-3 border-t border-slate-100 dark:border-border'>
+					{ticketStatus === 'pending' ? (
+						<span className='flex items-center gap-2 text-xs text-muted-foreground'>
+							<HugeiconsIcon
+								icon={Loading03Icon}
+								strokeWidth={1.8}
+								className='size-3.5'
+								aria-hidden='true'
+							/>
+							Waiting in line to be read
+						</span>
+					) : null}
+					{ticketStatus === 'failed' ? (
+						<span className='flex items-center gap-2 text-xs text-feedback-error'>
+							<HugeiconsIcon
+								icon={Alert02Icon}
+								strokeWidth={1.8}
+								className='size-3.5'
+								aria-hidden='true'
+							/>
+							Couldn’t read this receipt
+						</span>
+					) : null}
+					{ticketStatus === 'completed' ? (
+						<InlineCounter
+							count={itemsCount ?? 0}
+							one='item'
+							many='items'
+							testId={`ticket-card-count-${id}`}
+						/>
+					) : null}
+					{showDetails ? (
+						<ActionLink
+							href={`/tickets/${id}`}
+							testId={`ticket-details-${id}`}
+							className='shrink-0'
+						>
+							View Details
+						</ActionLink>
+					) : null}
+				</div>
+			)}
+		</Card>
+	)
+}
+
+function TicketDataLine({
+	id,
+	photoCount,
+	uploadedLabel,
+	totalLabel,
+}: Pick<TicketCardProps, 'id' | 'photoCount' | 'uploadedLabel' | 'totalLabel'>) {
+	return (
+		<DataLine testId={`ticket-data-${id}`}>
+			{photoCount > 0 ? (
+				<>
+					<DataFigure emphasis='count'>{photoCount}</DataFigure> {photoCount === 1 ? 'photo' : 'photos'}
+				</>
+			) : null}
+			{uploadedLabel}
+			{totalLabel ? <DataFigure>{totalLabel}</DataFigure> : null}
+		</DataLine>
 	)
 }
 
 /** The receipts screen before the first upload: one message and the one primary action, with the limits spelled out. */
 export function TicketsEmptyState() {
 	return (
-		<section
+		<Card
+			size='receipt'
 			data-testid='tickets-empty-state'
 			aria-labelledby='tickets-empty-title'
-			className='flex flex-col items-center gap-4 rounded-3xl bg-card p-3 text-center shadow-card md:gap-5 md:p-4'
+			className='items-center text-center'
 		>
-			<span className='flex size-16 items-center justify-center rounded-3xl bg-cyan-100 text-cyan-700 md:size-18 dark:bg-cyan-950 dark:text-cyan-300'>
-				<HugeiconsIcon
-					icon={Invoice01Icon}
-					strokeWidth={1.5}
-					className='size-8'
-				/>
-			</span>
-			<div className='flex flex-col gap-1'>
-				<h2
-					id='tickets-empty-title'
-					className='font-display text-lg leading-[1.3] font-bold '
-				>
-					No receipts yet
-				</h2>
-				<p className='text-sm leading-normal text-slate-500 dark:text-muted-foreground'>
-					Upload your first receipt to get started.
-				</p>
-			</div>
-			<UploadTicketDialog className='w-auto' />
-			<p className='font-mono text-xs leading-[1.3] font-medium text-slate-500 dark:text-muted-foreground'>
+			<RowIcon
+				icon={Invoice01Icon}
+				tone='primary'
+				size='empty'
+				testId='tickets-empty-icon'
+			/>
+			<h2
+				id='tickets-empty-title'
+				className='mt-4 font-display text-lg leading-[1.39] font-semibold tracking-[-0.01em]'
+			>
+				No receipts yet
+			</h2>
+			<p className='mt-1.5 max-w-65 text-sm leading-normal text-muted-foreground dark:text-muted-foreground'>
+				Upload your first receipt to get started.
+			</p>
+			<UploadTicketDialog className='mt-5 w-auto' />
+			<p className='mt-3 font-mono text-xs leading-[1.4] font-medium text-muted-foreground dark:text-muted-foreground'>
 				1–{MAX_IMAGES_PER_TICKET} photos · PNG or JPG · {MAX_TICKET_IMAGE_MB} MB each
 			</p>
-		</section>
+		</Card>
 	)
 }
 
@@ -164,20 +198,143 @@ interface TicketsListProps {
  */
 export function TicketsList({ tickets }: TicketsListProps) {
 	if (tickets.length === 0) return <TicketsEmptyState />
+	return <TicketsContent tickets={tickets} />
+}
+
+function TicketsContent({ tickets }: TicketsListProps) {
+	const storeLabelId = useId()
+	const [storeFilter, setStoreFilter] = useState('all')
+	const stores = [...new Set(tickets.flatMap(ticket => (ticket.storeName ? [ticket.storeName] : [])))].sort((a, b) =>
+		a.localeCompare(b),
+	)
+	const hasUnconfirmedStore = tickets.some(
+		ticket => !ticket.storeConfirmed && toTicketChipStatus(ticket.status, ticket.itemsCount) === 'completed',
+	)
+	const filtered = tickets.filter(ticket => {
+		const matchesStore =
+			storeFilter === 'all' ||
+			(storeFilter === 'unconfirmed' ? !ticket.storeConfirmed : ticket.storeName === storeFilter)
+		return matchesStore
+	})
 
 	return (
-		<ul
-			data-testid='tickets-list'
-			className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:gap-6 xl:grid-cols-3'
+		<div
+			className='flex flex-col gap-3'
+			data-testid='tickets-content'
 		>
-			{tickets.map(ticket => (
-				<li key={ticket.id}>
-					<TicketCard {...ticket} />
-				</li>
-			))}
-			<li className='hidden md:block'>
-				<UploadAnotherTile />
-			</li>
-		</ul>
+			<div
+				className='flex flex-col gap-3'
+				data-testid='tickets-filters'
+			>
+				<div className='flex flex-col gap-1.5'>
+					<Label htmlFor={storeLabelId}>Show receipts from store:</Label>
+					<Select
+						value={storeFilter}
+						onValueChange={setStoreFilter}
+					>
+						<SelectTrigger
+							id={storeLabelId}
+							size='lg'
+							aria-label='Filter by store'
+							data-testid='tickets-store-filter'
+						>
+							<span className='flex min-w-0 flex-1 items-center gap-2.5 text-left'>
+								<RowIcon
+									icon={Store03Icon}
+									tone='store'
+									size='xs'
+									testId='tickets-store-filter-icon'
+								/>
+								<SelectValue>
+									{storeFilter === 'all'
+										? 'All Stores'
+										: storeFilter === 'unconfirmed'
+											? 'No store confirmed'
+											: storeFilter}
+								</SelectValue>
+							</span>
+						</SelectTrigger>
+						<SelectContent
+							position='popper'
+							align='start'
+							size='filter'
+							className='w-[var(--radix-select-trigger-width)]'
+						>
+							<SelectItem value='all'>
+								<span className='flex items-center gap-2.5'>
+									<RowIcon
+										icon={Store03Icon}
+										tone='store'
+										size='xs'
+										testId='tickets-store-option-icon-all'
+									/>
+									All Stores
+								</span>
+							</SelectItem>
+							{stores.map(store => (
+								<SelectItem
+									key={store}
+									value={store}
+								>
+									<span className='flex items-center gap-2.5'>
+										<RowIcon
+											icon={Store03Icon}
+											tone='store'
+											size='xs'
+											testId={`tickets-store-option-icon-${store}`}
+										/>
+										{store}
+									</span>
+								</SelectItem>
+							))}
+							{hasUnconfirmedStore ? (
+								<SelectItem value='unconfirmed'>
+									<span className='flex items-center gap-2.5'>
+										<RowIcon
+											icon={Store03Icon}
+											tone='store'
+											size='xs'
+											testId='tickets-store-option-icon-unconfirmed'
+										/>
+										No store confirmed
+									</span>
+								</SelectItem>
+							) : null}
+						</SelectContent>
+					</Select>
+				</div>
+			</div>
+			{filtered.length ? (
+				<ul
+					data-testid='tickets-list'
+					className='grid grid-cols-1 gap-3 sm:grid-cols-2 lg:gap-6 xl:grid-cols-3'
+				>
+					{filtered.map(ticket => (
+						<li key={ticket.id}>
+							<TicketCard {...ticket} />
+						</li>
+					))}
+					<li className='hidden md:block'>
+						<UploadAnotherTile />
+					</li>
+				</ul>
+			) : (
+				<Card
+					size='receipt'
+					className='items-center text-center'
+					data-testid='tickets-filter-empty'
+				>
+					<h2 className='font-display text-base font-semibold'>No receipts match these filters</h2>
+					<Button
+						type='button'
+						variant='ghost-primary'
+						size='link-inline'
+						onClick={() => setStoreFilter('all')}
+					>
+						Clear filter
+					</Button>
+				</Card>
+			)}
+		</div>
 	)
 }

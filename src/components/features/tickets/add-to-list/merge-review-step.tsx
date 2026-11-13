@@ -105,7 +105,7 @@ export function MergeReviewStep({ review, listItems, decisions, onDecide, disabl
 					<CollapsibleTrigger variant='row'>
 						<span className='flex-1 text-sm font-semibold'>
 							Updates by name{' '}
-							<span className='font-mono text-xs font-medium text-slate-500 tabular-nums dark:text-muted-foreground'>{review.byName.length}</span>
+							<span className='font-mono text-xs font-medium text-muted-foreground tabular-nums dark:text-muted-foreground'>{review.byName.length}</span>
 						</span>
 						<HugeiconsIcon
 							icon={ArrowDown01Icon}
@@ -161,9 +161,9 @@ function ReviewSection({ title, count, hint, testId, children }: ReviewSectionPr
 			<div className='flex flex-col gap-0.5'>
 				<h3 className='text-sm font-semibold'>
 					{title}{' '}
-					<span className='font-mono text-xs font-medium text-slate-500 tabular-nums dark:text-muted-foreground'>{count}</span>
+					<span className='font-mono text-xs font-medium text-muted-foreground tabular-nums dark:text-muted-foreground'>{count}</span>
 				</h3>
-				<p className='text-xs leading-normal text-slate-500 dark:text-muted-foreground'>{hint}</p>
+				<p className='text-xs leading-normal text-muted-foreground dark:text-muted-foreground'>{hint}</p>
 			</div>
 			<ul className='flex flex-col gap-2'>{children}</ul>
 		</section>
@@ -197,7 +197,7 @@ function ReviewRow({ line, decision, remembered, suggestedItem, disabled, onLink
 		>
 			<div className='flex min-w-0 flex-1 flex-col'>
 				<span className='break-words text-sm font-medium'>{name}</span>
-				<span className='text-xs leading-normal text-slate-500 dark:text-muted-foreground'>{outcome}</span>
+				<span className='text-xs leading-normal text-muted-foreground dark:text-muted-foreground'>{outcome}</span>
 			</div>
 			<div className='flex min-w-0 flex-wrap justify-start gap-2'>
 				{suggestedItem ? (

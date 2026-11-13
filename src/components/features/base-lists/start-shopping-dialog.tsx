@@ -4,11 +4,12 @@ import { useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Alert02Icon, Loading03Icon, ShoppingCart02Icon, Store01Icon } from '@hugeicons/core-free-icons'
+import { Alert02Icon, Loading03Icon, ListViewIcon, ShoppingCart02Icon, Store03Icon } from '@hugeicons/core-free-icons'
 
 import { Button, type ButtonProps } from '@/components/ui/button'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { DialogFooter } from '@/components/ui/dialog'
-import { SheetDialog } from '@/components/commons'
+import { RowIcon, SheetDialog } from '@/components/commons'
 import { StorePickerDialog, type StorePick } from '@/components/features/stores'
 import { createStore } from '@/lib/api/endpoints/stores'
 import { buildSessionPriceEstimate, startedSessionHref } from '@/components/features/shopping-sessions'
@@ -17,7 +18,7 @@ import useActiveSessionStore from '@/stores/active-session'
 import { cn, formatCurrency } from '@/utils'
 import type { BaseListItemWithStoreSummary, Store } from '@/types'
 
-import { countItemsForStore, shoppingActionMode } from './items/helpers/store-session-summary'
+import { itemsForStore, shoppingActionMode, summarizeItemsByStore } from './items/helpers/store-session-summary'
 
 /** The trigger is a regular `Button`: `size`, `variant`, `className`… go straight to it. `children` replaces the cart icon and "Start Shopping" label. */
 interface Props extends ButtonProps {
@@ -61,7 +62,7 @@ export function StartShoppingDialog({
 		try {
 			const { data, error, activeSessionId } = await createShoppingSession({
 				base_list_id: baseListId,
-				name: baseListName || '',
+				name: baseListName ? `${baseListName} trip` : 'Shopping trip',
 				store_id: selectedStore?.id ?? null,
 			})
 			if (error) {
@@ -74,7 +75,7 @@ export function StartShoppingDialog({
 
 			if (data?.id) {
 				// Update store optimistically
-				setActiveSession({ id: data.id, name: data.name })
+				setActiveSession({ id: data.id, name: data.name, store_id: data.store_id })
 				router.push(startedSessionHref(data.id))
 				// Keep the sheet open with the spinner until navigation completes
 			} else {
@@ -87,7 +88,6 @@ export function StartShoppingDialog({
 			toast.error(err instanceof Error ? err.message : 'Failed to start shopping session')
 			setLoading(false)
 			loadingRef.current = false
-			setOpen(false)
 		}
 	}
 
@@ -112,11 +112,16 @@ export function StartShoppingDialog({
 		}
 	}
 
-	const firstAtStoreCount = selectedStore ? countItemsForStore(items, selectedStore.id) : 0
+	const { counts: storeItemCounts, unassignedCount } = summarizeItemsByStore(items)
+	const listItemCount = itemsCount ?? items.length
+	const selectedItems = selectedStore
+		? itemsForStore(items, selectedStore.id)
+		: items
+	const firstAtStoreCount = selectedItems.length
 
 	const isEmpty = itemsCount !== undefined ? itemsCount === 0 : false
 	// The trip copies these items, so the list's own averages are what it would cost; nothing is shown without a known price.
-	const estimate = buildSessionPriceEstimate(items, items)
+	const estimate = buildSessionPriceEstimate(selectedItems, items)
 
 	if (shoppingActionMode(sessionActive) === 'resume') {
 		return (
@@ -134,9 +139,10 @@ export function StartShoppingDialog({
 	}
 
 	return (
+		<>
 		<SheetDialog
-			open={open}
-			onOpenChange={next => !loading && setOpen(next)}
+			open={open && !storePickerOpen}
+			onOpenChange={next => !storePickerOpen && !loading && setOpen(next)}
 			trigger={
 				<Button
 					size='lg'
@@ -159,67 +165,54 @@ export function StartShoppingDialog({
 					)}
 				</Button>
 			}
-			title='Start Shopping Session'
+			title='Start Shopping?'
 			testId='start-shopping-sheet'
 		>
 			<div className='flex flex-col gap-4'>
-				<div className='flex items-center gap-3.5'>
-					<span className='flex size-12 shrink-0 items-center justify-center rounded-2xl bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300'>
-						<HugeiconsIcon
-							icon={ShoppingCart02Icon}
-							strokeWidth={1.5}
-							aria-hidden='true'
-							className='size-6'
-						/>
-					</span>
-					<p className='text-sm leading-normal text-slate-600 dark:text-muted-foreground'>
-						{isEmpty ? (
-							'This base list has no items. Add items before starting a shopping session.'
-						) : (
-							<>
-								This will create a new shopping session using the items of
-								{baseListName ? ` “${baseListName}”` : ' this base list'}.
-							</>
-						)}
-					</p>
+				<div data-testid='start-shopping-list-summary' className='flex flex-col gap-3 rounded-2xl bg-muted px-3.5 py-3'>
+					<div className='flex items-center gap-3'>
+						<RowIcon icon={ListViewIcon} tone='primary' size='dropzone' testId='start-shopping-list-icon' />
+						<div className='flex min-w-0 flex-col gap-0.5'>
+							<span className='text-sm font-semibold text-foreground'>{baseListName || 'Shopping list'}</span>
+							<span className='text-xs leading-normal text-muted-foreground'>{listItemCount} {listItemCount === 1 ? 'item' : 'items'} in this list</span>
+						</div>
+					</div>
+					{!isEmpty ? <div data-testid='start-shopping-estimate' className='flex items-end justify-between gap-3 border-t border-border pt-3'>
+						<div className='flex min-w-0 flex-col gap-1'>
+							<span className='text-xs leading-[1.3] text-muted-foreground'>Estimated total</span>
+							<span className='text-xs leading-normal text-muted-foreground'>From {estimate.pricedCount} of {estimate.itemCount} {estimate.itemCount === 1 ? 'item' : 'items'}</span>
+						</div>
+						{estimate.pricedCount > 0 ? <span className='font-mono text-lg leading-none font-semibold text-foreground tabular-nums'>≈ {formatCurrency(estimate.total)}</span> : <span className='text-xs text-muted-foreground'>No known prices</span>}
+					</div> : null}
 				</div>
+				{isEmpty ? <p className='text-sm leading-normal text-body dark:text-muted-foreground'>This base list has no items. Add items before starting a shopping session.</p> : null}
 				<div className='flex items-center justify-between gap-3 rounded-2xl bg-muted px-3.5 py-3'>
-					<span className='flex min-w-0 items-center gap-2 text-sm text-foreground'>
-						<HugeiconsIcon icon={Store01Icon} strokeWidth={1.6} aria-hidden='true' className='size-4.5 shrink-0' />
-						<span className='truncate'>{selectedStore?.name ?? 'Whole list'}</span>
+					<span className='flex min-w-0 items-center gap-3'>
+						<RowIcon icon={selectedStore ? Store03Icon : ListViewIcon} tone={selectedStore ? 'store' : 'primary'} size='md' testId='start-shopping-scope-icon' />
+						<span className='flex min-w-0 flex-col gap-0.5'>
+							<span className='truncate text-sm font-semibold text-foreground'>{selectedStore?.name ?? 'Whole list'}</span>
+							<span className='text-xs leading-normal text-muted-foreground'>{selectedStore ? `${firstAtStoreCount} of ${listItemCount} items` : `All stores · ${listItemCount} items`}</span>
+						</span>
 					</span>
-					<Button type='button' size='sm' variant='secondary' onClick={() => setStorePickerOpen(true)} disabled={loading}>
+					<Button type='button' size='sm' variant='outline' onClick={() => setStorePickerOpen(true)} disabled={loading}>
 						{selectedStore ? 'Change' : 'Choose Store'}
 					</Button>
 				</div>
-				{estimate.pricedCount > 0 ? (
-						<div
-							data-testid='start-shopping-estimate'
-							className='flex items-end justify-between gap-3 rounded-2xl bg-muted px-3.5 py-3'
-						>
-							<div className='flex min-w-0 flex-col gap-1'>
-								<span className='text-sm font-medium text-foreground'>Estimated total</span>
-								<span className='text-xs leading-normal text-muted-foreground'>
-									From {estimate.pricedCount} of {estimate.itemCount} {estimate.itemCount === 1 ? 'item' : 'items'}
-								</span>
-							</div>
-							<span className='font-mono text-lg leading-none font-semibold text-foreground tabular-nums'>≈ {formatCurrency(estimate.total)}</span>
-						</div>
-					) : null}
-					{selectedStore ? (
-					<div role='note' className={`flex items-start gap-2 rounded-2xl px-3.5 py-3 text-sm leading-normal ${firstAtStoreCount === 0 ? 'bg-amber-50 text-amber-900 dark:bg-amber-950/40 dark:text-amber-200' : 'bg-muted text-muted-foreground'}`}>
-						{firstAtStoreCount === 0 ? <HugeiconsIcon icon={Alert02Icon} strokeWidth={1.6} aria-hidden='true' className='mt-px size-4.5 shrink-0' /> : null}
-						<span>{firstAtStoreCount === 0 ? `No items in this list are tagged or recorded at ${selectedStore.name}.` : `${firstAtStoreCount} ${firstAtStoreCount === 1 ? 'item goes' : 'items go'} first at ${selectedStore.name}.`}</span>
+				{!isEmpty ? <Alert variant='receipt-info' role='note' data-testid='start-shopping-guidance'>
+					<RowIcon icon={Alert02Icon} tone='primary' size='alert' testId='start-shopping-guidance-icon' />
+					<div>
+						<AlertTitle>{selectedStore ? `Only ${selectedStore.name} items` : 'One trip at a time per list.'}</AlertTitle>
+						<AlertDescription>{selectedStore
+							? `This starts a new shopping session with ${firstAtStoreCount === 1 ? 'the 1 item' : `the ${firstAtStoreCount} items`} in “${baseListName || 'this list'}” you usually buy at ${selectedStore.name}. The other ${Math.max(0, listItemCount - firstAtStoreCount)} stay on the list.`
+							: `This starts a new shopping session using all ${listItemCount} items in “${baseListName || 'this list'}”.`}</AlertDescription>
 					</div>
-				) : null}
+				</Alert> : null}
 			</div>
-			{isEmpty ? null : <p className='px-1 text-xs leading-normal text-muted-foreground'>One trip at a time per list.</p>}
-				<DialogFooter variant='inline'>
+				<DialogFooter variant='sheet'>
 				<Button
 					size='primary'
 					type='button'
 					variant='secondary'
-					className='flex-1'
 					onClick={() => setOpen(false)}
 					disabled={loading}
 				>
@@ -228,7 +221,6 @@ export function StartShoppingDialog({
 				<Button
 					size='primary'
 					type='button'
-					className='flex-1'
 					onClick={handleConfirm}
 					disabled={loading || isEmpty}
 					data-testid='confirm-start-shopping'
@@ -239,19 +231,22 @@ export function StartShoppingDialog({
 						aria-hidden='true'
 						className={cn('size-4.5', loading && 'animate-spin motion-reduce:animate-none')}
 					/>
-					{loading ? 'Starting…' : 'Start Shopping'}
+					{loading ? 'Starting…' : selectedStore ? `Start Shopping at ${selectedStore.name}` : 'Start Shopping'}
 				</Button>
 			</DialogFooter>
-			<StorePickerDialog
-				open={storePickerOpen}
-				onOpenChange={setStorePickerOpen}
-				title='Choose Store'
-				description='Items for this store will appear first.'
-				confirmLabel='Use Store'
-				onPick={handleStorePick}
-				pending={storePending}
-				testId={`start-shopping-store-picker-${baseListId}`}
-			/>
 		</SheetDialog>
+		<StorePickerDialog
+			open={storePickerOpen}
+			onOpenChange={setStorePickerOpen}
+			title='Choose Store'
+			description='Shop at one store, or the whole list. Stores come from your receipts.'
+			confirmLabel='Use Store'
+			onPick={handleStorePick}
+			wholeListChoice={{ itemCount: listItemCount, storeItemCounts, unassignedCount }}
+			onPickWholeList={() => { setSelectedStore(null); setStorePickerOpen(false) }}
+			pending={storePending}
+			testId={`start-shopping-store-picker-${baseListId}`}
+		/>
+		</>
 	)
 }

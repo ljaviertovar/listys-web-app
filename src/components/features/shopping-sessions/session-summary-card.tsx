@@ -6,11 +6,12 @@ import { cn, formatCurrency } from '@/utils'
 import { useTripSync } from './hooks/use-trip-sync'
 import { visibleTripItems } from './sync/trip-sync-state'
 import { summarizeCheckedEstimate } from './helpers/summarize-checked-estimate'
+import { itemsForSessionProgress } from './helpers/split-session-sections'
 
 type PriceEstimate = { total: number; pricedCount: number; itemCount: number }
 
 type SessionSummaryCardProps = { testId?: string; sessionId?: string; priceByItemId?: Record<string, number> } & (
-	| { mode: 'active'; checked: number; total: number; estimate?: PriceEstimate }
+	| { mode: 'active'; checked: number; total: number; estimate?: PriceEstimate; activeItemScope?: 'all' | 'current-store' }
 	| { mode: 'completed'; estimate: PriceEstimate }
 )
 
@@ -18,7 +19,7 @@ type SessionSummaryCardProps = { testId?: string; sessionId?: string; priceByIte
 export function SessionSummaryCard(props: SessionSummaryCardProps) {
 	const { state } = useTripSync(props.mode === 'active' ? props.sessionId : null)
 	if (props.mode === 'active' && state.initialized) {
-		const items = visibleTripItems(state)
+		const items = itemsForSessionProgress(visibleTripItems(state), props.activeItemScope === 'current-store')
 		props = { ...props, checked: items.filter(item => item.checked).length, total: items.length,
 			estimate: props.estimate ? summarizeCheckedEstimate(items, new Map(Object.entries(props.priceByItemId ?? {}))) : undefined }
 	}
@@ -41,8 +42,8 @@ export function SessionSummaryCard(props: SessionSummaryCardProps) {
 				{props.mode === 'active' ? <div className='flex flex-col gap-3'>
 					<div className='flex items-end justify-between gap-2'>
 						<div className='flex flex-col gap-1'>
-							<span className='text-xs leading-[1.3] text-slate-500 dark:text-muted-foreground'>Collected</span>
-							<span className='font-display text-base leading-[1.3] font-semibold'>
+							<span className='text-xs leading-normal text-muted-foreground dark:text-muted-foreground'>Collected</span>
+							<span className='font-display text-base leading-normal font-semibold'>
 								<b className='font-mono font-semibold tabular-nums'>{props.checked}</b> of{' '}
 								<b className='font-mono font-semibold tabular-nums'>{props.total}</b> {props.total === 1 ? 'item' : 'items'}
 							</span>
@@ -68,12 +69,12 @@ export function SessionSummaryCard(props: SessionSummaryCardProps) {
 					{!completed ? <div aria-hidden='true' className='h-px bg-border' /> : null}
 					<div className='flex flex-wrap items-end justify-between gap-3'>
 						<div className='flex min-w-0 flex-col gap-1'>
-							<span className='text-xs leading-[1.3] text-slate-500 dark:text-muted-foreground'>{completed ? 'Estimated' : 'Estimated total'}</span>
+							<span className='text-xs leading-normal text-muted-foreground dark:text-muted-foreground'>{completed ? 'Estimated' : 'Estimated total'}</span>
 							<span className='font-mono text-2xl leading-none font-semibold tracking-tight text-foreground tabular-nums'>
 								≈ {formatCurrency(estimate.total)}
 							</span>
 						</div>
-						<span className='text-right text-xs leading-normal text-slate-500 dark:text-muted-foreground'>
+						<span className='text-right text-xs leading-normal text-muted-foreground dark:text-muted-foreground'>
 							{estimate.itemCount} {completed ? (estimate.itemCount === 1 ? 'item' : 'items') : 'checked'} · {estimate.pricedCount} with known prices
 						</span>
 					</div>

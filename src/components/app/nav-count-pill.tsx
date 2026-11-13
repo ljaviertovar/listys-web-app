@@ -2,7 +2,7 @@ import { cn } from '@/utils'
 import type { NavCount } from './sidebar/helpers/build-nav-counts'
 
 const TONES = {
-	neutral: 'bg-slate-100 text-slate-600 dark:bg-muted dark:text-muted-foreground',
+	neutral: 'bg-slate-100 text-body dark:bg-muted dark:text-muted-foreground',
 	waiting: 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300',
 } as const
 

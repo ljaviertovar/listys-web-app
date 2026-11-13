@@ -5,15 +5,16 @@ interface ItemQuantityChipProps {
 	unit?: string | null
 	/** Fades the chip for an item that is already in the cart. */
 	muted?: boolean
+	testId?: string
 }
 
 /** How much of an item: the quantity in mono and its unit on a small grey chip ("1 pcs"). */
-export function ItemQuantityChip({ quantity, unit, muted = false }: ItemQuantityChipProps) {
+export function ItemQuantityChip({ quantity, unit, muted = false, testId = 'item-quantity-chip' }: ItemQuantityChipProps) {
 	return (
 		<span
-			data-testid='item-quantity-chip'
+			data-testid={testId}
 			className={cn(
-				'inline-flex h-5.5 shrink-0 items-center gap-1 rounded-lg bg-secondary px-2 text-xs leading-none font-medium text-slate-600 dark:bg-muted dark:text-muted-foreground',
+				'inline-flex h-5.5 shrink-0 items-center gap-1 rounded-lg bg-secondary px-2 text-xs leading-none font-medium text-body dark:bg-muted dark:text-muted-foreground',
 				muted && 'opacity-60',
 			)}
 		>

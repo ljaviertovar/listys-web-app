@@ -36,7 +36,7 @@ export function EmptyStateCard({ icon, tone = 'blue', title, description, childr
 			</span>
 			<div className='flex max-w-sm flex-col gap-1.5'>
 				<h2 className='font-display text-lg leading-[1.3] font-semibold '>{title}</h2>
-				<p className='text-sm leading-normal text-slate-500 dark:text-muted-foreground'>{description}</p>
+				<p className='text-sm leading-normal text-muted-foreground dark:text-muted-foreground'>{description}</p>
 			</div>
 			{children}
 		</section>

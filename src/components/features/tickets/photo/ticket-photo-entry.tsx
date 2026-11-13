@@ -35,50 +35,40 @@ export function TicketPhotoRow({ count, thumbnailUrl, onOpen, triggerRef }: Tick
 			data-testid='ticket-photo-row'
 			aria-label={`View receipt ${plural}, ${count} ${plural}`}
 			className={cn(
-				'group flex min-h-[100px] w-full items-center gap-3.5 p-3 text-left transition-colors hover:bg-slate-50 dark:hover:bg-muted md:p-4',
-				'rounded-3xl bg-card shadow-card',
+				'group flex min-h-16 w-full items-center gap-3 px-2.5 py-2 text-left transition-colors hover:bg-slate-50 dark:hover:bg-muted',
+				'rounded-2xl bg-card shadow-card',
 				'focus-ring',
 			)}
 		>
-			<span className='relative flex h-19 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-slate-900'>
+			<span className='relative flex h-13 w-10 shrink-0 flex-col gap-1 overflow-hidden rounded-xl bg-gradient-to-b from-white to-slate-100 px-1.25 py-1.5 ring-1 ring-slate-900/8 ring-inset'>
 				{thumbnailUrl ? (
 					// eslint-disable-next-line @next/next/no-img-element -- a short-lived signed storage URL, not an optimisable asset
 					<img
 						src={thumbnailUrl}
 						alt=''
-						className='size-full object-cover'
+						className='absolute inset-0 size-full object-cover'
 					/>
 				) : (
-					<HugeiconsIcon
-						icon={Image02Icon}
-						strokeWidth={1.5}
-						className='size-6 text-slate-400'
-					/>
+					// Until the photo has signed (or when it cannot be shown), a sketch of a receipt stands in for it.
+					<>
+						<i className='block h-1 rounded-xs bg-slate-300' />
+						<i className='block h-1 w-[70%] rounded-xs bg-slate-300' />
+						<i className='block h-1 rounded-xs bg-slate-300' />
+					</>
 				)}
-				{count > 1 ? (
-					<span className='absolute right-1 bottom-1 rounded-md bg-black/60 px-1.5 py-0.5 font-mono text-xs leading-none font-semibold text-white tabular-nums'>
-						{count}
-					</span>
-				) : null}
 			</span>
-			<span className='flex min-w-0 flex-1 flex-col gap-0.5'>
-				<span className='font-display text-base leading-normal font-semibold '>
-					{count === 1 ? 'Receipt Photo' : 'Receipt Photos'}
-				</span>
-				<span className='text-xs leading-[1.3] text-slate-500 dark:text-muted-foreground'>
-					<b className='font-mono font-semibold text-foreground tabular-nums'>{count}</b> {plural} · Tap to enlarge
+			<span className='flex min-w-0 flex-1 flex-col gap-0.5 font-sans'>
+				<span className='text-sm leading-[1.3] font-semibold'>Receipt Photo</span>
+				<span className='text-sm leading-[1.2] text-body dark:text-muted-foreground'>
+					<b className='font-mono text-base font-bold text-foreground tabular-nums'>{count}</b> {plural} · Tap to enlarge
 				</span>
 			</span>
-			<span
+			<HugeiconsIcon
+				icon={ArrowExpand01Icon}
+				strokeWidth={1.8}
 				aria-hidden='true'
-				className='flex size-11 shrink-0 items-center justify-center rounded-xl bg-secondary text-blue-700 dark:bg-muted dark:text-blue-400'
-			>
-				<HugeiconsIcon
-					icon={ArrowExpand01Icon}
-					strokeWidth={1.8}
-					className='size-5'
-				/>
-			</span>
+				className='size-4.5 shrink-0'
+			/>
 		</button>
 	)
 }
@@ -163,7 +153,7 @@ export function TicketPhotoPanel({ urls, count, view, error, onOpenFullScreen, t
 					/>
 					<span
 						aria-hidden='true'
-						className='font-mono text-xs font-medium text-slate-500 tabular-nums'
+						className='font-mono text-xs font-medium text-muted-foreground tabular-nums'
 					>
 						{view.index + 1} / {urls.length}
 					</span>

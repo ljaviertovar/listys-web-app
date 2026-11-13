@@ -26,7 +26,9 @@ export function useStoreActions(stores: Store[]) {
 	const [flow, setFlow] = useState<Flow>({ kind: 'idle' })
 	const [pending, startTransition] = useTransition()
 	const [mergingSourceId, setMergingSourceId] = useState<string | null>(null)
+	const [optimisticMerge, setOptimisticMerge] = useState<{ source: Store; target: Store } | null>(null)
 	const undoableMerge = useUndoableAction()
+	const optimisticSourceStillExists = Boolean(optimisticMerge && stores.some(store => store.id === optimisticMerge.source.id))
 
 	const close = () => {
 		if (!pending) setFlow({ kind: 'idle' })
@@ -62,8 +64,11 @@ export function useStoreActions(stores: Store[]) {
 
 		setFlow({ kind: 'idle' })
 		setMergingSourceId(source.id)
+		setOptimisticMerge({ source, target })
 		undoableMerge.schedule({
 			message: `Merged “${source.name}” into “${target.name}”`,
+			onUndo: () => setOptimisticMerge(null),
+			onFailure: () => setOptimisticMerge(null),
 			run: async () => {
 				const result = await mergeStoresAction(target.id, source.id)
 				if (result.kind !== 'done') return { error: result.message }
@@ -75,9 +80,10 @@ export function useStoreActions(stores: Store[]) {
 
 	return {
 		flow,
-		pending,
+		pending: pending || undoableMerge.pending || optimisticSourceStillExists,
 		/** The store being merged away while its Undo is open: its card is hidden. */
-		hiddenStoreId: undoableMerge.pending ? mergingSourceId : null,
+		hiddenStoreId: optimisticSourceStillExists ? mergingSourceId : null,
+		optimisticMerge,
 		close,
 		startRename: (store: Store) => setFlow({ kind: 'rename', store, error: null, conflictWith: null }),
 		startMerge: (source: Store) => setFlow({ kind: 'pick-target', source }),

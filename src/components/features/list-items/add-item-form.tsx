@@ -61,12 +61,12 @@ export function AddItemForm({ target, isLocked = false, onCancel }: AddItemFormP
 			data-testid='add-item-form'
 			onSubmit={form.handleSubmit(submit)}
 			noValidate
-			className='flex flex-col gap-5'
+			className='flex flex-col gap-1 md:gap-5'
 		>
 			{isLocked ? (
 				<p
 					role='note'
-					className='rounded-2xl bg-slate-100 px-3.5 py-3 text-sm leading-normal text-slate-600 dark:bg-muted dark:text-muted-foreground'
+					className='rounded-2xl bg-slate-100 px-3.5 py-3 text-sm leading-normal text-body dark:bg-muted dark:text-muted-foreground'
 				>
 					A shopping session is using this list. Make changes in that session, or finish it to edit this base list.
 				</p>
@@ -77,19 +77,7 @@ export function AddItemForm({ target, isLocked = false, onCancel }: AddItemFormP
 				disabled={loading || isLocked}
 				withCategory
 			/>
-			<p className='text-xs text-slate-500 dark:text-muted-foreground'>
-				<span className='text-destructive'>*</span> Required fields
-			</p>
-			<div className='grid grid-cols-2 gap-3'>
-				<Button
-					size='primary'
-					type='button'
-					variant='secondary'
-					onClick={onCancel}
-					disabled={loading}
-				>
-					{form.formState.isDirty ? 'Cancel' : 'Done'}
-				</Button>
+			<div className='flex flex-col gap-1 sm:grid sm:grid-cols-2'>
 				<Button
 					size='primary'
 					type='submit'
@@ -102,6 +90,15 @@ export function AddItemForm({ target, isLocked = false, onCancel }: AddItemFormP
 						className={cn('size-4', loading && 'animate-spin motion-reduce:animate-none')}
 					/>
 					{loading ? 'Adding…' : 'Add Item'}
+				</Button>
+				<Button
+					size='primary'
+					type='button'
+					variant='secondary'
+					onClick={onCancel}
+					disabled={loading || isLocked}
+				>
+					Cancel
 				</Button>
 			</div>
 		</form>

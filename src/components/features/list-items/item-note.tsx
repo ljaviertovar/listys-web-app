@@ -1,5 +1,5 @@
 import { Note01Icon } from '@hugeicons/core-free-icons'
-import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react'
+import { HugeiconsIcon } from '@hugeicons/react'
 
 import { cn } from '@/utils'
 
@@ -8,7 +8,6 @@ interface ItemNoteProps {
 	/** Lets the note wrap (a trip row) instead of cutting it with an ellipsis (a list row). */
 	wrap?: boolean
 	className?: string
-	icon?: IconSvgElement
 	testId?: string
 }
 
@@ -16,18 +15,18 @@ interface ItemNoteProps {
  * An item's note, under its name: a small note icon and the text at 12px regular, smaller and lighter than the 14px
  * semibold name so the two never read as one line.
  */
-export function ItemNote({ children, wrap = false, className, icon = Note01Icon, testId }: ItemNoteProps) {
+export function ItemNote({ children, wrap = false, className, testId }: ItemNoteProps) {
 	return (
 		<span
 			aria-label='Item note'
 			data-testid={testId}
-			className={cn('flex min-w-0 items-start gap-1 text-xs leading-[1.3] text-slate-500 dark:text-muted-foreground', className)}
+			className={cn('flex min-w-0 items-start gap-1 text-xs leading-[1.3] text-muted-foreground dark:text-muted-foreground', className)}
 		>
 			<HugeiconsIcon
-				icon={icon}
+				icon={Note01Icon}
 				strokeWidth={1.5}
 				aria-hidden='true'
-				className='mt-px size-3.5 shrink-0'
+				className='mt-px size-3 shrink-0'
 			/>
 			<span className={cn('min-w-0', wrap ? 'break-words' : 'truncate')}>{children}</span>
 		</span>

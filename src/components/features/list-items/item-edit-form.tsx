@@ -61,7 +61,7 @@ export function ItemEditForm({ item, onSubmit, onCancel }: ItemEditFormProps) {
 			data-testid={`item-edit-form-${item.id}`}
 			onSubmit={form.handleSubmit(submit)}
 			noValidate
-			className='flex flex-col gap-4 p-4'
+			className='flex flex-col gap-1 p-4'
 		>
 			<h3 className='font-display text-base leading-[1.5] font-semibold '>Edit Item</h3>
 			<ItemFields
@@ -69,16 +69,7 @@ export function ItemEditForm({ item, onSubmit, onCancel }: ItemEditFormProps) {
 				idPrefix={`${id}-edit`}
 				disabled={loading}
 			/>
-			<div className='grid grid-cols-2 gap-3'>
-				<Button
-					size='primary'
-					type='button'
-					variant='secondary'
-					onClick={onCancel}
-					disabled={loading}
-				>
-					Cancel
-				</Button>
+			<div className='grid grid-cols-2 gap-2'>
 				<Button
 					size='primary'
 					type='submit'
@@ -93,6 +84,15 @@ export function ItemEditForm({ item, onSubmit, onCancel }: ItemEditFormProps) {
 						/>
 					) : null}
 					{loading ? 'Saving Changes…' : 'Save Changes'}
+				</Button>
+				<Button
+					size='primary'
+					type='button'
+					variant='secondary'
+					onClick={onCancel}
+					disabled={loading}
+				>
+					Cancel
 				</Button>
 			</div>
 		</form>

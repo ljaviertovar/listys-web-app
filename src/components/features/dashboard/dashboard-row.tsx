@@ -7,22 +7,24 @@ interface Props {
 	href: string
 	title: string
 	meta?: string
-	/** Receipt and session metadata (merchant, dates) is source data, so it is set in mono (DESIGN.md §4.1). */
+	/** Receipt and session metadata (merchant, dates) is source data, so it is set in mono (Design System: Typography, Mono). */
 	monoMeta?: boolean
 	leading?: ReactNode
 	trailing?: ReactNode
 	testId: string
 	className?: string
+	density?: 'default' | 'compact'
 }
 
 /** One linked line inside a dashboard section card: optional icon, a title with metadata, and a trailing value or status. */
-export function DashboardRow({ href, title, meta, monoMeta = false, leading, trailing, testId, className }: Props) {
+export function DashboardRow({ href, title, meta, monoMeta = false, leading, trailing, testId, className, density = 'default' }: Props) {
 	return (
 		<Link
 			href={href}
 			data-testid={testId}
 			className={cn(
-				'flex items-center gap-3 rounded-[14px] px-2 py-2.5 transition-colors duration-150',
+				'flex items-center gap-3 rounded-[14px] px-2 transition-colors duration-150',
+				density === 'default' ? 'py-2.5' : 'py-2',
 				'hover:bg-background dark:hover:bg-muted',
 				'focus-ring',
 				className,
@@ -39,7 +41,7 @@ export function DashboardRow({ href, title, meta, monoMeta = false, leading, tra
 				{meta ? (
 					<span
 						className={cn(
-							'text-slate-500 dark:text-muted-foreground',
+							'text-muted-foreground dark:text-muted-foreground',
 							monoMeta ? 'break-words font-mono text-xs leading-normal font-medium ' : 'break-words text-sm leading-[1.5]',
 						)}
 					>

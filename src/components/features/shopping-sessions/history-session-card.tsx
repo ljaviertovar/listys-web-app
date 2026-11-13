@@ -1,6 +1,8 @@
 'use client'
 
-import { Alert02Icon, Attachment01Icon, ShoppingBag02Icon } from '@hugeicons/core-free-icons'
+import { ShoppingBag03Icon, Store03Icon } from '@hugeicons/core-free-icons'
+// AttachmentIcon and AttachmentOffIcon exist only in Hugeicons 4; every other icon stays on 3.x so none of them is redrawn.
+import { AttachmentIcon, AttachmentOffIcon } from '@hugeicons/core-free-icons-v4'
 import { HugeiconsIcon } from '@hugeicons/react'
 
 import { ActionLink, DataFigure, DataLine, EntityLabel, InlineCounter } from '@/components/commons'
@@ -50,7 +52,7 @@ export function HistorySessionCard({ session, href }: Props) {
 
 	return (
 		<Card
-			size='receipt'
+			size='trip'
 			data-testid={`history-card-${session.id}`}
 		>
 			<div className='flex flex-col gap-2.5'>
@@ -60,7 +62,7 @@ export function HistorySessionCard({ session, href }: Props) {
 						className='flex size-9 shrink-0 items-center justify-center rounded-xl bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300'
 					>
 						<HugeiconsIcon
-							icon={ShoppingBag02Icon}
+							icon={ShoppingBag03Icon}
 							strokeWidth={1.5}
 							className='size-4.5'
 						/>
@@ -78,20 +80,25 @@ export function HistorySessionCard({ session, href }: Props) {
 
 				{hasClassification ? (
 					<div className='flex flex-wrap items-center gap-x-2.5 gap-y-1.5'>
-						{stores.map(store => (
+						{stores[0] ? (
 							<EntityLabel
-								key={store.id}
-								name={store.name}
-								testId={`history-store-${session.id}-${store.id}`}
+								name={stores[0].name}
+								testId={`history-store-${session.id}-${stores[0].id}`}
 							/>
-						))}
+						) : null}
+						{stores.length > 1 ? (
+							<Badge variant='tag'>
+								<HugeiconsIcon icon={Store03Icon} strokeWidth={1.8} aria-hidden='true' />
+								+{stores.length - 1} {stores.length === 2 ? 'store' : 'stores'}
+							</Badge>
+						) : null}
 						{receiptState === 'attached' ? (
 							<Badge
 								data-testid={`history-receipt-marker-${session.id}`}
 								variant='tag'
 							>
 								<HugeiconsIcon
-									icon={Attachment01Icon}
+									icon={AttachmentIcon}
 									strokeWidth={1.8}
 									aria-hidden='true'
 								/>
@@ -104,7 +111,7 @@ export function HistorySessionCard({ session, href }: Props) {
 								variant='tag-attention'
 							>
 								<HugeiconsIcon
-									icon={Alert02Icon}
+									icon={AttachmentOffIcon}
 									strokeWidth={1.8}
 									aria-hidden='true'
 								/>
@@ -133,7 +140,7 @@ export function HistorySessionCard({ session, href }: Props) {
 
 				<div className='flex items-center justify-between gap-2 border-t border-slate-100 pt-3'>
 					{purchasedCount === null ? (
-						<span className='text-sm leading-none text-slate-600'>Item count unavailable</span>
+						<span className='text-sm leading-none text-body'>Item count unavailable</span>
 					) : (
 						<InlineCounter
 							count={purchasedCount}

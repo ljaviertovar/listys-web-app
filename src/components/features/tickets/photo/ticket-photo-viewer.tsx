@@ -64,11 +64,11 @@ export function TicketPhotoViewer({ open, onOpenChange, nested = false, title, u
 							<HugeiconsIcon
 								icon={Cancel01Icon}
 								strokeWidth={1.8}
-								className='size-5'
+								className='size-5.5'
 							/>
 						</Button>
 					</DialogClose>
-					<div className='flex min-w-0 flex-1 flex-col items-center gap-1 lg:flex-row lg:items-baseline lg:gap-3 lg:pl-1'>
+					<div className='flex min-w-0 flex-1 flex-col items-center gap-0.75 lg:flex-row lg:items-baseline lg:gap-3 lg:pl-1'>
 						<DialogTitle
 							variant='viewer'
 							className='max-w-full truncate'
@@ -87,7 +87,7 @@ export function TicketPhotoViewer({ open, onOpenChange, nested = false, title, u
 							type='button'
 							onClick={onCompare}
 							variant='on-dark'
-							size='primary'
+							size='toolbar'
 						>
 							<HugeiconsIcon
 								icon={LayoutTwoRowIcon}
@@ -174,7 +174,7 @@ export function TicketPhotoViewer({ open, onOpenChange, nested = false, title, u
 
 				<TicketPhotoControls
 					view={view}
-					className='shrink-0 px-4 pt-3 pb-[max(1.25rem,env(safe-area-inset-bottom))] lg:justify-center lg:pb-6'
+					className='shrink-0 px-4 pt-3 pb-[max(1.875rem,env(safe-area-inset-bottom))] lg:justify-center lg:pb-6'
 				/>
 			</DialogContent>
 		</Dialog>

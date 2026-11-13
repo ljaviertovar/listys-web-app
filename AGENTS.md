@@ -258,26 +258,21 @@ duplicating it.
 Delete a custom CSS class as soon as no component references it — an unused rule is dead weight the next person has
 to re-verify before trusting the stylesheet.
 
-### Design System v2 (source for new components)
+### Design System (source of truth for UI)
 
-The **Design system v2** is the visual source of truth for every new or redesigned component. Its canonical visual
-reference is the local [design system HTML](docs/design/listys-design-system.html), which contains four sections for
-foundations and typography, controls and cards, feedback/navigation/data, and product patterns/mobile A1. The written
-specification and implementation mapping are in [docs/design/DESIGN.md](docs/design/DESIGN.md).
+Read [docs/contributing/design-system-workflow.md](docs/contributing/design-system-workflow.md) **before** you create
+or change a UI component, style, token, theme or styled screen, and when the user asks for a design audit or to
+create or update the Design System. Do not load it for logic-only changes, tests, copy edits without styling, or
+non-UI code.
 
-- Before designing or writing a new component, read the matching section of `docs/design/DESIGN.md` and inspect the
-  relevant examples in `docs/design/listys-design-system.html`. Match its tokens, radii, surfaces, type scale, sizes,
-  variants, states and copy rules; do not invent values or follow another design reference when it conflicts with v2.
-- Express the design through the shared layer (theme tokens in `src/app/globals.css`, and variants and sizes in
-  `src/components/ui/`), as the Styling rules above require. When v2 draws something no existing variant or token can
-  express, add the variant or token there and reuse it by name.
-- If the code or `docs/design/DESIGN.md` disagrees with the HTML, the HTML wins for the target look: update
-  `docs/design/DESIGN.md` (and its section 11.4 gaps) in the same change instead of silently diverging. If the HTML is
-  silent (for example dark mode), follow `docs/design/DESIGN.md` and record the gap there.
-- When no HTML example covers the component, derive it from the closest v2 pattern, then say which pattern was used when
-  reporting the change. Do not ship a one-off look.
-- The visual check in "Testing Expectations" compares the result against the relevant section of
-  `docs/design/listys-design-system.html`, not only against the request.
+Minimum that applies even before you read it:
+
+- Match the Design System; do not invent colors, spacing, radii, type or variants. Express the design through theme
+  tokens in `src/app/globals.css` and variants in `src/components/ui/`, per "Styling" above.
+- After UI work, run the Design System gate (`/appds:gate <files>`) before reporting the task done, and never present
+  the work as DS-aligned if the gate did not run. The file above has the procedure.
+- Never edit `docs/design/design-system.html` or `docs/design/audit-findings/`; only the `build-app-design-system`
+  skill does.
 
 ### Component Reusability
 
@@ -293,7 +288,7 @@ Before writing new TSX or custom component styles, search for a suitable compone
    structure or styling with custom markup.
 5. Create a new component or custom styles only after confirming that neither the active UI library nor the
    application contains a reasonably similar reusable solution. Place the new implementation in the narrowest
-   appropriate scope, and build it from the Design system v2 (see the section above).
+   appropriate scope, and build it from the Design System (see "Design System" above).
 
 Do not recreate an available library component with a styled `div` or a bespoke primitive. When a suitable library
 component exists but is not installed, add it through that library's documented project workflow.
@@ -451,8 +446,8 @@ The full structure and rules are defined in [docs/architecture/project-structure
 - Do not duplicate coverage: when a helper's unit test covers a rule, the component or page using it needs at most
   one test proving it is wired in.
 - For every component change that affects appearance, start the application locally and use Chrome DevTools to open
-  the browser and validate the rendered result against the proposed design (the relevant section of
-  `docs/design/listys-design-system.html`, when applicable). Capture screenshots at the relevant mobile
+  the browser and validate the rendered result against the proposed design (the relevant section of the Design System
+  HTML, when applicable). Capture screenshots at the relevant mobile
   and desktop viewports; inspect the live HTML/DOM structure, applied classes, computed styles and element dimensions.
   Check typography, colours, spacing, alignment, sizing, responsive layout and relevant visual states. Fix discrepancies
   and repeat the visual check before finishing. Reading TSX or passing behavioral tests alone does not validate appearance.
@@ -491,8 +486,9 @@ The full tooling and delegation policy is defined in [docs/tooling-delegation.md
 - [docs/README.md](docs/README.md) is the documentation index and topic-ownership map.
 - [docs/contributing/CONTRIBUTING.md](docs/contributing/CONTRIBUTING.md) defines the human contribution and verification
   workflow.
-- [docs/design/listys-design-system.html](docs/design/listys-design-system.html) is the canonical visual reference;
-  [docs/design/DESIGN.md](docs/design/DESIGN.md) owns the written rules, implementation mapping, and documented gaps.
+- [docs/design/design-system.html](docs/design/design-system.html) is the only source of truth for UI tokens, components,
+  patterns, and visual behavior. Older design documents remain historical references. `docs/design/audit-findings/` is
+  managed by the `build-app-design-system` skill (see "Design System").
 - Keep this file authoritative for automated-contributor engineering constraints; link to canonical product,
   architecture, operational, and contribution documents instead of duplicating their requirements.
 - Update affected canonical documentation in the same change whenever governed behavior changes.

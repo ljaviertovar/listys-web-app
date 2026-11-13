@@ -15,8 +15,11 @@ importers:
         specifier: ^5.2.2
         version: 5.9.2(@standard-schema/spec@1.1.0)(ajv-formats@2.1.1(ajv@8.20.0))(ajv@8.20.0)(react-hook-form@7.91.0(@types/react@19.3.0)(react@19.2.3))(zod@4.6.7)
       '@hugeicons/core-free-icons':
-        specifier: ^3.1.1
+        specifier: ^3.3.0
         version: 3.3.0
+      '@hugeicons/core-free-icons-v4':
+        specifier: npm:@hugeicons/core-free-icons@^4.4.0
+        version: '@hugeicons/core-free-icons@4.4.0'
       '@hugeicons/react':
         specifier: ^1.1.4
         version: 1.1.10(react@19.2.3)
@@ -487,6 +490,9 @@ packages:
 
   '@hugeicons/core-free-icons@3.3.0':
     resolution: {integrity: sha512-qYyr4JQ2eQIHTSTbITvnJvs6ERNK64D9gpwZnf2IyuG0exzqfyABLO/oTB71FB3RZPfu1GbwycdiGSo46apjMQ==}
+
+  '@hugeicons/core-free-icons@4.4.0':
+    resolution: {integrity: sha512-7Mz8bmGoY6tZ6l3C2TXwNMLVSr0I8HPwjjFIERAuJFj3rWwLxdF2ZLkDqdrVuEE1dx5b/VXyIsP4WoSU6Q40KQ==}
 
   '@hugeicons/react@1.1.10':
     resolution: {integrity: sha512-9tAsd92yMVVGP+E+d8cM+wc0VnXuYZHNbWQi7TOe8k2neawmhiaFmVFbzyruejhOMa197/LbgvSED32ayUo3ZA==}
@@ -5020,6 +5026,8 @@ snapshots:
       zod: 4.6.7
 
   '@hugeicons/core-free-icons@3.3.0': {}
+
+  '@hugeicons/core-free-icons@4.4.0': {}
 
   '@hugeicons/react@1.1.10(react@19.2.3)':
     dependencies:

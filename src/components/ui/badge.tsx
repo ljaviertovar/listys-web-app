@@ -15,33 +15,35 @@ const badgeVariants = cva(
         destructive:
           "bg-destructive/10 [a]:hover:bg-destructive/20 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 text-destructive dark:bg-destructive/20",
         // White pill with a hairline ring (the date pill of the dashboard).
-        outline: "border-0 bg-card text-slate-700 shadow-card dark:text-slate-200",
+        outline: "border-0 bg-card text-text-secondary shadow-card dark:text-slate-200",
         ghost:
           "hover:bg-muted hover:text-muted-foreground dark:hover:bg-muted/50",
         link: "text-primary underline-offset-4 hover:underline",
         // Status tints (the 100-level fill with the 700-level text): a receipt or session in its state. `neutral` is "not started".
-        processing: "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300",
-        completed: "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300",
-        shopping: "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300",
+        processing: "bg-feedback-info-tint text-feedback-info dark:bg-feedback-info-tint dark:text-feedback-info",
+        completed: "bg-feedback-success-tint text-feedback-success dark:bg-feedback-success-tint dark:text-feedback-success",
+        shopping: "bg-feedback-info-tint text-feedback-info dark:bg-feedback-info-tint dark:text-feedback-info",
         // Over ink or photo surfaces (the dashboard hero).
         "on-dark": "bg-white/15 text-white",
-        failed: "bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-300",
-        pending: "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300",
+        failed: "bg-feedback-error-tint text-feedback-error dark:bg-feedback-error-tint dark:text-feedback-error",
+        pending: "bg-feedback-warning-tint text-feedback-warning dark:bg-feedback-warning-tint dark:text-feedback-warning",
         merged: "bg-primary/10 text-primary",
         category: "bg-primary/10 text-primary",
-        neutral: "bg-slate-100 text-slate-700 dark:bg-muted dark:text-foreground",
+        neutral: "bg-slate-100 text-body dark:bg-muted dark:text-foreground",
+        // Something that needs a look but is not an error (a receipt read without a confirmed store): amber fill, amber text, no border.
+        warning: "bg-feedback-warning-tint text-feedback-warning dark:bg-feedback-warning-tint dark:text-feedback-warning",
         // A store, in violet so it reads apart from lists, trips and receipts: a store learned from receipts, and one chosen by the user (white, with a darker ring).
-        store: "border-violet-200 bg-violet-50 text-violet-900 dark:border-violet-500/30 dark:bg-violet-500/15 dark:text-violet-200 [&>svg]:text-violet-600 dark:[&>svg]:text-violet-300",
+        store: "border-transparent bg-entity-store text-entity-store-text dark:border-transparent dark:bg-entity-store dark:text-entity-store-text [&>svg]:text-entity-store-on",
         "store-manual":
-          "border-violet-300 bg-card text-violet-900 dark:border-violet-400/50 dark:text-violet-200 [&>svg]:text-violet-600 dark:[&>svg]:text-violet-300",
+          "border-entity-store-on bg-card text-entity-store-text dark:border-entity-store-on dark:text-entity-store-text [&>svg]:text-entity-store-on",
         // Tag (canvas 3/7): the only bordered box. A fact about the object, never its progress; it always carries an icon and no green or red.
-        tag: "h-5.5 gap-1 rounded-md border-slate-200 bg-card px-2 font-medium text-slate-700 dark:border-border dark:text-slate-200 [&>svg]:size-3.25! [&>svg]:text-slate-500",
+        tag: "h-5.5 gap-1 rounded-md border-slate-200 bg-card px-2 has-[>svg]:pl-1.5 font-medium text-text-secondary dark:border-border dark:text-slate-200 [&>svg]:size-3.25! [&>svg]:text-muted-foreground",
         // The attention tag: something is missing (no receipt, no price). Amber, never an action.
         "tag-attention":
-          "h-5.5 gap-1 rounded-md border-amber-200 bg-amber-50 px-2 font-medium text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/15 dark:text-amber-200 [&>svg]:size-3.25! [&>svg]:text-amber-600",
+          "h-5.5 gap-1 rounded-md border-[#FDE68A] bg-feedback-warning-subtle px-2 has-[>svg]:pl-1.5 font-medium text-amber-800 dark:border-amber-500/30 dark:bg-feedback-warning-subtle dark:text-feedback-warning-strong [&>svg]:size-3.25! [&>svg]:text-amber-600 dark:[&>svg]:text-feedback-warning",
         // The list every account starts with (Pantry): a yellow tag, with its star.
         "list-default":
-          "h-5.5 gap-1 rounded-md border-amber-200 bg-amber-100 px-2 font-medium text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/20 dark:text-amber-200 [&>svg]:size-3.25! [&>svg]:text-amber-600",
+          "h-5.5 gap-1 rounded-md border-slate-200 bg-card px-2 has-[>svg]:pl-1.5 font-medium text-text-secondary dark:border-border dark:bg-card dark:text-slate-200 [&>svg]:size-3.25! [&>svg]:text-muted-foreground",
       },
       size: {
         default: "",

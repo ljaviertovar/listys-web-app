@@ -56,7 +56,7 @@ export function UploadAnotherTile() {
 					/>
 				</span>
 				<span className='font-display text-base leading-normal font-semibold text-blue-700 dark:text-blue-400'>Upload Another Receipt</span>
-				<span className='max-w-[26ch] text-sm leading-normal text-slate-500 dark:text-muted-foreground'>
+				<span className='max-w-[26ch] text-sm leading-normal text-muted-foreground dark:text-muted-foreground'>
 					Drop photos here or choose them from your computer
 				</span>
 			</Button>

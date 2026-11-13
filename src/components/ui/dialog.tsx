@@ -46,7 +46,7 @@ const dialogContentVariants = cva("", {
     variant: {
       default: "",
       sheet:
-        "gap-5 rounded-3xl border-0 p-4 md:p-6 max-h-[92dvh] max-sm:pt-8 max-sm:pb-[max(1.5rem,env(safe-area-inset-bottom))]",
+        "gap-5 rounded-3xl border-0 p-4 md:p-6 max-h-[92dvh] max-sm:gap-2 max-sm:pt-6 max-sm:pb-[max(0.75rem,env(safe-area-inset-bottom))]",
       viewer: "gap-0 rounded-none border-0 bg-ink p-0 text-white",
     },
   },
@@ -123,7 +123,7 @@ const DialogHeader = ({
     data-variant={variant}
     className={cn(
       "flex flex-col space-y-1.5 text-center sm:text-left",
-      variant === "sheet" && "relative gap-1 pr-12 text-left",
+      variant === "sheet" && "relative gap-1 pr-12 text-left max-sm:space-y-0",
       className,
     )}
     {...props}
@@ -137,10 +137,10 @@ const DialogFooter = ({
   ...props
 }: React.HTMLAttributes<HTMLDivElement> & {
   /**
-   * `inline` keeps the buttons on one row with a 12px gap at every width (a form footer). `sheet` stacks two actions with the primary
-   * on top below `sm` and puts them in two equal columns from `sm` (the confirm of a sheet).
+    * `inline` keeps the buttons on one row with a 12px gap at every width (a form footer). `sheet` stacks two actions with the primary
+    * on top below `sm` and puts them in two equal columns from `sm`; `sheet-stack` keeps three ordered actions stacked.
    */
-  variant?: "default" | "inline" | "sheet";
+  variant?: "default" | "inline" | "sheet" | "sheet-stack";
 }) => (
   <div
     data-variant={variant}
@@ -148,6 +148,7 @@ const DialogFooter = ({
       "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
       variant === "inline" && "flex-row gap-3 sm:space-x-0",
       variant === "sheet" && "gap-3 sm:grid sm:grid-cols-2 sm:space-x-0",
+      variant === "sheet-stack" && "gap-2",
       className,
     )}
     {...props}
@@ -161,12 +162,15 @@ const dialogTitleVariants = cva("", {
       default: "text-base font-semibold leading-none tracking-tight md:text-lg",
       // The heading of an A1 form sheet.
       sheet:
-        "font-display text-lg leading-[1.3] font-semibold tracking-tight text-foreground focus:outline-none md:text-xl",
+        "font-display text-xl leading-[1.3] font-semibold tracking-tight text-foreground focus:outline-none max-sm:flex max-sm:min-h-10 max-sm:items-center",
       // A confirmation or a list dialog: bold and tight.
       strong: "text-base leading-none font-bold tracking-tight text-foreground md:text-lg",
       // The title bar of the dark viewer.
       viewer:
-        "font-display text-sm leading-none font-bold tracking-normal text-white md:text-base",
+        "font-display text-base leading-none font-bold tracking-normal text-white focus:outline-none",
+      // The title of the compare bar: one step smaller, since "Compare" is all it says.
+      "viewer-compact":
+        "font-display text-sm leading-none font-bold tracking-normal text-white focus:outline-none md:text-base",
     },
   },
   defaultVariants: { variant: "default" },
@@ -190,7 +194,9 @@ const dialogDescriptionVariants = cva("", {
   variants: {
     variant: {
       default: "text-xs text-muted-foreground md:text-sm",
-      sheet: "text-xs leading-normal text-slate-500 dark:text-muted-foreground md:text-sm",
+      sheet: "text-xs leading-normal text-muted-foreground dark:text-muted-foreground md:text-sm",
+      // The lead-in sentence of a sheet, set as body text under the title row.
+      body: "text-sm leading-normal text-body dark:text-muted-foreground max-sm:mt-3",
     },
   },
   defaultVariants: { variant: "default" },

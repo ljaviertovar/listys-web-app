@@ -26,8 +26,7 @@ export function ActiveShoppingBadge({ tone = 'default', size = 'default', classN
 			<span
 				aria-hidden='true'
 				className={cn(
-					'size-2 animate-pulse rounded-full motion-reduce:animate-none',
-					tone === 'on-dark' ? 'bg-green-400' : 'bg-blue-600 dark:bg-blue-400',
+					'size-1.5 animate-[pulse_1.4s_ease-in-out_infinite] rounded-full motion-reduce:animate-none bg-blue-600 dark:bg-blue-400',
 				)}
 			/>
 			{label}

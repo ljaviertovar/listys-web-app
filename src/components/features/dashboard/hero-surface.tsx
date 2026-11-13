@@ -5,6 +5,7 @@ interface Props {
 	testId: string
 	/** Id of the heading that names the hero. */
 	labelledBy: string
+	variant?: 'default' | 'expanded'
 	children: ReactNode
 }
 
@@ -12,12 +13,12 @@ interface Props {
  * The dark photo surface both dashboard heroes share (24px radius, `card` shadow). Active sessions use art-directed
  * mobile and desktop crops, with a near-black scrim that keeps the text readable over each image.
  */
-export function HeroSurface({ testId, labelledBy, children }: Props) {
+export function HeroSurface({ testId, labelledBy, variant = 'default', children }: Props) {
 	return (
 		<section
 			data-testid={testId}
 			aria-labelledby={labelledBy}
-			className='relative isolate flex min-h-0 items-center overflow-hidden rounded-3xl bg-slate-900 text-white shadow-[0_6px_20px_-8px_rgba(15,23,42,0.25)] md:min-h-[330px]'
+			className={`relative isolate flex items-center overflow-hidden rounded-3xl bg-slate-900 text-white shadow-[0_6px_20px_-8px_rgba(15,23,42,0.25)] ${variant === 'expanded' ? 'min-h-100 md:min-h-112' : 'min-h-0 md:min-h-[330px]'}`}
 		>
 			<picture className='absolute inset-0 -z-20'>
 				<source media='(min-width: 768px)' srcSet='/images/dashboard/desktop-session.webp' />

@@ -31,8 +31,17 @@ test.describe('Shopping Session E2E', () => {
     await page.locator('a[href*="/base-lists/"]').first().click()
     await page.waitForTimeout(1000)
 
-    // Find the list card and click "Start Shopping" button
-    const startShoppingBtn = page.locator('[data-testid="start-shopping-button"]').first()
+    // A session cannot start from an empty list, so seed the selected list through the UI.
+    await page.getByRole('button', { name: 'Add Item', exact: true }).click()
+    await page.getByPlaceholder('e.g. Orange Juice').fill('E2E Shopping Item')
+    await page.getByTestId('add-item-form').getByRole('button', { name: 'Add Item', exact: true }).click()
+    await page.getByRole('button', { name: 'Done', exact: true }).click()
+    await page.reload()
+    await expect(page.getByTestId(/base-list-item-/).first()).toBeVisible()
+
+    // Find the list card and click its contextual "Start Shopping" button.
+    const startShoppingBtn = page.getByRole('button', { name: /start shopping/i }).first()
+    await expect(startShoppingBtn).toBeVisible()
     await startShoppingBtn.click()
     await page.waitForTimeout(500)
 
@@ -43,11 +52,11 @@ test.describe('Shopping Session E2E', () => {
     // Should redirect to shopping page with session ID
     await expect(page).toHaveURL(/\/shopping\/[a-f0-9-]+/i, { timeout: 5000 })
 
-    // Should show active session indicator
-    await expect(page.locator('text=/active.*session/i, [data-testid="active-session"]')).toBeVisible()
+    // Should show the active shopping indicator
+    await expect(page.getByTestId('active-shopping-badge')).toBeVisible()
 
-    // Should show items from base list
-    expect(await page.locator('[data-testid="shopping-item"], [data-testid="checklist-item"]').count()).toBeGreaterThan(0)
+    // Should show items from the base list
+    expect(await page.locator('[data-testid^="session-item-"][data-checked]').count()).toBeGreaterThan(0)
   })
 
   test('should sync item checks in real-time', async ({ page }) => {

@@ -12,7 +12,7 @@ export type StoreDto = {
   receipt_count: number
   created_at: string
   updated_at: string
-	last_visit: { kind: 'trip' | 'receipt'; id: string; at: string; total_amount: number | null } | null
+	last_visit: { kind: 'trip' | 'receipt'; id: string; at: string; total_amount: number | null; items_count?: number | null } | null
 	/** Base-list items whose usual store this is. */
 	usual_items_count?: number
 }
@@ -49,7 +49,7 @@ async function countReceipts(supabase: Client, storeId: string) {
 export async function listStores() {
   const { supabase, user } = await createAuthenticatedClient()
 
-  const [{ data, error }, { data: visits, error: visitsError }, { data: usualRows }] = await Promise.all([
+	const [{ data, error }, { data: visits, error: visitsError }, { data: usualRows }] = await Promise.all([
 	supabase
 		.from('stores')
 		.select('id, name, created_at, updated_at, receipts:tickets(count)')
@@ -70,13 +70,28 @@ export async function listStores() {
 		console.error('[stores] could not load last visits', { code: visitsError.code })
 		throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'We couldn’t load your stores. Please try again.')
 	}
+	const visitRows = visits ?? []
+	const receiptVisitIds = visitRows.filter(visit => visit.kind === 'receipt').map(visit => visit.id)
+	const tripVisitIds = visitRows.filter(visit => visit.kind === 'trip').map(visit => visit.id)
+	const [receiptItems, tripItems] = await Promise.all([
+		receiptVisitIds.length ? supabase.from('tickets').select('id, total_items').eq('user_id', user.id).in('id', receiptVisitIds) : Promise.resolve({ data: [], error: null }),
+		tripVisitIds.length ? supabase.from('shopping_sessions').select('id, items:shopping_session_items(count)').eq('user_id', user.id).in('id', tripVisitIds) : Promise.resolve({ data: [], error: null }),
+	])
+	if (receiptItems.error || tripItems.error) {
+		console.error('[stores] could not load last-visit item counts', { code: receiptItems.error?.code ?? tripItems.error?.code })
+		throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'We couldn’t load your stores. Please try again.')
+	}
+	const itemCountByVisit = new Map<string, number | null>()
+	for (const receipt of receiptItems.data ?? []) itemCountByVisit.set(receipt.id, receipt.total_items)
+	for (const trip of tripItems.data ?? []) itemCountByVisit.set(trip.id, trip.items?.[0]?.count ?? null)
 
   const rows = (data ?? []) as Array<StoreRow & { receipts?: Array<{ count: number }> | null }>
-	const lastVisitByStore = new Map((visits ?? []).map(visit => [visit.store_id, {
+	const lastVisitByStore = new Map(visitRows.map(visit => [visit.store_id, {
 		kind: visit.kind as 'trip' | 'receipt',
 		id: visit.id,
 		at: visit.at,
 		total_amount: visit.total_amount,
+		items_count: itemCountByVisit.get(visit.id) ?? null,
 	} satisfies NonNullable<StoreDto['last_visit']>]))
 	const usualItemsByStore = new Map<string, number>()
 	for (const row of usualRows ?? []) {

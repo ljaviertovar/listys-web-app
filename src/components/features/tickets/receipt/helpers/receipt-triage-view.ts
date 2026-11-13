@@ -1,8 +1,8 @@
 import type { ReceiptTriageSection, ReceiptTriageStatus } from './build-receipt-triage'
 
-/** The triage layout stays while another list is being compared, so the screen does not flash back to the category view. */
+/** Keep the review layout while the initial comparison or a list change is loading. */
 export function receiptItemsView(status: ReceiptTriageStatus | undefined): 'triage' | 'categories' {
-	return status === 'ready' || status === 'switching' ? 'triage' : 'categories'
+	return status === 'loading' || status === 'ready' || status === 'switching' ? 'triage' : 'categories'
 }
 
 export function receiptBulkSelectionIds(sections: ReceiptTriageSection[], sectionId: string): string[] {

@@ -13,7 +13,7 @@ export function InlineCounter({ count, one, many, testId = 'inline-counter' }: I
 	return (
 		<span
 			data-testid={testId}
-			className='inline-flex items-baseline gap-1.5 text-sm leading-none text-slate-600 dark:text-muted-foreground'
+			className='inline-flex items-baseline gap-1.5 text-sm leading-none text-body dark:text-muted-foreground'
 		>
 			<b className='font-mono text-base font-semibold text-foreground tabular-nums'>{count}</b>
 			{` ${count === 1 ? one : many}`}

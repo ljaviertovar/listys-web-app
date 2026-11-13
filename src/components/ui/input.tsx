@@ -14,7 +14,6 @@ const inputVariants = cva(
 			},
 			size: {
 				default: 'h-9 rounded-xl px-3 py-1 text-sm',
-				// Touch height of the app's forms (44px).
 				lg: 'h-11 rounded-2xl px-3.5 text-base md:text-sm',
 			},
 			// Room for a 44px control laid over the end of the field (the show-password toggle).

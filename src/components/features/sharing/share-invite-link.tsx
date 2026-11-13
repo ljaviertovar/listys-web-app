@@ -72,7 +72,7 @@ export function ShareInviteLink({ link, isLoading, isGenerating, onGenerate, onR
 				>
 					Invite link
 				</h3>
-				<p className='text-sm leading-normal text-slate-500 dark:text-muted-foreground'>
+				<p className='text-sm leading-normal text-muted-foreground dark:text-muted-foreground'>
 					{link
 						? 'Anyone with this link can join and edit this list.'
 						: 'Create a private link so anyone you send it to can join this list.'}
@@ -104,7 +104,7 @@ export function ShareInviteLink({ link, isLoading, isGenerating, onGenerate, onR
 							icon={Link01Icon}
 							strokeWidth={1.8}
 							aria-hidden='true'
-							className='size-4.5 shrink-0 text-slate-500'
+							className='size-4.5 shrink-0 text-muted-foreground'
 						/>
 						<span
 							data-testid='share-link-url'

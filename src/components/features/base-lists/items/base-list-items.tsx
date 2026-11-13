@@ -1,11 +1,12 @@
 'use client'
 
 import { useMemo } from 'react'
-import { TaskAdd01Icon } from '@hugeicons/core-free-icons'
+import { ListViewIcon } from '@hugeicons/core-free-icons'
 
 import { CategoryCollapseControl, CategorySection, EmptyStateCard, useCategorySectionExpansion } from '@/components/commons'
 import { AddItemSheet } from '@/components/features/list-items'
 import { UploadTicketDialog } from '@/components/features/tickets'
+import { Card } from '@/components/ui/card'
 import { groupByCategory } from '@/utils'
 import type { BaseListItemWithStoreSummary } from '@/types'
 
@@ -42,30 +43,32 @@ export function BaseListItems({ baseListId, items, isLocked = false, isOwner = t
 	if (items.length === 0) {
 		return (
 			<EmptyStateCard
-				icon={TaskAdd01Icon}
-				tone='amber'
+				icon={ListViewIcon}
+				tone='blue'
 				title='No items yet'
 				description={isLocked ? 'A shopping session is using this list.' : 'Type them in, or upload a receipt and pick the ones you want here.'}
 				testId='base-list-empty-state'
 			>
 				{isLocked ? <BaseListLockedNotice /> : null}
-				<div className='flex w-full flex-col items-stretch gap-3 sm:w-auto sm:flex-row'>
+				<div className='flex w-full flex-row items-stretch gap-2'>
 					<AddItemSheet
 						target={{ context: 'base-list', baseListId }}
+						label='Add Items'
 						isLocked={isLocked}
-						variant='default'
+						variant='secondary'
+						className='w-full'
 					/>
-					{isLocked ? null : <UploadTicketDialog variant='secondary' />}
+					{isLocked ? null : <UploadTicketDialog variant='default' className='w-full' />}
 				</div>
 			</EmptyStateCard>
 		)
 	}
 
 	return (
-		<section
+		<Card
 			aria-label='Items by category'
 			data-testid='base-list-items-card'
-			className='rounded-3xl bg-card p-3 shadow-card md:p-4'
+			size='list'
 		>
 			{isLocked ? <BaseListLockedNotice /> : null}
 			<CategoryCollapseControl
@@ -80,7 +83,7 @@ export function BaseListItems({ baseListId, items, isLocked = false, isOwner = t
 						key={group.key}
 						category={group.key}
 						title={group.title}
-						count={`${group.items.length} ${group.items.length === 1 ? 'item' : 'items'}`}
+						count={group.items.length}
 						className={index === 0 ? 'border-t-0' : undefined}
 						open={expansion.isOpen(id, true)}
 						onOpenChange={open => expansion.onOpenChange(id, open)}
@@ -100,6 +103,6 @@ export function BaseListItems({ baseListId, items, isLocked = false, isOwner = t
 					</CategorySection>
 				)
 			})}
-		</section>
+		</Card>
 	)
 }

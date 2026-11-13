@@ -78,7 +78,7 @@ itself. The receipt is a signal, not the product; the durable object is a list t
 
 - Name and wordmark: **Listys**. The receipt/check symbol with its blue vertical gradient (`#6EB1FF` → `#3882EC`) is the
   canonical mark and is not recoloured.
-- The blue-and-cyan palette recorded in `docs/design/DESIGN.md` is binding: paper-white working surfaces, action blue
+- The palette in the Design System (`docs/design/design-system.html`) is binding: paper-white working surfaces, action blue
   `#2563EB`, scan cyan `#38BDF8` reserved for reading/transforming/syncing.
 - Voice: useful, not magical. No "revolutionary", no "effortless", no anthropomorphic AI claims. Action names stay
   stable across button, pending state, and confirmation.

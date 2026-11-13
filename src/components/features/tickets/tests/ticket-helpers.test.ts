@@ -15,7 +15,7 @@ import {
 	stepZoom,
 	toggleZoom,
 } from '../photo/helpers/photo-zoom'
-import { toTicketStatus } from '../helpers/ticket-status'
+import { toTicketChipStatus, toTicketStatus } from '../helpers/ticket-status'
 
 function item(overrides: Partial<TicketItem>): TicketItem {
 	return {
@@ -148,6 +148,7 @@ describe('toTicketStatus', () => {
 	it('reads anything that is not a known status as pending', () => {
 		expect(toTicketStatus('completed')).toBe('completed')
 		expect(toTicketStatus('completed', 0)).toBe('failed')
+		expect(toTicketChipStatus('completed', 0)).toBe('failed')
 		expect(toTicketStatus('completed', 2)).toBe('completed')
 		expect(toTicketStatus('failed')).toBe('failed')
 		expect(toTicketStatus(null)).toBe('pending')

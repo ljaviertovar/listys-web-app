@@ -1,6 +1,6 @@
 import { Fragment } from 'react'
 import Link from 'next/link'
-import { ArrowRight01Icon, Invoice01Icon, ShoppingCart02Icon } from '@hugeicons/core-free-icons'
+import { ArrowRight01Icon, Attachment01Icon, Invoice01Icon, ShoppingCart02Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react'
 
 import { Card } from '@/components/ui/card'
@@ -8,12 +8,13 @@ import { cn } from '@/utils'
 import { RowIcon } from '@/components/commons'
 import type { UpNextItem, UpNextKind } from './helpers/build-dashboard-model'
 
-// Warning, destructive and action tones of DESIGN.md §3.3. Each entry also carries its own text, so colour is never the only signal.
-const KINDS: Record<UpNextKind, { icon: IconSvgElement; tone: 'warning' | 'danger' | 'primary' }> = {
-	'receipt-waiting': { icon: Invoice01Icon, tone: 'warning' },
-	'receipt-failed': { icon: Invoice01Icon, tone: 'danger' },
-	'partner-shopping': { icon: ShoppingCart02Icon, tone: 'primary' },
-	'list-running-low': { icon: ShoppingCart02Icon, tone: 'warning' },
+// The icon tone identifies the object; the title and detail communicate its current state.
+const KINDS: Record<UpNextKind, { icon: IconSvgElement; tone: 'ocr' | 'success' | 'primary' }> = {
+	'receipt-waiting': { icon: Invoice01Icon, tone: 'ocr' },
+	'receipt-failed': { icon: Invoice01Icon, tone: 'ocr' },
+	'trip-no-receipt': { icon: Attachment01Icon, tone: 'success' },
+	'partner-shopping': { icon: ShoppingCart02Icon, tone: 'success' },
+	'list-running-low': { icon: ShoppingCart02Icon, tone: 'primary' },
 	'list-stale': { icon: ShoppingCart02Icon, tone: 'primary' },
 }
 
@@ -29,16 +30,17 @@ export function UpNextList({ items }: Props) {
 		<section
 			data-testid='dashboard-up-next'
 			aria-labelledby='dashboard-up-next-title'
-			className='flex flex-col gap-3'
+			className='flex flex-col gap-2.5'
 		>
 			{/* As tall as the section titles that have a "View all" link, so the two kinds of title line up. */}
-			<div className='flex min-h-10 items-center'>
+			<div className='flex min-h-8 items-center justify-between gap-3'>
 				<h2
 					id='dashboard-up-next-title'
 					className='font-display text-base leading-normal font-semibold md:text-xl md:leading-[1.39] '
 				>
 					Up Next
 				</h2>
+				<span className='shrink-0 font-mono text-xs text-muted-foreground'>{items.length} to review</span>
 			</div>
 			<Card size='flush'>
 				<ul className='flex flex-col'>
@@ -69,8 +71,8 @@ export function UpNextList({ items }: Props) {
 											emphasis='medium'
 										/>
 										<span className='flex min-w-0 flex-1 flex-col gap-1'>
-											<span className='text-sm leading-[1.3] font-semibold text-foreground'>{item.title}</span>
-											<span className='text-xs leading-[1.4] text-slate-500 dark:text-muted-foreground'>{item.detail}</span>
+										<span className='truncate text-sm leading-[1.3] font-semibold text-foreground'>{item.title}</span>
+											<span className='text-xs leading-[1.4] text-muted-foreground dark:text-muted-foreground'>{item.detail}</span>
 										</span>
 										<HugeiconsIcon
 											icon={ArrowRight01Icon}

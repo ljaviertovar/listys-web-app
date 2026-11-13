@@ -4,6 +4,7 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import type { BaseListItemWithStoreSummary } from '@/types'
 
 vi.mock('@/components/commons', () => ({
+  EntityLabel: ({ name, testId }: { name: string; testId: string }) => createElement('span', { 'data-testid': testId }, name),
   RowMenu: ({ actions, disabled }: { actions: Array<{ label: string }>; disabled?: boolean }) => createElement('div', { 'data-testid': 'mock-row-menu', 'data-disabled': String(Boolean(disabled)) }, actions.map(action => action.label).join('|')),
   SheetDialog: () => null,
 }))

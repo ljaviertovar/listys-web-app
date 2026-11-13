@@ -216,7 +216,7 @@ Known limits introduced or exposed by this phase:
 - The lists screen and the history are unpaginated; the history now joins what used to be split by group.
 - Deleting a list also deletes its shopping sessions (existing `ON DELETE CASCADE`), which removes those trips from the history. The confirmation says it removes the items and the sharing, not the trips.
 - The lists screen reads only the owner's lists, so people a list was shared with do not see it there (experimental sharing, unchanged).
-- The HTML design reference still draws group screens and has no history filter ([DESIGN.md §11.4](../design/DESIGN.md#114-current-implementation-gaps) items 12c).
+- The historical HTML reference still draws group screens and has no history filter. Current visual guidance is in the [Design System](../design/design-system.html); see its Open decisions and the latest [audit findings](../design/audit-findings/implementation-plan.md).
 - PRD v3 open question 4 is decided as "keep names, hide the group": no prefix is added and no group name is shown.
 
 ## PRD v3 Phase 3 delivered
@@ -271,7 +271,7 @@ Known limits introduced by this phase:
 - "Save as New Store" creates the store, then assigns it: if the second call fails, the store exists without the receipt and the card offers to retry the assignment.
 - The picker can only hide a "Create" row for names it can see; a name that is only another store's alias is still offered, and the server then reuses that store.
 - Branch numbers of 1–2 digits at the end of a name are kept ("Shop 24"), so such variants need an alias once.
-- The design reference has no store screens; the derived designs need review ([DESIGN.md §11.4](../design/DESIGN.md#114-current-implementation-gaps) item 12d).
+- The historical design reference has no store screens. Current visual guidance is in the [Design System](../design/design-system.html); see its Open decisions and the latest [audit findings](../design/audit-findings/implementation-plan.md).
 
 ## Audit findings and follow-up
 

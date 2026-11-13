@@ -3,34 +3,44 @@ import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react'
 import { cn } from '@/utils'
 
 const TONES = {
-	neutral: { medium: 'bg-slate-100 text-slate-600 dark:bg-muted dark:text-slate-300' },
+	neutral: { medium: 'bg-secondary text-body dark:bg-muted dark:text-body' },
 	primary: {
-		medium: 'bg-blue-100 text-blue-700 dark:bg-primary/20 dark:text-blue-300',
+		medium: 'bg-entity-list text-entity-list-on dark:bg-entity-list dark:text-entity-list-on',
 	},
 	ocr: {
-		medium: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-500/20 dark:text-cyan-300',
+		medium: 'bg-entity-receipt text-entity-receipt-on dark:bg-entity-receipt dark:text-entity-receipt-on',
 	},
 	success: {
-		medium: 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300',
+		medium: 'bg-entity-trip text-entity-trip-on dark:bg-entity-trip dark:text-entity-trip-on',
 	},
 	warning: {
-		medium: 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300',
+		medium: 'bg-feedback-warning-tint text-feedback-warning dark:bg-feedback-warning-tint dark:text-feedback-warning',
 	},
 	danger: {
-		medium: 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-300',
+		medium: 'bg-feedback-error-tint text-feedback-error dark:bg-feedback-error-tint dark:text-feedback-error',
+	},
+	// A violet stat accent (the interval tile of Prices by Store); stores keep their own tone below.
+	accent: {
+		medium: 'bg-entity-store text-entity-store-on dark:bg-entity-store dark:text-entity-store-on',
 	},
 	// Every store icon, wherever it appears.
 	store: {
-		medium: 'bg-violet-100 text-violet-700 dark:bg-violet-500/20 dark:text-violet-300',
+		medium: 'bg-entity-store text-entity-store-on dark:bg-entity-store dark:text-entity-store-on',
 	},
 } as const
 
 const SIZES = {
 	stat: { box: 'size-7 rounded-lg', icon: 'size-4' },
 	saved: { box: 'size-16 rounded-[20px]', icon: 'size-8' },
+	// The tile at the top of an empty card (64px, 20px radius).
+	empty: { box: 'size-16 rounded-[20px]', icon: 'size-7.5' },
+	// The tile of a drop target (48px, 16px radius).
+	dropzone: { box: 'size-12 rounded-2xl', icon: 'size-6' },
 	xs: { box: 'size-6 rounded-lg', icon: 'size-3.5' },
 	sm: { box: 'size-8 rounded-lg', icon: 'size-4.5' },
 	md: { box: 'size-9 rounded-xl', icon: 'size-4.5' },
+	// Alert reference tiles keep the 32px library size with a 10px radius.
+	alert: { box: 'size-8 rounded-[10px]', icon: 'size-4.5' },
 	lg: { box: 'size-10 rounded-xl', icon: 'size-5' },
 	xl: { box: 'size-14 rounded-2xl', icon: 'size-6.5' },
 } as const

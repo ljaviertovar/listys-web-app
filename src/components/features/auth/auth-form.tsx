@@ -77,7 +77,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
 			{/* On a phone the title lives in the photo header above the sheet. */}
 			<div className='hidden lg:block'>
 				<h1 className='font-display text-4xl leading-[1.11] font-bold tracking-[-0.03em] text-balance'>{copy.title}</h1>
-				<p className='mt-2 text-base leading-normal text-slate-600'>{copy.lead}</p>
+				<p className='mt-2 text-base leading-normal text-body'>{copy.lead}</p>
 			</div>
 
 			{serverError ? (
@@ -104,7 +104,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
 
 			<div className='flex items-center gap-3'>
 				<Separator className='flex-1' />
-				<span className='text-xs leading-tight text-slate-500'>{copy.dividerLabel}</span>
+				<span className='text-xs leading-tight text-muted-foreground'>{copy.dividerLabel}</span>
 				<Separator className='flex-1' />
 			</div>
 

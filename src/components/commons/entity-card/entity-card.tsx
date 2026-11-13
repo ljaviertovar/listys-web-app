@@ -2,7 +2,7 @@
 
 import type { ReactNode, Ref } from 'react'
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react'
-import { Delete02Icon, Edit02Icon } from '@hugeicons/core-free-icons'
+import { Delete02Icon, Edit02Icon, Note01Icon } from '@hugeicons/core-free-icons'
 
 import { cn } from '@/utils'
 
@@ -29,6 +29,7 @@ type EntityCardMenu =
 	  }
 
 interface EntityCardProps {
+	size?: 'default' | 'list'
 	/** Where the footer link goes; a card with nothing to open leaves it out and has no link. */
 	href?: string
 	icon: IconSvgElement
@@ -58,6 +59,7 @@ interface EntityCardProps {
  * with how much it holds. Only the footer action navigates, leaving the rest of the card available for other interactions.
  */
 export function EntityCard({
+	size = 'default',
 	href,
 	icon,
 	tone = 'default',
@@ -77,7 +79,8 @@ export function EntityCard({
 	return (
 		<article
 			data-testid={testId}
-			className='flex flex-col gap-2 rounded-3xl bg-card p-3 shadow-card md:gap-3 md:p-4'
+			data-size={size}
+			className='flex flex-col gap-2 rounded-3xl bg-card p-3.5 shadow-card md:gap-3'
 		>
 			<div className='flex items-center gap-3'>
 				<span
@@ -95,7 +98,7 @@ export function EntityCard({
 						className='size-4.5'
 					/>
 				</span>
-				<h2 className='min-w-0 flex-1 break-words font-display text-base leading-[1.5] font-semibold'>{title}</h2>
+				<h2 className='min-w-0 flex-1 truncate font-display text-base leading-[1.5] font-semibold'>{title}</h2>
 				{menu ? (
 					<RowMenu
 						label={menu.label}
@@ -117,7 +120,10 @@ export function EntityCard({
 			{description || badge || meta ? (
 				<div className='flex flex-col gap-2.5'>
 					{description ? (
-						<p className='break-words text-sm leading-[1.4] text-slate-600 dark:text-muted-foreground'>{description}</p>
+						<p className='flex items-start gap-1.5 text-sm leading-[1.4] text-text-secondary dark:text-muted-foreground'>
+							<HugeiconsIcon icon={Note01Icon} strokeWidth={1.7} aria-hidden='true' className='mt-0.5 size-4 shrink-0 text-slate-500 dark:text-muted-foreground' />
+							<span className='line-clamp-2 break-words'>{description}</span>
+						</p>
 					) : null}
 					{badge ? <div className='flex flex-wrap items-center gap-x-2.5 gap-y-1.5'>{badge}</div> : null}
 					{meta ? (
@@ -134,7 +140,7 @@ export function EntityCard({
 						testId={`${testId}-count`}
 					/>
 				) : (
-					<span className='text-sm leading-none text-slate-600 dark:text-muted-foreground'>
+					<span className='text-sm leading-none text-body dark:text-muted-foreground'>
 						{count === null ? 'Count unavailable' : `No ${emptyLabel} yet`}
 					</span>
 				)}

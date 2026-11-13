@@ -3,16 +3,18 @@
 import { useState } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ArrowRight01Icon, Attachment01Icon } from '@hugeicons/core-free-icons'
+// AttachmentIcon and AttachmentOffIcon exist only in Hugeicons 4; every other icon stays on 3.x so none of them is redrawn.
+import { AttachmentIcon, AttachmentOffIcon } from '@hugeicons/core-free-icons-v4'
 
-import { CategorySection, DataFigure, DataLine } from '@/components/commons'
+import { CategorySection, EntityLabel } from '@/components/commons'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { UploadTicketDialog } from '@/components/features/tickets'
+import { NoStoreBadge, UploadTicketDialog } from '@/components/features/tickets'
 import { TicketStatusChip } from '@/components/features/tickets/ticket-status-chip'
 import type { TicketSessionCandidate } from '@/lib/api/endpoints'
 import { formatCurrency } from '@/utils'
-import { toTicketStatus } from '@/components/features/tickets/helpers/ticket-status'
+import { toTicketChipStatus, toTicketStatus } from '@/components/features/tickets/helpers/ticket-status'
 
 import { summarizeTripReceipts, type TripReceiptEntry } from './helpers/summarize-trip-receipts'
 import { TripReceiptDetailsSheet } from './trip-receipt-details-sheet'
@@ -24,6 +26,8 @@ type TripReceiptSummaryProps = {
 	itemCount: number
 	trip?: TicketSessionCandidate
 	testId?: string
+	noReceipt?: boolean
+	openAddOnLoad?: boolean
 } & (
 	| { mode: 'active'; estimate?: never }
 	| { mode: 'completed'; estimate?: number | null }
@@ -36,10 +40,13 @@ export function TripReceiptSummary({
 	estimate,
 	trip,
 	testId = 'session-receipt-summary',
+	noReceipt = false,
+	openAddOnLoad = false,
 }: TripReceiptSummaryProps) {
 	const [reviewId, setReviewId] = useState<string | null>(null)
 	const [viewId, setViewId] = useState<string | null>(null)
 	const [failedId, setFailedId] = useState<string | null>(null)
+	const [uploadOpen, setUploadOpen] = useState(openAddOnLoad)
 	const summary = summarizeTripReceipts(receipts)
 	const active = mode === 'active'
 	const showPaidSummary = !active || receipts.length > 0
@@ -50,11 +57,14 @@ export function TripReceiptSummary({
 
 	const receiptRows = receipts.map(receipt => {
 		const status = toTicketStatus(receipt.ocr_status, receipt.items_count)
+		const chipStatus = toTicketChipStatus(receipt.ocr_status, receipt.items_count)
+		const chipLabel = status === 'pending' || status === 'processing' ? 'Processing' : undefined
 		const action = receipt.attached ? (
 			<Button
 				type='button'
 				variant='ghost-primary'
-				size='sm-default'
+				size='link-inline'
+					rounded='lg'
 				onClick={() => setViewId(receipt.id)}
 			>
 				View Receipt
@@ -64,7 +74,8 @@ export function TripReceiptSummary({
 			<Button
 				type='button'
 				variant='ghost-primary'
-				size='sm-default'
+				size='link-inline'
+					rounded='lg'
 				onClick={() => setReviewId(receipt.id)}
 			>
 				Review Receipt
@@ -74,7 +85,8 @@ export function TripReceiptSummary({
 			<Button
 				type='button'
 				variant='ghost-primary'
-				size='sm-default'
+				size='link-inline'
+					rounded='lg'
 				onClick={() => setFailedId(receipt.id)}
 			>
 				Review Receipt
@@ -83,37 +95,37 @@ export function TripReceiptSummary({
 		) : null
 
 		return (
-			<li key={receipt.id} data-testid={`trip-receipt-${receipt.id}`} className='px-4 py-3.5'>
+			<li key={receipt.id} data-testid={`trip-receipt-${receipt.id}`} className='py-3'>
 				<div className='flex min-w-0 flex-col gap-2'>
-					<div className='grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-2'>
-						<p data-testid={`trip-receipt-store-${receipt.id}`} className='min-w-0 break-words text-sm font-semibold'>
-							{receipt.store?.name ?? 'Store not confirmed'}
-						</p>
+					<div data-testid={`trip-receipt-classification-${receipt.id}`} className='flex min-w-0 flex-wrap items-center justify-between gap-x-2.5 gap-y-1.5'>
+						{receipt.store ? (
+							<EntityLabel name={receipt.store.name} testId={`trip-receipt-store-${receipt.id}`} />
+						) : (
+							<NoStoreBadge testId={`trip-receipt-store-${receipt.id}`} />
+						)}
 						{receipt.attached ? (
-							<Badge variant='tag'>
-								<HugeiconsIcon icon={Attachment01Icon} aria-hidden='true' strokeWidth={1.8} />
-								Attached to trip
+							<Badge data-testid={`trip-receipt-attachment-${receipt.id}`} variant='tag'>
+								<HugeiconsIcon icon={AttachmentIcon} aria-hidden='true' strokeWidth={1.8} />
+								Receipt attached
+							</Badge>
+						) : status === 'completed' ? (
+							<Badge data-testid={`trip-receipt-status-${receipt.id}`} data-status='attach-pending' variant='tag-attention'>
+								<HugeiconsIcon icon={AttachmentOffIcon} strokeWidth={1.8} aria-hidden='true' />
+								Attach pending
 							</Badge>
 						) : (
-							<TicketStatusChip
-								status={status}
-								label={status === 'pending' || status === 'processing' ? 'Processing' : status === 'completed' ? 'Ready for Review' : 'Failed'}
-								testId={`trip-receipt-status-${receipt.id}`}
-							/>
+							<TicketStatusChip status={chipStatus} label={chipLabel} testId={`trip-receipt-status-${receipt.id}`} />
 						)}
 					</div>
 					<div className='grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-2'>
-						<DataLine testId={`trip-receipt-data-${receipt.id}`}>
-							<span>
-								<span className='font-semibold text-foreground'>{receipt.items_count}</span>{' '}
-								{receipt.items_count === 1 ? 'item' : 'items'}
-							</span>
-							<DataFigure>{receipt.total_amount == null ? '—' : formatCurrency(receipt.total_amount)}</DataFigure>
-						</DataLine>
+						<p data-testid={`trip-receipt-data-${receipt.id}`} className='text-sm leading-[1.2] text-body dark:text-muted-foreground'>
+							<b className='font-mono text-base font-bold text-foreground tabular-nums'>{receipt.items_count}</b>{' '}
+							{receipt.items_count === 1 ? 'item' : 'items'} · {receipt.total_amount == null ? '—' : formatCurrency(receipt.total_amount)}
+						</p>
 						{action}
 					</div>
 					{!receipt.attached && status !== 'completed' && status !== 'failed' ? (
-						<TripReceiptReadingListener ticketId={receipt.id} />
+					<TripReceiptReadingListener ticketId={receipt.id} />
 					) : null}
 				</div>
 			</li>
@@ -123,10 +135,10 @@ export function TripReceiptSummary({
 	const header = (
 		<div className='grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3'>
 			<div className='flex min-w-0 flex-col gap-1'>
-				<h2 className='text-sm font-semibold text-slate-500 dark:text-muted-foreground'>{active ? 'Paid so far' : 'Paid'}</h2>
+				<h2 className='font-sans text-xs leading-[1.3] font-normal text-muted-foreground dark:text-muted-foreground'>{active ? 'Paid so far' : 'Paid'}</h2>
 				<p className='font-mono text-2xl font-semibold tabular-nums tracking-tight'>{paid}</p>
 			</div>
-			<div className='flex max-w-40 flex-col items-end gap-1 text-right text-xs leading-normal text-slate-500 dark:text-muted-foreground'>
+			<div className='flex max-w-40 flex-col items-end gap-1 text-right text-xs leading-normal text-muted-foreground dark:text-muted-foreground'>
 				<p>{details}</p>
 				{!active && estimate != null ? <p>Estimate was <span className='font-mono'>{formatCurrency(estimate)}</span></p> : null}
 			</div>
@@ -141,6 +153,7 @@ export function TripReceiptSummary({
 				ticketId={failedId}
 				open
 				failed
+					shoppingSessionId={trip.id}
 				returnHref={`/shopping/${trip.id}?details=1`}
 				onOpenChange={open => { if (!open) setFailedId(null) }}
 				testId='trip-failed-receipt-sheet'
@@ -160,10 +173,11 @@ export function TripReceiptSummary({
 						title='Receipts'
 						count={`${receipts.length} ${receipts.length === 1 ? 'receipt' : 'receipts'}`}
 						tone='ocr'
+						panelClassName='px-3'
 						testId='trip-receipts-section'
 					>
 						<ul className='divide-y divide-slate-200/70 dark:divide-border' data-testid='trip-receipt-list'>
-							{receiptRows}
+							{noReceipt ? <li className='py-2' data-testid='trip-no-receipt-summary'><div className='flex flex-col items-start gap-1.5'><Badge data-testid='trip-no-receipt-label' variant='tag-attention'><HugeiconsIcon icon={AttachmentOffIcon} strokeWidth={1.8} aria-hidden='true' />No receipt attached yet</Badge><p className='text-xs leading-normal text-feedback-warning-strong'>Add a receipt to save the real total and prices.</p></div></li> : receiptRows}
 						</ul>
 					</CategorySection>
 					{trip && !active ? (
@@ -173,6 +187,8 @@ export function TripReceiptSummary({
 							variant='secondary'
 							size='primary'
 							className='w-full'
+							open={uploadOpen}
+							onOpenChange={setUploadOpen}
 							shoppingSessionId={trip.id}
 						/>
 					) : null}

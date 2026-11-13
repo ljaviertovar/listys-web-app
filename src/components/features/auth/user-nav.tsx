@@ -30,7 +30,7 @@ interface Props {
 
 // Keep Dashboard, Profile and Account available in the account menu at every breakpoint.
 // Each row is a bare icon and a regular 14px title: no tile behind the icon.
-const MENU_ROW_ICON = 'text-slate-600 dark:text-muted-foreground'
+const MENU_ROW_ICON = 'text-body dark:text-muted-foreground'
 const MENU_URLS = ['/dashboard', '/settings/profile', '/settings/account']
 const MENU_LINKS = USER_NAV_ITEMS.filter(item => MENU_URLS.includes(item.url))
 
@@ -97,7 +97,7 @@ export function UserNav({ user }: Props) {
 						icon={ArrowDown01Icon}
 						strokeWidth={1.8}
 						aria-hidden='true'
-						className='hidden size-4 text-slate-500 lg:block'
+						className='hidden size-4 text-muted-foreground lg:block'
 					/>
 				</Button>
 			</DropdownMenuTrigger>
@@ -127,7 +127,7 @@ export function UserNav({ user }: Props) {
 					</Avatar>
 					<span className='flex min-w-0 flex-col gap-1'>
 						<span className='truncate font-display text-base leading-[1.2] font-bold text-foreground'>{displayName}</span>
-						<span className='truncate text-xs leading-[1.3] text-slate-500 dark:text-muted-foreground'>{user.email}</span>
+						<span className='truncate text-xs leading-[1.3] text-muted-foreground dark:text-muted-foreground'>{user.email}</span>
 					</span>
 				</DropdownMenuLabel>
 

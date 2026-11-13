@@ -24,6 +24,16 @@ export function classifyPhoto(file: PhotoLike): PhotoVerdict {
 	return 'ok'
 }
 
+/** The size of a photo the way people read it ("2.1 MB"). */
+export function formatPhotoSize(bytes: number): string {
+	return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
+
+/** The short reason shown beside a refused photo's size. */
+export function rejectionReason(verdict: Exclude<PhotoVerdict, 'ok'>): string {
+	return verdict === 'size' ? 'Too large' : 'Format not supported'
+}
+
 /** What is wrong with a photo that was left out, in words that say how to fix it. */
 export function rejectionMessage(name: string, verdict: Exclude<PhotoVerdict, 'ok'>): { title: string; hint: string } {
 	return verdict === 'format'

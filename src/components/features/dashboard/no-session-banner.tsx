@@ -36,14 +36,22 @@ export function NoSessionBanner({ quickStart, startTarget, addItemsTarget = null
 		<HeroSurface
 			testId='dashboard-no-session-banner'
 			labelledBy='dashboard-no-session-title'
+			variant='expanded'
 		>
-			<div className='flex w-full max-w-xl flex-col gap-4 px-5.5 pt-40 pb-6.5 sm:p-8 md:gap-4.5 md:px-10 md:py-9'>
+			<div className='flex w-full max-w-xl flex-col gap-3.5 px-5.5 pt-40 pb-10 sm:gap-4 sm:p-8 md:gap-4.5 md:px-10 md:py-9'>
+				<span className='inline-flex w-fit items-center gap-2 rounded-full bg-white/15 px-2.5 py-1 text-xs font-semibold text-slate-100'>
+					<span
+						aria-hidden='true'
+						className='size-1.5 rounded-full bg-slate-300'
+					/>
+					No trip in progress
+				</span>
 				<div className='flex flex-col gap-2'>
 					<h2
 						id='dashboard-no-session-title'
 						className='font-display text-xl leading-[1.17] font-bold tracking-tight text-balance md:text-3xl'
 					>
-						{hasLists ? 'Ready to go shopping?' : 'Start with a receipt'}
+						{hasLists ? 'Ready for your next trip?' : 'Start with a receipt'}
 					</h2>
 					<p
 						data-testid='dashboard-no-session-description'
@@ -52,7 +60,7 @@ export function NoSessionBanner({ quickStart, startTarget, addItemsTarget = null
 						{!hasLists
 							? 'Upload one receipt and Listys turns it into a list you can reuse every time you shop.'
 							: startTarget
-								? `Start “${startTarget.name}” (${describeList(startTarget)}). Your list stays as it is; the session works on a copy.`
+								? 'Pick a list and start shopping. Your list stays as it is; the trip works on a copy.'
 								: addItemsTarget
 									? `Your list “${addItemsTarget.name}” has no items yet. Add some, or upload a receipt, and it is ready to shop.`
 									: 'Your lists have no items yet. Add some to a list and it is ready to shop.'}
@@ -62,17 +70,20 @@ export function NoSessionBanner({ quickStart, startTarget, addItemsTarget = null
 				{hasLists && otherLists.length > 0 ? (
 					<div className='flex flex-col gap-2'>
 						<span className='font-mono text-xs leading-[1.2] font-semibold tracking-widest text-slate-400 uppercase'>
-							Your lists
+							Quick start
 						</span>
-						<ul className='flex flex-wrap gap-2'>
+						<ul className='flex flex-col gap-2'>
 							{otherLists.map(list => (
-								<li key={list.id} className='min-w-0 max-w-full'>
+								<li
+									key={list.id}
+									className='min-w-0'
+								>
 									<Button
 										asChild
 										variant='on-dark'
 										size='primary'
 										rounded='full'
-										className='max-w-full'
+										className='w-full max-w-full'
 									>
 										<Link
 											href={`/base-lists/${list.id}/edit`}
@@ -140,8 +151,8 @@ export function NoSessionBanner({ quickStart, startTarget, addItemsTarget = null
 				) : null}
 
 				{lastTrip ? (
-					<p className='font-mono text-xs leading-[1.3] font-medium text-slate-400'>
-						Last shopping session · {lastTrip.listName} · {lastTrip.dateLabel}
+					<p className='truncate font-mono text-xs leading-[1.3] font-medium text-slate-400'>
+						Last trip · {lastTrip.listName} · {lastTrip.dateLabel}
 						{lastTrip.total !== null ? ` · ${formatCurrency(lastTrip.total)}` : ''}
 					</p>
 				) : null}

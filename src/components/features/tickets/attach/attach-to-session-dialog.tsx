@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Add01Icon, Alert02Icon, CheckmarkCircle02Icon, InformationCircleIcon, MinusSignIcon, TickDouble02Icon } from '@hugeicons/core-free-icons'
+import { Add01Icon, Alert02Icon, CheckmarkCircle02Icon, InformationCircleIcon, MinusSignCircleIcon } from '@hugeicons/core-free-icons'
 
 import { CategoryCollapseControl, EntityLabel, SheetDialog, StatTile, StatusCard, useCategorySectionExpansion } from '@/components/commons'
 import { Button } from '@/components/ui/button'
@@ -44,12 +44,12 @@ export function AttachToSessionDialog({ actions }: { actions: TripReview }) {
 							actions={duplicateStore ? <><Button asChild size='primary'><Link href={`/shopping/${actions.trip.id}`} onClick={actions.closeReview}>View Trip Receipts</Link></Button><Button type='button' variant='secondary' size='primary' onClick={actions.closeReview}>Close Review</Button></>
 								: <><Button type='button' size='primary' disabled={actions.submitting} onClick={() => void actions.retrySubmit()}>{actions.submitting ? 'Attaching…' : 'Try Again'}</Button><Button type='button' variant='secondary' size='primary' disabled={actions.submitting} onClick={actions.closeReview}>Attach Later</Button></>} />
 					) : <>
-						<p className='text-sm leading-normal text-slate-600 dark:text-muted-foreground'>{TRIP_REVIEW_COPY.intro(listName)}</p>
+						<p className='text-sm leading-normal text-body dark:text-muted-foreground'>{TRIP_REVIEW_COPY.intro(listName)}</p>
 						{store ? <EntityLabel name={store.name} testId='attach-review-store' /> : <p data-testid='attach-review-store-unconfirmed' className='text-sm text-muted-foreground'>Store not confirmed</p>}
 						<div data-testid='attach-review-summary' role='status' aria-live='polite' className='grid grid-cols-3 gap-2'>
-							<StatTile testId='attach-review-stat-matched' variant='white' value={review.counts.matched} label='Matched' icon={TickDouble02Icon} iconTone='success' />
+							<StatTile testId='attach-review-stat-matched' variant='white' value={review.counts.matched} label='Matched' icon={CheckmarkCircle02Icon} iconTone='success' />
 							<StatTile testId='attach-review-stat-new' variant='white' value={review.counts.added} label={`New to ${listName}`} icon={Add01Icon} iconTone='primary' />
-							<StatTile testId='attach-review-stat-left-out' variant='white' value={review.counts.leftOut} label='Left out' icon={MinusSignIcon} />
+							<StatTile testId='attach-review-stat-left-out' variant='white' value={review.counts.leftOut} label='Left out' icon={MinusSignCircleIcon} />
 						</div>
 						{active ? <StatusCard tone='info' icon={InformationCircleIcon} title='The trip is still shopping'
 							description={`Only the items on this receipt are checked off. The other ${review.checkedNotOnReceipt.length + review.notCheckedNotOnReceipt.length} items stay on the list for your next store.`} testId='attach-review-still-shopping' /> : null}

@@ -62,7 +62,7 @@ strings. The inventory maps directly to [`src/app/api/v1/`](../../src/app/api/v1
 | `/shopping-session-items/{itemId}` | PATCH, DELETE | PATCH retired: `410 CLIENT_UPDATE_REQUIRED`, reload and use the [v2 conditional editor](api-v2.md). DELETE remains an explicit active-trip operation. |
 | `/shopping-sessions/active` | GET | Deprecated alias; see compatibility table. |
 | `/shopping-sessions/{sessionId}/cancel` | POST | Deprecated alias; see compatibility table. |
-| `/tickets` | GET, POST | List receipts (each with `store`: the confirmed store's `id` and `name`, or null) or upload multipart photos. |
+| `/tickets` | GET, POST | List receipts (each with `store`: the confirmed store's `id` and `name`, or null) or upload multipart photos. Optional `?source=direct` lists receipts uploaded outside a trip; without it, GET retains the full collection. |
 | `/tickets/{ticketId}` | GET, PATCH, DELETE | Read receipt/items (with `store` and `store_suggestion`), assign or clear its store and update group assignment, or delete. |
 | `/tickets/{ticketId}/status` | GET | `{ "data": { "ocr_status": "pending" } }`; status can also be processing/completed/failed. |
 | `/tickets/{ticketId}/retry-ocr` | POST | Clear extracted items and restart processing. |

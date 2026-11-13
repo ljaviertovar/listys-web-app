@@ -46,7 +46,7 @@ describe('ItemStorePricesSheet', () => {
 		expect(html).not.toContain('Cheapest')
 	})
 
-	it('shows the empty state and the usual store when an item has no price history', () => {
+	it('shows the empty state when an item has no price history', () => {
 		const html = renderToStaticMarkup(createElement(ItemStorePricesSheet, {
 			open: true,
 			onOpenChange: vi.fn(),
@@ -58,7 +58,7 @@ describe('ItemStorePricesSheet', () => {
 
 		expect(html).toContain('data-testid="prices-sheet-oats-empty"')
 		expect(html).toContain('No prices yet')
-		expect(html).toContain('Metro')
+		expect(html).not.toContain('Metro')
 	})
 
 	it('shows a store without a price and explains a one-store history', () => {
@@ -73,7 +73,7 @@ describe('ItemStorePricesSheet', () => {
 
 		expect(html).toContain('Metro')
 		expect(html).toContain('No price yet')
-		expect(html).toContain('Bought at one store so far')
+		expect(html).toContain('Buy it at another store and attach that receipt to compare prices')
 		expect(html).not.toContain('Cheapest')
 	})
 })

@@ -1,6 +1,8 @@
 'use client'
 
 import { useEffect } from 'react'
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Loading03Icon, Tick02Icon } from '@hugeicons/core-free-icons'
 import { Button } from '@/components/ui/button'
 import { StatusCard } from '@/components/commons'
 import type { SessionItemDto } from '@/lib/validations/shopping-session-item'
@@ -14,8 +16,12 @@ export function TripSyncStatus({ sessionId, items, active }: { sessionId: string
   const message = !state.initialized ? 'Loading saved changes…' : state.error ? 'Not saved' : dirty || state.busy ? 'Saving…' : 'Saved'
   if (!active && !dirty && !conflicts.length && !state.error) return null
   return <div data-testid='trip-sync-status' className='flex flex-col gap-2'>
-    <div role='status' aria-live='polite' className='flex items-center gap-2 text-xs text-muted-foreground'>
-      <span>{state.ended ? 'This trip has ended' : conflicts.length ? 'Changes need your attention' : message}</span>
+    <div role='status' aria-live='polite' className='flex items-center gap-2 text-xs font-medium text-muted-foreground'>
+      <span className='inline-flex items-center gap-1.5'>
+        {message === 'Saved' && !state.ended && !conflicts.length ? <HugeiconsIcon icon={Tick02Icon} strokeWidth={2} aria-hidden='true' className='size-3.5' /> : null}
+        {message === 'Saving…' && !state.ended && !conflicts.length ? <HugeiconsIcon icon={Loading03Icon} strokeWidth={2} aria-hidden='true' className='size-3.5 animate-spin motion-reduce:animate-none' /> : null}
+        {state.ended ? 'This trip has ended' : conflicts.length ? 'Changes need your attention' : message}
+      </span>
       {state.error && !state.ended ? <Button variant='ghost-primary' size='sm-default' onClick={() => { void controller?.retry().catch(() => {}) }}>Retry</Button> : null}
     </div>
     {state.error ? <p className='text-xs text-muted-foreground'>{state.error}</p> : null}

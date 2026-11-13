@@ -9,8 +9,8 @@ meta:
   goal: Define the visual tokens, component treatments, responsive behavior, motion, content rules, and accessibility constraints required to build Listys consistently.
   productSource: "docs/prd/PRD-v2.md"
   implementationSource: "src/app/globals.css and application-owned components"
-  status: "Target canonical; implementation gaps are listed in section 11"
-  designSource: "docs/design/listys-design-system.html (canonical visual reference; four sections covering foundations, controls, feedback/navigation/data, and product patterns/mobile A1)"
+  status: "Historical reference; the current source of truth is docs/design/design-system.html"
+  designSource: "docs/design/design-system.html (current canonical source; this document is retained as historical context)"
 
 colors:
   ink: "#0F172A"

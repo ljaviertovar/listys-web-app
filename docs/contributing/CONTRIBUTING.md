@@ -3,7 +3,8 @@
 Use the [root setup guide](../../README.md) for development. [PRD v2](../prd/PRD-v2.md) governs the MVP; collaboration
 is experimental. [AGENTS.md](../../AGENTS.md) owns engineering constraints and the
 [project structure](../architecture/project-structure.md) owns placement rules. For visual work, use the canonical
-[Design system v2 HTML](../design/listys-design-system.html) with its [written specification](../design/DESIGN.md).
+[Design System](../design/design-system.html); older design files are historical references. UI changes also pass the DS gate (`$appds-gate`) described in the
+[Design System workflow](design-system-workflow.md).
 
 ## Verification before a PR
 
@@ -24,7 +25,7 @@ browser coverage. Inspect their assertions before claiming UI validation. `pnpm 
 Run corresponding tests for modified features and add missing application-owned behavior coverage under AGENTS.md.
 Third-party code (external libraries and the framework) is never tested, and appearance (classes, colours, sizes,
 icons, static copy) is not asserted in tests. Appearance changes also require local Chrome DevTools
-inspection and mobile/desktop screenshots against the relevant sections of the Design system v2 HTML. Documentation-only
+inspection and mobile/desktop screenshots against the relevant sections of the Design System HTML. Documentation-only
 changes need link, evidence, terminology, command and diff checks; they do not require a new browser test.
 
 ## Playwright boundary

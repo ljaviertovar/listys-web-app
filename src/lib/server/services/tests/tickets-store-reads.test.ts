@@ -31,6 +31,16 @@ describe('receipt reads with stores', () => {
     await expect(getTickets()).resolves.toEqual([{ id: TEST_UUID, store_id: STORE.id, store: STORE }])
     const builder = (supabase.from as ReturnType<typeof vi.fn>).mock.results[0].value
     expect(builder.select.mock.calls[0][0]).toContain('store:stores(id, name)')
+    expect(builder.is).not.toHaveBeenCalled()
+  })
+
+  it('filters the Receipts collection to receipts uploaded outside trips when requested', async () => {
+    const supabase = signIn({ tickets: [{ data: [{ id: TEST_UUID, store_id: STORE.id, store: STORE }], error: null }] })
+
+    await expect(getTickets('direct')).resolves.toEqual([{ id: TEST_UUID, store_id: STORE.id, store: STORE }])
+    const builder = (supabase.from as ReturnType<typeof vi.fn>).mock.results[0].value
+    expect(builder.eq).toHaveBeenCalledWith('user_id', 'user-1')
+    expect(builder.is).toHaveBeenCalledWith('uploaded_from_session_id', null)
   })
 
   it('returns the confirmed store and no suggestion when the receipt has a store', async () => {

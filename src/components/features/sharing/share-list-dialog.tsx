@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Share01Icon } from '@hugeicons/core-free-icons'
+import { Share08Icon } from '@hugeicons/core-free-icons'
 
 import { Button, type ButtonProps } from '@/components/ui/button'
 import { SheetDialog } from '@/components/commons'
@@ -52,13 +52,13 @@ export function ShareListDialog({
 			trigger={
 				trigger === null ? undefined : (
 					<Button
-					variant='outline'
+					variant='outline-surface'
 					size='primary'
 					{...buttonProps}
 					data-testid='share-list-button'
 				>
 					<HugeiconsIcon
-						icon={Share01Icon}
+						icon={Share08Icon}
 						strokeWidth={1.8}
 						aria-hidden='true'
 						className='size-4.5'

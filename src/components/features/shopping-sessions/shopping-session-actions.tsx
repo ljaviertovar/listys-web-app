@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Attachment01Icon, Cancel01Icon, CheckmarkCircle02Icon, PlusSignIcon, Share01Icon, ShoppingBag02Icon, Tick02Icon } from '@hugeicons/core-free-icons'
+import { Attachment01Icon, Cancel01Icon, CheckmarkCircle02Icon, PlusSignIcon, Share01Icon, ShoppingBag03Icon, Tick02Icon } from '@hugeicons/core-free-icons'
 
 import { AddItemSheet } from '@/components/features/list-items'
 import { ShareListDialog } from '@/components/features/sharing'
@@ -22,6 +22,7 @@ import { CancelSessionSheet } from './cancel-session-sheet'
 import { CompleteSessionSheet } from './complete-session-sheet'
 import { useTripSync } from './hooks/use-trip-sync'
 import { visibleTripItems } from './sync/trip-sync-state'
+import { itemsForSessionProgress } from './helpers/split-session-sections'
 
 interface ShoppingSessionActionsProps {
 	sessionId: string
@@ -29,6 +30,7 @@ interface ShoppingSessionActionsProps {
 	total: number
 	baseListId?: string | null
 	listName: string
+	storeId?: string | null
 	/** Only the owner of the list can complete or cancel its session. */
 	isOwner?: boolean
 	/** Only the person who started the trip can attach its receipts. */
@@ -38,10 +40,10 @@ interface ShoppingSessionActionsProps {
 /**
  * Session actions stay in the floating phone menu and desktop header; item and sharing sheets open from the menu or desktop toolbar.
  */
-export function ShoppingSessionActions({ sessionId, checked, total, baseListId, listName, isOwner = false, canAttachReceipt = false }: ShoppingSessionActionsProps) {
+export function ShoppingSessionActions({ sessionId, checked, total, baseListId, listName, storeId, isOwner = false, canAttachReceipt = false }: ShoppingSessionActionsProps) {
 	const { state } = useTripSync(sessionId)
 	if (state.initialized) {
-		const items = visibleTripItems(state)
+		const items = itemsForSessionProgress(visibleTripItems(state), Boolean(storeId))
 		checked = items.filter(item => item.checked).length
 		total = items.length
 	}
@@ -103,7 +105,7 @@ export function ShoppingSessionActions({ sessionId, checked, total, baseListId, 
 							rounded='full'
 						>
 							<HugeiconsIcon
-								icon={ShoppingBag02Icon}
+								icon={ShoppingBag03Icon}
 								strokeWidth={1.5}
 								aria-hidden='true'
 								className='size-4.5'
@@ -174,6 +176,9 @@ export function ShoppingSessionActions({ sessionId, checked, total, baseListId, 
 			/>
 			<CancelSessionSheet
 				sessionId={sessionId}
+				listName={listName}
+				checked={checked}
+				total={total}
 				open={cancelOpen}
 				onOpenChange={setCancelOpen}
 			/>

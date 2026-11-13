@@ -14,7 +14,7 @@ function Card({
 	...props
 }: React.ComponentProps<'div'> & {
 	/** `compact`, `tight` and `flush` drop the gap between the parts of the card and shrink its padding (a card of list rows). */
-	size?: 'default' | 'sm' | 'compact' | 'tight' | 'flush' | 'receipt' | 'stat' | 'saved'
+	size?: 'default' | 'sm' | 'compact' | 'tight' | 'flush' | 'dashboard' | 'dashboard-compact' | 'receipt' | 'trip' | 'list' | 'stat' | 'saved' | 'spending' | 'notice'
 	variant?: 'default' | 'premium' | 'accent' | 'ghost' | 'stat'
 	tone?: 'default' | 'info' | 'success' | 'danger' | 'muted'
 	layout?: 'default' | 'horizontal'
@@ -37,13 +37,24 @@ function Card({
 				size === 'compact' && 'gap-0 py-3 md:py-4',
 				size === 'tight' && 'gap-0 p-3 md:p-4',
 				size === 'flush' && 'gap-0 p-3 md:p-4',
-				size === 'receipt' && 'gap-0 p-4 md:p-6',
-				size === 'stat' && 'gap-3 p-4 md:p-6',
+				// Dashboard sections keep tight vertical spacing with a smaller mobile inset.
+				size === 'dashboard' && 'gap-0 px-2 py-3 md:p-4',
+				size === 'dashboard-compact' && 'gap-0 p-2 md:p-4',
+				// Object cards use the shared 24px surface with 14px inset at every viewport.
+				size === 'receipt' && 'gap-0 p-3.5 md:p-3.5',
+				size === 'trip' && 'gap-0 p-3.5 md:p-3.5',
+				// A card of collapsible categories: the 44px Collapse All button carries its own top space (canvas v4).
+				size === 'list' && 'gap-0 px-3 pt-1 pb-0 md:px-4',
+				size === 'stat' && 'gap-2.5 p-3 md:p-4',
 				size === 'saved' && 'gap-4 p-4 md:p-6',
+				// Monthly spending uses the saved surface without an internal gap.
+				size === 'spending' && 'gap-0 p-4 md:p-6',
+				// A notice that explains a state and what to do about it (a receipt that could not be read): 16px padding, 12px between its parts.
+				size === 'notice' && 'gap-3 p-4',
 				variant === 'stat' && 'rounded-2xl shadow-none ring-1 ring-inset ring-slate-200 dark:ring-border',
-				tone === 'info' && 'bg-blue-50 text-blue-900 shadow-none ring-1 ring-inset ring-blue-100 dark:bg-blue-500/10 dark:text-blue-200 dark:ring-blue-500/30',
-				tone === 'success' && 'bg-green-50 text-green-900 shadow-none ring-1 ring-inset ring-green-200 dark:bg-green-500/10 dark:text-green-200 dark:ring-green-500/30',
-				tone === 'danger' && 'bg-red-50 text-red-900 shadow-none ring-1 ring-inset ring-red-200 dark:bg-red-500/10 dark:text-red-200 dark:ring-red-500/30',
+				tone === 'info' && 'bg-feedback-info-subtle text-feedback-info-strong shadow-none ring-1 ring-inset ring-feedback-info-tint dark:bg-feedback-info-subtle dark:text-feedback-info-strong dark:ring-feedback-info-tint',
+				tone === 'success' && 'bg-feedback-success-subtle text-feedback-success-strong shadow-none ring-1 ring-inset ring-feedback-success-tint dark:bg-feedback-success-subtle dark:text-feedback-success-strong dark:ring-feedback-success-tint',
+				tone === 'danger' && 'bg-feedback-error-subtle text-feedback-error-strong shadow-none ring-1 ring-inset ring-feedback-error-tint dark:bg-feedback-error-subtle dark:text-feedback-error-strong dark:ring-feedback-error-tint',
 				tone === 'muted' && 'bg-muted shadow-none ring-0',
 				interactive && 'hover:shadow-card-hover',
 				'has-data-[slot=card-banner]:p-0',

@@ -1,8 +1,9 @@
 import { apiDelete, apiGet, apiPatch, apiPost } from '@/lib/api/client'
 import type { Ticket } from '@/types/tickets'
 
-export async function getTickets() {
-  return apiGet<Ticket[]>('/api/v1/tickets')
+export async function getTickets(source?: 'direct') {
+  const query = source ? `?source=${encodeURIComponent(source)}` : ''
+  return apiGet<Ticket[]>(`/api/v1/tickets${query}`)
 }
 
 export async function getTicket<T = Ticket>(id: string) {

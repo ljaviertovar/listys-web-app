@@ -39,7 +39,7 @@ describe('TripReceiptsCard', () => {
 		expect(html).toContain('data-state="saved"')
 		expect(html).toContain('Trip saved')
 		expect(html).toContain('3 items updated in Pantry')
-		expect(html).toContain('Upload Receipt')
+		expect(html).toContain('Attach Receipt')
 		expect(html).toContain('View Trip')
 		expect(html).toContain('href="/shopping/trip-1?details=1&amp;from=trip-saved"')
 	})

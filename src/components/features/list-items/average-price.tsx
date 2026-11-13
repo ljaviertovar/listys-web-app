@@ -18,7 +18,7 @@ export function AveragePrice({ price, testId = 'item-average-price', size = 'def
 	return (
 		<span
 			data-testid={testId}
-			className='inline-flex shrink-0 items-baseline gap-1 text-xs leading-[1.3] text-slate-500 dark:text-muted-foreground'
+			className='inline-flex shrink-0 items-baseline gap-1 text-xs leading-[1.3] text-muted-foreground dark:text-muted-foreground'
 		>
 			<span className='sr-only'>Average price </span>
 			<b className={cn('font-mono font-semibold text-foreground tabular-nums', size === 'row' && 'text-sm', muted && 'text-slate-400 dark:text-muted-foreground')}>{formatCurrency(price)}</b>

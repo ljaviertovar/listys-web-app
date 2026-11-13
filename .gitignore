@@ -57,6 +57,7 @@ e2e/fixtures/*.png
 .github/skills/**
 .agent/**
 .claude/skills/**
+.claude/commands/**
 
 # Playwright mcp
 .playwright-mcp
@@ -64,3 +65,7 @@ e2e/fixtures/*.png
 /e2e
 /scripts
 /output
+
+#design
+/docs/design/audit-findings/assets/**
+/public/docs/**

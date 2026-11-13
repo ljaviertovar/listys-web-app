@@ -1,7 +1,9 @@
+// AttachmentIcon and AttachmentOffIcon exist only in Hugeicons 4; every other icon stays on 3.x so none of them is redrawn.
+import { AttachmentIcon, AttachmentOffIcon } from '@hugeicons/core-free-icons-v4'
+import { Store03Icon } from '@hugeicons/core-free-icons'
 import { getItemPurchaseStats } from '@/components/features/base-lists/items/helpers/item-purchase-stats'
 import { redirect } from 'next/navigation'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Alert02Icon, Attachment01Icon } from '@hugeicons/core-free-icons'
 
 import { ActiveShoppingBadge, BackLink, PageContainer, PageHeader, TripNavigationMarker } from '@/components/app'
 import { Badge } from '@/components/ui/badge'
@@ -11,12 +13,13 @@ import { ShareListDialog } from '@/components/features/sharing'
 import { STARTED_SESSION_PARAM, SessionSummaryCard, TripReceiptsCard, TripReceiptSummary,
 	getTripReceiptState, getTripStores, ShoppingSessionActions, ShoppingSessionItems, ShoppingSessionRealtimeListener,
 	buildSessionPriceEstimate, summarizeCheckedEstimate, resolveSessionBackLink, TripSyncStatus } from '@/components/features/shopping-sessions'
+import { itemsForSessionProgress } from '@/components/features/shopping-sessions/helpers/split-session-sections'
 import { getShoppingSession } from '@/actions'
 import { buildItemStoreSummary } from '@/components/features/base-lists/items/helpers/item-store-summary'
 import { createClient } from '@/lib/supabase/server'
 import type { TicketSessionCandidate } from '@/lib/api/endpoints'
 import type { ShoppingSessionWithItems, TripReceipt } from '@/types'
-import { formatCurrency, formatTime, formatTripDate } from '@/utils'
+import { formatCurrency, formatTripDate } from '@/utils'
 
 type SearchParams = { from?: string | string[]; list?: string | string[]; started?: string | string[]; receipt?: string | string[]; details?: string | string[] }
 
@@ -44,8 +47,10 @@ export default async function ShoppingRunPage({ params, searchParams }: { params
 	const ranTrip = run.user_id === user.id
 	const { href: backHref, label: backLabel } = resolveSessionBackLink(first(query.from), first(query.list))
 	const items = isCompleted ? run.items.filter(item => item.checked === true) : run.items
-	const checkedCount = run.items.filter(item => item.checked).length
+	const progressItems = itemsForSessionProgress(run.items, Boolean(run.store_id))
+	const checkedCount = progressItems.filter(item => item.checked).length
 	const totalCount = run.items.length
+	const progressTotal = progressItems.length
 	const trip: TicketSessionCandidate | undefined = ranTrip ? {
 		id: runId, name: run.name, status: isCompleted ? 'completed' : 'active',
 		started_at: run.started_at ?? null, completed_at: run.completed_at ?? null,
@@ -59,8 +64,8 @@ export default async function ShoppingRunPage({ params, searchParams }: { params
 			.eq('user_id', user.id).eq('uploaded_from_session_id', runId).is('shopping_session_id', null).is('base_list_id', null)
 			.order('created_at', { ascending: false }) : Promise.resolve({ data: null }),
 	])
-	const priceEstimate = buildSessionPriceEstimate(items, pricesResult.data ?? [])
-	const checkedEstimate = summarizeCheckedEstimate(run.items, priceEstimate.priceByItemId)
+	const priceEstimate = buildSessionPriceEstimate(isCompleted ? items : progressItems, pricesResult.data ?? [])
+	const checkedEstimate = summarizeCheckedEstimate(isCompleted ? items : progressItems, priceEstimate.priceByItemId)
 	const storeInfoByName = new Map((pricesResult.data ?? []).map(item => [item.normalized_name,
 		{ ...buildItemStoreSummary(item.store_stats, item.usual_store, item.usual_store_source), purchaseStats: getItemPurchaseStats({ purchase_count: item.purchase_count ?? 0, first_seen_at: item.first_seen_at, last_purchased_at: item.last_purchased_at }) }]))
 	const storeInfoByItemId = Object.fromEntries(items.flatMap(item => {
@@ -83,24 +88,26 @@ export default async function ShoppingRunPage({ params, searchParams }: { params
 	}
 	return <>
 		<TripNavigationMarker completed={isCompleted} pathname={`/shopping/${runId}`} />
-		<PageHeader variant='screen' back={backToSaved ? { href: `/shopping/${runId}`, label: 'Back to Trip Saved' } : { href: backHref, label: backLabel }} title={run.name}
+		<PageHeader variant='screen' screenStyle='entity-detail' back={backToSaved ? { href: resolveSessionBackLink('trips', first(query.list)).href, label: 'Back to Trips' } : { href: backHref, label: backLabel }} title={run.name}
 			aside={isCompleted ? <Badge variant='completed' dot>Completed</Badge> : <ActiveShoppingBadge />}
 			desc={<div className='flex flex-col gap-2'>
-				<div data-testid='trip-header-classification' className='flex flex-wrap items-center gap-x-2.5 gap-y-1.5'>
-					{stores.map(store => <EntityLabel key={store.id} name={store.name} testId={`trip-store-${store.id}`} />)}
-					{isCompleted ? <Badge variant={receipts.length ? 'tag' : 'tag-attention'}><HugeiconsIcon icon={receipts.length ? Attachment01Icon : Alert02Icon} strokeWidth={1.8} aria-hidden='true' />{receipts.length > 1 ? `${receipts.length} Receipt attached` : receipts.length ? 'Receipt attached' : 'No Receipt attached'}</Badge> : null}
-				</div>
-				{isCompleted ? <DataLine testId='trip-header-data'>{date ? <DataFigure>{formatTripDate(date)}</DataFigure> : null}{date ? <DataFigure>{formatTime(date)}</DataFigure> : null}{amount == null ? null : <DataFigure>{!receipts.length ? '≈ ' : ''}{formatCurrency(amount)}</DataFigure>}</DataLine> : null}
+				{stores.length > 0 || isCompleted ? <div data-testid='trip-header-classification' className='flex flex-wrap items-center gap-x-2.5 gap-y-1.5'>
+					{stores[0] ? <EntityLabel name={stores[0].name} testId={`trip-store-${stores[0].id}`} /> : null}
+					{stores.length > 1 ? <Badge variant='tag'><HugeiconsIcon icon={Store03Icon} strokeWidth={1.8} aria-hidden='true' />+{stores.length - 1} {stores.length === 2 ? 'store' : 'stores'}</Badge> : null}
+					{isCompleted ? <Badge variant={receipts.length ? 'tag' : 'tag-attention'}><HugeiconsIcon icon={receipts.length ? AttachmentIcon : AttachmentOffIcon} strokeWidth={1.8} aria-hidden='true' />{receipts.length > 1 ? `${receipts.length} Receipt attached` : receipts.length ? 'Receipt attached' : 'No Receipt attached'}</Badge> : null}
+				</div> : null}
+				{isCompleted ? <DataLine testId='trip-header-data'>{date ? <>Completed on {formatTripDate(date)}</> : null}{amount == null ? null : <DataFigure>{!receipts.length ? '≈ ' : ''}{formatCurrency(amount)}</DataFigure>}</DataLine> : null}
+				{!isCompleted ? <DataLine testId='trip-header-data'>{run.store_id ? `${progressTotal} of ${totalCount} items` : `${totalCount} items`}</DataLine> : null}
 			</div>}>
-			{!isCompleted ? <ShoppingSessionActions sessionId={runId} checked={checkedCount} total={totalCount} baseListId={baseListId} listName={baseListName} isOwner={isListOwner} canAttachReceipt={Boolean(trip)} /> : null}
 		</PageHeader>
 		<PageContainer className='pb-[calc(7rem+max(1.125rem,env(safe-area-inset-bottom)))] lg:pb-20'>
 			<div className='flex w-full max-w-3xl flex-col gap-6'>
+			{!isCompleted ? <ShoppingSessionActions sessionId={runId} checked={checkedCount} total={progressTotal} baseListId={baseListId} listName={baseListName} storeId={run.store_id} isOwner={isListOwner} canAttachReceipt={Boolean(trip)} /> : null}
 				<TripSyncStatus sessionId={runId} items={run.items} active={!isCompleted} />
-				{!isCompleted && totalCount > 0 ? <SessionSummaryCard mode='active' sessionId={runId} priceByItemId={Object.fromEntries(priceEstimate.priceByItemId)} checked={checkedCount} total={totalCount} estimate={priceEstimate.pricedCount > 0 ? checkedEstimate : undefined} /> : null}
+				{!isCompleted && totalCount > 0 ? <SessionSummaryCard mode='active' sessionId={runId} activeItemScope={run.store_id ? 'current-store' : 'all'} priceByItemId={Object.fromEntries(priceEstimate.priceByItemId)} checked={checkedCount} total={progressTotal} estimate={priceEstimate.pricedCount > 0 ? checkedEstimate : undefined} /> : null}
 				{isCompleted && priceEstimate && !receipts.length ? <SessionSummaryCard mode='completed' estimate={priceEstimate} /> : null}
-				{isCompleted && receiptState.kind !== 'attached' && pending.length === 0 ? <TripReceiptsCard state={receiptState} itemCount={checkedCount} listName={baseListName} openAddOnLoad={first(query.receipt) === 'add'} trip={trip} /> : null}
 				{isCompleted && activeEntries.length ? <TripReceiptSummary receipts={activeEntries} mode='completed' itemCount={checkedCount} estimate={priceEstimate?.pricedCount ? priceEstimate.total : undefined} trip={trip} /> : null}
+				{isCompleted && receiptState.kind === 'none' && pending.length === 0 ? <TripReceiptSummary receipts={[]} mode='completed' itemCount={checkedCount} estimate={priceEstimate?.pricedCount ? priceEstimate.total : undefined} trip={trip} noReceipt openAddOnLoad={first(query.receipt) === 'add'} /> : null}
 				{!isCompleted && trip ? <TripReceiptSummary receipts={activeEntries} mode='active' itemCount={checkedCount} trip={trip} /> : null}
 				{!isCompleted ? <div data-testid='session-toolbar' className='hidden grid-cols-2 gap-2 lg:flex lg:justify-end'>
 					{baseListId && isListOwner ? <ShareListDialog baseListId={baseListId} listName={baseListName} isOwner={isListOwner} className='w-full md:w-auto' /> : null}

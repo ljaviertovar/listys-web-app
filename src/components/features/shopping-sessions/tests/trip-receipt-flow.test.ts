@@ -4,6 +4,7 @@ import { createTripReceiptFlow, tripReceiptFlowReducer } from '../helpers/trip-r
 describe('trip receipt flow', () => {
 	it('starts closed; an upload opens directly', () => {
 		expect(createTripReceiptFlow()).toEqual({ upload: false, reviewTicketId: null })
+		expect(createTripReceiptFlow(true)).toEqual({ upload: true, reviewTicketId: null })
 		expect(tripReceiptFlowReducer(createTripReceiptFlow(), { type: 'upload-new' })).toEqual({ upload: true, reviewTicketId: null })
 	})
 	it('opens only the requested review and closes without choosing another action', () => {
