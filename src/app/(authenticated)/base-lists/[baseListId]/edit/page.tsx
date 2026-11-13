@@ -109,36 +109,36 @@ export default async function EditBaseListPage({
 			/>
 
 			<PageContainer>
-				<div className='flex w-full max-w-3xl flex-col gap-6'>
-					{items.length > 0 ? <StartShoppingDialog
-						baseListId={baseListId}
-						baseListName={baseListWithItems.name}
-						itemsCount={items.length}
-						items={items}
-						sessionActive={!!activeSession}
-						activeSessionId={activeSession?.id}
-						className='w-full'
-					/> : null}
+				<div className='flex w-full max-w-3xl flex-col gap-4'>
+					{items.length > 0 ? <div className='flex flex-col gap-2'>
+						<StartShoppingDialog
+							baseListId={baseListId}
+							baseListName={baseListWithItems.name}
+							itemsCount={items.length}
+							items={items}
+							sessionActive={!!activeSession}
+							activeSessionId={activeSession?.id}
+							className='w-full'
+						/>
 
-					{items.length > 0 ? <div className='grid grid-cols-2 gap-3' data-testid='base-list-actions'>
-						{isOwner && (
-							<ShareListDialog
-								baseListId={baseListId}
-								listName={baseListWithItems.name}
-								isOwner={isOwner}
-								className={isOwner ? 'w-full' : 'col-span-2 w-full'}
-							/>
-						)}
-						{items.length > 0 && (
+						<div className='grid grid-cols-2 gap-3' data-testid='base-list-actions'>
+							{isOwner && (
+								<ShareListDialog
+									baseListId={baseListId}
+									listName={baseListWithItems.name}
+									isOwner={isOwner}
+									className={isOwner ? 'w-full' : 'col-span-2 w-full'}
+								/>
+							)}
 							<AddItemSheet
 								target={{ context: 'base-list', baseListId }}
 								isLocked={isLocked}
-								className='w-full'
+								className={isOwner ? 'w-full' : 'col-span-2 w-full'}
 							/>
-						)}
+						</div>
 					</div> : null}
 
-					{storeOptions.length > 0 ? (
+					{items.length > 0 ? (
 							<UsualStoreFilter
 								options={storeOptions}
 								value={storeFilter}

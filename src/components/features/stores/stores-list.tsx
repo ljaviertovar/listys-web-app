@@ -1,30 +1,34 @@
 'use client'
 
 import Link from 'next/link'
-import { Edit02Icon, GitMergeIcon, SparklesIcon, Store03Icon } from '@hugeicons/core-free-icons'
+import { Edit02Icon, GitMergeIcon, InformationCircleIcon, SparklesIcon, Store03Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 
 import { ConfirmSheet, EmptyStateCard, EntityCard, EntityCardSkeleton, ListToolbar } from '@/components/commons'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { Store } from '@/types'
 
 import { buildStoreMeta } from './helpers/store-meta'
 import { useStoreActions } from './hooks/use-store-actions'
-import { StoreNameDialog } from './store-name-dialog'
 import { StorePickerDialog } from './store-picker-dialog'
+import { StoreRenameCard } from './store-rename-card'
 
 interface StoresListProps {
 	stores: Store[]
 }
 
-const receipts = (count: number) => `${count} ${count === 1 ? 'receipt' : 'receipts'}`
-
 /** "My Stores": the user's stores with how many receipts each has, renamed or merged from each card's menu. */
 export function StoresList({ stores }: StoresListProps) {
 	const actions = useStoreActions(stores)
 	const { flow } = actions
+	const visibleStores = stores
+		.filter(store => store.id !== actions.hiddenStoreId)
+		.map(store => store.id === actions.optimisticMerge?.target.id && stores.some(item => item.id === actions.optimisticMerge?.source.id)
+			? { ...store, receipt_count: store.receipt_count + actions.optimisticMerge.source.receipt_count }
+			: store)
 
 	if (stores.length === 0) {
 		return (
@@ -50,12 +54,33 @@ export function StoresList({ stores }: StoresListProps) {
 			className='flex flex-col gap-4'
 		>
 			<ListToolbar
-				count={stores.length}
+				count={visibleStores.length}
 				unit={{ one: 'store', many: 'stores' }}
 				testId='stores-toolbar'
 			/>
 			<div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:gap-6 xl:grid-cols-3'>
-				{stores.filter(store => store.id !== actions.hiddenStoreId).map(store => (
+				{visibleStores.map(store => flow.kind === 'rename' && flow.store.id === store.id ? (
+					<StoreRenameCard
+						key={store.id}
+						initialName={flow.store.name}
+						description={`Receipts printed with “${flow.store.name}” will still be filed under this store.`}
+						onCancel={actions.close}
+						onSubmit={actions.rename}
+						pending={actions.pending}
+						error={flow.error}
+						action={flow.conflictWith ? (
+							<Button
+								type='button'
+								variant='secondary'
+								size='primary'
+								onClick={() => flow.conflictWith && actions.chooseTarget(flow.store, flow.conflictWith)}
+							>
+								Merge Into “{flow.conflictWith.name}”
+							</Button>
+						) : null}
+						testId={`store-rename-card-${store.id}`}
+					/>
+				) : (
 					<EntityCard
 						key={store.id}
 						icon={Store03Icon}
@@ -93,35 +118,6 @@ export function StoresList({ stores }: StoresListProps) {
 				))}
 			</div>
 
-			<StoreNameDialog
-				open={flow.kind === 'rename'}
-				onOpenChange={open => !open && actions.close()}
-				title='Rename Store'
-				description={
-					flow.kind === 'rename'
-						? `Receipts printed with “${flow.store.name}” will still be filed under this store.`
-						: undefined
-				}
-				initialName={flow.kind === 'rename' ? flow.store.name : ''}
-				confirmLabel='Save Name'
-				onSubmit={actions.rename}
-				pending={actions.pending}
-				error={flow.kind === 'rename' ? flow.error : null}
-				action={
-					flow.kind === 'rename' && flow.conflictWith ? (
-						<Button
-							type='button'
-							variant='secondary'
-							size='primary'
-							onClick={() => flow.conflictWith && actions.chooseTarget(flow.store, flow.conflictWith)}
-						>
-							Merge Into “{flow.conflictWith.name}”
-						</Button>
-					) : null
-				}
-				testId='store-rename-dialog'
-			/>
-
 			<StorePickerDialog
 				open={flow.kind === 'pick-target'}
 				onOpenChange={open => !open && actions.close()}
@@ -133,7 +129,9 @@ export function StoresList({ stores }: StoresListProps) {
 				}
 				confirmLabel='Continue'
 				allowCreate={false}
+				optionVariant='card'
 				excludeStoreId={flow.kind === 'pick-target' ? flow.source.id : null}
+				initialSelectedStoreId={flow.kind === 'pick-target' ? stores.find(store => store.id !== flow.source.id)?.id : undefined}
 				onPick={pick => flow.kind === 'pick-target' && pick.kind === 'existing' && actions.chooseTarget(flow.source, pick.store)}
 				testId='store-merge-picker'
 			/>
@@ -141,27 +139,28 @@ export function StoresList({ stores }: StoresListProps) {
 			<ConfirmSheet
 				open={flow.kind === 'confirm-merge'}
 				onOpenChange={open => !open && actions.close()}
-				title={flow.kind === 'confirm-merge' ? `Merge “${flow.source.name}” into “${flow.target.name}”?` : 'Merge Stores?'}
+				title={flow.kind === 'confirm-merge' ? `Merge “${flow.source.name}” into ${flow.target.name}` : 'Merge Stores'}
 				description={
 					flow.kind === 'confirm-merge'
-						? `${receipts(flow.source.receipt_count)} will move to “${flow.target.name}”, and receipts printed with either name will be filed there.`
+						? `“${flow.source.name}” will be merged into ${flow.target.name}.`
 						: undefined
 				}
-				consequence={flow.kind === 'confirm-merge' ? `“${flow.source.name}” will be removed. You can undo it for a few seconds.` : undefined}
 				confirmLabel='Merge Stores'
 				loadingLabel='Merging…'
-				tone='danger'
+				tone='primary'
 				loading={actions.pending}
 				onConfirm={actions.merge}
 				testId='store-merge-confirm'
 			>
-				{flow.kind === 'confirm-merge' && flow.error ? (
-					<p
-						role='alert'
-						className='text-sm text-destructive'
-					>
-						{flow.error}
-					</p>
+				{flow.kind === 'confirm-merge' ? (
+					<>
+						<Alert variant='receipt-info' role='note' data-testid='store-merge-guidance'>
+							<HugeiconsIcon icon={InformationCircleIcon} strokeWidth={1.8} aria-hidden='true' />
+							<AlertTitle>What happens when you merge</AlertTitle>
+							<AlertDescription>Receipts, prices and item tags from “{flow.source.name}” move to {flow.target.name}, and its name is kept as one of the names on receipts.</AlertDescription>
+						</Alert>
+						{flow.error ? <p role='alert' className='text-sm text-destructive'>{flow.error}</p> : null}
+					</>
 				) : null}
 			</ConfirmSheet>
 		</div>

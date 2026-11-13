@@ -33,7 +33,7 @@ export function HistoryListFilter({ options, selectedListId, testId = 'history-l
 			data-testid={testId}
 			className='flex flex-col gap-2 sm:max-w-sm'
 		>
-			<Label htmlFor={fieldId}>Show trips from</Label>
+			<Label htmlFor={fieldId}>Show trips from:</Label>
 			<Select
 				value={selectedListId ?? ALL_LISTS}
 				onValueChange={handleChange}
@@ -45,7 +45,12 @@ export function HistoryListFilter({ options, selectedListId, testId = 'history-l
 					<SelectValue />
 				</SelectTrigger>
 				<SelectContent size='filter'>
-					<SelectItem size='filter' value={ALL_LISTS}><ListOption name='All lists' /></SelectItem>
+					<SelectItem
+						size='filter'
+						value={ALL_LISTS}
+					>
+						<ListOption name='All lists' />
+					</SelectItem>
 					{options.map(option => (
 						<SelectItem
 							key={option.id}
@@ -63,5 +68,15 @@ export function HistoryListFilter({ options, selectedListId, testId = 'history-l
 
 /** The list in the filter, with the tile the canvas draws before its name; it is also what the closed trigger shows. */
 function ListOption({ name }: { name: string }) {
-	return <><RowIcon icon={ListViewIcon} tone='primary' size='stat' testId='history-filter-option-icon' />{name}</>
+	return (
+		<>
+			<RowIcon
+				icon={ListViewIcon}
+				tone='primary'
+				size='stat'
+				testId='history-filter-option-icon'
+			/>
+			{name}
+		</>
+	)
 }

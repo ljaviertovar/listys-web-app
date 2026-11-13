@@ -105,9 +105,16 @@ export function BaseListItemRow({ item, isLocked = false, isOwner = true }: Base
 			{isOwner ? <StorePickerDialog
 				open={storePickerOpen}
 				onOpenChange={setStorePickerOpen}
-				title={item.usual_store ? 'Change Usual Store' : 'Set Usual Store'}
-				description={name}
-				context={{ headline: pickerInfo.headline, body: pickerInfo.body }}
+				title='Usual Store'
+				itemName={name}
+				allowCreate={false}
+				currentUsualStore={item.usual_store ? {
+					id: item.usual_store.id,
+					name: item.usual_store.name,
+					source: item.usual_store.source === 'auto' ? 'auto' : 'manual',
+					note: pickerInfo.body,
+				} : undefined}
+				onPickAutomatic={() => handleStorePick(null)}
 				storeDetails={pickerInfo.details}
 				footnote='A store you pick stays until you change it. Receipts won’t move it.'
 				confirmLabel='Set Usual Store'

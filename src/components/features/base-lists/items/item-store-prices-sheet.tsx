@@ -1,7 +1,7 @@
 'use client'
 
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Attachment01Icon, Calendar01Icon, Clock01Icon, Edit02Icon, InformationCircleIcon, RepeatIcon, ShoppingCart02Icon, Tag01Icon } from '@hugeicons/core-free-icons'
+import { Attachment01Icon, Calendar01Icon, Clock01Icon, InformationCircleIcon, RepeatIcon, ShoppingCart02Icon, Tag01Icon } from '@hugeicons/core-free-icons'
 
 import { EntityLabel, RowIcon, SheetDialog, StatTile } from '@/components/commons'
 import { Badge } from '@/components/ui/badge'
@@ -32,13 +32,13 @@ export function ItemStorePricesSheet({ open, onOpenChange, itemName, prices, his
 	const priced = rows.filter((entry): entry is StoreHistoryEntry & { last_price: number } => entry.last_price !== null)
 	const comparison = compareStorePrices(priced)
 	return <SheetDialog open={open} onOpenChange={onOpenChange} title='Prices by Store' description={itemName} testId={testId}>
-		<div className='mt-3 flex flex-col gap-4' data-testid={`${testId}-content`}>
-			{usualStore ? <div className='flex flex-wrap items-center gap-x-2.5 gap-y-1'>
+		<div className='mt-3 flex flex-col gap-4 pb-3' data-testid={`${testId}-content`}>
+			{usualStore && rows.length ? <div className='flex flex-wrap items-center gap-x-2.5 gap-y-1'>
 				<EntityLabel name={usualStore.name} manual={usualStore.source === 'manual'} testId={`${testId}-usual-store`} />
 				<Badge variant='tag'><HugeiconsIcon icon={RepeatIcon} strokeWidth={1.8} aria-hidden='true' />Usual</Badge>
 			</div>
-				: rows.length === 0 ? <div><Badge variant='tag'><HugeiconsIcon icon={Edit02Icon} aria-hidden='true' strokeWidth={1.8} />Added by hand</Badge></div> : null}
-			{rows.length || purchaseCount ? <div className='grid grid-cols-3 gap-2'>
+				: null}
+			{rows.length ? <div className='grid grid-cols-3 gap-2'>
 				<StatTile testId={`${testId}-times-bought`} value={purchaseCount} label='Times bought' variant='white' icon={ShoppingCart02Icon} iconTone='primary' />
 				<StatTile testId={`${testId}-between-trips`} value={intervalDays == null ? '—' : `~${Math.round(intervalDays)}`} unit={intervalDays == null ? undefined : 'd'} label='Between trips' variant='white' icon={Clock01Icon} iconTone='accent' />
 				<StatTile testId={`${testId}-last-bought`} value={lastBought ? shortDate(lastBought).split(' ')[0] : '—'} unit={lastBought ? shortDate(lastBought).split(' ')[1] : undefined} label='Last bought' variant='white' icon={Calendar01Icon} iconTone='success' />
@@ -71,8 +71,11 @@ export function ItemStorePricesSheet({ open, onOpenChange, itemName, prices, his
 				<AlertDescription>Prices come from your receipts. Upload one with this item to see what it costs and where.</AlertDescription>
 			</Alert>}
 			{rows.length === 0 ? <UploadTicketDialog label='Attach Receipt' triggerIcon={Attachment01Icon} variant='default' size='primary' className='w-full' /> : null}
-			{rows.length === 1 ? <p className='flex items-start gap-2 rounded-2xl bg-muted p-3 text-xs leading-[1.4] text-body'><HugeiconsIcon icon={InformationCircleIcon} strokeWidth={1.8} aria-hidden='true' className='mt-px size-4 shrink-0 text-muted-foreground' />Buy it at another store and attach that receipt to compare prices.</p> : null}
-			{onChangeUsualStore ? <Button type='button' variant='secondary' size='primary' onClick={onChangeUsualStore}>Change Usual Store</Button> : null}
+			{rows.length === 1 ? <Alert variant='receipt-info' role='note' data-testid={`${testId}-compare-prices-guidance`}>
+				<RowIcon icon={InformationCircleIcon} tone='primary' size='alert' testId={`${testId}-compare-prices-guidance-icon`} />
+				<AlertDescription>Buy it at another store and attach that receipt to compare prices.</AlertDescription>
+			</Alert> : null}
+			{rows.length && onChangeUsualStore ? <Button type='button' variant='secondary' size='primary' onClick={onChangeUsualStore}>Change Usual Store</Button> : null}
 		</div>
 	</SheetDialog>
 }
