@@ -48,7 +48,7 @@ describe('GET /api/v1/stores', () => {
     expect(response.status).toBe(200)
     expect(await response.json()).toEqual({
       data: [{ id: TEST_UUID, name: 'No Frills', receipt_count: 2, created_at: ROW.created_at, updated_at: ROW.updated_at,
-        last_visit: { kind: 'trip', id: TEST_UUID_2, at: '2026-10-28T12:00:00Z', total_amount: 32.5 }, usual_items_count: 0 }],
+        last_visit: { kind: 'trip', id: TEST_UUID_2, at: '2026-10-28T12:00:00Z', total_amount: 32.5, items_count: null }, usual_items_count: 0 }],
       meta: { count: 1, limit: MAX_STORES_PER_USER },
     })
   })

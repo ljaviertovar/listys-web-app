@@ -96,7 +96,17 @@ describe('GET /api/v1/spending store breakdown', () => {
 
 	it('still answers with the total when the breakdown cannot be read', async () => {
 		vi.spyOn(console, 'error').mockImplementation(() => {})
-		signIn(undefined, { shopping_sessions: { data: null, error: { code: 'XX000', message: 'private' } } })
+		const { supabase } = createSupabaseMock({
+			rpcResults: { spending_summary: { data: [{ receipts_count: 2, total: 125.75, trips_count: 3, trips_without_total: 1 }], error: null } },
+		})
+		supabase.from = sequentialFrom({
+			shopping_sessions: [
+					{ data: null, error: { code: 'XX000', message: 'private' } },
+					{ data: [], error: null },
+			],
+			tickets: [{ data: [], error: null }],
+		})
+		mockedAuth.mockResolvedValue({ supabase, user: { id: 'user-1' } } as never)
 
 		const response = await GET(request(`?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`))
 

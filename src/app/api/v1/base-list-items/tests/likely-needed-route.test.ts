@@ -11,8 +11,8 @@ import { GET } from '../route'
 const mockedAuth = vi.mocked(createAuthenticatedClient)
 const url = (query = '') => new Request(`http://localhost/api/v1/base-list-items${query}`)
 
-function signIn(rpcResults?: Record<string, { data?: unknown; error?: unknown }>) {
-	const { supabase } = createSupabaseMock({ rpcResults })
+function signIn(rpcResults?: Record<string, { data?: unknown; error?: unknown }>, tables?: NonNullable<Parameters<typeof createSupabaseMock>[0]>['tables']) {
+	const { supabase } = createSupabaseMock({ rpcResults, tables })
 	mockedAuth.mockResolvedValue({ supabase, user: { id: 'user-1' } } as never)
 	return supabase
 }
@@ -36,7 +36,7 @@ describe('GET /api/v1/base-list-items?filter=likely_needed', () => {
 				}],
 				error: null,
 			},
-		})
+		}, { tickets: { data: null, count: 3, error: null } })
 
 		const response = await GET(url('?filter=likely_needed&limit=5'))
 
@@ -50,7 +50,7 @@ describe('GET /api/v1/base-list-items?filter=likely_needed', () => {
 				interval_days: 9,
 				days_since: 12,
 			}],
-			meta: { limit: 5, has_history: true },
+			meta: { limit: 5, has_history: true, receipts_count: 3, eligible: true },
 		})
 		expect(supabase.rpc).toHaveBeenCalledWith('likely_needed_items', { p_limit: 5 })
 	})
@@ -75,7 +75,7 @@ describe('GET /api/v1/base-list-items?filter=likely_needed', () => {
 
 		const response = await GET(url('?filter=likely_needed'))
 
-		expect(await response.json()).toEqual({ data: [], meta: { limit: 5, has_history: false } })
+		expect(await response.json()).toEqual({ data: [], meta: { limit: 5, has_history: false, receipts_count: 0, eligible: false } })
 		expect(supabase.rpc).toHaveBeenCalledWith('likely_needed_items', { p_limit: 5 })
 	})
 
