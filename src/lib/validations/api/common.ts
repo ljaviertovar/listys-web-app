@@ -41,6 +41,10 @@ export const ticketSessionMatchesQuerySchema = z.object({
   shopping_session_id: z.string({ message: 'Choose a trip' }).uuid('Choose a trip'),
 }).strict()
 
+export const ticketsQuerySchema = z.object({
+  source: z.enum(['direct']).optional(),
+}).strict()
+
 export const shoppingSessionsQuerySchema = z.object({
   status: z.enum(['completed', 'active']).optional(),
 })

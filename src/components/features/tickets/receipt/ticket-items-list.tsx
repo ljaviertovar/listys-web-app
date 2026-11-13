@@ -1,8 +1,8 @@
 'use client'
 
-import { useId, useMemo, useState } from 'react'
+import { useId, useMemo } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Alert02Icon, CheckmarkCircle02Icon, ListViewIcon, Loading03Icon } from '@hugeicons/core-free-icons'
+import { Alert02Icon, ListViewIcon, Loading03Icon } from '@hugeicons/core-free-icons'
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
@@ -54,13 +54,8 @@ export function TicketItemsList({ items, selection, canSelect, triage }: TicketI
 			? []
 			: groups.map(group => ({ id: `ticket-category-${group.key}`, defaultOpen: true }))
 	const expansion = useCategorySectionExpansion(sectionDescriptors)
-	const [reviewingAll, setReviewingAll] = useState(false)
-	const allMatched = readyTriage !== null && readyTriage.triage.length === 1 && readyTriage.triage[0].id === 'matched'
-	// Only a receipt the list already knows line by line says so and waits for "Review All"; one that got there by the user's own
-	// decisions keeps its lines in view, with whatever is included.
-	const knownByList = readyTriage !== null && readyTriage.matches.every(match => match.match === 'name' || match.match === 'alias')
-	const linesHidden = allMatched && knownByList && !reviewingAll && selection.count === 0
-	const showControls = !linesHidden && activeTriage?.status !== 'switching' && (canSelect || sectionDescriptors.length > 0)
+	const isComparing = activeTriage?.status === 'loading' || activeTriage?.status === 'switching'
+	const showControls = !isComparing && (canSelect || sectionDescriptors.length > 0)
 
 	return (
 		<div data-testid='ticket-items-list'>
@@ -68,34 +63,22 @@ export function TicketItemsList({ items, selection, canSelect, triage }: TicketI
 				<Alert variant='receipt-warning' data-testid='receipt-triage-fallback' className='mt-3'>
 					<RowIcon icon={Alert02Icon} tone='warning' size='alert' testId='receipt-triage-fallback-icon' />
 					<AlertTitle>Couldn’t compare these lines</AlertTitle>
-					<AlertDescription className='flex flex-col items-start gap-2'>
-						<span>Try again to compare them with your list.</span>
-						<Button type='button' variant='destructive' size='alert-action' onClick={triage.retry}>Retry</Button>
+					<AlertDescription>
+						<div className='flex flex-col items-start gap-2'>
+							<span>Try again to compare them with your list.</span>
+							<Button type='button' variant='destructive' size='alert-action' onClick={triage.retry}>Retry</Button>
+						</div>
 					</AlertDescription>
 				</Alert>
 			) : null}
 			{activeTriage?.baseList ? <TargetListRow triage={activeTriage} baseList={activeTriage.baseList} /> : null}
-			{activeTriage?.status === 'switching' ? (
+			{activeTriage?.status === 'loading' || activeTriage?.status === 'switching' ? (
 				<div data-testid='receipt-triage-switching' role='status' aria-busy='true' className='flex flex-col items-center gap-3 px-4 py-7 text-center'>
 					<HugeiconsIcon icon={Loading03Icon} strokeWidth={1.5} aria-hidden='true' className='size-10.5 animate-spin text-primary motion-reduce:animate-none' />
-					<p className='text-sm leading-[1.4] font-medium text-muted-foreground dark:text-muted-foreground'>Comparing with {activeTriage.baseList?.name}…</p>
+					<p className='text-sm leading-[1.4] font-medium text-muted-foreground dark:text-muted-foreground'>
+						{activeTriage.status === 'loading' ? 'Loading your list…' : `Comparing with ${activeTriage.baseList?.name}…`}
+					</p>
 				</div>
-			) : null}
-			{allMatched && readyTriage ? (
-				<>
-					<Alert variant='receipt-success' role='status' data-testid='receipt-all-match' className='mt-3'>
-						<RowIcon icon={CheckmarkCircle02Icon} tone='success' size='alert' testId='receipt-all-match-icon' />
-						<AlertTitle>
-							All {readyTriage.triage[0].lines.length} {readyTriage.triage[0].lines.length === 1 ? 'item matches' : 'items match'} your {readyTriage.baseList?.name}
-						</AlertTitle>
-						<AlertDescription>Same names and sizes as last time. Nothing needs a look.</AlertDescription>
-					</Alert>
-					{linesHidden ? (
-						<Button type='button' variant='outline' size='lg' className='mt-2 w-full' onClick={() => setReviewingAll(true)} data-testid='receipt-review-all'>
-							Review All {readyTriage.triage[0].lines.length}
-						</Button>
-					) : null}
-				</>
 			) : null}
 			{showControls ? (
 				<div className='mt-1 flex items-center justify-between gap-2 pl-3'>
@@ -121,12 +104,11 @@ export function TicketItemsList({ items, selection, canSelect, triage }: TicketI
 					) : null}
 				</div>
 			) : null}
-			{linesHidden ? null : readyTriage ? readyTriage.triage.map((section, index) => (
+			{readyTriage ? readyTriage.triage.map((section, index) => (
 				<TicketTriageSection
 					key={section.id}
 					section={section}
 					first={index === 0}
-					bulkInclude={readyTriage.triage.length > 1}
 					open={expansion.isOpen(`receipt-triage-${section.id}`, !section.startsFolded)}
 					onOpenChange={open => expansion.onOpenChange(`receipt-triage-${section.id}`, open)}
 					listName={readyTriage.baseList?.name ?? ''}

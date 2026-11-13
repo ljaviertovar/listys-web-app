@@ -213,6 +213,11 @@ checked item can be added as purchased.
 *Acceptance:* attaching is always confirmed by the user; a receipt attaches to at most one session; reconciliation is
 transactional and idempotent.
 
+Receipts uploaded directly from the Receipts section remain there after store confirmation or list updates, and their
+items remain selectable for creating or updating other lists. Receipts uploaded from a trip stay out of the Receipts
+section; review and attachment happen from that trip in a sheet. After attachment, the trip shows the receipt read-only
+in a sheet.
+
 **FR-14: Price comparison by store.**  
 An item shows its last price at each store where it was bought, highlighting the cheapest known store.  
 *Acceptance:* only prices actually recorded from receipts are shown, with their date; no inferred prices.

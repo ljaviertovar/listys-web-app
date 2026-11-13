@@ -2,13 +2,13 @@ import { redirect } from 'next/navigation'
 
 import { PageHeader, PageContainer } from '@/components/app'
 import { DataFigure, DataLine } from '@/components/commons'
-import { ReceiptAddedToListNote, TicketAttachCard, TicketReview, TicketStatusChip, TicketStoreCard, TicketSummaryCard, TicketUnreadableState, getReceiptTripSurface, isReadWithoutItems, sumLineTotals, toTicketStatus } from '@/components/features/tickets'
+import { TicketReview, TicketStatusChip, TicketStoreCard, TicketSummaryCard, TicketUnreadableState, isReadWithoutItems, sumLineTotals, toTicketStatus } from '@/components/features/tickets'
 
 import { getTicket } from '@/lib/api/endpoints'
 
 import { createClient } from '@/lib/supabase/server'
 
-import { formatCurrency, formatDate, formatShortDate, formatTime, getReceiptStoreLabel } from '@/utils'
+import { formatCurrency, formatDate, formatShortDate, getReceiptStoreLabel } from '@/utils'
 
 import type { Ticket, TicketItem, TicketStoreFields } from '@/types'
 
@@ -37,6 +37,9 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 	if (error || !ticket) {
 		redirect('/tickets')
 	}
+	if (ticket.uploaded_from_session_id) {
+		redirect(`/shopping/${ticket.uploaded_from_session_id}`)
+	}
 
 	// Format date on server side
 	const uploadedAt = ticket.created_at ? new Date(ticket.created_at) : null
@@ -54,13 +57,9 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 	const readWithoutItems = isReadWithoutItems(ticket.ocr_status, ticketItems.length)
 	// Until the lines are on a list or a trip the screen is a review; after, it is the receipt of that store.
 	const isReviewing = isReadReceipt && !ticket.base_list_id && !ticket.shopping_session
-	// Receipt details use the upload date for identity; the store is summarized in its own card below.
-	const headerTitle = uploadedAt ? `Receipt · ${formatShortDate(uploadedAt)}` : 'Receipt'
-	const tripSurface = getReceiptTripSurface({
-		attached: !!ticket.shopping_session,
-		addedToList: !!ticket.base_list_id,
-		uploadedFromTrip: !!ticket.uploaded_from_session_id,
-	})
+	// The list or trip keeps its store as the receipt's identity; before then, the screen is a review.
+	const receiptTitle = uploadedAt ? `Receipt · ${formatShortDate(uploadedAt)}` : 'Receipt'
+	const headerTitle = isReviewing ? 'Review receipt' : store?.name ?? receiptTitle
 
 	return (
 		<>
@@ -69,11 +68,11 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 				screenStyle='entity-detail'
 				back={{ href: '/tickets', label: 'Receipts' }}
 				title={headerTitle}
-				aside={<TicketStatusChip status={readWithoutItems ? 'completed' : receiptStatus} />}
+				aside={<TicketStatusChip status={receiptStatus} />}
 				desc={
 					<DataLine testId='ticket-data'>
-						{readWithoutItems ? <><DataFigure>0</DataFigure> items found</> : isUnreadable ? <><DataFigure>{imagePaths.length}</DataFigure> {imagePaths.length === 1 ? 'photo' : 'photos'}</> : null}
-						{uploadedAt ? <>Uploaded <DataFigure>{formatTime(uploadedAt)}</DataFigure></> : 'Upload date unknown'}
+						{isReadReceipt || readWithoutItems ? <><DataFigure>{readWithoutItems ? 0 : extractedItemsCount}</DataFigure> {readWithoutItems ? 'items' : extractedItemsCount === 1 ? 'item' : 'items'}</> : isUnreadable ? <><DataFigure>{imagePaths.length}</DataFigure> {imagePaths.length === 1 ? 'photo' : 'photos'}</> : null}
+						{uploadedAt ? <DataFigure>{formatShortDate(uploadedAt)}</DataFigure> : 'Upload date unknown'}
 						{isReadReceipt && typeof ticket.total_amount === 'number' ? <DataFigure>{formatCurrency(ticket.total_amount)}</DataFigure> : null}
 					</DataLine>
 				}
@@ -88,9 +87,8 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 					ocrError={receiptStatus === 'failed' && ticket.ocr_status === 'completed' ? 'We couldn’t read any items. Try again, or upload a clearer photo.' : ocrError}
 					storeConfirmed={!!store}
 					receiptDate={uploadedAt ? formatDate(uploadedAt) : null}
-					saved={isReadReceipt && !isReviewing}
 					attachedSession={ticket.shopping_session ?? null}
-					unreadable={isUnreadable ? <TicketUnreadableState ticketId={ticketId} kind={readWithoutItems ? 'no-items' : 'failed'} /> : null}
+					unreadable={isUnreadable ? <TicketUnreadableState ticketId={ticketId} kind={readWithoutItems ? 'no-items' : 'failed'} storeRecognized={Boolean(store || storeSuggestion || ticket.store_name?.trim())} /> : null}
 					top={
 						isReadReceipt || readWithoutItems ? (
 							<TicketStoreCard
@@ -98,19 +96,11 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 								store={store ?? null}
 								storeSuggestion={storeSuggestion ?? null}
 								storeName={ticket.store_name}
+								itemsFound={ticketItems.length > 0}
 							/>
 						) : null
 					}
-					before={isReadReceipt && tripSurface === 'attach-card' ? <TicketAttachCard
-						ticketId={ticketId} items={ticketItems} receiptStore={store ?? null} totalAmount={ticket.total_amount ?? null}
-					/> : null}
 				>
-					{/* The store is read with the items, so it is only worth confirming once the receipt has been read. */}
-					{isReadReceipt ? (
-						<>
-							{tripSurface === 'added-to-list-note' ? <ReceiptAddedToListNote /> : null}
-						</>
-					) : null}
 					{isUnreadable ? null : (
 						<TicketSummaryCard
 							ticket={{ ...ticket, ocr_status: receiptStatus }}

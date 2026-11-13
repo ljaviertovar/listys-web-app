@@ -1,4 +1,4 @@
-import { formatCurrency, formatShortDate } from '@/utils'
+import { formatCurrency, formatShortDate, formatTime } from '@/utils'
 
 /** The columns of a receipt row the list needs (a receipt with its confirmed store, as the receipts endpoint returns it). */
 interface TicketListSource {
@@ -14,7 +14,7 @@ interface TicketListSource {
 
 export interface TicketListItemData {
 	id: string
-	/** Receipt cards keep a neutral title; a confirmed store belongs in classification. */
+	/** The date belongs in the title; a confirmed store belongs in classification. */
 	title: string
 	storeName: string | null
 	/** Raw `ocr_status` column; anything unknown reads as pending. */
@@ -28,7 +28,7 @@ export interface TicketListItemData {
 }
 
 /**
- * The card title stays generic so the confirmed store can keep its distinct entity role in the classification row.
+ * The receipt date belongs in the title, while the confirmed store keeps its distinct entity role in the classification row.
  */
 export function buildTicketListItem(ticket: TicketListSource, now = new Date()): TicketListItemData {
 	const uploadedAt = ticket.created_at ? new Date(ticket.created_at) : null
@@ -37,12 +37,12 @@ export function buildTicketListItem(ticket: TicketListSource, now = new Date()):
 
 	return {
 		id: ticket.id,
-		title: 'Receipt',
+		title: uploadedAt ? `Receipt · ${formatShortDate(uploadedAt, now)}` : 'Receipt',
 		storeName,
 		status: ticket.ocr_status,
 		itemsCount: ticket.total_items,
 		photoCount,
-		uploadedLabel: uploadedAt ? `Uploaded ${formatShortDate(uploadedAt, now)}` : 'Upload date unknown',
+		uploadedLabel: uploadedAt ? `Uploaded ${formatTime(uploadedAt)}` : 'Upload time unknown',
 		totalLabel: ticket.ocr_status === 'completed' && typeof ticket.total_amount === 'number' ? formatCurrency(ticket.total_amount) : null,
 		storeConfirmed: storeName !== null,
 	}

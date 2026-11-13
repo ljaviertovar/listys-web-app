@@ -9,6 +9,12 @@ import { TicketActions } from './ticket-actions'
 
 interface TicketUnreadableStateProps {
 	ticketId: string
+	testId?: string
+	returnHref?: string
+	shoppingSessionId?: string
+	onRetrySuccess?: () => void
+	onDeleted?: () => void
+	storeRecognized?: boolean
 	/** `failed` is an error (nothing could be read); `no-items` is a warning (the receipt was read but no item lines were found). */
 	kind: 'failed' | 'no-items'
 }
@@ -30,21 +36,23 @@ const COPY = {
  * A receipt that gave nothing to review. Both cases share one structure (what happened, tips for a better photo, the same three
  * actions) and differ in tone: red for a read that failed, amber for a read that found no lines.
  */
-export function TicketUnreadableState({ ticketId, kind }: TicketUnreadableStateProps) {
-	const copy = COPY[kind]
+export function TicketUnreadableState({ ticketId, kind, testId = 'ticket-unreadable-state', returnHref, shoppingSessionId, onRetrySuccess, onDeleted, storeRecognized = true }: TicketUnreadableStateProps) {
+	const copy = kind === 'no-items' && !storeRecognized
+		? { ...COPY[kind], help: 'We couldn’t identify a store or find item lines. A clearer photo may help.' }
+		: COPY[kind]
 	const failed = kind === 'failed'
 	const titleId = `ticket-unreadable-title-${ticketId}`
 
 	return (
 		<div
-			data-testid='ticket-unreadable-state'
+			data-testid={testId}
 			data-kind={kind}
 			className='flex flex-col gap-4'
 		>
 			<Card
 				size='notice'
 				aria-labelledby={titleId}
-				data-testid='ticket-unreadable-card'
+				data-testid={`${testId}-card`}
 			>
 				<div className='flex items-start gap-3'>
 					<RowIcon
@@ -90,12 +98,16 @@ export function TicketUnreadableState({ ticketId, kind }: TicketUnreadableStateP
 			>
 				<UploadTicketDialog
 					label='Upload a Clearer Photo'
+					shoppingSessionId={shoppingSessionId}
 					className='w-full'
 				/>
 				<TicketActions
 					ticket={{ id: ticketId, ocr_status: failed ? 'failed' : 'completed' }}
 					allowRetry
 					retryLabel='Try Again'
+					returnHref={returnHref}
+					onRetrySuccess={onRetrySuccess}
+					onDeleted={onDeleted}
 				/>
 			</div>
 		</div>

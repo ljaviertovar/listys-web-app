@@ -7,7 +7,7 @@ interface TicketStatusMeta {
 }
 
 export const TICKET_STATUS_META: Record<TicketStatus, TicketStatusMeta> = {
-	pending: { label: 'Reading', variant: 'processing' },
+	pending: { label: 'Pending', variant: 'neutral' },
 	processing: { label: 'Reading', variant: 'processing' },
 	completed: { label: 'Processed', variant: 'completed' },
 	failed: { label: 'Failed', variant: 'failed' },
@@ -19,12 +19,12 @@ export function toTicketStatus(raw: string | null | undefined, itemCount?: numbe
 	return raw === 'processing' || raw === 'completed' || raw === 'failed' ? raw : 'pending'
 }
 
-/** A receipt that finished reading but found no item lines: it was read, so it is not an error, though it has nothing to review. */
+/** Keeps the specific no-items explanation available while the shared status remains failed. */
 export function isReadWithoutItems(raw: string | null | undefined, itemCount?: number | null): boolean {
 	return raw === 'completed' && itemCount === 0
 }
 
-/** The status shown on a receipt's chip: `toTicketStatus`, except that a receipt read without items is still "Processed". */
+/** The chip follows the readable state: a completed OCR pass with no items is a failed receipt. */
 export function toTicketChipStatus(raw: string | null | undefined, itemCount?: number | null): TicketStatus {
-	return isReadWithoutItems(raw, itemCount) ? 'completed' : toTicketStatus(raw, itemCount)
+	return toTicketStatus(raw, itemCount)
 }

@@ -1,9 +1,12 @@
 import { withApiHandler, success } from '@/lib/api/http'
+import { parseSearchParams } from '@/lib/api/zod'
+import { ticketsQuerySchema } from '@/lib/validations/api/common'
 import { getTickets, uploadTicket } from '@/lib/server/services/tickets.service'
 
-export async function GET() {
+export async function GET(request: Request) {
   return withApiHandler(async () => {
-    const data = await getTickets()
+    const { source } = parseSearchParams(request, ticketsQuerySchema)
+    const data = await getTickets(source)
     return success(data)
   })
 }

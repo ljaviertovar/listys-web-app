@@ -11,7 +11,6 @@ import { LinkItemDialog } from '../add-to-list/link-item-dialog'
 import { MergeToBaseListDialog } from '../add-to-list/merge-to-base-list-dialog'
 import { TicketCompareDialog } from './ticket-compare-dialog'
 import { TicketItemsCard } from './ticket-items-card'
-import { TicketSavedItemsCard } from './ticket-saved-items-card'
 import { TicketSelectionBar } from './ticket-selection-bar'
 import { TicketPhotoPanel, TicketPhotoRow } from '../photo/ticket-photo-entry'
 import { TicketPhotoViewer } from '../photo/ticket-photo-viewer'
@@ -33,8 +32,6 @@ interface Props {
 	storeConfirmed: boolean
 	/** The receipt's date as the page shows it, for the summary that follows a save. */
 	receiptDate?: string | null
-	/** The lines are already on a list or a trip: the receipt is shown as it was saved, with nothing left to include. */
-	saved?: boolean
 	attachedSession?: { id: string; name: string; status: string | null } | null
 	/** What goes above the photo and the items, full width: the store the receipt was read at, rendered on the server by the page. */
 	top?: ReactNode
@@ -51,7 +48,7 @@ interface Props {
  * items from `lg`) and the two photo views, the items with their selection, and the bar and dialog that act on it. The compare view
  * edits the very selection the page shows, and the panel and the full-screen viewer share the photo being looked at.
  */
-export function TicketReview({ ticketId, title, imagePaths, items, status, ocrError, storeConfirmed, receiptDate = null, saved = false, attachedSession = null, top, unreadable, before, children }: Props) {
+export function TicketReview({ ticketId, title, imagePaths, items, status, ocrError, storeConfirmed, receiptDate = null, attachedSession = null, top, unreadable, before, children }: Props) {
 	const router = useRouter()
 	const selection = useTicketSelection(items)
 	const photos = useTicketImageUrls(imagePaths)
@@ -70,7 +67,7 @@ export function TicketReview({ ticketId, title, imagePaths, items, status, ocrEr
 		[triage.status, triage.triage, selection.selectedIds],
 	)
 
-	const canSelect = status === 'completed' && !saved
+	const canSelect = status === 'completed'
 	const attachmentVisibility = getReceiptAttachmentVisibility(!!attached)
 	const canCompare = status === 'completed' && items.length > 0
 	const hasPhotos = imagePaths.length > 0
@@ -118,12 +115,13 @@ export function TicketReview({ ticketId, title, imagePaths, items, status, ocrEr
 			{top ? <div className={cn('min-w-0 lg:col-span-2', before ? 'lg:row-start-2' : 'lg:row-start-1')}>{top}</div> : null}
 
 			<div className={cn('min-w-0 lg:col-start-1', contentRow)}>
-				{unreadable ?? (saved && status === 'completed' ? <TicketSavedItemsCard items={items} /> : <TicketItemsCard
+				{unreadable ?? <TicketItemsCard
 					ticketId={ticketId}
 					items={items}
 					status={status}
 					ocrError={ocrError}
 					selection={selection}
+					canSelect={canSelect}
 					triage={triage}
 					footer={
 						canSelect && attachmentVisibility.showSelectionBar ? (
@@ -137,7 +135,7 @@ export function TicketReview({ ticketId, title, imagePaths, items, status, ocrEr
 							/>
 						) : null
 					}
-				/>)}
+				/>}
 			</div>
 
 			{/* From `lg` the photo and the summary stay in view while the long list scrolls beside them. */}
@@ -191,7 +189,7 @@ export function TicketReview({ ticketId, title, imagePaths, items, status, ocrEr
 
 			{triage.status === 'ready' ? <LinkItemDialog {...triage.actions.linkDialog} listName={triage.baseList?.name} /> : null}
 
-			{attachmentVisibility.showMergeDialog && !saved ? <MergeToBaseListDialog
+			{attachmentVisibility.showMergeDialog ? <MergeToBaseListDialog
 				open={mergeOpen}
 				onOpenChange={setMergeOpen}
 				ticketId={ticketId}

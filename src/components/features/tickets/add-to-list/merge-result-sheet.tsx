@@ -43,9 +43,9 @@ export function MergeResultSheet({ outcome, receipt, onRetry, onClose }: MergeRe
 							{outcome.message} Nothing was lost: your review and the {outcome.itemCount} selected {outcome.itemCount === 1 ? 'item is' : 'items are'} kept.
 						</AlertDescription>
 					</Alert>
-					<div className='grid grid-cols-2 gap-2'>
-						<Button type='button' variant='secondary' size='primary' onClick={onClose}>Cancel</Button>
+					<div className='flex flex-col gap-2 sm:grid sm:grid-cols-2'>
 						<Button type='button' size='primary' onClick={onRetry}>Try Again</Button>
+						<Button type='button' variant='secondary' size='primary' onClick={onClose}>Cancel</Button>
 					</div>
 				</div>
 			</SheetDialog>
@@ -68,9 +68,9 @@ export function MergeResultSheet({ outcome, receipt, onRetry, onClose }: MergeRe
 						<StatTile testId='merge-saved-stat-skipped' variant='white' value={counts.skipped} label='Skipped' icon={MinusSignCircleIcon} />
 					</div>
 				) : null}
-				<div className='grid grid-cols-2 gap-2'>
-					<Button type='button' variant='secondary' size='primary' onClick={() => router.push('/tickets')}>Back to Receipts</Button>
+				<div className='flex flex-col gap-2 sm:grid sm:grid-cols-2'>
 					<Button type='button' size='primary' onClick={() => (outcome.baseListId ? router.push(`/base-lists/${outcome.baseListId}/edit`) : close())}>View List</Button>
+					<Button type='button' variant='secondary' size='primary' onClick={() => router.push('/tickets')}>Back to Receipts</Button>
 				</div>
 			</div>
 		</SheetDialog>

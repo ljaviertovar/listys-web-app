@@ -17,10 +17,10 @@ import { DUPLICATE_LIST_NAME_MESSAGE, findListByName } from '@/lib/server/servic
 import type { StoreRef } from '@/types/stores'
 import type { Ticket } from '@/types/tickets'
 
-export async function getTickets() {
+export async function getTickets(source?: 'direct') {
   const { supabase, user } = await createAuthenticatedClient()
 
-  const { data: tickets, error } = await supabase
+  let query = supabase
     .from('tickets')
     .select(`
       *,
@@ -29,7 +29,8 @@ export async function getTickets() {
       store:stores(id, name)
     `)
     .eq('user_id', user.id)
-    .order('created_at', { ascending: false })
+  if (source === 'direct') query = query.is('uploaded_from_session_id', null)
+  const { data: tickets, error } = await query.order('created_at', { ascending: false })
 
   if (error) {
     throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, error.message)
@@ -598,8 +599,9 @@ export async function retryTicketOCR(id: string) {
     throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'Failed to generate image URL')
   }
 
+  let response: Response
   try {
-    const response = await fetch(getOCRFunctionURL(), {
+    response = await fetch(getOCRFunctionURL(), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -607,22 +609,23 @@ export async function retryTicketOCR(id: string) {
       },
       body: JSON.stringify({ ticketId: id, imageUrls: signedUrls, imageUrl: signedUrls[0] }),
     })
-
-    if (!response.ok) {
-      await supabase
-        .from('tickets')
-        .update({ ocr_status: 'failed', ocr_error: 'OCR processing failed during retry trigger.' })
-        .eq('id', id)
-
-      throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'OCR processing failed. Please try again.')
-    }
   } catch {
     await supabase
       .from('tickets')
       .update({ ocr_status: 'failed', ocr_error: 'Failed to connect to OCR service during retry.' })
       .eq('id', id)
 
-    throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'Failed to connect to OCR service. Please try again.')
+    throw new ApiServiceError(503, ErrorCode.INTERNAL_ERROR, 'Failed to connect to OCR service. Please try again.')
+  }
+
+  if (!response.ok) {
+    console.error('[tickets] OCR function returned a non-success response', { status: response.status })
+    await supabase
+      .from('tickets')
+      .update({ ocr_status: 'failed', ocr_error: 'OCR processing failed during retry trigger.' })
+      .eq('id', id)
+
+    throw new ApiServiceError(502, ErrorCode.INTERNAL_ERROR, 'OCR processing failed. Please try again.')
   }
 
   return { success: true }

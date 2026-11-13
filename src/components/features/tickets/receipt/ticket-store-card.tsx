@@ -5,6 +5,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { Alert02Icon, Loading03Icon, Store03Icon, Tick02Icon } from '@hugeicons/core-free-icons'
 
 import { RowIcon } from '@/components/commons'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -20,13 +21,14 @@ interface Props {
 	store: StoreRef | null
 	storeSuggestion: StoreRef | null
 	storeName: string | null
+	itemsFound?: boolean
 }
 
 /**
  * Where the receipt was bought, under the photo and beside the items: a store to confirm with one tap, a raw name to
  * save as a new store, or a store to choose. Optional: nothing else on the receipt waits for it.
  */
-export function TicketStoreCard({ ticketId, store, storeSuggestion, storeName }: Props) {
+export function TicketStoreCard({ ticketId, store, storeSuggestion, storeName, itemsFound = true }: Props) {
 	const state = getTicketStoreState({ store, store_suggestion: storeSuggestion, store_name: storeName })
 	const actions = useTicketStore(ticketId)
 	const busy = actions.pending !== null
@@ -101,7 +103,9 @@ export function TicketStoreCard({ ticketId, store, storeSuggestion, storeName }:
 			title = 'Store not found on the receipt'
 			detail = (
 				<p className='text-xs leading-[1.4] text-muted-foreground dark:text-muted-foreground'>
-					The items were read fine. Pick the store so prices and tags land in the right place.
+					{itemsFound
+						? 'The items were read fine. Pick the store so prices and tags land in the right place.'
+						: 'We couldn’t read the store name. Choose it if you recognize the store.'}
 				</p>
 			)
 			actionsRow = (
@@ -114,6 +118,49 @@ export function TicketStoreCard({ ticketId, store, storeSuggestion, storeName }:
 
 	// "Where was this?" is for a name that matches none of the user's stores; both of its buttons open it.
 	const rawName = state.kind === 'unmatched' ? state.rawName : null
+	if (state.kind === 'unrecognized') {
+		return (
+			<Alert
+				variant='receipt-warning'
+				role='region'
+				data-testid='ticket-store-card'
+				data-state={state.kind}
+				aria-labelledby={`${ticketId}-store-title`}
+			>
+				<RowIcon icon={Alert02Icon} tone='warning' size='alert' testId='ticket-store-icon' />
+				<div className='flex min-w-0 flex-col gap-0.5'>
+					<AlertTitle id={`${ticketId}-store-title`}>Store not set</AlertTitle>
+					<AlertDescription>Prices and usual-store tags are not saved until you choose one.</AlertDescription>
+				</div>
+				{actions.error && !sheetOpen ? (
+					<div className='col-span-2 flex flex-col items-start gap-2'>
+						<p role='alert' className='text-sm text-destructive'>{actions.error}</p>
+						{actions.canRetry ? (
+							<Button type='button' variant='secondary' size='primary' disabled={busy} onClick={actions.retry}>
+								{actions.pending === 'retry' ? spinner : null}
+								Try Again
+							</Button>
+						) : null}
+					</div>
+				) : null}
+				<Button type='button' size='primary' className='col-span-2 w-full' disabled={busy} onClick={actions.openPicker}>
+					{busy ? spinner : null}
+					Choose Store
+				</Button>
+				<TicketStoreSheet
+					open={sheetOpen}
+					onOpenChange={open => (open ? actions.openPicker() : actions.closeDialogs())}
+					rawName={null}
+					excludeStoreId={null}
+					initialStoreId={null}
+					onPick={actions.pick}
+					pending={actions.pending === 'pick'}
+					error={sheetOpen ? actions.error : null}
+					testId='ticket-store-sheet'
+				/>
+			</Alert>
+		)
+	}
 
 	return (
 		<Card
@@ -129,8 +176,8 @@ export function TicketStoreCard({ ticketId, store, storeSuggestion, storeName }:
 				</span>
 				<div className='flex items-center gap-3'>
 					<RowIcon
-						icon={state.kind === 'unrecognized' ? Alert02Icon : Store03Icon}
-						tone={state.kind === 'unrecognized' ? 'warning' : 'store'}
+						icon={Store03Icon}
+						tone='store'
 						size='lg'
 					/>
 					<div className={state.kind === 'confirmed' ? 'flex min-w-0 flex-1 flex-col gap-0.5' : 'flex min-w-0 flex-1 flex-col gap-1'}>

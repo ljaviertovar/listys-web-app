@@ -6,10 +6,8 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { toast } from 'sonner'
-import { InformationCircleIcon, Loading03Icon, Upload06Icon } from '@hugeicons/core-free-icons'
+import { Loading03Icon, Upload06Icon } from '@hugeicons/core-free-icons'
 
-import { RowIcon } from '@/components/commons'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { DialogClose } from '@/components/ui/dialog'
@@ -115,9 +113,7 @@ export function UploadTicketForm({ onSuccess, initialFiles, shoppingSessionId, o
 			onSubmit={handleSubmit(onSubmit)}
 			className='flex flex-col gap-4'
 		>
-			{asList ? null : (
-				<p className='text-sm leading-normal text-body dark:text-muted-foreground'>Upload photos of your shopping receipt. We’ll extract the items automatically.</p>
-			)}
+			<p className='text-xs leading-[1.4] text-body dark:text-muted-foreground'>Upload photos of your receipt. We read the <strong className='font-semibold text-foreground'>store, date and total</strong>, and you confirm them before anything is saved.</p>
 
 			<div className='flex flex-col gap-2'>
 				{loading ? null : (
@@ -146,20 +142,6 @@ export function UploadTicketForm({ onSuccess, initialFiles, shoppingSessionId, o
 				/>
 				{errors.files && <p id={`${photosId}-error`} role='alert' className='text-sm text-destructive'>{errors.files.message}</p>}
 			</div>
-
-			{loading ? (
-				<Alert variant='receipt-notice' role='status' data-testid='upload-ticket-progress'>
-					<RowIcon icon={Loading03Icon} tone='primary' size='alert' spinning testId='upload-ticket-progress-icon' />
-					<AlertTitle>Uploading your receipt</AlertTitle>
-					<AlertDescription>Keep this open while we upload your photos.</AlertDescription>
-				</Alert>
-			) : previews.length > 0 && rejections.length === 0 ? (
-				<Alert variant='receipt-notice' role='note' data-testid='upload-ticket-review-note'>
-					<RowIcon icon={InformationCircleIcon} tone='primary' size='alert' testId='upload-ticket-review-note-icon' />
-					<AlertTitle>Review before saving</AlertTitle>
-					<AlertDescription>We read the <strong className='font-semibold text-slate-900'>store, date and total</strong> from the receipt. You confirm them before anything is saved.</AlertDescription>
-				</Alert>
-			) : null}
 
 			{/* On a phone the actions stack with Upload on top; from `sm` Cancel sits left and Upload right. */}
 			<div className='flex flex-col gap-2 sm:flex-row-reverse sm:justify-start sm:gap-3'>

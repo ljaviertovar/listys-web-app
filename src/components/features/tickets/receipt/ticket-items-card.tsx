@@ -20,12 +20,13 @@ interface TicketItemsCardProps {
 	status: TicketStatus
 	ocrError?: string | null
 	selection: TicketSelection
+	canSelect?: boolean
 	/** The selection bar: it floats over the page on a phone and sticks to the bottom of this card from `lg`. */
 	footer?: ReactNode
 	triage?: TicketItemsTriage
 }
 
-function ItemsBody({ items, status, selection, triage }: Omit<TicketItemsCardProps, 'ticketId'>) {
+function ItemsBody({ items, status, selection, canSelect = status === 'completed', triage }: Omit<TicketItemsCardProps, 'ticketId'>) {
 	if (status === 'pending' || status === 'processing') {
 		return (
 			<div className='flex flex-col items-center justify-center py-12'>
@@ -56,14 +57,14 @@ function ItemsBody({ items, status, selection, triage }: Omit<TicketItemsCardPro
 		<TicketItemsList
 			items={items}
 			selection={selection}
-			canSelect={status === 'completed'}
+			canSelect={canSelect}
 			triage={triage}
 		/>
 	)
 }
 
 /** The receipt's extracted items: who is reading it (status chip, live), and then the list, or why there is none yet. */
-export function TicketItemsCard({ ticketId, items, status, ocrError, selection, footer, triage }: TicketItemsCardProps) {
+export function TicketItemsCard({ ticketId, items, status, ocrError, selection, canSelect, footer, triage }: TicketItemsCardProps) {
 	return (
 		<section
 			data-testid='ticket-items-card'
@@ -98,6 +99,7 @@ export function TicketItemsCard({ ticketId, items, status, ocrError, selection, 
 				status={status}
 				ocrError={ocrError}
 				selection={selection}
+				canSelect={canSelect}
 				triage={triage}
 			/>
 			{footer}

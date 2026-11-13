@@ -44,8 +44,9 @@ describe('receipt triage state', () => {
 		expect(createEmptyTicketSelection().size).toBe(0)
 	})
 
-	it('uses category view for loading, failed and unavailable states, and triage when ready or switching lists', () => {
-		expect((['loading', 'failed', 'unavailable'] as ReceiptTriageStatus[]).map(receiptItemsView)).toEqual(['categories', 'categories', 'categories'])
+	it('keeps the triage view while loading, and uses categories when comparison is unavailable', () => {
+		expect(receiptItemsView('loading')).toBe('triage')
+		expect((['failed', 'unavailable'] as ReceiptTriageStatus[]).map(receiptItemsView)).toEqual(['categories', 'categories'])
 		expect(receiptItemsView('ready')).toBe('triage')
 		expect(receiptItemsView('switching')).toBe('triage')
 	})
