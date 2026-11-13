@@ -2,6 +2,7 @@
 
 import { useTripSync } from '@/components/features/shopping-sessions/hooks/use-trip-sync'
 import { visibleTripItems } from '@/components/features/shopping-sessions/sync/trip-sync-state'
+import { itemsForSessionProgress } from '@/components/features/shopping-sessions/helpers/split-session-sections'
 
 export interface SessionProgress {
 	checked: number
@@ -12,10 +13,10 @@ export interface SessionProgress {
  * The bar shares the trip's optimistic items, including checks still being saved.
  * Keep refreshKey in the call signature for existing callers; reconnection is owned by the registry.
  */
-export function useSessionProgress(sessionId: string | null, refreshKey: string): SessionProgress | null {
+export function useSessionProgress(sessionId: string | null, refreshKey: string, storeScoped = false): SessionProgress | null {
 	void refreshKey
 	const { state } = useTripSync(sessionId)
 	if (!sessionId || !state.initialized) return null
-	const items = visibleTripItems(state)
+	const items = itemsForSessionProgress(visibleTripItems(state), storeScoped)
 	return { checked: items.filter(item => item.checked === true).length, total: items.length }
 }

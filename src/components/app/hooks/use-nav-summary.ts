@@ -22,6 +22,7 @@ interface Options {
 	/** Navigation metadata is fetched only while expanded; trip progress stays shared. */
 	enabled: boolean
 	sessionId: string | null
+	storeId?: string | null
 	/** Changes when the numbers may have changed (the page, the menu opening); the summary is fetched again. */
 	refreshKey?: string | boolean
 }
@@ -31,9 +32,9 @@ interface Options {
  * (the same ones the dashboard shows). Metadata loads while enabled and refreshes on navigation;
  * trip progress comes from the shared optimistic state instead of a separate database read.
  */
-export function useNavSummary({ enabled, sessionId, refreshKey }: Options): NavSummary {
+export function useNavSummary({ enabled, sessionId, storeId, refreshKey }: Options): NavSummary {
 	const [summary, setSummary] = useState<NavSummary>(EMPTY)
-	const progress = useSessionProgress(sessionId, String(refreshKey ?? ''))
+	const progress = useSessionProgress(sessionId, String(refreshKey ?? ''), Boolean(storeId))
 
 	useEffect(() => {
 		if (!enabled) return

@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { createClient } from '@/lib/supabase/client'
 
-export type ActiveSessionSummary = { id: string; name?: string; base_list_id?: string; started_at?: string | null }
+export type ActiveSessionSummary = { id: string; name?: string; base_list_id?: string; store_id?: string | null; started_at?: string | null }
 export type ActiveSession = ActiveSessionSummary | null
 
 interface ActiveSessionState {
@@ -55,7 +55,7 @@ export async function initActiveSession() {
     // No user_id filter: RLS restricts to sessions the user owns OR is a collaborator on.
     const { data: run } = await supabase
       .from('shopping_sessions')
-      .select('id, name, base_list_id, started_at')
+      .select('id, name, base_list_id, store_id, started_at')
       .eq('status', 'active')
       .order('started_at', { ascending: false })
       .limit(100)

@@ -22,7 +22,7 @@ export function ActiveSessionBar() {
 	const pathname = usePathname()
 	const session = useActiveSessionStore(s => s.activeSession)
 	const otherCount = useActiveSessionStore(s => s.otherCount)
-	const progress = useSessionProgress(session?.id ?? null, pathname)
+	const progress = useSessionProgress(session?.id ?? null, pathname, Boolean(session?.store_id))
 
 	if (!session || isSessionScreen(pathname, session.id)) return null
 

@@ -95,21 +95,21 @@ describe('active trip receipts for a viewer', () => {
 			}),
 		)
 		expect(html).toContain('$41.12')
-		expect(html).toContain('Attach Pending')
+		expect(html).toContain('data-status="attach-pending"')
 		expect(html).not.toContain('Review Receipt')
 		expect(html).not.toContain('Attach Receipt')
 		expect(html).toContain('View Receipt')
 		expect(html).not.toContain('href="/tickets/a"')
 		expect(html.indexOf('data-testid="trip-receipt-store-b"')).toBeLessThan(html.indexOf('data-testid="trip-receipt-status-b"'))
-		expect(html.indexOf('data-testid="trip-receipt-store-a"')).toBeLessThan(html.indexOf('Attached to trip'))
+		expect(html.indexOf('data-testid="trip-receipt-store-a"')).toBeLessThan(html.indexOf('data-testid="trip-receipt-attachment-a"'))
 		expect(html.indexOf('data-testid="trip-receipt-data-a"')).toBeLessThan(html.indexOf('View Receipt'))
 	})
 	it.each([
-		['pending', 'Processing'],
-		['processing', 'Processing'],
-		['completed', 'Attach Pending'],
-		['failed', 'Failed'],
-	])('shows the %s receipt as a status chip', (ocr_status, label) => {
+		['pending', 'pending'],
+		['processing', 'processing'],
+		['completed', 'attach-pending'],
+		['failed', 'failed'],
+	])('shows the %s receipt as a status chip', (ocr_status, expectedStatus) => {
 		const html = renderToStaticMarkup(
 			createElement(TripReceiptSummary, {
 				mode: 'completed',
@@ -118,7 +118,7 @@ describe('active trip receipts for a viewer', () => {
 			}),
 		)
 		expect(html).toContain(`data-testid="trip-receipt-status-receipt-1"`)
-		expect(html).toContain(label)
+		expect(html).toContain(`data-status="${expectedStatus}"`)
 		expect(html).not.toContain('Reading your receipt')
 	})
 	it('opens failed receipts for review in a sheet instead of linking to the receipt page', () => {

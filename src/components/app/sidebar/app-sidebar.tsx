@@ -25,7 +25,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	const otherCount = useActiveSessionStore(s => s.otherCount)
 	const isExpanded = state !== 'collapsed'
 	// Fetched again on every page change, so the counts follow what the user just did.
-	const summary = useNavSummary({ enabled: isExpanded, sessionId: activeSession?.id ?? null, refreshKey: pathname })
+	const summary = useNavSummary({ enabled: isExpanded, sessionId: activeSession?.id ?? null, storeId: activeSession?.store_id, refreshKey: pathname })
 	const counts = buildNavCounts(summary)
 
 	return (

@@ -5,8 +5,8 @@ export type TripReceiptFlowAction =
 	| { type: 'review'; ticketId: string }
 	| { type: 'close-review' }
 
-export function createTripReceiptFlow(): TripReceiptFlow {
-	return { upload: false, reviewTicketId: null }
+export function createTripReceiptFlow(openUpload = false): TripReceiptFlow {
+	return { upload: openUpload, reviewTicketId: null }
 }
 
 /** A new upload or a review can be in front of the user, never both. Closing sends no attachment. */

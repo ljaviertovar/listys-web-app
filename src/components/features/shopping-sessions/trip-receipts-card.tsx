@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useReducer } from 'react'
+import { useReducer } from 'react'
 import Link from 'next/link'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Alert02Icon, Attachment01Icon, CheckmarkCircle02Icon, Invoice01Icon, Loading03Icon, ShoppingBag03Icon, Upload06Icon } from '@hugeicons/core-free-icons'
@@ -24,21 +24,18 @@ interface TripReceiptsCardProps {
 	itemCount: number
 	listName: string
 	trip?: TicketSessionCandidate
-	/** Legacy link from Trips now focuses the direct upload card, without opening a sheet. */
+	/** Opens the upload sheet when the saved-trip flow continues directly to receipt upload. */
 	openAddOnLoad?: boolean
 	testId?: string
 }
 
 export function TripReceiptsCard({ state, justSaved = false, itemCount, listName, trip, openAddOnLoad = false, testId = 'trip-receipts-card' }: TripReceiptsCardProps) {
 	const canManage = Boolean(trip)
-	const [flow, dispatch] = useReducer(tripReceiptFlowReducer, undefined, createTripReceiptFlow)
+	const [flow, dispatch] = useReducer(tripReceiptFlowReducer, openAddOnLoad && Boolean(trip), createTripReceiptFlow)
 	const card = getTripReceiptCard({ state, justSaved, canManage, itemCount, listName })
 	const saved = state.kind === 'none' && justSaved
 	const cardState = state.kind === 'none' ? saved ? 'saved' : 'no-receipt' : state.kind
 	const headingId = `${testId}-title`
-	useEffect(() => {
-		if (openAddOnLoad && canManage) document.getElementById(headingId)?.focus()
-	}, [openAddOnLoad, canManage, headingId])
 	const actions = card.actions.map(action => {
 		switch (action) {
 			case 'upload': return (

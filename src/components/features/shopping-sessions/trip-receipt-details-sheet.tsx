@@ -9,11 +9,11 @@ import { TicketPhotoRow } from '@/components/features/tickets/photo/ticket-photo
 import { TicketPhotoViewer } from '@/components/features/tickets/photo/ticket-photo-viewer'
 import { usePhotoView } from '@/components/features/tickets/photo/hooks/use-photo-view'
 import { useTicketImageUrls } from '@/components/features/tickets/photo/hooks/use-ticket-image-urls'
-import { TicketActions } from '@/components/features/tickets/receipt/ticket-actions'
-import { TicketProcessingError } from '@/components/features/tickets/receipt/ticket-items-card'
+import { TicketStoreCard } from '@/components/features/tickets/receipt/ticket-store-card'
+import { TicketUnreadableState } from '@/components/features/tickets/receipt/ticket-unreadable-state'
 import { TicketStatusChip } from '@/components/features/tickets/ticket-status-chip'
 import { Card } from '@/components/ui/card'
-import { formatCurrency, formatDate, formatItemName, formatTime } from '@/utils'
+import { formatCurrency, formatItemName, formatShortDate, formatTime } from '@/utils'
 
 import { useTripReceiptDetails } from './hooks/use-trip-receipt-details'
 
@@ -23,6 +23,7 @@ interface TripReceiptDetailsSheetProps {
 	onOpenChange: (open: boolean) => void
 	failed?: boolean
 	returnHref?: string
+	shoppingSessionId?: string
 	testId?: string
 }
 
@@ -32,6 +33,7 @@ export function TripReceiptDetailsSheet({
 	onOpenChange,
 	failed = false,
 	returnHref,
+	shoppingSessionId,
 	testId = 'trip-receipt-details-sheet',
 }: TripReceiptDetailsSheetProps) {
 	const { details, loading, error } = useTripReceiptDetails(ticketId, open)
@@ -41,18 +43,26 @@ export function TripReceiptDetailsSheet({
 	const view = usePhotoView(photos.urls.length)
 	const storeName = details?.store_name?.trim() || (failed ? 'Store not recognized' : 'Store not confirmed')
 	const uploadedAt = details?.created_at ? new Date(details.created_at) : null
-	const description = failed && uploadedAt && !Number.isNaN(uploadedAt.getTime())
-		? `Uploaded ${formatDate(uploadedAt)} · ${formatTime(uploadedAt)}`
+	const validUploadedAt = uploadedAt && !Number.isNaN(uploadedAt.getTime()) ? uploadedAt : null
+	const unreadable = failed && Boolean(details)
+	const noItems = details?.ocr_status === 'completed' && details.items.length === 0
+	const hasStoreDetails = Boolean(details?.store || details?.store_suggestion || details?.store_name?.trim())
+	const photoCount = imagePaths.length
+	const description = failed && validUploadedAt
+		? `${photoCount} ${photoCount === 1 ? 'photo' : 'photos'} · Uploaded ${formatTime(validUploadedAt)}`
 		: details && !failed
 			? `${details.total_items ?? details.items.length} ${details.items.length === 1 ? 'item' : 'items'}${details.total_amount != null ? ` · ${formatCurrency(details.total_amount)}` : ''}`
 		: undefined
+	const title = failed
+		? `Receipt${validUploadedAt ? ` · ${formatShortDate(validUploadedAt)}` : ''}`
+		: storeName
 
 	return (
 		<>
 			<SheetDialog
 				open={open}
 				onOpenChange={onOpenChange}
-				title={storeName}
+				title={failed ? <span className='flex w-full min-w-0 items-center justify-between gap-3'><span className='min-w-0 truncate'>{title}</span><TicketStatusChip status='failed' /></span> : title}
 				description={description}
 				testId={testId}
 			>
@@ -85,15 +95,24 @@ export function TripReceiptDetailsSheet({
 									onOpen={() => setPhotoOpen(true)}
 								/>
 							) : null}
-							{failed ? <>
-								<Card size='tight' data-testid={`${testId}-failed`}>
-									<div className='flex items-center justify-between gap-3'>
-										<h2 className='font-display text-base font-semibold'>Extracted Items</h2>
-										<TicketStatusChip status='failed' />
-									</div>
-									<TicketProcessingError compact />
-									<TicketActions ticket={{ id: ticketId, ocr_status: 'failed' }} returnHref={returnHref} onRetrySuccess={() => onOpenChange(false)} onDeleted={() => onOpenChange(false)} />
-								</Card>
+							{unreadable ? <>
+								{noItems && hasStoreDetails && details ? <TicketStoreCard
+									ticketId={ticketId}
+									store={details.store ?? null}
+									storeSuggestion={details.store_suggestion ?? null}
+									storeName={details.store_name}
+									itemsFound={!noItems}
+								/> : null}
+								<TicketUnreadableState
+								ticketId={ticketId}
+								kind={noItems ? 'no-items' : 'failed'}
+								testId={`${testId}-unreadable`}
+								returnHref={returnHref}
+								shoppingSessionId={shoppingSessionId}
+								storeRecognized={hasStoreDetails}
+								onRetrySuccess={() => onOpenChange(false)}
+								onDeleted={() => onOpenChange(false)}
+								/>
 							</> : <><Card
 								size='tight'
 								data-testid={`${testId}-items`}
