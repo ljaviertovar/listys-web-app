@@ -1,8 +1,7 @@
 'use client'
 
 import { usePathname } from 'next/navigation'
-import { ArrowRight01Icon } from '@hugeicons/core-free-icons'
-import { HugeiconsIcon } from '@hugeicons/react'
+import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb'
 
 import { SIDEBAR_DATA } from '@/data/constants'
 import { findBreadcrumb } from './sidebar/helpers/find-breadcrumb'
@@ -13,24 +12,16 @@ export function AppBreadcrumb() {
 	if (!breadcrumb) return null
 
 	return (
-		<nav
+		<Breadcrumb
 			aria-label='Breadcrumb'
 			data-testid='app-breadcrumb'
-			className='hidden items-center gap-2 text-sm text-muted-foreground lg:flex'
+			className='hidden lg:block'
 		>
-			<span>{breadcrumb.section}</span>
-			<HugeiconsIcon
-				icon={ArrowRight01Icon}
-				strokeWidth={2}
-				aria-hidden='true'
-				className='size-3.5 text-slate-400'
-			/>
-			<span
-				aria-current='page'
-				className='font-medium text-foreground'
-			>
-				{breadcrumb.page}
-			</span>
-		</nav>
+			<BreadcrumbList>
+				<BreadcrumbItem>{breadcrumb.section}</BreadcrumbItem>
+				<BreadcrumbSeparator />
+				<BreadcrumbItem><BreadcrumbPage>{breadcrumb.page}</BreadcrumbPage></BreadcrumbItem>
+			</BreadcrumbList>
+		</Breadcrumb>
 	)
 }

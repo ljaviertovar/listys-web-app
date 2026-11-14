@@ -9,7 +9,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ChoiceRow, RowIcon, SheetDialog } from '@/components/commons'
 import { RadioGroup } from '@/components/ui/radio-group'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList, useComboboxAnchor } from '@/components/ui/combobox'
+import { InputGroupAddon } from '@/components/ui/input-group'
 import { useMergeToBaseList } from './hooks/use-merge-to-base-list'
 import { MergeReviewStep } from './merge-review-step'
 import { MergeResultSheet } from './merge-result-sheet'
@@ -40,6 +41,7 @@ interface Props {
 
 export function MergeToBaseListDialog({ open, defaultBaseListId, onOpenChange, ticketId, selectedItemIds, lines, initialDecisions, storeConfirmed, breakdown = null, onSuccess, onReceiptAttached, onSavingChange, receipt }: Props) {
 	const fieldId = useId()
+	const listAnchor = useComboboxAnchor()
 	const {
 		mode,
 		setMode,
@@ -151,36 +153,49 @@ export function MergeToBaseListDialog({ open, defaultBaseListId, onOpenChange, t
 						{reviewing ? null : mode === 'existing' && hasLists ? (
 							<div className='space-y-2'>
 								<Label id={`${fieldId}-list-label`} htmlFor={`${fieldId}-list`}>List</Label>
-								<Select
+								<Combobox
+									items={baseLists.map(list => list.id)}
+									itemToStringLabel={id => listLabels.get(id) ?? baseLists.find(list => list.id === id)?.name ?? ''}
+									filter={(id, query, getLabel) => (getLabel?.(id) ?? String(id)).toLocaleLowerCase().includes(query.toLocaleLowerCase())}
 									value={selectedBaseListId}
 									onValueChange={value => {
+										if (typeof value !== 'string') return
 										setSelectedBaseListId(value)
 										setError(null)
 									}}
 								>
-									<SelectTrigger
+									<div className='w-full' ref={listAnchor}>
+									<ComboboxInput
 										id={`${fieldId}-list`}
 										aria-labelledby={`${fieldId}-list-label`}
 										aria-required='true'
 										aria-invalid={error?.toLowerCase().includes('list') ? true : undefined}
 										aria-describedby={error?.toLowerCase().includes('list') ? `${fieldId}-error` : undefined}
 										size='filter'
+										placeholder='Select a shopping list'
+										showTrigger
 									>
-										<SelectValue placeholder='Select a shopping list' />
-									</SelectTrigger>
-									<SelectContent size='filter'>
-										{baseLists.map(list => (
-											<SelectItem
-												key={list.id}
-												size='filter'
-												value={list.id}
-											>
+										<InputGroupAddon align='inline-start'>
+											<RowIcon icon={ListViewIcon} tone='primary' size='stat' testId='merge-list-filter-icon' />
+										</InputGroupAddon>
+									</ComboboxInput>
+									</div>
+									<ComboboxContent size='filter' anchor={listAnchor}>
+										<ComboboxList>
+											{(id: string) => {
+												const list = baseLists.find(candidate => candidate.id === id)
+												if (!list) return null
+												return (
+													<ComboboxItem key={list.id} value={list.id} size='filter'>
 												<RowIcon icon={ListViewIcon} tone='primary' size='stat' testId='merge-list-option-icon' />
 												{listLabels.get(list.id) ?? list.name}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
+													</ComboboxItem>
+												)
+											}}
+										</ComboboxList>
+										<ComboboxEmpty>No shopping lists match this search.</ComboboxEmpty>
+									</ComboboxContent>
+								</Combobox>
 							</div>
 						) : (
 							<div className='space-y-2'>

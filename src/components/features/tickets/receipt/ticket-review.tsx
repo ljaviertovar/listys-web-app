@@ -1,5 +1,7 @@
 'use client'
 
+import { Card, CardContent, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import { useMemo, useRef, useState, type ReactNode } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -153,10 +155,10 @@ export function TicketReview({ ticketId, title, imagePaths, items, status, ocrEr
 					</div>
 				) : null}
 				{attached ? (
-					<section data-testid='ticket-attached-state' className='flex flex-col gap-1 rounded-3xl bg-card p-3 shadow-card md:p-4'>
-						<h2 className='text-sm font-semibold'>Attached to {attached.name}</h2>
-						<Link href={`/shopping/${attached.id}`} className='text-sm font-semibold text-primary underline-offset-4 hover:underline'>View trip</Link>
-					</section>
+					<Card data-testid='ticket-attached-state'><CardContent>
+						<CardTitle><h2>Attached to {attached.name}</h2></CardTitle>
+						<Button asChild variant='link' size='sm'><Link href={`/shopping/${attached.id}`}>View trip</Link></Button>
+					</CardContent></Card>
 				) : null}
 				{children}
 			</div>

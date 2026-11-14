@@ -1,7 +1,7 @@
-import type { ReactNode } from 'react'
+import type { ComponentProps, ReactNode } from 'react'
 import Link from 'next/link'
 
-import { cn } from '@/utils'
+import { Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@/components/ui/item'
 
 interface Props {
 	href: string
@@ -14,42 +14,22 @@ interface Props {
 	testId: string
 	className?: string
 	density?: 'default' | 'compact'
+	variant?: ComponentProps<typeof Item>['variant']
+	size?: ComponentProps<typeof Item>['size']
 }
 
 /** One linked line inside a dashboard section card: optional icon, a title with metadata, and a trailing value or status. */
-export function DashboardRow({ href, title, meta, monoMeta = false, leading, trailing, testId, className, density = 'default' }: Props) {
+export function DashboardRow({ href, title, meta, monoMeta = false, leading, trailing, testId, className, density = 'default', variant, size }: Props) {
 	return (
-		<Link
-			href={href}
-			data-testid={testId}
-			className={cn(
-				'flex items-center gap-3 rounded-[14px] px-2 transition-colors duration-150',
-				density === 'default' ? 'py-2.5' : 'py-2',
-				'hover:bg-background dark:hover:bg-muted',
-				'focus-ring',
-				className,
-			)}
-		>
-			{leading}
-			<span className='flex min-w-0 flex-1 flex-col gap-1'>
-				<span
-					title={title}
-					className='break-words text-sm leading-[1.3] font-semibold text-foreground'
-				>
-					{title}
-				</span>
-				{meta ? (
-					<span
-						className={cn(
-							'text-muted-foreground dark:text-muted-foreground',
-							monoMeta ? 'break-words font-mono text-xs leading-normal font-medium ' : 'break-words text-sm leading-[1.5]',
-						)}
-					>
-						{meta}
-					</span>
-				) : null}
-			</span>
-			{trailing}
-		</Link>
-	)
+        <Item asChild size={size ?? (density === 'compact' ? 'xs' : 'sm')} variant={variant} className={className}>
+            <Link href={href} data-testid={testId}>
+                {leading ? <ItemMedia>{leading}</ItemMedia> : null}
+                <ItemContent>
+                    <ItemTitle title={title}>{title}</ItemTitle>
+                    {meta ? <ItemDescription>{monoMeta ? <span className='font-mono tabular-nums'>{meta}</span> : meta}</ItemDescription> : null}
+                </ItemContent>
+                {trailing ? <ItemActions>{trailing}</ItemActions> : null}
+            </Link>
+        </Item>
+    )
 }

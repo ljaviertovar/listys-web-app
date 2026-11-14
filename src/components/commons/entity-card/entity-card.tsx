@@ -4,7 +4,8 @@ import type { ReactNode, Ref } from 'react'
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react'
 import { Delete02Icon, Edit02Icon, Note01Icon } from '@hugeicons/core-free-icons'
 
-import { cn } from '@/utils'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { RowIcon } from '../row-icon'
 
 import { ActionLink } from '../action-link/action-link'
 import { DataLine } from '../data-line/data-line'
@@ -77,28 +78,15 @@ export function EntityCard({
 	testId,
 }: EntityCardProps) {
 	return (
-		<article
+		<Card
+			role='article'
 			data-testid={testId}
-			data-size={size}
-			className='flex flex-col gap-2 rounded-3xl bg-card p-3.5 shadow-card md:gap-3'
+			data-entity-size={size}
 		>
+			<CardHeader>
 			<div className='flex items-center gap-3'>
-				<span
-					className={cn(
-						'flex size-9 shrink-0 items-center justify-center rounded-xl',
-						tone === 'store'
-							? 'bg-violet-100 text-violet-700 dark:bg-violet-500/20 dark:text-violet-300'
-							: 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300',
-					)}
-				>
-					<HugeiconsIcon
-						icon={icon}
-						strokeWidth={1.5}
-						aria-hidden='true'
-						className='size-4.5'
-					/>
-				</span>
-				<h2 className='min-w-0 flex-1 truncate font-display text-base leading-[1.5] font-semibold'>{title}</h2>
+				<RowIcon icon={icon} tone={tone === 'store' ? 'store' : 'primary'} size='md' testId={`${testId}-icon`} />
+				<CardTitle className='min-w-0 flex-1'><h2 className='truncate'>{title}</h2></CardTitle>
 				{menu ? (
 					<RowMenu
 						label={menu.label}
@@ -117,21 +105,23 @@ export function EntityCard({
 					/>
 				) : null}
 			</div>
+			</CardHeader>
 			{description || badge || meta ? (
-				<div className='flex flex-col gap-2.5'>
+				<CardContent>
 					{description ? (
-						<p className='flex items-start gap-1.5 text-sm leading-[1.4] text-text-secondary dark:text-muted-foreground'>
+						<CardDescription><div className='flex items-start gap-1.5'>
 							<HugeiconsIcon icon={Note01Icon} strokeWidth={1.7} aria-hidden='true' className='mt-0.5 size-4 shrink-0 text-slate-500 dark:text-muted-foreground' />
 							<span className='line-clamp-2 break-words'>{description}</span>
-						</p>
+						</div></CardDescription>
 					) : null}
 					{badge ? <div className='flex flex-wrap items-center gap-x-2.5 gap-y-1.5'>{badge}</div> : null}
 					{meta ? (
 						<DataLine testId={`${testId}-data`}>{meta}</DataLine>
 					) : null}
-				</div>
+				</CardContent>
 			) : null}
-			<div className='flex items-center justify-between gap-3 border-t border-slate-100 pt-3 dark:border-border'>
+			<CardFooter>
+			<div className='flex w-full items-center justify-between gap-3'>
 				{count !== null && count > 0 ? (
 					<InlineCounter
 						count={count}
@@ -150,6 +140,7 @@ export function EntityCard({
 					</ActionLink>
 				) : null)}
 			</div>
-		</article>
+			</CardFooter>
+		</Card>
 	)
 }

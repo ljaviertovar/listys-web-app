@@ -4,7 +4,8 @@ import type { ReactNode } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Invoice01Icon, Loading03Icon, PackageSearchIcon, SpamIcon, Tick02Icon } from '@hugeicons/core-free-icons'
 
-import { RowIcon } from '@/components/commons'
+import { EmptyState, RowIcon } from '@/components/commons'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 
 import { TicketItemsList, type TicketItemsTriage } from './ticket-items-list'
@@ -69,9 +70,9 @@ export function TicketItemsCard({ ticketId, items, status, ocrError, selection, 
 		<section
 			data-testid='ticket-items-card'
 			aria-labelledby='ticket-items-title'
-			className='rounded-3xl bg-card p-3 shadow-card md:p-4'
 		>
-			<div className='flex items-center gap-3 px-0.5'>
+			<Card>
+			<CardHeader><div className='flex items-center gap-3'>
 				<RowIcon icon={Invoice01Icon} tone='ocr' size='lg' testId='ticket-items-icon' />
 				<div className='flex min-w-0 flex-1 flex-col gap-0.5'>
 					<h2
@@ -94,6 +95,8 @@ export function TicketItemsCard({ ticketId, items, status, ocrError, selection, 
 					/>
 				)}
 			</div>
+			</CardHeader>
+			<CardContent>
 			<ItemsBody
 				items={items}
 				status={status}
@@ -102,6 +105,9 @@ export function TicketItemsCard({ ticketId, items, status, ocrError, selection, 
 				canSelect={canSelect}
 				triage={triage}
 			/>
+			</CardContent>
+		</Card>
+			{/* Card clips its surface; selection actions must keep the page as their sticky/fixed scroll context. */}
 			{footer}
 		</section>
 	)
@@ -119,26 +125,12 @@ const TIPS = [
  */
 export function TicketNoItems() {
 	return (
-		<div
-			data-testid='ticket-no-items'
-			className='mt-4 flex flex-col items-center gap-4 border-t border-slate-100 px-1 pt-6 pb-4 text-center dark:border-border'
-		>
-			<span
-				aria-hidden='true'
-				className='flex size-16 items-center justify-center rounded-3xl bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300'
-			>
-				<HugeiconsIcon
-					icon={PackageSearchIcon}
-					strokeWidth={1.5}
-					className='size-8'
-				/>
-			</span>
-			<div className='flex flex-col items-center gap-1.5'>
-				<h3 className='font-display text-base leading-[1.3] font-bold md:text-lg'>No items detected</h3>
-				<p className='max-w-[300px] text-sm leading-normal text-muted-foreground dark:text-muted-foreground'>
-					We couldn’t find items in this receipt. Upload a new receipt with a clearer photo, or read this receipt again.
-				</p>
-			</div>
+        <EmptyState
+            testId='ticket-no-items'
+            media={<RowIcon icon={PackageSearchIcon} tone='warning' size='empty' testId='ticket-no-items-icon' />}
+            title='No items detected'
+            description='We couldn?t find items in this receipt. Upload a new receipt with a clearer photo, or read this receipt again.'
+        >
 			<ul
 				aria-label='Tips for a clearer photo'
 				className='flex w-full max-w-md flex-col gap-2.5 rounded-2xl bg-muted p-3.5 text-left dark:bg-muted/50'
@@ -159,7 +151,7 @@ export function TicketNoItems() {
 					</li>
 				))}
 			</ul>
-		</div>
+		</EmptyState>
 	)
 }
 

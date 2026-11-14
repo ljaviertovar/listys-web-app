@@ -4,12 +4,13 @@ import { useId, useState } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Alert02Icon, Invoice01Icon, Loading03Icon, Store03Icon } from '@hugeicons/core-free-icons'
 
-import { ActionLink, DataFigure, DataLine, EntityLabel, InlineCounter, RowIcon } from '@/components/commons'
+import { ActionLink, DataFigure, DataLine, EmptyStateCard, EntityLabel, InlineCounter, RowIcon } from '@/components/commons'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Progress } from '@/components/ui/progress'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList, useComboboxAnchor } from '@/components/ui/combobox'
+import { InputGroupAddon } from '@/components/ui/input-group'
 import { MAX_IMAGES_PER_TICKET, MAX_TICKET_IMAGE_MB } from '@/lib/config/limits'
 
 import { NoStoreBadge } from '../no-store-badge'
@@ -156,34 +157,19 @@ function TicketDataLine({
 
 /** The receipts screen before the first upload: one message and the one primary action, with the limits spelled out. */
 export function TicketsEmptyState() {
-	return (
-		<Card
-			size='receipt'
-			data-testid='tickets-empty-state'
-			aria-labelledby='tickets-empty-title'
-			className='items-center text-center'
-		>
-			<RowIcon
-				icon={Invoice01Icon}
-				tone='primary'
-				size='empty'
-				testId='tickets-empty-icon'
-			/>
-			<h2
-				id='tickets-empty-title'
-				className='mt-4 font-display text-lg leading-[1.39] font-semibold tracking-[-0.01em]'
-			>
-				No receipts yet
-			</h2>
-			<p className='mt-1.5 max-w-65 text-sm leading-normal text-muted-foreground dark:text-muted-foreground'>
-				Upload your first receipt to get started.
-			</p>
-			<UploadTicketDialog className='mt-5 w-auto' />
-			<p className='mt-3 font-mono text-xs leading-[1.4] font-medium text-muted-foreground dark:text-muted-foreground'>
-				1–{MAX_IMAGES_PER_TICKET} photos · PNG or JPG · {MAX_TICKET_IMAGE_MB} MB each
-			</p>
-		</Card>
-	)
+    return (
+        <EmptyStateCard
+            icon={Invoice01Icon}
+            title='No receipts yet'
+            description='Upload your first receipt to get started.'
+            testId='tickets-empty-state'
+        >
+            <UploadTicketDialog className='w-auto' />
+            <p className='font-mono text-xs text-muted-foreground'>
+                1?{MAX_IMAGES_PER_TICKET} photos ? PNG or JPG ? {MAX_TICKET_IMAGE_MB} MB each
+            </p>
+        </EmptyStateCard>
+    )
 }
 
 export type TicketsListItem = TicketCardProps
@@ -203,6 +189,7 @@ export function TicketsList({ tickets }: TicketsListProps) {
 
 function TicketsContent({ tickets }: TicketsListProps) {
 	const storeLabelId = useId()
+	const storeFilterAnchor = useComboboxAnchor()
 	const [storeFilter, setStoreFilter] = useState('all')
 	const stores = [...new Set(tickets.flatMap(ticket => (ticket.storeName ? [ticket.storeName] : [])))].sort((a, b) =>
 		a.localeCompare(b),
@@ -210,6 +197,11 @@ function TicketsContent({ tickets }: TicketsListProps) {
 	const hasUnconfirmedStore = tickets.some(
 		ticket => !ticket.storeConfirmed && toTicketChipStatus(ticket.status, ticket.itemsCount) === 'completed',
 	)
+	const storeOptions = [
+		{ value: 'all', label: 'All Stores', testId: 'tickets-store-option-icon-all' },
+		...stores.map(store => ({ value: store, label: store, testId: `tickets-store-option-icon-${store}` })),
+		...(hasUnconfirmedStore ? [{ value: 'unconfirmed', label: 'No store confirmed', testId: 'tickets-store-option-icon-unconfirmed' }] : []),
+	]
 	const filtered = tickets.filter(ticket => {
 		const matchesStore =
 			storeFilter === 'all' ||
@@ -228,80 +220,54 @@ function TicketsContent({ tickets }: TicketsListProps) {
 			>
 				<div className='flex flex-col gap-1.5'>
 					<Label htmlFor={storeLabelId}>Show receipts from store:</Label>
-					<Select
+					<Combobox
+						items={storeOptions.map(option => option.value)}
+						itemToStringLabel={value => storeOptions.find(option => option.value === value)?.label ?? ''}
+						filter={(value, query, getLabel) => (getLabel?.(value) ?? String(value)).toLocaleLowerCase().includes(query.toLocaleLowerCase())}
 						value={storeFilter}
-						onValueChange={setStoreFilter}
+						onValueChange={value => typeof value === 'string' && setStoreFilter(value)}
 					>
-						<SelectTrigger
+						<div className='w-full' ref={storeFilterAnchor}>
+						<ComboboxInput
 							id={storeLabelId}
 							size='lg'
 							aria-label='Filter by store'
+							showClear={false}
 							data-testid='tickets-store-filter'
 						>
-							<span className='flex min-w-0 flex-1 items-center gap-2.5 text-left'>
+							<InputGroupAddon align='inline-start'>
 								<RowIcon
 									icon={Store03Icon}
 									tone='store'
 									size='xs'
 									testId='tickets-store-filter-icon'
 								/>
-								<SelectValue>
-									{storeFilter === 'all'
-										? 'All Stores'
-										: storeFilter === 'unconfirmed'
-											? 'No store confirmed'
-											: storeFilter}
-								</SelectValue>
-							</span>
-						</SelectTrigger>
-						<SelectContent
-							position='popper'
-							align='start'
-							size='filter'
-							className='w-[var(--radix-select-trigger-width)]'
-						>
-							<SelectItem value='all'>
-								<span className='flex items-center gap-2.5'>
-									<RowIcon
-										icon={Store03Icon}
-										tone='store'
-										size='xs'
-										testId='tickets-store-option-icon-all'
-									/>
-									All Stores
-								</span>
-							</SelectItem>
-							{stores.map(store => (
-								<SelectItem
-									key={store}
-									value={store}
-								>
-									<span className='flex items-center gap-2.5'>
+							</InputGroupAddon>
+						</ComboboxInput>
+						</div>
+						<ComboboxContent size='filter' anchor={storeFilterAnchor}>
+							<ComboboxList>
+								{(value: string) => {
+									const option = storeOptions.find(candidate => candidate.value === value)
+									if (!option) return null
+									return (
+										<ComboboxItem key={option.value} value={option.value} size='filter'>
+											<span className='flex items-center gap-2.5'>
 										<RowIcon
 											icon={Store03Icon}
 											tone='store'
 											size='xs'
-											testId={`tickets-store-option-icon-${store}`}
+											testId={option.testId}
 										/>
-										{store}
+										{option.label}
 									</span>
-								</SelectItem>
-							))}
-							{hasUnconfirmedStore ? (
-								<SelectItem value='unconfirmed'>
-									<span className='flex items-center gap-2.5'>
-										<RowIcon
-											icon={Store03Icon}
-											tone='store'
-											size='xs'
-											testId='tickets-store-option-icon-unconfirmed'
-										/>
-										No store confirmed
-									</span>
-								</SelectItem>
-							) : null}
-						</SelectContent>
-					</Select>
+										</ComboboxItem>
+									)
+								}}
+							</ComboboxList>
+							<ComboboxEmpty>No stores match this search.</ComboboxEmpty>
+						</ComboboxContent>
+					</Combobox>
 				</div>
 			</div>
 			{filtered.length ? (

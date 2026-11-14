@@ -217,6 +217,7 @@ const DialogDescription = React.forwardRef<
 DialogDescription.displayName = DialogPrimitive.Description.displayName;
 
 export {
+  SHEET_ON_PHONES,
   dialogContentVariants,
   dialogTitleVariants,
   dialogDescriptionVariants,

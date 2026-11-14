@@ -78,7 +78,7 @@ describe('buildDashboardModel', () => {
 		const model = build({ baseLists: many })
 
 		expect(model.lists.items).toHaveLength(5)
-		expect(model.lists.items[2]).toEqual({ id: 'x2', name: 'List 2', itemsCount: 2 })
+		expect(model.lists.items[2]).toEqual({ id: 'x2', name: 'List 2', itemsCount: 2, isDefault: false, lastTrip: null })
 		expect(model.lists.hiddenCount).toBe(2)
 		expect(model).not.toHaveProperty('groups')
 		expect(model).not.toHaveProperty('counts')
@@ -87,9 +87,9 @@ describe('buildDashboardModel', () => {
 	it('shows every list when they fit, with nothing hidden', () => {
 		expect(build().lists).toEqual({
 			items: [
-				{ id: 'l1', name: 'NO frills', itemsCount: 28 },
-				{ id: 'l2', name: 'Weekly Groceries', itemsCount: 19 },
-				{ id: 'l3', name: 'Monthly bulk', itemsCount: 0 },
+				{ id: 'l1', name: 'NO frills', itemsCount: 28, isDefault: false, lastTrip: null },
+				{ id: 'l2', name: 'Weekly Groceries', itemsCount: 19, isDefault: false, lastTrip: null },
+				{ id: 'l3', name: 'Monthly bulk', itemsCount: 0, isDefault: false, lastTrip: null },
 			],
 			hiddenCount: 0,
 		})
@@ -129,7 +129,7 @@ describe('buildDashboardModel', () => {
 		expect(model.addItemsTarget).toEqual({ id: 'p1', name: 'Pantry' })
 		expect(model.startTarget).toBeNull()
 		expect(model.quickStart).toEqual([])
-		expect(model.lists.items).toEqual([{ id: 'p1', name: 'Pantry', itemsCount: 0 }])
+		expect(model.lists.items).toEqual([{ id: 'p1', name: 'Pantry', itemsCount: 0, isDefault: false, lastTrip: null }])
 	})
 
 	it('has no add-items target once the only list has items or the account has several lists', () => {
@@ -220,13 +220,13 @@ describe('buildDashboardModel', () => {
 				{ id: 's2', name: 'Costco', last_visit: { kind: 'receipt', id: 'ticket-1', at: '2026-02-12T10:00:00Z', total_amount: null } },
 			],
 		})
-		expect(model.likelyNeeded).toEqual({ hasHistory: true, items: [{
+		expect(model.likelyNeeded).toEqual({ hasHistory: true, receiptsCount: 0, items: [{
 			id: 'i1', name: 'Milk', base_list: { id: 'l1', name: 'Pantry' }, usual_store: { id: 's1', name: 'Metro' },
 			interval_days: 9.4, days_since: 12, cadence: 'Usually every 9 days · last bought 12 days ago',
 		}] })
 		expect(model.storeVisits).toEqual([
-			{ storeId: 's1', storeName: 'Metro', kind: 'trip', id: 'trip-1', dateLabel: '18 Feb', total: 84.2, href: '/trips' },
-			{ storeId: 's2', storeName: 'Costco', kind: 'receipt', id: 'ticket-1', dateLabel: '12 Feb', total: null, href: '/tickets/ticket-1' },
+			{ storeId: 's1', storeName: 'Metro', kind: 'trip', id: 'trip-1', dateLabel: '18 Feb', itemsCount: null, total: 84.2, href: '/trips' },
+			{ storeId: 's2', storeName: 'Costco', kind: 'receipt', id: 'ticket-1', dateLabel: '12 Feb', itemsCount: null, total: null, href: '/tickets/ticket-1' },
 		])
 	})
 })

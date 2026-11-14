@@ -1,10 +1,5 @@
-import { cn } from '@/utils'
+import { Badge } from '@/components/ui/badge'
 import type { NavCount } from './sidebar/helpers/build-nav-counts'
-
-const TONES = {
-	neutral: 'bg-slate-100 text-body dark:bg-muted dark:text-muted-foreground',
-	waiting: 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300',
-} as const
 
 interface Props {
 	count: NavCount
@@ -15,16 +10,13 @@ interface Props {
 /** The small number at the end of a navigation link: 22px high, round, and pushed to the right edge. */
 export function NavCountPill({ count, testId, className }: Props) {
 	return (
-		<span
+		<Badge
 			aria-label={count.label}
 			data-testid={testId}
-			className={cn(
-				'ml-auto inline-flex h-5.5 min-w-5.5 items-center justify-center rounded-full px-2 text-xs font-semibold tabular-nums',
-				TONES[count.tone],
-				className,
-			)}
+			variant={count.tone === 'waiting' ? 'default' : 'secondary'}
+			className={className ? `ml-auto ${className}` : 'ml-auto'}
 		>
 			{count.value}
-		</span>
+		</Badge>
 	)
 }

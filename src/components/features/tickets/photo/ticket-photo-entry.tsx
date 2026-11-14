@@ -1,5 +1,7 @@
 'use client'
 
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { RowIcon } from '@/components/commons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ArrowExpand01Icon, Image02Icon } from '@hugeicons/core-free-icons'
 import type { Ref } from 'react'
@@ -90,19 +92,13 @@ interface TicketPhotoPanelProps {
  */
 export function TicketPhotoPanel({ urls, count, view, error, onOpenFullScreen, triggerRef }: TicketPhotoPanelProps) {
 	return (
-		<section
+		<Card
+			role='region'
 			data-testid='ticket-photo-panel'
 			aria-label={count === 1 ? 'Receipt photo' : 'Receipt photos'}
-			className='flex flex-col gap-3 rounded-3xl bg-card p-3 shadow-card md:p-4'
 		>
-			<div className='flex items-center gap-3'>
-				<span className='flex size-10 shrink-0 items-center justify-center rounded-xl bg-cyan-100 text-cyan-700 dark:bg-cyan-950 dark:text-cyan-300'>
-					<HugeiconsIcon
-						icon={Image02Icon}
-						strokeWidth={1.5}
-						className='size-5'
-					/>
-				</span>
+			<CardHeader><div className='flex items-center gap-3'>
+				<RowIcon icon={Image02Icon} tone='ocr' size='lg' testId='ticket-photo-panel-icon' />
 				<h2 className='min-w-0 flex-1 truncate font-display text-base leading-normal font-semibold '>
 					{count === 1 ? 'Receipt Photo' : 'Receipt Photos'}
 				</h2>
@@ -122,6 +118,7 @@ export function TicketPhotoPanel({ urls, count, view, error, onOpenFullScreen, t
 				</Button>
 			</div>
 
+			</CardHeader><CardContent>
 			<div className='relative flex h-[420px] flex-col overflow-hidden rounded-2xl bg-ink'>
 				<TicketPhotoPane
 					url={urls[view.index]}
@@ -159,6 +156,6 @@ export function TicketPhotoPanel({ urls, count, view, error, onOpenFullScreen, t
 					</span>
 				</div>
 			) : null}
-		</section>
+		</CardContent></Card>
 	)
 }

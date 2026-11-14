@@ -3,7 +3,7 @@
 import { Controller, type UseFormReturn } from 'react-hook-form'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList, useComboboxAnchor } from '@/components/ui/combobox'
 import { FormField } from '@/components/commons'
 import { CATEGORIES, UNITS } from '@/data/constants'
 
@@ -20,6 +20,8 @@ interface ItemFieldsProps {
 
 /** The fields shared by every item form: name, quantity with its unit, an optional category and notes. */
 export function ItemFields({ form, idPrefix, disabled = false, withCategory = false }: ItemFieldsProps) {
+	const unitAnchor = useComboboxAnchor()
+	const categoryAnchor = useComboboxAnchor()
 	const {
 		register,
 		control,
@@ -84,29 +86,30 @@ export function ItemFields({ form, idPrefix, disabled = false, withCategory = fa
 						control={control}
 						name='unit'
 						render={({ field }) => (
-							<Select
+							<Combobox
+								items={unitOptions(UNITS, field.value)}
+								itemToStringLabel={value => value}
+								filter={(item, query, getLabel) => (getLabel?.(item) ?? String(item)).toLocaleLowerCase().includes(query.toLocaleLowerCase())}
 								value={field.value}
-								onValueChange={field.onChange}
+								onValueChange={value => typeof value === 'string' && field.onChange(value)}
 								disabled={disabled}
 							>
-								<SelectTrigger
+								<div className='w-full' ref={unitAnchor}>
+								<ComboboxInput
 									id={`${idPrefix}-unit`}
 									aria-invalid={!!errors.unit}
 									size='lg'
-								>
-									<SelectValue placeholder='Unit' />
-								</SelectTrigger>
-								<SelectContent>
-									{unitOptions(UNITS, field.value).map(unit => (
-										<SelectItem
-											key={unit}
-											value={unit}
-										>
-											{unit}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
+									placeholder='Unit'
+									showTrigger
+								/>
+								</div>
+								<ComboboxContent anchor={unitAnchor}>
+									<ComboboxList>
+										{(unit: string) => <ComboboxItem key={unit} value={unit}>{unit}</ComboboxItem>}
+									</ComboboxList>
+									<ComboboxEmpty>No units found.</ComboboxEmpty>
+								</ComboboxContent>
+							</Combobox>
 						)}
 					/>
 				</FormField>
@@ -124,29 +127,30 @@ export function ItemFields({ form, idPrefix, disabled = false, withCategory = fa
 						control={control}
 						name='category'
 						render={({ field }) => (
-							<Select
+							<Combobox
+								items={CATEGORIES}
+								itemToStringLabel={value => value}
+								filter={(item, query, getLabel) => (getLabel?.(item) ?? String(item)).toLocaleLowerCase().includes(query.toLocaleLowerCase())}
 								value={field.value ?? ''}
-								onValueChange={value => field.onChange(value || undefined)}
+								onValueChange={value => typeof value === 'string' && field.onChange(value || undefined)}
 								disabled={disabled}
 							>
-								<SelectTrigger
+								<div className='w-full' ref={categoryAnchor}>
+								<ComboboxInput
 									id={`${idPrefix}-category`}
 									aria-invalid={!!errors.category}
 									size='lg'
-								>
-								<SelectValue placeholder='Choose a category' />
-								</SelectTrigger>
-								<SelectContent>
-									{CATEGORIES.map(category => (
-										<SelectItem
-											key={category}
-											value={category}
-										>
-											{category}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
+									placeholder='Choose a category'
+									showTrigger
+								/>
+								</div>
+								<ComboboxContent anchor={categoryAnchor}>
+									<ComboboxList>
+										{(category: string) => <ComboboxItem key={category} value={category}>{category}</ComboboxItem>}
+									</ComboboxList>
+									<ComboboxEmpty>No categories found.</ComboboxEmpty>
+								</ComboboxContent>
+							</Combobox>
 						)}
 					/>
 				</FormField>

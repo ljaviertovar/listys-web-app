@@ -7,7 +7,7 @@ import { Search01Icon } from '@hugeicons/core-free-icons'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { cn } from '@/utils'
+import { Field, FieldContent, FieldDescription, FieldLabel, FieldTitle } from '@/components/ui/field'
 
 export interface ChoiceOption {
 	value: string
@@ -126,31 +126,16 @@ interface ChoiceRowProps {
 /** One radio row of a choice list; also used on its own by lists that do not need the search field. */
 export function ChoiceRow({ option, variant = 'default', testId = `choice-${option.value}` }: ChoiceRowProps) {
 	const id = useId()
-	return (
-		<label
-			htmlFor={id}
-			data-testid={testId}
-			data-disabled={option.disabled ? '' : undefined}
-			className={cn(
-				'flex min-h-12 items-center gap-3 rounded-xl px-3 py-2',
-				variant === 'card' && 'min-h-14 rounded-2xl bg-card px-3.5 py-2 ring-1 ring-slate-900/10 ring-inset has-data-[state=checked]:bg-blue-50 has-data-[state=checked]:ring-2 has-data-[state=checked]:ring-primary dark:ring-border dark:has-data-[state=checked]:bg-blue-500/10',
-				variant === 'card' && option.note && 'min-h-15',
-				option.disabled ? 'cursor-not-allowed opacity-50' : variant === 'card' ? 'cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-500/10' : 'cursor-pointer hover:bg-muted has-data-[state=checked]:bg-accent',
-			)}
-		>
-			<RadioGroupItem
-				id={id}
-				value={option.value}
-				size={variant === 'card' ? 'ring' : 'default'}
-				disabled={option.disabled}
-			/>
-			<span className='flex min-w-0 flex-1 flex-col'>
-				<span className={cn('break-words text-sm', variant === 'card' ? 'font-semibold' : 'font-medium')}>{option.label}</span>
-				{option.note ? <span className='break-words text-xs text-muted-foreground dark:text-muted-foreground'>{option.note}</span> : null}
-			</span>
-			{option.detail ? (
-				<span className='shrink-0 font-mono text-xs text-muted-foreground tabular-nums dark:text-muted-foreground'>{option.detail}</span>
-			) : null}
-		</label>
-	)
+    return (
+        <FieldLabel htmlFor={id} data-testid={testId} data-disabled={option.disabled ? '' : undefined}>
+            <Field orientation='horizontal' data-disabled={option.disabled} data-variant={variant}>
+                <RadioGroupItem id={id} value={option.value} disabled={option.disabled} />
+                <FieldContent>
+                    <FieldTitle>{option.label}</FieldTitle>
+                    {option.note ? <FieldDescription>{option.note}</FieldDescription> : null}
+                </FieldContent>
+                {option.detail ? <span className='shrink-0 font-mono text-xs tabular-nums'>{option.detail}</span> : null}
+            </Field>
+        </FieldLabel>
+    )
 }
