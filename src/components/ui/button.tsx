@@ -11,7 +11,7 @@ import { cn } from '@/utils'
 const PRIMARY_BUTTON_LAYER =
 	'relative isolate overflow-hidden before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-gradient-to-b before:from-white/20 before:to-transparent before:opacity-80 before:transition-opacity before:duration-300 before:ease-[cubic-bezier(0.4,0.36,0,1)] after:pointer-events-none after:absolute after:inset-0 after:-z-10 after:bg-gradient-to-b after:from-white/10 after:to-transparent after:mix-blend-overlay'
 const SECONDARY_BUTTON_STYLE =
-	"ring-1 ring-inset ring-border-outline bg-transparent text-foreground shadow-none hover:bg-background"
+	"ring-1 ring-inset ring-border-outline bg-card text-foreground shadow-none hover:bg-muted"
 
 const buttonVariants = cva(
 	"border border-transparent font-display text-sm font-semibold [&_svg:not([class*='size-'])]:size-4 inline-flex items-center justify-center whitespace-nowrap gap-2 disabled:pointer-events-none disabled:opacity-50 disabled:active:scale-100 [&_svg]:pointer-events-none [&_svg]:shrink-0 focus:outline-none focus-visible:outline-none select-none transition-[color,background-color,border-color,box-shadow,transform] active:scale-[0.97] motion-reduce:active:scale-100 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
@@ -22,7 +22,7 @@ const buttonVariants = cva(
 				outline: SECONDARY_BUTTON_STYLE,
 				'outline-surface': 'bg-card text-foreground shadow-none ring-1 ring-inset ring-border-outline hover:bg-background',
 				// The A1 grey button: `--secondary` surface, blue text and icons, no border or shadow.
-				secondary: 'bg-secondary text-secondary-foreground shadow-none hover:bg-secondary-hover',
+				secondary: 'bg-muted text-foreground shadow-none hover:bg-secondary-hover',
 				ghost: 'hover:bg-secondary hover:text-foreground data-[state=open]:bg-secondary',
 				destructive: 'bg-destructive text-destructive-foreground shadow-none hover:bg-destructive-hover active:bg-destructive-hover',
 				// Soft red for an action that is allowed but should not shout: tinted fill, red text, no shadow.
@@ -139,7 +139,7 @@ const buttonVariants = cva(
 		defaultVariants: {
 			variant: 'default',
 			size: 'default',
-			rounded: 'default',
+			rounded: 'full',
 			weight: 'default',
 		},
 	},

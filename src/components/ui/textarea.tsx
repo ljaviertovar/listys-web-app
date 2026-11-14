@@ -4,7 +4,7 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/utils'
 
 const textareaVariants = cva(
-	'flex w-full resize-none rounded-2xl border-0 bg-card px-3.5 text-base shadow-field placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring aria-invalid:ring-2 aria-invalid:ring-destructive disabled:cursor-not-allowed disabled:opacity-50 md:text-sm',
+	'flex w-full resize-none rounded-2xl border-0 bg-muted px-3.5 text-base shadow-none placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring aria-invalid:ring-2 aria-invalid:ring-destructive disabled:cursor-not-allowed disabled:opacity-50 md:text-sm',
 	{
 		variants: {
 			size: {
