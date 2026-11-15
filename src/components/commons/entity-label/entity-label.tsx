@@ -4,7 +4,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 interface EntityLabelProps {
 	/** The linked store's name. */
 	name: string
-	/** A store the user chose by hand adds "· set by you" in grey regular. */
+	/** A store the user chose by hand adds "· set by you" in regular weight. */
 	manual?: boolean
 	/** `lg` is the 14px name of a store row in Prices by Store. */
 	size?: 'default' | 'lg'
@@ -28,7 +28,7 @@ export function EntityLabel({ name, manual = false, size = 'default', testId = '
 				className={size === 'lg' ? 'size-4 shrink-0 text-violet-600 dark:text-violet-300' : 'size-3.5 shrink-0 text-violet-600 dark:text-violet-300'}
 			/>
 			<span className='truncate font-semibold text-violet-800 dark:text-violet-200'>{name}</span>
-			{manual ? <span className='shrink-0 font-normal text-muted-foreground dark:text-muted-foreground'>· set by you</span> : null}
+			{manual ? <span className='shrink-0 font-normal text-foreground'>· set by you</span> : null}
 		</span>
 	)
 }

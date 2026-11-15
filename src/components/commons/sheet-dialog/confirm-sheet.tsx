@@ -67,7 +67,7 @@ export function ConfirmSheet({
 				consequence ? consequenceId : null,
 			].filter(Boolean).join(' ') || undefined}
 		>
-			<AlertDialogHeader>
+			<AlertDialogHeader variant='sheet'>
 				<AlertDialogTitle>{title}</AlertDialogTitle>
 			</AlertDialogHeader>
 			<div className='flex flex-col gap-4'>

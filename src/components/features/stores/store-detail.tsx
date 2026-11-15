@@ -111,7 +111,7 @@ export function StoreDetailView({ store }: StoreDetailProps) {
 				size='stat'
 			>
 				<div className='flex flex-col gap-1'>
-					<h2 id='store-detail-names-title' className='text-xs leading-tight font-semibold tracking-wide text-body uppercase'>Names on receipts</h2>
+					<h2 id='store-detail-names-title' className='text-xs leading-tight font-semibold tracking-wide text-muted-foreground uppercase'>Names on receipts</h2>
 					<p className='text-xs leading-normal text-muted-foreground'>Receipts that print any of these go to {store.name}.</p>
 				</div>
 				<ul className='flex flex-col divide-y divide-slate-200 overflow-hidden rounded-2xl bg-secondary dark:divide-border dark:bg-muted'>
@@ -121,7 +121,7 @@ export function StoreDetailView({ store }: StoreDetailProps) {
 							{name.removable ? (
 								<Button
 									type='button'
-									variant='quiet'
+									variant='ghost'
 									size='icon-xl'
 									aria-label={`Remove ${name.name}`}
 									disabled={removePending || undoableMerge.pending}
@@ -129,7 +129,7 @@ export function StoreDetailView({ store }: StoreDetailProps) {
 								>
 									<HugeiconsIcon icon={Cancel01Icon} strokeWidth={1.8} aria-hidden='true' className='size-4' />
 								</Button>
-							) : <Badge variant='tag'>Store name</Badge>}
+							) : <Badge variant='outline'>Store name</Badge>}
 						</li>
 					))}
 				</ul>
@@ -137,7 +137,7 @@ export function StoreDetailView({ store }: StoreDetailProps) {
 
 			<Button
 				type='button'
-				variant='outline-surface'
+				variant='outline'
 				size='lg'
 				className='w-full'
 				disabled={undoableMerge.pending || removePending}
@@ -173,7 +173,7 @@ export function StoreDetailView({ store }: StoreDetailProps) {
 				testId='store-detail-merge-confirm'
 			>
 				{mergeTarget ? (
-					<Alert variant='receipt-info' role='note' data-testid='store-detail-merge-guidance'>
+					<Alert variant='info' role='note' data-testid='store-detail-merge-guidance'>
 						<HugeiconsIcon icon={InformationCircleIcon} strokeWidth={1.8} aria-hidden='true' />
 						<AlertTitle>What happens when you merge</AlertTitle>
 						<AlertDescription>Receipts, prices and item tags from “{store.name}” move to {mergeTarget.name}, and its name is kept as one of the names on receipts.</AlertDescription>

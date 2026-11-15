@@ -20,7 +20,7 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
 			<AuthHero mode={mode} />
 			<section
 				data-testid='auth-panel'
-				className='relative -mt-6 rounded-t-3xl bg-card px-5 pt-5 pb-7 lg:mt-0 lg:flex lg:min-w-0 lg:shrink lg:grow lg:basis-130 lg:flex-col lg:rounded-3xl lg:p-8 lg:shadow-card'
+				className='relative -mt-6 rounded-t-3xl bg-card px-5 pt-5 pb-7 lg:mt-0 lg:flex lg:min-w-0 lg:shrink lg:grow lg:basis-130 lg:flex-col lg:rounded-3xl lg:p-8 lg:shadow-sm'
 			>
 				<header className='hidden items-center justify-between gap-4 lg:flex'>
 					<Logo testId='auth-screen-logo' wordmarkClassName={WORDMARK_CLASS_NAME} />

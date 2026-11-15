@@ -62,9 +62,8 @@ export function TripReceiptSummary({
 		const action = receipt.attached ? (
 			<Button
 				type='button'
-				variant='ghost-primary'
-				size='link-inline'
-					rounded='lg'
+				variant='link'
+				size='default'
 				onClick={() => setViewId(receipt.id)}
 			>
 				View Receipt
@@ -73,9 +72,8 @@ export function TripReceiptSummary({
 		) : trip && status === 'completed' ? (
 			<Button
 				type='button'
-				variant='ghost-primary'
-				size='link-inline'
-					rounded='lg'
+				variant='link'
+				size='default'
 				onClick={() => setReviewId(receipt.id)}
 			>
 				Review Receipt
@@ -84,9 +82,8 @@ export function TripReceiptSummary({
 		) : trip && status === 'failed' ? (
 			<Button
 				type='button'
-				variant='ghost-primary'
-				size='link-inline'
-					rounded='lg'
+				variant='link'
+				size='default'
 				onClick={() => setFailedId(receipt.id)}
 			>
 				Review Receipt
@@ -104,12 +101,12 @@ export function TripReceiptSummary({
 							<NoStoreBadge testId={`trip-receipt-store-${receipt.id}`} />
 						)}
 						{receipt.attached ? (
-							<Badge data-testid={`trip-receipt-attachment-${receipt.id}`} variant='tag'>
+							<Badge data-testid={`trip-receipt-attachment-${receipt.id}`} variant='outline'>
 								<HugeiconsIcon icon={AttachmentIcon} aria-hidden='true' strokeWidth={1.8} />
 								Receipt attached
 							</Badge>
 						) : status === 'completed' ? (
-							<Badge data-testid={`trip-receipt-status-${receipt.id}`} data-status='attach-pending' variant='tag-attention'>
+							<Badge data-testid={`trip-receipt-status-${receipt.id}`} data-status='attach-pending' variant='warning'>
 								<HugeiconsIcon icon={AttachmentOffIcon} strokeWidth={1.8} aria-hidden='true' />
 								Attach pending
 							</Badge>
@@ -118,7 +115,7 @@ export function TripReceiptSummary({
 						)}
 					</div>
 					<div className='grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-2'>
-						<p data-testid={`trip-receipt-data-${receipt.id}`} className='text-sm leading-[1.2] text-body dark:text-muted-foreground'>
+						<p data-testid={`trip-receipt-data-${receipt.id}`} className='text-sm leading-[1.2] text-muted-foreground dark:text-muted-foreground'>
 							<b className='font-mono text-base font-bold text-foreground tabular-nums'>{receipt.items_count}</b>{' '}
 							{receipt.items_count === 1 ? 'item' : 'items'} · {receipt.total_amount == null ? '—' : formatCurrency(receipt.total_amount)}
 						</p>
@@ -177,7 +174,7 @@ export function TripReceiptSummary({
 						testId='trip-receipts-section'
 					>
 						<ul className='divide-y divide-slate-200/70 dark:divide-border' data-testid='trip-receipt-list'>
-							{noReceipt ? <li className='py-2' data-testid='trip-no-receipt-summary'><div className='flex flex-col items-start gap-1.5'><Badge data-testid='trip-no-receipt-label' variant='tag-attention'><HugeiconsIcon icon={AttachmentOffIcon} strokeWidth={1.8} aria-hidden='true' />No receipt attached yet</Badge><p className='text-xs leading-normal text-feedback-warning-strong'>Add a receipt to save the real total and prices.</p></div></li> : receiptRows}
+							{noReceipt ? <li className='py-2' data-testid='trip-no-receipt-summary'><div className='flex flex-col items-start gap-1.5'><Badge data-testid='trip-no-receipt-label' variant='warning'><HugeiconsIcon icon={AttachmentOffIcon} strokeWidth={1.8} aria-hidden='true' />No receipt attached yet</Badge><p className='text-xs leading-normal text-feedback-warning-strong'>Add a receipt to save the real total and prices.</p></div></li> : receiptRows}
 						</ul>
 					</CategorySection>
 					{trip && !active ? (
@@ -185,7 +182,7 @@ export function TripReceiptSummary({
 							label='Attach Receipt'
 							triggerIcon={Attachment01Icon}
 							variant='secondary'
-							size='primary'
+							size='default'
 							className='w-full'
 							open={uploadOpen}
 							onOpenChange={setUploadOpen}

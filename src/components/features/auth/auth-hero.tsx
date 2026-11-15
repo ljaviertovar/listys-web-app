@@ -23,7 +23,7 @@ export function AuthHero({ mode }: { mode: AuthMode }) {
 		<section
 			data-testid='auth-hero'
 			aria-label='Why create a Listys account'
-			className='relative isolate flex min-h-37.5 flex-1 flex-col justify-between overflow-hidden bg-slate-900 px-5 pt-3 pb-12 text-white lg:order-last lg:min-h-0 lg:min-w-0 lg:shrink lg:grow lg:basis-140 lg:justify-end lg:rounded-3xl lg:p-12 lg:shadow-card'
+			className='relative isolate flex min-h-37.5 flex-1 flex-col justify-between overflow-hidden bg-slate-900 px-5 pt-3 pb-12 text-white lg:order-last lg:min-h-0 lg:min-w-0 lg:shrink lg:grow lg:basis-140 lg:justify-end lg:rounded-3xl lg:p-12 lg:shadow-sm'
 		>
 			<Image
 				src={banner}
@@ -74,7 +74,7 @@ export function AuthHero({ mode }: { mode: AuthMode }) {
 				) : (
 					<Button
 						asChild
-						variant='inverse'
+						variant='on-dark-ghost'
 						size='xl'
 						className='w-fit'
 					>

@@ -3,7 +3,7 @@ import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react'
 import { cn } from '@/utils'
 
 const TONES = {
-	neutral: { medium: 'bg-secondary text-body dark:bg-muted dark:text-body' },
+neutral: { medium: 'bg-secondary text-foreground dark:bg-muted dark:text-foreground' },
 	primary: {
 		medium: 'bg-entity-list text-entity-list-on dark:bg-entity-list dark:text-entity-list-on',
 	},

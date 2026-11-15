@@ -203,7 +203,7 @@ function ReviewRow({ line, decision, remembered, suggestedItem, disabled, onLink
 				{suggestedItem ? (
 					<Button
 						type='button'
-						size='primary'
+						size='default'
 						disabled={disabled}
 						onClick={onLinkSuggestion}
 						aria-label={`Link to ${formatItemName(suggestedItem.name)}`}
@@ -214,7 +214,7 @@ function ReviewRow({ line, decision, remembered, suggestedItem, disabled, onLink
 				<Button
 					type='button'
 					variant='secondary'
-					size='primary'
+					size='default'
 					disabled={disabled}
 					onClick={onLink}
 					aria-label={`${target ? 'Change the item for' : 'Link'} ${name}`}
@@ -224,8 +224,8 @@ function ReviewRow({ line, decision, remembered, suggestedItem, disabled, onLink
 				{target || suggestedItem ? (
 					<Button
 						type='button'
-						variant='quiet'
-						size='primary'
+						variant='ghost'
+						size='default'
 						disabled={disabled}
 						onClick={onAddAsNew}
 						aria-label={`Add ${name} as a new item`}

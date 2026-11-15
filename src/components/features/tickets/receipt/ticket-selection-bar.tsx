@@ -67,7 +67,7 @@ export function TicketSelectionBar({ count, total, onClear, onAdd, breakdown = n
 			</div>
 			<Button
 				type='button'
-				variant='quiet-on-dark'
+				variant='on-dark'
 				size='sm'
 				onClick={onClear}
 				disabled={saving}

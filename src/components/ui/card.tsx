@@ -14,7 +14,21 @@ function Card({
 	...props
 }: React.ComponentProps<'div'> & {
 	/** `compact`, `tight` and `flush` drop the gap between the parts of the card and shrink its padding (a card of list rows). */
-	size?: 'default' | 'sm' | 'compact' | 'tight' | 'flush' | 'dashboard' | 'dashboard-compact' | 'receipt' | 'trip' | 'list' | 'stat' | 'saved' | 'spending' | 'notice'
+	size?:
+		| 'default'
+		| 'sm'
+		| 'compact'
+		| 'tight'
+		| 'flush'
+		| 'dashboard'
+		| 'dashboard-compact'
+		| 'receipt'
+		| 'trip'
+		| 'list'
+		| 'stat'
+		| 'saved'
+		| 'spending'
+		| 'notice'
 	variant?: 'default' | 'premium' | 'accent' | 'ghost' | 'stat'
 	tone?: 'default' | 'info' | 'success' | 'danger' | 'muted'
 	layout?: 'default' | 'horizontal'
@@ -31,8 +45,8 @@ function Card({
 			data-side={side}
 			data-tone={tone}
 			className={cn(
-				'group/card flex flex-col overflow-hidden rounded-3xl border-0 bg-card text-sm text-card-foreground shadow-card transition-shadow duration-300 motion-reduce:transition-none dark:border dark:shadow-none',
-				layout === 'default' && 'gap-6 py-3 md:py-4',
+				'group/card flex flex-col overflow-hidden rounded-4xl border bg-card text-sm text-card-foreground shadow-sm transition-shadow motion-reduce:transition-none',
+				layout === 'default' && 'gap-6 py-6',
 				layout === 'horizontal' && 'p-0 gap-0 md:flex-row',
 				size === 'compact' && 'gap-0 py-3 md:py-4',
 				size === 'tight' && 'gap-0 p-3 md:p-4',
@@ -44,7 +58,7 @@ function Card({
 				size === 'receipt' && 'gap-0 p-3.5 md:p-3.5',
 				size === 'trip' && 'gap-0 p-3.5 md:p-3.5',
 				// A card of collapsible categories: the 44px Collapse All button carries its own top space (canvas v4).
-				size === 'list' && 'gap-0 px-3 pt-1 pb-0 md:px-4',
+				size === 'list' && 'gap-3 p-4',
 				size === 'stat' && 'gap-2.5 p-3 md:p-4',
 				size === 'saved' && 'gap-4 p-4 md:p-6',
 				// Monthly spending uses the saved surface without an internal gap.
@@ -52,14 +66,16 @@ function Card({
 				// A notice that explains a state and what to do about it (a receipt that could not be read): 16px padding, 12px between its parts.
 				size === 'notice' && 'gap-3 p-4',
 				variant === 'stat' && 'rounded-2xl shadow-none ring-1 ring-inset ring-slate-200 dark:ring-border',
-				tone === 'info' && 'bg-feedback-info-subtle text-feedback-info-strong shadow-none ring-1 ring-inset ring-feedback-info-tint dark:bg-feedback-info-subtle dark:text-feedback-info-strong dark:ring-feedback-info-tint',
-				tone === 'success' && 'bg-feedback-success-subtle text-feedback-success-strong shadow-none ring-1 ring-inset ring-feedback-success-tint dark:bg-feedback-success-subtle dark:text-feedback-success-strong dark:ring-feedback-success-tint',
-				tone === 'danger' && 'bg-feedback-error-subtle text-feedback-error-strong shadow-none ring-1 ring-inset ring-feedback-error-tint dark:bg-feedback-error-subtle dark:text-feedback-error-strong dark:ring-feedback-error-tint',
+				tone === 'info' &&
+					'bg-feedback-info-subtle text-feedback-info-strong shadow-none ring-1 ring-inset ring-feedback-info-tint dark:bg-feedback-info-subtle dark:text-feedback-info-strong dark:ring-feedback-info-tint',
+				tone === 'success' &&
+					'bg-feedback-success-subtle text-feedback-success-strong shadow-none ring-1 ring-inset ring-feedback-success-tint dark:bg-feedback-success-subtle dark:text-feedback-success-strong dark:ring-feedback-success-tint',
+				tone === 'danger' &&
+					'bg-feedback-error-subtle text-feedback-error-strong shadow-none ring-1 ring-inset ring-feedback-error-tint dark:bg-feedback-error-subtle dark:text-feedback-error-strong dark:ring-feedback-error-tint',
 				tone === 'muted' && 'bg-muted shadow-none ring-0',
-				interactive && 'hover:shadow-card-hover',
+				interactive && 'hover:shadow-md',
 				'has-data-[slot=card-banner]:p-0',
-				variant === 'premium' &&
-					'border border-muted-foreground/10 shadow-premium ring-1 ring-slate-200/60 hover:shadow-xl hover:shadow-primary/5 dark:ring-slate-800/60',
+				variant === 'premium' && 'shadow-md',
 				variant === 'accent' && 'border border-primary/30 bg-primary/5',
 				variant === 'ghost' && 'bg-transparent border-dashed border-2',
 				className,
@@ -84,12 +100,18 @@ function CardBanner({ className, ...props }: React.ComponentProps<'div'>) {
 	)
 }
 
-function CardHeader({ className, ...props }: React.ComponentProps<'div'>) {
+function CardHeader({
+	className,
+	inset = 'default',
+	...props
+}: React.ComponentProps<'div'> & { inset?: 'default' | 'compact' }) {
 	return (
 		<div
 			data-slot='card-header'
+			data-inset={inset}
 			className={cn(
-				'gap-2 rounded-t-lg px-3 md:px-4 [.border-b]:pb-6 group-data-[size=sm]/card:[.border-b]:pb-4 group/card-header @container/card-header grid auto-rows-min items-start has-data-[slot=card-action]:grid-cols-[1fr_auto] has-data-[slot=card-description]:grid-rows-[auto_auto]',
+				'gap-2 rounded-t-lg px-6 [.border-b]:pb-6 group-data-[size=sm]/card:[.border-b]:pb-4 group/card-header @container/card-header grid auto-rows-min items-start has-data-[slot=card-action]:grid-cols-[1fr_auto] has-data-[slot=card-description]:grid-rows-[auto_auto]',
+				inset === 'compact' && 'px-0',
 				'group-data-[layout=horizontal]/card:md:p-8 group-data-[layout=horizontal]/card:md:pb-0',
 				className,
 			)}
@@ -111,7 +133,11 @@ const cardTitleVariants = cva('', {
 	defaultVariants: { variant: 'default' },
 })
 
-function CardTitle({ className, variant = 'default', ...props }: React.ComponentProps<'div'> & VariantProps<typeof cardTitleVariants>) {
+function CardTitle({
+	className,
+	variant = 'default',
+	...props
+}: React.ComponentProps<'div'> & VariantProps<typeof cardTitleVariants>) {
 	return (
 		<div
 			data-slot='card-title'
@@ -130,7 +156,12 @@ const cardDescriptionVariants = cva('text-muted-foreground', {
 	defaultVariants: { size: 'default', weight: 'default' },
 })
 
-function CardDescription({ className, size = 'default', weight = 'default', ...props }: React.ComponentProps<'div'> & VariantProps<typeof cardDescriptionVariants>) {
+function CardDescription({
+	className,
+	size = 'default',
+	weight = 'default',
+	...props
+}: React.ComponentProps<'div'> & VariantProps<typeof cardDescriptionVariants>) {
 	return (
 		<div
 			data-slot='card-description'
@@ -167,10 +198,10 @@ function CardContent({
 			data-space={space}
 			data-inset={inset}
 			className={cn(
-				'px-3 md:px-4',
-				space === 'snug' && 'gap-3',
-				space === 'stack' && 'space-y-4',
-				inset === 'compact' && 'px-3 md:px-4',
+				'px-6',
+				space === 'snug' && 'flex flex-col gap-2',
+				space === 'stack' && 'flex flex-col gap-4',
+				inset === 'compact' && 'px-0',
 				'group-data-[layout=horizontal]/card:flex-1 group-data-[layout=horizontal]/card:flex group-data-[layout=horizontal]/card:flex-col group-data-[layout=horizontal]/card:md:p-8',
 				className,
 			)}
@@ -179,12 +210,21 @@ function CardContent({
 	)
 }
 
-function CardFooter({ className, ...props }: React.ComponentProps<'div'>) {
+function CardFooter({
+	className,
+	inset = 'default',
+	variant = 'default',
+	...props
+}: React.ComponentProps<'div'> & { inset?: 'default' | 'compact'; variant?: 'default' | 'summary' | 'status' }) {
 	return (
 		<div
 			data-slot='card-footer'
+			data-inset={inset}
 			className={cn(
-				'rounded-b-lg px-3 md:px-4 [.border-t]:pt-6 group-data-[size=sm]/card:[.border-t]:pt-4 flex items-center',
+				'rounded-b-lg px-6 [.border-t]:pt-2 group-data-[size=sm]/card:[.border-t]:pt-4 flex items-center',
+				inset === 'compact' && 'px-0',
+				variant === 'summary' && 'min-h-10 justify-between gap-3 border-t border-border pt-3',
+				variant === 'status' && 'flex-col items-stretch gap-1.5 border-t border-border pt-2',
 				'group-data-[layout=horizontal]/card:md:p-8 group-data-[layout=horizontal]/card:md:pt-0',
 				className,
 			)}

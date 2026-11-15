@@ -69,7 +69,7 @@ export function TicketActions({ ticket, allowRetry = false, retryLabel = 'Read R
 			{showRetryButton && (
 				<Button
 					variant='secondary'
-					size='primary'
+					size='default'
 					onClick={handleRetry}
 					disabled={retrying}
 					className='w-full'

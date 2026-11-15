@@ -1,10 +1,7 @@
 import type { ReactNode } from 'react'
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react'
 
-import { cn } from '@/utils'
-import { RowIcon } from '../row-icon'
-
-import { getCategoryIcon, getCategoryTone } from './helpers/category-style'
+import { getCategoryIcon } from './helpers/category-style'
 
 interface CategoryHeadingProps {
 	/** Normalised category name; it picks the icon and its colour. */
@@ -22,37 +19,30 @@ interface CategoryHeadingProps {
 }
 
 /**
- * The category's grey tile with its coloured icon, its name as a caption in capitals and a mono count. It adds no box of its
- * own (`contents`), so it lays out as three items of the row that holds it: the trigger of a folding section, or the plain
- * caption above the rows of a category.
+ * The category icon, caption and count laid out inside the shared collapsible trigger.
  */
 export function CategoryHeading({ category, title = category, count, complete = false, testId, icon, tone, description }: CategoryHeadingProps) {
 	const headingIcon = icon ?? getCategoryIcon(category)
 
 	return (
-		<span data-testid={testId} className='contents'>
-			{tone === 'ocr' ? (
-				<RowIcon icon={headingIcon} tone='ocr' size='sm' testId={`${testId}-icon`} />
-			) : (
-				<span className={cn('flex size-8 shrink-0 items-center justify-center rounded-lg bg-secondary dark:bg-muted', description && 'self-start mt-1')}>
-					<HugeiconsIcon
-						icon={headingIcon}
-						strokeWidth={1.5}
-						aria-hidden='true'
-						className={cn('size-4.5', !tone && getCategoryTone(category), tone === 'primary' && 'text-primary', tone === 'success' && 'text-feedback-success', tone === 'warning' && 'text-feedback-warning', tone === 'muted' && 'text-muted-foreground')}
-					/>
+		<span data-testid={testId} data-tone={tone} className='contents'>
+			<HugeiconsIcon
+				data-testid={`${testId}-icon`}
+				icon={headingIcon}
+				strokeWidth={1.5}
+				aria-hidden='true'
+				className='size-4 shrink-0 text-foreground'
+			/>
+			<span className='min-w-0 flex-1'>
+				<span className='block font-sans text-xs leading-4 font-medium tracking-wider text-foreground uppercase'>
+					{title}
 				</span>
-			)}
-			<span className={cn('min-w-0 flex-1', description && 'py-3')}>
-				<span className='block font-sans text-xs leading-[1.25] font-semibold tracking-[0.04em] text-text-secondary uppercase dark:text-foreground/80'>{title}</span>
-				{description ? <span className='mt-2 block text-xs leading-normal font-normal text-muted-foreground normal-case dark:text-muted-foreground'>{description}</span> : null}
+				{description ? <span className='mt-1 block text-xs leading-4 font-normal text-muted-foreground normal-case'>{description}</span> : null}
 			</span>
 			<span
-				className={cn(
-					'font-mono text-xs tabular-nums',
-					description && 'self-start mt-3',
-					complete ? 'font-semibold text-green-700 dark:text-green-400' : 'font-medium text-muted-foreground dark:text-muted-foreground',
-				)}
+				className={complete
+					? 'font-sans text-xs leading-4 font-normal text-feedback-success tabular-nums'
+					: 'font-sans text-xs leading-4 font-normal text-muted-foreground tabular-nums'}
 			>
 				{count}
 			</span>

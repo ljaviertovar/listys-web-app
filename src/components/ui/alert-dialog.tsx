@@ -76,13 +76,15 @@ function AlertDialogContent({
 
 function AlertDialogHeader({
   className,
+  variant = "default",
   ...props
-}: React.ComponentProps<"div">) {
+}: React.ComponentProps<"div"> & { variant?: "default" | "sheet" }) {
   return (
     <div
       data-slot="alert-dialog-header"
       className={cn(
         "grid grid-rows-[auto_1fr] place-items-center gap-1.5 text-center has-data-[slot=alert-dialog-media]:grid-rows-[auto_auto_1fr] has-data-[slot=alert-dialog-media]:gap-x-6 sm:group-data-[size=default]/alert-dialog-content:place-items-start sm:group-data-[size=default]/alert-dialog-content:text-left sm:group-data-[size=default]/alert-dialog-content:has-data-[slot=alert-dialog-media]:grid-rows-[auto_1fr]",
+        variant === "sheet" && "pb-4",
         className,
       )}
       {...props}
@@ -138,7 +140,7 @@ function AlertDialogTitle({
       data-slot="alert-dialog-title"
       data-variant={variant}
       className={cn(
-        "text-lg font-medium sm:group-data-[size=default]/alert-dialog-content:group-has-data-[slot=alert-dialog-media]/alert-dialog-content:col-start-2",
+        "font-display text-2xl leading-8 font-semibold text-foreground sm:group-data-[size=default]/alert-dialog-content:group-has-data-[slot=alert-dialog-media]/alert-dialog-content:col-start-2",
         variant === "strong" && "font-bold tracking-tight text-foreground",
         className,
       )}
@@ -155,7 +157,7 @@ function AlertDialogDescription({
     <AlertDialogPrimitive.Description
       data-slot="alert-dialog-description"
       className={cn(
-        "text-muted-foreground *:[a]:hover:text-foreground text-sm text-balance md:text-pretty *:[a]:underline *:[a]:underline-offset-3",
+        "text-muted-foreground *:[a]:hover:text-foreground text-base leading-6 text-balance md:text-pretty *:[a]:underline *:[a]:underline-offset-3",
         className,
       )}
       {...props}

@@ -83,7 +83,7 @@ export function StoreRenameCard({
 			) : null}
 
 			<div className='grid grid-cols-2 gap-3'>
-				<Button type='button' variant='secondary' size='lg' disabled={pending} onClick={onCancel}>
+				<Button type='button' variant='outline' size='lg' disabled={pending} onClick={onCancel}>
 					Cancel
 				</Button>
 				<Button type='submit' size='lg' disabled={pending} aria-describedby={error ? errorId : undefined}>

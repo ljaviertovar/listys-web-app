@@ -7,9 +7,14 @@ interface DataLineProps {
 }
 
 /** A figure of a data line: IBM Plex Mono, tabular, in the ink colour so it stands out from the grey words around it. */
-export function DataFigure({ children, emphasis = 'default' }: { children: ReactNode; emphasis?: 'default' | 'count' }) {
+export function DataFigure({ children, emphasis = 'default' }: { children: ReactNode; emphasis?: 'default' | 'count' | 'total' }) {
 	// `count` is the number a card leads with ("3 photos"): one step larger and bolder than the figures after it.
-	return <span className={emphasis === 'count' ? 'font-mono text-base leading-[1.2] font-bold text-foreground tabular-nums' : 'font-mono font-semibold text-foreground tabular-nums'}>{children}</span>
+	const className = emphasis === 'count'
+		? 'font-mono text-base leading-[1.2] font-bold text-foreground tabular-nums'
+		: emphasis === 'total'
+			? 'font-mono text-lg leading-6 font-semibold text-foreground tabular-nums'
+			: 'font-mono font-semibold text-foreground tabular-nums'
+	return <span className={className}>{children}</span>
 }
 
 /**
@@ -23,7 +28,7 @@ export function DataLine({ children, testId = 'data-line' }: DataLineProps) {
 	return (
 		<p
 			data-testid={testId}
-			className='text-sm leading-[1.2] text-body dark:text-muted-foreground'
+			className='text-sm leading-[1.2] text-muted-foreground dark:text-muted-foreground'
 		>
 			{facts.map((fact, index) => (
 				<Fragment key={index}>

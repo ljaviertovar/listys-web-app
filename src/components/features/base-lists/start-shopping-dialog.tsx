@@ -185,20 +185,20 @@ export function StartShoppingDialog({
 						{estimate.pricedCount > 0 ? <span className='font-mono text-lg leading-none font-semibold text-foreground tabular-nums'>≈ {formatCurrency(estimate.total)}</span> : <span className='text-xs text-muted-foreground'>No known prices</span>}
 					</div> : null}
 				</div>
-				{isEmpty ? <p className='text-sm leading-normal text-body dark:text-muted-foreground'>This base list has no items. Add items before starting a shopping session.</p> : null}
+				{isEmpty ? <p className='text-sm leading-normal text-muted-foreground dark:text-muted-foreground'>This base list has no items. Add items before starting a shopping session.</p> : null}
 				<div className='flex items-center justify-between gap-3 rounded-2xl bg-muted px-3.5 py-3'>
 					<span className='flex min-w-0 items-center gap-3'>
 						<RowIcon icon={selectedStore ? Store03Icon : ListViewIcon} tone={selectedStore ? 'store' : 'primary'} size='md' testId='start-shopping-scope-icon' />
 						<span className='flex min-w-0 flex-col gap-0.5'>
 							<span className='truncate text-sm font-semibold text-foreground'>{selectedStore?.name ?? 'Whole list'}</span>
-							<span className='text-xs leading-normal text-muted-foreground'>{selectedStore ? `${firstAtStoreCount} of ${listItemCount} items` : `All stores · ${listItemCount} items`}</span>
+							<span className='text-xs leading-normal text-foreground'>{selectedStore ? `${firstAtStoreCount} of ${listItemCount} items` : `All stores · ${listItemCount} items`}</span>
 						</span>
 					</span>
 					<Button type='button' size='sm' variant='outline' onClick={() => setStorePickerOpen(true)} disabled={loading}>
 						{selectedStore ? 'Change' : 'Choose Store'}
 					</Button>
 				</div>
-				{!isEmpty ? <Alert variant='receipt-info' role='note' data-testid='start-shopping-guidance'>
+				{!isEmpty ? <Alert variant='info' role='note' data-testid='start-shopping-guidance'>
 					<RowIcon icon={Alert02Icon} tone='primary' size='alert' testId='start-shopping-guidance-icon' />
 					<div>
 						<AlertTitle>{selectedStore ? `Only ${selectedStore.name} items` : 'One trip at a time per list.'}</AlertTitle>
@@ -208,18 +208,18 @@ export function StartShoppingDialog({
 					</div>
 				</Alert> : null}
 			</div>
-				<DialogFooter variant='sheet'>
+				<DialogFooter variant='sheet' spacing='section'>
 				<Button
-					size='primary'
+					size='default'
 					type='button'
-					variant='secondary'
+					variant='outline'
 					onClick={() => setOpen(false)}
 					disabled={loading}
 				>
 					Cancel
 				</Button>
 				<Button
-					size='primary'
+					size='default'
 					type='button'
 					onClick={handleConfirm}
 					disabled={loading || isEmpty}

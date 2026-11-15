@@ -101,6 +101,7 @@ export function BaseListsSkeleton() {
 					<EntityCardSkeleton
 						key={index}
 						testId={`base-list-card-skeleton-${index}`}
+						kind='list'
 					/>
 				))}
 			</div>

@@ -8,7 +8,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { RowIcon } from '../row-icon'
 
 import { ActionLink } from '../action-link/action-link'
-import { DataLine } from '../data-line/data-line'
 import { InlineCounter } from '../inline-counter/inline-counter'
 import { RowMenu, type RowMenuAction } from '../row-menu/row-menu'
 
@@ -33,7 +32,7 @@ interface EntityCardProps {
 	size?: 'default' | 'list'
 	/** Where the footer link goes; a card with nothing to open leaves it out and has no link. */
 	href?: string
-	icon: IconSvgElement
+	icon?: IconSvgElement
 	/** The icon tile's colour: blue for a list, violet for a store. */
 	tone?: 'default' | 'store'
 	title: string
@@ -79,21 +78,22 @@ export function EntityCard({
 }: EntityCardProps) {
 	return (
 		<Card
+			size='list'
 			role='article'
 			data-testid={testId}
 			data-entity-size={size}
 		>
-			<CardHeader>
-			<div className='flex items-center gap-3'>
-				<RowIcon icon={icon} tone={tone === 'store' ? 'store' : 'primary'} size='md' testId={`${testId}-icon`} />
-				<CardTitle className='min-w-0 flex-1'><h2 className='truncate'>{title}</h2></CardTitle>
+			<CardHeader inset='compact'>
+			<div className='flex w-full min-w-0 items-center gap-3'>
+				{icon ? <RowIcon icon={icon} tone={tone === 'store' ? 'store' : 'primary'} size='md' testId={`${testId}-icon`} /> : null}
+				<CardTitle className='min-w-0 flex-1 overflow-hidden'><h2 className='truncate'>{title}</h2></CardTitle>
 				{menu ? (
 					<RowMenu
 						label={menu.label}
 						triggerRef={menuTriggerRef}
 						disabled={menu.disabled}
 						testId={`${testId}-menu`}
-						className='-mr-2'
+						className='-mr-2 shrink-0'
 						actions={
 							'actions' in menu
 								? menu.actions
@@ -107,20 +107,18 @@ export function EntityCard({
 			</div>
 			</CardHeader>
 			{description || badge || meta ? (
-				<CardContent>
+				<CardContent inset='compact' space='snug'>
 					{description ? (
 						<CardDescription><div className='flex items-start gap-1.5'>
-							<HugeiconsIcon icon={Note01Icon} strokeWidth={1.7} aria-hidden='true' className='mt-0.5 size-4 shrink-0 text-slate-500 dark:text-muted-foreground' />
+							<HugeiconsIcon icon={Note01Icon} strokeWidth={1.7} aria-hidden='true' className='mt-0.5 size-4 shrink-0 text-muted-foreground' />
 							<span className='line-clamp-2 break-words'>{description}</span>
 						</div></CardDescription>
 					) : null}
 					{badge ? <div className='flex flex-wrap items-center gap-x-2.5 gap-y-1.5'>{badge}</div> : null}
-					{meta ? (
-						<DataLine testId={`${testId}-data`}>{meta}</DataLine>
-					) : null}
+					{meta ? <p data-testid={`${testId}-data`} className='text-xs leading-4 text-muted-foreground'>{meta}</p> : null}
 				</CardContent>
 			) : null}
-			<CardFooter>
+			<CardFooter inset='compact' variant='summary'>
 			<div className='flex w-full items-center justify-between gap-3'>
 				{count !== null && count > 0 ? (
 					<InlineCounter
@@ -130,7 +128,7 @@ export function EntityCard({
 						testId={`${testId}-count`}
 					/>
 				) : (
-					<span className='text-sm leading-none text-body dark:text-muted-foreground'>
+					<span className='text-sm leading-none text-muted-foreground dark:text-muted-foreground'>
 						{count === null ? 'Count unavailable' : `No ${emptyLabel} yet`}
 					</span>
 				)}

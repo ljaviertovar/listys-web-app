@@ -3,13 +3,7 @@ import { ThemeProvider } from '@/providers/theme-provider'
 import { SonnerToaster } from '@/components/app/sonner-toaster'
 import { PwaRegister } from '@/components/features/pwa'
 
-import { IBM_Plex_Mono, Inter, Plus_Jakarta_Sans } from 'next/font/google'
-
-const plusJakartaSans = Plus_Jakarta_Sans({
-	subsets: ['latin'],
-	variable: '--font-plus-jakarta',
-	display: 'swap',
-})
+import { IBM_Plex_Mono, Inter } from 'next/font/google'
 
 const inter = Inter({
 	subsets: ['latin'],
@@ -95,7 +89,7 @@ export default function RootLayout({
 		<html
 			lang='en'
 			suppressHydrationWarning
-			className={`${plusJakartaSans.variable} ${inter.variable} ${ibmPlexMono.variable}`}
+			className={`${inter.variable} ${ibmPlexMono.variable}`}
 		>
 			<body className='font-sans relative scroll-smooth focus:scroll-auto'>
 				<ThemeProvider

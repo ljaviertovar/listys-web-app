@@ -51,13 +51,13 @@ export function TicketStoreCard({ ticketId, store, storeSuggestion, storeName, i
 	switch (state.kind) {
 		case 'confirmed':
 			title = state.store.name
-			detail = <p className='text-sm leading-[1.4] text-body dark:text-muted-foreground'>Confirmed for this receipt.</p>
+			detail = <p className='text-sm leading-[1.4] text-muted-foreground dark:text-muted-foreground'>Confirmed for this receipt.</p>
 			actionsRow = (
 				<>
-					<Button type='button' variant='secondary' size='primary' disabled={busy} onClick={actions.openPicker}>
+					<Button type='button' variant='secondary' size='default' disabled={busy} onClick={actions.openPicker}>
 						Change Store
 					</Button>
-					<Button type='button' variant='destructive-soft' size='primary' disabled={busy} onClick={actions.remove}>
+					<Button type='button' variant='destructive' size='default' disabled={busy} onClick={actions.remove}>
 						{actions.pending === 'remove' ? spinner : null}
 						Remove Store
 					</Button>
@@ -67,7 +67,7 @@ export function TicketStoreCard({ ticketId, store, storeSuggestion, storeName, i
 		case 'suggested':
 			title = state.store.name
 			chip = (
-				<Badge variant='tag'>
+				<Badge variant='outline'>
 					<HugeiconsIcon icon={Store03Icon} strokeWidth={1.7} aria-hidden='true' />
 					One of your stores
 				</Badge>
@@ -75,10 +75,10 @@ export function TicketStoreCard({ ticketId, store, storeSuggestion, storeName, i
 			detail = <RawName name={state.rawName} />
 			actionsRow = (
 				<>
-					<Button type='button' variant='secondary' size='primary' disabled={busy} onClick={actions.openPicker}>
+					<Button type='button' variant='secondary' size='default' disabled={busy} onClick={actions.openPicker}>
 						Change Store
 					</Button>
-					<Button type='button' size='primary' disabled={busy} onClick={() => actions.confirm(state.store.id)}>
+					<Button type='button' size='default' disabled={busy} onClick={() => actions.confirm(state.store.id)}>
 						{actions.pending === 'confirm' ? spinner : <HugeiconsIcon icon={Tick02Icon} strokeWidth={1.8} aria-hidden='true' className='size-4.5' />}
 						Confirm
 					</Button>
@@ -87,13 +87,13 @@ export function TicketStoreCard({ ticketId, store, storeSuggestion, storeName, i
 			break
 		case 'unmatched':
 			title = state.rawName
-			detail = <p className='text-sm leading-[1.4] text-body dark:text-muted-foreground'>This store isn’t in My Stores yet.</p>
+			detail = <p className='text-sm leading-[1.4] text-muted-foreground dark:text-muted-foreground'>This store isn’t in My Stores yet.</p>
 			actionsRow = (
 				<>
-					<Button type='button' variant='secondary' size='primary' disabled={busy} onClick={actions.openPicker}>
+					<Button type='button' variant='secondary' size='default' disabled={busy} onClick={actions.openPicker}>
 						Change Store
 					</Button>
-					<Button type='button' size='primary' disabled={busy} onClick={actions.openSave}>
+					<Button type='button' size='default' disabled={busy} onClick={actions.openSave}>
 						Save as New Store
 					</Button>
 				</>
@@ -109,7 +109,7 @@ export function TicketStoreCard({ ticketId, store, storeSuggestion, storeName, i
 				</p>
 			)
 			actionsRow = (
-				<Button type='button' variant='secondary' size='primary' className='col-span-2' disabled={busy} onClick={actions.openPicker}>
+				<Button type='button' variant='secondary' size='default' className='col-span-2' disabled={busy} onClick={actions.openPicker}>
 					Choose Store
 				</Button>
 			)
@@ -121,7 +121,7 @@ export function TicketStoreCard({ ticketId, store, storeSuggestion, storeName, i
 	if (state.kind === 'unrecognized') {
 		return (
 			<Alert
-				variant='receipt-warning'
+				variant='warning'
 				role='region'
 				data-testid='ticket-store-card'
 				data-state={state.kind}
@@ -136,14 +136,14 @@ export function TicketStoreCard({ ticketId, store, storeSuggestion, storeName, i
 					<div className='col-span-2 flex flex-col items-start gap-2'>
 						<p role='alert' className='text-sm text-destructive'>{actions.error}</p>
 						{actions.canRetry ? (
-							<Button type='button' variant='secondary' size='primary' disabled={busy} onClick={actions.retry}>
+							<Button type='button' variant='secondary' size='default' disabled={busy} onClick={actions.retry}>
 								{actions.pending === 'retry' ? spinner : null}
 								Try Again
 							</Button>
 						) : null}
 					</div>
 				) : null}
-				<Button type='button' size='primary' className='col-span-2 w-full' disabled={busy} onClick={actions.openPicker}>
+				<Button type='button' size='default' className='col-span-2 w-full' disabled={busy} onClick={actions.openPicker}>
 					{busy ? spinner : null}
 					Choose Store
 				</Button>
@@ -203,7 +203,7 @@ export function TicketStoreCard({ ticketId, store, storeSuggestion, storeName, i
 							{actions.error}
 						</p>
 						{actions.canRetry ? (
-							<Button type='button' variant='secondary' size='primary' disabled={busy} onClick={actions.retry}>
+							<Button type='button' variant='secondary' size='default' disabled={busy} onClick={actions.retry}>
 								{actions.pending === 'retry' ? spinner : null}
 								Try Again
 							</Button>

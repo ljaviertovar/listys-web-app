@@ -85,7 +85,7 @@ export function BaseListItemRow({ item, isLocked = false, isOwner = true }: Base
 								testId={`base-list-item-${item.id}-usual-store`}
 							/>
 						) : null}
-						{alsoAt ? <span aria-label={`Other stores: ${(item.other_stores ?? []).map(store => store.name).join(', ')}`} data-testid={`base-list-item-${item.id}-other-stores`} className='min-w-0 break-words text-xs leading-[1.3] text-muted-foreground'>{alsoAt}</span> : null}
+						{alsoAt ? <span aria-label={`Other stores: ${(item.other_stores ?? []).map(store => store.name).join(', ')}`} data-testid={`base-list-item-${item.id}-other-stores`} className='min-w-0 break-words text-xs leading-[1.3] text-foreground'>{alsoAt}</span> : null}
 					</span>
 				) : null}
 			</div>

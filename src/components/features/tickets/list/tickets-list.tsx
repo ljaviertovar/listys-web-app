@@ -5,7 +5,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { Alert02Icon, Invoice01Icon, Loading03Icon, Store03Icon } from '@hugeicons/core-free-icons'
 
 import { ActionLink, DataFigure, DataLine, EmptyStateCard, EntityLabel, InlineCounter, RowIcon } from '@/components/commons'
-import { Card } from '@/components/ui/card'
+import { Card, CardFooter } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Progress } from '@/components/ui/progress'
@@ -45,16 +45,10 @@ export function TicketCard({
 			data-testid={`ticket-card-${id}`}
 			data-status={ticketStatus}
 		>
-			<div className='flex items-start gap-3 pb-2.5'>
-				<RowIcon
-					icon={Invoice01Icon}
-					tone='ocr'
-					size='md'
-					testId={`ticket-card-icon-${id}`}
-				/>
+			<div className='pb-2.5'>
 				<div className='flex min-w-0 flex-1 flex-col gap-1.5'>
-					<div className='flex items-center justify-between gap-2'>
-						<h2 className='min-w-0 truncate font-display text-base leading-normal font-semibold tracking-tight'>
+					<div className='flex min-w-0 items-center justify-between gap-2'>
+						<h2 className='min-w-0 flex-1 truncate font-display text-base leading-normal font-semibold tracking-tight'>
 							{title}
 						</h2>
 						<TicketStatusChip status={ticketStatus} />
@@ -80,7 +74,7 @@ export function TicketCard({
 			</div>
 
 			{ticketStatus === 'processing' ? (
-				<div className='flex flex-col gap-1.5 border-t border-slate-100 pt-2 dark:border-border'>
+				<CardFooter variant='status' inset='compact'>
 					<Progress
 						indeterminate
 						size='sm'
@@ -88,9 +82,9 @@ export function TicketCard({
 						aria-label='Reading receipt'
 					/>
 					<p className='text-xs leading-normal text-muted-foreground'>Reading store and items…</p>
-				</div>
+				</CardFooter>
 			) : (
-				<div className='flex min-h-10 items-center justify-between gap-3 border-t border-slate-100 dark:border-border'>
+				<CardFooter variant='summary' inset='compact'>
 					{ticketStatus === 'pending' ? (
 						<span className='flex items-center gap-2 text-xs text-muted-foreground'>
 							<HugeiconsIcon
@@ -130,7 +124,7 @@ export function TicketCard({
 							View Details
 						</ActionLink>
 					) : null}
-				</div>
+				</CardFooter>
 			)}
 		</Card>
 	)
@@ -143,15 +137,17 @@ function TicketDataLine({
 	totalLabel,
 }: Pick<TicketCardProps, 'id' | 'photoCount' | 'uploadedLabel' | 'totalLabel'>) {
 	return (
-		<DataLine testId={`ticket-data-${id}`}>
-			{photoCount > 0 ? (
-				<>
-					<DataFigure emphasis='count'>{photoCount}</DataFigure> {photoCount === 1 ? 'photo' : 'photos'}
-				</>
-			) : null}
-			{uploadedLabel}
-			{totalLabel ? <DataFigure>{totalLabel}</DataFigure> : null}
-		</DataLine>
+				<div className='flex flex-col gap-1'>
+					{totalLabel ? <DataFigure emphasis='total'>{totalLabel}</DataFigure> : null}
+					<DataLine testId={`ticket-data-${id}`}>
+						{photoCount > 0 ? (
+							<>
+								<DataFigure emphasis='count'>{photoCount}</DataFigure> {photoCount === 1 ? 'photo' : 'photos'}
+							</>
+						) : null}
+						{uploadedLabel}
+					</DataLine>
+				</div>
 	)
 }
 
@@ -230,7 +226,9 @@ function TicketsContent({ tickets }: TicketsListProps) {
 						<div className='w-full' ref={storeFilterAnchor}>
 						<ComboboxInput
 							id={storeLabelId}
-							size='lg'
+							size='filter'
+							surface='page'
+							inset='card'
 							aria-label='Filter by store'
 							showClear={false}
 							data-testid='tickets-store-filter'
@@ -245,7 +243,7 @@ function TicketsContent({ tickets }: TicketsListProps) {
 							</InputGroupAddon>
 						</ComboboxInput>
 						</div>
-						<ComboboxContent size='filter' anchor={storeFilterAnchor}>
+						<ComboboxContent size='filter' placement='below' anchor={storeFilterAnchor}>
 							<ComboboxList>
 								{(value: string) => {
 									const option = storeOptions.find(candidate => candidate.value === value)
@@ -293,8 +291,8 @@ function TicketsContent({ tickets }: TicketsListProps) {
 					<h2 className='font-display text-base font-semibold'>No receipts match these filters</h2>
 					<Button
 						type='button'
-						variant='ghost-primary'
-						size='link-inline'
+						variant='link'
+						size='default'
 						onClick={() => setStoreFilter('all')}
 					>
 						Clear filter

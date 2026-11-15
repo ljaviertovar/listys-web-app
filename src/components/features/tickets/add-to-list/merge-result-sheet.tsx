@@ -36,7 +36,7 @@ export function MergeResultSheet({ outcome, receipt, onRetry, onClose }: MergeRe
 		return (
 			<SheetDialog open onOpenChange={open => !open && onClose()} title="Couldn't Save" testId='merge-failed-sheet' fit>
 				<div className='flex flex-col gap-4'>
-					<Alert variant='receipt-danger' data-testid='merge-failed-alert'>
+					<Alert variant='destructive' data-testid='merge-failed-alert'>
 						<RowIcon icon={Alert02Icon} tone='danger' size='alert' testId='merge-failed-icon' />
 						<AlertTitle>{outcome.listName ? `${outcome.listName} wasn’t updated` : 'Nothing was saved'}</AlertTitle>
 						<AlertDescription>
@@ -44,8 +44,8 @@ export function MergeResultSheet({ outcome, receipt, onRetry, onClose }: MergeRe
 						</AlertDescription>
 					</Alert>
 					<div className='flex flex-col gap-2 sm:grid sm:grid-cols-2'>
-						<Button type='button' size='primary' onClick={onRetry}>Try Again</Button>
-						<Button type='button' variant='secondary' size='primary' onClick={onClose}>Cancel</Button>
+						<Button type='button' size='default' onClick={onRetry}>Try Again</Button>
+						<Button type='button' variant='outline' size='default' onClick={onClose}>Cancel</Button>
 					</div>
 				</div>
 			</SheetDialog>
@@ -57,7 +57,7 @@ export function MergeResultSheet({ outcome, receipt, onRetry, onClose }: MergeRe
 	return (
 		<SheetDialog open onOpenChange={open => !open && close()} title={outcome.listName ? `Saved to ${outcome.listName}` : 'Saved'} testId='merge-saved-sheet' fit>
 			<div className='flex flex-col gap-4'>
-				<p data-testid='merge-saved-from' className='text-sm leading-normal text-body dark:text-muted-foreground'>
+				<p data-testid='merge-saved-from' className='text-sm leading-normal text-muted-foreground dark:text-muted-foreground'>
 					From <b className='font-semibold text-foreground'>{receipt.storeName}</b>
 					{receipt.date ? ` · ${receipt.date}` : ''} · {outcome.itemCount} {outcome.itemCount === 1 ? 'item' : 'items'}.
 				</p>
@@ -69,8 +69,8 @@ export function MergeResultSheet({ outcome, receipt, onRetry, onClose }: MergeRe
 					</div>
 				) : null}
 				<div className='flex flex-col gap-2 sm:grid sm:grid-cols-2'>
-					<Button type='button' size='primary' onClick={() => (outcome.baseListId ? router.push(`/base-lists/${outcome.baseListId}/edit`) : close())}>View List</Button>
-					<Button type='button' variant='secondary' size='primary' onClick={() => router.push('/tickets')}>Back to Receipts</Button>
+					<Button type='button' size='default' onClick={() => (outcome.baseListId ? router.push(`/base-lists/${outcome.baseListId}/edit`) : close())}>View List</Button>
+					<Button type='button' variant='ghost' size='default' onClick={() => router.push('/tickets')}>Back to Receipts</Button>
 				</div>
 			</div>
 		</SheetDialog>

@@ -7,6 +7,7 @@ import { Search01Icon } from '@hugeicons/core-free-icons'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { Field, FieldContent, FieldDescription, FieldLabel, FieldTitle } from '@/components/ui/field'
 
 export interface ChoiceOption {
@@ -33,6 +34,8 @@ interface SearchableChoiceListProps {
 	disabled?: boolean
 	showSearchIcon?: boolean
 	searchable?: boolean
+	/** Lets the options list fill a bounded flex region above a sheet footer. */
+	fillAvailableHeight?: boolean
 	/** `card` is the sheet picker of the canvas: option cards, the search field named only for assistive tech, and the count announced but not drawn. */
 	variant?: 'default' | 'card'
 	statusVisibility?: 'sr-only' | 'visible'
@@ -55,6 +58,7 @@ export function SearchableChoiceList({
 	disabled = false,
 	showSearchIcon = false,
 	searchable = true,
+	fillAvailableHeight = false,
 	variant = 'default',
 	statusVisibility,
 	testId,
@@ -65,7 +69,7 @@ export function SearchableChoiceList({
 	return (
 		<div
 			data-testid={testId}
-			className={variant === 'card' ? 'flex flex-col gap-4' : 'flex flex-col gap-3'}
+			className={fillAvailableHeight ? 'flex min-h-0 flex-1 flex-col gap-4' : variant === 'card' ? 'flex flex-col gap-4' : 'flex flex-col gap-3'}
 		>
 			{searchable ? (
 				<div className='flex flex-col gap-2'>
@@ -95,9 +99,12 @@ export function SearchableChoiceList({
 				{status}
 			</p>
 			{options.length > 0 ? (
-				<div className='max-h-72 overflow-y-auto'>
+				<ScrollArea
+					size={fillAvailableHeight ? 'default' : 'sheet-fit'}
+					className={fillAvailableHeight ? 'min-h-0 flex-1' : 'max-h-72'}
+				>
 					<RadioGroup
-						spacing={variant === 'card' ? 'snug' : 'default'}
+						spacing={variant === 'card' ? 'compact' : 'default'}
 						value={value}
 						onValueChange={onValueChange}
 						aria-labelledby={statusId}
@@ -107,11 +114,12 @@ export function SearchableChoiceList({
 							<ChoiceRow
 								key={option.value}
 								option={option}
+								selected={value === option.value}
 								variant={variant === 'card' ? 'card' : 'default'}
 							/>
 						))}
 					</RadioGroup>
-				</div>
+				</ScrollArea>
 			) : null}
 		</div>
 	)
@@ -120,19 +128,20 @@ export function SearchableChoiceList({
 interface ChoiceRowProps {
 	option: ChoiceOption
 	variant?: 'default' | 'card'
+	selected?: boolean
 	testId?: string
 }
 
 /** One radio row of a choice list; also used on its own by lists that do not need the search field. */
-export function ChoiceRow({ option, variant = 'default', testId = `choice-${option.value}` }: ChoiceRowProps) {
+export function ChoiceRow({ option, variant = 'default', selected = false, testId = `choice-${option.value}` }: ChoiceRowProps) {
 	const id = useId()
     return (
-        <FieldLabel htmlFor={id} data-testid={testId} data-disabled={option.disabled ? '' : undefined}>
-            <Field orientation='horizontal' data-disabled={option.disabled} data-variant={variant}>
-                <RadioGroupItem id={id} value={option.value} disabled={option.disabled} />
-                <FieldContent>
-                    <FieldTitle>{option.label}</FieldTitle>
-                    {option.note ? <FieldDescription>{option.note}</FieldDescription> : null}
+        <FieldLabel htmlFor={id} variant={variant === 'card' ? 'card' : 'default'} data-testid={testId} data-selected={selected ? 'true' : undefined} data-disabled={option.disabled ? '' : undefined}>
+            <Field orientation='horizontal' align={variant === 'card' ? 'center' : 'default'} data-disabled={option.disabled} data-variant={variant}>
+                <RadioGroupItem id={id} value={option.value} size={variant === 'card' ? 'choice' : 'default'} disabled={option.disabled} />
+                <FieldContent size={variant === 'card' ? 'compact' : 'default'}>
+                    <FieldTitle size={variant === 'card' ? 'choice' : 'default'}>{option.label}</FieldTitle>
+                    {option.note ? <FieldDescription size={variant === 'card' ? 'choice' : 'default'}>{option.note}</FieldDescription> : null}
                 </FieldContent>
                 {option.detail ? <span className='shrink-0 font-mono text-xs tabular-nums'>{option.detail}</span> : null}
             </Field>

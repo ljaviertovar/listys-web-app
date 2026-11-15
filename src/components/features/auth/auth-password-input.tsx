@@ -27,9 +27,8 @@ export function AuthPasswordInput({ disabled, ...props }: Props) {
 			/>
 			<Button
 				type='button'
-				variant='quiet'
+				variant='ghost'
 				size='icon-xl'
-				rounded='2xl'
 				disabled={disabled}
 				aria-label={visible ? 'Hide password' : 'Show password'}
 				aria-pressed={visible}

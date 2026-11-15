@@ -304,7 +304,7 @@ export function HeroSection() {
 						<div className='mt-7 flex flex-wrap items-center justify-center gap-3'>
 							<ButtonLink
 								size='xl'
-								variant='hero'
+							variant='solid'
 								href='/auth/signup'
 							>
 								Create Free Account <Icon id='arr' />

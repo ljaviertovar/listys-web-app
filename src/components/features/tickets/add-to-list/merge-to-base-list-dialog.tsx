@@ -98,7 +98,7 @@ export function MergeToBaseListDialog({ open, defaultBaseListId, onOpenChange, t
 						) : loadFailed ? (
 							<div data-testid='merge-to-base-list-error' className='flex flex-col items-center gap-4 py-8 text-center'>
 								<p role='alert' className='text-sm text-destructive'>{error}</p>
-								<Button type='button' size='primary' variant='secondary' onClick={loadData}>
+								<Button type='button' size='default' variant='secondary' onClick={loadData}>
 									Try Again
 								</Button>
 							</div>
@@ -131,11 +131,13 @@ export function MergeToBaseListDialog({ open, defaultBaseListId, onOpenChange, t
 										<ChoiceRow
 											variant='card'
 											testId='merge-mode-existing'
+							selected={mode === 'existing'}
 											option={{ value: 'existing', label: 'Add to existing list', note: breakdown ? `${breakdown.added} new · ${breakdown.updated} updated` : undefined }}
 										/>
 										<ChoiceRow
 											variant='card'
 											testId='merge-mode-new'
+							selected={mode === 'new'}
 											option={{ value: 'new', label: 'Create new list', note: `All ${selectedItemIds.length} ${selectedItemIds.length === 1 ? 'item is' : 'items are'} added as new` }}
 										/>
 									</RadioGroup>
@@ -167,6 +169,8 @@ export function MergeToBaseListDialog({ open, defaultBaseListId, onOpenChange, t
 									<div className='w-full' ref={listAnchor}>
 									<ComboboxInput
 										id={`${fieldId}-list`}
+										surface='page'
+										inset='card'
 										aria-labelledby={`${fieldId}-list-label`}
 										aria-required='true'
 										aria-invalid={error?.toLowerCase().includes('list') ? true : undefined}
@@ -180,7 +184,7 @@ export function MergeToBaseListDialog({ open, defaultBaseListId, onOpenChange, t
 										</InputGroupAddon>
 									</ComboboxInput>
 									</div>
-									<ComboboxContent size='filter' anchor={listAnchor}>
+									<ComboboxContent size='filter' placement='below' anchor={listAnchor}>
 										<ComboboxList>
 											{(id: string) => {
 												const list = baseLists.find(candidate => candidate.id === id)
@@ -218,11 +222,11 @@ export function MergeToBaseListDialog({ open, defaultBaseListId, onOpenChange, t
 
 						{error && <p id={`${fieldId}-error`} role='alert' className='text-sm text-destructive'>{error}</p>}
 
-						<div className='grid w-full grid-cols-2 gap-2'>
+						<div className='flex w-full flex-col-reverse gap-2 sm:grid sm:grid-cols-2'>
 							<Button
 								type='button'
-								variant='secondary'
-								size='primary'
+								variant={reviewing ? 'ghost' : 'outline'}
+								size='default'
 								disabled={loading}
 								onClick={() => (reviewing ? backToChoose() : onOpenChange(false))}
 							>
@@ -230,7 +234,7 @@ export function MergeToBaseListDialog({ open, defaultBaseListId, onOpenChange, t
 							</Button>
 							<Button
 								type='submit'
-								size='primary'
+								size='default'
 								disabled={loading || (mode === 'existing' ? !selectedBaseListId : !newListName.trim())}
 							>
 								{loading ? (

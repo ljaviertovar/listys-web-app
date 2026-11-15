@@ -61,8 +61,8 @@ export function ShoppingSessionActions({ sessionId, checked, total, baseListId, 
 				className='hidden items-center gap-2 lg:flex'
 			>
 				<Button
-					size='primary'
-					variant='destructive-soft'
+					size='default'
+					variant='destructive'
 					onClick={() => setCancelOpen(true)}
 				>
 					<HugeiconsIcon
@@ -74,7 +74,7 @@ export function ShoppingSessionActions({ sessionId, checked, total, baseListId, 
 					Cancel Shopping
 				</Button>
 				<Button
-					size='primary'
+					size='default'
 					onClick={() => setCompleteOpen(true)}
 				>
 					<HugeiconsIcon
@@ -100,9 +100,8 @@ export function ShoppingSessionActions({ sessionId, checked, total, baseListId, 
 							type='button'
 							data-testid='session-actions-button'
 							aria-label='Actions'
-							variant='floating'
+							variant='default'
 							size='icon-xl'
-							rounded='full'
 						>
 							<HugeiconsIcon
 								icon={ShoppingBag03Icon}
@@ -116,7 +115,6 @@ export function ShoppingSessionActions({ sessionId, checked, total, baseListId, 
 						side='top'
 						align='end'
 						sideOffset={8}
-						variant='menu'
 						className='w-58'
 					>
 						{isOwner && baseListId ? <DropdownMenuItem onSelect={() => setShareOpen(true)} size='touch'>

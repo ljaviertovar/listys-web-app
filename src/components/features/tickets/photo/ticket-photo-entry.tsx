@@ -38,7 +38,7 @@ export function TicketPhotoRow({ count, thumbnailUrl, onOpen, triggerRef }: Tick
 			aria-label={`View receipt ${plural}, ${count} ${plural}`}
 			className={cn(
 				'group flex min-h-16 w-full items-center gap-3 px-2.5 py-2 text-left transition-colors hover:bg-slate-50 dark:hover:bg-muted',
-				'rounded-2xl bg-card shadow-card',
+				'rounded-2xl bg-card shadow-sm',
 				'focus-ring',
 			)}
 		>
@@ -61,7 +61,7 @@ export function TicketPhotoRow({ count, thumbnailUrl, onOpen, triggerRef }: Tick
 			</span>
 			<span className='flex min-w-0 flex-1 flex-col gap-0.5 font-sans'>
 				<span className='text-sm leading-[1.3] font-semibold'>Receipt Photo</span>
-				<span className='text-sm leading-[1.2] text-body dark:text-muted-foreground'>
+				<span className='text-sm leading-[1.2] text-muted-foreground dark:text-muted-foreground'>
 					<b className='font-mono text-base font-bold text-foreground tabular-nums'>{count}</b> {plural} · Tap to enlarge
 				</span>
 			</span>

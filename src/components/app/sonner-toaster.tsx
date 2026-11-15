@@ -22,7 +22,7 @@ export function SonnerToaster() {
 				toastOptions={{
 					unstyled: true,
 					classNames: {
-						toast: 'relative flex min-h-12 items-center gap-3 rounded-2xl border-0 bg-inverse px-4 py-3 text-white shadow-menu ring-1 ring-white/10',
+						toast: 'relative flex min-h-12 items-center gap-3 rounded-2xl border-0 bg-inverse px-4 py-3 text-white shadow-lg ring-1 ring-white/10',
 						title: 'text-sm leading-normal font-medium text-white',
 						description: 'text-xs leading-normal text-inverse-muted',
 						actionButton: "relative h-8 min-h-8 shrink-0 whitespace-nowrap rounded-lg bg-transparent px-3 text-sm font-semibold text-inverse-action after:absolute after:content-[''] after:-inset-y-1.5 after:inset-x-0 focus-visible:ring-2 focus-visible:ring-ring",

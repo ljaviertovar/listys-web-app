@@ -106,7 +106,7 @@ export function UploadPhotoRows({ previews, rejections, uploading, onDismissReje
 								type='button'
 								onClick={() => onDismissRejection(rejection.id)}
 								aria-label={`Remove ${rejection.name}`}
-								variant='quiet'
+							variant='ghost'
 								size='icon-xl'
 								className='-mr-1.5 shrink-0'
 							>

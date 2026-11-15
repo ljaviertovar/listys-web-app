@@ -134,7 +134,6 @@ export function TicketPhotoViewer({ open, onOpenChange, nested = false, title, u
 									onClick={view.previous}
 									variant='overlay'
 									size='icon-2xl'
-									rounded='full'
 									className='absolute top-1/2 left-8 hidden -translate-y-1/2 lg:flex'
 								>
 									<HugeiconsIcon
@@ -150,7 +149,6 @@ export function TicketPhotoViewer({ open, onOpenChange, nested = false, title, u
 									onClick={view.next}
 									variant='overlay'
 									size='icon-2xl'
-									rounded='full'
 									className='absolute top-1/2 right-8 hidden -translate-y-1/2 lg:flex'
 								>
 									<HugeiconsIcon

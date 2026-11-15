@@ -8,6 +8,7 @@ import { cn } from '@/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
@@ -345,17 +346,21 @@ function SidebarSeparator({ className, ...props }: React.ComponentProps<typeof S
 	)
 }
 
-function SidebarContent({ className, ...props }: React.ComponentProps<'div'>) {
+function SidebarContent({ className, children, ...props }: React.ComponentProps<'div'>) {
 	return (
 		<div
 			data-slot='sidebar-content'
 			data-sidebar='content'
 			className={cn(
-				'no-scrollbar gap-3 p-2 flex min-h-0 flex-1 flex-col overflow-auto group-data-[collapsible=icon]:overflow-hidden',
+				'flex min-h-0 flex-1 flex-col group-data-[collapsible=icon]:overflow-hidden',
 				className,
 			)}
 			{...props}
-		/>
+		>
+			<ScrollArea className='min-h-0 flex-1'>
+				<div className='flex flex-col gap-3 p-2'>{children}</div>
+			</ScrollArea>
+		</div>
 	)
 }
 
@@ -449,7 +454,7 @@ const sidebarMenuButtonVariants = cva(
 		variants: {
 			variant: {
 				// A slate entry that takes the highlight of the menu items (accent surface, accent text) on hover and while it is the current page.
-				default: 'font-normal whitespace-nowrap text-text-secondary transition-colors duration-150 hover:bg-accent hover:text-accent-foreground [&_svg]:size-4.5 [&_svg]:text-muted-foreground hover:[&_svg]:text-accent-foreground data-[active=true]:[&_svg]:text-accent-foreground dark:text-foreground/80 data-[active=true]:bg-accent data-[active=true]:font-semibold data-[active=true]:text-accent-foreground data-[active=true]:hover:bg-accent data-[active=true]:hover:text-accent-foreground',
+				default: 'font-normal whitespace-nowrap text-muted-foreground transition-colors duration-150 hover:bg-accent hover:text-accent-foreground [&_svg]:size-4.5 [&_svg]:text-muted-foreground hover:[&_svg]:text-accent-foreground data-[active=true]:[&_svg]:text-accent-foreground dark:text-foreground/80 data-[active=true]:bg-accent data-[active=true]:font-semibold data-[active=true]:text-accent-foreground data-[active=true]:hover:bg-accent data-[active=true]:hover:text-accent-foreground',
 				outline:
 					'bg-background hover:bg-sidebar-active hover:text-sidebar-active-foreground shadow-[0_0_0_1px_hsl(var(--sidebar-border))] hover:shadow-[0_0_0_1px_hsl(var(--sidebar-active))]',
 			},
@@ -639,7 +644,7 @@ function SidebarMenuSubButton({
 			data-size={size}
 			data-active={isActive}
 			className={cn(
-				'text-text-secondary ring-sidebar-ring active:bg-accent active:text-accent-foreground [&>svg]:text-accent-foreground h-7 gap-2 rounded-lg px-2 transition-colors duration-150 hover:bg-accent hover:text-accent-foreground data-[active=true]:bg-accent data-[active=true]:font-semibold data-[active=true]:text-accent-foreground focus-visible:ring-2 data-[size=md]:text-sm data-[size=sm]:text-xs [&>svg]:size-4 flex min-w-0 -translate-x-px items-center overflow-hidden outline-hidden group-data-[collapsible=icon]:hidden disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:shrink-0',
+				'text-muted-foreground ring-sidebar-ring active:bg-accent active:text-accent-foreground [&>svg]:text-accent-foreground h-7 gap-2 rounded-lg px-2 transition-colors duration-150 hover:bg-accent hover:text-accent-foreground data-[active=true]:bg-accent data-[active=true]:font-semibold data-[active=true]:text-accent-foreground focus-visible:ring-2 data-[size=md]:text-sm data-[size=sm]:text-xs [&>svg]:size-4 flex min-w-0 -translate-x-px items-center overflow-hidden outline-hidden group-data-[collapsible=icon]:hidden disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:shrink-0',
 				className,
 			)}
 			{...props}

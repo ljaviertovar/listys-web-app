@@ -80,11 +80,18 @@ export function ShareInviteLink({ link, isLoading, isGenerating, onGenerate, onR
 			</div>
 
 			{isLoading ? (
-				<Skeleton className='h-12 w-full rounded-2xl' />
+				<div role='status' aria-busy='true' aria-label='Loading invite link' className='flex flex-col gap-3'>
+					<Skeleton aria-hidden='true' className='h-12 w-full rounded-2xl' />
+					<Skeleton aria-hidden='true' className='h-11 w-full rounded-xl' />
+					<div className='grid grid-cols-2 gap-3'>
+						<Skeleton aria-hidden='true' className='h-11 w-full rounded-xl' />
+						<Skeleton aria-hidden='true' className='h-11 w-full rounded-xl' />
+					</div>
+				</div>
 			) : !link ? (
 				<Button
 					ref={createLinkRef}
-					size='primary'
+					size='default'
 					onClick={onGenerate}
 					disabled={isGenerating}
 					data-testid='share-create-link'
@@ -115,8 +122,8 @@ export function ShareInviteLink({ link, isLoading, isGenerating, onGenerate, onR
 						</span>
 					</div>
 					<Button
-						size='primary'
-						variant={copied ? 'success-soft' : 'default'}
+						size='default'
+						variant={copied ? 'secondary' : 'default'}
 						onClick={copy}
 						data-testid='share-copy-link'
 					>
@@ -130,7 +137,7 @@ export function ShareInviteLink({ link, isLoading, isGenerating, onGenerate, onR
 					</Button>
 					<div className='grid grid-cols-2 gap-3'>
 						<Button
-							size='primary'
+							size='default'
 							variant='secondary'
 							onClick={onGenerate}
 							disabled={isGenerating}
@@ -145,8 +152,8 @@ export function ShareInviteLink({ link, isLoading, isGenerating, onGenerate, onR
 							Regenerate
 						</Button>
 						<Button
-							size='primary'
-							variant='destructive-soft'
+							size='default'
+							variant='destructive'
 							onClick={() => setConfirmingRevoke(true)}
 							data-testid='share-revoke-link'
 						>

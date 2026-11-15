@@ -49,7 +49,7 @@ export function ChangeLineSheet({ line, match, items, listName, onClose, onSave 
 				</Card>
 				<RadioGroup aria-label='What this receipt line will do' value={kind} onValueChange={value => setKind(value as LineDecision['kind'])}>
 					{choices.map(choice => <div key={choice.kind} className='flex min-w-0 flex-col gap-2'>
-						<ChoiceRow variant='card' testId={`change-line-choice-${choice.kind}`} option={{ value: choice.kind, label: labels[choice.kind], disabled: choice.disabled, note: choice.reason ?? TRIP_REVIEW_COPY.choices[choice.kind](listName) }} />
+						<ChoiceRow variant='card' testId={`change-line-choice-${choice.kind}`} selected={kind === choice.kind} option={{ value: choice.kind, label: labels[choice.kind], disabled: choice.disabled, note: choice.reason ?? TRIP_REVIEW_COPY.choices[choice.kind](listName) }} />
 						{choice.kind === 'match' && kind === 'match' ? <div className='rounded-2xl bg-muted p-3' onKeyDown={event => {
 							if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) event.stopPropagation()
 						}}><SearchableChoiceList testId='change-line-trip-items' searchLabel='Search trip items' showSearchIcon query={query} onQueryChange={setQuery}
@@ -58,8 +58,8 @@ export function ChangeLineSheet({ line, match, items, listName, onClose, onSave 
 					</div>)}
 				</RadioGroup>
 				<DialogFooter variant='sheet'>
-					<Button type='button' variant='secondary' size='primary' onClick={onClose}>Cancel</Button>
-					<Button type='button' size='primary' disabled={!canSave} onClick={() => onSave(kind === 'match' ? { kind, itemId } : { kind })}>Save</Button>
+					<Button type='button' variant='outline' size='default' onClick={onClose}>Cancel</Button>
+					<Button type='button' size='default' disabled={!canSave} onClick={() => onSave(kind === 'match' ? { kind, itemId } : { kind })}>Save</Button>
 				</DialogFooter>
 			</div>
 		</SheetDialog>

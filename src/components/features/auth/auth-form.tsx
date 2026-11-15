@@ -77,12 +77,12 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
 			{/* On a phone the title lives in the photo header above the sheet. */}
 			<div className='hidden lg:block'>
 				<h1 className='font-display text-4xl leading-[1.11] font-bold tracking-[-0.03em] text-balance'>{copy.title}</h1>
-				<p className='mt-2 text-base leading-normal text-body'>{copy.lead}</p>
+				<p className='mt-2 text-base leading-normal text-muted-foreground'>{copy.lead}</p>
 			</div>
 
 			{serverError ? (
 				<Alert
-					variant='destructive-soft'
+				variant='destructive'
 					data-testid='auth-error'
 				>
 					<HugeiconsIcon

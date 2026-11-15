@@ -48,6 +48,8 @@ export function HistoryListFilter({ options, selectedListId, testId = 'history-l
 				<ComboboxInput
 					id={fieldId}
 					size='filter'
+					surface='page'
+					inset='card'
 					aria-label='Show trips from'
 				>
 					<InputGroupAddon align='inline-start'>
@@ -55,7 +57,7 @@ export function HistoryListFilter({ options, selectedListId, testId = 'history-l
 					</InputGroupAddon>
 				</ComboboxInput>
 				</div>
-				<ComboboxContent size='filter' anchor={listFilterAnchor}>
+				<ComboboxContent size='filter' placement='below' anchor={listFilterAnchor}>
 					<ComboboxList>
 						{(value: string) => {
 							const option = comboboxOptions.find(candidate => candidate.value === value)

@@ -138,7 +138,7 @@ export function TicketNoItems() {
 				{TIPS.map(tip => (
 					<li
 						key={tip}
-						className='flex items-start gap-2.5 text-sm leading-[1.4] text-text-secondary dark:text-foreground/80'
+						className='flex items-start gap-2.5 text-sm leading-[1.4] text-muted-foreground dark:text-foreground/80'
 					>
 						<span className='mt-px flex size-5 shrink-0 items-center justify-center rounded-full bg-secondary text-blue-700 dark:bg-muted dark:text-blue-300'>
 							<HugeiconsIcon

@@ -102,15 +102,15 @@ function LinkItemForm({ listName, currentItemId, items, onCancel, onLink, onAddA
 			<div className='flex flex-col gap-2'>
 				<Button
 					type='submit'
-					size='primary'
+					size='default'
 					disabled={!selected}
 				>
 					Match to Selected
 				</Button>
 				<Button
 					type='button'
-					variant='secondary'
-					size='primary'
+					variant={onAddAsNew ? 'secondary' : 'outline'}
+					size='default'
 					onClick={onAddAsNew ?? onCancel}
 				>
 					{onAddAsNew ? 'Add as New Item' : 'Cancel'}

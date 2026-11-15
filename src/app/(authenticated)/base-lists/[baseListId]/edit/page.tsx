@@ -97,8 +97,8 @@ export default async function EditBaseListPage({
 					<div className='flex flex-col gap-1.5'>
 						{baseListWithItems.notes ? <p className='line-clamp-2'>{baseListWithItems.notes}</p> : null}
 						{baseListWithItems.is_default || collaboratorCount > 0 ? <div className='flex flex-wrap items-center gap-x-2.5 gap-y-1.5'>
-							{baseListWithItems.is_default ? <Badge variant='list-default'><HugeiconsIcon icon={StarIcon} strokeWidth={1.8} aria-hidden='true' />Default</Badge> : null}
-							{collaboratorCount > 0 ? <Badge variant='tag'><HugeiconsIcon icon={UserGroupIcon} strokeWidth={1.8} aria-hidden='true' />Shared · {collaboratorCount}</Badge> : null}
+							{baseListWithItems.is_default ? <Badge variant='outline'><HugeiconsIcon icon={StarIcon} strokeWidth={1.8} aria-hidden='true' />Default</Badge> : null}
+							{collaboratorCount > 0 ? <Badge variant='outline'><HugeiconsIcon icon={UserGroupIcon} strokeWidth={1.8} aria-hidden='true' />Shared · {collaboratorCount}</Badge> : null}
 						</div> : null}
 						<DataLine testId='list-header-data'>
 							<><DataFigure emphasis='count'>{items.length}</DataFigure> {items.length === 1 ? 'item' : 'items'}</>

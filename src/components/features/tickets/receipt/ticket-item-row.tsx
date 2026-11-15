@@ -27,11 +27,11 @@ interface TicketItemRowProps {
 	actions?: Pick<ReceiptMatchActions, 'confirm' | 'addAsNew' | 'chooseAnother'>
 }
 
-const BADGES: Record<ReceiptTriageBadge, { label: string; variant: 'tag' | 'tag-attention'; icon: IconSvgElement }> = {
-	'in-list': { label: 'In list', variant: 'tag', icon: Tick02Icon },
-	new: { label: 'New item', variant: 'tag', icon: AddCircleIcon },
-	'confirm-match': { label: 'Match suggested', variant: 'tag-attention', icon: HelpCircleIcon },
-	'no-price': { label: 'No price', variant: 'tag-attention', icon: Dollar01Icon },
+const BADGES: Record<ReceiptTriageBadge, { label: string; variant: 'outline' | 'warning'; icon: IconSvgElement }> = {
+	'in-list': { label: 'In list', variant: 'outline', icon: Tick02Icon },
+	new: { label: 'New item', variant: 'outline', icon: AddCircleIcon },
+	'confirm-match': { label: 'Match suggested', variant: 'warning', icon: HelpCircleIcon },
+	'no-price': { label: 'No price', variant: 'warning', icon: Dollar01Icon },
 }
 
 /**
@@ -114,7 +114,7 @@ function ProposedMatch({ line, name, listName, actions }: ProposedMatchProps) {
 						<span className='truncate text-sm leading-[1.3] font-semibold'>{decision.kind === 'link' ? formatItemName(decision.item.name) : 'New item'}</span>
 					</div>
 				</div>
-				<Button type='button' variant='ghost-primary' size='touch' onClick={() => setChanging(true)}>
+				<Button type='button' variant='link' size='touch' onClick={() => setChanging(true)}>
 					Change<span className='sr-only'> match for {name}</span>
 				</Button>
 			</div>

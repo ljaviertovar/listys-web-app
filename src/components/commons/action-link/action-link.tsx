@@ -16,9 +16,8 @@ export function ActionLink({ children, testId, className, ...linkProps }: Action
 	return (
 		<Button
 			asChild
-			variant='ghost-primary'
-			size='link-inline'
-			rounded='lg'
+		variant='ghost'
+			size='link-action'
 			className={className}
 		>
 			<Link

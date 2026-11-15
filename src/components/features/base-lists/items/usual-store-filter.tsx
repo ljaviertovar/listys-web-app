@@ -6,6 +6,7 @@ import { Store03Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 
 import { Label } from '@/components/ui/label'
+import { RowIcon } from '@/components/commons'
 import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList, useComboboxAnchor } from '@/components/ui/combobox'
 import { InputGroupAddon } from '@/components/ui/input-group'
 
@@ -51,6 +52,8 @@ export function UsualStoreFilter({ options, value, totalCount }: UsualStoreFilte
 				<ComboboxInput
 					id={labelId}
 					size='filter'
+					surface='page'
+					inset='card'
 					aria-label='Show items from'
 					data-testid='usual-store-filter-control'
 				>
@@ -64,13 +67,14 @@ export function UsualStoreFilter({ options, value, totalCount }: UsualStoreFilte
 					</InputGroupAddon>
 				</ComboboxInput>
 				</div>
-				<ComboboxContent size='filter' anchor={storeFilterAnchor}>
+				<ComboboxContent size='filter' placement='below' anchor={storeFilterAnchor}>
 					<ComboboxList>
 						{(next: string) => {
 							const option = comboboxOptions.find(candidate => candidate.value === next)
 							if (!option) return null
 							return (
 								<ComboboxItem key={option.value} value={option.value} size='filter'>
+									<RowIcon icon={Store03Icon} tone='store' size='xs' testId={`usual-store-filter-option-icon-${option.value}`} />
 							<span className='flex min-w-0 flex-1 items-center justify-between gap-3'>
 								<span className='truncate'>{option.label}</span>
 								<span className='font-mono text-xs tabular-nums text-muted-foreground'>{option.count}</span>

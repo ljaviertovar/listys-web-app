@@ -111,7 +111,7 @@ export function EntityEditCard({
 				<Button
 					size='lg'
 					type='button'
-					variant='secondary'
+					variant='outline'
 					onClick={onCancel}
 					disabled={loading}
 				>

@@ -61,7 +61,7 @@ export function TicketItemsList({ items, selection, canSelect, triage }: TicketI
 	return (
 		<div data-testid='ticket-items-list'>
 			{triage?.status === 'failed' ? (
-				<Alert variant='receipt-warning' data-testid='receipt-triage-fallback' className='mt-3'>
+				<Alert variant='warning' data-testid='receipt-triage-fallback' className='mt-3'>
 					<RowIcon icon={Alert02Icon} tone='warning' size='alert' testId='receipt-triage-fallback-icon' />
 					<AlertTitle>Couldn’t compare these lines</AlertTitle>
 					<AlertDescription>
@@ -149,13 +149,13 @@ function TargetListRow({ triage, baseList }: TargetListRowProps) {
 				onValueChange={id => typeof id === 'string' && triage.changeList(id)}
 			>
 				<div className='w-full' ref={listAnchor}>
-				<ComboboxInput size='filter' aria-labelledby={labelId} data-testid='receipt-target-list-select'>
+				<ComboboxInput size='filter' surface='page' inset='card' aria-labelledby={labelId} data-testid='receipt-target-list-select'>
 					<InputGroupAddon align='inline-start'>
 						<RowIcon icon={ListViewIcon} tone='primary' size='stat' testId='receipt-target-list-input-icon' />
 					</InputGroupAddon>
 				</ComboboxInput>
 				</div>
-				<ComboboxContent size='filter' anchor={listAnchor}>
+				<ComboboxContent size='filter' placement='below' anchor={listAnchor}>
 					<ComboboxList>
 						{(id: string) => {
 							const list = triage.baseLists.find(candidate => candidate.id === id)

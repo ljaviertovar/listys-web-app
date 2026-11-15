@@ -44,7 +44,6 @@ export function UploadAnotherTile() {
 				onDrop={handleDrop}
 				variant='dropzone'
 				size='block'
-				rounded='3xl'
 				data-dragging={dragging}
 				className='size-full min-h-[172px]'
 			>
