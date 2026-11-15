@@ -58,13 +58,21 @@ interface StorePickerDialogProps {
 }
 
 /** Chooses one of the user's stores, or names a new one, inside the A1 sheet (search field over a radio list). */
-export function StorePickerDialog({ open, onOpenChange, title, description, testId = 'store-picker-dialog', ...props }: StorePickerDialogProps) {
+export function StorePickerDialog({
+	open,
+	onOpenChange,
+	title,
+	description,
+	testId = 'store-picker-dialog',
+	...props
+}: StorePickerDialogProps) {
 	return (
 		<SheetDialog
 			open={open}
 			onOpenChange={next => !props.pending && onOpenChange(next)}
 			title={props.itemName ? 'Usual Store' : title}
 			description={props.itemName ? props.footnote : description}
+			fit={props.itemName ? false : undefined}
 			testId={testId}
 		>
 			{/* Mounted only while open, so every opening starts from the initial search and a fresh read of the stores. */}
@@ -78,7 +86,10 @@ export function StorePickerDialog({ open, onOpenChange, title, description, test
 	)
 }
 
-type StorePickerBodyProps = Omit<StorePickerDialogProps, 'open' | 'onOpenChange' | 'title' | 'description' | 'testId'> & {
+type StorePickerBodyProps = Omit<
+	StorePickerDialogProps,
+	'open' | 'onOpenChange' | 'title' | 'description' | 'testId'
+> & {
 	onCancel: () => void
 }
 
@@ -108,17 +119,22 @@ function StorePickerBody({
 	const [selected, setSelected] = useState('')
 
 	const allStores = useMemo(() => (stores.status === 'ready' ? stores.stores : []), [stores])
-	const defaultExistingStoreId = optionVariant === 'card' && !allowCreate
-		? allStores.find(store => store.id !== excludeStoreId)?.id
-		: undefined
+	const defaultExistingStoreId =
+		optionVariant === 'card' && !allowCreate ? allStores.find(store => store.id !== excludeStoreId)?.id : undefined
 	const defaultStoreId = wholeListChoice
 		? [...allStores]
-			.filter(store => (wholeListChoice.storeItemCounts[store.id] ?? 0) > 0)
-			.sort((a, b) => (wholeListChoice.storeItemCounts[b.id] ?? 0) - (wholeListChoice.storeItemCounts[a.id] ?? 0))[0]?.id
+				.filter(store => (wholeListChoice.storeItemCounts[store.id] ?? 0) > 0)
+				.sort((a, b) => (wholeListChoice.storeItemCounts[b.id] ?? 0) - (wholeListChoice.storeItemCounts[a.id] ?? 0))[0]
+				?.id
 		: undefined
-	const initialSelection = currentUsualStore?.source === 'auto'
-		? AUTOMATIC_STORE_VALUE
-		: currentUsualStore?.id ?? initialSelectedStoreId ?? defaultExistingStoreId ?? defaultStoreId ?? (wholeListChoice ? WHOLE_LIST_VALUE : '')
+	const initialSelection =
+		currentUsualStore?.source === 'auto'
+			? AUTOMATIC_STORE_VALUE
+			: (currentUsualStore?.id ??
+				initialSelectedStoreId ??
+				defaultExistingStoreId ??
+				defaultStoreId ??
+				(wholeListChoice ? WHOLE_LIST_VALUE : ''))
 	const selectedValue = selected || initialSelection
 	const matches = useMemo(() => filterStores(allStores, query, excludeStoreId), [allStores, query, excludeStoreId])
 	const offerCreate = allowCreate && stores.status === 'ready' && canCreateStore(allStores, query)
@@ -147,28 +163,44 @@ function StorePickerBody({
 	}
 
 	const options: ChoiceOption[] = [
-		...(wholeListChoice ? [{
-			value: WHOLE_LIST_VALUE,
-			label: 'Whole list',
-			note: `All ${allStores.filter(store => (wholeListChoice.storeItemCounts[store.id] ?? 0) > 0).length} stores · ${wholeListChoice.unassignedCount} ${wholeListChoice.unassignedCount === 1 ? 'item has' : 'items have'} no store yet`,
-			detail: `${wholeListChoice.itemCount} items`,
-		}] : []),
-		...(currentUsualStore?.source === 'auto' ? [{
-			value: AUTOMATIC_STORE_VALUE,
-			label: `Automatic · ${currentUsualStore.name}`,
-			note: currentUsualStore.note,
-		}] : []),
+		...(wholeListChoice
+			? [
+					{
+						value: WHOLE_LIST_VALUE,
+						label: 'Whole list',
+						note: `All ${allStores.filter(store => (wholeListChoice.storeItemCounts[store.id] ?? 0) > 0).length} stores · ${wholeListChoice.unassignedCount} ${wholeListChoice.unassignedCount === 1 ? 'item has' : 'items have'} no store yet`,
+						detail: `${wholeListChoice.itemCount} items`,
+					},
+				]
+			: []),
+		...(currentUsualStore?.source === 'auto'
+			? [
+					{
+						value: AUTOMATIC_STORE_VALUE,
+						label: `Automatic · ${currentUsualStore.name}`,
+						note: currentUsualStore.note,
+					},
+				]
+			: []),
 		...(offerCreate ? [{ value: NEW_STORE_VALUE, label: `Create “${newName}”`, detail: 'New store' }] : []),
-		...(wholeListChoice ? allStores.filter(store => (wholeListChoice.storeItemCounts[store.id] ?? 0) > 0) : matches).map(store => ({
+		...(wholeListChoice
+			? allStores.filter(store => (wholeListChoice.storeItemCounts[store.id] ?? 0) > 0)
+			: matches
+		).map(store => ({
 			value: store.id,
 			label: store.name,
 			...(wholeListChoice
-				? { note: 'Items you usually buy there', detail: `${wholeListChoice.storeItemCounts[store.id]} ${wholeListChoice.storeItemCounts[store.id] === 1 ? 'item' : 'items'}` }
+				? {
+						note: 'Items you usually buy there',
+						detail: `${wholeListChoice.storeItemCounts[store.id]} ${wholeListChoice.storeItemCounts[store.id] === 1 ? 'item' : 'items'}`,
+					}
 				: itemName
 					? { note: storeDetails?.[store.id] ?? 'Not bought there yet' }
-					: { detail: storeDetails
-						? (storeDetails[store.id] ?? 'Not bought there yet')
-						: `${store.receipt_count} ${store.receipt_count === 1 ? 'receipt' : 'receipts'}` }),
+					: {
+							detail: storeDetails
+								? (storeDetails[store.id] ?? 'Not bought there yet')
+								: `${store.receipt_count} ${store.receipt_count === 1 ? 'receipt' : 'receipts'}`,
+						}),
 		})),
 	]
 
@@ -187,90 +219,97 @@ function StorePickerBody({
 			data-testid='store-picker-form'
 			onSubmit={submit}
 			noValidate
-			className={itemName ? 'flex h-full min-h-0 flex-col gap-3' : 'flex flex-col gap-4'}
+			className={itemName ? 'flex h-full min-h-0 flex-col gap-4' : 'flex flex-col gap-4'}
 		>
 			{itemName ? (
-				<div data-testid='store-picker-item' className='flex shrink-0 flex-col gap-1 rounded-2xl bg-muted px-3.5 py-2.5'>
-					<span className='text-xs leading-tight font-semibold tracking-wide text-muted-foreground'>ITEM</span>
-					<span className='text-sm leading-normal font-semibold text-foreground'>{itemName}</span>
+				<div
+					data-testid='store-picker-item'
+					className='flex shrink-0 flex-col gap-0.5 rounded-2xl bg-muted px-3 py-2'
+				>
+					<span className='text-xs leading-4 font-semibold tracking-wide text-muted-foreground'>ITEM</span>
+					<span className='text-base leading-6 font-semibold text-foreground'>{itemName}</span>
 				</div>
 			) : context ? (
-				<div data-testid='store-picker-context' className='flex flex-col gap-1 rounded-2xl bg-muted px-3.5 py-3'>
+				<div
+					data-testid='store-picker-context'
+					className='flex flex-col gap-1 rounded-2xl bg-muted px-3.5 py-3'
+				>
 					<p className='text-sm font-semibold text-foreground'>{context.headline}</p>
-					<p className='text-xs leading-normal text-muted-foreground dark:text-muted-foreground'>{context.body}</p>
+					<p className='text-xs leading-normal text-foreground'>{context.body}</p>
 				</div>
 			) : null}
 
-			<div className={itemName ? 'min-h-0 flex-1 overflow-y-auto' : undefined}>
+			<div className={itemName ? 'flex min-h-0 flex-1 flex-col' : undefined}>
 				{stores.status === 'loading' ? (
-				<div
-					role='status'
-					className='flex items-center justify-center gap-2 py-6 text-sm text-muted-foreground dark:text-muted-foreground'
-				>
-					<HugeiconsIcon
-						icon={Loading03Icon}
-						strokeWidth={2}
-						aria-hidden='true'
-						className='size-5 animate-spin motion-reduce:animate-none'
+					<div
+						role='status'
+						className='flex items-center justify-center gap-2 py-6 text-sm text-muted-foreground dark:text-muted-foreground'
+					>
+						<HugeiconsIcon
+							icon={Loading03Icon}
+							strokeWidth={2}
+							aria-hidden='true'
+							className='size-5 animate-spin motion-reduce:animate-none'
+						/>
+						Loading your stores…
+					</div>
+				) : stores.status === 'error' ? (
+					<div
+						data-testid='store-picker-load-error'
+						className='flex flex-col items-center gap-3 py-4 text-center'
+					>
+						<p
+							role='alert'
+							className='text-sm text-destructive'
+						>
+							We couldn’t load your stores.
+						</p>
+						<Button
+							type='button'
+							variant='secondary'
+							size='default'
+							onClick={stores.retry}
+						>
+							Try Again
+						</Button>
+					</div>
+				) : (
+					<SearchableChoiceList
+						searchLabel={allowCreate ? 'Search or name a store' : 'Search stores'}
+						placeholder={allowCreate ? 'e.g. No Frills' : 'Store name'}
+						query={query}
+						onQueryChange={setQuery}
+						options={options}
+						value={choice}
+						onValueChange={setSelected}
+						status={visibleStatus}
+						disabled={pending}
+						searchable={!itemName && !wholeListChoice}
+						fillAvailableHeight={Boolean(itemName)}
+						variant={itemName || wholeListChoice ? 'card' : optionVariant}
+						statusVisibility={wholeListChoice || optionVariant === 'card' ? 'visible' : undefined}
+						testId='store-picker-list'
 					/>
-					Loading your stores…
-				</div>
-			) : stores.status === 'error' ? (
-				<div
-					data-testid='store-picker-load-error'
-					className='flex flex-col items-center gap-3 py-4 text-center'
-				>
-					<p
-						role='alert'
-						className='text-sm text-destructive'
-					>
-						We couldn’t load your stores.
-					</p>
-					<Button
-						type='button'
-						variant='secondary'
-						size='primary'
-						onClick={stores.retry}
-					>
-						Try Again
-					</Button>
-				</div>
-			) : (
-				<SearchableChoiceList
-					searchLabel={allowCreate ? 'Search or name a store' : 'Search stores'}
-					placeholder={allowCreate ? 'e.g. No Frills' : 'Store name'}
-					query={query}
-					onQueryChange={setQuery}
-					options={options}
-					value={choice}
-					onValueChange={setSelected}
-					status={visibleStatus}
-					disabled={pending}
-					searchable={!itemName && !wholeListChoice}
-					variant={itemName || wholeListChoice ? 'card' : optionVariant}
-					statusVisibility={wholeListChoice || optionVariant === 'card' ? 'visible' : undefined}
-					testId='store-picker-list'
-				/>
-			)}
+				)}
 			</div>
 
 			{footnote && !itemName ? (
-					<Alert
-						variant='info'
-						role='note'
-						data-testid='store-picker-footnote'
-						className='items-center'
-					>
-						<HugeiconsIcon
-							icon={InformationCircleIcon}
-							strokeWidth={1.8}
-							aria-hidden='true'
-						/>
-						<AlertDescription>{footnote}</AlertDescription>
-					</Alert>
-				) : null}
+				<Alert
+					variant='info'
+					role='note'
+					data-testid='store-picker-footnote'
+					className='items-center'
+				>
+					<HugeiconsIcon
+						icon={InformationCircleIcon}
+						strokeWidth={1.8}
+						aria-hidden='true'
+					/>
+					<AlertDescription>{footnote}</AlertDescription>
+				</Alert>
+			) : null}
 
-				{error ? (
+			{error ? (
 				<p
 					id={errorId}
 					role='alert'
@@ -283,8 +322,8 @@ function StorePickerBody({
 			<DialogFooter variant='sheet'>
 				<Button
 					type='button'
-					variant='secondary'
-					size='primary'
+					variant='outline'
+					size='default'
 					disabled={pending}
 					onClick={onCancel}
 				>
@@ -292,7 +331,7 @@ function StorePickerBody({
 				</Button>
 				<Button
 					type='submit'
-					size='primary'
+					size='default'
 					disabled={!choice || pending}
 					aria-describedby={error ? errorId : undefined}
 				>

@@ -189,6 +189,8 @@ Guidelines:
 
 #### shadcn-native first
 
+Preserve as much of the current design as possible through shadcn's existing variants and composition. Native shadcn variants are the default; when a specific requirement cannot be expressed through the library's existing APIs, report the limitation and ask the user to decide before adding a custom appearance extension.
+
 When a project uses shadcn/ui, configure components through their supported props, variants and theme tokens.
 For other UI libraries, apply the same principle through the active library's equivalent APIs. Use the project's
 actual component locations, styling system and theme configuration; do not assume a framework or directory structure.

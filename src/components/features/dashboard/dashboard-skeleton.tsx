@@ -1,16 +1,9 @@
+import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import { cn } from '@/utils'
 
-// The page ground is #F2F4F7, so the default `bg-muted` placeholder all but disappears: lines and the hero use a slate fill
-// that reads on it, and card placeholders are white like the cards that replace them.
-const LINE = 'bg-slate-200/80 dark:bg-muted'
-const CARD = 'bg-card shadow-[0_0_0_1px_rgba(15,23,42,0.04)] dark:bg-muted'
+import { MonthSpendingSkeleton } from './month-spending-card'
 
-/**
- * Mirrors the final layout at the same breakpoints, so nothing jumps when the data arrives: the greeting (its Upload
- * button only from `lg`), the hero next to "Up Next" from `lg`, and the three sections, each with its title row above its
- * card (one column on phones, two from `sm`, three from `xl`).
- */
+/** Mirrors the dashboard's order and responsive grid while its server data is loading. */
 export function DashboardSkeleton() {
 	return (
 		<div
@@ -20,36 +13,78 @@ export function DashboardSkeleton() {
 			className='flex flex-col gap-6 pt-1 md:gap-8 md:pt-0 lg:-mt-3 lg:gap-9'
 		>
 			<span className='sr-only'>Loading your dashboard</span>
-			<div className='flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between'>
+			<header className='flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between'>
 				<div className='flex flex-col gap-2'>
-					<Skeleton className={cn('h-7 w-44 rounded-lg', LINE)} />
-					<Skeleton className={cn('h-9 w-72 max-w-full rounded-lg', LINE)} />
-					<Skeleton className={cn('h-5 w-full max-w-md rounded-lg', LINE)} />
+					<Skeleton className='h-7 w-44' />
+					<Skeleton className='h-9 w-72 max-w-full' />
+					<Skeleton className='h-5 w-full max-w-md' />
 				</div>
-				<Skeleton className={cn('hidden h-11 w-44 rounded-xl lg:block', LINE)} />
-			</div>
+				<Skeleton className='hidden h-11 w-44 rounded-xl lg:block' />
+			</header>
 
-			<div className='grid items-stretch gap-6 lg:grid-cols-5'>
-				<Skeleton className={cn('h-[360px] rounded-3xl lg:col-span-3', LINE)} />
-				<div className='flex flex-col gap-3 lg:col-span-2'>
-					<div className='flex min-h-10 items-center'>
-						<Skeleton className={cn('h-5 w-24 rounded-lg', LINE)} />
+			<Card size='spending' className='mb-[-8px]'>
+				<MonthSpendingSkeleton testId='dashboard-month-spending-skeleton' />
+			</Card>
+
+			<div className='grid grid-cols-1 items-stretch gap-6 lg:grid-cols-5'>
+				<div
+					data-testid='dashboard-activity-skeleton'
+					aria-hidden='true'
+					className='flex min-h-100 flex-col justify-end gap-4 overflow-hidden rounded-3xl bg-slate-900 p-6 shadow-sm md:min-h-112 md:p-8 lg:col-span-3'
+				>
+					<Skeleton className='h-6 w-36 rounded-full bg-white/20' />
+					<Skeleton className='h-8 w-3/4 max-w-sm bg-white/20' />
+					<Skeleton className='h-4 w-full max-w-lg bg-white/20' />
+					<Skeleton className='h-11 w-40 rounded-xl bg-white/20' />
+				</div>
+				<section className='flex flex-col gap-2.5 lg:col-span-2' aria-hidden='true'>
+					<div className='flex min-h-8 items-center justify-between gap-3'>
+						<Skeleton className='h-5 w-24' />
+						<Skeleton className='h-3.5 w-20' />
 					</div>
-					<Skeleton className={cn('h-[200px] rounded-3xl', CARD)} />
-				</div>
+					<Card size='flush'>
+						<CardContent inset='compact' space='snug'>
+							{[0, 1].map(row => (
+								<div key={row} className='flex min-h-16 items-center gap-3 rounded-2xl bg-muted/70 px-3 py-2.5'>
+									<Skeleton className='size-12 shrink-0 rounded-2xl' />
+									<div className='flex min-w-0 flex-1 flex-col gap-2'>
+										<Skeleton className='h-3.5 w-3/4' />
+										<Skeleton className='h-3 w-1/2' />
+									</div>
+									<Skeleton className='size-4 shrink-0' />
+								</div>
+							))}
+						</CardContent>
+					</Card>
+				</section>
 			</div>
 
-			<div className='grid items-stretch gap-5 sm:grid-cols-2 xl:grid-cols-3'>
-				{['', '', 'sm:col-span-2 xl:col-span-1'].map((span, i) => (
-					<div
-						key={i}
-						className={cn('flex flex-col gap-3', span)}
+			<div className='grid grid-cols-1 items-stretch gap-5 max-sm:-mt-1.5 max-sm:gap-4 sm:grid-cols-2 2xl:grid-cols-3'>
+				{[0, 1, 2].map(index => (
+					<Card
+						key={index}
+						data-testid={`dashboard-section-skeleton-${index}`}
+						aria-hidden='true'
+						size='dashboard'
+						className={index === 2 ? 'sm:col-span-2 2xl:col-span-1' : undefined}
 					>
-						<div className='flex min-h-8 items-center md:min-h-10'>
-							<Skeleton className={cn('h-5 w-40 rounded-lg', LINE)} />
+						<div className='flex min-h-10 items-center gap-3 px-2'>
+							<Skeleton className='h-5 w-32 min-w-0 flex-1' />
+							<Skeleton className='h-4 w-16' />
 						</div>
-						<Skeleton className={cn('h-[260px] rounded-3xl', CARD)} />
-					</div>
+						<div className='flex flex-1 flex-col gap-1'>
+							{[0, 1, 2].map(row => (
+								<div key={row} className='flex min-h-14 items-center gap-2.5 rounded-2xl bg-muted/70 p-2'>
+									<Skeleton className='size-10 shrink-0 rounded-2xl' />
+									<div className='flex min-w-0 flex-1 flex-col gap-2'>
+										<Skeleton className='h-3.5 w-3/4' />
+										<Skeleton className='h-3 w-1/2' />
+									</div>
+									<Skeleton className='h-8 w-16 rounded-xl' />
+								</div>
+							))}
+						</div>
+					</Card>
 				))}
 			</div>
 		</div>

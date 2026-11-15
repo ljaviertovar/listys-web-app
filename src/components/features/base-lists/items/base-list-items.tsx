@@ -24,7 +24,7 @@ function BaseListLockedNotice() {
 		<p
 			role='note'
 			data-testid='base-list-locked-notice'
-			className='mb-3 rounded-xl bg-muted px-3.5 py-3 text-sm leading-normal text-muted-foreground'
+			className='mb-3 rounded-xl bg-muted px-3.5 py-3 text-sm leading-normal text-foreground'
 		>
 			A shopping session is using this list. Make changes in that session, or finish it to edit this base list.
 		</p>

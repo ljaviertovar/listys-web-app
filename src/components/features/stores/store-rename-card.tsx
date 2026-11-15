@@ -8,6 +8,7 @@ import { Loading03Icon } from '@hugeicons/core-free-icons'
 
 import { FormField } from '@/components/commons'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { createStoreSchema, type CreateStoreInput } from '@/lib/validations/store'
 
@@ -41,16 +42,16 @@ export function StoreRenameCard({
 	})
 
 	return (
+		<Card data-testid={testId}><CardContent>
 		<form
-			data-testid={testId}
 			onSubmit={event => {
 				event.stopPropagation()
 				void handleSubmit(values => !pending && onSubmit(values.name))(event)
 			}}
 			noValidate
-			className='flex flex-col gap-3 rounded-3xl bg-card p-3.5 shadow-card md:p-4'
+			className='flex flex-col gap-3'
 		>
-			<h2 className='font-display text-base leading-[1.5] font-semibold'>Rename Store</h2>
+			<CardTitle><h2>Rename Store</h2></CardTitle>
 			<FormField
 				htmlFor={nameId}
 				label='Store Name'
@@ -82,14 +83,15 @@ export function StoreRenameCard({
 			) : null}
 
 			<div className='grid grid-cols-2 gap-3'>
-				<Button type='button' variant='secondary' size='primary' disabled={pending} onClick={onCancel}>
+				<Button type='button' variant='outline' size='lg' disabled={pending} onClick={onCancel}>
 					Cancel
 				</Button>
-				<Button type='submit' size='primary' disabled={pending} aria-describedby={error ? errorId : undefined}>
+				<Button type='submit' size='lg' disabled={pending} aria-describedby={error ? errorId : undefined}>
 					{pending ? <HugeiconsIcon icon={Loading03Icon} strokeWidth={2} aria-hidden='true' className='size-4 animate-spin motion-reduce:animate-none' /> : null}
 					{pending ? 'Saving…' : 'Save Name'}
 				</Button>
 			</div>
 		</form>
+		</CardContent></Card>
 	)
 }

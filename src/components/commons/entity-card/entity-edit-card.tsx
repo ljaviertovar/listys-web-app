@@ -10,6 +10,7 @@ import { Loading03Icon } from '@hugeicons/core-free-icons'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import { Card, CardContent, CardTitle } from '@/components/ui/card'
 
 import { FormField } from '../form-field/form-field'
 
@@ -67,13 +68,13 @@ export function EntityEditCard({
 	}
 
 	return (
+		<Card data-testid={testId}><CardContent>
 		<form
-			data-testid={testId}
 			onSubmit={handleSubmit(submit)}
 			noValidate
-			className='flex flex-col gap-4 rounded-3xl bg-card p-3 shadow-card md:p-4'
+			className='flex flex-col gap-4'
 		>
-			<h2 className='font-display text-base leading-[1.5] font-semibold '>{title}</h2>
+			<CardTitle><h2>{title}</h2></CardTitle>
 			<FormField
 				htmlFor={`${id}-name`}
 				label='Name'
@@ -108,16 +109,16 @@ export function EntityEditCard({
 			</FormField>
 			<div className='grid grid-cols-2 gap-3'>
 				<Button
-					size='primary'
+					size='lg'
 					type='button'
-					variant='secondary'
+					variant='outline'
 					onClick={onCancel}
 					disabled={loading}
 				>
 					Cancel
 				</Button>
 				<Button
-					size='primary'
+					size='lg'
 					type='submit'
 					disabled={loading}
 				>
@@ -133,5 +134,6 @@ export function EntityEditCard({
 				</Button>
 			</div>
 		</form>
+		</CardContent></Card>
 	)
 }

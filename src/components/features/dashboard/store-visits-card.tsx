@@ -33,7 +33,7 @@ export function StoreVisitsCard({ visits }: Props) {
 							leading={<RowIcon icon={Store03Icon} tone='store' size='md' />}
 							trailing={visit.total !== null ? <span className='shrink-0 font-mono text-sm font-semibold tabular-nums'>{formatCurrency(visit.total)}</span> : undefined}
 							testId={`dashboard-store-visit-${visit.storeId}`}
-							className='rounded-[18px] bg-muted/70 dark:bg-muted/50'
+							variant='muted'
 						/>
 					))}
 				</div>

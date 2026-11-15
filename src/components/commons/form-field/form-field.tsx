@@ -2,8 +2,7 @@ import type { ReactNode } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { AlertCircleIcon } from '@hugeicons/core-free-icons'
 
-import { Label } from '@/components/ui/label'
-import { cn } from '@/utils'
+import { Field, FieldLabel, FieldDescription, FieldError } from '@/components/ui/field'
 
 interface FormFieldProps {
 	/** Id of the control the label belongs to. */
@@ -19,13 +18,14 @@ interface FormFieldProps {
 	/** Identifies the field in tests; the caller says which one it is. */
 	testId: string
 	className?: string
+	/** Legacy callers share Field's native spacing. */
 	density?: 'default' | 'compact'
 }
 
 /** A labelled control of an A1 form with its validation message under it: a red alert icon and the text, never colour alone. */
-export function FormField({ htmlFor, label, labelAction, hint, required = false, error, children, testId, className, density = 'default' }: FormFieldProps) {
+export function FormField({ htmlFor, label, labelAction, hint, required = false, error, children, testId, className }: FormFieldProps) {
 	const labelNode = (
-			<Label htmlFor={htmlFor} size={density === 'compact' ? 'compact' : 'default'}>
+			<FieldLabel htmlFor={htmlFor}>
 			{label}
 			{required ? (
 				<span
@@ -35,13 +35,14 @@ export function FormField({ htmlFor, label, labelAction, hint, required = false,
 					*
 				</span>
 			) : null}
-		</Label>
+		</FieldLabel>
 	)
 
 	return (
-		<div
+		<Field
 			data-testid={testId}
-			className={cn('flex flex-col', density === 'compact' ? 'gap-1' : 'gap-2', className)}
+			data-invalid={!!error}
+			className={className}
 		>
 			{labelAction ? (
 				<div className='flex items-center justify-between gap-3'>
@@ -53,11 +54,11 @@ export function FormField({ htmlFor, label, labelAction, hint, required = false,
 			)}
 			{children}
 			{error ? (
-				<p
+				<FieldError
 					id={`${htmlFor}-error`}
 					role='alert'
-					className='flex items-center gap-1.5 text-xs leading-[1.3] font-medium text-red-700 dark:text-red-400'
 				>
+					<span className='inline-flex items-center gap-1.5'>
 					<HugeiconsIcon
 						icon={AlertCircleIcon}
 						strokeWidth={1.8}
@@ -65,15 +66,15 @@ export function FormField({ htmlFor, label, labelAction, hint, required = false,
 						className='size-3.5 shrink-0'
 					/>
 					{error}
-				</p>
+					</span>
+				</FieldError>
 			) : hint ? (
-				<p
+				<FieldDescription
 					id={`${htmlFor}-hint`}
-					className='text-xs leading-[1.3] text-muted-foreground dark:text-muted-foreground'
 				>
 					{hint}
-				</p>
+				</FieldDescription>
 			) : null}
-		</div>
+		</Field>
 	)
 }

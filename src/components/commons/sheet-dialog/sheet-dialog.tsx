@@ -25,7 +25,7 @@ interface SheetDialogProps {
 	trigger?: ReactNode
 	title: ReactNode
 	description?: ReactNode
-	/** `body` sets the description as the 14px lead-in sentence of the sheet instead of the caption under a title. */
+	/** `body` sets the description as the 16px lead-in sentence of the sheet instead of the caption under a title. */
 	descriptionVariant?: 'sheet' | 'body'
 	children: ReactNode
 	/** `alertdialog` for a confirmation the user has to answer, so assistive tech announces it that way. */
@@ -80,6 +80,12 @@ export function SheetDialog({
 				data-testid={testId}
 				onOpenAutoFocus={onOpenAutoFocus}
 				onCloseAutoFocus={onCloseAutoFocus}
+				onEscapeKeyDown={event => {
+					// Let the nested Base UI popup consume Escape before dismissing this Radix sheet.
+					if (event.target instanceof Element && event.target.closest('[role="combobox"][aria-expanded="true"]')) {
+						event.preventDefault()
+					}
+				}}
 				variant='sheet'
 				className={cn('sm:max-w-[520px]', className)}
 			>
@@ -95,7 +101,7 @@ export function SheetDialog({
 					<DialogClose asChild>
 						<Button
 							aria-label='Close'
-							variant='quiet'
+							variant='ghost'
 							size='icon-xl'
 							className='absolute top-0 -right-2 sm:-top-2.25'
 						>

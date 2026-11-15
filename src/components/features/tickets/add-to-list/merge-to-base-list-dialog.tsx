@@ -9,7 +9,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ChoiceRow, RowIcon, SheetDialog } from '@/components/commons'
 import { RadioGroup } from '@/components/ui/radio-group'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList, useComboboxAnchor } from '@/components/ui/combobox'
+import { InputGroupAddon } from '@/components/ui/input-group'
 import { useMergeToBaseList } from './hooks/use-merge-to-base-list'
 import { MergeReviewStep } from './merge-review-step'
 import { MergeResultSheet } from './merge-result-sheet'
@@ -40,6 +41,7 @@ interface Props {
 
 export function MergeToBaseListDialog({ open, defaultBaseListId, onOpenChange, ticketId, selectedItemIds, lines, initialDecisions, storeConfirmed, breakdown = null, onSuccess, onReceiptAttached, onSavingChange, receipt }: Props) {
 	const fieldId = useId()
+	const listAnchor = useComboboxAnchor()
 	const {
 		mode,
 		setMode,
@@ -96,7 +98,7 @@ export function MergeToBaseListDialog({ open, defaultBaseListId, onOpenChange, t
 						) : loadFailed ? (
 							<div data-testid='merge-to-base-list-error' className='flex flex-col items-center gap-4 py-8 text-center'>
 								<p role='alert' className='text-sm text-destructive'>{error}</p>
-								<Button type='button' size='primary' variant='secondary' onClick={loadData}>
+								<Button type='button' size='default' variant='secondary' onClick={loadData}>
 									Try Again
 								</Button>
 							</div>
@@ -129,11 +131,13 @@ export function MergeToBaseListDialog({ open, defaultBaseListId, onOpenChange, t
 										<ChoiceRow
 											variant='card'
 											testId='merge-mode-existing'
+							selected={mode === 'existing'}
 											option={{ value: 'existing', label: 'Add to existing list', note: breakdown ? `${breakdown.added} new · ${breakdown.updated} updated` : undefined }}
 										/>
 										<ChoiceRow
 											variant='card'
 											testId='merge-mode-new'
+							selected={mode === 'new'}
 											option={{ value: 'new', label: 'Create new list', note: `All ${selectedItemIds.length} ${selectedItemIds.length === 1 ? 'item is' : 'items are'} added as new` }}
 										/>
 									</RadioGroup>
@@ -151,36 +155,51 @@ export function MergeToBaseListDialog({ open, defaultBaseListId, onOpenChange, t
 						{reviewing ? null : mode === 'existing' && hasLists ? (
 							<div className='space-y-2'>
 								<Label id={`${fieldId}-list-label`} htmlFor={`${fieldId}-list`}>List</Label>
-								<Select
+								<Combobox
+									items={baseLists.map(list => list.id)}
+									itemToStringLabel={id => listLabels.get(id) ?? baseLists.find(list => list.id === id)?.name ?? ''}
+									filter={(id, query, getLabel) => (getLabel?.(id) ?? String(id)).toLocaleLowerCase().includes(query.toLocaleLowerCase())}
 									value={selectedBaseListId}
 									onValueChange={value => {
+										if (typeof value !== 'string') return
 										setSelectedBaseListId(value)
 										setError(null)
 									}}
 								>
-									<SelectTrigger
+									<div className='w-full' ref={listAnchor}>
+									<ComboboxInput
 										id={`${fieldId}-list`}
+										surface='page'
+										inset='card'
 										aria-labelledby={`${fieldId}-list-label`}
 										aria-required='true'
 										aria-invalid={error?.toLowerCase().includes('list') ? true : undefined}
 										aria-describedby={error?.toLowerCase().includes('list') ? `${fieldId}-error` : undefined}
 										size='filter'
+										placeholder='Select a shopping list'
+										showTrigger
 									>
-										<SelectValue placeholder='Select a shopping list' />
-									</SelectTrigger>
-									<SelectContent size='filter'>
-										{baseLists.map(list => (
-											<SelectItem
-												key={list.id}
-												size='filter'
-												value={list.id}
-											>
+										<InputGroupAddon align='inline-start'>
+											<RowIcon icon={ListViewIcon} tone='primary' size='stat' testId='merge-list-filter-icon' />
+										</InputGroupAddon>
+									</ComboboxInput>
+									</div>
+									<ComboboxContent size='filter' placement='below' anchor={listAnchor}>
+										<ComboboxList>
+											{(id: string) => {
+												const list = baseLists.find(candidate => candidate.id === id)
+												if (!list) return null
+												return (
+													<ComboboxItem key={list.id} value={list.id} size='filter'>
 												<RowIcon icon={ListViewIcon} tone='primary' size='stat' testId='merge-list-option-icon' />
 												{listLabels.get(list.id) ?? list.name}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
+													</ComboboxItem>
+												)
+											}}
+										</ComboboxList>
+										<ComboboxEmpty>No shopping lists match this search.</ComboboxEmpty>
+									</ComboboxContent>
+								</Combobox>
 							</div>
 						) : (
 							<div className='space-y-2'>
@@ -203,11 +222,11 @@ export function MergeToBaseListDialog({ open, defaultBaseListId, onOpenChange, t
 
 						{error && <p id={`${fieldId}-error`} role='alert' className='text-sm text-destructive'>{error}</p>}
 
-						<div className='grid w-full grid-cols-2 gap-2'>
+						<div className='flex w-full flex-col-reverse gap-2 sm:grid sm:grid-cols-2'>
 							<Button
 								type='button'
-								variant='secondary'
-								size='primary'
+								variant={reviewing ? 'ghost' : 'outline'}
+								size='default'
 								disabled={loading}
 								onClick={() => (reviewing ? backToChoose() : onOpenChange(false))}
 							>
@@ -215,7 +234,7 @@ export function MergeToBaseListDialog({ open, defaultBaseListId, onOpenChange, t
 							</Button>
 							<Button
 								type='submit'
-								size='primary'
+								size='default'
 								disabled={loading || (mode === 'existing' ? !selectedBaseListId : !newListName.trim())}
 							>
 								{loading ? (

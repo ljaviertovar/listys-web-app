@@ -2,6 +2,9 @@
 
 import { useId } from 'react'
 
+import { Field } from '@/components/ui/field'
+import { Item } from '@/components/ui/item'
+
 import { Checkbox } from '@/components/ui/checkbox'
 import { EntityLabel } from '@/components/commons'
 import { ItemNote, ItemQuantityChip } from '@/components/features/list-items'
@@ -30,7 +33,8 @@ export function ShoppingSessionItemRow({ item, isCompleted = false, averagePrice
 	const primaryStore = purchaseStore ?? storeInfo?.usual_store ?? null
 	const alsoAt = formatAlsoAt((storeInfo?.other_stores ?? []).filter(store => store.id !== purchaseStore?.id))
 	return (
-		<div data-testid={`session-item-${item.id}`} data-checked={checked} className='flex min-h-17 items-center gap-1 px-3 py-3'>
+		<Item size='xs' data-testid={`session-item-${item.id}`} data-checked={checked}>
+		<Field orientation='horizontal'>
 			{!isCompleted ? <span className='-ml-2 flex size-11 shrink-0 items-center justify-center'>
 				<Checkbox id={checkboxId} checked={checked} onCheckedChange={toggle} disabled={toggling} aria-label={checked ? `${name}, collected` : `Mark ${name} as collected`} size='lg' />
 			</span> : null}
@@ -55,6 +59,7 @@ export function ShoppingSessionItemRow({ item, isCompleted = false, averagePrice
 					</span>
 				) : <span className='whitespace-nowrap text-xs text-muted-foreground'>No price yet</span>}
 			</div>
-		</div>
+		</Field>
+		</Item>
 	)
 }

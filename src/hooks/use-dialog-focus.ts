@@ -15,7 +15,7 @@ export function useDialogFocus(initialFocusRef?: RefObject<HTMLElement | null>, 
 
 		if (!autoFocus && initialFocusRef?.current) {
 			event.preventDefault()
-			initialFocusRef.current.focus()
+			initialFocusRef.current.focus({ preventScroll: true })
 		}
 	}, [autoFocus, initialFocusRef])
 
@@ -25,7 +25,7 @@ export function useDialogFocus(initialFocusRef?: RefObject<HTMLElement | null>, 
 
 		if (target?.isConnected) {
 			event.preventDefault()
-			target.focus()
+			target.focus({ preventScroll: true })
 		}
 	}, [])
 

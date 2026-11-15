@@ -77,9 +77,8 @@ export function MobileTabBar() {
 				<UploadTicketDialog
 					trigger={
 						<Button
-							variant='fab'
+							variant='default'
 							size='icon-2xl'
-							rounded='2xl'
 							aria-label='Upload a receipt'
 							data-testid='mobile-tab-upload'
 							className='-mt-5'

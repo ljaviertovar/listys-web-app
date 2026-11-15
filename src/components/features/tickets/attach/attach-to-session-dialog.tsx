@@ -36,15 +36,15 @@ export function AttachToSessionDialog({ actions }: { actions: TripReview }) {
 				{actions.open && actions.trip ? <div className='flex min-w-0 flex-col gap-4' data-testid='attach-session-review'>
 					{actions.reviewLoading ? <p role='status' className='text-sm text-muted-foreground'>Loading trip items…</p> : null}
 					{actions.reviewError ? <StatusCard tone='danger' icon={Alert02Icon} title='Couldn’t load the review' description='Try again to compare this receipt with your trip.' testId='attach-review-load-error' role='alert'
-						actions={<Button type='button' variant='secondary' size='primary' onClick={actions.retryReview}>Retry</Button>} /> : null}
+						actions={<Button type='button' variant='secondary' size='default' onClick={actions.retryReview}>Retry</Button>} /> : null}
 					{!actions.reviewLoading && !actions.reviewError && review ? actions.submitError ? (
 						<StatusCard tone='danger' icon={Alert02Icon}
 							title={duplicateStore ? 'This trip already has a receipt from this store.' : 'Couldn’t attach the receipt'}
 							description={duplicateStore ? 'Nothing was changed. View the trip’s receipts to check the receipt already attached.' : 'Nothing was changed. Try again in a moment.'} testId='attach-review-submit-error' role='alert'
-							actions={duplicateStore ? <><Button asChild size='primary'><Link href={`/shopping/${actions.trip.id}`} onClick={actions.closeReview}>View Trip Receipts</Link></Button><Button type='button' variant='secondary' size='primary' onClick={actions.closeReview}>Close Review</Button></>
-								: <><Button type='button' size='primary' disabled={actions.submitting} onClick={() => void actions.retrySubmit()}>{actions.submitting ? 'Attaching…' : 'Try Again'}</Button><Button type='button' variant='secondary' size='primary' disabled={actions.submitting} onClick={actions.closeReview}>Attach Later</Button></>} />
+							actions={duplicateStore ? <><Button asChild size='default'><Link href={`/shopping/${actions.trip.id}`} onClick={actions.closeReview}>View Trip Receipts</Link></Button><Button type='button' variant='secondary' size='default' onClick={actions.closeReview}>Close Review</Button></>
+								: <><Button type='button' size='default' disabled={actions.submitting} onClick={() => void actions.retrySubmit()}>{actions.submitting ? 'Attaching…' : 'Try Again'}</Button><Button type='button' variant='secondary' size='default' disabled={actions.submitting} onClick={actions.closeReview}>Attach Later</Button></>} />
 					) : <>
-						<p className='text-sm leading-normal text-body dark:text-muted-foreground'>{TRIP_REVIEW_COPY.intro(listName)}</p>
+						<p className='text-sm leading-normal text-muted-foreground dark:text-muted-foreground'>{TRIP_REVIEW_COPY.intro(listName)}</p>
 						{store ? <EntityLabel name={store.name} testId='attach-review-store' /> : <p data-testid='attach-review-store-unconfirmed' className='text-sm text-muted-foreground'>Store not confirmed</p>}
 						<div data-testid='attach-review-summary' role='status' aria-live='polite' className='grid grid-cols-3 gap-2'>
 							<StatTile testId='attach-review-stat-matched' variant='white' value={review.counts.matched} label='Matched' icon={CheckmarkCircle02Icon} iconTone='success' />
@@ -70,9 +70,9 @@ export function AttachToSessionDialog({ actions }: { actions: TripReview }) {
 							<Input id='attach-total' aria-label='Total paid' type='number' min='0' step='0.01' variant='amount' size='lg' className='w-36' value={actions.totalInput} onChange={event => actions.setTotalInput(event.target.value)} placeholder='0.00' />
 						</label>
 						<DialogFooter variant='sheet'>
-							{active ? <Button type='button' variant='secondary' size='primary' disabled={actions.submitting || !actions.totalIsValid} onClick={() => void actions.submit(true)}>Attach and Complete Trip</Button>
-								: <Button type='button' variant='secondary' size='primary' disabled={actions.submitting} onClick={actions.closeReview}>Cancel</Button>}
-							<Button type='button' size='primary' disabled={actions.submitting || !actions.totalIsValid} onClick={() => void actions.submit(!active)}>
+							{active ? <Button type='button' variant='secondary' size='default' disabled={actions.submitting || !actions.totalIsValid} onClick={() => void actions.submit(true)}>Attach and Complete Trip</Button>
+								: <Button type='button' variant='outline' size='default' disabled={actions.submitting} onClick={actions.closeReview}>Cancel</Button>}
+							<Button type='button' size='default' disabled={actions.submitting || !actions.totalIsValid} onClick={() => void actions.submit(!active)}>
 								{actions.submitting ? 'Attaching…' : active ? 'Attach Receipt' : review.confirmLabel}
 							</Button>
 						</DialogFooter>

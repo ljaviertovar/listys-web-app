@@ -3,6 +3,8 @@
 import { useEffect, useRef } from 'react'
 import { Delete02Icon, Edit02Icon, Store03Icon, Tag01Icon } from '@hugeicons/core-free-icons'
 
+import { Item } from '@/components/ui/item'
+
 import { EntityLabel, RowMenu } from '@/components/commons'
 import { ItemEditForm, ItemNote, ItemQuantityChip } from '@/components/features/list-items'
 import { StorePickerDialog } from '@/components/features/stores'
@@ -60,9 +62,9 @@ export function BaseListItemRow({ item, isLocked = false, isOwner = true }: Base
 	}
 
 	return (
-		<div
+		<Item
+			size='sm'
 			data-testid={`base-list-item-${item.id}`}
-			className='flex min-h-17 items-center gap-2 py-1 pr-1.5 pl-3'
 		>
 			<div className='grid min-w-0 flex-1 grid-cols-[auto_minmax(0,1fr)] items-center gap-x-2 gap-y-1.5'>
 				<ItemQuantityChip quantity={item.quantity} unit={item.unit} testId={`base-list-item-${item.id}-quantity`} />
@@ -83,7 +85,7 @@ export function BaseListItemRow({ item, isLocked = false, isOwner = true }: Base
 								testId={`base-list-item-${item.id}-usual-store`}
 							/>
 						) : null}
-						{alsoAt ? <span aria-label={`Other stores: ${(item.other_stores ?? []).map(store => store.name).join(', ')}`} data-testid={`base-list-item-${item.id}-other-stores`} className='min-w-0 break-words text-xs leading-[1.3] text-muted-foreground'>{alsoAt}</span> : null}
+						{alsoAt ? <span aria-label={`Other stores: ${(item.other_stores ?? []).map(store => store.name).join(', ')}`} data-testid={`base-list-item-${item.id}-other-stores`} className='min-w-0 break-words text-xs leading-[1.3] text-foreground'>{alsoAt}</span> : null}
 					</span>
 				) : null}
 			</div>
@@ -133,6 +135,6 @@ export function BaseListItemRow({ item, isLocked = false, isOwner = true }: Base
 				onChangeUsualStore={changeUsualStore}
 				testId={`item-store-prices-${item.id}-sheet`}
 			/> : null}
-		</div>
+		</Item>
 	)
 }

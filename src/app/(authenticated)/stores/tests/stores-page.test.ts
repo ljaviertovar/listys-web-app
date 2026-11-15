@@ -34,7 +34,7 @@ describe('My Stores page', () => {
 		expect(page).toContain('No Frills')
 		expect(page).toContain('3 receipts')
 		expect(page).toContain('1 receipt')
-		expect(page).toContain('No receipts yet')
+		expect(page).toContain('No usual items yet')
 	})
 
 	it('explains how stores appear when there are none, with a way to the receipts', async () => {

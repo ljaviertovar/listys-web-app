@@ -61,12 +61,12 @@ export function AddItemForm({ target, isLocked = false, onCancel }: AddItemFormP
 			data-testid='add-item-form'
 			onSubmit={form.handleSubmit(submit)}
 			noValidate
-			className='flex flex-col gap-1 md:gap-5'
+			className='flex flex-col gap-1 px-1 md:gap-5'
 		>
 			{isLocked ? (
 				<p
 					role='note'
-					className='rounded-2xl bg-slate-100 px-3.5 py-3 text-sm leading-normal text-body dark:bg-muted dark:text-muted-foreground'
+					className='rounded-2xl bg-slate-100 px-3.5 py-3 text-sm leading-normal text-foreground dark:bg-muted dark:text-foreground'
 				>
 					A shopping session is using this list. Make changes in that session, or finish it to edit this base list.
 				</p>
@@ -77,9 +77,9 @@ export function AddItemForm({ target, isLocked = false, onCancel }: AddItemFormP
 				disabled={loading || isLocked}
 				withCategory
 			/>
-			<div className='flex flex-col gap-1 sm:grid sm:grid-cols-2'>
+			<div className='mt-2 flex flex-col gap-1 sm:grid sm:grid-cols-2 md:mt-0'>
 				<Button
-					size='primary'
+					size='default'
 					type='submit'
 					disabled={loading || isLocked}
 				>
@@ -92,9 +92,9 @@ export function AddItemForm({ target, isLocked = false, onCancel }: AddItemFormP
 					{loading ? 'Adding…' : 'Add Item'}
 				</Button>
 				<Button
-					size='primary'
+					size='default'
 					type='button'
-					variant='secondary'
+					variant='outline'
 					onClick={onCancel}
 					disabled={loading || isLocked}
 				>

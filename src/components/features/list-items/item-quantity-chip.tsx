@@ -1,4 +1,4 @@
-import { cn } from '@/utils'
+import { Badge } from '@/components/ui/badge'
 
 interface ItemQuantityChipProps {
 	quantity?: number | null
@@ -11,15 +11,12 @@ interface ItemQuantityChipProps {
 /** How much of an item: the quantity in mono and its unit on a small grey chip ("1 pcs"). */
 export function ItemQuantityChip({ quantity, unit, muted = false, testId = 'item-quantity-chip' }: ItemQuantityChipProps) {
 	return (
-		<span
+		<Badge
 			data-testid={testId}
-			className={cn(
-				'inline-flex h-5.5 shrink-0 items-center gap-1 rounded-lg bg-secondary px-2 text-xs leading-none font-medium text-body dark:bg-muted dark:text-muted-foreground',
-				muted && 'opacity-60',
-			)}
+			variant={muted ? 'outline' : 'secondary'}
 		>
 			<b className='font-mono font-semibold text-foreground tabular-nums'>{quantity ?? 1}</b>
 			{unit || 'unit'}
-		</span>
+		</Badge>
 	)
 }

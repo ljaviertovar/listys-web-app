@@ -68,10 +68,20 @@ export function ItemEditForm({ item, onSubmit, onCancel }: ItemEditFormProps) {
 				form={form}
 				idPrefix={`${id}-edit`}
 				disabled={loading}
+				comboboxStyle='item-edit'
 			/>
-			<div className='grid grid-cols-2 gap-2'>
+			<div className='mt-3 grid grid-cols-2 gap-2'>
 				<Button
-					size='primary'
+					size='default'
+					type='button'
+					variant='outline'
+					onClick={onCancel}
+					disabled={loading}
+				>
+					Cancel
+				</Button>
+				<Button
+					size='default'
 					type='submit'
 					disabled={loading}
 				>
@@ -84,15 +94,6 @@ export function ItemEditForm({ item, onSubmit, onCancel }: ItemEditFormProps) {
 						/>
 					) : null}
 					{loading ? 'Saving Changes…' : 'Save Changes'}
-				</Button>
-				<Button
-					size='primary'
-					type='button'
-					variant='secondary'
-					onClick={onCancel}
-					disabled={loading}
-				>
-					Cancel
 				</Button>
 			</div>
 		</form>

@@ -1,8 +1,10 @@
 'use client'
 
-import { HugeiconsIcon } from '@hugeicons/react'
 import { ArrowRight01Icon } from '@hugeicons/core-free-icons'
 
+import { Card, CardContent } from '@/components/ui/card'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { RowIcon } from '@/components/commons'
 import { Button } from '@/components/ui/button'
 import type { TicketItem } from '@/types'
 
@@ -26,27 +28,25 @@ export function TicketAttachCard({
 	if (!actions.candidatesError && !shouldShowAttachCard({ read: true, attached: false, addedToList: false, candidateCount: actions.candidates.length })) return null
 
 	return (
-		<section data-testid='ticket-attach-card' className='flex flex-col gap-3 rounded-3xl bg-card p-3 shadow-card md:p-4'>
+		<Card data-testid='ticket-attach-card'><CardContent><div className='flex flex-col gap-3'>
 			<div className='flex items-start gap-3'>
-				<div className='flex size-10 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-primary'>
-					<HugeiconsIcon icon={ArrowRight01Icon} strokeWidth={1.8} className='size-5' aria-hidden='true' />
-				</div>
+				<RowIcon icon={ArrowRight01Icon} tone='primary' size='lg' testId='ticket-attach-icon' />
 				<div className='min-w-0 flex-1'>
 					<h2 className='text-sm font-semibold'>You uploaded this receipt from a trip</h2>
 					<p className='mt-1 text-sm text-muted-foreground'>Attach it to update the trip and save its prices.</p>
 				</div>
 			</div>
 			{actions.candidatesError ? (
-				<div role='alert' className='flex items-center justify-between gap-3 rounded-2xl bg-destructive/10 p-3 text-sm'>
+				<Alert variant='destructive'><AlertDescription>
 					<p>{actions.candidatesError}</p>
 					<Button type='button' variant='secondary' size='sm' onClick={() => void actions.reloadCandidates()}>Retry</Button>
-				</div>
+				</AlertDescription></Alert>
 			) : (
-				<Button type='button' size='primary' onClick={actions.openDialog}>
+				<Button type='button' size='lg' onClick={actions.openDialog}>
 					Review {actions.candidates[0].name}
 				</Button>
 			)}
 			{actions.candidates.length ? <AttachToSessionDialog actions={actions} /> : null}
-		</section>
+		</div></CardContent></Card>
 	)
 }

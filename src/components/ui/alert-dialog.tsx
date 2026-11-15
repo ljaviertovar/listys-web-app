@@ -5,6 +5,7 @@ import { AlertDialog as AlertDialogPrimitive } from "radix-ui";
 
 import { cn } from "@/utils";
 import { Button } from "@/components/ui/button";
+import { SHEET_ON_PHONES, dialogContentVariants } from "@/components/ui/dialog";
 
 function AlertDialog({
   ...props
@@ -30,13 +31,15 @@ function AlertDialogPortal({
 
 function AlertDialogOverlay({
   className,
+  sheetOnPhones = false,
   ...props
-}: React.ComponentProps<typeof AlertDialogPrimitive.Overlay>) {
+}: React.ComponentProps<typeof AlertDialogPrimitive.Overlay> & { sheetOnPhones?: boolean }) {
   return (
     <AlertDialogPrimitive.Overlay
       data-slot="alert-dialog-overlay"
       className={cn(
         "data-open:animate-in data-closed:animate-out motion-reduce:data-open:animate-none motion-reduce:data-closed:animate-none transition-opacity motion-reduce:transition-none data-closed:fade-out-0 data-open:fade-in-0 bg-black/80 duration-100 motion-reduce:animate-none motion-reduce:duration-0 supports-backdrop-filter:backdrop-blur-xs fixed inset-0 z-50",
+        sheetOnPhones && "bg-slate-900/40",
         className,
       )}
       {...props}
@@ -47,18 +50,22 @@ function AlertDialogOverlay({
 function AlertDialogContent({
   className,
   size = "default",
+  sheetOnPhones = false,
   ...props
 }: React.ComponentProps<typeof AlertDialogPrimitive.Content> & {
   size?: "default" | "sm";
+  /** Approved Listys extension: a bottom sheet on phones, centered from sm. */
+  sheetOnPhones?: boolean;
 }) {
   return (
     <AlertDialogPortal>
-      <AlertDialogOverlay />
+      <AlertDialogOverlay sheetOnPhones={sheetOnPhones} />
       <AlertDialogPrimitive.Content
         data-slot="alert-dialog-content"
         data-size={size}
         className={cn(
           "data-open:animate-in data-closed:animate-out motion-reduce:data-open:animate-none motion-reduce:data-closed:animate-none transition-[opacity,transform] motion-reduce:transition-none data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 bg-card ring-foreground/5 gap-6 rounded-3xl p-6 shadow-xl ring-1 duration-100 motion-reduce:animate-none motion-reduce:duration-0 data-[size=default]:max-w-xs data-[size=sm]:max-w-xs data-[size=default]:sm:max-w-md group/alert-dialog-content fixed top-1/2 left-1/2 z-50 grid w-full -translate-x-1/2 -translate-y-1/2 outline-none overscroll-contain",
+          sheetOnPhones && cn(dialogContentVariants({ variant: 'sheet' }), SHEET_ON_PHONES, "flex flex-col overflow-y-auto data-[size=default]:max-w-none data-[size=default]:sm:max-w-lg"),
           className,
         )}
         {...props}
@@ -69,13 +76,15 @@ function AlertDialogContent({
 
 function AlertDialogHeader({
   className,
+  variant = "default",
   ...props
-}: React.ComponentProps<"div">) {
+}: React.ComponentProps<"div"> & { variant?: "default" | "sheet" }) {
   return (
     <div
       data-slot="alert-dialog-header"
       className={cn(
         "grid grid-rows-[auto_1fr] place-items-center gap-1.5 text-center has-data-[slot=alert-dialog-media]:grid-rows-[auto_auto_1fr] has-data-[slot=alert-dialog-media]:gap-x-6 sm:group-data-[size=default]/alert-dialog-content:place-items-start sm:group-data-[size=default]/alert-dialog-content:text-left sm:group-data-[size=default]/alert-dialog-content:has-data-[slot=alert-dialog-media]:grid-rows-[auto_1fr]",
+        variant === "sheet" && "pb-4",
         className,
       )}
       {...props}
@@ -131,7 +140,7 @@ function AlertDialogTitle({
       data-slot="alert-dialog-title"
       data-variant={variant}
       className={cn(
-        "text-lg font-medium sm:group-data-[size=default]/alert-dialog-content:group-has-data-[slot=alert-dialog-media]/alert-dialog-content:col-start-2",
+        "font-display text-2xl leading-8 font-semibold text-foreground sm:group-data-[size=default]/alert-dialog-content:group-has-data-[slot=alert-dialog-media]/alert-dialog-content:col-start-2",
         variant === "strong" && "font-bold tracking-tight text-foreground",
         className,
       )}
@@ -148,7 +157,7 @@ function AlertDialogDescription({
     <AlertDialogPrimitive.Description
       data-slot="alert-dialog-description"
       className={cn(
-        "text-muted-foreground *:[a]:hover:text-foreground text-sm text-balance md:text-pretty *:[a]:underline *:[a]:underline-offset-3",
+        "text-muted-foreground *:[a]:hover:text-foreground text-base leading-6 text-balance md:text-pretty *:[a]:underline *:[a]:underline-offset-3",
         className,
       )}
       {...props}

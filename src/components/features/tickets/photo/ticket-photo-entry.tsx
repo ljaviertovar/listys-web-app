@@ -1,5 +1,7 @@
 'use client'
 
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { RowIcon } from '@/components/commons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ArrowExpand01Icon, Image02Icon } from '@hugeicons/core-free-icons'
 import type { Ref } from 'react'
@@ -36,7 +38,7 @@ export function TicketPhotoRow({ count, thumbnailUrl, onOpen, triggerRef }: Tick
 			aria-label={`View receipt ${plural}, ${count} ${plural}`}
 			className={cn(
 				'group flex min-h-16 w-full items-center gap-3 px-2.5 py-2 text-left transition-colors hover:bg-slate-50 dark:hover:bg-muted',
-				'rounded-2xl bg-card shadow-card',
+				'rounded-2xl bg-card shadow-sm',
 				'focus-ring',
 			)}
 		>
@@ -59,7 +61,7 @@ export function TicketPhotoRow({ count, thumbnailUrl, onOpen, triggerRef }: Tick
 			</span>
 			<span className='flex min-w-0 flex-1 flex-col gap-0.5 font-sans'>
 				<span className='text-sm leading-[1.3] font-semibold'>Receipt Photo</span>
-				<span className='text-sm leading-[1.2] text-body dark:text-muted-foreground'>
+				<span className='text-sm leading-[1.2] text-muted-foreground dark:text-muted-foreground'>
 					<b className='font-mono text-base font-bold text-foreground tabular-nums'>{count}</b> {plural} · Tap to enlarge
 				</span>
 			</span>
@@ -90,19 +92,13 @@ interface TicketPhotoPanelProps {
  */
 export function TicketPhotoPanel({ urls, count, view, error, onOpenFullScreen, triggerRef }: TicketPhotoPanelProps) {
 	return (
-		<section
+		<Card
+			role='region'
 			data-testid='ticket-photo-panel'
 			aria-label={count === 1 ? 'Receipt photo' : 'Receipt photos'}
-			className='flex flex-col gap-3 rounded-3xl bg-card p-3 shadow-card md:p-4'
 		>
-			<div className='flex items-center gap-3'>
-				<span className='flex size-10 shrink-0 items-center justify-center rounded-xl bg-cyan-100 text-cyan-700 dark:bg-cyan-950 dark:text-cyan-300'>
-					<HugeiconsIcon
-						icon={Image02Icon}
-						strokeWidth={1.5}
-						className='size-5'
-					/>
-				</span>
+			<CardHeader><div className='flex items-center gap-3'>
+				<RowIcon icon={Image02Icon} tone='ocr' size='lg' testId='ticket-photo-panel-icon' />
 				<h2 className='min-w-0 flex-1 truncate font-display text-base leading-normal font-semibold '>
 					{count === 1 ? 'Receipt Photo' : 'Receipt Photos'}
 				</h2>
@@ -122,6 +118,7 @@ export function TicketPhotoPanel({ urls, count, view, error, onOpenFullScreen, t
 				</Button>
 			</div>
 
+			</CardHeader><CardContent>
 			<div className='relative flex h-[420px] flex-col overflow-hidden rounded-2xl bg-ink'>
 				<TicketPhotoPane
 					url={urls[view.index]}
@@ -159,6 +156,6 @@ export function TicketPhotoPanel({ urls, count, view, error, onOpenFullScreen, t
 					</span>
 				</div>
 			) : null}
-		</section>
+		</CardContent></Card>
 	)
 }

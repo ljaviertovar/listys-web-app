@@ -39,7 +39,7 @@ export function RowMenu({ label, actions, disabled = false, testId, className, t
 					aria-label={label}
 					disabled={disabled}
 					data-testid={testId}
-					variant='quiet'
+					variant='ghost'
 					size='icon-xl'
 					className={className}
 				>
@@ -53,7 +53,6 @@ export function RowMenu({ label, actions, disabled = false, testId, className, t
 			</DropdownMenuTrigger>
 			<DropdownMenuContent
 				align='end'
-				variant='menu'
 				className='w-58'
 			>
 				{actions.map(action => (

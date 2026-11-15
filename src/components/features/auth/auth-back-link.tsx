@@ -11,7 +11,7 @@ export function AuthBackLink({ tone }: { tone: 'light-surface' | 'dark-surface' 
 	return (
 		<Button
 			asChild
-			variant={onPhoto ? 'quiet-on-dark' : 'quiet'}
+	variant={onPhoto ? 'on-dark' : 'ghost'}
 			size={onPhoto ? 'touch' : 'lg'}
 		>
 			<Link

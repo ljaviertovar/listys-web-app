@@ -30,7 +30,16 @@ test.describe('Shopping Lists E2E', () => {
     // Add first item
     await page.click('button:has-text("Add Item"), button:has-text("New Item")')
     await page.fill('input[name="name"], input[placeholder*="item"]', 'Milk')
-    await page.selectOption('select[name="category"]', 'Dairy')
+    const category = page.getByRole('combobox', { name: 'Category', exact: true })
+    await category.fill('dai')
+    await page.getByRole('option', { name: 'Dairy', exact: true }).click()
+    await expect(category).toHaveValue('Dairy')
+    await category.click()
+    await expect(page.getByRole('listbox')).toBeVisible()
+    await category.press('Escape')
+    await expect(page.getByRole('listbox')).toBeHidden()
+    // Selecting a Base UI option must not be swallowed by the surrounding modal.
+    await expect(page.getByTestId('add-item-sheet')).toBeVisible()
     await page.click('button[type="submit"]:has-text("Add"), button:has-text("Save")')
 
     // Verify item added
@@ -39,7 +48,9 @@ test.describe('Shopping Lists E2E', () => {
     // Add second item
     await page.click('button:has-text("Add Item"), button:has-text("New Item")')
     await page.fill('input[name="name"], input[placeholder*="item"]', 'Bread')
-    await page.selectOption('select[name="category"]', 'Bakery')
+    await page.getByRole('combobox', { name: 'Category', exact: true }).fill('bak')
+    await page.getByRole('option', { name: 'Bakery', exact: true }).click()
+    await expect(page.getByRole('combobox', { name: 'Category', exact: true })).toHaveValue('Bakery')
     await page.click('button[type="submit"]:has-text("Add"), button:has-text("Save")')
 
     // Verify both items visible

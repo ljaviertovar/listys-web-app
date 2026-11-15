@@ -115,7 +115,6 @@ export function UploadTicketPhotos({ inputId, descriptionId, errorId, previews, 
 								onDragOver={event => event.preventDefault()}
 								variant='dropzone-quiet'
 								size='tile'
-								rounded='2xl'
 								aria-describedby={describedBy}
 							>
 								<span className='relative'>
@@ -138,7 +137,6 @@ export function UploadTicketPhotos({ inputId, descriptionId, errorId, previews, 
 					onDragOver={event => event.preventDefault()}
 					variant='dropzone'
 					size='dropzone'
-					rounded='3xl'
 					aria-describedby={describedBy}
 					className='w-full'
 				>

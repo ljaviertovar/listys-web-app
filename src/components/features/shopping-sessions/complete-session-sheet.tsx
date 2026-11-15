@@ -84,7 +84,7 @@ export function CompleteSessionSheet({ sessionId, checked, total, open, onOpenCh
 
 	const description = <>You collected <b className='font-mono font-semibold text-foreground'>{checked}</b> of <b className='font-mono font-semibold text-foreground'>{total}</b> items.</>
 	const learningAlert = (count: number, testId: string) => (
-		<Alert variant='receipt-info' role='note' data-testid={testId}>
+		<Alert variant='info' role='note' data-testid={testId}>
 			<RowIcon icon={Alert02Icon} tone='primary' size='alert' />
 			<div>
 				<AlertTitle>Pantry learns from this trip</AlertTitle>
@@ -95,7 +95,7 @@ export function CompleteSessionSheet({ sessionId, checked, total, open, onOpenCh
 		</Alert>
 	)
 	const errorAlert = (
-		<Alert variant='receipt-danger' role='alert' data-testid='complete-session-error'>
+		<Alert variant='destructive' role='alert' data-testid='complete-session-error'>
 			<RowIcon icon={Alert02Icon} tone='danger' size='alert' />
 			<div>
 				<AlertTitle>Couldn&apos;t save the trip</AlertTitle>
@@ -122,10 +122,10 @@ export function CompleteSessionSheet({ sessionId, checked, total, open, onOpenCh
 					{saveError ? errorAlert : learningAlert(total, 'complete-session-learning')}
 				</div>
 				<DialogFooter variant='sheet-stack' className='mt-4'>
-					<Button type='button' size='primary' variant='outline' onClick={() => onOpenChange(false)} disabled={loading}>Keep Shopping</Button>
-					{saveError ? <Button type='button' size='primary' variant='default' onClick={() => handleComplete(false)} disabled={loading} data-testid='complete-session-confirm'>Try Again</Button> : <>
-						<Button type='button' size='primary' variant='secondary' onClick={() => handleComplete(false)} disabled={loading}>Save Trip</Button>
-						<Button type='button' size='primary' variant='default' onClick={() => handleComplete(true)} disabled={loading} data-testid='complete-session-confirm'>
+					<Button type='button' size='default' variant='outline' onClick={() => onOpenChange(false)} disabled={loading}>Keep Shopping</Button>
+					{saveError ? <Button type='button' size='default' variant='default' onClick={() => handleComplete(false)} disabled={loading} data-testid='complete-session-confirm'>Try Again</Button> : <>
+						<Button type='button' size='default' variant='secondary' onClick={() => handleComplete(false)} disabled={loading}>Save Trip</Button>
+						<Button type='button' size='default' variant='default' onClick={() => handleComplete(true)} disabled={loading} data-testid='complete-session-confirm'>
 							<HugeiconsIcon icon={Attachment01Icon} strokeWidth={1.8} className='size-4' aria-hidden='true' />
 							{loading ? 'Saving…' : 'Save and Upload Receipt'}
 						</Button>
@@ -150,7 +150,7 @@ export function CompleteSessionSheet({ sessionId, checked, total, open, onOpenCh
 		>
 			{saveError ? errorAlert : <>
 				{learningAlert(checked, 'complete-session-learning')}
-				{unchecked > 0 ? <Alert variant='receipt-info' role='note' data-testid='complete-session-uncollected'>
+				{unchecked > 0 ? <Alert variant='info' role='note' data-testid='complete-session-uncollected'>
 					<RowIcon icon={Alert02Icon} tone='primary' size='alert' />
 					<div>
 						<AlertTitle>Uncollected items stay in Pantry</AlertTitle>

@@ -20,8 +20,8 @@ function BackLinkContent({ href, label, variant = 'inline' }: Props) {
 		return (
 			<Button
 				asChild
-				variant='quiet'
-				size='primary'
+				variant='ghost'
+				size='default'
 				className='-ml-2 w-fit'
 			>
 				<Link
@@ -40,7 +40,7 @@ function BackLinkContent({ href, label, variant = 'inline' }: Props) {
 	}
 
 		return (
-			<Button asChild variant='quiet' size='link-action' className='group mb-4 -ml-3 w-fit md:mb-6'>
+			<Button asChild variant='ghost' size='link-action' className='group mb-4 -ml-3 w-fit md:mb-6'>
 			<Link href={href} data-testid='back-link'>
 				<HugeiconsIcon icon={ArrowLeft01Icon} strokeWidth={2} className='size-4 transition-transform group-hover:-translate-x-1' />
 				{label}

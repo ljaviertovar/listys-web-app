@@ -52,8 +52,8 @@ export function ShareListDialog({
 			trigger={
 				trigger === null ? undefined : (
 					<Button
-					variant='outline-surface'
-					size='primary'
+					variant='outline'
+					size='default'
 					{...buttonProps}
 					data-testid='share-list-button'
 				>
@@ -71,7 +71,7 @@ export function ShareListDialog({
 			description='Invite people to view and edit this list together.'
 			testId='share-list-sheet'
 		>
-			<div className='flex max-h-[70dvh] flex-col gap-6 overflow-y-auto'>
+			<div className='flex flex-col gap-6'>
 				{isOwner ? (
 					<ShareInviteLink
 						link={share.inviteLinks[0]}

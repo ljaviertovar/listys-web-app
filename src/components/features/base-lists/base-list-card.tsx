@@ -6,7 +6,6 @@ import { toast } from "sonner";
 import {
   Delete02Icon,
   Edit02Icon,
-  ListViewIcon,
   Share08Icon,
   StarIcon,
   UserGroupIcon,
@@ -148,20 +147,19 @@ export function BaseListCard({
       <EntityCard
         size="list"
         href={`/base-lists/${baseList.id}/edit`}
-        icon={ListViewIcon}
         title={shownName}
         description={baseList.notes}
         badge={
           isDefault || sharedWith ? (
             <>
               {isDefault ? (
-                <Badge variant="list-default" data-testid={`list-card-${baseList.id}-default`}>
+                <Badge variant="outline" data-testid={`list-card-${baseList.id}-default`}>
                   <HugeiconsIcon icon={StarIcon} strokeWidth={1.8} aria-hidden="true" />
                   Default
                 </Badge>
               ) : null}
               {sharedWith ? (
-                <Badge variant="tag" data-testid={`list-card-${baseList.id}-shared`}>
+                <Badge variant="outline" data-testid={`list-card-${baseList.id}-shared`}>
                   <HugeiconsIcon icon={UserGroupIcon} strokeWidth={1.8} aria-hidden="true" />
                   {sharedWith}
                 </Badge>

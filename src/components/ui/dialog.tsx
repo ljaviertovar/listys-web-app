@@ -46,7 +46,7 @@ const dialogContentVariants = cva("", {
     variant: {
       default: "",
       sheet:
-        "gap-5 rounded-3xl border-0 p-4 md:p-6 max-h-[92dvh] max-sm:gap-2 max-sm:pt-6 max-sm:pb-[max(0.75rem,env(safe-area-inset-bottom))]",
+        "gap-0 rounded-4xl border p-6 max-h-[92dvh] max-sm:pt-6 max-sm:pb-[max(0.75rem,env(safe-area-inset-bottom))]",
       viewer: "gap-0 rounded-none border-0 bg-ink p-0 text-white",
     },
   },
@@ -83,7 +83,7 @@ const DialogContent = React.forwardRef<
         ref={ref}
         data-variant={variant}
         className={cn(
-          "fixed left-[50%] top-[50%] z-50 grid grid-cols-[minmax(0,1fr)] w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-card p-6 shadow-xl transition-[opacity,transform] motion-reduce:transition-none duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out motion-reduce:data-[state=open]:animate-none motion-reduce:data-[state=closed]:animate-none data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 motion-reduce:animate-none motion-reduce:duration-0 rounded-3xl overscroll-contain",
+          "fixed left-[50%] top-[50%] z-50 grid grid-cols-[minmax(0,1fr)] w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-6 border bg-card p-6 shadow-xl transition-[opacity,transform] motion-reduce:transition-none duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out motion-reduce:data-[state=open]:animate-none motion-reduce:data-[state=closed]:animate-none data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 motion-reduce:animate-none motion-reduce:duration-0 rounded-4xl overscroll-contain",
           dialogContentVariants({ variant }),
           sheetOnPhones ? SHEET_ON_PHONES : CENTERED_ENTER_EXIT,
           sheetOnPhones && 'flex max-h-[92dvh] flex-col overflow-hidden p-4 md:p-6 max-sm:overflow-hidden',
@@ -97,7 +97,7 @@ const DialogContent = React.forwardRef<
           <DialogPrimitive.Close asChild>
             <Button
               aria-label="Close"
-              variant="quiet"
+              variant="ghost"
               size="icon-xl"
               className="absolute top-3 right-3"
             >
@@ -123,7 +123,7 @@ const DialogHeader = ({
     data-variant={variant}
     className={cn(
       "flex flex-col space-y-1.5 text-center sm:text-left",
-      variant === "sheet" && "relative gap-1 pr-12 text-left max-sm:space-y-0",
+      variant === "sheet" && "relative gap-0.5 pr-12 pb-4 text-left max-sm:space-y-0",
       className,
     )}
     {...props}
@@ -134,6 +134,7 @@ DialogHeader.displayName = "DialogHeader";
 const DialogFooter = ({
   className,
   variant = "default",
+  spacing = "default",
   ...props
 }: React.HTMLAttributes<HTMLDivElement> & {
   /**
@@ -141,6 +142,8 @@ const DialogFooter = ({
     * on top below `sm` and puts them in two equal columns from `sm`; `sheet-stack` keeps three ordered actions stacked.
    */
   variant?: "default" | "inline" | "sheet" | "sheet-stack";
+  /** `section` separates a footer from a preceding alert or content block inside a shared scroll area. */
+  spacing?: "default" | "section";
 }) => (
   <div
     data-variant={variant}
@@ -149,6 +152,7 @@ const DialogFooter = ({
       variant === "inline" && "flex-row gap-3 sm:space-x-0",
       variant === "sheet" && "gap-3 sm:grid sm:grid-cols-2 sm:space-x-0",
       variant === "sheet-stack" && "gap-2",
+      spacing === "section" && "mt-4",
       className,
     )}
     {...props}
@@ -162,7 +166,7 @@ const dialogTitleVariants = cva("", {
       default: "text-base font-semibold leading-none tracking-tight md:text-lg",
       // The heading of an A1 form sheet.
       sheet:
-        "font-display text-xl leading-[1.3] font-semibold tracking-tight text-foreground focus:outline-none max-sm:flex max-sm:min-h-10 max-sm:items-center",
+        "font-display text-2xl leading-8 font-semibold text-foreground focus:outline-none max-sm:flex max-sm:min-h-10 max-sm:items-center",
       // A confirmation or a list dialog: bold and tight.
       strong: "text-base leading-none font-bold tracking-tight text-foreground md:text-lg",
       // The title bar of the dark viewer.
@@ -194,9 +198,9 @@ const dialogDescriptionVariants = cva("", {
   variants: {
     variant: {
       default: "text-xs text-muted-foreground md:text-sm",
-      sheet: "text-xs leading-normal text-muted-foreground dark:text-muted-foreground md:text-sm",
+      sheet: "text-base leading-6 text-muted-foreground dark:text-muted-foreground",
       // The lead-in sentence of a sheet, set as body text under the title row.
-      body: "text-sm leading-normal text-body dark:text-muted-foreground max-sm:mt-3",
+      body: "text-base leading-6 text-muted-foreground dark:text-muted-foreground max-sm:mt-3",
     },
   },
   defaultVariants: { variant: "default" },
@@ -217,6 +221,7 @@ const DialogDescription = React.forwardRef<
 DialogDescription.displayName = DialogPrimitive.Description.displayName;
 
 export {
+  SHEET_ON_PHONES,
   dialogContentVariants,
   dialogTitleVariants,
   dialogDescriptionVariants,

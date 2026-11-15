@@ -15,6 +15,7 @@ export { DataFigure, DataLine } from "./data-line/data-line";
 export { EntityLabel } from "./entity-label/entity-label";
 export { InlineCounter } from "./inline-counter/inline-counter";
 export { EmptyStateCard } from "./empty-state/empty-state-card";
+export { EmptyState } from "./empty-state/empty-state";
 export { DetailsList, type DetailsListItem } from "./details-list/details-list";
 export { CreateEntitySheet } from "./entity-card/create-entity-sheet";
 export { EntityCard } from "./entity-card/entity-card";

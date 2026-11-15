@@ -42,6 +42,8 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
 			<PageHeader
 				variant='screen'
 				back={{ href: '/dashboard', label: 'Back to Dashboard' }}
+				icon={ShoppingBag03Icon}
+				iconTone='success'
 				title='Trips'
 				desc='Every trip you have completed, newest first'
 			/>

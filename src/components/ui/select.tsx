@@ -49,7 +49,7 @@ function SelectTrigger({
 			data-slot='select-trigger'
 			data-size={size}
 			className={cn(
-				'flex w-full items-center justify-between gap-2 rounded-xl border-0 bg-card px-3 py-2 text-sm shadow-field placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring aria-invalid:ring-2 aria-invalid:ring-destructive disabled:cursor-not-allowed disabled:opacity-50 data-[size=default]:h-9 data-[size=sm]:h-8 data-[size=lg]:h-11 data-[size=lg]:rounded-2xl data-[size=lg]:px-3.5 data-[size=lg]:text-base md:data-[size=lg]:text-sm data-[size=filter]:h-13 data-[size=filter]:gap-2.5 data-[size=filter]:rounded-2xl data-[size=filter]:px-3 data-[size=filter]:text-sm data-[size=filter]:font-semibold data-[size=filter]:*:data-[slot=select-value]:flex data-[size=filter]:*:data-[slot=select-value]:items-center data-[size=filter]:*:data-[slot=select-value]:gap-2.5 [&_svg]:size-4 [&_svg]:shrink-0',
+				'flex w-full items-center justify-between gap-2 rounded-3xl border border-transparent bg-input/50 px-3 text-base shadow-xs transition-[color,box-shadow] placeholder:text-muted-foreground focus:outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 disabled:cursor-not-allowed disabled:opacity-50 data-[size=default]:h-11 md:data-[size=default]:h-9 data-[size=sm]:h-8 data-[size=lg]:h-11 data-[size=lg]:px-3.5 data-[size=filter]:h-13 data-[size=filter]:gap-2.5 data-[size=filter]:rounded-2xl data-[size=filter]:px-3 data-[size=filter]:text-sm data-[size=filter]:font-semibold data-[size=filter]:*:data-[slot=select-value]:flex data-[size=filter]:*:data-[slot=select-value]:items-center data-[size=filter]:*:data-[slot=select-value]:gap-2.5 md:text-sm [&_svg]:size-4 [&_svg]:shrink-0',
 				className,
 			)}
 			{...props}
@@ -79,8 +79,8 @@ function SelectContent({
 			<SelectPrimitive.Content
 				data-slot='select-content'
 				className={cn(
-					'bg-popover text-popover-foreground data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 ring-foreground/5 min-w-36 rounded-xl shadow-lg ring-1 duration-100 relative z-50 max-h-(--radix-select-content-available-height) origin-(--radix-select-content-transform-origin) overflow-x-hidden overflow-y-auto',
-					size === 'filter' && 'rounded-2xl p-1.5',
+					'bg-popover text-popover-foreground data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 ring-foreground/5 min-w-36 rounded-3xl p-1.5 shadow-lg ring-1 duration-100 relative z-50 max-h-(--radix-select-content-available-height) origin-(--radix-select-content-transform-origin) overflow-x-hidden overflow-y-auto',
+					size === 'filter' && 'rounded-2xl',
 					position === 'popper' &&
 						'data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1',
 					className,
@@ -120,7 +120,7 @@ function SelectItem({ className, children, size = 'default', ...props }: React.C
 		<SelectPrimitive.Item
 			data-slot='select-item'
 			className={cn(
-				"focus:bg-accent focus:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground gap-2.5 rounded-lg py-2 pr-8 pl-3 text-sm [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2 relative flex w-full cursor-default items-center outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+				"focus:bg-accent focus:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground gap-2.5 rounded-2xl py-2 pr-8 pl-3 text-sm [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2 relative flex min-h-11 w-full cursor-default items-center outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
 				size === 'filter' && 'min-h-12 gap-2.5 rounded-xl py-0 pr-9 pl-2 font-semibold data-[state=checked]:bg-blue-50 data-[state=checked]:text-blue-900',
 				className,
 			)}

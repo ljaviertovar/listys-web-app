@@ -8,7 +8,8 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { CategoryCollapseControl, CategorySection, RowIcon, useCategorySectionExpansion } from '@/components/commons'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList, useComboboxAnchor } from '@/components/ui/combobox'
+import { InputGroupAddon } from '@/components/ui/input-group'
 import { buildListDisplayNames } from '@/utils'
 import type { TicketItem } from '@/types'
 import type { TicketItemMatch } from '@/lib/api/endpoints/tickets'
@@ -60,7 +61,7 @@ export function TicketItemsList({ items, selection, canSelect, triage }: TicketI
 	return (
 		<div data-testid='ticket-items-list'>
 			{triage?.status === 'failed' ? (
-				<Alert variant='receipt-warning' data-testid='receipt-triage-fallback' className='mt-3'>
+				<Alert variant='warning' data-testid='receipt-triage-fallback' className='mt-3'>
 					<RowIcon icon={Alert02Icon} tone='warning' size='alert' testId='receipt-triage-fallback-icon' />
 					<AlertTitle>Couldn’t compare these lines</AlertTitle>
 					<AlertDescription>
@@ -131,6 +132,7 @@ interface TargetListRowProps {
 /** The list the lines are compared with and will be added to, with the way to pick another one. */
 function TargetListRow({ triage, baseList }: TargetListRowProps) {
 	const labelId = useId()
+	const listAnchor = useComboboxAnchor()
 	const listLabels = useMemo(() => buildListDisplayNames(triage.baseLists), [triage.baseLists])
 
 	return (
@@ -139,19 +141,36 @@ function TargetListRow({ triage, baseList }: TargetListRowProps) {
 				<span id={labelId} className='text-sm leading-[1.3] font-semibold'>Add to</span>
 				<span className='text-xs leading-[1.4] text-muted-foreground dark:text-muted-foreground'>Each line is compared with this list.</span>
 			</div>
-			<Select value={baseList.id} onValueChange={triage.changeList}>
-				<SelectTrigger size='filter' aria-labelledby={labelId} data-testid='receipt-target-list-select'>
-					<SelectValue />
-				</SelectTrigger>
-				<SelectContent size='filter'>
-					{triage.baseLists.map(list => (
-						<SelectItem key={list.id} size='filter' value={list.id}>
-							<RowIcon icon={ListViewIcon} tone='primary' size='stat' testId='receipt-target-list-option-icon' />
-							{listLabels.get(list.id) ?? list.name}
-						</SelectItem>
-					))}
-				</SelectContent>
-			</Select>
+			<Combobox
+				items={triage.baseLists.map(list => list.id)}
+				itemToStringLabel={id => listLabels.get(id) ?? triage.baseLists.find(list => list.id === id)?.name ?? ''}
+				filter={(id, query, getLabel) => (getLabel?.(id) ?? String(id)).toLocaleLowerCase().includes(query.toLocaleLowerCase())}
+				value={baseList.id}
+				onValueChange={id => typeof id === 'string' && triage.changeList(id)}
+			>
+				<div className='w-full' ref={listAnchor}>
+				<ComboboxInput size='filter' surface='page' inset='card' aria-labelledby={labelId} data-testid='receipt-target-list-select'>
+					<InputGroupAddon align='inline-start'>
+						<RowIcon icon={ListViewIcon} tone='primary' size='stat' testId='receipt-target-list-input-icon' />
+					</InputGroupAddon>
+				</ComboboxInput>
+				</div>
+				<ComboboxContent size='filter' placement='below' anchor={listAnchor}>
+					<ComboboxList>
+						{(id: string) => {
+							const list = triage.baseLists.find(candidate => candidate.id === id)
+							if (!list) return null
+							return (
+								<ComboboxItem key={list.id} value={list.id} size='filter'>
+									<RowIcon icon={ListViewIcon} tone='primary' size='stat' testId='receipt-target-list-option-icon' />
+									{listLabels.get(list.id) ?? list.name}
+								</ComboboxItem>
+							)
+						}}
+					</ComboboxList>
+					<ComboboxEmpty>No lists match this search.</ComboboxEmpty>
+				</ComboboxContent>
+			</Combobox>
 		</div>
 	)
 }

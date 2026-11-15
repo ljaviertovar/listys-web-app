@@ -57,10 +57,7 @@ export default function AuthButtons({ signedOut }: Props) {
 				<div className='flex items-center gap-4'>
 					<Button
 						asChild
-						size='primary'
-						rounded='md'
-						// The landing header keeps the lighter weight and the 4px corner it had before the app's A1 buttons.
-						weight='medium'
+						size='default'
 					>
 						<Link href='/auth/signup'>Get Started</Link>
 					</Button>

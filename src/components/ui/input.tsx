@@ -3,9 +3,8 @@ import { cva, type VariantProps } from 'class-variance-authority'
 
 import { cn } from '@/utils'
 
-/** Borderless field on the card surface with a hairline ring (`shadow-field`); the invalid state swaps the ring for a red one. */
 const inputVariants = cva(
-	'flex w-full min-w-0 border-0 bg-card shadow-field transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring aria-invalid:ring-2 aria-invalid:ring-destructive disabled:cursor-not-allowed disabled:opacity-50',
+	'flex w-full min-w-0 rounded-3xl border border-transparent bg-input/50 px-3 text-base shadow-xs transition-[color,box-shadow] file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-foreground focus-visible:border-ring focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm',
 	{
 		variants: {
 			variant: {
@@ -13,8 +12,8 @@ const inputVariants = cva(
 				amount: 'text-right font-mono font-semibold tabular-nums',
 			},
 			size: {
-				default: 'h-9 rounded-xl px-3 py-1 text-sm',
-				lg: 'h-11 rounded-2xl px-3.5 text-base md:text-sm',
+				default: 'h-11 md:h-9',
+				lg: 'h-11 px-3.5',
 			},
 			// Room for a 44px control laid over the end of the field (the show-password toggle).
 			adornment: {

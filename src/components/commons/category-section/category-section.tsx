@@ -78,7 +78,7 @@ export function CategorySection({
 						/>
 						<span
 							aria-hidden='true'
-							className='flex size-9 items-center justify-center text-muted-foreground'
+							className='flex size-4 shrink-0 items-center justify-center text-muted-foreground'
 						>
 							<HugeiconsIcon
 								icon={chevron === 'up' ? ArrowUp01Icon : ArrowDown01Icon}

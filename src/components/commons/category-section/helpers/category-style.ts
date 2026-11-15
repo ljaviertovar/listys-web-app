@@ -59,7 +59,7 @@ const TONE = {
 	yellow: 'text-yellow-700 dark:text-yellow-400',
 	pink: 'text-pink-700 dark:text-pink-400',
 	lime: 'text-lime-700 dark:text-lime-400',
-	slate: 'text-body dark:text-muted-foreground',
+	slate: 'text-muted-foreground dark:text-muted-foreground',
 } as const
 
 const CATEGORY_TONES: Record<string, string> = {

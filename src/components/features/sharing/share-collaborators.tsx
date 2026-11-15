@@ -45,15 +45,25 @@ export function ShareCollaborators({ collaborators, isOwner, isLoading, onRemove
 				>
 					Collaborators
 				</h3>
-				<span className='inline-flex h-5.5 min-w-5.5 items-center justify-center rounded-full bg-slate-100 px-1.5 font-mono text-xs font-semibold text-text-secondary tabular-nums dark:bg-muted dark:text-foreground'>
-					{collaborators.length}
-				</span>
+				{isLoading ? <Skeleton aria-hidden='true' className='size-5.5 rounded-full' /> : (
+					<span className='inline-flex h-5.5 min-w-5.5 items-center justify-center rounded-full bg-slate-100 px-1.5 font-mono text-xs font-semibold text-foreground tabular-nums dark:bg-muted dark:text-foreground'>
+						{collaborators.length}
+					</span>
+				)}
 			</div>
 
 			{isLoading ? (
-				<div className='flex flex-col gap-2'>
-					<Skeleton className='h-14 w-full rounded-2xl' />
-					<Skeleton className='h-14 w-full rounded-2xl' />
+				<div role='status' aria-busy='true' aria-label='Loading collaborators' className='flex flex-col divide-y divide-border'>
+					{[0, 1].map(row => (
+						<div key={row} aria-hidden='true' className='flex min-h-14 items-center gap-3 py-1.5'>
+							<Skeleton className='size-10 shrink-0 rounded-full' />
+							<div className='flex min-w-0 flex-1 flex-col items-start gap-1'>
+								<Skeleton className='h-3.5 w-2/3' />
+								<Skeleton className='h-5 w-16 rounded-full' />
+							</div>
+							{isOwner ? <Skeleton className='size-11 shrink-0 rounded-xl' /> : null}
+						</div>
+					))}
 				</div>
 			) : collaborators.length === 0 ? (
 				<p className='py-2 text-sm text-muted-foreground dark:text-muted-foreground'>No one else has joined yet.</p>
@@ -81,7 +91,7 @@ export function ShareCollaborators({ collaborators, isOwner, isLoading, onRemove
 												'inline-flex h-5.5 items-center rounded-full px-2 text-xs leading-none font-semibold',
 												collaborator.role === 'owner'
 													? 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300'
-													: 'bg-slate-100 text-text-secondary dark:bg-muted dark:text-foreground',
+          : 'bg-slate-100 text-foreground dark:bg-muted dark:text-foreground',
 											)}
 										>
 											{formatCollaboratorRole(collaborator.role)}
@@ -92,7 +102,7 @@ export function ShareCollaborators({ collaborators, isOwner, isLoading, onRemove
 											type='button'
 											aria-label={`Remove ${name}`}
 											onClick={() => setConfirmingId(collaborator.user_id)}
-											variant='quiet-destructive'
+											variant='destructive'
 											size='icon-xl'
 											className='shrink-0'
 										>

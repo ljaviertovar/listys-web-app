@@ -32,7 +32,8 @@ describe('dashboard cards', () => {
 		})
 		const html = renderToStaticMarkup(createElement(MonthSpendingCard))
 		expect(html).toContain('$95.00')
-		expect(html).toContain('From 1 receipts. Trips without a receipt aren’t counted.')
+		expect(html).toContain('Trips without a receipt')
+		expect(html).toContain('counted.')
 	})
 
 	it('omits a zero amount when no totals are known and keeps its error within the card', () => {

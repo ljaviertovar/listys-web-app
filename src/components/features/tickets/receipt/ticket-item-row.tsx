@@ -4,6 +4,8 @@ import { useId, useState } from 'react'
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react'
 import { AddCircleIcon, Dollar01Icon, HelpCircleIcon, Link01Icon, Tick02Icon } from '@hugeicons/core-free-icons'
 
+import { Field, FieldLabel } from '@/components/ui/field'
+import { ItemQuantityChip } from '@/components/features/list-items/item-quantity-chip'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -25,11 +27,11 @@ interface TicketItemRowProps {
 	actions?: Pick<ReceiptMatchActions, 'confirm' | 'addAsNew' | 'chooseAnother'>
 }
 
-const BADGES: Record<ReceiptTriageBadge, { label: string; variant: 'tag' | 'tag-attention'; icon: IconSvgElement }> = {
-	'in-list': { label: 'In list', variant: 'tag', icon: Tick02Icon },
-	new: { label: 'New item', variant: 'tag', icon: AddCircleIcon },
-	'confirm-match': { label: 'Match suggested', variant: 'tag-attention', icon: HelpCircleIcon },
-	'no-price': { label: 'No price', variant: 'tag-attention', icon: Dollar01Icon },
+const BADGES: Record<ReceiptTriageBadge, { label: string; variant: 'outline' | 'warning'; icon: IconSvgElement }> = {
+	'in-list': { label: 'In list', variant: 'outline', icon: Tick02Icon },
+	new: { label: 'New item', variant: 'outline', icon: AddCircleIcon },
+	'confirm-match': { label: 'Match suggested', variant: 'warning', icon: HelpCircleIcon },
+	'no-price': { label: 'No price', variant: 'warning', icon: Dollar01Icon },
 }
 
 /**
@@ -42,10 +44,10 @@ export function TicketItemRow({ item, canSelect = false, selected = false, onSel
 
 	return (
 		<div data-testid={`ticket-item-row-${item.id}`} data-selected={selected}>
-			<label
+			<FieldLabel
 				htmlFor={canSelect ? checkboxId : undefined}
-				className={`flex min-h-16 items-center gap-2 py-1.5 ${canSelect ? 'cursor-pointer' : ''}`}
 			>
+			<Field orientation='horizontal'>
 				{canSelect ? (
 					<span className='-ml-2.5 flex size-11 shrink-0 items-center justify-center'>
 						<Checkbox
@@ -73,12 +75,10 @@ export function TicketItemRow({ item, canSelect = false, selected = false, onSel
 				</span>
 				<span className='flex shrink-0 flex-col items-end gap-1.5'>
 					<span className='font-mono text-sm leading-none font-semibold tabular-nums'>{item.price !== null ? formatCurrency(item.price) : '—'}</span>
-					<span className='inline-flex h-5.5 items-center gap-1 rounded-lg bg-secondary px-2 text-xs leading-none font-medium text-body dark:bg-muted dark:text-muted-foreground'>
-						<b className='font-mono font-semibold text-foreground tabular-nums'>{item.quantity ?? 1}</b>
-						{item.unit || 'unit'}
-					</span>
+					<ItemQuantityChip quantity={item.quantity} unit={item.unit} testId={`ticket-item-${item.id}-quantity`} />
 				</span>
-			</label>
+			</Field>
+			</FieldLabel>
 			{line && actions ? <ProposedMatch line={line} name={name} listName={listName} actions={actions} /> : null}
 		</div>
 	)
@@ -114,7 +114,7 @@ function ProposedMatch({ line, name, listName, actions }: ProposedMatchProps) {
 						<span className='truncate text-sm leading-[1.3] font-semibold'>{decision.kind === 'link' ? formatItemName(decision.item.name) : 'New item'}</span>
 					</div>
 				</div>
-				<Button type='button' variant='ghost-primary' size='touch' onClick={() => setChanging(true)}>
+				<Button type='button' variant='link' size='touch' onClick={() => setChanging(true)}>
 					Change<span className='sr-only'> match for {name}</span>
 				</Button>
 			</div>

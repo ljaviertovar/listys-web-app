@@ -2,12 +2,12 @@ export type TicketStatus = 'pending' | 'processing' | 'completed' | 'failed'
 
 interface TicketStatusMeta {
 	label: string
-	/** The `Badge` variant that tints the pill (the 100-level of the status colour with the 700-level text and dot); the label says it too, so colour never carries it alone. */
-	variant: 'neutral' | 'processing' | 'completed' | 'failed'
+	/** The `Badge` variant that sets the status text and dot color; the label says it too, so color never carries it alone. */
+	variant: 'pending' | 'processing' | 'completed' | 'failed'
 }
 
 export const TICKET_STATUS_META: Record<TicketStatus, TicketStatusMeta> = {
-	pending: { label: 'Pending', variant: 'neutral' },
+	pending: { label: 'Pending', variant: 'pending' },
 	processing: { label: 'Reading', variant: 'processing' },
 	completed: { label: 'Processed', variant: 'completed' },
 	failed: { label: 'Failed', variant: 'failed' },

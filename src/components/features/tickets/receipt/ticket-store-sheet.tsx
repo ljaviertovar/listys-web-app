@@ -186,7 +186,7 @@ function TicketStoreForm({
 		>
 			<p
 				id={descriptionId}
-				className='text-sm leading-normal text-body dark:text-muted-foreground'
+				className='text-sm leading-normal text-muted-foreground dark:text-muted-foreground'
 			>
 				{rawName ? (
 					<>
@@ -224,7 +224,7 @@ function TicketStoreForm({
 					<Button
 						type='button'
 						variant='secondary'
-						size='primary'
+						size='default'
 						onClick={stores.retry}
 					>
 						Try Again
@@ -265,6 +265,7 @@ function TicketStoreForm({
 								key={store.id}
 								store={store}
 								inline={rawName !== null}
+								selected={choice === store.id}
 							/>
 						))}
 						{allStores.length > 0 && matches.length === 0 ? (
@@ -280,9 +281,8 @@ function TicketStoreForm({
 						) : (
 							<Button
 								type='button'
-								variant='dotted-option'
+								variant='outline'
 								size='option'
-								rounded='2xl'
 								disabled={pending}
 								onClick={() => select(NEW_STORE_VALUE)}
 								data-testid='ticket-store-add-new'
@@ -318,8 +318,8 @@ function TicketStoreForm({
 			<DialogFooter variant='sheet'>
 				<Button
 					type='button'
-					variant='secondary'
-					size='primary'
+					variant='outline'
+					size='default'
 					disabled={pending}
 					onClick={onCancel}
 				>
@@ -327,7 +327,7 @@ function TicketStoreForm({
 				</Button>
 				<Button
 					type='submit'
-					size='primary'
+					size='default'
 					disabled={!choice || pending || stores.status !== 'ready'}
 					aria-describedby={error ? errorId : undefined}
 				>
@@ -350,11 +350,12 @@ interface StoreRowProps {
 	store: Store
 	/** The receipt count sits at the end of the title's row instead of under it. */
 	inline: boolean
+	selected: boolean
 }
 
-function StoreRow({ store, inline }: StoreRowProps) {
+function StoreRow({ store, inline, selected }: StoreRowProps) {
 	const count = (
-		<span className='font-sans text-sm leading-tight text-body'>
+		<span className='font-sans text-sm leading-tight text-muted-foreground'>
 			<b className='font-mono text-base leading-[1.2] font-bold text-foreground tabular-nums'>{store.receipt_count}</b>{' '}
 			{store.receipt_count === 1 ? 'receipt' : 'receipts'}
 		</span>
@@ -364,6 +365,7 @@ function StoreRow({ store, inline }: StoreRowProps) {
 		<ChoiceRow
 			variant='card'
 			testId={`ticket-store-option-${store.id}`}
+			selected={selected}
 			option={{ value: store.id, label: store.name, ...(inline ? { detail: count } : { note: count }) }}
 		/>
 	)

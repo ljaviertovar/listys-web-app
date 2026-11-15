@@ -30,7 +30,7 @@ interface Props {
 
 // Keep Dashboard, Profile and Account available in the account menu at every breakpoint.
 // Each row is a bare icon and a regular 14px title: no tile behind the icon.
-const MENU_ROW_ICON = 'text-body dark:text-muted-foreground'
+const MENU_ROW_ICON = 'text-muted-foreground dark:text-muted-foreground'
 const MENU_URLS = ['/dashboard', '/settings/profile', '/settings/account']
 const MENU_LINKS = USER_NAV_ITEMS.filter(item => MENU_URLS.includes(item.url))
 
@@ -74,7 +74,6 @@ export function UserNav({ user }: Props) {
 				<Button
 					variant='ghost'
 					size='avatar'
-					rounded='full'
 					aria-label='Account menu'
 					data-testid='user-nav-trigger'
 				>
@@ -104,7 +103,6 @@ export function UserNav({ user }: Props) {
 			{open ? <AccountMenuScrim /> : null}
 			<DropdownMenuContent
 				// 263px wide on phones (design A1 mobile); the account variant brings the radius, the overlay shadow and no ring.
-				variant='account'
 				className='w-[263px] max-w-[calc(100vw-1rem)]'
 				align='end'
 				sideOffset={12}

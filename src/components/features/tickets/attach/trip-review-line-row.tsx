@@ -2,6 +2,7 @@ import { Clock02Icon, Link04Icon, Dollar02Icon, HelpCircleIcon } from '@hugeicon
 import { HugeiconsIcon } from '@hugeicons/react'
 
 import { ItemQuantityChip } from '@/components/features/list-items'
+import { Item, ItemContent, ItemFooter, ItemHeader } from '@/components/ui/item'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { cn, formatCurrency, formatItemName } from '@/utils'
@@ -11,22 +12,22 @@ export function TripReviewLineRow({ line, onChange }: { line: AttachReviewLine; 
 	const name = line.canChange ? formatItemName(line.name) : 'Unreadable line'
 	const leftOut = line.decision.kind === 'leave'
 	return (
-		<div data-testid={`attach-review-line-${line.id}`} className='flex flex-col'>
-			<div className='flex min-h-14 items-center gap-2 pt-2 pb-1'>
-				<div className='flex min-w-0 flex-1 flex-col gap-1.5'>
+		<Item size='xs' data-testid={`attach-review-line-${line.id}`}>
+			<ItemHeader>
+				<ItemContent>
 					<div className='flex min-w-0 items-center gap-2'>
 						<ItemQuantityChip quantity={line.quantity} unit={line.unit} />
 						<span className={cn('min-w-0 flex-1 truncate text-sm font-semibold', leftOut && 'text-muted-foreground')}>{name}</span>
 					</div>
-					{line.tag ? <div><Badge variant={line.tag === 'No name' || line.tag === 'No price' ? 'tag-attention' : 'tag'}>
+					{line.tag ? <div><Badge variant={line.tag === 'No name' || line.tag === 'No price' ? 'warning' : 'outline'}>
 						<HugeiconsIcon icon={line.tag === 'Remembered' ? Clock02Icon : line.tag === 'Linked by you' ? Link04Icon : line.tag === 'No price' ? Dollar02Icon : HelpCircleIcon} strokeWidth={1.8} aria-hidden='true' />
 						{line.tag}
 					</Badge></div> : null}
-				</div>
+				</ItemContent>
 				<span className={cn('shrink-0 pl-2 font-mono text-sm font-semibold tabular-nums', leftOut && 'text-muted-foreground line-through')}>{line.price == null ? '—' : formatCurrency(line.price)}</span>
-			</div>
-			<div className='flex flex-wrap items-center justify-between gap-x-2 gap-y-1 pb-2'>
-				<p className='min-w-0 flex-1 text-xs leading-[1.4] text-body dark:text-muted-foreground'>
+			</ItemHeader>
+			<ItemFooter>
+				<p className='min-w-0 flex-1 text-xs leading-[1.4] text-muted-foreground dark:text-muted-foreground'>
 					{line.result.startsWith('Matches ') ? <>
 					Matches <strong className='font-semibold text-foreground'>{line.result.split(' · ')[0].slice('Matches '.length)}</strong>
 					{line.result.split(' · ').slice(1).map((detail, index) => {
@@ -37,8 +38,8 @@ export function TripReviewLineRow({ line, onChange }: { line: AttachReviewLine; 
 					})}
 					</> : line.result}
 				</p>
-				{line.canChange ? <Button type='button' variant='ghost-primary' size='quiet-touch' className='-mr-2' aria-label={`Change ${name}`} onClick={() => onChange(line.id)}>Change</Button> : null}
-			</div>
-		</div>
+				{line.canChange ? <Button type='button' variant='link' size='quiet-touch' className='-mr-2' aria-label={`Change ${name}`} onClick={() => onChange(line.id)}>Change</Button> : null}
+			</ItemFooter>
+		</Item>
 	)
 }

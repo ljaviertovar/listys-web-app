@@ -9,6 +9,8 @@ import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from '
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ArrowDown01Icon, Cancel01Icon, Tick02Icon } from '@hugeicons/core-free-icons'
 
+const BELOW_COLLISION_AVOIDANCE = { side: 'shift', align: 'shift', fallbackAxisSide: 'none' } as const
+
 const Combobox = ComboboxPrimitive.Root
 
 function ComboboxValue({ ...props }: ComboboxPrimitive.Value.Props) {
@@ -63,17 +65,33 @@ function ComboboxInput({
 	className,
 	children,
 	disabled = false,
+	size = 'default',
+	surface = 'default',
+	inset = 'default',
 	showTrigger = true,
 	showClear = false,
 	...props
-}: ComboboxPrimitive.Input.Props & {
+}: Omit<ComboboxPrimitive.Input.Props, 'size'> & {
+	size?: 'default' | 'lg' | 'filter'
+	surface?: 'default' | 'page'
+	inset?: 'default' | 'card'
 	showTrigger?: boolean
 	showClear?: boolean
 }) {
+	// Input-group addons contribute 12px, so 2px here aligns their content with the card's 14px inset.
 	return (
-		<InputGroup className={cn('w-auto', className)}>
+		<InputGroup
+			className={cn(
+				'w-auto',
+				surface === 'page' && 'bg-background',
+				size === 'lg' && 'h-11 rounded-2xl',
+				size === 'filter' && 'h-13 rounded-2xl px-1',
+				inset === 'card' && 'px-0.5',
+				className,
+			)}
+		>
 			<ComboboxPrimitive.Input
-				render={<InputGroupInput disabled={disabled} />}
+				render={<InputGroupInput disabled={disabled} size={size === 'default' ? 'default' : 'lg'} />}
 				{...props}
 			/>
 			<InputGroupAddon align='inline-end'>
@@ -103,24 +121,34 @@ function ComboboxContent({
 	align = 'start',
 	alignOffset = 0,
 	anchor,
+	container,
+	size = 'default',
+	placement = 'auto',
+	collisionAvoidance,
 	...props
 }: ComboboxPrimitive.Popup.Props &
-	Pick<ComboboxPrimitive.Positioner.Props, 'side' | 'align' | 'sideOffset' | 'alignOffset' | 'anchor'>) {
+	Pick<ComboboxPrimitive.Positioner.Props, 'side' | 'align' | 'sideOffset' | 'alignOffset' | 'anchor' | 'collisionAvoidance'> & {
+		size?: 'default' | 'filter'
+		placement?: 'auto' | 'below'
+		container?: ComboboxPrimitive.Portal.Props['container']
+	}) {
 	return (
-		<ComboboxPrimitive.Portal>
+		<ComboboxPrimitive.Portal container={container}>
 			<ComboboxPrimitive.Positioner
-				side={side}
+				side={placement === 'below' ? 'bottom' : side}
 				sideOffset={sideOffset}
 				align={align}
 				alignOffset={alignOffset}
 				anchor={anchor}
+				collisionAvoidance={placement === 'below' ? BELOW_COLLISION_AVOIDANCE : collisionAvoidance}
 				className='isolate z-50'
 			>
 				<ComboboxPrimitive.Popup
 					data-slot='combobox-content'
 					data-chips={!!anchor}
 					className={cn(
-						'bg-popover text-popover-foreground data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 ring-foreground/5 *:data-[slot=input-group]:bg-input/30 max-h-72 min-w-36 overflow-hidden rounded-xl shadow-lg ring-1 duration-100 *:data-[slot=input-group]:m-1 *:data-[slot=input-group]:mb-0 *:data-[slot=input-group]:h-9 *:data-[slot=input-group]:border-none *:data-[slot=input-group]:shadow-none group/combobox-content relative max-h-(--available-height) w-(--anchor-width) max-w-(--available-width) min-w-[calc(var(--anchor-width)+--spacing(7))] origin-(--transform-origin) data-[chips=true]:min-w-(--anchor-width)',
+						'bg-background text-popover-foreground data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 ring-foreground/5 *:data-[slot=input-group]:bg-background max-h-72 min-w-36 overflow-hidden rounded-3xl shadow-lg ring-1 duration-100 *:data-[slot=input-group]:m-1 *:data-[slot=input-group]:mb-0 *:data-[slot=input-group]:h-9 *:data-[slot=input-group]:border-none *:data-[slot=input-group]:shadow-none group/combobox-content relative max-h-(--available-height) w-(--anchor-width) max-w-(--available-width) min-w-(--anchor-width) origin-(--transform-origin) data-[chips=true]:min-w-(--anchor-width)',
+						 size === 'filter' && 'rounded-2xl p-1.5',
 						className,
 					)}
 					{...props}
@@ -143,12 +171,15 @@ function ComboboxList({ className, ...props }: ComboboxPrimitive.List.Props) {
 	)
 }
 
-function ComboboxItem({ className, children, ...props }: ComboboxPrimitive.Item.Props) {
+function ComboboxItem({ className, children, size = 'default', ...props }: ComboboxPrimitive.Item.Props & {
+	size?: 'default' | 'filter'
+}) {
 	return (
 		<ComboboxPrimitive.Item
 			data-slot='combobox-item'
 			className={cn(
 				"data-highlighted:bg-accent data-highlighted:text-accent-foreground not-data-[variant=destructive]:data-highlighted:**:text-accent-foreground gap-2.5 rounded-lg py-2 pr-8 pl-3 text-sm [&_svg:not([class*='size-'])]:size-4 relative flex w-full cursor-default items-center outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+				size === 'filter' && 'data-selected:bg-accent data-selected:text-accent-foreground min-h-12 gap-2.5 rounded-xl py-0 pr-9 pl-2 font-semibold',
 				className,
 			)}
 			{...props}

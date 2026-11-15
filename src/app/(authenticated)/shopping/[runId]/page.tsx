@@ -93,8 +93,8 @@ export default async function ShoppingRunPage({ params, searchParams }: { params
 			desc={<div className='flex flex-col gap-2'>
 				{stores.length > 0 || isCompleted ? <div data-testid='trip-header-classification' className='flex flex-wrap items-center gap-x-2.5 gap-y-1.5'>
 					{stores[0] ? <EntityLabel name={stores[0].name} testId={`trip-store-${stores[0].id}`} /> : null}
-					{stores.length > 1 ? <Badge variant='tag'><HugeiconsIcon icon={Store03Icon} strokeWidth={1.8} aria-hidden='true' />+{stores.length - 1} {stores.length === 2 ? 'store' : 'stores'}</Badge> : null}
-					{isCompleted ? <Badge variant={receipts.length ? 'tag' : 'tag-attention'}><HugeiconsIcon icon={receipts.length ? AttachmentIcon : AttachmentOffIcon} strokeWidth={1.8} aria-hidden='true' />{receipts.length > 1 ? `${receipts.length} Receipt attached` : receipts.length ? 'Receipt attached' : 'No Receipt attached'}</Badge> : null}
+					{stores.length > 1 ? <Badge variant='outline'><HugeiconsIcon icon={Store03Icon} strokeWidth={1.8} aria-hidden='true' />+{stores.length - 1} {stores.length === 2 ? 'store' : 'stores'}</Badge> : null}
+					{isCompleted ? <Badge variant={receipts.length ? 'outline' : 'warning'}><HugeiconsIcon icon={receipts.length ? AttachmentIcon : AttachmentOffIcon} strokeWidth={1.8} aria-hidden='true' />{receipts.length > 1 ? `${receipts.length} Receipt attached` : receipts.length ? 'Receipt attached' : 'No Receipt attached'}</Badge> : null}
 				</div> : null}
 				{isCompleted ? <DataLine testId='trip-header-data'>{date ? <>Completed on {formatTripDate(date)}</> : null}{amount == null ? null : <DataFigure>{!receipts.length ? '≈ ' : ''}{formatCurrency(amount)}</DataFigure>}</DataLine> : null}
 				{!isCompleted ? <DataLine testId='trip-header-data'>{run.store_id ? `${progressTotal} of ${totalCount} items` : `${totalCount} items`}</DataLine> : null}

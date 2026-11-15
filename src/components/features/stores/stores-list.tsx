@@ -40,7 +40,7 @@ export function StoresList({ stores }: StoresListProps) {
 			>
 				<Button
 					asChild
-					size='primary'
+					size='default'
 				>
 					<Link href='/tickets'>Go to Receipts</Link>
 				</Button>
@@ -72,7 +72,7 @@ export function StoresList({ stores }: StoresListProps) {
 							<Button
 								type='button'
 								variant='secondary'
-								size='primary'
+								size='default'
 								onClick={() => flow.conflictWith && actions.chooseTarget(flow.store, flow.conflictWith)}
 							>
 								Merge Into “{flow.conflictWith.name}”
@@ -83,23 +83,22 @@ export function StoresList({ stores }: StoresListProps) {
 				) : (
 					<EntityCard
 						key={store.id}
-						icon={Store03Icon}
-						tone='store'
+						size='list'
 						title={store.name}
 							href={`/stores/${store.id}`}
 							linkLabel='View Store'
 							badge={
 								store.receipt_count === 1 ? (
-									<Badge variant='tag'>
+									<Badge variant='outline'>
 										<HugeiconsIcon icon={SparklesIcon} strokeWidth={1.8} aria-hidden='true' />
 										New
 									</Badge>
 								) : null
 							}
 							meta={buildStoreMeta(store)}
-						count={store.receipt_count}
-						unit={{ one: 'receipt', many: 'receipts' }}
-						emptyLabel='receipts'
+						count={store.usual_items_count ?? 0}
+						unit={{ one: 'usual item', many: 'usual items' }}
+						emptyLabel='usual items'
 						menu={{
 							label: `More options for ${store.name}`,
 							disabled: actions.pending,
@@ -154,7 +153,7 @@ export function StoresList({ stores }: StoresListProps) {
 			>
 				{flow.kind === 'confirm-merge' ? (
 					<>
-						<Alert variant='receipt-info' role='note' data-testid='store-merge-guidance'>
+						<Alert variant='info' role='note' data-testid='store-merge-guidance'>
 							<HugeiconsIcon icon={InformationCircleIcon} strokeWidth={1.8} aria-hidden='true' />
 							<AlertTitle>What happens when you merge</AlertTitle>
 							<AlertDescription>Receipts, prices and item tags from “{flow.source.name}” move to {flow.target.name}, and its name is kept as one of the names on receipts.</AlertDescription>
@@ -182,6 +181,7 @@ export function StoresSkeleton() {
 					<EntityCardSkeleton
 						key={index}
 						testId={`store-card-skeleton-${index}`}
+						kind='store'
 					/>
 				))}
 			</div>

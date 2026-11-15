@@ -13,7 +13,7 @@ interface CategoryCollapseControlProps {
 
 export function CategoryCollapseControl({ allCollapsed, onToggle, testId }: CategoryCollapseControlProps) {
 	return (
-		<Button type='button' variant='ghost-primary' size='touch' onClick={onToggle} data-testid={testId}>
+		<Button type='button' variant='ghost' size='touch' onClick={onToggle} data-testid={testId}>
 			<HugeiconsIcon
 				icon={allCollapsed ? ArrowDown01Icon : ArrowUp01Icon}
 				strokeWidth={1.8}

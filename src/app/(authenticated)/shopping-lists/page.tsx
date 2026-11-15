@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import { ListViewIcon } from '@hugeicons/core-free-icons'
 
 import { PageContainer, PageHeader } from '@/components/app'
 import { RetryableError } from '@/components/commons'
@@ -76,8 +77,11 @@ export default async function ShoppingListsPage() {
 			<PageHeader
 				variant='screen'
 				title='Lists'
-				desc=''
-				aside={<CreateBaseListDialog size='primary' />}
+				icon={ListViewIcon}
+				iconTone='primary'
+				desc='All your lists in one place. Start with the things you always buy.'
+				back={{ href: '/dashboard', label: 'Back to Dashboard' }}
+				aside={<CreateBaseListDialog size='default' />}
 			/>
 
 			<PageContainer contentClassName='space-y-2 md:space-y-6'>

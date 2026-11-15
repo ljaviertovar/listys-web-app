@@ -93,7 +93,7 @@ export function UploadTicketDialog({
 				<DialogTrigger asChild>
 					{trigger ?? (
 						<Button
-							size='primary'
+							size='default'
 							{...buttonProps}
 							className={cn('w-full', className)}
 						>
@@ -138,7 +138,7 @@ export function UploadTicketDialog({
 					<DialogClose asChild>
 						<Button
 							aria-label='Close'
-							variant='quiet'
+							variant='ghost'
 							size='icon-xl'
 							disabled={busy}
 							className='absolute top-0 -right-2 sm:-top-2.25'

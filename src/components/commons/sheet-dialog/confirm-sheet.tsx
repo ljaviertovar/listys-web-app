@@ -5,12 +5,9 @@ import { useId } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Alert02Icon, AlertCircleIcon, Loading03Icon } from '@hugeicons/core-free-icons'
 
-import { Button } from '@/components/ui/button'
-import { DialogFooter } from '@/components/ui/dialog'
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-
-import { SheetDialog } from './sheet-dialog'
-import { RowIcon } from '../row-icon'
+import { useDialogFocus } from '@/hooks'
 
 interface ConfirmSheetProps {
 	open: boolean
@@ -38,7 +35,7 @@ interface ConfirmSheetProps {
 	testId: string
 }
 
-/** A two-button confirmation as an A1 sheet: Cancel on the left, the confirm on the right, both 48px tall. */
+/** Native confirmation actions inside the approved responsive sheet presentation. */
 export function ConfirmSheet({
 	open,
 	onOpenChange,
@@ -59,24 +56,26 @@ export function ConfirmSheet({
 }: ConfirmSheetProps) {
 	const descriptionId = useId()
 	const consequenceId = useId()
+	const { onOpenAutoFocus, onCloseAutoFocus } = useDialogFocus()
 	return (
-		<SheetDialog
+		<AlertDialog
 			open={open}
 			onOpenChange={next => !loading && onOpenChange(next)}
-			title={title}
-			ariaDescribedBy={[
+		>
+		<AlertDialogContent sheetOnPhones data-testid={testId} onOpenAutoFocus={onOpenAutoFocus} onCloseAutoFocus={onCloseAutoFocus} aria-describedby={[
 				description ? descriptionId : null,
 				consequence ? consequenceId : null,
 			].filter(Boolean).join(' ') || undefined}
-			role='alertdialog'
-			testId={testId}
 		>
+			<AlertDialogHeader variant='sheet'>
+				<AlertDialogTitle>{title}</AlertDialogTitle>
+			</AlertDialogHeader>
 			<div className='flex flex-col gap-4'>
 				{description || media ? (
 					<div className='flex items-center gap-3.5'>
 						{media}
 						{description ? (
-							<p id={descriptionId} className='text-sm leading-normal text-body dark:text-muted-foreground'>{description}</p>
+							<AlertDialogDescription id={descriptionId}>{description}</AlertDialogDescription>
 						) : null}
 					</div>
 				) : null}
@@ -84,12 +83,12 @@ export function ConfirmSheet({
 					<Alert
 						id={consequenceId}
 						role='note'
-						variant={consequenceTone === 'warning' ? 'receipt-warning' : 'receipt-danger'}
+						variant={consequenceTone === 'danger' ? 'destructive' : 'default'}
 					>
-						<RowIcon
+						<HugeiconsIcon
 							icon={consequenceTone === 'warning' ? Alert02Icon : AlertCircleIcon}
-							tone={consequenceTone}
-							size='alert'
+							aria-hidden='true'
+							className='size-4'
 						/>
 						{consequenceTitle ? <AlertTitle>{consequenceTitle}</AlertTitle> : null}
 						<AlertDescription>{consequence}</AlertDescription>
@@ -97,22 +96,24 @@ export function ConfirmSheet({
 				) : null}
 				{children}
 			</div>
-			<DialogFooter variant='sheet' className='mt-4'>
-				<Button
-					size='primary'
+			<AlertDialogFooter>
+				<AlertDialogCancel
+					size='lg'
 					type='button'
 					variant='secondary'
 					disabled={loading}
-					onClick={() => onOpenChange(false)}
 				>
 					{cancelLabel}
-				</Button>
-				<Button
+				</AlertDialogCancel>
+				<AlertDialogAction
 					type='button'
-					size='primary'
+					size='lg'
 					variant={tone === 'danger' ? 'destructive' : 'default'}
 					disabled={loading}
-					onClick={onConfirm}
+					onClick={event => {
+						event.preventDefault()
+						if (!loading) onConfirm()
+					}}
 					data-testid={`${testId}-confirm`}
 				>
 					{loading ? (
@@ -124,8 +125,9 @@ export function ConfirmSheet({
 						/>
 					) : null}
 					{loading ? (loadingLabel ?? confirmLabel) : confirmLabel}
-				</Button>
-			</DialogFooter>
-		</SheetDialog>
+				</AlertDialogAction>
+			</AlertDialogFooter>
+		</AlertDialogContent>
+		</AlertDialog>
 	)
 }

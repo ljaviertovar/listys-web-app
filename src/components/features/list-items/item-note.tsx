@@ -12,15 +12,15 @@ interface ItemNoteProps {
 }
 
 /**
- * An item's note, under its name: a small note icon and the text at 12px regular, smaller and lighter than the 14px
- * semibold name so the two never read as one line.
+ * An item's note, under its name: a small note icon and the text at 12px regular, smaller than the 14px semibold name
+ * so the two never read as one line.
  */
 export function ItemNote({ children, wrap = false, className, testId }: ItemNoteProps) {
 	return (
 		<span
 			aria-label='Item note'
 			data-testid={testId}
-			className={cn('flex min-w-0 items-start gap-1 text-xs leading-[1.3] text-muted-foreground dark:text-muted-foreground', className)}
+			className={cn('flex min-w-0 items-start gap-1 text-xs leading-[1.3] text-foreground', className)}
 		>
 			<HugeiconsIcon
 				icon={Note01Icon}

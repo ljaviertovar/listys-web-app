@@ -32,7 +32,6 @@ export function ActiveSessionBanner({ session, isGuest = false, otherSessionCoun
 					<ActiveShoppingBadge
 						tone='on-dark'
 						label='Shopping now'
-						size='hero'
 					/>
 					{origin ? <span className='line-clamp-2 text-sm leading-tight text-slate-300'>{origin}</span> : null}
 				</div>
@@ -65,7 +64,7 @@ export function ActiveSessionBanner({ session, isGuest = false, otherSessionCoun
 
 				<Button
 					asChild
-					variant='hero'
+					variant='default'
 					size='2xl'
 					className='mt-1 w-full md:w-auto md:self-start'
 				>
@@ -84,7 +83,7 @@ export function ActiveSessionBanner({ session, isGuest = false, otherSessionCoun
 				</Button>
 
 				{isGuest ? (
-					<Badge variant='tag'>
+					<Badge variant='outline'>
 						<HugeiconsIcon
 							icon={UserStar02Icon}
 							className='size-3'

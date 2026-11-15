@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import { Store03Icon } from '@hugeicons/core-free-icons'
 
 import { PageContainer, PageHeader } from '@/components/app'
 import { RetryableError } from '@/components/commons'
@@ -28,6 +29,8 @@ export default async function StoresPage() {
 				variant='screen'
 				back={{ href: '/tickets', label: 'Back to Receipts' }}
 				title='My Stores'
+				icon={Store03Icon}
+				iconTone='store'
 				desc={STORES_PAGE_DESCRIPTION}
 			/>
 
