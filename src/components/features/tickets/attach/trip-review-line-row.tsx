@@ -27,7 +27,7 @@ export function TripReviewLineRow({ line, onChange }: { line: AttachReviewLine; 
 				<span className={cn('shrink-0 pl-2 font-mono text-sm font-semibold tabular-nums', leftOut && 'text-muted-foreground line-through')}>{line.price == null ? '—' : formatCurrency(line.price)}</span>
 			</ItemHeader>
 			<ItemFooter>
-				<p className='min-w-0 flex-1 text-xs leading-[1.4] text-muted-foreground dark:text-muted-foreground'>
+				<p className='min-w-0 flex-1 text-xs leading-4 text-muted-foreground'>
 					{line.result.startsWith('Matches ') ? <>
 					Matches <strong className='font-semibold text-foreground'>{line.result.split(' · ')[0].slice('Matches '.length)}</strong>
 					{line.result.split(' · ').slice(1).map((detail, index) => {
@@ -38,7 +38,7 @@ export function TripReviewLineRow({ line, onChange }: { line: AttachReviewLine; 
 					})}
 					</> : line.result}
 				</p>
-				{line.canChange ? <Button type='button' variant='link' size='quiet-touch' className='-mr-2' aria-label={`Change ${name}`} onClick={() => onChange(line.id)}>Change</Button> : null}
+				{line.canChange ? <Button type='button' variant='outline' size='lg' className='-mr-2' aria-label={`Change ${name}`} onClick={() => onChange(line.id)}>Change</Button> : null}
 			</ItemFooter>
 		</Item>
 	)

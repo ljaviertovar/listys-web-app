@@ -4,7 +4,7 @@ import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react'
 import { Fragment, type Ref } from 'react'
 import { MoreHorizontalIcon } from '@hugeicons/core-free-icons'
 
-import { Button } from '@/components/ui/button'
+import { Button, type ButtonProps } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 
 export interface RowMenuAction {
@@ -24,12 +24,13 @@ interface RowMenuProps {
 	actions: RowMenuAction[]
 	disabled?: boolean
 	testId: string
+	size?: ButtonProps['size']
 	className?: string
 	triggerRef?: Ref<HTMLButtonElement>
 }
 
 /** The "⋯" menu of a card or a row: one 44px target that holds its edit and delete actions instead of two cramped icons. */
-export function RowMenu({ label, actions, disabled = false, testId, className, triggerRef }: RowMenuProps) {
+export function RowMenu({ label, actions, disabled = false, testId, size = 'icon-xl', className, triggerRef }: RowMenuProps) {
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
@@ -40,7 +41,7 @@ export function RowMenu({ label, actions, disabled = false, testId, className, t
 					disabled={disabled}
 					data-testid={testId}
 					variant='ghost'
-					size='icon-xl'
+					size={size}
 					className={className}
 				>
 					<HugeiconsIcon

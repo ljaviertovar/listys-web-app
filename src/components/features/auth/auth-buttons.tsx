@@ -57,7 +57,7 @@ export default function AuthButtons({ signedOut }: Props) {
 				<div className='flex items-center gap-4'>
 					<Button
 						asChild
-						size='default'
+						size='lg'
 					>
 						<Link href='/auth/signup'>Get Started</Link>
 					</Button>

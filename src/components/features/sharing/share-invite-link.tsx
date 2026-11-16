@@ -91,7 +91,7 @@ export function ShareInviteLink({ link, isLoading, isGenerating, onGenerate, onR
 			) : !link ? (
 				<Button
 					ref={createLinkRef}
-					size='default'
+					size='lg'
 					onClick={onGenerate}
 					disabled={isGenerating}
 					data-testid='share-create-link'
@@ -122,7 +122,7 @@ export function ShareInviteLink({ link, isLoading, isGenerating, onGenerate, onR
 						</span>
 					</div>
 					<Button
-						size='default'
+						size='lg'
 						variant={copied ? 'secondary' : 'default'}
 						onClick={copy}
 						data-testid='share-copy-link'
@@ -137,7 +137,7 @@ export function ShareInviteLink({ link, isLoading, isGenerating, onGenerate, onR
 					</Button>
 					<div className='grid grid-cols-2 gap-3'>
 						<Button
-							size='default'
+							size='lg'
 							variant='secondary'
 							onClick={onGenerate}
 							disabled={isGenerating}
@@ -152,7 +152,7 @@ export function ShareInviteLink({ link, isLoading, isGenerating, onGenerate, onR
 							Regenerate
 						</Button>
 						<Button
-							size='default'
+							size='lg'
 							variant='destructive'
 							onClick={() => setConfirmingRevoke(true)}
 							data-testid='share-revoke-link'

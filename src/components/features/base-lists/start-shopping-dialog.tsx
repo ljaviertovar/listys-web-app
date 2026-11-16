@@ -194,7 +194,7 @@ export function StartShoppingDialog({
 							<span className='text-xs leading-normal text-foreground'>{selectedStore ? `${firstAtStoreCount} of ${listItemCount} items` : `All stores · ${listItemCount} items`}</span>
 						</span>
 					</span>
-					<Button type='button' size='sm' variant='outline' onClick={() => setStorePickerOpen(true)} disabled={loading}>
+					<Button type='button' size='lg' variant='outline' onClick={() => setStorePickerOpen(true)} disabled={loading}>
 						{selectedStore ? 'Change' : 'Choose Store'}
 					</Button>
 				</div>
@@ -210,7 +210,7 @@ export function StartShoppingDialog({
 			</div>
 				<DialogFooter variant='sheet' spacing='section'>
 				<Button
-					size='default'
+					size='lg'
 					type='button'
 					variant='outline'
 					onClick={() => setOpen(false)}
@@ -219,7 +219,7 @@ export function StartShoppingDialog({
 					Cancel
 				</Button>
 				<Button
-					size='default'
+					size='lg'
 					type='button'
 					onClick={handleConfirm}
 					disabled={loading || isEmpty}

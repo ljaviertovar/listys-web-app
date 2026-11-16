@@ -24,6 +24,7 @@ function Card({
 		| 'dashboard-compact'
 		| 'receipt'
 		| 'trip'
+		| 'object'
 		| 'list'
 		| 'stat'
 		| 'saved'
@@ -57,6 +58,8 @@ function Card({
 				// Object cards use the shared 24px surface with 14px inset at every viewport.
 				size === 'receipt' && 'gap-0 p-3.5 md:p-3.5',
 				size === 'trip' && 'gap-0 p-3.5 md:p-3.5',
+				// The object card (a list, a store, a receipt, a trip): 16px padding at every viewport, and `relative` so its footer link can cover it.
+				size === 'object' && 'relative gap-0 p-4',
 				// A card of collapsible categories: the 44px Collapse All button carries its own top space (canvas v4).
 				size === 'list' && 'gap-3 p-4',
 				size === 'stat' && 'gap-2.5 p-3 md:p-4',
@@ -214,8 +217,13 @@ function CardFooter({
 	className,
 	inset = 'default',
 	variant = 'default',
+	spacing = 'default',
 	...props
-}: React.ComponentProps<'div'> & { inset?: 'default' | 'compact'; variant?: 'default' | 'summary' | 'status' }) {
+}: React.ComponentProps<'div'> & {
+	inset?: 'default' | 'compact'
+	variant?: 'default' | 'summary' | 'status'
+	spacing?: 'default' | 'roomy'
+}) {
 	return (
 		<div
 			data-slot='card-footer'
@@ -225,6 +233,7 @@ function CardFooter({
 				inset === 'compact' && 'px-0',
 				variant === 'summary' && 'min-h-10 justify-between gap-3 border-t border-border pt-3',
 				variant === 'status' && 'flex-col items-stretch gap-1.5 border-t border-border pt-2',
+				variant === 'status' && spacing === 'roomy' && 'pt-3',
 				'group-data-[layout=horizontal]/card:md:p-8 group-data-[layout=horizontal]/card:md:pt-0',
 				className,
 			)}

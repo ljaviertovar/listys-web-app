@@ -148,7 +148,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
 
 			<Button
 				type='submit'
-				size='xl'
+				size='lg'
 				disabled={isSubmitting}
 				className='w-full'
 			>

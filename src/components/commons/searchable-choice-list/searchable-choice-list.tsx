@@ -15,6 +15,8 @@ export interface ChoiceOption {
 	label: string
 	/** A short fact at the end of the row, in mono ("3 receipts", "New store"). */
 	detail?: ReactNode
+	/** Reduces the emphasis of secondary facts such as counts. */
+	detailTone?: 'default' | 'muted'
 	/** A second line under the label, for what tells two similar rows apart or why a row cannot be chosen. */
 	note?: ReactNode
 	/** The row stays listed but cannot be chosen. */
@@ -143,7 +145,7 @@ export function ChoiceRow({ option, variant = 'default', selected = false, testI
                     <FieldTitle size={variant === 'card' ? 'choice' : 'default'}>{option.label}</FieldTitle>
                     {option.note ? <FieldDescription size={variant === 'card' ? 'choice' : 'default'}>{option.note}</FieldDescription> : null}
                 </FieldContent>
-                {option.detail ? <span className='shrink-0 font-mono text-xs tabular-nums'>{option.detail}</span> : null}
+				{option.detail ? <span className={`shrink-0 font-mono text-xs tabular-nums ${option.detailTone === 'muted' ? 'text-muted-foreground' : ''}`}>{option.detail}</span> : null}
             </Field>
         </FieldLabel>
     )

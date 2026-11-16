@@ -12,7 +12,7 @@ export function AuthBackLink({ tone }: { tone: 'light-surface' | 'dark-surface' 
 		<Button
 			asChild
 	variant={onPhoto ? 'on-dark' : 'ghost'}
-			size={onPhoto ? 'touch' : 'lg'}
+			size='default'
 		>
 			<Link
 				href='/'

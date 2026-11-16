@@ -9,13 +9,13 @@ interface EntityCardSkeletonProps {
 /** Mirrors the list and store card shells, with the content slots each kind actually uses. */
 export function EntityCardSkeleton({ testId, kind }: EntityCardSkeletonProps) {
 	return (
-		<Card data-testid={testId} aria-hidden='true' size='list'>
-			<div className='flex items-center gap-3'>
+		<Card data-testid={testId} aria-hidden='true' size='object'>
+			<div className='flex min-h-8 items-center gap-3'>
 				<Skeleton className='h-5 min-w-0 flex-1' />
-				<Skeleton className='size-10 shrink-0 rounded-xl' />
+				<Skeleton className='size-8 shrink-0 rounded-xl' />
 			</div>
 			{kind === 'list' ? (
-				<div className='flex flex-col gap-2'>
+				<div className='mt-2 flex flex-col gap-2'>
 					<div className='flex items-start gap-1.5'>
 						<Skeleton className='mt-0.5 size-4 shrink-0 rounded-sm' />
 						<div className='flex min-w-0 flex-1 flex-col gap-1.5'>
@@ -29,12 +29,12 @@ export function EntityCardSkeleton({ testId, kind }: EntityCardSkeletonProps) {
 					</div>
 				</div>
 			) : (
-				<div className='flex items-center gap-2'>
+				<div className='mt-2 flex items-center gap-2'>
 					<Skeleton className='h-5 w-12 rounded-full' />
 					<Skeleton className='h-4 w-2/5' />
 				</div>
 			)}
-			<div className='flex min-h-10 items-center justify-between gap-3 border-t border-border pt-3'>
+			<div className='mt-3 flex min-h-10 items-center justify-between gap-3 border-t border-border pt-3'>
 				<Skeleton className='h-4 w-24' />
 				<Skeleton className='h-4 w-20' />
 			</div>

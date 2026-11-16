@@ -39,7 +39,7 @@ export function TicketAttachCard({
 			{actions.candidatesError ? (
 				<Alert variant='destructive'><AlertDescription>
 					<p>{actions.candidatesError}</p>
-					<Button type='button' variant='secondary' size='sm' onClick={() => void actions.reloadCandidates()}>Retry</Button>
+					<Button type='button' variant='secondary' size='lg' onClick={() => void actions.reloadCandidates()}>Retry</Button>
 				</AlertDescription></Alert>
 			) : (
 				<Button type='button' size='lg' onClick={actions.openDialog}>

@@ -1,13 +1,12 @@
 'use client'
 
 import { useId, useMemo } from 'react'
-import { HugeiconsIcon } from '@hugeicons/react'
-import { Alert02Icon, ListViewIcon, Loading03Icon } from '@hugeicons/core-free-icons'
+import { Alert02Icon, ListViewIcon } from '@hugeicons/core-free-icons'
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
-import { CategoryCollapseControl, CategorySection, RowIcon, useCategorySectionExpansion } from '@/components/commons'
+import { CategoryCollapseControl, CategorySection, LoadingState, RowIcon, useCategorySectionExpansion } from '@/components/commons'
 import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList, useComboboxAnchor } from '@/components/ui/combobox'
 import { InputGroupAddon } from '@/components/ui/input-group'
 import { buildListDisplayNames } from '@/utils'
@@ -50,7 +49,7 @@ export function TicketItemsList({ items, selection, canSelect, triage }: TicketI
 	const readyTriage = triage?.status === 'ready' ? triage : null
 	const checkAll = selection.allSelected ? true : selection.partiallySelected ? 'indeterminate' : false
 	const sectionDescriptors = readyTriage
-		? readyTriage.triage.map(section => ({ id: `receipt-triage-${section.id}`, defaultOpen: !section.startsFolded }))
+		? readyTriage.triage.map(section => ({ id: `receipt-triage-${section.id}`, defaultOpen: true }))
 		: triageMode
 			? []
 			: groups.map(group => ({ id: `ticket-category-${group.key}`, defaultOpen: true }))
@@ -67,25 +66,20 @@ export function TicketItemsList({ items, selection, canSelect, triage }: TicketI
 					<AlertDescription>
 						<div className='flex flex-col items-start gap-2'>
 							<span>Try again to compare them with your list.</span>
-							<Button type='button' variant='destructive' size='alert-action' onClick={triage.retry}>Retry</Button>
+							<Button type='button' variant='destructive' size='lg' onClick={triage.retry}>Retry</Button>
 						</div>
 					</AlertDescription>
 				</Alert>
 			) : null}
 			{activeTriage?.baseList ? <TargetListRow triage={activeTriage} baseList={activeTriage.baseList} /> : null}
 			{activeTriage?.status === 'loading' || activeTriage?.status === 'switching' ? (
-				<div data-testid='receipt-triage-switching' role='status' aria-busy='true' className='flex flex-col items-center gap-3 px-4 py-7 text-center'>
-					<HugeiconsIcon icon={Loading03Icon} strokeWidth={1.5} aria-hidden='true' className='size-10.5 animate-spin text-primary motion-reduce:animate-none' />
-					<p className='text-sm leading-[1.4] font-medium text-muted-foreground dark:text-muted-foreground'>
-						{activeTriage.status === 'loading' ? 'Loading your list…' : `Comparing with ${activeTriage.baseList?.name}…`}
-					</p>
-				</div>
+				<LoadingState testId='receipt-triage-switching' label={activeTriage.status === 'loading' ? 'Loading your list…' : `Comparing with ${activeTriage.baseList?.name}…`} />
 			) : null}
 			{showControls ? (
-				<div className='mt-1 flex items-center justify-between gap-2 pl-3'>
+				<div className='mt-1 grid grid-cols-2 items-center'>
 					{canSelect ? (
-						<label className='flex min-h-11 cursor-pointer items-center pr-3 font-display text-sm leading-none font-semibold'>
-							<span className='-ml-2.5 flex size-11 shrink-0 items-center justify-center'>
+						<label className='flex min-h-11 w-full cursor-pointer items-center font-display text-sm leading-none font-semibold'>
+							<span className='flex size-11 shrink-0 items-center justify-center'>
 								<Checkbox
 									checked={checkAll}
 									onCheckedChange={selection.toggleAll}
@@ -110,7 +104,7 @@ export function TicketItemsList({ items, selection, canSelect, triage }: TicketI
 					key={section.id}
 					section={section}
 					first={index === 0}
-					open={expansion.isOpen(`receipt-triage-${section.id}`, !section.startsFolded)}
+					open={expansion.isOpen(`receipt-triage-${section.id}`, true)}
 					onOpenChange={open => expansion.onOpenChange(`receipt-triage-${section.id}`, open)}
 					listName={readyTriage.baseList?.name ?? ''}
 					selection={selection}
@@ -144,31 +138,30 @@ function TargetListRow({ triage, baseList }: TargetListRowProps) {
 			<Combobox
 				items={triage.baseLists.map(list => list.id)}
 				itemToStringLabel={id => listLabels.get(id) ?? triage.baseLists.find(list => list.id === id)?.name ?? ''}
-				filter={(id, query, getLabel) => (getLabel?.(id) ?? String(id)).toLocaleLowerCase().includes(query.toLocaleLowerCase())}
 				value={baseList.id}
 				onValueChange={id => typeof id === 'string' && triage.changeList(id)}
 			>
 				<div className='w-full' ref={listAnchor}>
-				<ComboboxInput size='filter' surface='page' inset='card' aria-labelledby={labelId} data-testid='receipt-target-list-select'>
+				<ComboboxInput size='lg' surface='form' aria-labelledby={labelId} data-testid='receipt-target-list-select'>
 					<InputGroupAddon align='inline-start'>
 						<RowIcon icon={ListViewIcon} tone='primary' size='stat' testId='receipt-target-list-input-icon' />
 					</InputGroupAddon>
 				</ComboboxInput>
 				</div>
-				<ComboboxContent size='filter' placement='below' anchor={listAnchor}>
+				<ComboboxContent anchor={listAnchor}>
 					<ComboboxList>
 						{(id: string) => {
 							const list = triage.baseLists.find(candidate => candidate.id === id)
 							if (!list) return null
 							return (
-								<ComboboxItem key={list.id} value={list.id} size='filter'>
+								<ComboboxItem key={list.id} value={list.id}>
 									<RowIcon icon={ListViewIcon} tone='primary' size='stat' testId='receipt-target-list-option-icon' />
 									{listLabels.get(list.id) ?? list.name}
 								</ComboboxItem>
 							)
 						}}
 					</ComboboxList>
-					<ComboboxEmpty>No lists match this search.</ComboboxEmpty>
+					<ComboboxEmpty>No lists available.</ComboboxEmpty>
 				</ComboboxContent>
 			</Combobox>
 		</div>
@@ -198,7 +191,6 @@ function TicketCategorySection({ group, selection, canSelect, first = false, exp
 			onOpenChange={open => expansion.onOpenChange(id, open)}
 			testId={id}
 			className={first ? 'border-t-0' : undefined}
-			panelClassName='px-3'
 		>
 			<ul className='divide-y divide-slate-200/70 dark:divide-border'>
 				{group.items.map(item => (

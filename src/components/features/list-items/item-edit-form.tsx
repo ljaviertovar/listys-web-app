@@ -68,7 +68,6 @@ export function ItemEditForm({ item, onSubmit, onCancel }: ItemEditFormProps) {
 				form={form}
 				idPrefix={`${id}-edit`}
 				disabled={loading}
-				comboboxStyle='item-edit'
 			/>
 			<div className='mt-3 grid grid-cols-2 gap-2'>
 				<Button

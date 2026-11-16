@@ -88,7 +88,7 @@ export function CategorySection({
 						</span>
 					</CollapsibleTrigger>
 				</h3>
-				{description ? <p data-testid={`${testId}-description`} className='mb-2.5 ml-11 text-xs leading-normal text-muted-foreground dark:text-muted-foreground'>{description}</p> : null}
+				{description ? <p data-testid={`${testId}-description`} className='mb-3 ml-11 pr-4 text-xs leading-4 text-muted-foreground'>{description}</p> : null}
 				<CollapsibleContent>
 					<div className={cn('overflow-hidden rounded-2xl bg-muted dark:bg-muted/50', panelClassName)}>{children}</div>
 				</CollapsibleContent>

@@ -303,7 +303,7 @@ export function HeroSection() {
 						</p>
 						<div className='mt-7 flex flex-wrap items-center justify-center gap-3'>
 							<ButtonLink
-								size='xl'
+								size='lg'
 							variant='solid'
 								href='/auth/signup'
 							>

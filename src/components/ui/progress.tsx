@@ -9,6 +9,7 @@ import { cn } from '@/utils'
 const progressVariants = cva('relative flex w-full items-center overflow-x-hidden rounded-4xl', {
 	variants: {
 		size: { default: 'h-3', md: 'h-2', sm: 'h-1.5' },
+		shape: { default: '', square: 'rounded-none' },
 		tone: {
 			default: 'bg-muted',
 			// The sidebar's session card: a pale blue track.
@@ -19,13 +20,14 @@ const progressVariants = cva('relative flex w-full items-center overflow-x-hidde
 			'on-dark': 'bg-white/15',
 		},
 	},
-	defaultVariants: { size: 'default', tone: 'default' },
+	defaultVariants: { size: 'default', shape: 'default', tone: 'default' },
 })
 
 function Progress({
 	className,
 	value,
 	size = 'default',
+	shape = 'default',
 	tone = 'default',
 	complete = false,
 	indeterminate = false,
@@ -43,7 +45,7 @@ function Progress({
 			value={value}
 			data-size={size}
 			data-tone={tone}
-			className={cn(progressVariants({ size, tone }), className)}
+		className={cn(progressVariants({ size, shape, tone }), className)}
 			{...props}
 		>
 			<ProgressPrimitive.Indicator

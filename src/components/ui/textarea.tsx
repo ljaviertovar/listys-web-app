@@ -9,7 +9,7 @@ const textareaVariants = cva(
 		variants: {
 			size: {
 				default: 'min-h-16',
-				compact: 'h-14 min-h-14 overflow-y-auto text-sm leading-5',
+				compact: 'h-14 min-h-14 overflow-y-auto text-base leading-5 md:text-sm',
 			},
 		},
 		defaultVariants: { size: 'default' },

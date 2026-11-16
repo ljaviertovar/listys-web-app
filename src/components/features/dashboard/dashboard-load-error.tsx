@@ -38,7 +38,7 @@ export function DashboardLoadError() {
 			<Button
 				onClick={() => startTransition(() => router.refresh())}
 				disabled={pending}
-				size='default'
+				size='lg'
 				data-testid='dashboard-load-error-retry'
 			>
 				{pending ? 'Trying Again…' : 'Try Again'}

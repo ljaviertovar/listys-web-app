@@ -81,7 +81,7 @@ export function NoSessionBanner({ quickStart, startTarget, addItemsTarget = null
 									<Button
 										asChild
 										variant='on-dark'
-										size='default'
+										size='lg'
 										className='w-full max-w-full'
 									>
 										<Link
@@ -102,7 +102,7 @@ export function NoSessionBanner({ quickStart, startTarget, addItemsTarget = null
 				{!hasLists ? (
 					<UploadTicketDialog
 						variant='default'
-						size='default'
+					size='lg'
 						className='mt-1 w-full md:w-auto md:self-start'
 					/>
 				) : startTarget ? (
@@ -111,7 +111,7 @@ export function NoSessionBanner({ quickStart, startTarget, addItemsTarget = null
 						baseListName={startTarget.name}
 						itemsCount={startTarget.itemsCount}
 						variant='default'
-						size='default'
+					size='lg'
 						className='mt-1 w-full md:w-auto md:self-start'
 					>
 						<HugeiconsIcon
@@ -125,7 +125,7 @@ export function NoSessionBanner({ quickStart, startTarget, addItemsTarget = null
 					<Button
 						asChild
 						variant='default'
-						size='default'
+						size='lg'
 						className='mt-1 w-full md:w-auto md:self-start'
 					>
 						<Link

@@ -109,7 +109,7 @@ export function EntityEditCard({
 			</FormField>
 			<div className='grid grid-cols-2 gap-3'>
 				<Button
-					size='lg'
+					size='default'
 					type='button'
 					variant='outline'
 					onClick={onCancel}
@@ -118,7 +118,7 @@ export function EntityEditCard({
 					Cancel
 				</Button>
 				<Button
-					size='lg'
+					size='default'
 					type='submit'
 					disabled={loading}
 				>

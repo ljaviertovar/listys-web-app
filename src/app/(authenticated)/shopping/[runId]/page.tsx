@@ -7,10 +7,10 @@ import { HugeiconsIcon } from '@hugeicons/react'
 
 import { ActiveShoppingBadge, BackLink, PageContainer, PageHeader, TripNavigationMarker } from '@/components/app'
 import { Badge } from '@/components/ui/badge'
-import { DataFigure, DataLine, EntityLabel } from '@/components/commons'
+import { EntityLabel } from '@/components/commons'
 import { AddItemSheet } from '@/components/features/list-items'
 import { ShareListDialog } from '@/components/features/sharing'
-import { STARTED_SESSION_PARAM, SessionSummaryCard, TripReceiptsCard, TripReceiptSummary,
+import { SessionSummaryCard, TripReceiptsCard, TripReceiptSummary,
 	getTripReceiptState, getTripStores, ShoppingSessionActions, ShoppingSessionItems, ShoppingSessionRealtimeListener,
 	buildSessionPriceEstimate, summarizeCheckedEstimate, resolveSessionBackLink, TripSyncStatus } from '@/components/features/shopping-sessions'
 import { itemsForSessionProgress } from '@/components/features/shopping-sessions/helpers/split-session-sections'
@@ -27,7 +27,6 @@ export default async function ShoppingRunPage({ params, searchParams }: { params
 	const { runId } = await params
 	const query = await searchParams
 	const first = (value: string | string[] | undefined) => Array.isArray(value) ? value[0] : value
-	const justStarted = first(query[STARTED_SESSION_PARAM]) === '1'
 	const showDetails = first(query.details) === '1'
 	const supabase = await createClient()
 	const { data: { user } } = await supabase.auth.getUser()
@@ -88,18 +87,21 @@ export default async function ShoppingRunPage({ params, searchParams }: { params
 	}
 	return <>
 		<TripNavigationMarker completed={isCompleted} pathname={`/shopping/${runId}`} />
-		<PageHeader variant='screen' screenStyle='entity-detail' back={backToSaved ? { href: resolveSessionBackLink('trips', first(query.list)).href, label: 'Back to Trips' } : { href: backHref, label: backLabel }} title={run.name}
+		<PageHeader
+			layout='detail'
+			back={backToSaved ? { href: resolveSessionBackLink('trips', first(query.list)).href, label: 'Back to Trips' } : { href: backHref, label: backLabel }}
+			title={run.name}
 			aside={isCompleted ? <Badge variant='completed' dot>Completed</Badge> : <ActiveShoppingBadge />}
-			desc={<div className='flex flex-col gap-2'>
-				{stores.length > 0 || isCompleted ? <div data-testid='trip-header-classification' className='flex flex-wrap items-center gap-x-2.5 gap-y-1.5'>
-					{stores[0] ? <EntityLabel name={stores[0].name} testId={`trip-store-${stores[0].id}`} /> : null}
-					{stores.length > 1 ? <Badge variant='outline'><HugeiconsIcon icon={Store03Icon} strokeWidth={1.8} aria-hidden='true' />+{stores.length - 1} {stores.length === 2 ? 'store' : 'stores'}</Badge> : null}
-					{isCompleted ? <Badge variant={receipts.length ? 'outline' : 'warning'}><HugeiconsIcon icon={receipts.length ? AttachmentIcon : AttachmentOffIcon} strokeWidth={1.8} aria-hidden='true' />{receipts.length > 1 ? `${receipts.length} Receipt attached` : receipts.length ? 'Receipt attached' : 'No Receipt attached'}</Badge> : null}
-				</div> : null}
-				{isCompleted ? <DataLine testId='trip-header-data'>{date ? <>Completed on {formatTripDate(date)}</> : null}{amount == null ? null : <DataFigure>{!receipts.length ? '≈ ' : ''}{formatCurrency(amount)}</DataFigure>}</DataLine> : null}
-				{!isCompleted ? <DataLine testId='trip-header-data'>{run.store_id ? `${progressTotal} of ${totalCount} items` : `${totalCount} items`}</DataLine> : null}
-			</div>}>
-		</PageHeader>
+			chips={[
+				stores[0] ? <EntityLabel key='store' name={stores[0].name} testId={`trip-store-${stores[0].id}`} /> : null,
+				stores.length > 1 ? <Badge key='more-stores' variant='outline'><HugeiconsIcon icon={Store03Icon} strokeWidth={1.8} aria-hidden='true' />+{stores.length - 1} {stores.length === 2 ? 'store' : 'stores'}</Badge> : null,
+				isCompleted ? <Badge key='receipt' variant={receipts.length ? 'outline' : 'warning'}><HugeiconsIcon icon={receipts.length ? AttachmentIcon : AttachmentOffIcon} strokeWidth={1.8} aria-hidden='true' />{receipts.length > 1 ? `${receipts.length} receipts attached` : receipts.length ? 'Receipt attached' : 'No receipt attached'}</Badge> : null,
+			]}
+			facts={isCompleted ? [
+				date ? { value: `Completed on ${formatTripDate(date)}` } : null,
+				amount == null ? null : { kind: 'total', value: `${!receipts.length ? '≈ ' : ''}${formatCurrency(amount)}` },
+			] : [{ value: run.store_id ? `${progressTotal} of ${totalCount} items` : `${totalCount} items` }]}
+		/>
 		<PageContainer className='pb-[calc(7rem+max(1.125rem,env(safe-area-inset-bottom)))] lg:pb-20'>
 			<div className='flex w-full max-w-3xl flex-col gap-6'>
 			{!isCompleted ? <ShoppingSessionActions sessionId={runId} checked={checkedCount} total={progressTotal} baseListId={baseListId} listName={baseListName} storeId={run.store_id} isOwner={isListOwner} canAttachReceipt={Boolean(trip)} /> : null}
@@ -113,7 +115,7 @@ export default async function ShoppingRunPage({ params, searchParams }: { params
 					{baseListId && isListOwner ? <ShareListDialog baseListId={baseListId} listName={baseListName} isOwner={isListOwner} className='w-full md:w-auto' /> : null}
 					<AddItemSheet target={{ context: 'shopping-session', sessionId: runId }} className={baseListId && isListOwner ? 'w-full md:w-auto' : 'col-span-2 w-full md:col-auto md:w-auto'} />
 				</div> : null}
-				<ShoppingSessionItems sessionId={runId} storeInfoByItemId={storeInfoByItemId} items={items} isCompleted={isCompleted} priceByItemId={!isCompleted && priceEstimate ? Object.fromEntries(priceEstimate.priceByItemId) : undefined} startCollapsed={justStarted && !isCompleted} storeId={run.store_id} storeName={run.store?.name ?? null} />
+				<ShoppingSessionItems sessionId={runId} storeInfoByItemId={storeInfoByItemId} items={items} isCompleted={isCompleted} priceByItemId={!isCompleted && priceEstimate ? Object.fromEntries(priceEstimate.priceByItemId) : undefined} storeId={run.store_id} storeName={run.store?.name ?? null} />
 			</div>
 		</PageContainer>
 		{!isCompleted ? <ShoppingSessionRealtimeListener sessionId={runId} /> : null}

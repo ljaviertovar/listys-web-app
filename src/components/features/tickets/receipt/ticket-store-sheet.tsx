@@ -2,9 +2,9 @@
 
 import { useId, useMemo, useState, type FormEvent } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Add01Icon, Loading03Icon } from '@hugeicons/core-free-icons'
+import { Loading03Icon } from '@hugeicons/core-free-icons'
 
-import { ChoiceRow, SheetDialog } from '@/components/commons'
+import { ChoiceRow, LoadingState, SheetDialog } from '@/components/commons'
 import { filterStores } from '@/components/features/stores/helpers/filter-stores'
 import { useStores } from '@/components/features/stores/hooks/use-stores'
 import { suggestStoreName, type StorePick } from '@/components/features/stores'
@@ -35,9 +35,7 @@ interface TicketStoreSheetProps {
 }
 
 /**
- * Where the receipt was bought, in one sheet: one of the user's stores or a new one. A receipt whose name matches none of the
- * stores ("Where was this?") offers saving that name first; every other case ("Which store?") lists the stores and ends with
- * "Add a New Store".
+ * Chooses one of the user's existing stores for the receipt. An unmatched receipt may still save the name read from its photo.
  */
 export function TicketStoreSheet({ open, onOpenChange, rawName = null, testId, ...props }: TicketStoreSheetProps) {
 	const descriptionId = useId()
@@ -47,14 +45,14 @@ export function TicketStoreSheet({ open, onOpenChange, rawName = null, testId, .
 			open={open}
 			onOpenChange={next => !props.pending && onOpenChange(next)}
 			title={rawName ? 'Where was this?' : 'Which store?'}
-			ariaDescribedBy={descriptionId}
+			description={rawName ? `We read “${suggestStoreName(rawName) || rawName}”. It doesn’t match any of your stores yet.` : 'Pick the store this receipt belongs to.'}
+			descriptionId={descriptionId}
 			testId={testId}
 			fit
 		>
 			{/* Mounted only while open, so every opening starts from the default choice and a fresh read of the stores. */}
 			{open ? (
 				<TicketStoreForm
-					descriptionId={descriptionId}
 					rawName={rawName}
 					onCancel={() => onOpenChange(false)}
 					{...props}
@@ -65,12 +63,10 @@ export function TicketStoreSheet({ open, onOpenChange, rawName = null, testId, .
 }
 
 type TicketStoreFormProps = Omit<TicketStoreSheetProps, 'open' | 'onOpenChange' | 'testId'> & {
-	descriptionId: string
 	onCancel: () => void
 }
 
 function TicketStoreForm({
-	descriptionId,
 	rawName = null,
 	excludeStoreId,
 	initialStoreId,
@@ -100,8 +96,6 @@ function TicketStoreForm({
 			? ''
 			: allStores.some(store => store.id === initialStoreId)
 				? (initialStoreId ?? '')
-				: allStores.length === 0
-					? NEW_STORE_VALUE
 					: ''
 	const choice = selected ?? defaultChoice
 	const creating = choice === NEW_STORE_VALUE
@@ -141,7 +135,7 @@ function TicketStoreForm({
 					size='ring'
 					disabled={pending}
 				/>
-				<span className='text-sm leading-[1.3] font-semibold'>{rawName ? 'Save as a new store' : 'Add a New Store'}</span>
+				<span className='text-sm leading-[1.3] font-semibold'>Save as a new store</span>
 			</label>
 			<label
 				htmlFor={nameId}
@@ -184,32 +178,8 @@ function TicketStoreForm({
 			noValidate
 			className='flex flex-col gap-4'
 		>
-			<p
-				id={descriptionId}
-				className='text-sm leading-normal text-muted-foreground dark:text-muted-foreground'
-			>
-				{rawName ? (
-					<>
-						We read <span className='font-mono font-semibold text-foreground'>“{rawName}”</span>. It doesn’t match any of your stores yet.
-					</>
-				) : (
-					'Pick the store this receipt belongs to.'
-				)}
-			</p>
-
 			{stores.status === 'loading' ? (
-				<div
-					role='status'
-					className='flex items-center justify-center gap-2 py-6 text-sm text-muted-foreground dark:text-muted-foreground'
-				>
-					<HugeiconsIcon
-						icon={Loading03Icon}
-						strokeWidth={2}
-						aria-hidden='true'
-						className='size-5 animate-spin motion-reduce:animate-none'
-					/>
-					Loading your stores…
-				</div>
+					<LoadingState testId='ticket-store-loading' label='Loading your stores…' />
 			) : stores.status === 'error' ? (
 				<div
 					data-testid='ticket-store-load-error'
@@ -224,7 +194,7 @@ function TicketStoreForm({
 					<Button
 						type='button'
 						variant='secondary'
-						size='default'
+						size='lg'
 						onClick={stores.retry}
 					>
 						Try Again
@@ -264,7 +234,6 @@ function TicketStoreForm({
 							<StoreRow
 								key={store.id}
 								store={store}
-								inline={rawName !== null}
 								selected={choice === store.id}
 							/>
 						))}
@@ -276,31 +245,6 @@ function TicketStoreForm({
 								No store matches this search.
 							</p>
 						) : null}
-						{rawName ? null : creating ? (
-							newStoreCard
-						) : (
-							<Button
-								type='button'
-								variant='outline'
-								size='option'
-								disabled={pending}
-								onClick={() => select(NEW_STORE_VALUE)}
-								data-testid='ticket-store-add-new'
-							>
-								<span className='flex size-5 shrink-0 items-center justify-center rounded-full bg-blue-100'>
-									<HugeiconsIcon
-										icon={Add01Icon}
-										strokeWidth={2.4}
-										aria-hidden='true'
-										className='size-3'
-									/>
-								</span>
-								<span className='flex min-w-0 flex-1 flex-col gap-1'>
-									<span className='text-sm leading-[1.3] font-semibold'>Add a New Store</span>
-									<span className='text-xs leading-[1.4] font-normal text-muted-foreground'>Create a store for these items</span>
-								</span>
-							</Button>
-						)}
 					</RadioGroup>
 				</>
 			)}
@@ -319,7 +263,7 @@ function TicketStoreForm({
 				<Button
 					type='button'
 					variant='outline'
-					size='default'
+					size='lg'
 					disabled={pending}
 					onClick={onCancel}
 				>
@@ -327,7 +271,7 @@ function TicketStoreForm({
 				</Button>
 				<Button
 					type='submit'
-					size='default'
+					size='lg'
 					disabled={!choice || pending || stores.status !== 'ready'}
 					aria-describedby={error ? errorId : undefined}
 				>
@@ -348,25 +292,21 @@ function TicketStoreForm({
 
 interface StoreRowProps {
 	store: Store
-	/** The receipt count sits at the end of the title's row instead of under it. */
-	inline: boolean
 	selected: boolean
 }
 
-function StoreRow({ store, inline, selected }: StoreRowProps) {
-	const count = (
-		<span className='font-sans text-sm leading-tight text-muted-foreground'>
-			<b className='font-mono text-base leading-[1.2] font-bold text-foreground tabular-nums'>{store.receipt_count}</b>{' '}
-			{store.receipt_count === 1 ? 'receipt' : 'receipts'}
-		</span>
-	)
-
+function StoreRow({ store, selected }: StoreRowProps) {
 	return (
 		<ChoiceRow
 			variant='card'
 			testId={`ticket-store-option-${store.id}`}
 			selected={selected}
-			option={{ value: store.id, label: store.name, ...(inline ? { detail: count } : { note: count }) }}
+			option={{
+				value: store.id,
+				label: store.name,
+				detail: `${store.receipt_count} ${store.receipt_count === 1 ? 'receipt' : 'receipts'}`,
+				detailTone: 'muted',
+			}}
 		/>
 	)
 }

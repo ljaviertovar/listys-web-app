@@ -5,8 +5,20 @@ import { Store03Icon } from '@hugeicons/core-free-icons'
 import { AttachmentIcon, AttachmentOffIcon } from '@hugeicons/core-free-icons-v4'
 import { HugeiconsIcon } from '@hugeicons/react'
 
-import { ActionLink, DataFigure, DataLine, EntityLabel, InlineCounter } from '@/components/commons'
-import { Card, CardFooter } from '@/components/ui/card'
+import {
+	ActionLink,
+	DataFacts,
+	DataFigure,
+	EntityLabel,
+	InlineCounter,
+	OBJECT_CARD_LINK,
+	ObjectCardBody,
+	ObjectCardChips,
+	ObjectCardFigure,
+	ObjectCardFooter,
+	ObjectCardTitleRow,
+} from '@/components/commons'
+import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { formatCurrency, formatTime, formatTripDate } from '@/utils'
 import type { TripReceipt } from '@/types'
@@ -33,10 +45,10 @@ interface Props {
 }
 
 /**
- * A completed trip in Trips (design: Mobile historial; canvas 4/7 data hierarchy). The card is plain; only its links react to taps or
- * hover. Its levels, in order: identity with the one status pill (Completed), classification (the store as an entity, then tags for the
- * receipt), the data line and the footer. A trip without a receipt gets an attention tag; adding one starts from the saved-trip screen.
- * A trip whose receipt state is unknown (`receipt` omitted) shows no receipt tag.
+ * A completed trip in Trips (object card, canvas C1). Its levels, in order: identity with the one status pill (Completed), classification
+ * (the store as an entity, then tags for the receipt), the amount with its data line and the footer. A trip without a receipt gets an
+ * attention tag; adding one starts from the saved-trip screen. A trip whose receipt state is unknown (`receipt` omitted) shows no receipt
+ * tag. The footer link covers the whole card.
  */
 export function HistorySessionCard({ session, href }: Props) {
 	const detailsHref = href ?? `/shopping/${session.id}`
@@ -52,24 +64,25 @@ export function HistorySessionCard({ session, href }: Props) {
 
 	return (
 		<Card
-			size='trip'
+			size='object'
+			interactive
 			data-testid={`history-card-${session.id}`}
 		>
-			<div className='flex flex-col gap-2.5'>
-				<div className='flex items-center gap-3'>
-					<h2 className='min-w-0 flex-1 truncate font-display text-base leading-normal font-semibold tracking-[-0.005em]'>
-						{session.name}
-					</h2>
-					<Badge
-						variant='completed'
-						dot
-					>
-						Completed
-					</Badge>
-				</div>
+			<ObjectCardBody>
+				<ObjectCardTitleRow
+					title={session.name}
+					aside={
+						<Badge
+							variant='completed'
+							dot
+						>
+							Completed
+						</Badge>
+					}
+				/>
 
 				{hasClassification ? (
-					<div className='flex flex-wrap items-center gap-x-2.5 gap-y-1.5'>
+					<ObjectCardChips>
 						{stores[0] ? (
 							<EntityLabel
 								name={stores[0].name}
@@ -97,7 +110,7 @@ export function HistorySessionCard({ session, href }: Props) {
 									aria-hidden='true'
 								/>
 								{(session.receipts?.length ?? 0) > 1
-									? `${session.receipts?.length} Receipt attached`
+									? `${session.receipts?.length} receipts attached`
 									: 'Receipt attached'}
 							</Badge>
 						) : null}
@@ -111,43 +124,49 @@ export function HistorySessionCard({ session, href }: Props) {
 									strokeWidth={1.8}
 									aria-hidden='true'
 								/>
-								No Receipt attached
+								No receipt attached
 							</Badge>
 						) : null}
-					</div>
+					</ObjectCardChips>
 				) : null}
 
-				<div data-testid={`history-data-${session.id}`} className='flex flex-col gap-1'>
+				<ObjectCardFigure testId={`history-data-${session.id}`}>
 					{session.total_amount == null ? null : (
-						<DataLine testId={`history-total-${session.id}`}>
+						<p data-testid={`history-total-${session.id}`}>
 							<DataFigure emphasis='total'>{formatCurrency(session.total_amount)}</DataFigure>
-						</DataLine>
+						</p>
 					)}
-					<p className='text-xs leading-4 text-muted-foreground'>
-						{completedDate ? `${formatTripDate(completedDate)} ${formatTime(completedDate)}` : 'Date unknown'}
-					</p>
-				</div>
+					<DataFacts
+						testId={`history-date-${session.id}`}
+						facts={
+							completedDate
+								? [{ value: formatTripDate(completedDate) }, { kind: 'clock', value: formatTime(completedDate) }]
+								: [{ value: 'Date unknown' }]
+						}
+					/>
+				</ObjectCardFigure>
+			</ObjectCardBody>
 
-				<CardFooter variant='summary' inset='compact'>
-					{purchasedCount === null ? (
-						<span className='text-sm leading-none text-muted-foreground'>Item count unavailable</span>
-					) : (
-						<InlineCounter
-							count={purchasedCount}
-							one='Purchased Item'
-							many='Purchased Items'
-							testId={`history-count-${session.id}`}
-						/>
-					)}
-					<ActionLink
-						href={detailsHref}
-						aria-label={`View details for ${session.name}`}
-						className='shrink-0'
-					>
-						View Details
-					</ActionLink>
-				</CardFooter>
-			</div>
+			<ObjectCardFooter>
+				{purchasedCount === null ? (
+					<span className='text-sm leading-none text-muted-foreground'>Item count unavailable</span>
+				) : (
+					<InlineCounter
+						count={purchasedCount}
+						one='purchased item'
+						many='purchased items'
+						testId={`history-count-${session.id}`}
+					/>
+				)}
+				<ActionLink
+					href={detailsHref}
+					aria-label={`View Details in ${session.name}`}
+					className={OBJECT_CARD_LINK}
+					stretched
+				>
+					View Details
+				</ActionLink>
+			</ObjectCardFooter>
 		</Card>
 	)
 }

@@ -44,7 +44,6 @@ export function UsualStoreFilter({ options, value, totalCount }: UsualStoreFilte
 					const option = comboboxOptions.find(candidate => candidate.value === next)
 					return option ? `${option.label} · ${option.count} ${option.count === 1 ? 'item' : 'items'}` : ''
 				}}
-				filter={(item, query, getLabel) => (getLabel?.(item) ?? String(item)).toLocaleLowerCase().includes(query.toLocaleLowerCase())}
 				value={value ?? ALL_STORES}
 				onValueChange={next => typeof next === 'string' && handleChange(next)}
 			>
@@ -83,7 +82,7 @@ export function UsualStoreFilter({ options, value, totalCount }: UsualStoreFilte
 							)
 						}}
 					</ComboboxList>
-					<ComboboxEmpty>No stores match this search.</ComboboxEmpty>
+					<ComboboxEmpty>No stores available.</ComboboxEmpty>
 				</ComboboxContent>
 			</Combobox>
 		</div>

@@ -122,7 +122,7 @@ export function CreateEntitySheet({
 				</FormField>
 				<div className='flex flex-col gap-3 sm:grid sm:grid-cols-2'>
 					<Button
-						size='default'
+						size='lg'
 						type='submit'
 						disabled={loading}
 						data-testid={`${testId}-submit`}
@@ -138,7 +138,7 @@ export function CreateEntitySheet({
 						{loading ? 'Creating…' : submitLabel}
 					</Button>
 					<Button
-						size='default'
+						size='lg'
 						type='button'
 						variant='outline'
 						disabled={loading}

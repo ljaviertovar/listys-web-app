@@ -1,24 +1,14 @@
 'use client'
 
-import { useRef, useState, type ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Cancel01Icon, Upload06Icon } from '@hugeicons/core-free-icons'
+import { Upload06Icon } from '@hugeicons/core-free-icons'
 
-import {
-	Dialog,
-	DialogClose,
-	DialogContent,
-	DialogDescription,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from '@/components/ui/dialog'
 import { Button, type ButtonProps } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { useDialogFocus } from '@/hooks'
 import { cn } from '@/utils'
+import { LoadingState, SheetDialog } from '@/components/commons'
 
 // Lazy load UploadTicketForm since it contains heavy FileReader and image processing
 const UploadTicketForm = dynamic(
@@ -26,14 +16,7 @@ const UploadTicketForm = dynamic(
 	{
 		ssr: false,
 		loading: () => (
-			<div
-				role='status'
-				aria-live='polite'
-				data-testid='upload-ticket-form-loading'
-				className='py-8 text-center text-sm text-muted-foreground'
-			>
-				Preparing receipt upload…
-			</div>
+			<LoadingState testId='upload-ticket-form-loading' label='Preparing receipt upload…' />
 		),
 	},
 )
@@ -71,10 +54,8 @@ export function UploadTicketDialog({
 	...buttonProps
 }: Props = {}) {
 	const [ownOpen, setOwnOpen] = useState(false)
-	// While photos are being sent the title centres and the close control rests: the sheet stays open until the upload finishes.
+	// While photos are being sent the close control rests: the sheet stays open until the upload finishes.
 	const [busy, setBusy] = useState(false)
-	const titleRef = useRef<HTMLHeadingElement>(null)
-	const { onOpenAutoFocus, onCloseAutoFocus } = useDialogFocus(titleRef)
 	const router = useRouter()
 	const open = controlledOpen ?? ownOpen
 	const setOpen = onOpenChange ?? setOwnOpen
@@ -85,87 +66,39 @@ export function UploadTicketDialog({
 	}
 
 	return (
-		<Dialog
+		<SheetDialog
 			open={open}
-			onOpenChange={next => !busy && setOpen(next)}
-		>
-			{trigger === null ? null : (
-				<DialogTrigger asChild>
-					{trigger ?? (
-						<Button
-							size='default'
-							{...buttonProps}
-							className={cn('w-full', className)}
-						>
-							<HugeiconsIcon
-								icon={triggerIcon}
-								strokeWidth={1.8}
-								className='size-4.5'
-								aria-hidden='true'
-							/>
-							{label}
-						</Button>
-					)}
-				</DialogTrigger>
-			)}
-			<DialogContent
-				hideClose
-				sheetOnPhones
-				data-testid='upload-ticket-dialog'
-				onOpenAutoFocus={onOpenAutoFocus}
-				onCloseAutoFocus={onCloseAutoFocus}
-				variant='sheet'
-				className='sm:max-w-[520px]'
-			>
-				<DialogHeader
-					variant='sheet'
-					className='shrink-0'
-				>
-					<DialogTitle
-						ref={titleRef}
-						tabIndex={-1}
-						variant='sheet'
-						className={cn(busy && 'justify-center text-center')}
+			onOpenChange={setOpen}
+			busy={busy}
+			testId='upload-ticket-dialog'
+			title='Upload Receipt'
+			description={<>Upload photos of your receipt. We read the <strong>store, date and total</strong>, and you confirm them before anything is saved.</>}
+			trigger={trigger === null ? undefined : (
+				trigger ?? (
+					<Button
+						size='lg'
+						{...buttonProps}
+						className={cn('w-full', className)}
 					>
-						Upload Receipt
-					</DialogTitle>
-					<DialogDescription
-						variant='sheet'
-						className='sr-only'
-					>
-						Add photos of your receipt.
-					</DialogDescription>
-					<DialogClose asChild>
-						<Button
-							aria-label='Close'
-							variant='ghost'
-							size='icon-xl'
-							disabled={busy}
-							className='absolute top-0 -right-2 sm:-top-2.25'
-						>
-							<HugeiconsIcon
-								icon={Cancel01Icon}
-								strokeWidth={1.8}
-								className='size-5'
-							/>
-						</Button>
-					</DialogClose>
-				</DialogHeader>
-				<ScrollArea
-					size='sheet-fit'
-					scrollHint
-					className='min-h-0 flex-none'
-				>
-					<div className='flex flex-col gap-4 py-1'>
-						<UploadTicketForm
-							onSuccess={handleSuccess}
-							initialFiles={initialFiles}
-							shoppingSessionId={shoppingSessionId}
-							onBusyChange={setBusy}
+						<HugeiconsIcon
+							icon={triggerIcon}
+							strokeWidth={1.8}
+							className='size-4.5'
+							aria-hidden='true'
 						/>
-					</div>
-				</ScrollArea>
-			</DialogContent>
-		</Dialog>
+						{label}
+					</Button>
+				)
+			)}
+		>
+			<div className='flex flex-col gap-4 py-1'>
+				<UploadTicketForm
+					onSuccess={handleSuccess}
+					initialFiles={initialFiles}
+					shoppingSessionId={shoppingSessionId}
+					onBusyChange={setBusy}
+				/>
+			</div>
+		</SheetDialog>
 	)
 }

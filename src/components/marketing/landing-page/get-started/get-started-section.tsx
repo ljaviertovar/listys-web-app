@@ -14,7 +14,7 @@ export function GetStartedSection() {
 			</p>
 			<div className='mt-8 flex flex-col items-start gap-[14px]'>
 				<ButtonLink
-					size='xl'
+					size='lg'
 					href='/auth/signup'
 				>
 					Create Free Account <Icon id='arr' />

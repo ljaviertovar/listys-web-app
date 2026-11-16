@@ -75,7 +75,7 @@ export function AuthHero({ mode }: { mode: AuthMode }) {
 					<Button
 						asChild
 						variant='on-dark-ghost'
-						size='xl'
+						size='lg'
 						className='w-fit'
 					>
 						<Link

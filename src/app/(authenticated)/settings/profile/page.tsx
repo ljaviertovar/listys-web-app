@@ -35,7 +35,6 @@ export default async function ProfilePage() {
 	return (
 		<>
 			<PageHeader
-				variant='screen'
 				back={{ href: '/dashboard', label: 'Back to Dashboard' }}
 				title='Profile'
 				desc='Your profile information'

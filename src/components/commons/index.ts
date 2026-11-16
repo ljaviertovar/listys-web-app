@@ -11,13 +11,21 @@ export {
   getCategoryTone,
 } from "./category-section/helpers/category-style";
 export { ActionLink } from "./action-link/action-link";
-export { DataFigure, DataLine } from "./data-line/data-line";
+export { DataFacts, DataFigure, DataLine, type DataFact } from "./data-line/data-line";
 export { EntityLabel } from "./entity-label/entity-label";
 export { InlineCounter } from "./inline-counter/inline-counter";
 export { EmptyStateCard } from "./empty-state/empty-state-card";
 export { EmptyState } from "./empty-state/empty-state";
 export { DetailsList, type DetailsListItem } from "./details-list/details-list";
 export { CreateEntitySheet } from "./entity-card/create-entity-sheet";
+export {
+  OBJECT_CARD_LINK,
+  ObjectCardBody,
+  ObjectCardChips,
+  ObjectCardFigure,
+  ObjectCardFooter,
+  ObjectCardTitleRow,
+} from "./object-card/object-card";
 export { EntityCard } from "./entity-card/entity-card";
 export { EntityCardSkeleton } from "./entity-card/entity-card-skeleton";
 export {
@@ -38,5 +46,7 @@ export { ConfirmSheet } from "./sheet-dialog/confirm-sheet";
 export { SheetDialog } from "./sheet-dialog/sheet-dialog";
 
 export { RowIcon } from './row-icon'
+export { LoadingState } from './loading-state'
+export { ItemContextRow } from './item-context-row'
 export { StatusCard } from './status-card'
 export { StatTile } from './stat-tile/stat-tile'

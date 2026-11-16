@@ -106,15 +106,21 @@ function FieldLabel({
 	className,
 	variant = 'default',
 	...props
-}: React.ComponentProps<typeof Label> & { variant?: 'default' | 'card' }) {
+}: React.ComponentProps<typeof Label> & { variant?: 'default' | 'card' | 'plain' }) {
 	return (
 		<Label
 			data-slot='field-label'
 			data-variant={variant}
 			className={cn(
-				'has-data-checked:bg-primary/5 has-data-checked:border-primary/50 dark:has-data-checked:bg-primary/10 gap-2 group-data-[disabled=true]/field:opacity-50 has-[>[data-slot=field]]:rounded-xl has-[>[data-slot=field]]:border group/field-label peer/field-label flex w-fit leading-snug',
-				variant === 'card' ? '[&>*]:data-[slot=field]:p-2.5' : '[&>*]:data-[slot=field]:p-4',
-				'has-[>[data-slot=field]]:w-full has-[>[data-slot=field]]:flex-col',
+				variant === 'plain'
+					? 'group/field-label peer/field-label flex w-full items-center gap-3 px-3 py-3 leading-snug'
+					: 'has-data-checked:bg-primary/5 has-data-checked:border-primary/50 dark:has-data-checked:bg-primary/10 gap-2 group-data-[disabled=true]/field:opacity-50 has-[>[data-slot=field]]:rounded-xl has-[>[data-slot=field]]:border group/field-label peer/field-label flex w-fit leading-snug',
+				variant === 'plain'
+					? '[&>*]:data-[slot=field]:p-0'
+					: variant === 'card'
+						? '[&>*]:data-[slot=field]:p-2.5'
+						: '[&>*]:data-[slot=field]:p-4',
+				variant !== 'plain' && 'has-[>[data-slot=field]]:w-full has-[>[data-slot=field]]:flex-col',
 				variant === 'card' &&
 					'data-[selected=true]:border-[2px] data-[selected=true]:border-primary data-[selected=true]:bg-primary/5 dark:data-[selected=true]:bg-primary/10 has-[>[data-slot=field]]:rounded-3xl',
 				className,

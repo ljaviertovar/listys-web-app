@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Invoice01Icon, Store03Icon } from '@hugeicons/core-free-icons'
+import { Store03Icon } from '@hugeicons/core-free-icons'
 import { PageHeader, PageContainer } from '@/components/app'
 import { RetryableError } from '@/components/commons'
 import { TicketsList, UploadTicketDialog, buildTicketListItem, type TicketsListItem } from '@/components/features/tickets'
@@ -29,11 +29,9 @@ export default async function TicketsPage() {
 	return (
 		<>
 			<PageHeader
-				variant='screen'
 				back={{ href: '/dashboard', label: 'Dashboard' }}
 				title='Receipts'
-				icon={Invoice01Icon}
-				iconTone='ocr'
+				entity='receipt'
 				desc='Upload and manage your shopping receipts'
 				aside={(
 					<Button asChild variant='outline' size='lg'>

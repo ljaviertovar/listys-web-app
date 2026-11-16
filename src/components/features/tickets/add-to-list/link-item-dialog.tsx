@@ -32,7 +32,6 @@ export function LinkItemDialog({ lineName, listName, currentItemId, items, onClo
 			onOpenChange={next => !next && onClose()}
 			title='Choose Another Item'
 			description={lineName ? <>Pick the {listName ?? 'list'} item that <span className='font-mono font-semibold text-foreground'>“{formatItemName(lineName)}”</span> should match.</> : undefined}
-			descriptionVariant='body'
 			testId='link-item-dialog'
 		>
 			{open ? (
@@ -102,7 +101,7 @@ function LinkItemForm({ listName, currentItemId, items, onCancel, onLink, onAddA
 			<div className='flex flex-col gap-2'>
 				<Button
 					type='submit'
-					size='default'
+					size='lg'
 					disabled={!selected}
 				>
 					Match to Selected
@@ -110,7 +109,7 @@ function LinkItemForm({ listName, currentItemId, items, onCancel, onLink, onAddA
 				<Button
 					type='button'
 					variant={onAddAsNew ? 'secondary' : 'outline'}
-					size='default'
+					size='lg'
 					onClick={onAddAsNew ?? onCancel}
 				>
 					{onAddAsNew ? 'Add as New Item' : 'Cancel'}

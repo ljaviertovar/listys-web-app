@@ -116,7 +116,7 @@ export function MonthSpendingCard() {
 					<Button
 						type='button'
 						variant='secondary'
-						size='sm'
+						size='lg'
 						onClick={spending.retry}
 					>
 						Try Again

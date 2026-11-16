@@ -7,7 +7,7 @@ import { Loading03Icon, ListViewIcon } from '@hugeicons/core-free-icons'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { ChoiceRow, RowIcon, SheetDialog } from '@/components/commons'
+import { ChoiceRow, LoadingState, RowIcon, SheetDialog } from '@/components/commons'
 import { RadioGroup } from '@/components/ui/radio-group'
 import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList, useComboboxAnchor } from '@/components/ui/combobox'
 import { InputGroupAddon } from '@/components/ui/input-group'
@@ -78,7 +78,6 @@ export function MergeToBaseListDialog({ open, defaultBaseListId, onOpenChange, t
 			onOpenChange={isOpen => !loading && onOpenChange(isOpen)}
 			testId='merge-to-base-list-dialog'
 			title={reviewing ? 'Review Matches' : 'Add or Update Items'}
-			descriptionVariant={reviewing ? 'sheet' : 'body'}
 			description={reviewing
 				? `Check how these items are added to “${listName}”. Nothing is added until you confirm.`
 				: mode === 'new'
@@ -88,17 +87,11 @@ export function MergeToBaseListDialog({ open, defaultBaseListId, onOpenChange, t
 		>
 					<div className='px-0.5 py-1'>
 						{loadingData ? (
-							<div className='flex items-center justify-center py-8'>
-								<HugeiconsIcon
-									icon={Loading03Icon}
-									strokeWidth={2}
-									className='h-8 w-8 animate-spin text-primary motion-reduce:animate-none'
-								/>
-							</div>
+							<LoadingState testId='merge-to-base-list-loading' label='Loading lists…' />
 						) : loadFailed ? (
 							<div data-testid='merge-to-base-list-error' className='flex flex-col items-center gap-4 py-8 text-center'>
 								<p role='alert' className='text-sm text-destructive'>{error}</p>
-								<Button type='button' size='default' variant='secondary' onClick={loadData}>
+								<Button type='button' size='lg' variant='secondary' onClick={loadData}>
 									Try Again
 								</Button>
 							</div>
@@ -158,7 +151,6 @@ export function MergeToBaseListDialog({ open, defaultBaseListId, onOpenChange, t
 								<Combobox
 									items={baseLists.map(list => list.id)}
 									itemToStringLabel={id => listLabels.get(id) ?? baseLists.find(list => list.id === id)?.name ?? ''}
-									filter={(id, query, getLabel) => (getLabel?.(id) ?? String(id)).toLocaleLowerCase().includes(query.toLocaleLowerCase())}
 									value={selectedBaseListId}
 									onValueChange={value => {
 										if (typeof value !== 'string') return
@@ -169,13 +161,13 @@ export function MergeToBaseListDialog({ open, defaultBaseListId, onOpenChange, t
 									<div className='w-full' ref={listAnchor}>
 									<ComboboxInput
 										id={`${fieldId}-list`}
-										surface='page'
-										inset='card'
+										surface='form'
+										inset='default'
 										aria-labelledby={`${fieldId}-list-label`}
 										aria-required='true'
 										aria-invalid={error?.toLowerCase().includes('list') ? true : undefined}
 										aria-describedby={error?.toLowerCase().includes('list') ? `${fieldId}-error` : undefined}
-										size='filter'
+										size='lg'
 										placeholder='Select a shopping list'
 										showTrigger
 									>
@@ -184,20 +176,20 @@ export function MergeToBaseListDialog({ open, defaultBaseListId, onOpenChange, t
 										</InputGroupAddon>
 									</ComboboxInput>
 									</div>
-									<ComboboxContent size='filter' placement='below' anchor={listAnchor}>
+									<ComboboxContent anchor={listAnchor}>
 										<ComboboxList>
 											{(id: string) => {
 												const list = baseLists.find(candidate => candidate.id === id)
 												if (!list) return null
 												return (
-													<ComboboxItem key={list.id} value={list.id} size='filter'>
+												<ComboboxItem key={list.id} value={list.id}>
 												<RowIcon icon={ListViewIcon} tone='primary' size='stat' testId='merge-list-option-icon' />
 												{listLabels.get(list.id) ?? list.name}
 													</ComboboxItem>
 												)
 											}}
 										</ComboboxList>
-										<ComboboxEmpty>No shopping lists match this search.</ComboboxEmpty>
+										<ComboboxEmpty>No shopping lists available.</ComboboxEmpty>
 									</ComboboxContent>
 								</Combobox>
 							</div>
@@ -226,7 +218,7 @@ export function MergeToBaseListDialog({ open, defaultBaseListId, onOpenChange, t
 							<Button
 								type='button'
 								variant={reviewing ? 'ghost' : 'outline'}
-								size='default'
+								size='lg'
 								disabled={loading}
 								onClick={() => (reviewing ? backToChoose() : onOpenChange(false))}
 							>
@@ -234,7 +226,7 @@ export function MergeToBaseListDialog({ open, defaultBaseListId, onOpenChange, t
 							</Button>
 							<Button
 								type='submit'
-								size='default'
+								size='lg'
 								disabled={loading || (mode === 'existing' ? !selectedBaseListId : !newListName.trim())}
 							>
 								{loading ? (

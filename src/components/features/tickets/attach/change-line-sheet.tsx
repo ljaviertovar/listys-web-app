@@ -58,8 +58,8 @@ export function ChangeLineSheet({ line, match, items, listName, onClose, onSave 
 					</div>)}
 				</RadioGroup>
 				<DialogFooter variant='sheet'>
-					<Button type='button' variant='outline' size='default' onClick={onClose}>Cancel</Button>
-					<Button type='button' size='default' disabled={!canSave} onClick={() => onSave(kind === 'match' ? { kind, itemId } : { kind })}>Save</Button>
+					<Button type='button' variant='outline' size='lg' onClick={onClose}>Cancel</Button>
+					<Button type='button' size='lg' disabled={!canSave} onClick={() => onSave(kind === 'match' ? { kind, itemId } : { kind })}>Save</Button>
 				</DialogFooter>
 			</div>
 		</SheetDialog>

@@ -27,7 +27,7 @@ import { deleteBaseList, updateBaseList } from "@/lib/api/endpoints";
 
 import type { BaseListWithCount } from "@/types";
 
-import { buildListCardMeta, buildSharedWithLabel } from "./helpers/list-card-meta";
+import { buildListCardFacts, buildSharedWithLabel } from "./helpers/list-card-meta";
 
 interface Props {
   baseList: BaseListWithCount;
@@ -145,7 +145,6 @@ export function BaseListCard({
   return (
     <>
       <EntityCard
-        size="list"
         href={`/base-lists/${baseList.id}/edit`}
         title={shownName}
         description={baseList.notes}
@@ -167,7 +166,7 @@ export function BaseListCard({
             </>
           ) : null
         }
-        meta={buildListCardMeta(lastTripAt)}
+        facts={buildListCardFacts(lastTripAt)}
         count={baseList.items_count}
         unit={{ one: "item", many: "items" }}
         emptyLabel="items"

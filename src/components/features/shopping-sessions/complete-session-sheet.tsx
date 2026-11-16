@@ -122,10 +122,10 @@ export function CompleteSessionSheet({ sessionId, checked, total, open, onOpenCh
 					{saveError ? errorAlert : learningAlert(total, 'complete-session-learning')}
 				</div>
 				<DialogFooter variant='sheet-stack' className='mt-4'>
-					<Button type='button' size='default' variant='outline' onClick={() => onOpenChange(false)} disabled={loading}>Keep Shopping</Button>
-					{saveError ? <Button type='button' size='default' variant='default' onClick={() => handleComplete(false)} disabled={loading} data-testid='complete-session-confirm'>Try Again</Button> : <>
-						<Button type='button' size='default' variant='secondary' onClick={() => handleComplete(false)} disabled={loading}>Save Trip</Button>
-						<Button type='button' size='default' variant='default' onClick={() => handleComplete(true)} disabled={loading} data-testid='complete-session-confirm'>
+					<Button type='button' size='lg' variant='outline' onClick={() => onOpenChange(false)} disabled={loading}>Keep Shopping</Button>
+					{saveError ? <Button type='button' size='lg' variant='default' onClick={() => handleComplete(false)} disabled={loading} data-testid='complete-session-confirm'>Try Again</Button> : <>
+						<Button type='button' size='lg' variant='secondary' onClick={() => handleComplete(false)} disabled={loading}>Save Trip</Button>
+						<Button type='button' size='lg' variant='default' onClick={() => handleComplete(true)} disabled={loading} data-testid='complete-session-confirm'>
 							<HugeiconsIcon icon={Attachment01Icon} strokeWidth={1.8} className='size-4' aria-hidden='true' />
 							{loading ? 'Saving…' : 'Save and Upload Receipt'}
 						</Button>

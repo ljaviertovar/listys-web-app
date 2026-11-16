@@ -46,7 +46,7 @@ const dialogContentVariants = cva("", {
     variant: {
       default: "",
       sheet:
-        "gap-0 rounded-4xl border p-6 max-h-[92dvh] max-sm:pt-6 max-sm:pb-[max(0.75rem,env(safe-area-inset-bottom))]",
+        "gap-0 rounded-4xl border p-6 max-h-[92dvh] max-sm:pt-5 max-sm:pb-[max(0.75rem,env(safe-area-inset-bottom))]",
       viewer: "gap-0 rounded-none border-0 bg-ink p-0 text-white",
     },
   },
@@ -91,7 +91,7 @@ const DialogContent = React.forwardRef<
         )}
         {...props}
       >
-        {sheetOnPhones && variant === 'sheet' ? <span aria-hidden="true" className="absolute top-2 left-1/2 h-1 w-9 -translate-x-1/2 rounded-full bg-slate-300 sm:hidden" /> : null}
+        {sheetOnPhones && variant === 'sheet' ? <span aria-hidden="true" className="absolute top-2 left-1/2 h-1 w-9 -translate-x-1/2 rounded-full bg-slate-300 dark:bg-slate-600 sm:hidden" /> : null}
         {children}
         {hideClose ? null : (
           <DialogPrimitive.Close asChild>
@@ -116,14 +116,14 @@ const DialogHeader = ({
   variant = "default",
   ...props
 }: React.HTMLAttributes<HTMLDivElement> & {
-  /** `sheet` is the header of the app's sheets: left-aligned, a 4px gap and room on the right for the close button. */
+  /** `sheet` is the header of the app's sheets: left-aligned, a 4px gap between its slots and room on the right for the close button. */
   variant?: "default" | "sheet";
 }) => (
   <div
     data-variant={variant}
     className={cn(
       "flex flex-col space-y-1.5 text-center sm:text-left",
-      variant === "sheet" && "relative gap-0.5 pr-12 pb-4 text-left max-sm:space-y-0",
+      variant === "sheet" && "relative gap-1 pr-12 pb-4 text-left space-y-0",
       className,
     )}
     {...props}
@@ -164,9 +164,9 @@ const dialogTitleVariants = cva("", {
   variants: {
     variant: {
       default: "text-base font-semibold leading-none tracking-tight md:text-lg",
-      // The heading of an A1 form sheet.
+      // The heading of a sheet: one tier below the 24px page title, two lines at most so a long user-made name cannot push the body away.
       sheet:
-        "font-display text-2xl leading-8 font-semibold text-foreground focus:outline-none max-sm:flex max-sm:min-h-10 max-sm:items-center",
+        "min-w-0 flex-1 font-display text-xl leading-7 font-semibold tracking-tight text-foreground focus:outline-none line-clamp-2 wrap-anywhere",
       // A confirmation or a list dialog: bold and tight.
       strong: "text-base leading-none font-bold tracking-tight text-foreground md:text-lg",
       // The title bar of the dark viewer.
@@ -198,9 +198,8 @@ const dialogDescriptionVariants = cva("", {
   variants: {
     variant: {
       default: "text-xs text-muted-foreground md:text-sm",
-      sheet: "text-base leading-6 text-muted-foreground dark:text-muted-foreground",
-      // The lead-in sentence of a sheet, set as body text under the title row.
-      body: "text-base leading-6 text-muted-foreground dark:text-muted-foreground max-sm:mt-3",
+      // One or two sentences under the title; the one phrase the user must check goes in a <strong>.
+      sheet: "text-sm leading-5 text-muted-foreground dark:text-muted-foreground [&_strong]:font-semibold [&_strong]:text-foreground",
     },
   },
   defaultVariants: { variant: "default" },

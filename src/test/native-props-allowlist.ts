@@ -20,11 +20,6 @@ export interface GuardException {
 
 export const GUARD_ALLOWLIST: GuardException[] = [
 	{
-		file: 'components/features/tickets/photo/ticket-photo-entry.tsx',
-		tag: 'button',
-		reason: 'The receipt-photo row is one big pressable card (thumbnail, text, chevron): it is a card surface that happens to be a button, not a Button.',
-	},
-	{
 		file: 'components/features/tickets/photo/ticket-photo-tools.tsx',
 		tag: 'button',
 		reason: 'A photo thumbnail is the picture itself with a focus ring and dimming; there is no button label, size or variant to speak of.',

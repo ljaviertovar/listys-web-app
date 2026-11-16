@@ -3,8 +3,7 @@
 import { useCallback, useState } from 'react'
 import { ListViewIcon } from '@hugeicons/core-free-icons'
 
-import { EmptyStateCard, EntityCardSkeleton, ListToolbar } from '@/components/commons'
-import { Skeleton } from '@/components/ui/skeleton'
+import { EmptyStateCard, EntityCardSkeleton } from '@/components/commons'
 import { buildListDisplayNames } from '@/utils'
 
 import type { BaseListWithCount } from '@/types'
@@ -22,7 +21,7 @@ interface BaseListsListProps {
 	sharedCountByList?: Record<string, number>
 }
 
-/** The lists screen: the count with "New Base List" and a grid of cards, or the first-use card with its own button. */
+/** The lists screen: a grid of cards, or the first-use card with its own button. The count and "New List" live in the page header. */
 export function BaseListsList({
 	baseLists,
 	activeSessionIds = {},
@@ -58,15 +57,9 @@ export function BaseListsList({
 
 	return (
 		<>
-			<ListToolbar
-				count={visible.length}
-				unit={{ one: 'list', many: 'lists' }}
-				testId='base-lists-toolbar'
-				className='min-h-5 md:min-h-11'
-			/>
 			<div
 				data-testid='base-lists-grid'
-				className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:gap-6 xl:grid-cols-3'
+				className='grid grid-cols-1 gap-3 sm:grid-cols-2 lg:gap-6 xl:grid-cols-3'
 			>
 				{baseLists.map(baseList => (
 					<BaseListCard
@@ -85,18 +78,14 @@ export function BaseListsList({
 	)
 }
 
-/** What the lists screen shows while its data loads: the toolbar and three card shapes. */
+/** What the lists screen shows while its data loads: three card shapes. */
 export function BaseListsSkeleton() {
 	return (
 		<div
 			data-testid='base-lists-skeleton'
 			className='flex flex-col gap-4'
 		>
-			<div className='flex min-h-11 items-center justify-between'>
-				<Skeleton className='h-3.5 w-16 rounded-md' />
-				<Skeleton className='h-11 w-32 rounded-xl' />
-			</div>
-			<div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:gap-6 xl:grid-cols-3'>
+			<div className='grid grid-cols-1 gap-3 sm:grid-cols-2 lg:gap-6 xl:grid-cols-3'>
 				{[0, 1, 2].map(index => (
 					<EntityCardSkeleton
 						key={index}

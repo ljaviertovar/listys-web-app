@@ -26,7 +26,6 @@ export default async function StoreDetailPage({ params }: { params: Promise<{ st
 	return (
 		<>
 			<PageHeader
-				variant='screen'
 				back={{ href: '/stores', label: 'Back to My Stores' }}
 				title={store?.name ?? 'Store'}
 				desc='What your receipts say about this store.'

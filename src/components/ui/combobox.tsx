@@ -11,7 +11,11 @@ import { ArrowDown01Icon, Cancel01Icon, Tick02Icon } from '@hugeicons/core-free-
 
 const BELOW_COLLISION_AVOIDANCE = { side: 'shift', align: 'shift', fallbackAxisSide: 'none' } as const
 
-const Combobox = ComboboxPrimitive.Root
+function Combobox<Value, Multiple extends boolean | undefined = false, Item = Value>(
+	props: Omit<ComboboxPrimitive.Root.Props<Value, Multiple, Item>, 'filter'>,
+) {
+	return <ComboboxPrimitive.Root {...props} filter={null} />
+}
 
 function ComboboxValue({ ...props }: ComboboxPrimitive.Value.Props) {
 	return (
@@ -73,7 +77,7 @@ function ComboboxInput({
 	...props
 }: Omit<ComboboxPrimitive.Input.Props, 'size'> & {
 	size?: 'default' | 'lg' | 'filter'
-	surface?: 'default' | 'page'
+	surface?: 'default' | 'page' | 'form'
 	inset?: 'default' | 'card'
 	showTrigger?: boolean
 	showClear?: boolean
@@ -84,14 +88,24 @@ function ComboboxInput({
 			className={cn(
 				'w-auto',
 				surface === 'page' && 'bg-background',
-				size === 'lg' && 'h-11 rounded-2xl',
+				surface === 'form' && 'h-11 rounded-3xl border-transparent bg-input/50 shadow-xs',
+				size === 'lg' && cn('h-11', surface === 'form' ? 'rounded-3xl' : 'rounded-2xl'),
 				size === 'filter' && 'h-13 rounded-2xl px-1',
 				inset === 'card' && 'px-0.5',
 				className,
 			)}
 		>
 			<ComboboxPrimitive.Input
-				render={<InputGroupInput disabled={disabled} size={size === 'default' ? 'default' : 'lg'} />}
+				render={inputProps => (
+					<InputGroupInput
+						{...inputProps}
+						readOnly
+						aria-readonly='true'
+						className='cursor-pointer caret-transparent select-none'
+						disabled={disabled}
+						size={size === 'default' ? 'default' : 'lg'}
+					/>
+				)}
 				{...props}
 			/>
 			<InputGroupAddon align='inline-end'>

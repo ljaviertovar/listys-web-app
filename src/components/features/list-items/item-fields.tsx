@@ -28,18 +28,12 @@ interface ItemFieldsProps {
 	disabled?: boolean
 	/** The category only matters when an item is added; editing keeps the one it has. */
 	withCategory?: boolean
-	/** The inline item editor keeps its established compact combobox; other item forms use the page selector style. */
-	comboboxStyle?: 'page' | 'item-edit'
 }
 
 /** The fields shared by every item form: name, quantity with its unit, an optional category and notes. */
-export function ItemFields({ form, idPrefix, disabled = false, withCategory = false, comboboxStyle = 'page' }: ItemFieldsProps) {
+export function ItemFields({ form, idPrefix, disabled = false, withCategory = false }: ItemFieldsProps) {
 	const unitAnchor = useComboboxAnchor()
 	const categoryAnchor = useComboboxAnchor()
-	const isItemEditStyle = comboboxStyle === 'item-edit'
-	const comboSize = isItemEditStyle ? 'lg' : 'filter'
-	const optionSize = isItemEditStyle ? 'default' : 'filter'
-	const popupPlacement = isItemEditStyle ? 'auto' : 'below'
 	const [popupContainer, setPopupContainer] = useState<HTMLElement | null>(null)
 	const setFieldsRoot = useCallback((node: HTMLDivElement | null) => {
 		// Base UI portals must remain inside Radix's modal interaction boundary.
@@ -113,7 +107,6 @@ export function ItemFields({ form, idPrefix, disabled = false, withCategory = fa
 							<Combobox
 								items={unitOptions(UNITS, field.value)}
 								itemToStringLabel={value => value}
-								filter={(item, query, getLabel) => (getLabel?.(item) ?? String(item)).toLocaleLowerCase().includes(query.toLocaleLowerCase())}
 								value={field.value}
 								onValueChange={value => typeof value === 'string' && field.onChange(value)}
 								disabled={disabled}
@@ -122,28 +115,26 @@ export function ItemFields({ form, idPrefix, disabled = false, withCategory = fa
 								<ComboboxInput
 									id={`${idPrefix}-unit`}
 									aria-invalid={!!errors.unit}
-									size={comboSize}
-									surface={isItemEditStyle ? 'default' : 'page'}
-									inset={isItemEditStyle ? 'default' : 'card'}
+									size='lg'
+									surface='form'
 									placeholder='Unit'
 									showTrigger
 								/>
 								</div>
 								<ComboboxContent
-									size={optionSize}
-									placement={popupPlacement}
+									size='default'
 									anchor={unitAnchor}
-									container={popupContainer}
+									container={popupContainer ?? undefined}
 								>
 									<ComboboxList>
 										{(unit: string) => (
-											<ComboboxItem key={unit} value={unit} size={optionSize}>
+											<ComboboxItem key={unit} value={unit}>
 												<HugeiconsIcon icon={getUnitIcon(unit)} strokeWidth={1.5} aria-hidden='true' className='size-4' />
 												{unit}
 											</ComboboxItem>
 										)}
 									</ComboboxList>
-									<ComboboxEmpty>No units found.</ComboboxEmpty>
+									<ComboboxEmpty>No units available.</ComboboxEmpty>
 								</ComboboxContent>
 							</Combobox>
 						)}
@@ -166,7 +157,6 @@ export function ItemFields({ form, idPrefix, disabled = false, withCategory = fa
 							<Combobox
 								items={CATEGORIES}
 								itemToStringLabel={value => value}
-								filter={(item, query, getLabel) => (getLabel?.(item) ?? String(item)).toLocaleLowerCase().includes(query.toLocaleLowerCase())}
 								value={field.value ?? null}
 								onValueChange={value => field.onChange(typeof value === 'string' ? value : undefined)}
 								disabled={disabled}
@@ -175,9 +165,8 @@ export function ItemFields({ form, idPrefix, disabled = false, withCategory = fa
 								<ComboboxInput
 									id={`${idPrefix}-category`}
 									aria-invalid={!!errors.category}
-									size={comboSize}
-									surface={isItemEditStyle ? 'default' : 'page'}
-									inset={isItemEditStyle ? 'default' : 'card'}
+									size='lg'
+									surface='form'
 									placeholder='Choose a category'
 									showTrigger
 								>
@@ -189,20 +178,19 @@ export function ItemFields({ form, idPrefix, disabled = false, withCategory = fa
 								</ComboboxInput>
 								</div>
 								<ComboboxContent
-									size={optionSize}
-									placement={popupPlacement}
+									size='default'
 									anchor={categoryAnchor}
-									container={popupContainer}
+									container={popupContainer ?? undefined}
 								>
 									<ComboboxList>
 										{(category: string) => (
-											<ComboboxItem key={category} value={category} size={optionSize} data-testid={`${idPrefix}-category-option-${category}`}>
+												<ComboboxItem key={category} value={category} data-testid={`${idPrefix}-category-option-${category}`}>
 												<HugeiconsIcon icon={getCategoryIcon(category)} strokeWidth={1.5} aria-hidden='true' className='size-4' />
 												{category}
 											</ComboboxItem>
 										)}
 									</ComboboxList>
-									<ComboboxEmpty>No categories found.</ComboboxEmpty>
+									<ComboboxEmpty>No categories available.</ComboboxEmpty>
 								</ComboboxContent>
 							</Combobox>
 						)}

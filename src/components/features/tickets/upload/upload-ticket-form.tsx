@@ -113,8 +113,6 @@ export function UploadTicketForm({ onSuccess, initialFiles, shoppingSessionId, o
 			onSubmit={handleSubmit(onSubmit)}
 			className='flex flex-col gap-4'
 		>
-			<p className='text-xs leading-[1.4] text-muted-foreground dark:text-muted-foreground'>Upload photos of your receipt. We read the <strong className='font-semibold text-foreground'>store, date and total</strong>, and you confirm them before anything is saved.</p>
-
 			<div className='flex flex-col gap-2'>
 				{loading ? null : (
 					<div className={cn('flex items-center', rejections.length > 0 ? 'gap-1.5' : 'justify-between')}>
@@ -147,7 +145,7 @@ export function UploadTicketForm({ onSuccess, initialFiles, shoppingSessionId, o
 			<div className='flex flex-col gap-2 sm:flex-row-reverse sm:justify-start sm:gap-3'>
 				<Button
 					type='submit'
-					size='default'
+					size='lg'
 					disabled={!canSubmit}
 					className='w-full sm:w-auto'
 				>
@@ -178,7 +176,7 @@ export function UploadTicketForm({ onSuccess, initialFiles, shoppingSessionId, o
 						<Button
 							type='button'
 							variant='outline'
-							size='default'
+							size='lg'
 							disabled={loading}
 							className='w-full sm:w-auto'
 						>

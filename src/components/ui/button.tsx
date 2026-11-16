@@ -35,6 +35,10 @@ const buttonVariants = cva(
 				'dropzone-quiet':
 					'border-[1.5px] border-dashed border-slate-400 bg-muted text-blue-700 shadow-none hover:border-blue-500 hover:bg-blue-50/60 focus-visible:border-blue-500 data-[dragging=true]:border-blue-500 dark:border-border dark:text-blue-400 dark:hover:bg-muted',
 			},
+			ring: {
+				none: '',
+				surface: 'ring-4 ring-card',
+			},
 			size: {
 				// The visible 32px action keeps a 44px pointer target without changing row layout.
 				'quiet-touch': "relative h-8 px-2 text-sm after:absolute after:content-[''] after:-inset-y-1.5 after:inset-x-0",
@@ -52,6 +56,8 @@ const buttonVariants = cva(
 				toolbar: 'h-11 gap-2 px-4',
 				// A full-width row of a choice list: as tall as its two lines, content at the start.
 				option: 'h-auto min-h-14 w-full justify-start gap-3 px-3.5 py-2 text-left whitespace-normal',
+				// A flush row action inside a padded card surface; the card owns the side inset.
+				row: 'h-auto min-h-14 justify-start gap-3 p-0 text-left whitespace-normal',
 				// Link actions follow the same compact mobile height while retaining their link-specific padding.
 				'link-action': "relative h-9 gap-1.5 px-3 after:absolute after:content-[''] after:-inset-y-1 after:inset-x-0 has-data-[icon=inline-end]:pr-2.5 has-data-[icon=inline-start]:pl-2.5 md:h-10 md:gap-1.5 md:px-3 md:after:hidden",
 					'mobile-action': 'h-11 min-w-0 gap-1 px-1.5 text-xs leading-tight whitespace-normal',
@@ -73,7 +79,8 @@ const buttonVariants = cva(
 		},
 		defaultVariants: {
 			variant: 'default',
-			size: 'default',
+			ring: 'none',
+			size: 'lg',
 		},
 	},
 )
@@ -81,7 +88,8 @@ const buttonVariants = cva(
 function Button({
 	className,
 	variant = 'default',
-	size = 'default',
+	ring = 'none',
+	size = 'lg',
 	asChild = false,
 	...props
 }: React.ComponentProps<'button'> &
@@ -95,7 +103,7 @@ function Button({
 			data-slot='button'
 			data-variant={variant}
 			data-size={size}
-			className={cn(buttonVariants({ variant, size, className }))}
+			className={cn(buttonVariants({ variant, ring, size, className }))}
 			{...props}
 		/>
 	)

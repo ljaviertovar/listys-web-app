@@ -5,7 +5,6 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { createClient } from '@/lib/supabase/server'
 
 import { PageContainer, PageHeader } from '@/components/app'
-import { DataFigure, DataLine } from '@/components/commons'
 import {
 	BaseListItems,
 	BaseListRealtimeListener,
@@ -89,23 +88,18 @@ export default async function EditBaseListPage({
 	return (
 		<>
 			<PageHeader
-				variant='screen'
-				screenStyle='entity-detail'
+				layout='detail'
 				back={{ href: '/shopping-lists', label: 'Back to Lists' }}
 				title={baseListWithItems.name}
-				desc={(
-					<div className='flex flex-col gap-1.5'>
-						{baseListWithItems.notes ? <p className='line-clamp-2'>{baseListWithItems.notes}</p> : null}
-						{baseListWithItems.is_default || collaboratorCount > 0 ? <div className='flex flex-wrap items-center gap-x-2.5 gap-y-1.5'>
-							{baseListWithItems.is_default ? <Badge variant='outline'><HugeiconsIcon icon={StarIcon} strokeWidth={1.8} aria-hidden='true' />Default</Badge> : null}
-							{collaboratorCount > 0 ? <Badge variant='outline'><HugeiconsIcon icon={UserGroupIcon} strokeWidth={1.8} aria-hidden='true' />Shared · {collaboratorCount}</Badge> : null}
-						</div> : null}
-						<DataLine testId='list-header-data'>
-							<><DataFigure emphasis='count'>{items.length}</DataFigure> {items.length === 1 ? 'item' : 'items'}</>
-							{lastTrip?.completed_at ? `Last trip ${lastTripLabel}` : null}
-						</DataLine>
-					</div>
-				)}
+				desc={baseListWithItems.notes ? <p className='line-clamp-2'>{baseListWithItems.notes}</p> : undefined}
+				chips={[
+					baseListWithItems.is_default ? <Badge key='default' variant='outline'><HugeiconsIcon icon={StarIcon} strokeWidth={1.8} aria-hidden='true' />Default</Badge> : null,
+					collaboratorCount > 0 ? <Badge key='shared' variant='outline'><HugeiconsIcon icon={UserGroupIcon} strokeWidth={1.8} aria-hidden='true' />Shared · {collaboratorCount}</Badge> : null,
+				]}
+				facts={[
+					{ kind: 'count', value: items.length, unit: items.length === 1 ? 'item' : 'items' },
+					lastTrip?.completed_at ? { value: `Last trip ${lastTripLabel}` } : null,
+				]}
 			/>
 
 			<PageContainer>
@@ -127,12 +121,14 @@ export default async function EditBaseListPage({
 									baseListId={baseListId}
 									listName={baseListWithItems.name}
 									isOwner={isOwner}
+									size='default'
 									className={isOwner ? 'w-full' : 'col-span-2 w-full'}
 								/>
 							)}
 							<AddItemSheet
 								target={{ context: 'base-list', baseListId }}
 								isLocked={isLocked}
+								size='default'
 								className={isOwner ? 'w-full' : 'col-span-2 w-full'}
 							/>
 						</div>

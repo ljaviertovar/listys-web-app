@@ -8,6 +8,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { Button } from '@/components/ui/button'
 import { UploadTicketDialog } from '@/components/features/tickets'
 import { MOBILE_TAB_ITEMS } from '@/data/constants'
+import { useActiveSessionStore } from '@/stores/active-session'
 import { cn } from '@/utils'
 import { checkIsActive } from './sidebar/helpers/check-is-active'
 import { useTripNavigation } from './trip-navigation'
@@ -18,10 +19,32 @@ export function isListsSection(pathname: string) {
 }
 
 /**
- * One destination of the bar; the current one is blue and bold on a grey pill, with no extra marker (design A1 mobile). Every
- * tab is as tall as the current one, so the bar keeps its height on pages where none of the four is current.
+ * The pill of the current tab, filled and inked with the colour of its entity (design A2): the same tones as the page header
+ * tile and the dashboard rows. The dashboard has no entity, so its pill is neutral.
  */
-function Tab({ item, isActive }: { item: (typeof MOBILE_TAB_ITEMS)[number]; isActive: boolean }) {
+const CURRENT_TONES: Record<string, string> = {
+	'/dashboard': 'bg-border text-foreground dark:bg-accent',
+	'/shopping-lists': 'bg-entity-list text-entity-list-on',
+	'/tickets': 'bg-entity-receipt text-entity-receipt-on',
+	'/trips': 'bg-entity-trip text-entity-trip-on',
+}
+
+/**
+ * One destination of the bar; the current one is a pill in the colour of its entity, with no extra marker (design A2 mobile).
+ * Every tab is as tall as the current one, so the bar keeps its height on pages where none of the four is current. `dot` is a
+ * live state (a trip is running): it is aria-hidden and `status` carries its meaning in the link name.
+ */
+function Tab({
+	item,
+	isActive,
+	dot,
+	status,
+}: {
+	item: (typeof MOBILE_TAB_ITEMS)[number]
+	isActive: boolean
+	dot?: boolean
+	status?: string
+}) {
 	return (
 		<Link
 			href={item.url}
@@ -31,19 +54,30 @@ function Tab({ item, isActive }: { item: (typeof MOBILE_TAB_ITEMS)[number]; isAc
 			className={cn(
 				'flex min-h-14 flex-col items-center justify-start gap-1 rounded-xl pt-2 text-xs leading-none transition-colors',
 				'focus-ring',
-				// The current tab takes the highlight of the menu items (accent surface and text).
 				isActive
-					? 'bg-accent font-semibold text-accent-foreground'
+					? cn('font-semibold', CURRENT_TONES[item.url] ?? 'bg-accent text-accent-foreground')
 					: 'font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground',
 			)}
 		>
-			<HugeiconsIcon
-				icon={item.icon}
-				strokeWidth={1.5}
-				aria-hidden='true'
-				className='size-6'
-			/>
-			<span>{item.title}</span>
+			<span className='relative block size-6'>
+				<HugeiconsIcon
+					icon={item.icon}
+					strokeWidth={1.5}
+					aria-hidden='true'
+					className='size-6'
+				/>
+				{dot ? (
+					<span
+						aria-hidden='true'
+						data-testid={`mobile-tab-${item.url.slice(1)}-dot`}
+						className='absolute -top-0.5 -right-1 size-2 rounded-full border-[1.5px] border-card bg-feedback-success'
+					/>
+				) : null}
+			</span>
+			<span>
+				{item.title}
+				{status ? <span className='sr-only'>, {status}</span> : null}
+			</span>
 		</Link>
 	)
 }
@@ -56,12 +90,19 @@ export function MobileTabBar() {
 	const pathname = usePathname()
 	const navigation = useTripNavigation()
 	const tripSection = navigation?.route?.pathname === pathname ? navigation.route.section : null
+	const tripRunning = useActiveSessionStore(s => s.activeSession !== null)
 	const [dashboard, lists, receipts, history] = MOBILE_TAB_ITEMS
 
 	const tab = (item: (typeof MOBILE_TAB_ITEMS)[number]) => (
 		<Tab
 			item={item}
-			isActive={checkIsActive(pathname, item, true) || (item === lists && (pathname.startsWith('/shopping/') ? tripSection === 'lists' : isListsSection(pathname))) || (item === history && pathname.startsWith('/shopping/') && tripSection === 'trips')}
+			isActive={
+				checkIsActive(pathname, item, true) ||
+				(item === lists && (pathname.startsWith('/shopping/') ? tripSection === 'lists' : isListsSection(pathname))) ||
+				(item === history && pathname.startsWith('/shopping/') && tripSection === 'trips')
+			}
+			dot={item === history && tripRunning}
+			status={item === history && tripRunning ? 'shopping in progress' : undefined}
 		/>
 	)
 
@@ -73,14 +114,16 @@ export function MobileTabBar() {
 		>
 			{tab(dashboard)}
 			{tab(lists)}
-			<div className='flex justify-center'>
+			<div className='flex flex-col items-center'>
 				<UploadTicketDialog
 					trigger={
 						<Button
 							variant='default'
+							ring={tripRunning ? 'surface' : 'none'}
 							size='icon-2xl'
 							aria-label='Upload a receipt'
 							data-testid='mobile-tab-upload'
+							// The ring in the bar colour makes the overlap with the session bar read as a cut-out, only while a trip runs.
 							className='-mt-5'
 						>
 							<HugeiconsIcon
@@ -92,6 +135,10 @@ export function MobileTabBar() {
 						</Button>
 					}
 				/>
+				{/* On the same baseline as the labels of the other four tabs. */}
+				<span className='mt-2 text-xs leading-none font-medium text-muted-foreground dark:text-entity-list-on'>
+					Upload
+				</span>
 			</div>
 			{tab(receipts)}
 			{tab(history)}

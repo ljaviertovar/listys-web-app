@@ -2,14 +2,15 @@
 
 import { useState } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { ArrowRight01Icon, Attachment01Icon } from '@hugeicons/core-free-icons'
+import { ArrowRight01Icon, Attachment01Icon, Invoice01Icon } from '@hugeicons/core-free-icons'
 // AttachmentIcon and AttachmentOffIcon exist only in Hugeicons 4; every other icon stays on 3.x so none of them is redrawn.
 import { AttachmentIcon, AttachmentOffIcon } from '@hugeicons/core-free-icons-v4'
 
-import { CategorySection, EntityLabel } from '@/components/commons'
+import { CategorySection, EntityLabel, RowIcon } from '@/components/commons'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { NoStoreBadge, UploadTicketDialog } from '@/components/features/tickets'
 import { TicketStatusChip } from '@/components/features/tickets/ticket-status-chip'
 import type { TicketSessionCandidate } from '@/lib/api/endpoints'
@@ -62,32 +63,32 @@ export function TripReceiptSummary({
 		const action = receipt.attached ? (
 			<Button
 				type='button'
-				variant='link'
+				variant='ghost'
 				size='default'
 				onClick={() => setViewId(receipt.id)}
 			>
 				View Receipt
-				<HugeiconsIcon icon={ArrowRight01Icon} strokeWidth={1.8} className='size-4' aria-hidden='true' />
+				<HugeiconsIcon icon={ArrowRight01Icon} strokeWidth={1.8} className='size-4 transition-transform group-hover/button:translate-x-0.5 motion-reduce:transition-none' aria-hidden='true' />
 			</Button>
 		) : trip && status === 'completed' ? (
 			<Button
 				type='button'
-				variant='link'
-				size='default'
+				variant='ghost'
+				size='lg'
 				onClick={() => setReviewId(receipt.id)}
 			>
 				Review Receipt
-				<HugeiconsIcon icon={ArrowRight01Icon} strokeWidth={1.8} className='size-4' aria-hidden='true' />
+				<HugeiconsIcon icon={ArrowRight01Icon} strokeWidth={1.8} className='size-4 transition-transform group-hover/button:translate-x-0.5 motion-reduce:transition-none' aria-hidden='true' />
 			</Button>
 		) : trip && status === 'failed' ? (
 			<Button
 				type='button'
-				variant='link'
-				size='default'
+				variant='ghost'
+				size='lg'
 				onClick={() => setFailedId(receipt.id)}
 			>
 				Review Receipt
-				<HugeiconsIcon icon={ArrowRight01Icon} strokeWidth={1.8} className='size-4' aria-hidden='true' />
+				<HugeiconsIcon icon={ArrowRight01Icon} strokeWidth={1.8} className='size-4 transition-transform group-hover/button:translate-x-0.5 motion-reduce:transition-none' aria-hidden='true' />
 			</Button>
 		) : null
 
@@ -170,11 +171,11 @@ export function TripReceiptSummary({
 						title='Receipts'
 						count={`${receipts.length} ${receipts.length === 1 ? 'receipt' : 'receipts'}`}
 						tone='ocr'
-						panelClassName='px-3'
+						panelClassName={noReceipt ? 'bg-transparent px-3' : 'px-3'}
 						testId='trip-receipts-section'
 					>
 						<ul className='divide-y divide-slate-200/70 dark:divide-border' data-testid='trip-receipt-list'>
-							{noReceipt ? <li className='py-2' data-testid='trip-no-receipt-summary'><div className='flex flex-col items-start gap-1.5'><Badge data-testid='trip-no-receipt-label' variant='warning'><HugeiconsIcon icon={AttachmentOffIcon} strokeWidth={1.8} aria-hidden='true' />No receipt attached yet</Badge><p className='text-xs leading-normal text-feedback-warning-strong'>Add a receipt to save the real total and prices.</p></div></li> : receiptRows}
+							{noReceipt ? <li className='py-2' data-testid='trip-no-receipt-summary'><Alert variant='warning' data-testid='trip-no-receipt-label'><RowIcon icon={Invoice01Icon} tone='warning' size='alert' testId='trip-no-receipt-icon' /><AlertTitle>No receipt attached yet</AlertTitle><AlertDescription>Add a receipt to save the real total and prices.</AlertDescription></Alert></li> : receiptRows}
 						</ul>
 					</CategorySection>
 					{trip && !active ? (
@@ -182,7 +183,7 @@ export function TripReceiptSummary({
 							label='Attach Receipt'
 							triggerIcon={Attachment01Icon}
 							variant='secondary'
-							size='default'
+							size='lg'
 							className='w-full'
 							open={uploadOpen}
 							onOpenChange={setUploadOpen}

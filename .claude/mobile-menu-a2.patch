@@ -1,0 +1,1471 @@
+diff --git a/docs/design/DESIGN.md b/docs/design/DESIGN.md
+index 56710e6..7ab9f96 100644
+--- a/docs/design/DESIGN.md
++++ b/docs/design/DESIGN.md
+@@ -1057,8 +1057,8 @@ raised 48px **Upload Receipt** button (`fab`, `icon-2xl`, 16px radius) in the mi
+ | Bar               | White, a hairline on top and a soft upward shadow; padding `4 8 18` (the bottom grows to the device's safe-area inset when larger); pinned to the bottom edge of the screen; hidden from `lg`                                                                                           |
+ | Content clearance | The scrolling content carries a bottom padding equal to the bar's height (78px plus any safe-area inset beyond 18px) so its last row stays reachable; surfaces pinned to the bottom edge sit above it (`ABOVE_MOBILE_TAB_BAR` in `src/components/app/helpers/mobile-tab-bar-layout.ts`) |
+ | Tab               | 56px high (`min-h-14`), with a 24px icon at stroke 1.5, a 12px label (`text-xs`), and 12px radius; all five slots keep the same height                                                                                                                                                  |
+-| Current tab       | `#E9ECF0` surface, `#1D4ED8` text and weight 600, with no extra marker (`aria-current="page"`); inactive tabs are `slate-500`, weight 500. Lists stays current on a list and on a shopping session, whose paths start with `/base-lists` and `/shopping/`                               |
+-| Raised action     | 58x58, 16px radius, primary with the highlight layer, a 6px white ring plus the blue glow, 24px above the bar edge, 26px icon, `aria-label` "Upload a receipt"                                                                                                                          |
++| Current tab       | a pill filled and inked with the colour of its entity (design A2), weight 600, with no extra marker (`aria-current="page"`): Lists `#DBEAFE` / `#1D4ED8`, Receipts `#CFFAFE` / `#0E7490`, Trips `#DCFCE7` / `#15803D` (dark `#1E3A8A` / `#93C5FD`, `#164E63` / `#67E8F9`, `#14532D` / `#86EFAC`), the tones of the page-header tile; Dashboard has no entity, so its pill is neutral grey with ink text; inactive tabs are muted, weight 500. A running trip puts an 8px green dot (1.5px ring in the bar colour) on the Trips icon and `, shopping in progress` in the link name for assistive tech. Lists stays current on a list and on a shopping session, whose paths start with `/base-lists` and `/shopping/`                               |
++| Raised action     | 58x58, 16px radius, primary with the highlight layer, a 6px white ring plus the blue glow, 24px above the bar edge, 26px icon, `aria-label` "Upload a receipt". A 12px / 500 "Upload" label in action blue sits under it, on the same baseline as the other tab labels; while a trip runs the button gets a 4px ring in the bar colour so its overlap with the session bar reads as a cut-out                                                                                                                          |
+ 
+ The desktop sidebar follows the "A1 desktop" pattern (the shadcn floating sidebar): a white card with a 12px radius and a
+ hairline ring, 240px wide inside 8px margins on the page ground. It opens with the brand (the Listys mark at 32px, "Listys" in
+diff --git a/src/app/(authenticated)/shopping/[runId]/page.tsx b/src/app/(authenticated)/shopping/[runId]/page.tsx
+index da3919f..811f4af 100644
+--- a/src/app/(authenticated)/shopping/[runId]/page.tsx
++++ b/src/app/(authenticated)/shopping/[runId]/page.tsx
+@@ -7,10 +7,10 @@ import { HugeiconsIcon } from '@hugeicons/react'
+ 
+ import { ActiveShoppingBadge, BackLink, PageContainer, PageHeader, TripNavigationMarker } from '@/components/app'
+ import { Badge } from '@/components/ui/badge'
+-import { DataFigure, DataLine, EntityLabel } from '@/components/commons'
++import { EntityLabel } from '@/components/commons'
+ import { AddItemSheet } from '@/components/features/list-items'
+ import { ShareListDialog } from '@/components/features/sharing'
+-import { STARTED_SESSION_PARAM, SessionSummaryCard, TripReceiptsCard, TripReceiptSummary,
++import { SessionSummaryCard, TripReceiptsCard, TripReceiptSummary,
+ 	getTripReceiptState, getTripStores, ShoppingSessionActions, ShoppingSessionItems, ShoppingSessionRealtimeListener,
+ 	buildSessionPriceEstimate, summarizeCheckedEstimate, resolveSessionBackLink, TripSyncStatus } from '@/components/features/shopping-sessions'
+ import { itemsForSessionProgress } from '@/components/features/shopping-sessions/helpers/split-session-sections'
+@@ -27,7 +27,6 @@ export default async function ShoppingRunPage({ params, searchParams }: { params
+ 	const { runId } = await params
+ 	const query = await searchParams
+ 	const first = (value: string | string[] | undefined) => Array.isArray(value) ? value[0] : value
+-	const justStarted = first(query[STARTED_SESSION_PARAM]) === '1'
+ 	const showDetails = first(query.details) === '1'
+ 	const supabase = await createClient()
+ 	const { data: { user } } = await supabase.auth.getUser()
+@@ -88,18 +87,21 @@ export default async function ShoppingRunPage({ params, searchParams }: { params
+ 	}
+ 	return <>
+ 		<TripNavigationMarker completed={isCompleted} pathname={`/shopping/${runId}`} />
+-		<PageHeader variant='screen' screenStyle='entity-detail' back={backToSaved ? { href: resolveSessionBackLink('trips', first(query.list)).href, label: 'Back to Trips' } : { href: backHref, label: backLabel }} title={run.name}
++		<PageHeader
++			layout='detail'
++			back={backToSaved ? { href: resolveSessionBackLink('trips', first(query.list)).href, label: 'Back to Trips' } : { href: backHref, label: backLabel }}
++			title={run.name}
+ 			aside={isCompleted ? <Badge variant='completed' dot>Completed</Badge> : <ActiveShoppingBadge />}
+-			desc={<div className='flex flex-col gap-2'>
+-				{stores.length > 0 || isCompleted ? <div data-testid='trip-header-classification' className='flex flex-wrap items-center gap-x-2.5 gap-y-1.5'>
+-					{stores[0] ? <EntityLabel name={stores[0].name} testId={`trip-store-${stores[0].id}`} /> : null}
+-					{stores.length > 1 ? <Badge variant='outline'><HugeiconsIcon icon={Store03Icon} strokeWidth={1.8} aria-hidden='true' />+{stores.length - 1} {stores.length === 2 ? 'store' : 'stores'}</Badge> : null}
+-					{isCompleted ? <Badge variant={receipts.length ? 'outline' : 'warning'}><HugeiconsIcon icon={receipts.length ? AttachmentIcon : AttachmentOffIcon} strokeWidth={1.8} aria-hidden='true' />{receipts.length > 1 ? `${receipts.length} Receipt attached` : receipts.length ? 'Receipt attached' : 'No Receipt attached'}</Badge> : null}
+-				</div> : null}
+-				{isCompleted ? <DataLine testId='trip-header-data'>{date ? <>Completed on {formatTripDate(date)}</> : null}{amount == null ? null : <DataFigure>{!receipts.length ? '≈ ' : ''}{formatCurrency(amount)}</DataFigure>}</DataLine> : null}
+-				{!isCompleted ? <DataLine testId='trip-header-data'>{run.store_id ? `${progressTotal} of ${totalCount} items` : `${totalCount} items`}</DataLine> : null}
+-			</div>}>
+-		</PageHeader>
++			chips={[
++				stores[0] ? <EntityLabel key='store' name={stores[0].name} testId={`trip-store-${stores[0].id}`} /> : null,
++				stores.length > 1 ? <Badge key='more-stores' variant='outline'><HugeiconsIcon icon={Store03Icon} strokeWidth={1.8} aria-hidden='true' />+{stores.length - 1} {stores.length === 2 ? 'store' : 'stores'}</Badge> : null,
++				isCompleted ? <Badge key='receipt' variant={receipts.length ? 'outline' : 'warning'}><HugeiconsIcon icon={receipts.length ? AttachmentIcon : AttachmentOffIcon} strokeWidth={1.8} aria-hidden='true' />{receipts.length > 1 ? `${receipts.length} receipts attached` : receipts.length ? 'Receipt attached' : 'No receipt attached'}</Badge> : null,
++			]}
++			facts={isCompleted ? [
++				date ? { value: `Completed on ${formatTripDate(date)}` } : null,
++				amount == null ? null : { kind: 'total', value: `${!receipts.length ? '≈ ' : ''}${formatCurrency(amount)}` },
++			] : [{ value: run.store_id ? `${progressTotal} of ${totalCount} items` : `${totalCount} items` }]}
++		/>
+ 		<PageContainer className='pb-[calc(7rem+max(1.125rem,env(safe-area-inset-bottom)))] lg:pb-20'>
+ 			<div className='flex w-full max-w-3xl flex-col gap-6'>
+ 			{!isCompleted ? <ShoppingSessionActions sessionId={runId} checked={checkedCount} total={progressTotal} baseListId={baseListId} listName={baseListName} storeId={run.store_id} isOwner={isListOwner} canAttachReceipt={Boolean(trip)} /> : null}
+@@ -113,7 +115,7 @@ export default async function ShoppingRunPage({ params, searchParams }: { params
+ 					{baseListId && isListOwner ? <ShareListDialog baseListId={baseListId} listName={baseListName} isOwner={isListOwner} className='w-full md:w-auto' /> : null}
+ 					<AddItemSheet target={{ context: 'shopping-session', sessionId: runId }} className={baseListId && isListOwner ? 'w-full md:w-auto' : 'col-span-2 w-full md:col-auto md:w-auto'} />
+ 				</div> : null}
+-				<ShoppingSessionItems sessionId={runId} storeInfoByItemId={storeInfoByItemId} items={items} isCompleted={isCompleted} priceByItemId={!isCompleted && priceEstimate ? Object.fromEntries(priceEstimate.priceByItemId) : undefined} startCollapsed={justStarted && !isCompleted} storeId={run.store_id} storeName={run.store?.name ?? null} />
++				<ShoppingSessionItems sessionId={runId} storeInfoByItemId={storeInfoByItemId} items={items} isCompleted={isCompleted} priceByItemId={!isCompleted && priceEstimate ? Object.fromEntries(priceEstimate.priceByItemId) : undefined} storeId={run.store_id} storeName={run.store?.name ?? null} />
+ 			</div>
+ 		</PageContainer>
+ 		{!isCompleted ? <ShoppingSessionRealtimeListener sessionId={runId} /> : null}
+diff --git a/src/app/(authenticated)/shopping/tests/shopping-run-page.test.ts b/src/app/(authenticated)/shopping/tests/shopping-run-page.test.ts
+index 23c2ad0..1bd60c0 100644
+--- a/src/app/(authenticated)/shopping/tests/shopping-run-page.test.ts
++++ b/src/app/(authenticated)/shopping/tests/shopping-run-page.test.ts
+@@ -147,9 +147,9 @@ describe('shopping session page receipts card', () => {
+ 		expect(html).not.toContain('href="/tickets/r1"')
+ 		expect(html).not.toContain('href="/tickets/r2"')
+ 		expect(html).toContain('Attach Receipt')
+-		expect(html.indexOf('Completed')).toBeLessThan(html.indexOf('trip-header-classification'))
++		expect(html.indexOf('Completed')).toBeLessThan(html.indexOf('page-header-chips'))
+ 		expect(html.indexOf('No Frills')).toBeLessThan(html.indexOf('Costco'))
+-		expect(html.indexOf('2 Receipt attached')).toBeLessThan(html.indexOf('trip-header-data'))
++		expect(html.indexOf('2 receipts attached')).toBeLessThan(html.indexOf('page-header-data'))
+ 		vi.mocked(getShoppingSession).mockResolvedValue({ data: { ...data, user_id: 'other' }, error: null } as never)
+ 		expect(await render()).not.toContain('Attach Receipt')
+ 	})
+diff --git a/src/components/app/mobile-tab-bar.tsx b/src/components/app/mobile-tab-bar.tsx
+index 479e2aa..0f97cf3 100644
+--- a/src/components/app/mobile-tab-bar.tsx
++++ b/src/components/app/mobile-tab-bar.tsx
+@@ -8,6 +8,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
+ import { Button } from '@/components/ui/button'
+ import { UploadTicketDialog } from '@/components/features/tickets'
+ import { MOBILE_TAB_ITEMS } from '@/data/constants'
++import { useActiveSessionStore } from '@/stores/active-session'
+ import { cn } from '@/utils'
+ import { checkIsActive } from './sidebar/helpers/check-is-active'
+ import { useTripNavigation } from './trip-navigation'
+@@ -18,10 +19,32 @@ export function isListsSection(pathname: string) {
+ }
+ 
+ /**
+- * One destination of the bar; the current one is blue and bold on a grey pill, with no extra marker (design A1 mobile). Every
+- * tab is as tall as the current one, so the bar keeps its height on pages where none of the four is current.
++ * The pill of the current tab, filled and inked with the colour of its entity (design A2): the same tones as the page header
++ * tile and the dashboard rows. The dashboard has no entity, so its pill is neutral.
+  */
+-function Tab({ item, isActive }: { item: (typeof MOBILE_TAB_ITEMS)[number]; isActive: boolean }) {
++const CURRENT_TONES: Record<string, string> = {
++	'/dashboard': 'bg-border text-foreground dark:bg-accent',
++	'/shopping-lists': 'bg-entity-list text-entity-list-on',
++	'/tickets': 'bg-entity-receipt text-entity-receipt-on',
++	'/trips': 'bg-entity-trip text-entity-trip-on',
++}
++
++/**
++ * One destination of the bar; the current one is a pill in the colour of its entity, with no extra marker (design A2 mobile).
++ * Every tab is as tall as the current one, so the bar keeps its height on pages where none of the four is current. `dot` is a
++ * live state (a trip is running): it is aria-hidden and `status` carries its meaning in the link name.
++ */
++function Tab({
++	item,
++	isActive,
++	dot,
++	status,
++}: {
++	item: (typeof MOBILE_TAB_ITEMS)[number]
++	isActive: boolean
++	dot?: boolean
++	status?: string
++}) {
+ 	return (
+ 		<Link
+ 			href={item.url}
+@@ -31,19 +54,30 @@ function Tab({ item, isActive }: { item: (typeof MOBILE_TAB_ITEMS)[number]; isAc
+ 			className={cn(
+ 				'flex min-h-14 flex-col items-center justify-start gap-1 rounded-xl pt-2 text-xs leading-none transition-colors',
+ 				'focus-ring',
+-				// The current tab takes the highlight of the menu items (accent surface and text).
+ 				isActive
+-					? 'bg-accent font-semibold text-accent-foreground'
++					? cn('font-semibold', CURRENT_TONES[item.url] ?? 'bg-accent text-accent-foreground')
+ 					: 'font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground',
+ 			)}
+ 		>
+-			<HugeiconsIcon
+-				icon={item.icon}
+-				strokeWidth={1.5}
+-				aria-hidden='true'
+-				className='size-6'
+-			/>
+-			<span>{item.title}</span>
++			<span className='relative block size-6'>
++				<HugeiconsIcon
++					icon={item.icon}
++					strokeWidth={1.5}
++					aria-hidden='true'
++					className='size-6'
++				/>
++				{dot ? (
++					<span
++						aria-hidden='true'
++						data-testid={`mobile-tab-${item.url.slice(1)}-dot`}
++						className='absolute -top-0.5 -right-1 size-2 rounded-full border-[1.5px] border-card bg-feedback-success'
++					/>
++				) : null}
++			</span>
++			<span>
++				{item.title}
++				{status ? <span className='sr-only'>, {status}</span> : null}
++			</span>
+ 		</Link>
+ 	)
+ }
+@@ -56,12 +90,15 @@ export function MobileTabBar() {
+ 	const pathname = usePathname()
+ 	const navigation = useTripNavigation()
+ 	const tripSection = navigation?.route?.pathname === pathname ? navigation.route.section : null
++	const tripRunning = useActiveSessionStore(s => s.activeSession !== null)
+ 	const [dashboard, lists, receipts, history] = MOBILE_TAB_ITEMS
+ 
+ 	const tab = (item: (typeof MOBILE_TAB_ITEMS)[number]) => (
+ 		<Tab
+ 			item={item}
+ 			isActive={checkIsActive(pathname, item, true) || (item === lists && (pathname.startsWith('/shopping/') ? tripSection === 'lists' : isListsSection(pathname))) || (item === history && pathname.startsWith('/shopping/') && tripSection === 'trips')}
++			dot={item === history && tripRunning}
++			status={item === history && tripRunning ? 'shopping in progress' : undefined}
+ 		/>
+ 	)
+ 
+@@ -73,7 +110,7 @@ export function MobileTabBar() {
+ 		>
+ 			{tab(dashboard)}
+ 			{tab(lists)}
+-			<div className='flex justify-center'>
++			<div className='flex flex-col items-center'>
+ 				<UploadTicketDialog
+ 					trigger={
+ 						<Button
+@@ -81,7 +118,8 @@ export function MobileTabBar() {
+ 							size='icon-2xl'
+ 							aria-label='Upload a receipt'
+ 							data-testid='mobile-tab-upload'
+-							className='-mt-5'
++							// The ring in the bar colour makes the overlap with the session bar read as a cut-out, only while a trip runs.
++							className={cn('-mt-5', tripRunning && 'ring-4 ring-card')}
+ 						>
+ 							<HugeiconsIcon
+ 								icon={Upload06Icon}
+@@ -92,6 +130,8 @@ export function MobileTabBar() {
+ 						</Button>
+ 					}
+ 				/>
++				{/* On the same baseline as the labels of the other four tabs. */}
++				<span className='mt-2 text-xs leading-none font-medium text-primary dark:text-entity-list-on'>Upload</span>
+ 			</div>
+ 			{tab(receipts)}
+ 			{tab(history)}
+diff --git a/src/components/app/tests/mobile-tab-bar.test.ts b/src/components/app/tests/mobile-tab-bar.test.ts
+index b6f9900..79b5f65 100644
+--- a/src/components/app/tests/mobile-tab-bar.test.ts
++++ b/src/components/app/tests/mobile-tab-bar.test.ts
+@@ -5,6 +5,9 @@ import { describe, expect, it, vi } from 'vitest'
+ import { MobileTabBar, isListsSection } from '@/components/app/mobile-tab-bar'
+ 
+ let pathname = '/dashboard'
++let activeSession: { id: string } | null = null
++// zustand renders its initial state on the server, so the running trip is faked here.
++vi.mock('@/stores/active-session', () => ({ useActiveSessionStore: (select: (s: { activeSession: unknown }) => unknown) => select({ activeSession }) }))
+ // The raised upload button opens the receipt dialog, which reads the App Router.
+ vi.mock('next/navigation', () => ({ usePathname: () => pathname, useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }) }))
+ 
+@@ -23,6 +26,33 @@ describe('MobileTabBar', () => {
+ 		expect(render()).not.toContain('aria-current')
+ 	})
+ 
++	it('fills the current tab with the colour of its entity', () => {
++		const pill = (path: string) => {
++			pathname = path
++			return render().match(/<a[^>]*aria-current="page"[^>]*class="([^"]*)"/)?.[1] ?? ''
++		}
++		expect(pill('/shopping-lists')).toContain('bg-entity-list text-entity-list-on')
++		expect(pill('/tickets')).toContain('bg-entity-receipt text-entity-receipt-on')
++		expect(pill('/trips')).toContain('bg-entity-trip text-entity-trip-on')
++		expect(pill('/dashboard')).toContain('bg-border text-foreground')
++	})
++
++	it('labels the upload action and rings it only while a trip runs', () => {
++		pathname = '/dashboard'
++		activeSession = null
++		let html = render()
++		expect(html).toContain('>Upload</span>')
++		expect(html).not.toContain('ring-card')
++		expect(html).not.toContain('mobile-tab-trips-dot')
++
++		activeSession = { id: 's1' }
++		html = render()
++		expect(html).toContain('ring-4 ring-card')
++		expect(html).toContain('mobile-tab-trips-dot')
++		expect(html).toContain('shopping in progress')
++		activeSession = null
++	})
++
+ 	it('keeps Lists current while a list or a shopping session is open', () => {
+ 		expect(isListsSection('/base-lists/l1/edit')).toBe(true)
+ 		expect(isListsSection('/shopping/s1')).toBe(true)
+diff --git a/src/components/commons/action-link/action-link.tsx b/src/components/commons/action-link/action-link.tsx
+index 20dec6e..d10ea41 100644
+--- a/src/components/commons/action-link/action-link.tsx
++++ b/src/components/commons/action-link/action-link.tsx
+@@ -4,21 +4,24 @@ import { ArrowRight01Icon } from '@hugeicons/core-free-icons'
+ import { HugeiconsIcon } from '@hugeicons/react'
+ 
+ import { Button } from '@/components/ui/button'
++import { cn } from '@/utils'
+ 
+ type ActionLinkProps = Omit<ComponentProps<typeof Link>, 'children'> & {
+ 	children: ReactNode
+ 	testId?: string
+ 	className?: string
++	/** Makes the whole nearest positioned ancestor (an object card) the tap target; its own menu and buttons sit above it with `relative z-10`. */
++	stretched?: boolean
+ }
+ 
+-/** The "View Details" / "View All" link that ends a row or titles a section: blue label and an arrow that nudges on hover. */
+-export function ActionLink({ children, testId, className, ...linkProps }: ActionLinkProps) {
++/** The "View Details" / "View All" link that ends a row or titles a section: an arrow that nudges on hover. */
++export function ActionLink({ children, testId, className, stretched = false, ...linkProps }: ActionLinkProps) {
+ 	return (
+ 		<Button
+ 			asChild
+-		variant='ghost'
+-			size='link-action'
+-			className={className}
++			variant='ghost'
++			size='default'
++			className={cn(stretched && 'after:absolute after:inset-0 after:content-[""]', className)}
+ 		>
+ 			<Link
+ 				data-testid={testId}
+diff --git a/src/components/commons/data-line/data-line.tsx b/src/components/commons/data-line/data-line.tsx
+index 24c448f..4707fea 100644
+--- a/src/components/commons/data-line/data-line.tsx
++++ b/src/components/commons/data-line/data-line.tsx
+@@ -7,16 +7,44 @@ interface DataLineProps {
+ }
+ 
+ /** A figure of a data line: IBM Plex Mono, tabular, in the ink colour so it stands out from the grey words around it. */
+-export function DataFigure({ children, emphasis = 'default' }: { children: ReactNode; emphasis?: 'default' | 'count' | 'total' }) {
++export function DataFigure({ children, emphasis = 'default' }: { children: ReactNode; emphasis?: 'default' | 'count' | 'total' | 'clock' }) {
+ 	// `count` is the number a card leads with ("3 photos"): one step larger and bolder than the figures after it.
++	// `clock` is a time of day: secondary, so it keeps the mono face but not the weight or the ink.
+ 	const className = emphasis === 'count'
+ 		? 'font-mono text-base leading-[1.2] font-bold text-foreground tabular-nums'
+ 		: emphasis === 'total'
+ 			? 'font-mono text-lg leading-6 font-semibold text-foreground tabular-nums'
+-			: 'font-mono font-semibold text-foreground tabular-nums'
++			: emphasis === 'clock'
++				? 'font-mono font-normal text-muted-foreground tabular-nums'
++				: 'font-mono font-semibold text-foreground tabular-nums'
+ 	return <span className={className}>{children}</span>
+ }
+ 
++/** One fact of a data line. `count` leads, `time` follows and `total` closes it; `clock` is a time of day; `text` is plain words. */
++export interface DataFact {
++	kind?: 'text' | 'count' | 'time' | 'total' | 'clock'
++	value: ReactNode
++	/** The word after a figure ("items", "photos"). */
++	unit?: string
++}
++
++function renderFact({ kind = 'text', value, unit }: DataFact) {
++	const figure = kind === 'text' ? value : <DataFigure emphasis={kind === 'time' ? 'default' : kind}>{value}</DataFigure>
++	return unit ? <>{figure} {unit}</> : figure
++}
++
++/** The data line of a page header and of a sheet header: the same facts look the same wherever they appear. Empty entries are skipped. */
++export function DataFacts({ facts, testId }: { facts: Array<DataFact | null | false | undefined>; testId?: string }) {
++	const visible = facts.filter((fact): fact is DataFact => Boolean(fact))
++	return (
++		<DataLine testId={testId}>
++			{visible.map((fact, index) => (
++				<Fragment key={index}>{renderFact(fact)}</Fragment>
++			))}
++		</DataLine>
++	)
++}
++
+ /**
+  * The data level of an object card or a screen title (canvas 4/7): facts separated by "·" in Inter 14 slate, with the figures in mono.
+  * It replaces the grey mono 12 line these cards used to carry.
+diff --git a/src/components/commons/entity-card/entity-card-skeleton.tsx b/src/components/commons/entity-card/entity-card-skeleton.tsx
+index f653dca..6b4f1e0 100644
+--- a/src/components/commons/entity-card/entity-card-skeleton.tsx
++++ b/src/components/commons/entity-card/entity-card-skeleton.tsx
+@@ -9,13 +9,13 @@ interface EntityCardSkeletonProps {
+ /** Mirrors the list and store card shells, with the content slots each kind actually uses. */
+ export function EntityCardSkeleton({ testId, kind }: EntityCardSkeletonProps) {
+ 	return (
+-		<Card data-testid={testId} aria-hidden='true' size='list'>
+-			<div className='flex items-center gap-3'>
++		<Card data-testid={testId} aria-hidden='true' size='object'>
++			<div className='flex min-h-8 items-center gap-3'>
+ 				<Skeleton className='h-5 min-w-0 flex-1' />
+-				<Skeleton className='size-10 shrink-0 rounded-xl' />
++				<Skeleton className='size-8 shrink-0 rounded-xl' />
+ 			</div>
+ 			{kind === 'list' ? (
+-				<div className='flex flex-col gap-2'>
++				<div className='mt-2 flex flex-col gap-2'>
+ 					<div className='flex items-start gap-1.5'>
+ 						<Skeleton className='mt-0.5 size-4 shrink-0 rounded-sm' />
+ 						<div className='flex min-w-0 flex-1 flex-col gap-1.5'>
+@@ -29,12 +29,12 @@ export function EntityCardSkeleton({ testId, kind }: EntityCardSkeletonProps) {
+ 					</div>
+ 				</div>
+ 			) : (
+-				<div className='flex items-center gap-2'>
++				<div className='mt-2 flex items-center gap-2'>
+ 					<Skeleton className='h-5 w-12 rounded-full' />
+ 					<Skeleton className='h-4 w-2/5' />
+ 				</div>
+ 			)}
+-			<div className='flex min-h-10 items-center justify-between gap-3 border-t border-border pt-3'>
++			<div className='mt-3 flex min-h-10 items-center justify-between gap-3 border-t border-border pt-3'>
+ 				<Skeleton className='h-4 w-24' />
+ 				<Skeleton className='h-4 w-20' />
+ 			</div>
+diff --git a/src/components/commons/entity-card/entity-card.tsx b/src/components/commons/entity-card/entity-card.tsx
+index cef6800..3db87ba 100644
+--- a/src/components/commons/entity-card/entity-card.tsx
++++ b/src/components/commons/entity-card/entity-card.tsx
+@@ -1,14 +1,15 @@
+ 'use client'
+ 
+ import type { ReactNode, Ref } from 'react'
+-import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react'
++import { HugeiconsIcon } from '@hugeicons/react'
+ import { Delete02Icon, Edit02Icon, Note01Icon } from '@hugeicons/core-free-icons'
+ 
+-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+-import { RowIcon } from '../row-icon'
++import { Card } from '@/components/ui/card'
+ 
+ import { ActionLink } from '../action-link/action-link'
++import { DataFacts, type DataFact } from '../data-line/data-line'
+ import { InlineCounter } from '../inline-counter/inline-counter'
++import { ObjectCardBody, ObjectCardChips, ObjectCardFooter, ObjectCardTitleRow, OBJECT_CARD_LINK } from '../object-card/object-card'
+ import { RowMenu, type RowMenuAction } from '../row-menu/row-menu'
+ 
+ type EntityCardMenu =
+@@ -29,18 +30,15 @@ type EntityCardMenu =
+ 	  }
+ 
+ interface EntityCardProps {
+-	size?: 'default' | 'list'
+ 	/** Where the footer link goes; a card with nothing to open leaves it out and has no link. */
+ 	href?: string
+-	icon?: IconSvgElement
+-	/** The icon tile's colour: blue for a list, violet for a store. */
+-	tone?: 'default' | 'store'
+ 	title: string
++	/** The optional note under the title: the text the user wrote on a list. */
+ 	description?: string | null
+ 	/** The classification row under the note: the card's tags and entities (a list's Default tag). */
+ 	badge?: ReactNode
+-	/** One quiet line under the description (when the list was last shopped, who it is shared with). */
+-	meta?: string | null
++	/** The data line: when the list was last shopped, a store's last visit and its receipts. Empty entries are skipped. */
++	facts?: Array<DataFact | null | false | undefined>
+ 	/** How many things the card holds, with the words that name them; the card reads "No <emptyLabel> yet" at zero. */
+ 	count: number | null
+ 	unit: { one: string; many: string }
+@@ -55,18 +53,16 @@ interface EntityCardProps {
+ }
+ 
+ /**
+- * A list of the Lists section: an icon tile, its name and one line of description, a "⋯" menu, and a footer
+- * with how much it holds. Only the footer action navigates, leaving the rest of the card available for other interactions.
++ * A list or a store (object card, canvas C1): its name and a "⋯" menu in a 32px row, the optional note, the classification row, the
++ * data line and a footer with how much it holds and where it leads. The footer link covers the whole card; the menu and a resume
++ * button sit above it.
+  */
+ export function EntityCard({
+-	size = 'default',
+ 	href,
+-	icon,
+-	tone = 'default',
+ 	title,
+ 	description,
+ 	badge,
+-	meta,
++	facts,
+ 	count,
+ 	unit,
+ 	emptyLabel,
+@@ -76,50 +72,50 @@ export function EntityCard({
+ 	menuTriggerRef,
+ 	testId,
+ }: EntityCardProps) {
++	const hasFacts = (facts ?? []).some(Boolean)
+ 	return (
+ 		<Card
+-			size='list'
++			size='object'
++			interactive={Boolean(href && linkLabel && !footerAction)}
+ 			role='article'
+ 			data-testid={testId}
+-			data-entity-size={size}
+ 		>
+-			<CardHeader inset='compact'>
+-			<div className='flex w-full min-w-0 items-center gap-3'>
+-				{icon ? <RowIcon icon={icon} tone={tone === 'store' ? 'store' : 'primary'} size='md' testId={`${testId}-icon`} /> : null}
+-				<CardTitle className='min-w-0 flex-1 overflow-hidden'><h2 className='truncate'>{title}</h2></CardTitle>
+-				{menu ? (
+-					<RowMenu
+-						label={menu.label}
+-						triggerRef={menuTriggerRef}
+-						disabled={menu.disabled}
+-						testId={`${testId}-menu`}
+-						className='-mr-2 shrink-0'
+-						actions={
+-							'actions' in menu
+-								? menu.actions
+-								: [
+-										{ label: menu.editLabel, icon: Edit02Icon, onSelect: menu.onEdit },
+-										{ label: menu.deleteLabel, icon: Delete02Icon, onSelect: menu.onDelete, tone: 'danger' },
+-									]
++			<ObjectCardBody>
++				<div className='flex flex-col gap-1'>
++					<ObjectCardTitleRow
++						title={title}
++						aside={
++							menu ? (
++								<RowMenu
++									label={menu.label}
++									triggerRef={menuTriggerRef}
++									disabled={menu.disabled}
++									testId={`${testId}-menu`}
++									// 32px visible, 44px to hit: the title row stays 32px tall and the dots end on the content edge.
++									className='relative z-10 -mr-1.5 size-8 after:absolute after:-inset-1.5 after:content-[""]'
++									actions={
++										'actions' in menu
++											? menu.actions
++											: [
++													{ label: menu.editLabel, icon: Edit02Icon, onSelect: menu.onEdit },
++													{ label: menu.deleteLabel, icon: Delete02Icon, onSelect: menu.onDelete, tone: 'danger' },
++												]
++									}
++								/>
++							) : null
+ 						}
+ 					/>
+-				) : null}
+-			</div>
+-			</CardHeader>
+-			{description || badge || meta ? (
+-				<CardContent inset='compact' space='snug'>
+ 					{description ? (
+-						<CardDescription><div className='flex items-start gap-1.5'>
+-							<HugeiconsIcon icon={Note01Icon} strokeWidth={1.7} aria-hidden='true' className='mt-0.5 size-4 shrink-0 text-muted-foreground' />
++						<div className='flex items-start gap-1.5 text-sm leading-5 text-muted-foreground'>
++							<HugeiconsIcon icon={Note01Icon} strokeWidth={1.7} aria-hidden='true' className='mt-0.5 size-4 shrink-0' />
+ 							<span className='line-clamp-2 break-words'>{description}</span>
+-						</div></CardDescription>
++						</div>
+ 					) : null}
+-					{badge ? <div className='flex flex-wrap items-center gap-x-2.5 gap-y-1.5'>{badge}</div> : null}
+-					{meta ? <p data-testid={`${testId}-data`} className='text-xs leading-4 text-muted-foreground'>{meta}</p> : null}
+-				</CardContent>
+-			) : null}
+-			<CardFooter inset='compact' variant='summary'>
+-			<div className='flex w-full items-center justify-between gap-3'>
++				</div>
++				{badge ? <ObjectCardChips>{badge}</ObjectCardChips> : null}
++				{hasFacts ? <DataFacts facts={facts ?? []} testId={`${testId}-data`} /> : null}
++			</ObjectCardBody>
++			<ObjectCardFooter>
+ 				{count !== null && count > 0 ? (
+ 					<InlineCounter
+ 						count={count}
+@@ -132,13 +128,14 @@ export function EntityCard({
+ 						{count === null ? 'Count unavailable' : `No ${emptyLabel} yet`}
+ 					</span>
+ 				)}
+-				{footerAction ?? (href && linkLabel ? (
+-					<ActionLink href={href} aria-label={`${linkLabel} in ${title}`} className='shrink-0'>
++				{footerAction ? (
++					<div className='relative z-10 shrink-0'>{footerAction}</div>
++				) : href && linkLabel ? (
++					<ActionLink href={href} aria-label={`${linkLabel} in ${title}`} className={OBJECT_CARD_LINK} stretched>
+ 						{linkLabel}
+ 					</ActionLink>
+-				) : null)}
+-			</div>
+-			</CardFooter>
++				) : null}
++			</ObjectCardFooter>
+ 		</Card>
+ 	)
+ }
+diff --git a/src/components/commons/index.ts b/src/components/commons/index.ts
+index f4ff71b..4151be1 100644
+--- a/src/components/commons/index.ts
++++ b/src/components/commons/index.ts
+@@ -11,13 +11,21 @@ export {
+   getCategoryTone,
+ } from "./category-section/helpers/category-style";
+ export { ActionLink } from "./action-link/action-link";
+-export { DataFigure, DataLine } from "./data-line/data-line";
++export { DataFacts, DataFigure, DataLine, type DataFact } from "./data-line/data-line";
+ export { EntityLabel } from "./entity-label/entity-label";
+ export { InlineCounter } from "./inline-counter/inline-counter";
+ export { EmptyStateCard } from "./empty-state/empty-state-card";
+ export { EmptyState } from "./empty-state/empty-state";
+ export { DetailsList, type DetailsListItem } from "./details-list/details-list";
+ export { CreateEntitySheet } from "./entity-card/create-entity-sheet";
++export {
++  OBJECT_CARD_LINK,
++  ObjectCardBody,
++  ObjectCardChips,
++  ObjectCardFigure,
++  ObjectCardFooter,
++  ObjectCardTitleRow,
++} from "./object-card/object-card";
+ export { EntityCard } from "./entity-card/entity-card";
+ export { EntityCardSkeleton } from "./entity-card/entity-card-skeleton";
+ export {
+@@ -38,5 +46,7 @@ export { ConfirmSheet } from "./sheet-dialog/confirm-sheet";
+ export { SheetDialog } from "./sheet-dialog/sheet-dialog";
+ 
+ export { RowIcon } from './row-icon'
++export { LoadingState } from './loading-state'
++export { ItemContextRow } from './item-context-row'
+ export { StatusCard } from './status-card'
+ export { StatTile } from './stat-tile/stat-tile'
+diff --git a/src/components/commons/object-card/object-card.tsx b/src/components/commons/object-card/object-card.tsx
+new file mode 100644
+index 0000000..cf5718e
+--- /dev/null
++++ b/src/components/commons/object-card/object-card.tsx
+@@ -0,0 +1,54 @@
++import type { ReactNode } from 'react'
++
++import { CardFooter } from '@/components/ui/card'
++import { cn } from '@/utils'
++
++/**
++ * The shared parts of the object card (canvas C1: a list, a store, a receipt, a trip). Each kind fills the same slots and none restyles
++ * them, so the title, the rows and the footer sit at the same height on every card. The card itself is `<Card size='object'>`.
++ */
++
++/** Slots 1 and 2: the title and its aside (a status chip or the "⋯" menu), in a 32px row. The title is one line with an ellipsis. */
++export function ObjectCardTitleRow({ title, aside, className }: { title: ReactNode; aside?: ReactNode; className?: string }) {
++	return (
++		<div className={cn('flex min-h-8 min-w-0 items-center gap-3', className)}>
++			<h2 className='min-w-0 flex-1 truncate font-display text-base leading-6 font-semibold tracking-tight'>{title}</h2>
++			{aside ? <div className='shrink-0'>{aside}</div> : null}
++		</div>
++	)
++}
++
++/** The blocks under the title (note, chips, amount and data line), 8px apart. An empty block is left out by its card. */
++export function ObjectCardBody({ children, className }: { children: ReactNode; className?: string }) {
++	return <div className={cn('flex flex-col gap-2', className)}>{children}</div>
++}
++
++/** Slot 4: the classification row. 12px across and 8px down, because an entity label has no box and needs the air. */
++export function ObjectCardChips({ children, className, testId }: { children: ReactNode; className?: string; testId?: string }) {
++	return (
++		<div data-testid={testId} className={cn('flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2', className)}>
++			{children}
++		</div>
++	)
++}
++
++/** Slot 5 with slot 6: the amount a card is scanned for and its data line, one figure and its context (4px apart). */
++export function ObjectCardFigure({ children, className, testId }: { children: ReactNode; className?: string; testId?: string }) {
++	return (
++		<div data-testid={testId} className={cn('flex flex-col gap-1', className)}>
++			{children}
++		</div>
++	)
++}
++
++/** Slots 7 and 8: a hairline, 12px of air above it, and a footer at least 40px tall. */
++export function ObjectCardFooter({ children, className, variant = 'summary' }: { children: ReactNode; className?: string; variant?: 'summary' | 'status' }) {
++	return (
++		<CardFooter variant={variant} inset='compact' className={cn('mt-3', className)}>
++			{children}
++		</CardFooter>
++	)
++}
++
++/** The link at the end of the footer: its arrow ends on the card's content edge, like the menu and the status chip. */
++export const OBJECT_CARD_LINK = 'shrink-0 -mr-3'
+diff --git a/src/components/commons/object-card/tests/object-card.test.tsx b/src/components/commons/object-card/tests/object-card.test.tsx
+new file mode 100644
+index 0000000..1e7b412
+--- /dev/null
++++ b/src/components/commons/object-card/tests/object-card.test.tsx
+@@ -0,0 +1,75 @@
++import { createElement } from 'react'
++import { renderToStaticMarkup } from 'react-dom/server'
++import { describe, expect, it } from 'vitest'
++
++import { EntityCard } from '@/components/commons/entity-card/entity-card'
++import { TicketCard } from '@/components/features/tickets/list/tickets-list'
++
++const list = (overrides: Partial<Parameters<typeof EntityCard>[0]> = {}) =>
++	renderToStaticMarkup(
++		createElement(EntityCard, {
++			href: '/base-lists/l1/edit',
++			title: 'Pantry',
++			description: 'Everything we buy every week.',
++			facts: [{ value: 'Last trip 9 Nov' }],
++			count: 12,
++			unit: { one: 'item', many: 'items' },
++			emptyLabel: 'items',
++			linkLabel: 'View Items',
++			menu: { label: 'More options for Pantry', actions: [] },
++			testId: 'list-card-l1',
++			...overrides,
++		}),
++	)
++
++describe('Object card', () => {
++	it('draws a list in the one rhythm: 16px padding, a 32px title row, a data line and a whole-card link', () => {
++		const html = list()
++		expect(html).toContain('data-size="object"')
++		expect(html).toContain('min-h-8')
++		expect(html).toContain('data-testid="list-card-l1-data"')
++		expect(html).toContain('Last trip 9 Nov')
++		expect(html).toContain('aria-label="View Items in Pantry"')
++		expect(html).toContain('after:absolute after:inset-0')
++		// The menu is 32px to see and 44px to hit, above the link.
++		const menu = html.match(/<button[^>]*data-testid="list-card-l1-menu"[^>]*>/)?.[0] ?? ''
++		expect(menu).toContain('size-8')
++		expect(menu).toContain('z-10')
++		expect(menu).toContain('-mr-1.5')
++	})
++
++	it('has no icon tile, and no data line when it has no facts', () => {
++		const html = list({ facts: [null], description: null })
++		expect(html).not.toContain('list-card-l1-icon')
++		expect(html).not.toContain('list-card-l1-data')
++	})
++
++	it('reads zero as "No items yet" and keeps the resume action clear of the card link', () => {
++		const empty = list({ count: 0 })
++		expect(empty).toContain('No items yet')
++		const resuming = list({ footerAction: createElement('button', { type: 'button' }, 'Resume Shopping') })
++		expect(resuming).toContain('Resume Shopping')
++		expect(resuming).not.toContain('after:absolute after:inset-0')
++	})
++
++	it('draws a receipt with the same title row, the amount first and the unconfirmed store as an action chip', () => {
++		const html = renderToStaticMarkup(
++			createElement(TicketCard, {
++				id: 't1',
++				title: 'Receipt · 10 Nov',
++				status: 'completed',
++				itemsCount: 54,
++				photoCount: 2,
++				uploadedLabel: 'Uploaded 15:26',
++				totalLabel: '$281.45',
++				storeName: null,
++				storeConfirmed: false,
++			} as never),
++		)
++		expect(html).toContain('data-size="object"')
++		expect(html).toContain('Store not confirmed')
++		expect(html.indexOf('Store not confirmed')).toBeLessThan(html.indexOf('$281.45'))
++		expect(html).toContain('aria-label="View Details in Receipt · 10 Nov"')
++		expect(html).toContain('photos')
++	})
++})
+diff --git a/src/components/features/base-lists/base-list-card.tsx b/src/components/features/base-lists/base-list-card.tsx
+index fe27399..c934fb9 100644
+--- a/src/components/features/base-lists/base-list-card.tsx
++++ b/src/components/features/base-lists/base-list-card.tsx
+@@ -27,7 +27,7 @@ import { deleteBaseList, updateBaseList } from "@/lib/api/endpoints";
+ 
+ import type { BaseListWithCount } from "@/types";
+ 
+-import { buildListCardMeta, buildSharedWithLabel } from "./helpers/list-card-meta";
++import { buildListCardFacts, buildSharedWithLabel } from "./helpers/list-card-meta";
+ 
+ interface Props {
+   baseList: BaseListWithCount;
+@@ -145,7 +145,6 @@ export function BaseListCard({
+   return (
+     <>
+       <EntityCard
+-        size="list"
+         href={`/base-lists/${baseList.id}/edit`}
+         title={shownName}
+         description={baseList.notes}
+@@ -167,7 +166,7 @@ export function BaseListCard({
+             </>
+           ) : null
+         }
+-        meta={buildListCardMeta(lastTripAt)}
++        facts={buildListCardFacts(lastTripAt)}
+         count={baseList.items_count}
+         unit={{ one: "item", many: "items" }}
+         emptyLabel="items"
+diff --git a/src/components/features/base-lists/helpers/list-card-meta.ts b/src/components/features/base-lists/helpers/list-card-meta.ts
+index aa52ab9..e7c1945 100644
+--- a/src/components/features/base-lists/helpers/list-card-meta.ts
++++ b/src/components/features/base-lists/helpers/list-card-meta.ts
+@@ -1,8 +1,12 @@
+-import { formatDate } from '@/utils'
++import { formatShortDate } from '@/utils'
++import type { DataFact } from '@/components/commons'
+ 
+-/** The data line of a list card: when it was last shopped, or that it never was. Who it is shared with is a tag, not data. */
+-export function buildListCardMeta(lastTripAt: string | null | undefined): string {
+-	return lastTripAt ? `Last trip ${formatDate(new Date(lastTripAt))}` : 'No trips yet'
++/**
++ * The data line of a list card: when it was last shopped, or that it never was, with the year only when it is not this year. Who it is
++ * shared with is a tag, not data.
++ */
++export function buildListCardFacts(lastTripAt: string | null | undefined, now = new Date()): DataFact[] {
++	return [{ value: lastTripAt ? `Last trip ${formatShortDate(new Date(lastTripAt), now)}` : 'No trips yet' }]
+ }
+ 
+ /** The text of the "Shared with" tag, or null when the list is not shared. */
+diff --git a/src/components/features/base-lists/tests/list-card-meta.test.ts b/src/components/features/base-lists/tests/list-card-meta.test.ts
+index 241859a..2875702 100644
+--- a/src/components/features/base-lists/tests/list-card-meta.test.ts
++++ b/src/components/features/base-lists/tests/list-card-meta.test.ts
+@@ -1,18 +1,18 @@
+ import { describe, expect, it } from 'vitest'
+ 
+-import { buildListCardMeta, buildSharedWithLabel } from '../helpers/list-card-meta'
++import { buildListCardFacts, buildSharedWithLabel } from '../helpers/list-card-meta'
+ 
+-describe('buildListCardMeta', () => {
++describe('buildListCardFacts', () => {
+ 	it('says a list was never shopped when it has no completed trip', () => {
+-		expect(buildListCardMeta(null)).toBe('No trips yet')
+-		expect(buildListCardMeta(undefined)).toBe('No trips yet')
++		expect(buildListCardFacts(null)).toEqual([{ value: 'No trips yet' }])
++		expect(buildListCardFacts(undefined)).toEqual([{ value: 'No trips yet' }])
+ 	})
+ 
+-	it('names the last trip without mixing in who the list is shared with', () => {
+-		const text = buildListCardMeta('2026-10-28T22:07:00.000Z')
++	it('names the last trip without the year when it is this year, and without who the list is shared with', () => {
++		const now = new Date(2026, 10, 16)
+ 
+-		expect(text.startsWith('Last trip ')).toBe(true)
+-		expect(text).not.toContain('Shared')
++		expect(buildListCardFacts('2026-10-27T15:00:00.000Z', now)).toEqual([{ value: 'Last trip 27 Oct' }])
++		expect(buildListCardFacts('2025-10-27T15:00:00.000Z', now)).toEqual([{ value: 'Last trip 27 Oct 2025' }])
+ 	})
+ })
+ 
+diff --git a/src/components/features/shopping-sessions/history-session-card.tsx b/src/components/features/shopping-sessions/history-session-card.tsx
+index 20aa29b..07afe47 100644
+--- a/src/components/features/shopping-sessions/history-session-card.tsx
++++ b/src/components/features/shopping-sessions/history-session-card.tsx
+@@ -5,8 +5,20 @@ import { Store03Icon } from '@hugeicons/core-free-icons'
+ import { AttachmentIcon, AttachmentOffIcon } from '@hugeicons/core-free-icons-v4'
+ import { HugeiconsIcon } from '@hugeicons/react'
+ 
+-import { ActionLink, DataFigure, DataLine, EntityLabel, InlineCounter } from '@/components/commons'
+-import { Card, CardFooter } from '@/components/ui/card'
++import {
++	ActionLink,
++	DataFacts,
++	DataFigure,
++	EntityLabel,
++	InlineCounter,
++	OBJECT_CARD_LINK,
++	ObjectCardBody,
++	ObjectCardChips,
++	ObjectCardFigure,
++	ObjectCardFooter,
++	ObjectCardTitleRow,
++} from '@/components/commons'
++import { Card } from '@/components/ui/card'
+ import { Badge } from '@/components/ui/badge'
+ import { formatCurrency, formatTime, formatTripDate } from '@/utils'
+ import type { TripReceipt } from '@/types'
+@@ -33,10 +45,10 @@ interface Props {
+ }
+ 
+ /**
+- * A completed trip in Trips (design: Mobile historial; canvas 4/7 data hierarchy). The card is plain; only its links react to taps or
+- * hover. Its levels, in order: identity with the one status pill (Completed), classification (the store as an entity, then tags for the
+- * receipt), the data line and the footer. A trip without a receipt gets an attention tag; adding one starts from the saved-trip screen.
+- * A trip whose receipt state is unknown (`receipt` omitted) shows no receipt tag.
++ * A completed trip in Trips (object card, canvas C1). Its levels, in order: identity with the one status pill (Completed), classification
++ * (the store as an entity, then tags for the receipt), the amount with its data line and the footer. A trip without a receipt gets an
++ * attention tag; adding one starts from the saved-trip screen. A trip whose receipt state is unknown (`receipt` omitted) shows no receipt
++ * tag. The footer link covers the whole card.
+  */
+ export function HistorySessionCard({ session, href }: Props) {
+ 	const detailsHref = href ?? `/shopping/${session.id}`
+@@ -52,24 +64,25 @@ export function HistorySessionCard({ session, href }: Props) {
+ 
+ 	return (
+ 		<Card
+-			size='trip'
++			size='object'
++			interactive
+ 			data-testid={`history-card-${session.id}`}
+ 		>
+-			<div className='flex flex-col gap-2.5'>
+-				<div className='flex items-center gap-3'>
+-					<h2 className='min-w-0 flex-1 truncate font-display text-base leading-normal font-semibold tracking-[-0.005em]'>
+-						{session.name}
+-					</h2>
+-					<Badge
+-						variant='completed'
+-						dot
+-					>
+-						Completed
+-					</Badge>
+-				</div>
++			<ObjectCardBody>
++				<ObjectCardTitleRow
++					title={session.name}
++					aside={
++						<Badge
++							variant='completed'
++							dot
++						>
++							Completed
++						</Badge>
++					}
++				/>
+ 
+ 				{hasClassification ? (
+-					<div className='flex flex-wrap items-center gap-x-2.5 gap-y-1.5'>
++					<ObjectCardChips>
+ 						{stores[0] ? (
+ 							<EntityLabel
+ 								name={stores[0].name}
+@@ -97,7 +110,7 @@ export function HistorySessionCard({ session, href }: Props) {
+ 									aria-hidden='true'
+ 								/>
+ 								{(session.receipts?.length ?? 0) > 1
+-									? `${session.receipts?.length} Receipt attached`
++									? `${session.receipts?.length} receipts attached`
+ 									: 'Receipt attached'}
+ 							</Badge>
+ 						) : null}
+@@ -111,43 +124,49 @@ export function HistorySessionCard({ session, href }: Props) {
+ 									strokeWidth={1.8}
+ 									aria-hidden='true'
+ 								/>
+-								No Receipt attached
++								No receipt attached
+ 							</Badge>
+ 						) : null}
+-					</div>
++					</ObjectCardChips>
+ 				) : null}
+ 
+-				<div data-testid={`history-data-${session.id}`} className='flex flex-col gap-1'>
++				<ObjectCardFigure testId={`history-data-${session.id}`}>
+ 					{session.total_amount == null ? null : (
+-						<DataLine testId={`history-total-${session.id}`}>
++						<p data-testid={`history-total-${session.id}`}>
+ 							<DataFigure emphasis='total'>{formatCurrency(session.total_amount)}</DataFigure>
+-						</DataLine>
++						</p>
+ 					)}
+-					<p className='text-xs leading-4 text-muted-foreground'>
+-						{completedDate ? `${formatTripDate(completedDate)} ${formatTime(completedDate)}` : 'Date unknown'}
+-					</p>
+-				</div>
++					<DataFacts
++						testId={`history-date-${session.id}`}
++						facts={
++							completedDate
++								? [{ value: formatTripDate(completedDate) }, { kind: 'clock', value: formatTime(completedDate) }]
++								: [{ value: 'Date unknown' }]
++						}
++					/>
++				</ObjectCardFigure>
++			</ObjectCardBody>
+ 
+-				<CardFooter variant='summary' inset='compact'>
+-					{purchasedCount === null ? (
+-						<span className='text-sm leading-none text-muted-foreground'>Item count unavailable</span>
+-					) : (
+-						<InlineCounter
+-							count={purchasedCount}
+-							one='Purchased Item'
+-							many='Purchased Items'
+-							testId={`history-count-${session.id}`}
+-						/>
+-					)}
+-					<ActionLink
+-						href={detailsHref}
+-						aria-label={`View details for ${session.name}`}
+-						className='shrink-0'
+-					>
+-						View Details
+-					</ActionLink>
+-				</CardFooter>
+-			</div>
++			<ObjectCardFooter>
++				{purchasedCount === null ? (
++					<span className='text-sm leading-none text-muted-foreground'>Item count unavailable</span>
++				) : (
++					<InlineCounter
++						count={purchasedCount}
++						one='purchased item'
++						many='purchased items'
++						testId={`history-count-${session.id}`}
++					/>
++				)}
++				<ActionLink
++					href={detailsHref}
++					aria-label={`View Details in ${session.name}`}
++					className={OBJECT_CARD_LINK}
++					stretched
++				>
++					View Details
++				</ActionLink>
++			</ObjectCardFooter>
+ 		</Card>
+ 	)
+ }
+diff --git a/src/components/features/shopping-sessions/tests/shopping-sessions.test.ts b/src/components/features/shopping-sessions/tests/shopping-sessions.test.ts
+index 4908f58..37431fd 100644
+--- a/src/components/features/shopping-sessions/tests/shopping-sessions.test.ts
++++ b/src/components/features/shopping-sessions/tests/shopping-sessions.test.ts
+@@ -104,15 +104,30 @@ describe('HistorySessionCard receipt status', () => {
+ 		const html = render(null)
+ 		expect(html).toContain('Completed')
+ 		expect(html).toContain('data-testid="history-no-receipt-s1"')
+-		expect(html).toContain('No Receipt attached')
++		expect(html).toContain('No receipt attached')
+ 		expect(html).not.toContain('history-add-receipt-s1')
+ 	})
+ 
+ 	it('shows the number of attached receipts when a trip has two', () => {
+ 		const receipts = ['ticket-1', 'ticket-2'].map(id => ({ id, store: null, total_amount: 20, items_count: 1 }))
+ 		const html = renderToStaticMarkup(createElement(HistorySessionCard, { session: { ...session, receipts } }))
+-		expect(html).toContain('2 Receipt attached')
+-		expect(html).not.toContain('No Receipt attached')
++		expect(html).toContain('2 receipts attached')
++		expect(html).not.toContain('No receipt attached')
++	})
++
++	it('writes the date and the time as a data line, with the time as a secondary figure, and the unit in lower case', () => {
++		const completed_at = new Date(2026, 10, 5, 23, 14).toISOString()
++		const html = renderToStaticMarkup(createElement(HistorySessionCard, { session: { ...session, completed_at, purchased_count: 32, receipts: [] } }))
++		expect(html).toContain('data-testid="history-date-s1"')
++		expect(html).toContain('<span class="font-mono font-normal text-muted-foreground tabular-nums">23:14</span>')
++		expect(html).toContain('purchased items')
++		expect(html).not.toContain('Purchased Item')
++	})
++
++	it('names its link after the trip, and the link covers the card', () => {
++		const html = render(null)
++		expect(html).toContain('aria-label="View Details in Weekly shop"')
++		expect(html).toContain('after:absolute after:inset-0')
+ 	})
+ 
+ 	it('opens the trip details and keeps the list filter', () => {
+diff --git a/src/components/features/stores/helpers/store-meta.ts b/src/components/features/stores/helpers/store-meta.ts
+index 7987b17..fbb51d5 100644
+--- a/src/components/features/stores/helpers/store-meta.ts
++++ b/src/components/features/stores/helpers/store-meta.ts
+@@ -1,10 +1,11 @@
+-import { formatDate } from '@/utils'
++import { formatShortDate } from '@/utils'
++import type { DataFact } from '@/components/commons'
+ import type { Store } from '@/types'
+ 
+-/** The quiet line under a store's name: the last visit and total receipts. */
+-export function buildStoreMeta(store: Pick<Store, 'last_visit' | 'receipt_count'>): string | null {
+-	const parts: string[] = []
+-	if (store.last_visit?.at) parts.push(`Last ${formatDate(new Date(store.last_visit.at))}`)
+-	if (store.receipt_count > 0) parts.push(`${store.receipt_count} ${store.receipt_count === 1 ? 'receipt' : 'receipts'}`)
+-	return parts.length > 0 ? parts.join(' · ') : null
++/** The data line under a store's name: "Last visit 12 Nov" and the receipts as a figure. Nothing when both are missing. */
++export function buildStoreFacts(store: Pick<Store, 'last_visit' | 'receipt_count'>, now = new Date()): DataFact[] {
++	const facts: DataFact[] = []
++	if (store.last_visit?.at) facts.push({ value: `Last visit ${formatShortDate(new Date(store.last_visit.at), now)}` })
++	if (store.receipt_count > 0) facts.push({ kind: 'time', value: store.receipt_count, unit: store.receipt_count === 1 ? 'receipt' : 'receipts' })
++	return facts
+ }
+diff --git a/src/components/features/stores/stores-list.tsx b/src/components/features/stores/stores-list.tsx
+index aa262dd..56dea76 100644
+--- a/src/components/features/stores/stores-list.tsx
++++ b/src/components/features/stores/stores-list.tsx
+@@ -4,14 +4,13 @@ import Link from 'next/link'
+ import { Edit02Icon, GitMergeIcon, InformationCircleIcon, SparklesIcon, Store03Icon } from '@hugeicons/core-free-icons'
+ import { HugeiconsIcon } from '@hugeicons/react'
+ 
+-import { ConfirmSheet, EmptyStateCard, EntityCard, EntityCardSkeleton, ListToolbar } from '@/components/commons'
++import { ConfirmSheet, EmptyStateCard, EntityCard, EntityCardSkeleton } from '@/components/commons'
+ import { Badge } from '@/components/ui/badge'
+ import { Button } from '@/components/ui/button'
+ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+-import { Skeleton } from '@/components/ui/skeleton'
+ import type { Store } from '@/types'
+ 
+-import { buildStoreMeta } from './helpers/store-meta'
++import { buildStoreFacts } from './helpers/store-meta'
+ import { useStoreActions } from './hooks/use-store-actions'
+ import { StorePickerDialog } from './store-picker-dialog'
+ import { StoreRenameCard } from './store-rename-card'
+@@ -40,7 +39,7 @@ export function StoresList({ stores }: StoresListProps) {
+ 			>
+ 				<Button
+ 					asChild
+-					size='default'
++					size='lg'
+ 				>
+ 					<Link href='/tickets'>Go to Receipts</Link>
+ 				</Button>
+@@ -53,12 +52,7 @@ export function StoresList({ stores }: StoresListProps) {
+ 			data-testid='stores-list'
+ 			className='flex flex-col gap-4'
+ 		>
+-			<ListToolbar
+-				count={visibleStores.length}
+-				unit={{ one: 'store', many: 'stores' }}
+-				testId='stores-toolbar'
+-			/>
+-			<div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:gap-6 xl:grid-cols-3'>
++			<div className='grid grid-cols-1 gap-3 sm:grid-cols-2 lg:gap-6 xl:grid-cols-3'>
+ 				{visibleStores.map(store => flow.kind === 'rename' && flow.store.id === store.id ? (
+ 					<StoreRenameCard
+ 						key={store.id}
+@@ -72,7 +66,7 @@ export function StoresList({ stores }: StoresListProps) {
+ 							<Button
+ 								type='button'
+ 								variant='secondary'
+-								size='default'
++								size='lg'
+ 								onClick={() => flow.conflictWith && actions.chooseTarget(flow.store, flow.conflictWith)}
+ 							>
+ 								Merge Into “{flow.conflictWith.name}”
+@@ -83,7 +77,6 @@ export function StoresList({ stores }: StoresListProps) {
+ 				) : (
+ 					<EntityCard
+ 						key={store.id}
+-						size='list'
+ 						title={store.name}
+ 							href={`/stores/${store.id}`}
+ 							linkLabel='View Store'
+@@ -95,7 +88,7 @@ export function StoresList({ stores }: StoresListProps) {
+ 									</Badge>
+ 								) : null
+ 							}
+-							meta={buildStoreMeta(store)}
++							facts={buildStoreFacts(store)}
+ 						count={store.usual_items_count ?? 0}
+ 						unit={{ one: 'usual item', many: 'usual items' }}
+ 						emptyLabel='usual items'
+@@ -123,7 +116,7 @@ export function StoresList({ stores }: StoresListProps) {
+ 				title='Merge Into Another Store'
+ 				description={
+ 					flow.kind === 'pick-target'
+-						? `Choose the store that keeps “${flow.source.name}”’s receipts. “${flow.source.name}” will be removed.`
++						? `Pick the store that will keep the receipts of “${flow.source.name}”. “${flow.source.name}” will be removed.`
+ 						: undefined
+ 				}
+ 				confirmLabel='Continue'
+@@ -173,10 +166,7 @@ export function StoresSkeleton() {
+ 			data-testid='stores-skeleton'
+ 			className='flex flex-col gap-4'
+ 		>
+-			<div className='flex min-h-11 items-center'>
+-				<Skeleton className='h-3.5 w-16 rounded-md' />
+-			</div>
+-			<div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:gap-6 xl:grid-cols-3'>
++			<div className='grid grid-cols-1 gap-3 sm:grid-cols-2 lg:gap-6 xl:grid-cols-3'>
+ 				{[0, 1, 2].map(index => (
+ 					<EntityCardSkeleton
+ 						key={index}
+diff --git a/src/components/features/stores/tests/store-meta.test.ts b/src/components/features/stores/tests/store-meta.test.ts
+index fe13bee..2865c17 100644
+--- a/src/components/features/stores/tests/store-meta.test.ts
++++ b/src/components/features/stores/tests/store-meta.test.ts
+@@ -1,20 +1,20 @@
+ import { describe, expect, it } from 'vitest'
+ 
+-import { buildStoreMeta } from '../helpers/store-meta'
++import { buildStoreFacts } from '../helpers/store-meta'
+ 
+-describe('buildStoreMeta', () => {
++describe('buildStoreFacts', () => {
+ 	it('says nothing for a store with no visit or receipts', () => {
+-		expect(buildStoreMeta({ last_visit: null, receipt_count: 0 })).toBeNull()
++		expect(buildStoreFacts({ last_visit: null, receipt_count: 0 })).toEqual([])
+ 	})
+ 
+-	it('joins the last visit and receipt count', () => {
+-		const text = buildStoreMeta({
+-			last_visit: { kind: 'trip', id: 't1', at: '2026-10-28T22:07:00.000Z', total_amount: null },
+-			receipt_count: 14,
+-		})
++	it('gives the last visit as words and the receipts as a figure', () => {
++		const now = new Date(2026, 10, 16)
++		const facts = buildStoreFacts(
++			{ last_visit: { kind: 'trip', id: 't1', at: '2026-10-28T15:00:00.000Z', total_amount: null }, receipt_count: 14 },
++			now,
++		)
+ 
+-		expect(text?.startsWith('Last ')).toBe(true)
+-		expect(text?.endsWith(' · 14 receipts')).toBe(true)
+-		expect(buildStoreMeta({ last_visit: null, receipt_count: 1 })).toBe('1 receipt')
++		expect(facts).toEqual([{ value: 'Last visit 28 Oct' }, { kind: 'time', value: 14, unit: 'receipts' }])
++		expect(buildStoreFacts({ last_visit: null, receipt_count: 1 })).toEqual([{ kind: 'time', value: 1, unit: 'receipt' }])
+ 	})
+ })
+diff --git a/src/components/features/tickets/list/tickets-list.tsx b/src/components/features/tickets/list/tickets-list.tsx
+index ad62183..88cd0b6 100644
+--- a/src/components/features/tickets/list/tickets-list.tsx
++++ b/src/components/features/tickets/list/tickets-list.tsx
+@@ -4,8 +4,22 @@ import { useId, useState } from 'react'
+ import { HugeiconsIcon } from '@hugeicons/react'
+ import { Alert02Icon, Invoice01Icon, Loading03Icon, Store03Icon } from '@hugeicons/core-free-icons'
+ 
+-import { ActionLink, DataFigure, DataLine, EmptyStateCard, EntityLabel, InlineCounter, RowIcon } from '@/components/commons'
+-import { Card, CardFooter } from '@/components/ui/card'
++import {
++	ActionLink,
++	DataFacts,
++	DataFigure,
++	EmptyStateCard,
++	EntityLabel,
++	InlineCounter,
++	OBJECT_CARD_LINK,
++	ObjectCardBody,
++	ObjectCardChips,
++	ObjectCardFigure,
++	ObjectCardFooter,
++	ObjectCardTitleRow,
++	RowIcon,
++} from '@/components/commons'
++import { Card } from '@/components/ui/card'
+ import { Button } from '@/components/ui/button'
+ import { Label } from '@/components/ui/label'
+ import { Progress } from '@/components/ui/progress'
+@@ -22,7 +36,10 @@ import type { TicketListItemData } from './helpers/build-ticket-list-item'
+ 
+ type TicketCardProps = TicketListItemData
+ 
+-/** A receipt card keeps status with its title, the linked store in classification, and count/action in its footer. */
++/**
++ * A receipt card (object card, canvas C1): its status beside the title, the linked store in classification, the amount with its data
++ * line, and count and link in the footer. The footer link covers the whole card.
++ */
+ export function TicketCard({
+ 	id,
+ 	title,
+@@ -41,40 +58,37 @@ export function TicketCard({
+ 
+ 	return (
+ 		<Card
+-			size='receipt'
++			size='object'
++			interactive={showDetails}
+ 			data-testid={`ticket-card-${id}`}
+ 			data-status={ticketStatus}
+ 		>
+-			<div className='pb-2.5'>
+-				<div className='flex min-w-0 flex-1 flex-col gap-1.5'>
+-					<div className='flex min-w-0 items-center justify-between gap-2'>
+-						<h2 className='min-w-0 flex-1 truncate font-display text-base leading-normal font-semibold tracking-tight'>
+-							{title}
+-						</h2>
+-						<TicketStatusChip status={ticketStatus} />
+-					</div>
+-					{storeName || needsStore ? (
+-						<div className='flex min-w-0 flex-wrap items-center gap-x-2.5 gap-y-1.5'>
+-							{storeName ? (
+-								<EntityLabel
+-									name={storeName}
+-									testId={`ticket-card-store-${id}`}
+-								/>
+-							) : null}
+-							{needsStore ? <NoStoreBadge testId={`ticket-card-no-store-${id}`} /> : null}
+-						</div>
+-					) : null}
+-					<TicketDataLine
+-						id={id}
+-						photoCount={photoCount}
+-						uploadedLabel={uploadedLabel}
+-						totalLabel={totalLabel}
+-					/>
+-				</div>
+-			</div>
++			<ObjectCardBody>
++				<ObjectCardTitleRow
++					title={title}
++					aside={<TicketStatusChip status={ticketStatus} />}
++				/>
++				{storeName || needsStore ? (
++					<ObjectCardChips>
++						{storeName ? (
++							<EntityLabel
++								name={storeName}
++								testId={`ticket-card-store-${id}`}
++							/>
++						) : null}
++						{needsStore ? <NoStoreBadge testId={`ticket-card-no-store-${id}`} /> : null}
++					</ObjectCardChips>
++				) : null}
++				<TicketDataLine
++					id={id}
++					photoCount={photoCount}
++					uploadedLabel={uploadedLabel}
++					totalLabel={totalLabel}
++				/>
++			</ObjectCardBody>
+ 
+ 			{ticketStatus === 'processing' ? (
+-				<CardFooter variant='status' inset='compact'>
++				<ObjectCardFooter variant='status' className='pt-3'>
+ 					<Progress
+ 						indeterminate
+ 						size='sm'
+@@ -82,9 +96,9 @@ export function TicketCard({
+ 						aria-label='Reading receipt'
+ 					/>
+ 					<p className='text-xs leading-normal text-muted-foreground'>Reading store and items…</p>
+-				</CardFooter>
++				</ObjectCardFooter>
+ 			) : (
+-				<CardFooter variant='summary' inset='compact'>
++				<ObjectCardFooter>
+ 					{ticketStatus === 'pending' ? (
+ 						<span className='flex items-center gap-2 text-xs text-muted-foreground'>
+ 							<HugeiconsIcon
+@@ -118,13 +132,15 @@ export function TicketCard({
+ 					{showDetails ? (
+ 						<ActionLink
+ 							href={`/tickets/${id}`}
++							aria-label={`View Details in ${title}`}
+ 							testId={`ticket-details-${id}`}
+-							className='shrink-0'
++							className={OBJECT_CARD_LINK}
++							stretched
+ 						>
+ 							View Details
+ 						</ActionLink>
+ 					) : null}
+-				</CardFooter>
++				</ObjectCardFooter>
+ 			)}
+ 		</Card>
+ 	)
+@@ -137,17 +153,20 @@ function TicketDataLine({
+ 	totalLabel,
+ }: Pick<TicketCardProps, 'id' | 'photoCount' | 'uploadedLabel' | 'totalLabel'>) {
+ 	return (
+-				<div className='flex flex-col gap-1'>
+-					{totalLabel ? <DataFigure emphasis='total'>{totalLabel}</DataFigure> : null}
+-					<DataLine testId={`ticket-data-${id}`}>
+-						{photoCount > 0 ? (
+-							<>
+-								<DataFigure emphasis='count'>{photoCount}</DataFigure> {photoCount === 1 ? 'photo' : 'photos'}
+-							</>
+-						) : null}
+-						{uploadedLabel}
+-					</DataLine>
+-				</div>
++		<ObjectCardFigure>
++			{totalLabel ? (
++				<p>
++					<DataFigure emphasis='total'>{totalLabel}</DataFigure>
++				</p>
++			) : null}
++			<DataFacts
++				testId={`ticket-data-${id}`}
++				facts={[
++					photoCount > 0 ? { kind: 'count', value: photoCount, unit: photoCount === 1 ? 'photo' : 'photos' } : null,
++					uploadedLabel ? { value: uploadedLabel } : null,
++				]}
++			/>
++		</ObjectCardFigure>
+ 	)
+ }
+ 
+@@ -196,7 +215,7 @@ function TicketsContent({ tickets }: TicketsListProps) {
+ 	const storeOptions = [
+ 		{ value: 'all', label: 'All Stores', testId: 'tickets-store-option-icon-all' },
+ 		...stores.map(store => ({ value: store, label: store, testId: `tickets-store-option-icon-${store}` })),
+-		...(hasUnconfirmedStore ? [{ value: 'unconfirmed', label: 'No store confirmed', testId: 'tickets-store-option-icon-unconfirmed' }] : []),
++		...(hasUnconfirmedStore ? [{ value: 'unconfirmed', label: 'Store not confirmed', testId: 'tickets-store-option-icon-unconfirmed' }] : []),
+ 	]
+ 	const filtered = tickets.filter(ticket => {
+ 		const matchesStore =
+@@ -219,7 +238,6 @@ function TicketsContent({ tickets }: TicketsListProps) {
+ 					<Combobox
+ 						items={storeOptions.map(option => option.value)}
+ 						itemToStringLabel={value => storeOptions.find(option => option.value === value)?.label ?? ''}
+-						filter={(value, query, getLabel) => (getLabel?.(value) ?? String(value)).toLocaleLowerCase().includes(query.toLocaleLowerCase())}
+ 						value={storeFilter}
+ 						onValueChange={value => typeof value === 'string' && setStoreFilter(value)}
+ 					>
+@@ -263,7 +281,7 @@ function TicketsContent({ tickets }: TicketsListProps) {
+ 									)
+ 								}}
+ 							</ComboboxList>
+-							<ComboboxEmpty>No stores match this search.</ComboboxEmpty>
++							<ComboboxEmpty>No stores available.</ComboboxEmpty>
+ 						</ComboboxContent>
+ 					</Combobox>
+ 				</div>
+@@ -292,7 +310,7 @@ function TicketsContent({ tickets }: TicketsListProps) {
+ 					<Button
+ 						type='button'
+ 						variant='link'
+-						size='default'
++						size='lg'
+ 						onClick={() => setStoreFilter('all')}
+ 					>
+ 						Clear filter
+@@ -301,4 +319,4 @@ function TicketsContent({ tickets }: TicketsListProps) {
+ 			)}
+ 		</div>
+ 	)
+-}
++}
+\ No newline at end of file
+diff --git a/src/components/features/tickets/no-store-badge.tsx b/src/components/features/tickets/no-store-badge.tsx
+index 153b6bc..e58a44b 100644
+--- a/src/components/features/tickets/no-store-badge.tsx
++++ b/src/components/features/tickets/no-store-badge.tsx
+@@ -4,11 +4,11 @@ import { Store03Icon } from '@hugeicons/core-free-icons'
+ import { Badge } from '@/components/ui/badge'
+ 
+ /** The amber chip of a read receipt whose store nobody confirmed, the same in the receipts list and on the receipt itself. */
+-export function NoStoreBadge({ testId = 'ticket-no-store-badge' }: { testId?: string }) {
++export function NoStoreBadge({ testId = 'ticket-no-store-badge', label = 'Store not confirmed' }: { testId?: string; label?: string }) {
+ 	return (
+ 		<Badge variant='warning' data-testid={testId}>
+ 			<HugeiconsIcon icon={Store03Icon} strokeWidth={1.8} aria-hidden='true' />
+-			No store confirmed
++			{label}
+ 		</Badge>
+ 	)
+ }
+diff --git a/src/components/ui/card.tsx b/src/components/ui/card.tsx
+index bbee473..525e990 100644
+--- a/src/components/ui/card.tsx
++++ b/src/components/ui/card.tsx
+@@ -24,6 +24,7 @@ function Card({
+ 		| 'dashboard-compact'
+ 		| 'receipt'
+ 		| 'trip'
++		| 'object'
+ 		| 'list'
+ 		| 'stat'
+ 		| 'saved'
+@@ -57,6 +58,8 @@ function Card({
+ 				// Object cards use the shared 24px surface with 14px inset at every viewport.
+ 				size === 'receipt' && 'gap-0 p-3.5 md:p-3.5',
+ 				size === 'trip' && 'gap-0 p-3.5 md:p-3.5',
++				// The object card (a list, a store, a receipt, a trip): 16px padding at every viewport, and `relative` so its footer link can cover it.
++				size === 'object' && 'relative gap-0 p-4',
+ 				// A card of collapsible categories: the 44px Collapse All button carries its own top space (canvas v4).
+ 				size === 'list' && 'gap-3 p-4',
+ 				size === 'stat' && 'gap-2.5 p-3 md:p-4',
+diff --git a/src/data/constants/nav.ts b/src/data/constants/nav.ts
+index a2e870d..7e2d000 100644
+--- a/src/data/constants/nav.ts
++++ b/src/data/constants/nav.ts
+@@ -1,7 +1,7 @@
+ import type { NavItemO, NavLink, SidebarData } from '@/types'
+ import {
+ 	DashboardSquare02Icon,
+-	FolderLibraryIcon,
++	ListViewIcon,
+ 	ShoppingBag03Icon,
+ 	Invoice01Icon,
+ 	UserSettings01Icon,
+@@ -39,7 +39,7 @@ export const SIDEBAR_DATA: SidebarData = {
+ 				{
+ 					title: 'Lists',
+ 					url: '/shopping-lists',
+-					icon: FolderLibraryIcon,
++					icon: ListViewIcon,
+ 				},
+ 				{
+ 					title: 'Trips',
+@@ -84,7 +84,7 @@ export const SIDEBAR_DATA: SidebarData = {
+ /** The four destinations of the phone tab bar (the fifth slot is the receipt-upload action), in design A1 order. */
+ export const MOBILE_TAB_ITEMS: { title: string; url: string; icon: NonNullable<NavLink['icon']> }[] = [
+ 	{ title: 'Dashboard', url: '/dashboard', icon: DashboardSquare02Icon },
+-	{ title: 'Lists', url: '/shopping-lists', icon: FolderLibraryIcon },
++	{ title: 'Lists', url: '/shopping-lists', icon: ListViewIcon },
+ 	{ title: 'Receipts', url: '/tickets', icon: Invoice01Icon },
+ 	{ title: 'Trips', url: '/trips', icon: ShoppingBag03Icon },
+ ]

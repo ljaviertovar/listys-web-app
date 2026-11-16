@@ -29,9 +29,9 @@ export function LikelyNeededCard({ likelyNeeded, startTarget = null }: Props) {
 						<AlertDescription>Scan three receipts to start getting suggestions based on what you usually buy.</AlertDescription>
 						<Progress value={Math.min(receiptsCount, 3) / 3 * 100} size='sm' tone='soft' aria-label={`${receiptsCount} of 3 receipts scanned`} />
 						{startTarget ? (
-							<StartShoppingDialog baseListId={startTarget.id} baseListName={startTarget.name} itemsCount={startTarget.itemsCount} size='default' variant='default' className='w-full sm:w-auto'>Start Shopping</StartShoppingDialog>
+						<StartShoppingDialog baseListId={startTarget.id} baseListName={startTarget.name} itemsCount={startTarget.itemsCount} size='lg' variant='default' className='w-full sm:w-auto'>Start Shopping</StartShoppingDialog>
 						) : (
-							<Button asChild size='default' variant='default' className='w-full sm:w-auto'><Link href='/shopping-lists'>Add items to a list</Link></Button>
+							<Button asChild size='lg' variant='default' className='w-full sm:w-auto'><Link href='/shopping-lists'>Add items to a list</Link></Button>
 						)}
 					</Alert>
 				) : (

@@ -4,8 +4,22 @@ import { useId, useState } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Alert02Icon, Invoice01Icon, Loading03Icon, Store03Icon } from '@hugeicons/core-free-icons'
 
-import { ActionLink, DataFigure, DataLine, EmptyStateCard, EntityLabel, InlineCounter, RowIcon } from '@/components/commons'
-import { Card, CardFooter } from '@/components/ui/card'
+import {
+	ActionLink,
+	DataFacts,
+	DataFigure,
+	EmptyStateCard,
+	EntityLabel,
+	InlineCounter,
+	OBJECT_CARD_LINK,
+	ObjectCardBody,
+	ObjectCardChips,
+	ObjectCardFigure,
+	ObjectCardFooter,
+	ObjectCardTitleRow,
+	RowIcon,
+} from '@/components/commons'
+import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Progress } from '@/components/ui/progress'
@@ -22,7 +36,10 @@ import type { TicketListItemData } from './helpers/build-ticket-list-item'
 
 type TicketCardProps = TicketListItemData
 
-/** A receipt card keeps status with its title, the linked store in classification, and count/action in its footer. */
+/**
+ * A receipt card (object card, canvas C1): its status beside the title, the linked store in classification, the amount with its data
+ * line, and count and link in the footer. The footer link covers the whole card.
+ */
 export function TicketCard({
 	id,
 	title,
@@ -41,40 +58,37 @@ export function TicketCard({
 
 	return (
 		<Card
-			size='receipt'
+			size='object'
+			interactive={showDetails}
 			data-testid={`ticket-card-${id}`}
 			data-status={ticketStatus}
 		>
-			<div className='pb-2.5'>
-				<div className='flex min-w-0 flex-1 flex-col gap-1.5'>
-					<div className='flex min-w-0 items-center justify-between gap-2'>
-						<h2 className='min-w-0 flex-1 truncate font-display text-base leading-normal font-semibold tracking-tight'>
-							{title}
-						</h2>
-						<TicketStatusChip status={ticketStatus} />
-					</div>
-					{storeName || needsStore ? (
-						<div className='flex min-w-0 flex-wrap items-center gap-x-2.5 gap-y-1.5'>
-							{storeName ? (
-								<EntityLabel
-									name={storeName}
-									testId={`ticket-card-store-${id}`}
-								/>
-							) : null}
-							{needsStore ? <NoStoreBadge testId={`ticket-card-no-store-${id}`} /> : null}
-						</div>
-					) : null}
-					<TicketDataLine
-						id={id}
-						photoCount={photoCount}
-						uploadedLabel={uploadedLabel}
-						totalLabel={totalLabel}
-					/>
-				</div>
-			</div>
+			<ObjectCardBody>
+				<ObjectCardTitleRow
+					title={title}
+					aside={<TicketStatusChip status={ticketStatus} />}
+				/>
+				{storeName || needsStore ? (
+					<ObjectCardChips>
+						{storeName ? (
+							<EntityLabel
+								name={storeName}
+								testId={`ticket-card-store-${id}`}
+							/>
+						) : null}
+						{needsStore ? <NoStoreBadge testId={`ticket-card-no-store-${id}`} /> : null}
+					</ObjectCardChips>
+				) : null}
+				<TicketDataLine
+					id={id}
+					photoCount={photoCount}
+					uploadedLabel={uploadedLabel}
+					totalLabel={totalLabel}
+				/>
+			</ObjectCardBody>
 
 			{ticketStatus === 'processing' ? (
-				<CardFooter variant='status' inset='compact'>
+				<ObjectCardFooter variant='status' spacing='roomy'>
 					<Progress
 						indeterminate
 						size='sm'
@@ -82,9 +96,9 @@ export function TicketCard({
 						aria-label='Reading receipt'
 					/>
 					<p className='text-xs leading-normal text-muted-foreground'>Reading store and items…</p>
-				</CardFooter>
+				</ObjectCardFooter>
 			) : (
-				<CardFooter variant='summary' inset='compact'>
+				<ObjectCardFooter>
 					{ticketStatus === 'pending' ? (
 						<span className='flex items-center gap-2 text-xs text-muted-foreground'>
 							<HugeiconsIcon
@@ -118,13 +132,15 @@ export function TicketCard({
 					{showDetails ? (
 						<ActionLink
 							href={`/tickets/${id}`}
+							aria-label={`View Details in ${title}`}
 							testId={`ticket-details-${id}`}
-							className='shrink-0'
+							className={OBJECT_CARD_LINK}
+							stretched
 						>
 							View Details
 						</ActionLink>
 					) : null}
-				</CardFooter>
+				</ObjectCardFooter>
 			)}
 		</Card>
 	)
@@ -137,17 +153,20 @@ function TicketDataLine({
 	totalLabel,
 }: Pick<TicketCardProps, 'id' | 'photoCount' | 'uploadedLabel' | 'totalLabel'>) {
 	return (
-				<div className='flex flex-col gap-1'>
-					{totalLabel ? <DataFigure emphasis='total'>{totalLabel}</DataFigure> : null}
-					<DataLine testId={`ticket-data-${id}`}>
-						{photoCount > 0 ? (
-							<>
-								<DataFigure emphasis='count'>{photoCount}</DataFigure> {photoCount === 1 ? 'photo' : 'photos'}
-							</>
-						) : null}
-						{uploadedLabel}
-					</DataLine>
-				</div>
+		<ObjectCardFigure>
+			{totalLabel ? (
+				<p>
+					<DataFigure emphasis='total'>{totalLabel}</DataFigure>
+				</p>
+			) : null}
+			<DataFacts
+				testId={`ticket-data-${id}`}
+				facts={[
+					photoCount > 0 ? { kind: 'count', value: photoCount, unit: photoCount === 1 ? 'photo' : 'photos' } : null,
+					uploadedLabel ? { value: uploadedLabel } : null,
+				]}
+			/>
+		</ObjectCardFigure>
 	)
 }
 
@@ -196,7 +215,7 @@ function TicketsContent({ tickets }: TicketsListProps) {
 	const storeOptions = [
 		{ value: 'all', label: 'All Stores', testId: 'tickets-store-option-icon-all' },
 		...stores.map(store => ({ value: store, label: store, testId: `tickets-store-option-icon-${store}` })),
-		...(hasUnconfirmedStore ? [{ value: 'unconfirmed', label: 'No store confirmed', testId: 'tickets-store-option-icon-unconfirmed' }] : []),
+		...(hasUnconfirmedStore ? [{ value: 'unconfirmed', label: 'Store not confirmed', testId: 'tickets-store-option-icon-unconfirmed' }] : []),
 	]
 	const filtered = tickets.filter(ticket => {
 		const matchesStore =
@@ -219,7 +238,6 @@ function TicketsContent({ tickets }: TicketsListProps) {
 					<Combobox
 						items={storeOptions.map(option => option.value)}
 						itemToStringLabel={value => storeOptions.find(option => option.value === value)?.label ?? ''}
-						filter={(value, query, getLabel) => (getLabel?.(value) ?? String(value)).toLocaleLowerCase().includes(query.toLocaleLowerCase())}
 						value={storeFilter}
 						onValueChange={value => typeof value === 'string' && setStoreFilter(value)}
 					>
@@ -263,7 +281,7 @@ function TicketsContent({ tickets }: TicketsListProps) {
 									)
 								}}
 							</ComboboxList>
-							<ComboboxEmpty>No stores match this search.</ComboboxEmpty>
+							<ComboboxEmpty>No stores available.</ComboboxEmpty>
 						</ComboboxContent>
 					</Combobox>
 				</div>
@@ -292,7 +310,7 @@ function TicketsContent({ tickets }: TicketsListProps) {
 					<Button
 						type='button'
 						variant='link'
-						size='default'
+						size='lg'
 						onClick={() => setStoreFilter('all')}
 					>
 						Clear filter

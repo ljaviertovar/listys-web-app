@@ -40,14 +40,16 @@ export default async function InviteAcceptPage({ params }: Props) {
 	}
 
 	return (
-		<PageContainer>
+		<>
 			<PageHeader
 				title='Join shared list'
 				desc='You were invited to collaborate on a shopping list.'
 			/>
-			<Alert variant='destructive'>
-				<p className='text-sm'>{errorMessage}</p>
-			</Alert>
-		</PageContainer>
+			<PageContainer>
+				<Alert variant='destructive'>
+					<p className='text-sm'>{errorMessage}</p>
+				</Alert>
+			</PageContainer>
+		</>
 	)
 }

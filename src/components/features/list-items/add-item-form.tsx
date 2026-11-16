@@ -79,7 +79,7 @@ export function AddItemForm({ target, isLocked = false, onCancel }: AddItemFormP
 			/>
 			<div className='mt-2 flex flex-col gap-1 sm:grid sm:grid-cols-2 md:mt-0'>
 				<Button
-					size='default'
+					size='lg'
 					type='submit'
 					disabled={loading || isLocked}
 				>
@@ -92,7 +92,7 @@ export function AddItemForm({ target, isLocked = false, onCancel }: AddItemFormP
 					{loading ? 'Adding…' : 'Add Item'}
 				</Button>
 				<Button
-					size='default'
+					size='lg'
 					type='button'
 					variant='outline'
 					onClick={onCancel}

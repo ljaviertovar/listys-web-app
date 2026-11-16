@@ -151,7 +151,7 @@ export function StoreDetailView({ store }: StoreDetailProps) {
 				open={mergePickerOpen}
 				onOpenChange={setMergePickerOpen}
 				title='Merge Into Another Store'
-				description={`Choose the store that keeps “${store.name}”’s receipts. “${store.name}” will be removed.`}
+				description={`Pick the store that will keep the receipts of “${store.name}”. “${store.name}” will be removed.`}
 				confirmLabel='Continue'
 				allowCreate={false}
 				optionVariant='card'

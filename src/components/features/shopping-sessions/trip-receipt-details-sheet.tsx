@@ -1,10 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { HugeiconsIcon } from '@hugeicons/react'
-import { ListViewIcon } from '@hugeicons/core-free-icons'
 
-import { SheetDialog } from '@/components/commons'
+import { LoadingState, SheetDialog, type DataFact } from '@/components/commons'
 import { TicketPhotoRow } from '@/components/features/tickets/photo/ticket-photo-entry'
 import { TicketPhotoViewer } from '@/components/features/tickets/photo/ticket-photo-viewer'
 import { usePhotoView } from '@/components/features/tickets/photo/hooks/use-photo-view'
@@ -41,18 +39,26 @@ export function TripReceiptDetailsSheet({
 	const imagePaths = details?.image_paths?.length ? details.image_paths : details?.image_path ? [details.image_path] : []
 	const photos = useTicketImageUrls(imagePaths)
 	const view = usePhotoView(photos.urls.length)
-	const storeName = details?.store_name?.trim() || (failed ? 'Store not recognized' : 'Store not confirmed')
+	// The confirmed store as the user named it, not the capitals printed on the receipt; the page header of the same receipt does the same.
+	const storeName = details?.store?.name?.trim() || details?.store_name?.trim() || (failed ? 'Store not recognized' : 'Store not confirmed')
 	const uploadedAt = details?.created_at ? new Date(details.created_at) : null
 	const validUploadedAt = uploadedAt && !Number.isNaN(uploadedAt.getTime()) ? uploadedAt : null
 	const unreadable = failed && Boolean(details)
 	const noItems = details?.ocr_status === 'completed' && details.items.length === 0
 	const hasStoreDetails = Boolean(details?.store || details?.store_suggestion || details?.store_name?.trim())
 	const photoCount = imagePaths.length
-	const description = failed && validUploadedAt
-		? `${photoCount} ${photoCount === 1 ? 'photo' : 'photos'} · Uploaded ${formatTime(validUploadedAt)}`
+	const itemCount = details ? details.total_items ?? details.items.length : 0
+	const facts: Array<DataFact> = failed && validUploadedAt
+		? [
+			{ kind: 'count', value: photoCount, unit: photoCount === 1 ? 'photo' : 'photos' },
+			{ kind: 'text', value: `Uploaded ${formatTime(validUploadedAt)}` },
+		]
 		: details && !failed
-			? `${details.total_items ?? details.items.length} ${details.items.length === 1 ? 'item' : 'items'}${details.total_amount != null ? ` · ${formatCurrency(details.total_amount)}` : ''}`
-		: undefined
+			? [
+				{ kind: 'count', value: itemCount, unit: itemCount === 1 ? 'item' : 'items' },
+				...(details.total_amount != null ? [{ kind: 'total' as const, value: formatCurrency(details.total_amount) }] : []),
+			]
+			: []
 	const title = failed
 		? `Receipt${validUploadedAt ? ` · ${formatShortDate(validUploadedAt)}` : ''}`
 		: storeName
@@ -62,8 +68,9 @@ export function TripReceiptDetailsSheet({
 			<SheetDialog
 				open={open}
 				onOpenChange={onOpenChange}
-				title={failed ? <span className='flex w-full min-w-0 items-center justify-between gap-3'><span className='min-w-0 truncate'>{title}</span><TicketStatusChip status='failed' /></span> : title}
-				description={description}
+				title={title}
+				aside={failed ? <TicketStatusChip status='failed' /> : undefined}
+				facts={facts}
 				testId={testId}
 			>
 				<div
@@ -71,12 +78,7 @@ export function TripReceiptDetailsSheet({
 					data-testid={`${testId}-content`}
 				>
 					{loading ? (
-						<p
-							role='status'
-							className='text-sm text-muted-foreground'
-						>
-							Loading receipt…
-						</p>
+						<LoadingState testId={`${testId}-loading`} label='Loading receipt…' />
 					) : null}
 					{error ? (
 						<p
@@ -117,24 +119,12 @@ export function TripReceiptDetailsSheet({
 								size='tight'
 								data-testid={`${testId}-items`}
 							>
-								<div className='flex items-center gap-3 px-0.5'>
-									<span
-										aria-hidden='true'
-										className='flex size-10 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300'
-									>
-										<HugeiconsIcon
-											icon={ListViewIcon}
-											strokeWidth={1.5}
-											className='size-5'
-										/>
+								<div className='flex min-w-0 flex-col gap-0.5 px-0.5'>
+									<h2 className='font-display text-base leading-normal font-semibold'>Receipt items</h2>
+									<span className='text-xs leading-4 text-muted-foreground'>
+										<b className='font-mono font-semibold text-foreground tabular-nums'>{details.items.length}</b>{' '}
+										{details.items.length === 1 ? 'item' : 'items'} found
 									</span>
-									<div className='flex min-w-0 flex-1 flex-col gap-0.5'>
-										<h2 className='font-display text-base leading-normal font-semibold'>Receipt items</h2>
-										<span className='text-xs leading-[1.3] text-muted-foreground dark:text-muted-foreground'>
-											<b className='font-mono font-semibold text-foreground tabular-nums'>{details.items.length}</b>{' '}
-											{details.items.length === 1 ? 'item' : 'items'} found
-										</span>
-									</div>
 								</div>
 								{details.items.length ? (
 									<ul className='mt-2 divide-y divide-slate-200/70 overflow-hidden rounded-2xl bg-muted dark:divide-border dark:bg-muted/50'>
