@@ -6,7 +6,6 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { ArrowExpand01Icon, Image02Icon } from '@hugeicons/core-free-icons'
 import type { Ref } from 'react'
 
-import { cn } from '@/utils'
 import { Button } from '@/components/ui/button'
 
 import { TicketPhotoControls, TicketPhotoThumbs } from './ticket-photo-tools'
@@ -24,54 +23,50 @@ interface TicketPhotoRowProps {
 
 /**
  * The way into the receipt photo, right under the title so it is never buried below the item list: a thumbnail, how many
- * photos there are and one 44px control. The whole row is the button.
+ * photos there are and one secondary 44px control; both controls open the viewer.
  */
 export function TicketPhotoRow({ count, thumbnailUrl, onOpen, triggerRef }: TicketPhotoRowProps) {
 	const plural = count === 1 ? 'photo' : 'photos'
 
 	return (
-		<button
-			ref={triggerRef}
-			type='button'
-			onClick={onOpen}
+		<Card
+			size='receipt'
 			data-testid='ticket-photo-row'
-			aria-label={`View receipt ${plural}, ${count} ${plural}`}
-			className={cn(
-				'group flex min-h-16 w-full items-center gap-3 px-2.5 py-2 text-left transition-colors hover:bg-slate-50 dark:hover:bg-muted',
-				'rounded-2xl bg-card shadow-sm',
-				'focus-ring',
-			)}
 		>
-			<span className='relative flex h-13 w-10 shrink-0 flex-col gap-1 overflow-hidden rounded-xl bg-gradient-to-b from-white to-slate-100 px-1.25 py-1.5 ring-1 ring-slate-900/8 ring-inset'>
-				{thumbnailUrl ? (
-					// eslint-disable-next-line @next/next/no-img-element -- a short-lived signed storage URL, not an optimisable asset
-					<img
-						src={thumbnailUrl}
-						alt=''
-						className='absolute inset-0 size-full object-cover'
-					/>
-				) : (
-					// Until the photo has signed (or when it cannot be shown), a sketch of a receipt stands in for it.
-					<>
-						<i className='block h-1 rounded-xs bg-slate-300' />
-						<i className='block h-1 w-[70%] rounded-xs bg-slate-300' />
-						<i className='block h-1 rounded-xs bg-slate-300' />
-					</>
-				)}
-			</span>
-			<span className='flex min-w-0 flex-1 flex-col gap-0.5 font-sans'>
-				<span className='text-sm leading-[1.3] font-semibold'>Receipt Photo</span>
-				<span className='text-sm leading-[1.2] text-muted-foreground dark:text-muted-foreground'>
-					<b className='font-mono text-base font-bold text-foreground tabular-nums'>{count}</b> {plural} · Tap to enlarge
+			<div className='flex min-h-14 w-full items-center gap-2'>
+			<Button type='button' variant='ghost' size='row' onClick={onOpen} className='min-w-0 flex-1'>
+				<span className='relative flex h-13 w-10 shrink-0 flex-col gap-1 overflow-hidden rounded-xl bg-gradient-to-b from-white to-slate-100 px-1.25 py-1.5 ring-1 ring-slate-900/8 ring-inset'>
+					{thumbnailUrl ? (
+						// eslint-disable-next-line @next/next/no-img-element -- a short-lived signed storage URL, not an optimisable asset
+						<img src={thumbnailUrl} alt='' className='absolute inset-0 size-full object-cover' />
+					) : (
+						// Until the photo has signed (or when it cannot be shown), a sketch of a receipt stands in for it.
+						<>
+							<i className='block h-1 rounded-xs bg-slate-300' />
+							<i className='block h-1 w-[70%] rounded-xs bg-slate-300' />
+							<i className='block h-1 rounded-xs bg-slate-300' />
+						</>
+					)}
 				</span>
-			</span>
-			<HugeiconsIcon
-				icon={ArrowExpand01Icon}
-				strokeWidth={1.8}
-				aria-hidden='true'
-				className='size-4.5 shrink-0'
-			/>
-		</button>
+				<span className='flex min-w-0 flex-1 flex-col items-start gap-0.5 font-sans'>
+					<span className='font-display text-base leading-normal font-semibold'>Receipt Photo</span>
+					<span className='text-sm leading-[1.2] text-muted-foreground dark:text-muted-foreground'>
+						<b className='font-mono font-semibold text-foreground tabular-nums'>{count}</b> {plural} · Tap to enlarge
+					</span>
+				</span>
+			</Button>
+			<Button
+				ref={triggerRef}
+				type='button'
+				variant='secondary'
+				size='icon-xl'
+				onClick={onOpen}
+				aria-label={`View receipt ${plural}, ${count} ${plural}`}
+			>
+				<HugeiconsIcon icon={ArrowExpand01Icon} strokeWidth={1.8} aria-hidden='true' className='size-4.5' />
+			</Button>
+			</div>
+		</Card>
 	)
 }
 
@@ -93,11 +88,12 @@ interface TicketPhotoPanelProps {
 export function TicketPhotoPanel({ urls, count, view, error, onOpenFullScreen, triggerRef }: TicketPhotoPanelProps) {
 	return (
 		<Card
+			size='receipt'
 			role='region'
 			data-testid='ticket-photo-panel'
 			aria-label={count === 1 ? 'Receipt photo' : 'Receipt photos'}
 		>
-			<CardHeader><div className='flex items-center gap-3'>
+			<CardHeader inset='compact'><div className='flex items-center gap-3'>
 				<RowIcon icon={Image02Icon} tone='ocr' size='lg' testId='ticket-photo-panel-icon' />
 				<h2 className='min-w-0 flex-1 truncate font-display text-base leading-normal font-semibold '>
 					{count === 1 ? 'Receipt Photo' : 'Receipt Photos'}
@@ -118,7 +114,7 @@ export function TicketPhotoPanel({ urls, count, view, error, onOpenFullScreen, t
 				</Button>
 			</div>
 
-			</CardHeader><CardContent>
+			</CardHeader><CardContent inset='compact'>
 			<div className='relative flex h-[420px] flex-col overflow-hidden rounded-2xl bg-ink'>
 				<TicketPhotoPane
 					url={urls[view.index]}

@@ -33,7 +33,7 @@ export function AddItemSheet({ target, label = 'Add Item', isLocked = false, ope
 			trigger={trigger === null ? undefined : (
 				<Button
 					variant='outline'
-					size='default'
+					size='lg'
 					{...buttonProps}
 					disabled={isLocked}
 					data-testid={`add-item-button-${target.context}`}

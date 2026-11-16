@@ -39,7 +39,7 @@ export default function Header() {
 				<AuthButtons
 					signedOut={
 						<ButtonLink
-							size='sm'
+							size='lg'
 							href='/auth/signup'
 						>
 							Create Free Account

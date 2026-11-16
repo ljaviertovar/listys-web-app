@@ -63,7 +63,7 @@ export function ListsSectionCard({ lists, activeSessionIds }: Props) {
 								sessionActive={Boolean(activeSessionIds[list.id])}
 								activeSessionId={activeSessionIds[list.id]}
 								variant='secondary'
-								size='sm'
+								size='lg'
 								className='w-auto'
 							>
 								Start

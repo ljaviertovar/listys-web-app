@@ -22,7 +22,7 @@ export function TripSyncStatus({ sessionId, items, active }: { sessionId: string
         {message === 'Saving…' && !state.ended && !conflicts.length ? <HugeiconsIcon icon={Loading03Icon} strokeWidth={2} aria-hidden='true' className='size-3.5 animate-spin motion-reduce:animate-none' /> : null}
         {state.ended ? 'This trip has ended' : conflicts.length ? 'Changes need your attention' : message}
       </span>
-      {state.error && !state.ended ? <Button variant='link' size='default' onClick={() => { void controller?.retry().catch(() => {}) }}>Retry</Button> : null}
+      {state.error && !state.ended ? <Button variant='link' size='lg' onClick={() => { void controller?.retry().catch(() => {}) }}>Retry</Button> : null}
     </div>
     {state.error ? <p className='text-xs text-muted-foreground'>{state.error}</p> : null}
     {state.storageError ? <p role='status' className='text-xs text-muted-foreground'>Pending changes cannot be recovered after a reload on this device.</p> : null}
@@ -30,8 +30,8 @@ export function TripSyncStatus({ sessionId, items, active }: { sessionId: string
       title={conflict.reason === 'changed' ? `${state.items[id]?.name ?? 'This item'} changed on another device` : 'A pending change could not be applied'}
       description={conflict.reason === 'changed' ? `This device wanted to ${conflict.intention.checked ? 'check' : 'uncheck'} this item. The current saved value is shown.` : 'The trip ended or this item is no longer available. Your change was not applied.'}
       actions={<>
-        {conflict.reason === 'changed' && !state.ended ? <Button variant='secondary' size='default' onClick={() => controller?.resolve(id, true)}>Apply My Change</Button> : null}
-        <Button variant='link' size='default' onClick={() => controller?.resolve(id, false)}>Discard My Change</Button>
+        {conflict.reason === 'changed' && !state.ended ? <Button variant='secondary' size='lg' onClick={() => controller?.resolve(id, true)}>Apply My Change</Button> : null}
+        <Button variant='link' size='lg' onClick={() => controller?.resolve(id, false)}>Discard My Change</Button>
       </>} />)}
   </div>
 }

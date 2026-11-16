@@ -47,7 +47,7 @@ export function ShoppingSessionItems({ items: initialItems, sessionId, isComplet
 	const sectionDescriptors = storeId
 		? [
 			...storeGroups.map(group => ({ id: `session-store-category-${group.key}`, defaultOpen: !startCollapsed })),
-			{ id: 'session-other-stores-section', defaultOpen: sections.storeItems.length === 0 },
+			{ id: 'session-other-stores-section', defaultOpen: true },
 			...otherGroups.map(group => ({ id: `session-other-category-${group.key}`, defaultOpen: !startCollapsed })),
 		]
 		: groups.map(group => ({ id: `session-category-${group.key}`, defaultOpen: !startCollapsed }))

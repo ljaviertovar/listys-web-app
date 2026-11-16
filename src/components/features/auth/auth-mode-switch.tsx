@@ -17,7 +17,7 @@ export function AuthModeSwitch({ mode }: { mode: AuthMode }) {
 					key={option.mode}
 					asChild
 					variant='segment'
-					size='touch'
+					size='lg'
 					className='flex-1'
 				>
 					<Link

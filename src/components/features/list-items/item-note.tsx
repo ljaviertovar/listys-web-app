@@ -20,7 +20,7 @@ export function ItemNote({ children, wrap = false, className, testId }: ItemNote
 		<span
 			aria-label='Item note'
 			data-testid={testId}
-			className={cn('flex min-w-0 items-start gap-1 text-xs leading-[1.3] text-foreground', className)}
+			className={cn('flex min-w-0 items-start gap-1 text-xs leading-[1.3] text-muted-foreground dark:text-muted-foreground', className)}
 		>
 			<HugeiconsIcon
 				icon={Note01Icon}

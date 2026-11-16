@@ -47,7 +47,7 @@ export function DeleteReceiptButton({ ticketId, returnHref = '/tickets', onDelet
 	}
 
 	return <div data-testid='delete-receipt-action'>
-		<Button type='button' variant='destructive' size='default' onClick={() => setOpen(true)} className='w-full'>
+		<Button type='button' variant='destructive' size='lg' onClick={() => setOpen(true)} className='w-full'>
 			<HugeiconsIcon icon={Delete02Icon} strokeWidth={1.5} className='size-4.5' />Delete Receipt
 		</Button>
 		<SheetDialog open={open} onOpenChange={next => { if (!deleting) setOpen(next) }} title='Delete this receipt?' role='alertdialog' testId='delete-receipt-sheet' fit>
@@ -58,12 +58,12 @@ export function DeleteReceiptButton({ ticketId, returnHref = '/tickets', onDelet
 					{warningRest.length > 0 ? <AlertDescription>{warningRest.join(' ')}</AlertDescription> : null}
 				</Alert>
 				<div className='flex flex-col gap-2'>
-					<Button type='button' variant='destructive' size='default' disabled={deleting} onClick={() => void handleDelete()} data-testid='delete-receipt-confirm'>
+					<Button type='button' variant='destructive' size='lg' disabled={deleting} onClick={() => void handleDelete()} data-testid='delete-receipt-confirm'>
 						{deleting
 							? <><HugeiconsIcon icon={Loading03Icon} strokeWidth={1.5} className='size-4.5 animate-spin motion-reduce:animate-none' />Deleting…</>
 							: <><HugeiconsIcon icon={Delete02Icon} strokeWidth={1.5} className='size-4.5' />Delete Receipt</>}
 					</Button>
-					<Button type='button' variant='outline' size='default' disabled={deleting} onClick={() => setOpen(false)}>Cancel</Button>
+					<Button type='button' variant='outline' size='lg' disabled={deleting} onClick={() => setOpen(false)}>Cancel</Button>
 				</div>
 			</div>
 		</SheetDialog>

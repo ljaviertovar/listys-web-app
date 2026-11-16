@@ -19,7 +19,7 @@ const ibmPlexMono = IBM_Plex_Mono({
 })
 
 import './globals.css'
-import { ActiveSessionInit } from '@/components/app'
+import { ActiveSessionInit, NavigationProgress } from '@/components/app'
 
 export const metadata: Metadata = {
 	title: 'Listys - Smart Shopping List Manager',
@@ -99,6 +99,7 @@ export default function RootLayout({
 					disableTransitionOnChange
 				>
 					<ActiveSessionInit />
+					<NavigationProgress />
 					<PwaRegister />
 					{children}
 					<SonnerToaster />

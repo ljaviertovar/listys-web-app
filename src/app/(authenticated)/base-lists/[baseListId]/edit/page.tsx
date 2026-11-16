@@ -127,12 +127,14 @@ export default async function EditBaseListPage({
 									baseListId={baseListId}
 									listName={baseListWithItems.name}
 									isOwner={isOwner}
+									size='default'
 									className={isOwner ? 'w-full' : 'col-span-2 w-full'}
 								/>
 							)}
 							<AddItemSheet
 								target={{ context: 'base-list', baseListId }}
 								isLocked={isLocked}
+								size='default'
 								className={isOwner ? 'w-full' : 'col-span-2 w-full'}
 							/>
 						</div>

@@ -19,6 +19,7 @@ import { Button, type ButtonProps } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useDialogFocus } from '@/hooks'
 import { cn } from '@/utils'
+import { LoadingState } from '@/components/commons'
 
 // Lazy load UploadTicketForm since it contains heavy FileReader and image processing
 const UploadTicketForm = dynamic(
@@ -26,14 +27,7 @@ const UploadTicketForm = dynamic(
 	{
 		ssr: false,
 		loading: () => (
-			<div
-				role='status'
-				aria-live='polite'
-				data-testid='upload-ticket-form-loading'
-				className='py-8 text-center text-sm text-muted-foreground'
-			>
-				Preparing receipt upload…
-			</div>
+			<LoadingState testId='upload-ticket-form-loading' label='Preparing receipt upload…' />
 		),
 	},
 )
@@ -93,7 +87,7 @@ export function UploadTicketDialog({
 				<DialogTrigger asChild>
 					{trigger ?? (
 						<Button
-							size='default'
+							size='lg'
 							{...buttonProps}
 							className={cn('w-full', className)}
 						>
@@ -131,9 +125,8 @@ export function UploadTicketDialog({
 					</DialogTitle>
 					<DialogDescription
 						variant='sheet'
-						className='sr-only'
 					>
-						Add photos of your receipt.
+						Upload photos of your receipt. We read the <strong className='font-semibold text-foreground'>store, date and total</strong>, and you confirm them before anything is saved.
 					</DialogDescription>
 					<DialogClose asChild>
 						<Button

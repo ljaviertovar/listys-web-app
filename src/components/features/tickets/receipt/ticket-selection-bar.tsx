@@ -68,7 +68,7 @@ export function TicketSelectionBar({ count, total, onClear, onAdd, breakdown = n
 			<Button
 				type='button'
 				variant='on-dark'
-				size='sm'
+				size='lg'
 				onClick={onClear}
 				disabled={saving}
 			>
@@ -76,7 +76,7 @@ export function TicketSelectionBar({ count, total, onClear, onAdd, breakdown = n
 			</Button>
 			<Button
 				type='button'
-				size='sm'
+				size='lg'
 				onClick={onAdd}
 				disabled={saving}
 				aria-busy={saving || undefined}

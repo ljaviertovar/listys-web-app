@@ -14,7 +14,7 @@ export function RetryableError({ message, href, testId }: RetryableErrorProps) {
 	return (
 		<Alert data-testid={testId} variant='destructive'>
 			<AlertDescription>{message}</AlertDescription>
-			<Button asChild variant='link' size='sm' className='mt-1'>
+			<Button asChild variant='link' size='lg' className='mt-1'>
 				<Link href={href}>Try again</Link>
 			</Button>
 		</Alert>

@@ -74,7 +74,7 @@ export function SessionBar({ id, name, progress, otherCount = 0 }: SessionBarPro
 				{/* Not a nested control: the whole bar is the link, this only borrows the primary button's look. */}
 				<Button
 					asChild
-					size='sm'
+					size='lg'
 				>
 					<span>
 						Continue<span className='sr-only'> Shopping</span>

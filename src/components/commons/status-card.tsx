@@ -17,8 +17,9 @@ interface StatusCardProps {
 
 /** The shared tonal notice used by receipt processing, active-trip guidance and attachment failures. */
 export function StatusCard({ testId, tone, icon, title, description, actions, spinning = false, headingId, role = 'status' }: StatusCardProps) {
+	const variant = tone === 'danger' ? 'destructive' : tone === 'default' ? 'default' : tone
 	return (
-		<Alert data-testid={testId} variant={tone === 'danger' ? 'destructive' : 'default'} role={role} aria-live={role === 'status' ? 'polite' : undefined}>
+		<Alert data-testid={testId} variant={variant} role={role} aria-live={role === 'status' ? 'polite' : undefined}>
 			{icon ? <HugeiconsIcon icon={icon} aria-hidden='true' data-testid={`${testId}-icon`} className={spinning ? 'size-4 animate-spin motion-reduce:animate-none' : 'size-4'} /> : null}
 			<AlertTitle><h2 id={headingId} tabIndex={headingId ? -1 : undefined}>{title}</h2></AlertTitle>
 			<AlertDescription>

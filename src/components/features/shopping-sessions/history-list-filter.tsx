@@ -40,7 +40,6 @@ export function HistoryListFilter({ options, selectedListId, testId = 'history-l
 			<Combobox
 				items={comboboxOptions.map(option => option.value)}
 				itemToStringLabel={value => comboboxOptions.find(option => option.value === value)?.label ?? ''}
-				filter={(item, query, getLabel) => (getLabel?.(item) ?? String(item)).toLocaleLowerCase().includes(query.toLocaleLowerCase())}
 				value={selectedListId ?? ALL_LISTS}
 				onValueChange={value => typeof value === 'string' && handleChange(value)}
 			>
@@ -65,7 +64,7 @@ export function HistoryListFilter({ options, selectedListId, testId = 'history-l
 							return <ComboboxItem key={option.value} value={option.value} size='filter'><ListOption name={option.label} /></ComboboxItem>
 						}}
 					</ComboboxList>
-					<ComboboxEmpty>No lists match this search.</ComboboxEmpty>
+					<ComboboxEmpty>No lists available.</ComboboxEmpty>
 				</ComboboxContent>
 			</Combobox>
 		</div>

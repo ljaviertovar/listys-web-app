@@ -83,10 +83,10 @@ export function StoreRenameCard({
 			) : null}
 
 			<div className='grid grid-cols-2 gap-3'>
-				<Button type='button' variant='outline' size='lg' disabled={pending} onClick={onCancel}>
+				<Button type='button' variant='outline' size='default' disabled={pending} onClick={onCancel}>
 					Cancel
 				</Button>
-				<Button type='submit' size='lg' disabled={pending} aria-describedby={error ? errorId : undefined}>
+				<Button type='submit' size='default' disabled={pending} aria-describedby={error ? errorId : undefined}>
 					{pending ? <HugeiconsIcon icon={Loading03Icon} strokeWidth={2} aria-hidden='true' className='size-4 animate-spin motion-reduce:animate-none' /> : null}
 					{pending ? 'Saving…' : 'Save Name'}
 				</Button>

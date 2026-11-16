@@ -44,8 +44,8 @@ export function MergeResultSheet({ outcome, receipt, onRetry, onClose }: MergeRe
 						</AlertDescription>
 					</Alert>
 					<div className='flex flex-col gap-2 sm:grid sm:grid-cols-2'>
-						<Button type='button' size='default' onClick={onRetry}>Try Again</Button>
-						<Button type='button' variant='outline' size='default' onClick={onClose}>Cancel</Button>
+						<Button type='button' size='lg' onClick={onRetry}>Try Again</Button>
+						<Button type='button' variant='outline' size='lg' onClick={onClose}>Cancel</Button>
 					</div>
 				</div>
 			</SheetDialog>

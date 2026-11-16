@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge'
 import { DataFigure, DataLine, EntityLabel } from '@/components/commons'
 import { AddItemSheet } from '@/components/features/list-items'
 import { ShareListDialog } from '@/components/features/sharing'
-import { STARTED_SESSION_PARAM, SessionSummaryCard, TripReceiptsCard, TripReceiptSummary,
+import { SessionSummaryCard, TripReceiptsCard, TripReceiptSummary,
 	getTripReceiptState, getTripStores, ShoppingSessionActions, ShoppingSessionItems, ShoppingSessionRealtimeListener,
 	buildSessionPriceEstimate, summarizeCheckedEstimate, resolveSessionBackLink, TripSyncStatus } from '@/components/features/shopping-sessions'
 import { itemsForSessionProgress } from '@/components/features/shopping-sessions/helpers/split-session-sections'
@@ -27,7 +27,6 @@ export default async function ShoppingRunPage({ params, searchParams }: { params
 	const { runId } = await params
 	const query = await searchParams
 	const first = (value: string | string[] | undefined) => Array.isArray(value) ? value[0] : value
-	const justStarted = first(query[STARTED_SESSION_PARAM]) === '1'
 	const showDetails = first(query.details) === '1'
 	const supabase = await createClient()
 	const { data: { user } } = await supabase.auth.getUser()
@@ -113,7 +112,7 @@ export default async function ShoppingRunPage({ params, searchParams }: { params
 					{baseListId && isListOwner ? <ShareListDialog baseListId={baseListId} listName={baseListName} isOwner={isListOwner} className='w-full md:w-auto' /> : null}
 					<AddItemSheet target={{ context: 'shopping-session', sessionId: runId }} className={baseListId && isListOwner ? 'w-full md:w-auto' : 'col-span-2 w-full md:col-auto md:w-auto'} />
 				</div> : null}
-				<ShoppingSessionItems sessionId={runId} storeInfoByItemId={storeInfoByItemId} items={items} isCompleted={isCompleted} priceByItemId={!isCompleted && priceEstimate ? Object.fromEntries(priceEstimate.priceByItemId) : undefined} startCollapsed={justStarted && !isCompleted} storeId={run.store_id} storeName={run.store?.name ?? null} />
+				<ShoppingSessionItems sessionId={runId} storeInfoByItemId={storeInfoByItemId} items={items} isCompleted={isCompleted} priceByItemId={!isCompleted && priceEstimate ? Object.fromEntries(priceEstimate.priceByItemId) : undefined} storeId={run.store_id} storeName={run.store?.name ?? null} />
 			</div>
 		</PageContainer>
 		{!isCompleted ? <ShoppingSessionRealtimeListener sessionId={runId} /> : null}

@@ -219,7 +219,6 @@ function TicketsContent({ tickets }: TicketsListProps) {
 					<Combobox
 						items={storeOptions.map(option => option.value)}
 						itemToStringLabel={value => storeOptions.find(option => option.value === value)?.label ?? ''}
-						filter={(value, query, getLabel) => (getLabel?.(value) ?? String(value)).toLocaleLowerCase().includes(query.toLocaleLowerCase())}
 						value={storeFilter}
 						onValueChange={value => typeof value === 'string' && setStoreFilter(value)}
 					>
@@ -263,7 +262,7 @@ function TicketsContent({ tickets }: TicketsListProps) {
 									)
 								}}
 							</ComboboxList>
-							<ComboboxEmpty>No stores match this search.</ComboboxEmpty>
+							<ComboboxEmpty>No stores available.</ComboboxEmpty>
 						</ComboboxContent>
 					</Combobox>
 				</div>
@@ -292,7 +291,7 @@ function TicketsContent({ tickets }: TicketsListProps) {
 					<Button
 						type='button'
 						variant='link'
-						size='default'
+						size='lg'
 						onClick={() => setStoreFilter('all')}
 					>
 						Clear filter

@@ -43,12 +43,11 @@ export function TicketTriageSection({ section, listName, selection, canSelect, a
 				tone='primary'
 				chevron='up'
 				count={countLabel(section.lines.length)}
-				defaultOpen={!section.startsFolded}
+				defaultOpen
 				open={open}
 				onOpenChange={onOpenChange}
 				testId={`receipt-triage-${section.id}`}
 				className={first ? 'border-t-0' : undefined}
-				panelClassName='px-3'
 			>
 				<ul className='divide-y divide-slate-200/70 dark:divide-border'>
 					{section.lines.map(line => (

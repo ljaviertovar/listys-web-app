@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import { Invoice01Icon } from '@hugeicons/core-free-icons'
 
 import { PageHeader, PageContainer } from '@/components/app'
 import { DataFigure, DataLine } from '@/components/commons'
@@ -67,13 +68,15 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 				variant='screen'
 				screenStyle='entity-detail'
 				back={{ href: '/tickets', label: 'Receipts' }}
+				icon={Invoice01Icon}
+				iconTone='ocr'
 				title={headerTitle}
 				aside={<TicketStatusChip status={receiptStatus} />}
 				desc={
 					<DataLine testId='ticket-data'>
-						{isReadReceipt || readWithoutItems ? <><DataFigure>{readWithoutItems ? 0 : extractedItemsCount}</DataFigure> {readWithoutItems ? 'items' : extractedItemsCount === 1 ? 'item' : 'items'}</> : isUnreadable ? <><DataFigure>{imagePaths.length}</DataFigure> {imagePaths.length === 1 ? 'photo' : 'photos'}</> : null}
+						{isReadReceipt || readWithoutItems ? <><DataFigure emphasis='count'>{readWithoutItems ? 0 : extractedItemsCount}</DataFigure> {readWithoutItems ? 'items' : extractedItemsCount === 1 ? 'item' : 'items'}</> : isUnreadable ? <><DataFigure emphasis='count'>{imagePaths.length}</DataFigure> {imagePaths.length === 1 ? 'photo' : 'photos'}</> : null}
 						{uploadedAt ? <DataFigure>{formatShortDate(uploadedAt)}</DataFigure> : 'Upload date unknown'}
-						{isReadReceipt && typeof ticket.total_amount === 'number' ? <DataFigure>{formatCurrency(ticket.total_amount)}</DataFigure> : null}
+						{isReadReceipt && typeof ticket.total_amount === 'number' ? <DataFigure emphasis='total'>{formatCurrency(ticket.total_amount)}</DataFigure> : null}
 					</DataLine>
 				}
 			/>

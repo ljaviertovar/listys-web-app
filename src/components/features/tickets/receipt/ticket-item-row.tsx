@@ -46,10 +46,11 @@ export function TicketItemRow({ item, canSelect = false, selected = false, onSel
 		<div data-testid={`ticket-item-row-${item.id}`} data-selected={selected}>
 			<FieldLabel
 				htmlFor={canSelect ? checkboxId : undefined}
+				variant='plain'
 			>
 			<Field orientation='horizontal'>
 				{canSelect ? (
-					<span className='-ml-2.5 flex size-11 shrink-0 items-center justify-center'>
+					<span className='flex size-11 shrink-0 items-center justify-center'>
 						<Checkbox
 							id={checkboxId}
 							checked={selected}
@@ -114,7 +115,7 @@ function ProposedMatch({ line, name, listName, actions }: ProposedMatchProps) {
 						<span className='truncate text-sm leading-[1.3] font-semibold'>{decision.kind === 'link' ? formatItemName(decision.item.name) : 'New item'}</span>
 					</div>
 				</div>
-				<Button type='button' variant='link' size='touch' onClick={() => setChanging(true)}>
+				<Button type='button' variant='link' size='lg' onClick={() => setChanging(true)}>
 					Change<span className='sr-only'> match for {name}</span>
 				</Button>
 			</div>

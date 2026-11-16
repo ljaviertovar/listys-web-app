@@ -87,7 +87,7 @@ export function TicketPhotoViewer({ open, onOpenChange, nested = false, title, u
 							type='button'
 							onClick={onCompare}
 							variant='on-dark'
-							size='toolbar'
+							size='lg'
 						>
 							<HugeiconsIcon
 								icon={LayoutTwoRowIcon}

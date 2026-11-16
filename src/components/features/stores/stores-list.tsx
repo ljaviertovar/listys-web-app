@@ -40,7 +40,7 @@ export function StoresList({ stores }: StoresListProps) {
 			>
 				<Button
 					asChild
-					size='default'
+					size='lg'
 				>
 					<Link href='/tickets'>Go to Receipts</Link>
 				</Button>
@@ -72,7 +72,7 @@ export function StoresList({ stores }: StoresListProps) {
 							<Button
 								type='button'
 								variant='secondary'
-								size='default'
+								size='lg'
 								onClick={() => flow.conflictWith && actions.chooseTarget(flow.store, flow.conflictWith)}
 							>
 								Merge Into “{flow.conflictWith.name}”

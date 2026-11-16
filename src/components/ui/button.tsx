@@ -52,6 +52,8 @@ const buttonVariants = cva(
 				toolbar: 'h-11 gap-2 px-4',
 				// A full-width row of a choice list: as tall as its two lines, content at the start.
 				option: 'h-auto min-h-14 w-full justify-start gap-3 px-3.5 py-2 text-left whitespace-normal',
+				// A flush row action inside a padded card surface; the card owns the side inset.
+				row: 'h-auto min-h-14 justify-start gap-3 p-0 text-left whitespace-normal',
 				// Link actions follow the same compact mobile height while retaining their link-specific padding.
 				'link-action': "relative h-9 gap-1.5 px-3 after:absolute after:content-[''] after:-inset-y-1 after:inset-x-0 has-data-[icon=inline-end]:pr-2.5 has-data-[icon=inline-start]:pl-2.5 md:h-10 md:gap-1.5 md:px-3 md:after:hidden",
 					'mobile-action': 'h-11 min-w-0 gap-1 px-1.5 text-xs leading-tight whitespace-normal',
@@ -73,7 +75,7 @@ const buttonVariants = cva(
 		},
 		defaultVariants: {
 			variant: 'default',
-			size: 'default',
+			size: 'lg',
 		},
 	},
 )
@@ -81,7 +83,7 @@ const buttonVariants = cva(
 function Button({
 	className,
 	variant = 'default',
-	size = 'default',
+	size = 'lg',
 	asChild = false,
 	...props
 }: React.ComponentProps<'button'> &

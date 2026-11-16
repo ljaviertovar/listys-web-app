@@ -20,13 +20,13 @@ const badgeVariants = cva(
           "hover:bg-muted hover:text-foreground dark:hover:bg-muted/50",
         link: "text-primary underline-offset-4 hover:underline",
         // Status badges use a colored label and dot without a filled background.
-        processing: "bg-transparent font-semibold text-feedback-info dark:bg-transparent dark:text-feedback-info",
-        completed: "bg-transparent font-semibold text-feedback-success dark:bg-transparent dark:text-feedback-success",
-        shopping: "bg-transparent font-semibold text-feedback-info dark:bg-transparent dark:text-feedback-info",
+        processing: "border-border bg-card text-muted-foreground [&_[data-slot=badge-dot]]:text-feedback-info",
+        completed: "border-border bg-card text-muted-foreground [&_[data-slot=badge-dot]]:text-feedback-success",
+        shopping: "border-border bg-card text-muted-foreground [&_[data-slot=badge-dot]]:text-feedback-info",
         // Over ink or photo surfaces (the dashboard hero).
         "on-dark": "bg-white/15 text-white",
-        failed: "bg-transparent font-semibold text-feedback-error dark:bg-transparent dark:text-feedback-error",
-        pending: "bg-transparent font-semibold text-feedback-warning dark:bg-transparent dark:text-feedback-warning",
+        failed: "border-border bg-card text-muted-foreground [&_[data-slot=badge-dot]]:text-feedback-error",
+        pending: "border-border bg-card text-muted-foreground [&_[data-slot=badge-dot]]:text-feedback-warning",
         merged: "bg-primary/10 text-primary",
         category: "bg-primary/10 text-primary",
         neutral: "bg-secondary text-secondary-foreground",
@@ -78,7 +78,7 @@ function Badge({
       ) : (
         <>
           {dot ? (
-            <span aria-hidden="true" className="size-1.5 shrink-0 rounded-full bg-current" />
+            <span data-slot="badge-dot" aria-hidden="true" className="size-1.5 shrink-0 rounded-full bg-current" />
           ) : null}
           {children}
         </>

@@ -6,7 +6,7 @@ audit, or touching `docs/design/`. Engineering constraints stay in AGENTS.md; if
 The Listys Design System (DS) at `docs/design/design-system.html` is the only source of truth for how components look
 and behave. It is maintained by the `build-app-design-system` skill, which also checks code against it.
 
-**Status: the DS exists** (`docs/design/design-system.html`, v2.0.0) and is the only source of truth. Earlier design
+**Status: the DS exists** (`docs/design/design-system.html`, v2.0.9) and is the only source of truth. Earlier design
 documents are historical references.
 
 ## Older design documents

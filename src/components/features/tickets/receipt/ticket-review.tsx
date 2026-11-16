@@ -157,7 +157,7 @@ export function TicketReview({ ticketId, title, imagePaths, items, status, ocrEr
 				{attached ? (
 					<Card data-testid='ticket-attached-state'><CardContent>
 						<CardTitle><h2>Attached to {attached.name}</h2></CardTitle>
-						<Button asChild variant='link' size='sm'><Link href={`/shopping/${attached.id}`}>View trip</Link></Button>
+						<Button asChild variant='link' size='default'><Link href={`/shopping/${attached.id}`}>View trip</Link></Button>
 					</CardContent></Card>
 				) : null}
 				{children}

@@ -81,7 +81,7 @@ export default async function ShoppingListsPage() {
 				iconTone='primary'
 				desc='All your lists in one place. Start with the things you always buy.'
 				back={{ href: '/dashboard', label: 'Back to Dashboard' }}
-				aside={<CreateBaseListDialog size='default' />}
+				aside={<CreateBaseListDialog size='lg' />}
 			/>
 
 			<PageContainer contentClassName='space-y-2 md:space-y-6'>

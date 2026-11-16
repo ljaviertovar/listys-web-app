@@ -4,7 +4,7 @@ import { useId, useMemo, useState, type FormEvent } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { InformationCircleIcon, Loading03Icon } from '@hugeicons/core-free-icons'
 
-import { SearchableChoiceList, SheetDialog, type ChoiceOption } from '@/components/commons'
+import { ItemContextRow, LoadingState, SearchableChoiceList, SheetDialog, type ChoiceOption } from '@/components/commons'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { DialogFooter } from '@/components/ui/dialog'
@@ -200,6 +200,7 @@ function StorePickerBody({
 							detail: storeDetails
 								? (storeDetails[store.id] ?? 'Not bought there yet')
 								: `${store.receipt_count} ${store.receipt_count === 1 ? 'receipt' : 'receipts'}`,
+							detailTone: 'muted' as const,
 						}),
 		})),
 	]
@@ -222,13 +223,7 @@ function StorePickerBody({
 			className={itemName ? 'flex h-full min-h-0 flex-col gap-4' : 'flex flex-col gap-4'}
 		>
 			{itemName ? (
-				<div
-					data-testid='store-picker-item'
-					className='flex shrink-0 flex-col gap-0.5 rounded-2xl bg-muted px-3 py-2'
-				>
-					<span className='text-xs leading-4 font-semibold tracking-wide text-muted-foreground'>ITEM</span>
-					<span className='text-base leading-6 font-semibold text-foreground'>{itemName}</span>
-				</div>
+				<ItemContextRow testId='store-picker-item' name={itemName} />
 			) : context ? (
 				<div
 					data-testid='store-picker-context'
@@ -241,18 +236,7 @@ function StorePickerBody({
 
 			<div className={itemName ? 'flex min-h-0 flex-1 flex-col' : undefined}>
 				{stores.status === 'loading' ? (
-					<div
-						role='status'
-						className='flex items-center justify-center gap-2 py-6 text-sm text-muted-foreground dark:text-muted-foreground'
-					>
-						<HugeiconsIcon
-							icon={Loading03Icon}
-							strokeWidth={2}
-							aria-hidden='true'
-							className='size-5 animate-spin motion-reduce:animate-none'
-						/>
-						Loading your stores…
-					</div>
+					<LoadingState testId='store-picker-loading' label='Loading your stores…' />
 				) : stores.status === 'error' ? (
 					<div
 						data-testid='store-picker-load-error'
@@ -267,7 +251,7 @@ function StorePickerBody({
 						<Button
 							type='button'
 							variant='secondary'
-							size='default'
+							size='lg'
 							onClick={stores.retry}
 						>
 							Try Again
@@ -323,7 +307,7 @@ function StorePickerBody({
 				<Button
 					type='button'
 					variant='outline'
-					size='default'
+					size='lg'
 					disabled={pending}
 					onClick={onCancel}
 				>
@@ -331,7 +315,7 @@ function StorePickerBody({
 				</Button>
 				<Button
 					type='submit'
-					size='default'
+					size='lg'
 					disabled={!choice || pending}
 					aria-describedby={error ? errorId : undefined}
 				>

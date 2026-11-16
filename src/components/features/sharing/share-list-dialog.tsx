@@ -53,7 +53,7 @@ export function ShareListDialog({
 				trigger === null ? undefined : (
 					<Button
 					variant='outline'
-					size='default'
+					size='lg'
 					{...buttonProps}
 					data-testid='share-list-button'
 				>
