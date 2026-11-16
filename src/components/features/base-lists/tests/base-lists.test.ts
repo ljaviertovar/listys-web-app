@@ -23,7 +23,6 @@ describe('BaseListsList', () => {
 		expect(html).toContain('data-testid="list-card-l1"')
 		expect(html).toContain('data-testid="list-card-l2"')
 		expect(html.match(/Resume Shopping/g)).toHaveLength(2)
-		expect(html).toMatch(/>2<\/b> lists/)
 	})
 })
 

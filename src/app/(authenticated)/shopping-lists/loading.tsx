@@ -5,7 +5,6 @@ export default function ShoppingListsLoading() {
 	return (
 		<>
 			<PageHeader
-				variant='screen'
 				title='Lists'
 				desc='All your lists in one place. Start with the things you always buy.'
 			/>

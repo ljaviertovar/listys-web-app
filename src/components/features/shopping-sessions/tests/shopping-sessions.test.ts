@@ -104,15 +104,30 @@ describe('HistorySessionCard receipt status', () => {
 		const html = render(null)
 		expect(html).toContain('Completed')
 		expect(html).toContain('data-testid="history-no-receipt-s1"')
-		expect(html).toContain('No Receipt attached')
+		expect(html).toContain('No receipt attached')
 		expect(html).not.toContain('history-add-receipt-s1')
 	})
 
 	it('shows the number of attached receipts when a trip has two', () => {
 		const receipts = ['ticket-1', 'ticket-2'].map(id => ({ id, store: null, total_amount: 20, items_count: 1 }))
 		const html = renderToStaticMarkup(createElement(HistorySessionCard, { session: { ...session, receipts } }))
-		expect(html).toContain('2 Receipt attached')
-		expect(html).not.toContain('No Receipt attached')
+		expect(html).toContain('2 receipts attached')
+		expect(html).not.toContain('No receipt attached')
+	})
+
+	it('writes the date and the time as a data line, with the time as a secondary figure, and the unit in lower case', () => {
+		const completed_at = new Date(2026, 10, 5, 23, 14).toISOString()
+		const html = renderToStaticMarkup(createElement(HistorySessionCard, { session: { ...session, completed_at, purchased_count: 32, receipts: [] } }))
+		expect(html).toContain('data-testid="history-date-s1"')
+		expect(html).toContain('<span class="font-mono font-normal text-muted-foreground tabular-nums">23:14</span>')
+		expect(html).toContain('purchased items')
+		expect(html).not.toContain('Purchased Item')
+	})
+
+	it('names its link after the trip, and the link covers the card', () => {
+		const html = render(null)
+		expect(html).toContain('aria-label="View Details in Weekly shop"')
+		expect(html).toContain('after:absolute after:inset-0')
 	})
 
 	it('opens the trip details and keeps the list filter', () => {

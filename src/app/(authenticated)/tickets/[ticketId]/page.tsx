@@ -1,8 +1,6 @@
 import { redirect } from 'next/navigation'
-import { Invoice01Icon } from '@hugeicons/core-free-icons'
 
 import { PageHeader, PageContainer } from '@/components/app'
-import { DataFigure, DataLine } from '@/components/commons'
 import { TicketReview, TicketStatusChip, TicketStoreCard, TicketSummaryCard, TicketUnreadableState, isReadWithoutItems, sumLineTotals, toTicketStatus } from '@/components/features/tickets'
 
 import { getTicket } from '@/lib/api/endpoints'
@@ -65,20 +63,18 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 	return (
 		<>
 			<PageHeader
-				variant='screen'
-				screenStyle='entity-detail'
+				layout='detail'
 				back={{ href: '/tickets', label: 'Receipts' }}
-				icon={Invoice01Icon}
-				iconTone='ocr'
+				entity='receipt'
 				title={headerTitle}
 				aside={<TicketStatusChip status={receiptStatus} />}
-				desc={
-					<DataLine testId='ticket-data'>
-						{isReadReceipt || readWithoutItems ? <><DataFigure emphasis='count'>{readWithoutItems ? 0 : extractedItemsCount}</DataFigure> {readWithoutItems ? 'items' : extractedItemsCount === 1 ? 'item' : 'items'}</> : isUnreadable ? <><DataFigure emphasis='count'>{imagePaths.length}</DataFigure> {imagePaths.length === 1 ? 'photo' : 'photos'}</> : null}
-						{uploadedAt ? <DataFigure>{formatShortDate(uploadedAt)}</DataFigure> : 'Upload date unknown'}
-						{isReadReceipt && typeof ticket.total_amount === 'number' ? <DataFigure emphasis='total'>{formatCurrency(ticket.total_amount)}</DataFigure> : null}
-					</DataLine>
-				}
+				facts={[
+					isReadReceipt || readWithoutItems
+						? { kind: 'count', value: readWithoutItems ? 0 : extractedItemsCount, unit: readWithoutItems || extractedItemsCount !== 1 ? 'items' : 'item' }
+						: isUnreadable ? { kind: 'count', value: imagePaths.length, unit: imagePaths.length === 1 ? 'photo' : 'photos' } : null,
+					uploadedAt ? { kind: 'time', value: formatShortDate(uploadedAt) } : { value: 'Upload date unknown' },
+					isReadReceipt && typeof ticket.total_amount === 'number' ? { kind: 'total', value: formatCurrency(ticket.total_amount) } : null,
+				]}
 			/>
 			<PageContainer>
 				<TicketReview

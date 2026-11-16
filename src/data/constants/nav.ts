@@ -1,7 +1,7 @@
 import type { NavItemO, NavLink, SidebarData } from '@/types'
 import {
 	DashboardSquare02Icon,
-	FolderLibraryIcon,
+	ListViewIcon,
 	ShoppingBag03Icon,
 	Invoice01Icon,
 	UserSettings01Icon,
@@ -39,7 +39,7 @@ export const SIDEBAR_DATA: SidebarData = {
 				{
 					title: 'Lists',
 					url: '/shopping-lists',
-					icon: FolderLibraryIcon,
+					icon: ListViewIcon,
 				},
 				{
 					title: 'Trips',
@@ -84,7 +84,7 @@ export const SIDEBAR_DATA: SidebarData = {
 /** The four destinations of the phone tab bar (the fifth slot is the receipt-upload action), in design A1 order. */
 export const MOBILE_TAB_ITEMS: { title: string; url: string; icon: NonNullable<NavLink['icon']> }[] = [
 	{ title: 'Dashboard', url: '/dashboard', icon: DashboardSquare02Icon },
-	{ title: 'Lists', url: '/shopping-lists', icon: FolderLibraryIcon },
+	{ title: 'Lists', url: '/shopping-lists', icon: ListViewIcon },
 	{ title: 'Receipts', url: '/tickets', icon: Invoice01Icon },
 	{ title: 'Trips', url: '/trips', icon: ShoppingBag03Icon },
 ]

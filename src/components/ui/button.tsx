@@ -35,6 +35,10 @@ const buttonVariants = cva(
 				'dropzone-quiet':
 					'border-[1.5px] border-dashed border-slate-400 bg-muted text-blue-700 shadow-none hover:border-blue-500 hover:bg-blue-50/60 focus-visible:border-blue-500 data-[dragging=true]:border-blue-500 dark:border-border dark:text-blue-400 dark:hover:bg-muted',
 			},
+			ring: {
+				none: '',
+				surface: 'ring-4 ring-card',
+			},
 			size: {
 				// The visible 32px action keeps a 44px pointer target without changing row layout.
 				'quiet-touch': "relative h-8 px-2 text-sm after:absolute after:content-[''] after:-inset-y-1.5 after:inset-x-0",
@@ -75,6 +79,7 @@ const buttonVariants = cva(
 		},
 		defaultVariants: {
 			variant: 'default',
+			ring: 'none',
 			size: 'lg',
 		},
 	},
@@ -83,6 +88,7 @@ const buttonVariants = cva(
 function Button({
 	className,
 	variant = 'default',
+	ring = 'none',
 	size = 'lg',
 	asChild = false,
 	...props
@@ -97,7 +103,7 @@ function Button({
 			data-slot='button'
 			data-variant={variant}
 			data-size={size}
-			className={cn(buttonVariants({ variant, size, className }))}
+			className={cn(buttonVariants({ variant, ring, size, className }))}
 			{...props}
 		/>
 	)

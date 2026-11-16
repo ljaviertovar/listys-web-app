@@ -29,11 +29,13 @@ export function AttachToSessionDialog({ actions }: { actions: TripReview }) {
 		...(review.notCheckedNotOnReceipt.length > 0 ? [{ id: 'attach-review-section-not-checked-not-on-receipt', defaultOpen: true }] : []),
 	] : []
 	const expansion = useCategorySectionExpansion(sectionDescriptors)
+	const reviewReady = Boolean(actions.trip && review && !actions.reviewLoading && !actions.reviewError && !actions.submitError)
 	return (
 		<>
 			<SheetDialog open={actions.open} onOpenChange={actions.setOpen}
 				title={active ? 'Review receipt' : actions.trip ? `Attach to ${actions.trip.name}` : 'Attach to trip'}
 				description={TRIP_REVIEW_COPY.intro(listName)}
+				chips={reviewReady ? [store ? <EntityLabel name={store.name} testId='attach-review-store' /> : <NoStoreBadge testId='attach-review-store-unconfirmed' label='Store not confirmed' />] : []}
 				testId='attach-to-session-dialog'>
 				{actions.open && actions.trip ? <div className='flex min-w-0 flex-col gap-4' data-testid='attach-session-review'>
 					{actions.reviewLoading ? <LoadingState testId='attach-review-loading' label='Loading trip items…' /> : null}
@@ -46,7 +48,6 @@ export function AttachToSessionDialog({ actions }: { actions: TripReview }) {
 							actions={duplicateStore ? <><Button asChild size='default'><Link href={`/shopping/${actions.trip.id}`} onClick={actions.closeReview}>View Trip Receipts</Link></Button><Button type='button' variant='secondary' size='lg' onClick={actions.closeReview}>Close Review</Button></>
 								: <><Button type='button' size='lg' disabled={actions.submitting} onClick={() => void actions.retrySubmit()}>{actions.submitting ? 'Attaching…' : 'Try Again'}</Button><Button type='button' variant='secondary' size='lg' disabled={actions.submitting} onClick={actions.closeReview}>Attach Later</Button></>} />
 					) : <>
-						{store ? <EntityLabel name={store.name} testId='attach-review-store' /> : <NoStoreBadge testId='attach-review-store-unconfirmed' label='Store not confirmed' />}
 						<div data-testid='attach-review-summary' role='status' aria-live='polite' className='grid grid-cols-3 gap-2'>
 							<StatTile testId='attach-review-stat-matched' variant='white' value={review.counts.matched} label='Matched' icon={CheckmarkCircle02Icon} iconTone='success' />
 							<StatTile testId='attach-review-stat-new' variant='white' value={review.counts.added} label={`New to ${listName}`} icon={Add01Icon} iconTone='primary' />

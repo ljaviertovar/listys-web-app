@@ -78,7 +78,6 @@ export function MergeToBaseListDialog({ open, defaultBaseListId, onOpenChange, t
 			onOpenChange={isOpen => !loading && onOpenChange(isOpen)}
 			testId='merge-to-base-list-dialog'
 			title={reviewing ? 'Review Matches' : 'Add or Update Items'}
-			descriptionVariant={reviewing ? 'sheet' : 'body'}
 			description={reviewing
 				? `Check how these items are added to “${listName}”. Nothing is added until you confirm.`
 				: mode === 'new'

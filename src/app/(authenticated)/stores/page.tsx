@@ -1,5 +1,4 @@
 import { redirect } from 'next/navigation'
-import { Store03Icon } from '@hugeicons/core-free-icons'
 
 import { PageContainer, PageHeader } from '@/components/app'
 import { RetryableError } from '@/components/commons'
@@ -26,12 +25,11 @@ export default async function StoresPage() {
 	return (
 		<>
 			<PageHeader
-				variant='screen'
 				back={{ href: '/tickets', label: 'Back to Receipts' }}
 				title='My Stores'
-				icon={Store03Icon}
-				iconTone='store'
+				entity='store'
 				desc={STORES_PAGE_DESCRIPTION}
+				count={error ? undefined : { value: stores?.length ?? 0, one: 'store', many: 'stores' }}
 			/>
 
 			<PageContainer>

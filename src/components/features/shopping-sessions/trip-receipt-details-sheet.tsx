@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 
-import { LoadingState, SheetDialog } from '@/components/commons'
+import { LoadingState, SheetDialog, type DataFact } from '@/components/commons'
 import { TicketPhotoRow } from '@/components/features/tickets/photo/ticket-photo-entry'
 import { TicketPhotoViewer } from '@/components/features/tickets/photo/ticket-photo-viewer'
 import { usePhotoView } from '@/components/features/tickets/photo/hooks/use-photo-view'
@@ -39,18 +39,26 @@ export function TripReceiptDetailsSheet({
 	const imagePaths = details?.image_paths?.length ? details.image_paths : details?.image_path ? [details.image_path] : []
 	const photos = useTicketImageUrls(imagePaths)
 	const view = usePhotoView(photos.urls.length)
-	const storeName = details?.store_name?.trim() || (failed ? 'Store not recognized' : 'Store not confirmed')
+	// The confirmed store as the user named it, not the capitals printed on the receipt; the page header of the same receipt does the same.
+	const storeName = details?.store?.name?.trim() || details?.store_name?.trim() || (failed ? 'Store not recognized' : 'Store not confirmed')
 	const uploadedAt = details?.created_at ? new Date(details.created_at) : null
 	const validUploadedAt = uploadedAt && !Number.isNaN(uploadedAt.getTime()) ? uploadedAt : null
 	const unreadable = failed && Boolean(details)
 	const noItems = details?.ocr_status === 'completed' && details.items.length === 0
 	const hasStoreDetails = Boolean(details?.store || details?.store_suggestion || details?.store_name?.trim())
 	const photoCount = imagePaths.length
-	const description = failed && validUploadedAt
-		? `${photoCount} ${photoCount === 1 ? 'photo' : 'photos'} · Uploaded ${formatTime(validUploadedAt)}`
+	const itemCount = details ? details.total_items ?? details.items.length : 0
+	const facts: Array<DataFact> = failed && validUploadedAt
+		? [
+			{ kind: 'count', value: photoCount, unit: photoCount === 1 ? 'photo' : 'photos' },
+			{ kind: 'text', value: `Uploaded ${formatTime(validUploadedAt)}` },
+		]
 		: details && !failed
-			? `${details.total_items ?? details.items.length} ${details.items.length === 1 ? 'item' : 'items'}${details.total_amount != null ? ` · ${formatCurrency(details.total_amount)}` : ''}`
-		: undefined
+			? [
+				{ kind: 'count', value: itemCount, unit: itemCount === 1 ? 'item' : 'items' },
+				...(details.total_amount != null ? [{ kind: 'total' as const, value: formatCurrency(details.total_amount) }] : []),
+			]
+			: []
 	const title = failed
 		? `Receipt${validUploadedAt ? ` · ${formatShortDate(validUploadedAt)}` : ''}`
 		: storeName
@@ -60,9 +68,9 @@ export function TripReceiptDetailsSheet({
 			<SheetDialog
 				open={open}
 				onOpenChange={onOpenChange}
-				title={failed ? <span className='flex w-full min-w-0 items-center justify-between gap-3'><span className='min-w-0 truncate'>{title}</span><TicketStatusChip status='failed' /></span> : title}
-				description={description}
-				descriptionVariant='sheet'
+				title={title}
+				aside={failed ? <TicketStatusChip status='failed' /> : undefined}
+				facts={facts}
 				testId={testId}
 			>
 				<div

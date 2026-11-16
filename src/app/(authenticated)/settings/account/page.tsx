@@ -33,7 +33,6 @@ export default async function AccountPage() {
 	return (
 		<>
 			<PageHeader
-				variant='screen'
 				back={{ href: '/dashboard', label: 'Back to Dashboard' }}
 				title='Account'
 				desc='Sign-in and account details'

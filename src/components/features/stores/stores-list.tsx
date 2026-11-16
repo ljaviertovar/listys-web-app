@@ -4,14 +4,13 @@ import Link from 'next/link'
 import { Edit02Icon, GitMergeIcon, InformationCircleIcon, SparklesIcon, Store03Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 
-import { ConfirmSheet, EmptyStateCard, EntityCard, EntityCardSkeleton, ListToolbar } from '@/components/commons'
+import { ConfirmSheet, EmptyStateCard, EntityCard, EntityCardSkeleton } from '@/components/commons'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Skeleton } from '@/components/ui/skeleton'
 import type { Store } from '@/types'
 
-import { buildStoreMeta } from './helpers/store-meta'
+import { buildStoreFacts } from './helpers/store-meta'
 import { useStoreActions } from './hooks/use-store-actions'
 import { StorePickerDialog } from './store-picker-dialog'
 import { StoreRenameCard } from './store-rename-card'
@@ -53,12 +52,7 @@ export function StoresList({ stores }: StoresListProps) {
 			data-testid='stores-list'
 			className='flex flex-col gap-4'
 		>
-			<ListToolbar
-				count={visibleStores.length}
-				unit={{ one: 'store', many: 'stores' }}
-				testId='stores-toolbar'
-			/>
-			<div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:gap-6 xl:grid-cols-3'>
+			<div className='grid grid-cols-1 gap-3 sm:grid-cols-2 lg:gap-6 xl:grid-cols-3'>
 				{visibleStores.map(store => flow.kind === 'rename' && flow.store.id === store.id ? (
 					<StoreRenameCard
 						key={store.id}
@@ -83,7 +77,6 @@ export function StoresList({ stores }: StoresListProps) {
 				) : (
 					<EntityCard
 						key={store.id}
-						size='list'
 						title={store.name}
 							href={`/stores/${store.id}`}
 							linkLabel='View Store'
@@ -95,7 +88,7 @@ export function StoresList({ stores }: StoresListProps) {
 									</Badge>
 								) : null
 							}
-							meta={buildStoreMeta(store)}
+							facts={buildStoreFacts(store)}
 						count={store.usual_items_count ?? 0}
 						unit={{ one: 'usual item', many: 'usual items' }}
 						emptyLabel='usual items'
@@ -123,7 +116,7 @@ export function StoresList({ stores }: StoresListProps) {
 				title='Merge Into Another Store'
 				description={
 					flow.kind === 'pick-target'
-						? `Choose the store that keeps “${flow.source.name}”’s receipts. “${flow.source.name}” will be removed.`
+						? `Pick the store that will keep the receipts of “${flow.source.name}”. “${flow.source.name}” will be removed.`
 						: undefined
 				}
 				confirmLabel='Continue'
@@ -173,10 +166,7 @@ export function StoresSkeleton() {
 			data-testid='stores-skeleton'
 			className='flex flex-col gap-4'
 		>
-			<div className='flex min-h-11 items-center'>
-				<Skeleton className='h-3.5 w-16 rounded-md' />
-			</div>
-			<div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:gap-6 xl:grid-cols-3'>
+			<div className='grid grid-cols-1 gap-3 sm:grid-cols-2 lg:gap-6 xl:grid-cols-3'>
 				{[0, 1, 2].map(index => (
 					<EntityCardSkeleton
 						key={index}
