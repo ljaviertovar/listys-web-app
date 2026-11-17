@@ -6,8 +6,8 @@ interface EntityLabelProps {
 	name: string
 	/** A store the user chose by hand adds "· set by you" in regular weight. */
 	manual?: boolean
-	/** `lg` is the 14px name of a store row in Prices by Store. */
-	size?: 'default' | 'lg'
+	/** `lg` is the 14px name of a store row in Prices by Store; `row` is the 18px label under the name of an item row. */
+	size?: 'default' | 'lg' | 'row'
 	testId?: string
 }
 
@@ -19,7 +19,7 @@ export function EntityLabel({ name, manual = false, size = 'default', testId = '
 	return (
 		<span
 			data-testid={testId}
-			className={size === 'lg' ? 'inline-flex min-w-0 items-center gap-1.5 text-sm leading-none' : 'inline-flex h-5.5 min-w-0 items-center gap-1.5 text-xs leading-none'}
+			className={size === 'lg' ? 'inline-flex min-w-0 items-center gap-1.5 text-sm leading-none' : size === 'row' ? 'inline-flex h-4.5 min-w-0 items-center gap-1.5 text-xs leading-none' : 'inline-flex h-5.5 min-w-0 items-center gap-1.5 text-xs leading-none'}
 		>
 			<HugeiconsIcon
 				icon={Store03Icon}

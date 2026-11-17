@@ -100,7 +100,8 @@ export default async function ShoppingRunPage({ params, searchParams }: { params
 			facts={isCompleted ? [
 				date ? { value: `Completed on ${formatTripDate(date)}` } : null,
 				amount == null ? null : { kind: 'total', value: `${!receipts.length ? '≈ ' : ''}${formatCurrency(amount)}` },
-			] : [{ value: run.store_id ? `${progressTotal} of ${totalCount} items` : `${totalCount} items` }]}
+			] : run.store_id ? [{ value: `${progressTotal} of ${totalCount} items` }] : undefined}
+			count={!isCompleted && !run.store_id ? { value: totalCount, one: 'item', many: 'items' } : undefined}
 		/>
 		<PageContainer className='pb-[calc(7rem+max(1.125rem,env(safe-area-inset-bottom)))] lg:pb-20'>
 			<div className='flex w-full max-w-3xl flex-col gap-6'>

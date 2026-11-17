@@ -71,7 +71,7 @@ export function SearchableChoiceList({
 	return (
 		<div
 			data-testid={testId}
-			className={fillAvailableHeight ? 'flex min-h-0 flex-1 flex-col gap-4' : variant === 'card' ? 'flex flex-col gap-4' : 'flex flex-col gap-3'}
+			className={fillAvailableHeight ? 'flex min-h-0 flex-1 flex-col gap-4 overflow-hidden' : variant === 'card' ? 'flex flex-col gap-4' : 'flex flex-col gap-3'}
 		>
 			{searchable ? (
 				<div className='flex flex-col gap-2'>

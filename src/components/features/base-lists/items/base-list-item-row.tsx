@@ -25,8 +25,8 @@ interface BaseListItemRowProps {
 }
 
 /**
- * One item of a base list: its name with the note under it, the average price with the quantity under that, and a "⋯" menu.
- * Editing swaps the row for the form in place.
+ * One item of a base list: the quantity and the name on the first line, the note and the store line under them, and a "⋯" menu
+ * centred on that first line. A list row shows no price. Editing swaps the row for the form in place.
  */
 export function BaseListItemRow({ item, isLocked = false, isOwner = true }: BaseListItemRowProps) {
 	const menuTriggerRef = useRef<HTMLButtonElement>(null)
@@ -63,34 +63,39 @@ export function BaseListItemRow({ item, isLocked = false, isOwner = true }: Base
 
 	return (
 		<Item
-			size='sm'
+			size='xs'
+			className='min-h-14 items-start'
 			data-testid={`base-list-item-${item.id}`}
 		>
-			<div className='grid min-w-0 flex-1 grid-cols-[auto_minmax(0,1fr)] items-center gap-x-2 gap-y-1.5'>
-				<ItemQuantityChip quantity={item.quantity} unit={item.unit} testId={`base-list-item-${item.id}-quantity`} />
-				<span className='truncate text-sm leading-[1.3] font-semibold'>{name}</span>
-				{item.notes ? <div className='col-span-2 min-w-0'><ItemNote testId={`base-list-item-${item.id}-note`}>{item.notes}</ItemNote></div> : null}
+			<div className='flex min-w-0 flex-1 flex-col'>
+				<div className='flex items-start gap-2'>
+					<ItemQuantityChip quantity={item.quantity} unit={item.unit} testId={`base-list-item-${item.id}-quantity`} />
+					<span className='line-clamp-2 min-w-0 flex-1 text-sm leading-5 font-semibold break-words'>{name}</span>
+				</div>
+				{item.notes ? <ItemNote className='mt-0.5' testId={`base-list-item-${item.id}-note`}>{item.notes}</ItemNote> : null}
 				{item.usual_store || alsoAt ? (
 					<span
 						aria-label={[
 							item.usual_store ? `Usual store: ${item.usual_store.name} (${item.usual_store.source === 'manual' ? 'chosen by you' : 'automatic'})` : null,
 							alsoAt ? `Other stores: ${(item.other_stores ?? []).map(store => store.name).join(', ')}` : null,
 						].filter(Boolean).join('. ')}
-						className='col-span-2 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1'
+						className='mt-1 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-0.5'
 					>
 						{item.usual_store ? (
 							<EntityLabel
 								name={item.usual_store.name}
 								manual={item.usual_store.source === 'manual'}
+								size='row'
 								testId={`base-list-item-${item.id}-usual-store`}
 							/>
 						) : null}
-						{alsoAt ? <span aria-label={`Other stores: ${(item.other_stores ?? []).map(store => store.name).join(', ')}`} data-testid={`base-list-item-${item.id}-other-stores`} className='min-w-0 break-words text-xs leading-[1.3] text-foreground'>{alsoAt}</span> : null}
+						{alsoAt ? <span aria-label={`Other stores: ${(item.other_stores ?? []).map(store => store.name).join(', ')}`} data-testid={`base-list-item-${item.id}-other-stores`} className='min-w-0 break-words text-xs leading-4 text-muted-foreground dark:text-muted-foreground'>{alsoAt}</span> : null}
 					</span>
 				) : null}
 			</div>
 			<RowMenu
 				label={`More options for ${name}`}
+				className='-mt-3 -mr-1'
 				disabled={isLocked || usualStorePending}
 				testId={`base-list-item-${item.id}-menu`}
 				triggerRef={menuTriggerRef}

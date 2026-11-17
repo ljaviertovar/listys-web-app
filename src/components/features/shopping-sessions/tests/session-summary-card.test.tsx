@@ -7,7 +7,7 @@ it('shows an available zero accumulator while retaining progress', () => {
 	const html = renderToStaticMarkup(createElement(SessionSummaryCard, { mode: 'active', checked: 2, total: 5, estimate: { total: 0, itemCount: 2, pricedCount: 0 } }))
 	expect(html).toContain('$0.00')
 	expect(html).toContain('2 checked')
-	expect(html).toContain('40%')
+	expect(html).toMatch(/40<span[^>]*>%<[/]span>/)
 })
 
 it('keeps progress without an estimate when no prices are available', () => {

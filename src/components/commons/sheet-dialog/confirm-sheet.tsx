@@ -7,6 +7,7 @@ import { Alert02Icon, AlertCircleIcon, Loading03Icon } from '@hugeicons/core-fre
 
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { RowIcon } from '@/components/commons/row-icon'
 import { useDialogFocus } from '@/hooks'
 
 interface ConfirmSheetProps {
@@ -69,34 +70,37 @@ export function ConfirmSheet({
 		>
 			<AlertDialogHeader variant='sheet'>
 				<AlertDialogTitle>{title}</AlertDialogTitle>
+				{description && !media ? (
+					<AlertDialogDescription id={descriptionId}>{description}</AlertDialogDescription>
+				) : null}
 			</AlertDialogHeader>
 			<div className='flex flex-col gap-4'>
-				{description || media ? (
+				{description && media ? (
 					<div className='flex items-center gap-3.5'>
 						{media}
-						{description ? (
-							<AlertDialogDescription id={descriptionId}>{description}</AlertDialogDescription>
-						) : null}
+						<AlertDialogDescription id={descriptionId}>{description}</AlertDialogDescription>
 					</div>
-				) : null}
+				) : media ? media : null}
 				{consequence ? (
 					<Alert
 						id={consequenceId}
 						role='note'
-						variant={consequenceTone === 'danger' ? 'destructive' : 'default'}
+						variant={consequenceTone === 'danger' ? 'destructive' : 'warning'}
 					>
-						<HugeiconsIcon
+						<RowIcon
 							icon={consequenceTone === 'warning' ? Alert02Icon : AlertCircleIcon}
-							aria-hidden='true'
-							className='size-4'
+							tone={consequenceTone === 'warning' ? 'warning' : 'danger'}
+							size='alert'
 						/>
-						{consequenceTitle ? <AlertTitle>{consequenceTitle}</AlertTitle> : null}
-						<AlertDescription>{consequence}</AlertDescription>
+						<div className='flex min-w-0 flex-col gap-0.5'>
+							{consequenceTitle ? <AlertTitle>{consequenceTitle}</AlertTitle> : null}
+							<AlertDescription>{consequence}</AlertDescription>
+						</div>
 					</Alert>
 				) : null}
 				{children}
 			</div>
-			<AlertDialogFooter>
+			<AlertDialogFooter className='mt-4'>
 				<AlertDialogCancel
 					size='lg'
 					type='button'

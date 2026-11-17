@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from 'react'
 
-import { SearchableChoiceList, SheetDialog } from '@/components/commons'
+import { ItemContextRow, SearchableChoiceList, SheetDialog } from '@/components/commons'
 import { Button } from '@/components/ui/button'
 import { formatItemName } from '@/utils'
 
@@ -31,12 +31,14 @@ export function LinkItemDialog({ lineName, listName, currentItemId, items, onClo
 			open={open}
 			onOpenChange={next => !next && onClose()}
 			title='Choose Another Item'
-			description={lineName ? <>Pick the {listName ?? 'list'} item that <span className='font-mono font-semibold text-foreground'>“{formatItemName(lineName)}”</span> should match.</> : undefined}
+			description={`Choose an existing ${listName ?? 'list'} item to link to this receipt line.`}
 			testId='link-item-dialog'
+			fit={false}
 		>
 			{open ? (
 				<LinkItemForm
 					listName={list}
+					lineName={lineName ?? ''}
 					currentItemId={currentItemId ?? ''}
 					items={items}
 					onCancel={onClose}
@@ -50,6 +52,7 @@ export function LinkItemDialog({ lineName, listName, currentItemId, items, onClo
 
 interface LinkItemFormProps {
 	listName: string
+	lineName: string
 	currentItemId: string
 	items: MatchedItem[]
 	onCancel: () => void
@@ -57,7 +60,7 @@ interface LinkItemFormProps {
 	onAddAsNew?: () => void
 }
 
-function LinkItemForm({ listName, currentItemId, items, onCancel, onLink, onAddAsNew }: LinkItemFormProps) {
+function LinkItemForm({ listName, lineName, currentItemId, items, onCancel, onLink, onAddAsNew }: LinkItemFormProps) {
 	const [query, setQuery] = useState('')
 	const [selected, setSelected] = useState(currentItemId)
 
@@ -84,24 +87,25 @@ function LinkItemForm({ listName, currentItemId, items, onCancel, onLink, onAddA
 			data-testid='link-item-form'
 			onSubmit={submit}
 			noValidate
-			className='flex flex-col gap-4 px-0.5 py-1'
+			className='flex h-[min(60dvh,34rem)] min-h-0 flex-col gap-4 overflow-hidden px-0.5 py-1'
 		>
+			<ItemContextRow name={formatItemName(lineName)} testId='link-item-receipt-line' />
 			<SearchableChoiceList
 				variant='card'
+				fillAvailableHeight
 				searchLabel={`Search ${listName}`}
 				placeholder={`Search ${listName}`}
 				query={query}
 				onQueryChange={setQuery}
-				options={matches.map(item => ({ value: item.id, label: formatItemName(item.name), note: `In ${listName}` }))}
+				options={matches.map(item => ({ value: item.id, label: formatItemName(item.name) }))}
 				value={selected}
 				onValueChange={setSelected}
 				status={status}
 				testId='link-item-list'
 			/>
-			<div className='flex flex-col gap-2'>
+			<div className='flex shrink-0 flex-col gap-2'>
 				<Button
 					type='submit'
-					size='lg'
 					disabled={!selected}
 				>
 					Match to Selected
@@ -109,7 +113,6 @@ function LinkItemForm({ listName, currentItemId, items, onCancel, onLink, onAddA
 				<Button
 					type='button'
 					variant={onAddAsNew ? 'secondary' : 'outline'}
-					size='lg'
 					onClick={onAddAsNew ?? onCancel}
 				>
 					{onAddAsNew ? 'Add as New Item' : 'Cancel'}

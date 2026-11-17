@@ -22,11 +22,13 @@ export function LikelyNeededCard({ likelyNeeded, startTarget = null }: Props) {
 			{likelyNeeded.items.length === 0 ? (
 				receiptsCount < 3 ? (
 					<Alert data-testid='dashboard-likely-needed-progress' variant='info' size='dashboard' role='status' aria-live='polite'>
-						<div className='flex items-center gap-2'>
+						<div className='grid grid-cols-[auto_minmax(0,1fr)] items-start gap-x-2.5'>
 							<RowIcon icon={Invoice01Icon} tone='ocr' size='md' />
-						<AlertTitle>{receiptsCount} of 3 receipts</AlertTitle>
+							<div className='flex min-w-0 flex-col gap-0.5'>
+								<AlertTitle>{receiptsCount} of 3 receipts</AlertTitle>
+								<AlertDescription>Scan three receipts to start getting suggestions based on what you usually buy.</AlertDescription>
+							</div>
 						</div>
-						<AlertDescription>Scan three receipts to start getting suggestions based on what you usually buy.</AlertDescription>
 						<Progress value={Math.min(receiptsCount, 3) / 3 * 100} size='sm' tone='soft' aria-label={`${receiptsCount} of 3 receipts scanned`} />
 						{startTarget ? (
 						<StartShoppingDialog baseListId={startTarget.id} baseListName={startTarget.name} itemsCount={startTarget.itemsCount} size='lg' variant='default' className='w-full sm:w-auto'>Start Shopping</StartShoppingDialog>

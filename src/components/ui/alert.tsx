@@ -4,7 +4,7 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/utils'
 
 const alertVariants = cva(
-	"grid gap-2.5 rounded-2xl border px-4 py-3 text-left text-sm has-data-[slot=alert-action]:relative has-data-[slot=alert-action]:pr-18 has-[>svg]:grid-cols-[auto_1fr] has-[>svg]:gap-x-2.5 *:[svg]:row-span-2 *:[svg]:translate-y-0.5 *:[svg]:text-current *:[svg:not([class*='size-'])]:size-4 w-full relative group/alert",
+	"grid gap-x-2.5 gap-y-0.5 rounded-2xl border px-4 py-3 text-left text-sm has-data-[slot=alert-action]:relative has-data-[slot=alert-action]:pr-18 has-[>svg]:grid-cols-[auto_1fr] has-[>svg]:gap-x-2.5 has-[>[data-alert-icon]]:grid-cols-[auto_1fr] has-[>[data-alert-icon]]:gap-x-2.5 *:[svg]:row-span-2 *:[svg]:translate-y-0.5 *:[svg]:text-current *:[svg:not([class*='size-'])]:size-4 [&>[data-alert-icon]]:row-span-2 [&>[data-alert-icon]]:translate-y-0.5 w-full relative group/alert",
 	{
 		variants: {
 			size: {
@@ -43,7 +43,7 @@ function AlertTitle({ className, ...props }: React.ComponentProps<'div'>) {
 		<div
 			data-slot='alert-title'
 			className={cn(
-				'font-semibold group-has-[>svg]/alert:col-start-2 [&_a]:hover:text-foreground [&_a]:underline [&_a]:underline-offset-3',
+				'font-medium group-has-[>svg]/alert:col-start-2 group-has-[>[data-alert-icon]]/alert:col-start-2 [&_a]:hover:text-foreground [&_a]:underline [&_a]:underline-offset-3',
 				className,
 			)}
 			{...props}
@@ -56,7 +56,7 @@ function AlertDescription({ className, ...props }: React.ComponentProps<'div'>) 
 		<div
 			data-slot='alert-description'
 			className={cn(
-				'text-sm text-muted-foreground text-pretty group-data-[variant=info]/alert:text-foreground group-data-[variant=warning]/alert:text-foreground group-data-[variant=success]/alert:text-foreground group-data-[variant=destructive]/alert:text-foreground [&_p:not(:last-child)]:mb-4 [&_a]:hover:text-foreground [&_a]:underline [&_a]:underline-offset-3',
+				'text-sm text-muted-foreground text-pretty group-has-[>svg]/alert:col-start-2 group-has-[>[data-alert-icon]]/alert:col-start-2 group-data-[variant=info]/alert:text-foreground group-data-[variant=warning]/alert:text-foreground group-data-[variant=success]/alert:text-foreground group-data-[variant=destructive]/alert:text-foreground [&_p:not(:last-child)]:mb-4 [&_a]:hover:text-foreground [&_a]:underline [&_a]:underline-offset-3',
 				className,
 			)}
 			{...props}
