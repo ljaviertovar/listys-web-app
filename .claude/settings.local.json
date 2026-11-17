@@ -1,0 +1,9 @@
+{
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "chrome-devtools"
+  ],
+  "skillOverrides": {
+    "nextjs-saas-rest-api": "name-only"
+  }
+}
