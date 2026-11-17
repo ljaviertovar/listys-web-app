@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { PageContainer, PageHeader } from '@/components/app'
 import { RetryableError } from '@/components/commons'
 import { BaseListsList, CreateBaseListDialog } from '@/components/features/base-lists'
+import { groupStoresByList, type ListItemStoreRow } from '@/components/features/base-lists/helpers/list-card-stores'
 
 import { createClient } from '@/lib/supabase/server'
 
@@ -23,7 +24,8 @@ export default async function ShoppingListsPage() {
 		redirect('/auth/signin')
 	}
 
-	// What the cards say besides their name: the last completed trip, who a list is shared with and which one is the default.
+	// What the cards say besides their name: the last completed trip, who a list is shared with, which one is the default and the stores
+	// its items are usually bought at.
 	// They run alongside the lists; none of them blocks the page, and a failed one only leaves its detail out.
 	const cardDetails = Promise.all([
 		supabase
@@ -36,6 +38,12 @@ export default async function ShoppingListsPage() {
 		supabase.from('list_collaborators').select('base_list_id').limit(1000),
 		// Until the default-list migration is applied the column does not exist; the query then fails and no chip shows.
 		supabase.from('base_lists').select('id').eq('user_id', user.id).eq('is_default', true).limit(1),
+		// One row per item that has a usual store; a list with more than the first thousand shows the stores of those only.
+		supabase
+			.from('base_list_items')
+			.select('base_list_id, store:stores!base_list_items_usual_store_id_fkey(id, name)')
+			.not('usual_store_id', 'is', null)
+			.limit(1000),
 	])
 
 	const [baseListsResult, activeSessionResult] = await Promise.all([
@@ -50,7 +58,7 @@ export default async function ShoppingListsPage() {
 
 	const { data: baseLists, error } = baseListsResult
 	const { data: activeSessions } = activeSessionResult
-	const [completedSessionsResult, collaboratorsResult, defaultListResult] = await cardDetails
+	const [completedSessionsResult, collaboratorsResult, defaultListResult, itemStoresResult] = await cardDetails
 
 	const lastTripByList: Record<string, string> = {}
 	for (const session of completedSessionsResult.data ?? []) {
@@ -64,6 +72,7 @@ export default async function ShoppingListsPage() {
 		sharedCountByList[collaborator.base_list_id] = (sharedCountByList[collaborator.base_list_id] ?? 0) + 1
 	}
 	const defaultListId = defaultListResult.data?.[0]?.id ?? null
+	const storesByList = groupStoresByList((itemStoresResult.data ?? []) as ListItemStoreRow[])
 
 	// Transform Supabase count result to our type
 	const baseListsWithCount: BaseListWithCount[] = ((baseLists ?? []) as BaseListRow[]).map(list => ({
@@ -96,6 +105,7 @@ export default async function ShoppingListsPage() {
 							defaultListId={defaultListId}
 							lastTripByList={lastTripByList}
 							sharedCountByList={sharedCountByList}
+							storesByList={storesByList}
 					/>
 				)}
 			</PageContainer>

@@ -30,7 +30,15 @@ interface TicketSelectionBarProps {
  * What the ticked items add up to and the one thing to do with them. On phones it floats above the tab bar's raised upload
  * button (and above the active-session bar when one is showing) so it never covers them; from `lg`, where it is rendered inside the items card, it sticks to the bottom of that card.
  */
-export function TicketSelectionBar({ count, total, onClear, onAdd, breakdown = null, placement = 'card', saving = false }: TicketSelectionBarProps) {
+export function TicketSelectionBar({
+	count,
+	total,
+	onClear,
+	onAdd,
+	breakdown = null,
+	placement = 'card',
+	saving = false,
+}: TicketSelectionBarProps) {
 	const hasSessionBar = useActiveSessionStore(s => s.activeSession !== null)
 
 	if (count === 0) return null
@@ -42,7 +50,7 @@ export function TicketSelectionBar({ count, total, onClear, onAdd, breakdown = n
 			aria-label={saving ? 'Saving to your list' : 'Selection actions'}
 			aria-busy={saving || undefined}
 			className={cn(
-				'fixed inset-x-3 z-40 flex min-h-14 items-center gap-2 rounded-2xl bg-slate-900 py-2 pr-2 pl-4 text-white shadow-[0_16px_32px_-12px_rgba(15,23,42,0.5)]',
+				'fixed inset-x-3 z-40 flex min-h-14 items-center gap-2 rounded-full bg-slate-900 py-2 pr-2 pl-4 text-white shadow-[0_16px_32px_-12px_rgba(15,23,42,0.5)]',
 				hasSessionBar ? ABOVE_MOBILE_ACTION_BAR_WITH_SESSION : ABOVE_MOBILE_ACTION_BAR,
 				'lg:z-10 lg:rounded-t-none lg:px-5 lg:py-3 lg:shadow-none',
 				placement === 'card'
@@ -59,7 +67,12 @@ export function TicketSelectionBar({ count, total, onClear, onAdd, breakdown = n
 				</span>
 				<span className='text-xs leading-[1.2] text-slate-300'>
 					{breakdown ? (
-						<span data-testid='ticket-selection-breakdown' className='whitespace-nowrap'>{breakdown.added} new · {breakdown.updated} updated</span>
+						<span
+							data-testid='ticket-selection-breakdown'
+							className='whitespace-nowrap'
+						>
+							{breakdown.added} new · {breakdown.updated} updated
+						</span>
 					) : (
 						<span className='font-mono tabular-nums'>{formatCurrency(total)}</span>
 					)}
@@ -68,7 +81,7 @@ export function TicketSelectionBar({ count, total, onClear, onAdd, breakdown = n
 			<Button
 				type='button'
 				variant='on-dark'
-				size='lg'
+				size='sm'
 				onClick={onClear}
 				disabled={saving}
 			>
@@ -76,12 +89,19 @@ export function TicketSelectionBar({ count, total, onClear, onAdd, breakdown = n
 			</Button>
 			<Button
 				type='button'
-				size='lg'
+				size='sm'
 				onClick={onAdd}
 				disabled={saving}
 				aria-busy={saving || undefined}
 			>
-				{saving ? <HugeiconsIcon icon={Loading03Icon} strokeWidth={1.5} aria-hidden='true' className='animate-spin motion-reduce:animate-none' /> : null}
+				{saving ? (
+					<HugeiconsIcon
+						icon={Loading03Icon}
+						strokeWidth={1.5}
+						aria-hidden='true'
+						className='animate-spin motion-reduce:animate-none'
+					/>
+				) : null}
 				{saving ? 'Saving…' : 'Add or Update'}
 			</Button>
 		</div>

@@ -7,7 +7,7 @@ import { getTicket } from '@/lib/api/endpoints'
 
 import { createClient } from '@/lib/supabase/server'
 
-import { formatCurrency, formatDate, formatShortDate, getReceiptStoreLabel } from '@/utils'
+import { formatCurrency, formatDate, formatShortDate, getReceiptName } from '@/utils'
 
 import type { Ticket, TicketItem, TicketStoreFields } from '@/types'
 
@@ -47,18 +47,13 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 	const pricedItemsCount = ticketItems.filter((item: { price?: number | null }) => item.price !== null).length
 	const { image_paths: storedPaths, ocr_error: ocrError, store, store_suggestion: storeSuggestion } = ticket as TicketRow
 	const imagePaths: string[] = storedPaths && storedPaths.length > 0 ? storedPaths : ticket.image_path ? [ticket.image_path] : []
-	const storeLabel = getReceiptStoreLabel(ticket)
-	// A read receipt is something to review; the store is confirmed in its own card, so the title no longer repeats the raw OCR text.
+	// The same name the receipt carries on its card in the list, in every state of the receipt.
+	const receiptName = getReceiptName(ticket)
 	const receiptStatus = toTicketStatus(ticket.ocr_status, ticketItems.length)
 	const isReadReceipt = receiptStatus === 'completed'
 	// A read that failed and a read that found no lines share one screen: the receipt gave nothing to review.
 	const isUnreadable = receiptStatus === 'failed'
 	const readWithoutItems = isReadWithoutItems(ticket.ocr_status, ticketItems.length)
-	// Until the lines are on a list or a trip the screen is a review; after, it is the receipt of that store.
-	const isReviewing = isReadReceipt && !ticket.base_list_id && !ticket.shopping_session
-	// The list or trip keeps its store as the receipt's identity; before then, the screen is a review.
-	const receiptTitle = uploadedAt ? `Receipt · ${formatShortDate(uploadedAt)}` : 'Receipt'
-	const headerTitle = isReviewing ? 'Review receipt' : store?.name ?? receiptTitle
 
 	return (
 		<>
@@ -66,7 +61,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 				layout='detail'
 				back={{ href: '/tickets', label: 'Receipts' }}
 				entity='receipt'
-				title={headerTitle}
+				title={receiptName}
 				aside={<TicketStatusChip status={receiptStatus} />}
 				facts={[
 					isReadReceipt || readWithoutItems
@@ -79,7 +74,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 			<PageContainer>
 				<TicketReview
 					ticketId={ticketId}
-					title={storeLabel}
+					title={receiptName}
 					imagePaths={imagePaths}
 					items={ticketItems}
 					status={receiptStatus}

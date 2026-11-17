@@ -30,62 +30,67 @@ export function SessionBar({ id, name, progress, otherCount = 0 }: SessionBarPro
 			className={cn('fixed inset-x-0 z-30 px-3 pb-2 lg:hidden', ABOVE_MOBILE_UPLOAD_BUTTON)}
 		>
 			<div className='flex items-center gap-2'>
-			<Link
-				href={`/shopping/${id}`}
-				className={cn(
-					'flex min-w-0 flex-1 items-center gap-2 rounded-3xl bg-slate-900 py-2.5 pr-2.5 pl-4 text-white shadow-[0_16px_32px_-12px_rgba(15,23,42,0.5)]',
-					'focus-ring',
-				)}
-			>
-				<span className='relative size-7 shrink-0'>
-					<svg
-						viewBox='0 0 36 36'
-						className='size-7'
-						aria-hidden='true'
-					>
-						<circle
-							cx='18'
-							cy='18'
-							r={RING_RADIUS}
-							fill='none'
-							strokeWidth='4'
-							className='stroke-white/20'
-						/>
-						<circle
-							cx='18'
-							cy='18'
-							r={RING_RADIUS}
-							fill='none'
-							strokeWidth='4'
-							strokeLinecap='round'
-							strokeDasharray={`${filled} ${RING_CIRCUMFERENCE}`}
-							transform='rotate(-90 18 18)'
-							className='stroke-blue-400'
-						/>
-					</svg>
-					<span className='absolute top-0 right-0 size-2 rounded-full border-[1.5px] border-slate-900 bg-green-400' />
-				</span>
-				<span className='flex min-w-0 flex-1 flex-col gap-0.5'>
-					<span className='truncate text-sm leading-[1.2] font-semibold'>{name}</span>
-					<span className='font-mono text-xs leading-[1.2] text-slate-300 tabular-nums'>
-						{progress ? `${progress.checked} of ${progress.total} · ${percent}%` : 'In progress'}
-					</span>
-				</span>
-				{/* Not a nested control: the whole bar is the link, this only borrows the primary button's look. */}
-				<Button
-					asChild
-					size='lg'
+				<Link
+					href={`/shopping/${id}`}
+					className={cn(
+						'flex min-w-0 flex-1 items-center gap-2 rounded-full bg-slate-900 py-2.5 pr-2.5 pl-4 text-white shadow-[0_16px_32px_-12px_rgba(15,23,42,0.5)]',
+						'focus-ring',
+					)}
 				>
-					<span>
-						Continue<span className='sr-only'> Shopping</span>
+					<span className='relative size-7 shrink-0'>
+						<svg
+							viewBox='0 0 36 36'
+							className='size-7'
+							aria-hidden='true'
+						>
+							<circle
+								cx='18'
+								cy='18'
+								r={RING_RADIUS}
+								fill='none'
+								strokeWidth='4'
+								className='stroke-white/20'
+							/>
+							<circle
+								cx='18'
+								cy='18'
+								r={RING_RADIUS}
+								fill='none'
+								strokeWidth='4'
+								strokeLinecap='round'
+								strokeDasharray={`${filled} ${RING_CIRCUMFERENCE}`}
+								transform='rotate(-90 18 18)'
+								className='stroke-blue-400'
+							/>
+						</svg>
+						<span className='absolute top-0 right-0 size-2 rounded-full border-[1.5px] border-slate-900 bg-green-400' />
 					</span>
-				</Button>
-			</Link>
-			{otherCount > 0 ? (
-				<Link href='/shopping-lists' aria-label={`+${otherCount} more in progress`} data-testid='active-session-more-link' className='shrink-0 whitespace-nowrap rounded-2xl bg-slate-800 px-3 py-2 text-center text-xs font-semibold leading-tight text-white focus-ring'>
-					+{otherCount} more<span className='sr-only'> shopping sessions in progress</span>
+					<span className='flex min-w-0 flex-1 flex-col gap-0.5'>
+						<span className='truncate text-sm leading-[1.2] font-semibold'>{name}</span>
+						<span className='font-mono text-xs leading-[1.2] text-slate-300 tabular-nums'>
+							{progress ? `${progress.checked} of ${progress.total} · ${percent}%` : 'In progress'}
+						</span>
+					</span>
+					{/* Not a nested control: the whole bar is the link, this only borrows the primary button's look. */}
+					<Button
+						size='sm'
+						asChild
+					>
+						<span>
+							Continue<span className='sr-only'> Shopping</span>
+						</span>
+					</Button>
 				</Link>
-			) : null}
+				{otherCount > 0 ? (
+					<Link
+						href='/shopping-lists'
+						aria-label={`+${otherCount} more in progress`}
+						data-testid='active-session-more-link'
+						className='shrink-0 whitespace-nowrap rounded-2xl bg-slate-800 px-3 py-2 text-center text-xs font-semibold leading-tight text-white focus-ring'
+					>
+						+{otherCount} more<span className='sr-only'> shopping sessions in progress</span>
+					</Link>
+				) : null}
 			</div>
 		</div>
 	)

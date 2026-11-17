@@ -201,7 +201,7 @@ export function TicketReview({ ticketId, title, imagePaths, items, status, ocrEr
 				initialDecisions={triage.baseList ? { baseListId: triage.baseList.id, decisions: triage.decisions } : null}
 				storeConfirmed={storeConfirmed}
 				breakdown={breakdown}
-				receipt={{ storeName: title, date: receiptDate }}
+				receipt={{ name: title, date: receiptDate }}
 				onSavingChange={setSaving}
 				onSuccess={handleMergeSuccess}
 				onReceiptAttached={sessionId => {

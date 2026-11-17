@@ -61,6 +61,7 @@ export function RowIcon({ icon, tone, size, emphasis = 'medium', className, test
 	return (
 		<span
 			aria-hidden='true'
+			data-alert-icon={size === 'alert' ? '' : undefined}
 			data-testid={testId}
 			className={cn('flex shrink-0 items-center justify-center', SIZES[size].box, TONES[tone][emphasis], className)}
 		>

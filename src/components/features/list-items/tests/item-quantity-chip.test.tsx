@@ -9,7 +9,7 @@ function quantityText(quantity?: number | null, unit?: string | null) {
 }
 
 it('uses display defaults only when quantity or unit is missing', () => {
-	expect(quantityText(null, null)).toBe('1unit')
-	expect(quantityText(0, 'kg')).toBe('0kg')
-	expect(quantityText(2.5, 'L')).toBe('2.5L')
+	expect(quantityText(null, null)).toBe('1 unit')
+	expect(quantityText(0, 'kg')).toBe('0 kg')
+	expect(quantityText(2.5, 'L')).toBe('2.5 L')
 })

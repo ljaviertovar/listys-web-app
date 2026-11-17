@@ -142,6 +142,7 @@ export function TicketStoreCard({ ticketId, store, storeSuggestion, storeName, i
 					open={sheetOpen}
 					onOpenChange={open => (open ? actions.openPicker() : actions.closeDialogs())}
 					rawName={null}
+					allowNew
 					excludeStoreId={null}
 					initialStoreId={null}
 					onPick={actions.pick}

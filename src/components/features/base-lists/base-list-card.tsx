@@ -16,6 +16,7 @@ import {
   ConfirmSheet,
   EntityCard,
   EntityEditCard,
+  EntityLabel,
   focusEntityMenuWhenReady,
   type EntityEditValues,
 } from "@/components/commons";
@@ -28,6 +29,7 @@ import { deleteBaseList, updateBaseList } from "@/lib/api/endpoints";
 import type { BaseListWithCount } from "@/types";
 
 import { buildListCardFacts, buildSharedWithLabel } from "./helpers/list-card-meta";
+import { splitCardStores, type ListCardStore } from "./helpers/list-card-stores";
 
 interface Props {
   baseList: BaseListWithCount;
@@ -39,6 +41,8 @@ interface Props {
   /** When the list was last shopped (a completed trip), and how many people it is shared with. */
   lastTripAt?: string | null;
   sharedWithCount?: number;
+  /** The stores the list's items are usually bought at, the most used first; the card draws the first few and counts the rest. */
+  stores?: ListCardStore[];
   onPendingVisibilityChange?: (isVisible: boolean) => void;
 }
 
@@ -50,10 +54,12 @@ export function BaseListCard({
   isDefault = false,
   lastTripAt,
   sharedWithCount,
+  stores = [],
   onPendingVisibilityChange,
 }: Props) {
   const shownName = displayName ?? baseList.name;
   const sharedWith = buildSharedWithLabel(sharedWithCount);
+  const { shown: shownStores, hiddenCount: hiddenStoreCount } = splitCardStores(stores);
   const [editing, setEditing] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
   const [showShare, setShowShare] = useState(false);
@@ -149,7 +155,7 @@ export function BaseListCard({
         title={shownName}
         description={baseList.notes}
         badge={
-          isDefault || sharedWith ? (
+          isDefault || sharedWith || shownStores.length > 0 ? (
             <>
               {isDefault ? (
                 <Badge variant="outline" data-testid={`list-card-${baseList.id}-default`}>
@@ -161,6 +167,22 @@ export function BaseListCard({
                 <Badge variant="outline" data-testid={`list-card-${baseList.id}-shared`}>
                   <HugeiconsIcon icon={UserGroupIcon} strokeWidth={1.8} aria-hidden="true" />
                   {sharedWith}
+                </Badge>
+              ) : null}
+              {shownStores.map((store) => (
+                <EntityLabel
+                  key={store.id}
+                  name={store.name}
+                  testId={`list-card-${baseList.id}-store-${store.id}`}
+                />
+              ))}
+              {hiddenStoreCount > 0 ? (
+                <Badge
+                  variant="outline"
+                  data-testid={`list-card-${baseList.id}-stores-more`}
+                >
+                  <span aria-hidden="true">+{hiddenStoreCount}</span>
+                  <span className="sr-only">{hiddenStoreCount} more {hiddenStoreCount === 1 ? "store" : "stores"}</span>
                 </Badge>
               ) : null}
             </>

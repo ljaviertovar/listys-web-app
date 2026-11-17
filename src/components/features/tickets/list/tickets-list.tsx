@@ -9,7 +9,6 @@ import {
 	DataFacts,
 	DataFigure,
 	EmptyStateCard,
-	EntityLabel,
 	InlineCounter,
 	OBJECT_CARD_LINK,
 	ObjectCardBody,
@@ -37,8 +36,8 @@ import type { TicketListItemData } from './helpers/build-ticket-list-item'
 type TicketCardProps = TicketListItemData
 
 /**
- * A receipt card (object card, canvas C1): its status beside the title, the linked store in classification, the amount with its data
- * line, and count and link in the footer. The footer link covers the whole card.
+ * A receipt card (object card, canvas C1): its status beside the title (which already names the store), the notice for a receipt
+ * still without a store, the amount with its data line, and count and link in the footer. The footer link covers the whole card.
  */
 export function TicketCard({
 	id,
@@ -48,7 +47,6 @@ export function TicketCard({
 	photoCount,
 	uploadedLabel,
 	totalLabel,
-	storeName,
 	storeConfirmed,
 }: TicketCardProps) {
 	const ticketStatus = toTicketChipStatus(status, itemsCount)
@@ -68,15 +66,9 @@ export function TicketCard({
 					title={title}
 					aside={<TicketStatusChip status={ticketStatus} />}
 				/>
-				{storeName || needsStore ? (
+				{needsStore ? (
 					<ObjectCardChips>
-						{storeName ? (
-							<EntityLabel
-								name={storeName}
-								testId={`ticket-card-store-${id}`}
-							/>
-						) : null}
-						{needsStore ? <NoStoreBadge testId={`ticket-card-no-store-${id}`} /> : null}
+						<NoStoreBadge testId={`ticket-card-no-store-${id}`} />
 					</ObjectCardChips>
 				) : null}
 				<TicketDataLine
@@ -181,7 +173,7 @@ export function TicketsEmptyState() {
         >
             <UploadTicketDialog className='w-auto' />
             <p className='font-mono text-xs text-muted-foreground'>
-                1?{MAX_IMAGES_PER_TICKET} photos ? PNG or JPG ? {MAX_TICKET_IMAGE_MB} MB each
+                1–{MAX_IMAGES_PER_TICKET} photos · PNG or JPG · {MAX_TICKET_IMAGE_MB} MB each
             </p>
         </EmptyStateCard>
     )

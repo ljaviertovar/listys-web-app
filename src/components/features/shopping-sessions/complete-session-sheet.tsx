@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Alert02Icon, Attachment01Icon, CheckmarkCircle02Icon } from '@hugeicons/core-free-icons'
+import { Alert02Icon, Attachment01Icon, CheckmarkCircle02Icon, InformationCircleIcon } from '@hugeicons/core-free-icons'
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
@@ -85,7 +85,7 @@ export function CompleteSessionSheet({ sessionId, checked, total, open, onOpenCh
 	const description = <>You collected <b className='font-mono font-semibold text-foreground'>{checked}</b> of <b className='font-mono font-semibold text-foreground'>{total}</b> items.</>
 	const learningAlert = (count: number, testId: string) => (
 		<Alert variant='info' role='note' data-testid={testId}>
-			<RowIcon icon={Alert02Icon} tone='primary' size='alert' />
+			<RowIcon icon={InformationCircleIcon} tone='primary' size='alert' />
 			<div>
 				<AlertTitle>Pantry learns from this trip</AlertTitle>
 				<AlertDescription>{count === total
@@ -150,8 +150,8 @@ export function CompleteSessionSheet({ sessionId, checked, total, open, onOpenCh
 		>
 			{saveError ? errorAlert : <>
 				{learningAlert(checked, 'complete-session-learning')}
-				{unchecked > 0 ? <Alert variant='info' role='note' data-testid='complete-session-uncollected'>
-					<RowIcon icon={Alert02Icon} tone='primary' size='alert' />
+				{unchecked > 0 ? <Alert variant='warning' role='note' data-testid='complete-session-uncollected'>
+					<RowIcon icon={Alert02Icon} tone='warning' size='alert' />
 					<div>
 						<AlertTitle>Uncollected items stay in Pantry</AlertTitle>
 						<AlertDescription>The {unchecked} {unchecked === 1 ? 'item you didn’t collect is' : 'items you didn’t collect are'} waiting for your next trip.</AlertDescription>

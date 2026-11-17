@@ -1,8 +1,8 @@
 'use client'
 
 import { Card } from '@/components/ui/card'
-import { Progress } from '@/components/ui/progress'
-import { cn, formatCurrency } from '@/utils'
+import { ProgressRing } from '@/components/ui/progress'
+import { formatCurrency } from '@/utils'
 import { useTripSync } from './hooks/use-trip-sync'
 import { visibleTripItems } from './sync/trip-sync-state'
 import { summarizeCheckedEstimate } from './helpers/summarize-checked-estimate'
@@ -15,7 +15,10 @@ type SessionSummaryCardProps = { testId?: string; sessionId?: string; priceByIte
 	| { mode: 'completed'; estimate: PriceEstimate }
 )
 
-/** Shows shopping progress while active and only the estimate after completion. */
+/**
+ * Shows shopping progress while active and only the estimate after completion. The facts read down the left in the order of the data
+ * hierarchy (the count, then the estimate, then what the estimate is based on) and the progress is the ring on the right.
+ */
 export function SessionSummaryCard(props: SessionSummaryCardProps) {
 	const { state } = useTripSync(props.mode === 'active' ? props.sessionId : null)
 	if (props.mode === 'active' && state.initialized) {
@@ -38,47 +41,35 @@ export function SessionSummaryCard(props: SessionSummaryCardProps) {
 			data-testid={testId}
 			size='receipt'
 		>
-			<div className='flex flex-col gap-3'>
-				{props.mode === 'active' ? <div className='flex flex-col gap-3'>
-					<div className='flex items-end justify-between gap-2'>
-						<div className='flex flex-col gap-1'>
-							<span className='text-xs leading-normal text-muted-foreground dark:text-muted-foreground'>Collected</span>
-							<span className='font-display text-base leading-normal font-semibold'>
-								<b className='font-mono font-semibold tabular-nums'>{props.checked}</b> of{' '}
-								<b className='font-mono font-semibold tabular-nums'>{props.total}</b> {props.total === 1 ? 'item' : 'items'}
-							</span>
-						</div>
-						<span
-							className={cn(
-								'font-mono text-2xl leading-none font-semibold tracking-tight tabular-nums',
-								done ? 'text-green-700 dark:text-green-400' : 'text-blue-700 dark:text-blue-300',
-							)}
-						>
-							{percent}%
+			<div className='flex items-center gap-4'>
+				<div className='flex min-w-0 flex-1 flex-col gap-3'>
+					{props.mode === 'active' ? <div className='flex flex-col gap-0.5'>
+						<span className='text-xs leading-4 text-muted-foreground dark:text-muted-foreground'>Collected</span>
+						<span className='font-display text-base leading-6 font-semibold'>
+							<b className='font-mono font-semibold tabular-nums'>{props.checked}</b> of{' '}
+							<b className='font-mono font-semibold tabular-nums'>{props.total}</b> {props.total === 1 ? 'item' : 'items'}
 						</span>
-					</div>
-					<Progress
-						value={percent}
-						aria-label='Items collected in this shopping session'
-						size='md'
-						tone='track'
-						complete={done}
-					/>
-				</div> : null}
-				{estimate ? <>
-					{!completed ? <div aria-hidden='true' className='h-px bg-border' /> : null}
-					<div className='flex flex-wrap items-end justify-between gap-3'>
-						<div className='flex min-w-0 flex-col gap-1'>
-							<span className='text-xs leading-normal text-muted-foreground dark:text-muted-foreground'>{completed ? 'Estimated' : 'Estimated total'}</span>
-							<span className='font-mono text-2xl leading-none font-semibold tracking-tight text-foreground tabular-nums'>
+					</div> : null}
+					{estimate ? <>
+						{!completed ? <div aria-hidden='true' className='h-px bg-border' /> : null}
+						<div className='flex min-w-0 flex-col gap-0.5'>
+							<span className='text-xs leading-4 text-muted-foreground dark:text-muted-foreground'>{completed ? 'Estimated' : 'Estimated total'}</span>
+							<span className='font-mono text-2xl leading-7 font-semibold tracking-tight text-foreground tabular-nums'>
 								≈ {formatCurrency(estimate.total)}
 							</span>
+							<span className='text-xs leading-4 text-muted-foreground dark:text-muted-foreground'>
+								{estimate.itemCount} {completed ? (estimate.itemCount === 1 ? 'item' : 'items') : 'checked'} · {estimate.pricedCount} with known prices
+							</span>
 						</div>
-						<span className='text-right text-xs leading-normal text-muted-foreground dark:text-muted-foreground'>
-							{estimate.itemCount} {completed ? (estimate.itemCount === 1 ? 'item' : 'items') : 'checked'} · {estimate.pricedCount} with known prices
-						</span>
-					</div>
-				</> : null}
+					</> : null}
+				</div>
+				{props.mode === 'active' ? (
+					<ProgressRing
+						value={percent}
+						label='Items collected in this shopping session'
+						complete={done}
+					/>
+				) : null}
 			</div>
 		</Card>
 	)

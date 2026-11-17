@@ -149,24 +149,24 @@ describe('buildDashboardModel', () => {
 		expect(model.upNext).toHaveLength(1)
 		expect(model.upNext[0]).toMatchObject({
 			kind: 'receipt-waiting',
-			title: '28 items from “Grocery” are waiting',
+			title: '28 items from “Grocery Receipt” are waiting',
 			detail: 'Add them to one of your lists',
 			href: '/tickets/t1',
 		})
 		expect(JSON.stringify(model.upNext)).not.toMatch(/group/i)
 	})
 
-	it('titles a receipt with its confirmed store rather than the raw name', () => {
+	it('names a receipt after its confirmed store rather than the raw name', () => {
 		const model = build({
 			tickets: [
 				{ id: 't1', store_name: 'NOFRILLS #3127', store: { name: 'No Frills' }, ocr_status: 'completed', total_items: 3, created_at: null, base_list_id: null },
 			],
 		})
 
-		expect(model.upNext[0].title).toBe('3 items from “No Frills” are waiting')
+		expect(model.upNext[0].title).toBe('3 items from “No Frills Receipt” are waiting')
 	})
 
-	it('uses a safe name when OCR did not recognise the store and a failed receipt gets a recovery hint', () => {
+	it('names a receipt "Unnamed Receipt" when OCR did not recognise the store and a failed receipt gets a recovery hint', () => {
 		const model = build({
 			tickets: [
 				{ id: 't1', store_name: null, ocr_status: 'completed', total_items: 1, created_at: null, base_list_id: null },
@@ -174,7 +174,7 @@ describe('buildDashboardModel', () => {
 			],
 		})
 
-		expect(model.upNext[0].title).toBe('1 item from “Store not recognized” is waiting')
+		expect(model.upNext[0].title).toBe('1 item from “Unnamed Receipt” is waiting')
 		expect(model.upNext[1]).toMatchObject({ kind: 'receipt-failed', detail: 'Open it to try again or upload a clearer photo' })
 	})
 

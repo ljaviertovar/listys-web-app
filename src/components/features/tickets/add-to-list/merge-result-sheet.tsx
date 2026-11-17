@@ -15,7 +15,7 @@ export type MergeOutcome =
 interface MergeResultSheetProps {
 	outcome: MergeOutcome | null
 	/** Where the lines came from, for the "From No Frills · 19 Feb" line. */
-	receipt: { storeName: string; date: string | null }
+	receipt: { name: string; date: string | null }
 	onRetry: () => void
 	onClose: () => void
 }
@@ -58,7 +58,7 @@ export function MergeResultSheet({ outcome, receipt, onRetry, onClose }: MergeRe
 		<SheetDialog open onOpenChange={open => !open && close()} title={outcome.listName ? `Saved to ${outcome.listName}` : 'Saved'} testId='merge-saved-sheet' fit>
 			<div className='flex flex-col gap-4'>
 				<p data-testid='merge-saved-from' className='text-sm leading-normal text-muted-foreground dark:text-muted-foreground'>
-					From <b className='font-semibold text-foreground'>{receipt.storeName}</b>
+					From <b className='font-semibold text-foreground'>{receipt.name}</b>
 					{receipt.date ? ` · ${receipt.date}` : ''} · {outcome.itemCount} {outcome.itemCount === 1 ? 'item' : 'items'}.
 				</p>
 				{counts ? (

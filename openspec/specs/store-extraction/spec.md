@@ -51,13 +51,14 @@ primera foto. El nombre extraído SHALL guardarse como texto crudo del recibo cu
 ### Requirement: Store extraction never fails a receipt
 
 La ausencia, ilegibilidad o formato inesperado del nombre de la tienda MUST NOT hacer fallar la lectura ni impedir
-guardar los artículos. En esos casos el recibo SHALL quedar sin nombre crudo y sin tienda, listo para revisión. El
-nombre guardado SHALL limpiarse de espacios sobrantes y caracteres de control y limitarse a 100 caracteres.
+guardar los artículos. En esos casos el recibo SHALL quedar sin nombre crudo y sin tienda, listo para revisión, llamarse
+"Unnamed Receipt" y pedir al usuario la tienda en su pantalla. El nombre guardado SHALL limpiarse de espacios sobrantes y
+caracteres de control y limitarse a 100 caracteres.
 
 #### Scenario: No store printed
 
 - **WHEN** se lee un recibo sin nombre de tienda legible
-- **THEN** la lectura termina con sus artículos, el recibo no tiene nombre crudo y la pantalla lo muestra como "Store not recognized"
+- **THEN** la lectura termina con sus artículos, el recibo no tiene nombre crudo, se llama "Unnamed Receipt" y su pantalla permite escribir o elegir la tienda
 
 #### Scenario: Provider answers in the previous shape
 

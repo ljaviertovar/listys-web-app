@@ -50,6 +50,11 @@ function FieldGroup({ className, ...props }: React.ComponentProps<'div'>) {
 
 const fieldVariants = cva('data-[invalid=true]:text-destructive gap-3 group/field flex w-full', {
 	variants: {
+		spacing: {
+			default: '',
+			compact: 'gap-2.5',
+			tight: 'gap-1',
+		},
 		orientation: {
 			vertical: 'flex-col [&>*]:w-full [&>.sr-only]:w-auto',
 			horizontal:
@@ -59,6 +64,7 @@ const fieldVariants = cva('data-[invalid=true]:text-destructive gap-3 group/fiel
 		},
 	},
 	defaultVariants: {
+		spacing: 'default',
 		orientation: 'vertical',
 	},
 })
@@ -66,6 +72,7 @@ const fieldVariants = cva('data-[invalid=true]:text-destructive gap-3 group/fiel
 function Field({
 	className,
 	orientation = 'vertical',
+	spacing = 'default',
 	align = 'default',
 	...props
 }: React.ComponentProps<'div'> & VariantProps<typeof fieldVariants> & { align?: 'default' | 'center' }) {
@@ -75,7 +82,7 @@ function Field({
 			data-slot='field'
 			data-orientation={orientation}
 			className={cn(
-				fieldVariants({ orientation }),
+				fieldVariants({ orientation, spacing }),
 				align === 'center' && 'has-[>[data-slot=field-content]]:items-center',
 				className,
 			)}
@@ -105,8 +112,9 @@ function FieldContent({
 function FieldLabel({
 	className,
 	variant = 'default',
+	size = 'default',
 	...props
-}: React.ComponentProps<typeof Label> & { variant?: 'default' | 'card' | 'plain' }) {
+}: React.ComponentProps<typeof Label> & { variant?: 'default' | 'card' | 'plain'; size?: 'default' | 'compact' }) {
 	return (
 		<Label
 			data-slot='field-label'
@@ -121,6 +129,7 @@ function FieldLabel({
 						? '[&>*]:data-[slot=field]:p-2.5'
 						: '[&>*]:data-[slot=field]:p-4',
 				variant !== 'plain' && 'has-[>[data-slot=field]]:w-full has-[>[data-slot=field]]:flex-col',
+				size === 'compact' && 'py-2.5',
 				variant === 'card' &&
 					'data-[selected=true]:border-[2px] data-[selected=true]:border-primary data-[selected=true]:bg-primary/5 dark:data-[selected=true]:bg-primary/10 has-[>[data-slot=field]]:rounded-3xl',
 				className,

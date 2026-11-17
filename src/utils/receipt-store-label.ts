@@ -1,9 +1,13 @@
-export const UNRECOGNIZED_STORE_LABEL = 'Store not recognized'
+import { suggestStoreName } from './suggest-store-name'
+
+const UNNAMED_RECEIPT_NAME = 'Unnamed Receipt'
 
 /**
- * The title of a receipt everywhere it appears: the store the user confirmed, otherwise the name read from the receipt (or
- * typed on an older upload), otherwise "Store not recognized". Renaming a store therefore renames all its receipts.
+ * The name of a receipt everywhere it appears: "<store> Receipt", where the store is the one the user confirmed, otherwise the
+ * name read from the receipt (or typed on an older upload) without its branch number, and "Unnamed Receipt" when there is neither.
+ * "Receipt" is only a visual suffix, so renaming a store renames all its receipts and no filter should match on it.
  */
-export function getReceiptStoreLabel(receipt: { store?: { name: string } | null; store_name?: string | null }): string {
-  return receipt.store?.name.trim() || receipt.store_name?.trim() || UNRECOGNIZED_STORE_LABEL
+export function getReceiptName(receipt: { store?: { name: string } | null; store_name?: string | null }): string {
+  const store = receipt.store?.name.trim() || suggestStoreName(receipt.store_name?.trim())
+  return store ? `${store} Receipt` : UNNAMED_RECEIPT_NAME
 }

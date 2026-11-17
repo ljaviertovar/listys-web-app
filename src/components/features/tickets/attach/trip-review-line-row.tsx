@@ -1,4 +1,4 @@
-import { Clock02Icon, Link04Icon, Dollar02Icon, HelpCircleIcon } from '@hugeicons/core-free-icons'
+import { Clock02Icon, Link04Icon, Dollar01Icon, HelpCircleIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 
 import { ItemQuantityChip } from '@/components/features/list-items'
@@ -15,16 +15,16 @@ export function TripReviewLineRow({ line, onChange }: { line: AttachReviewLine; 
 		<Item size='xs' data-testid={`attach-review-line-${line.id}`}>
 			<ItemHeader>
 				<ItemContent>
-					<div className='flex min-w-0 items-center gap-2'>
+					<div className='flex min-w-0 items-start gap-2'>
 						<ItemQuantityChip quantity={line.quantity} unit={line.unit} />
-						<span className={cn('min-w-0 flex-1 truncate text-sm font-semibold', leftOut && 'text-muted-foreground')}>{name}</span>
+						<span className={cn('line-clamp-2 min-w-0 flex-1 text-sm leading-5 font-semibold break-words', leftOut && 'text-muted-foreground')}>{name}</span>
 					</div>
 					{line.tag ? <div><Badge variant={line.tag === 'No name' || line.tag === 'No price' ? 'warning' : 'outline'}>
-						<HugeiconsIcon icon={line.tag === 'Remembered' ? Clock02Icon : line.tag === 'Linked by you' ? Link04Icon : line.tag === 'No price' ? Dollar02Icon : HelpCircleIcon} strokeWidth={1.8} aria-hidden='true' />
+						<HugeiconsIcon icon={line.tag === 'Remembered' ? Clock02Icon : line.tag === 'Linked by you' ? Link04Icon : line.tag === 'No price' ? Dollar01Icon : HelpCircleIcon} strokeWidth={1.8} aria-hidden='true' />
 						{line.tag}
 					</Badge></div> : null}
 				</ItemContent>
-				<span className={cn('shrink-0 pl-2 font-mono text-sm font-semibold tabular-nums', leftOut && 'text-muted-foreground line-through')}>{line.price == null ? '—' : formatCurrency(line.price)}</span>
+				<span className={cn('shrink-0 pl-2 font-mono text-sm leading-5 font-semibold tabular-nums', leftOut && 'text-muted-foreground line-through')}>{line.price == null ? '—' : formatCurrency(line.price)}</span>
 			</ItemHeader>
 			<ItemFooter>
 				<p className='min-w-0 flex-1 text-xs leading-4 text-muted-foreground'>
