@@ -53,7 +53,8 @@ export function ShoppingSessionItemRow({
 		>
 			<Field
 				orientation='horizontal'
-				className='items-start gap-1'
+				spacing='tight'
+				className='items-start'
 			>
 				{!isCompleted ? (
 					<span className='-mt-3 -ml-2 flex size-11 shrink-0 items-center justify-center'>

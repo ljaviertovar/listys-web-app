@@ -48,9 +48,9 @@ export function TicketItemRow({ item, canSelect = false, selected = false, onSel
 			<FieldLabel
 				htmlFor={canSelect ? checkboxId : undefined}
 				variant='plain'
-				className='py-2.5'
+				size='compact'
 			>
-			<Field orientation='horizontal' className='items-start gap-2.5'>
+			<Field orientation='horizontal' spacing='compact' className='items-start'>
 				{canSelect ? (
 					<span className='-mt-3 -ml-2 flex size-11 shrink-0 items-center justify-center'>
 						<Checkbox

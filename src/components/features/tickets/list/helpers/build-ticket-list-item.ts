@@ -1,4 +1,4 @@
-import { formatCurrency, formatShortDate, formatTime } from '@/utils'
+import { formatCurrency, formatShortDate, formatTime, getReceiptName } from '@/utils'
 
 /** The columns of a receipt row the list needs (a receipt with its confirmed store, as the receipts endpoint returns it). */
 interface TicketListSource {
@@ -10,26 +10,27 @@ interface TicketListSource {
 	image_paths?: string[] | null
 	image_path?: string | null
 	store?: { name: string } | null
+	/** The store name as the receipt printed it; names the receipt while no store is confirmed. */
+	store_name?: string | null
 }
 
 export interface TicketListItemData {
 	id: string
-	/** The date belongs in the title; a confirmed store belongs in classification. */
+	/** "<store> Receipt": the same name the receipt's own screen carries. */
 	title: string
+	/** The confirmed store only: it feeds the store filter, not the title. */
 	storeName: string | null
 	/** Raw `ocr_status` column; anything unknown reads as pending. */
 	status: string | null
 	itemsCount: number | null
 	photoCount: number
-	/** Already formatted on the server, so no date has to cross the client boundary. */
+	/** Day and time, already formatted on the server: receipts of one store share a title, so this tells them apart. */
 	uploadedLabel: string
 	totalLabel: string | null
 	storeConfirmed: boolean
 }
 
-/**
- * The receipt date belongs in the title, while the confirmed store keeps its distinct entity role in the classification row.
- */
+/** The title is the receipt's name; the upload date is data, and the confirmed store only drives the filter. */
 export function buildTicketListItem(ticket: TicketListSource, now = new Date()): TicketListItemData {
 	const uploadedAt = ticket.created_at ? new Date(ticket.created_at) : null
 	const storeName = ticket.store?.name.trim() || null
@@ -37,12 +38,12 @@ export function buildTicketListItem(ticket: TicketListSource, now = new Date()):
 
 	return {
 		id: ticket.id,
-		title: uploadedAt ? `Receipt · ${formatShortDate(uploadedAt, now)}` : 'Receipt',
+		title: getReceiptName(ticket),
 		storeName,
 		status: ticket.ocr_status,
 		itemsCount: ticket.total_items,
 		photoCount,
-		uploadedLabel: uploadedAt ? `Uploaded ${formatTime(uploadedAt)}` : 'Upload time unknown',
+		uploadedLabel: uploadedAt ? `Uploaded ${formatShortDate(uploadedAt, now)} · ${formatTime(uploadedAt)}` : 'Upload time unknown',
 		totalLabel: ticket.ocr_status === 'completed' && typeof ticket.total_amount === 'number' ? formatCurrency(ticket.total_amount) : null,
 		storeConfirmed: storeName !== null,
 	}

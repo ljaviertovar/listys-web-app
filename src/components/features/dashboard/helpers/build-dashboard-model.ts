@@ -1,4 +1,4 @@
-import { buildListDisplayNames, getReceiptStoreLabel } from '@/utils'
+import { buildListDisplayNames, getReceiptName } from '@/utils'
 
 /**
  * Pure view-model for the dashboard. Every number and sentence the dashboard shows is derived here from the
@@ -263,7 +263,7 @@ function buildLists(baseLists: DashboardBaseListInput[], trips: DashboardTripInp
 }
 
 function ticketTitle(ticket: DashboardTicketInput) {
-	return getReceiptStoreLabel(ticket)
+	return getReceiptName(ticket)
 }
 
 function buildStoreVisits(stores: DashboardStoreInput[]): StoreVisitPreview[] {

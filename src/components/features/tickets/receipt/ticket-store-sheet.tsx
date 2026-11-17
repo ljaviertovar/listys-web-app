@@ -7,12 +7,14 @@ import { Loading03Icon } from '@hugeicons/core-free-icons'
 import { ChoiceRow, LoadingState, SheetDialog } from '@/components/commons'
 import { filterStores } from '@/components/features/stores/helpers/filter-stores'
 import { useStores } from '@/components/features/stores/hooks/use-stores'
-import { suggestStoreName, type StorePick } from '@/components/features/stores'
+import type { StorePick } from '@/components/features/stores'
 import { Button } from '@/components/ui/button'
 import { DialogFooter } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { Label } from '@/components/ui/label'
+import { RadioGroup } from '@/components/ui/radio-group'
 import { createStoreSchema } from '@/lib/validations/store'
+import { suggestStoreName } from '@/utils'
 import type { Store } from '@/types'
 
 const NEW_STORE_VALUE = '__new-store__'
@@ -24,6 +26,8 @@ interface TicketStoreSheetProps {
 	onOpenChange: (open: boolean) => void
 	/** The store name the receipt carries when it matches none of the user's stores; it turns the sheet into "Where was this?". */
 	rawName?: string | null
+	/** Offers typing the store's name even though the receipt carries none (the read found no store), so the user can name it here. */
+	allowNew?: boolean
 	/** A store that cannot be picked, such as the one already on the receipt. */
 	excludeStoreId?: string | null
 	/** The store selected when the sheet opens, such as the one the receipt was read as. */
@@ -37,7 +41,7 @@ interface TicketStoreSheetProps {
 /**
  * Chooses one of the user's existing stores for the receipt. An unmatched receipt may still save the name read from its photo.
  */
-export function TicketStoreSheet({ open, onOpenChange, rawName = null, testId, ...props }: TicketStoreSheetProps) {
+export function TicketStoreSheet({ open, onOpenChange, rawName = null, allowNew = false, testId, ...props }: TicketStoreSheetProps) {
 	const descriptionId = useId()
 
 	return (
@@ -45,7 +49,7 @@ export function TicketStoreSheet({ open, onOpenChange, rawName = null, testId, .
 			open={open}
 			onOpenChange={next => !props.pending && onOpenChange(next)}
 			title={rawName ? 'Where was this?' : 'Which store?'}
-			description={rawName ? `We read “${suggestStoreName(rawName) || rawName}”. It doesn’t match any of your stores yet.` : 'Pick the store this receipt belongs to.'}
+			description={rawName ? `We read “${suggestStoreName(rawName) || rawName}”. It doesn’t match any of your stores yet.` : allowNew ? 'Type the store’s name, or pick one of your stores.' : 'Pick the store this receipt belongs to.'}
 			descriptionId={descriptionId}
 			testId={testId}
 			fit
@@ -54,6 +58,7 @@ export function TicketStoreSheet({ open, onOpenChange, rawName = null, testId, .
 			{open ? (
 				<TicketStoreForm
 					rawName={rawName}
+					allowNew={allowNew}
 					onCancel={() => onOpenChange(false)}
 					{...props}
 				/>
@@ -68,6 +73,7 @@ type TicketStoreFormProps = Omit<TicketStoreSheetProps, 'open' | 'onOpenChange' 
 
 function TicketStoreForm({
 	rawName = null,
+	allowNew = false,
 	excludeStoreId,
 	initialStoreId,
 	onPick,
@@ -90,7 +96,9 @@ function TicketStoreForm({
 	)
 	const matches = useMemo(() => filterStores(allStores, query), [allStores, query])
 
-	const defaultChoice = rawName
+	// Typing a name is the only way forward for someone with no stores yet, so it starts chosen; with stores, the user decides.
+	const offerNew = Boolean(rawName) || allowNew
+	const defaultChoice = rawName || (allowNew && stores.status === 'ready' && allStores.length === 0)
 		? NEW_STORE_VALUE
 		: stores.status !== 'ready'
 			? ''
@@ -127,22 +135,15 @@ function TicketStoreForm({
 	const newStoreCard = (
 		<div
 			data-testid='ticket-store-new-option'
-			className={`flex flex-col gap-2.5 rounded-2xl px-3.5 py-3 ${creating ? 'bg-blue-50 ring-2 ring-primary ring-inset' : 'border border-slate-200 bg-card dark:border-border'}`}
+			className='flex flex-col gap-2'
 		>
-			<label className='flex cursor-pointer items-center gap-3'>
-				<RadioGroupItem
-					value={NEW_STORE_VALUE}
-					size='ring'
-					disabled={pending}
-				/>
-				<span className='text-sm leading-[1.3] font-semibold'>Save as a new store</span>
-			</label>
-			<label
-				htmlFor={nameId}
-				className='pl-8 text-xs leading-[1.4] text-muted-foreground'
-			>
-				Store name
-			</label>
+			<ChoiceRow
+				variant='card'
+				testId='ticket-store-new-row'
+				selected={creating}
+				option={{ value: NEW_STORE_VALUE, label: 'Save as a new store', disabled: pending }}
+			/>
+			<Label htmlFor={nameId}>Store name</Label>
 			<Input
 				id={nameId}
 				size='lg'
@@ -157,13 +158,12 @@ function TicketStoreForm({
 				disabled={pending}
 				aria-invalid={nameError ? true : undefined}
 				aria-describedby={nameError ? nameErrorId : undefined}
-				className='ml-8 w-[calc(100%-2rem)]'
 			/>
 			{nameError ? (
 				<p
 					id={nameErrorId}
 					role='alert'
-					className='pl-8 text-xs font-medium text-destructive'
+					className='text-sm text-destructive'
 				>
 					{nameError}
 				</p>
@@ -222,11 +222,11 @@ function TicketStoreForm({
 						disabled={pending}
 						spacing='snug'
 					>
-						{rawName ? (
+						{offerNew ? (
 							<>
 								{newStoreCard}
 								{matches.length > 0 ? (
-									<span className='px-0.5 pt-1 text-xs leading-[1.4] text-muted-foreground'>Or it’s one of your stores</span>
+									<span className='text-xs text-muted-foreground'>Or it’s one of your stores</span>
 								) : null}
 							</>
 						) : null}

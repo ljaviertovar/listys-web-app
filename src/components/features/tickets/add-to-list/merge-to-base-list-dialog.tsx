@@ -36,7 +36,7 @@ interface Props {
 	/** The receipt screen shows "Saving…" while the lines are on their way (this sheet is closed by then). */
 	onSavingChange?: (saving: boolean) => void
 	/** Where the lines come from, for the summary sheet that follows a save. */
-	receipt: { storeName: string; date: string | null }
+	receipt: { name: string; date: string | null }
 }
 
 export function MergeToBaseListDialog({ open, defaultBaseListId, onOpenChange, ticketId, selectedItemIds, lines, initialDecisions, storeConfirmed, breakdown = null, onSuccess, onReceiptAttached, onSavingChange, receipt }: Props) {

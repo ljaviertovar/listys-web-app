@@ -9,6 +9,7 @@ import { buildListDisplayNames } from '@/utils'
 import type { BaseListWithCount } from '@/types'
 
 import { BaseListCard } from './base-list-card'
+import type { ListCardStore } from './helpers/list-card-stores'
 import { CreateBaseListDialog } from './create-base-list-dialog'
 
 interface BaseListsListProps {
@@ -19,6 +20,8 @@ interface BaseListsListProps {
 	/** When each list was last shopped (a completed trip), and with how many people each is shared, by list id. */
 	lastTripByList?: Record<string, string>
 	sharedCountByList?: Record<string, number>
+	/** The stores the items of each list are usually bought at, by list id, the most used first. */
+	storesByList?: Record<string, ListCardStore[]>
 }
 
 /** The lists screen: a grid of cards, or the first-use card with its own button. The count and "New List" live in the page header. */
@@ -28,6 +31,7 @@ export function BaseListsList({
 	defaultListId = null,
 	lastTripByList = {},
 	sharedCountByList = {},
+	storesByList = {},
 }: BaseListsListProps) {
 	const [pendingDeletionIds, setPendingDeletionIds] = useState<Set<string>>(() => new Set())
 	const visible = baseLists.filter(baseList => !pendingDeletionIds.has(baseList.id))
@@ -70,6 +74,7 @@ export function BaseListsList({
 							isDefault={baseList.id === defaultListId}
 							lastTripAt={lastTripByList[baseList.id] ?? null}
 							sharedWithCount={sharedCountByList[baseList.id]}
+							stores={storesByList[baseList.id]}
 							onPendingVisibilityChange={isVisible => handlePendingVisibilityChange(baseList.id, isVisible)}
 					/>
 				))}

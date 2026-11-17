@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { suggestStoreName } from '../helpers/suggest-store-name'
+import { suggestStoreName } from '../suggest-store-name'
 
 describe('suggestStoreName', () => {
 	it('drops a # branch number and turns capitals into Title Case', () => {

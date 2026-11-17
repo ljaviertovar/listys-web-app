@@ -3,6 +3,7 @@
 import { useState } from 'react'
 
 import { LoadingState, SheetDialog, type DataFact } from '@/components/commons'
+import { ItemQuantityChip } from '@/components/features/list-items/item-quantity-chip'
 import { TicketPhotoRow } from '@/components/features/tickets/photo/ticket-photo-entry'
 import { TicketPhotoViewer } from '@/components/features/tickets/photo/ticket-photo-viewer'
 import { usePhotoView } from '@/components/features/tickets/photo/hooks/use-photo-view'
@@ -11,7 +12,7 @@ import { TicketStoreCard } from '@/components/features/tickets/receipt/ticket-st
 import { TicketUnreadableState } from '@/components/features/tickets/receipt/ticket-unreadable-state'
 import { TicketStatusChip } from '@/components/features/tickets/ticket-status-chip'
 import { Card } from '@/components/ui/card'
-import { formatCurrency, formatItemName, formatShortDate, formatTime } from '@/utils'
+import { formatCurrency, formatItemName, formatShortDate, formatTime, getReceiptName } from '@/utils'
 
 import { useTripReceiptDetails } from './hooks/use-trip-receipt-details'
 
@@ -39,8 +40,8 @@ export function TripReceiptDetailsSheet({
 	const imagePaths = details?.image_paths?.length ? details.image_paths : details?.image_path ? [details.image_path] : []
 	const photos = useTicketImageUrls(imagePaths)
 	const view = usePhotoView(photos.urls.length)
-	// The confirmed store as the user named it, not the capitals printed on the receipt; the page header of the same receipt does the same.
-	const storeName = details?.store?.name?.trim() || details?.store_name?.trim() || (failed ? 'Store not recognized' : 'Store not confirmed')
+	// The same name the receipt has on its own screen; "Receipt" alone only while it loads, before its store is known.
+	const receiptName = details ? getReceiptName(details) : 'Receipt'
 	const uploadedAt = details?.created_at ? new Date(details.created_at) : null
 	const validUploadedAt = uploadedAt && !Number.isNaN(uploadedAt.getTime()) ? uploadedAt : null
 	const unreadable = failed && Boolean(details)
@@ -51,7 +52,7 @@ export function TripReceiptDetailsSheet({
 	const facts: Array<DataFact> = failed && validUploadedAt
 		? [
 			{ kind: 'count', value: photoCount, unit: photoCount === 1 ? 'photo' : 'photos' },
-			{ kind: 'text', value: `Uploaded ${formatTime(validUploadedAt)}` },
+			{ kind: 'text', value: `Uploaded ${formatShortDate(validUploadedAt)} · ${formatTime(validUploadedAt)}` },
 		]
 		: details && !failed
 			? [
@@ -59,16 +60,13 @@ export function TripReceiptDetailsSheet({
 				...(details.total_amount != null ? [{ kind: 'total' as const, value: formatCurrency(details.total_amount) }] : []),
 			]
 			: []
-	const title = failed
-		? `Receipt${validUploadedAt ? ` · ${formatShortDate(validUploadedAt)}` : ''}`
-		: storeName
 
 	return (
 		<>
 			<SheetDialog
 				open={open}
 				onOpenChange={onOpenChange}
-				title={title}
+				title={receiptName}
 				aside={failed ? <TicketStatusChip status='failed' /> : undefined}
 				facts={facts}
 				testId={testId}
@@ -127,18 +125,15 @@ export function TripReceiptDetailsSheet({
 									</span>
 								</div>
 								{details.items.length ? (
-									<ul className='mt-2 divide-y divide-slate-200/70 overflow-hidden rounded-2xl bg-muted dark:divide-border dark:bg-muted/50'>
+									<ul className='mt-2 divide-y divide-border overflow-hidden rounded-2xl bg-muted dark:bg-muted/50'>
 										{details.items.map(item => (
 											<li
 												key={item.id}
 												data-testid={`${testId}-item-${item.id}`}
 												className='flex min-h-14 items-center gap-2 py-1.5 pr-3.5 pl-3.5'
 											>
-											<span className='inline-flex h-5.5 shrink-0 items-center gap-1 rounded-md bg-secondary px-2 text-xs leading-none font-medium text-foreground dark:bg-muted dark:text-foreground'>
-													<b className='font-mono font-semibold text-foreground tabular-nums'>{item.quantity ?? 1}</b>
-													{item.unit || 'unit'}
-												</span>
-												<span className='min-w-0 flex-1 truncate text-sm leading-[1.25] font-semibold'>
+											<ItemQuantityChip quantity={item.quantity} unit={item.unit} testId={`${testId}-item-${item.id}-quantity`} />
+												<span className='min-w-0 flex-1 truncate text-sm leading-5 font-semibold'>
 													{formatItemName(item.name)}
 												</span>
 												<span
@@ -176,7 +171,7 @@ export function TripReceiptDetailsSheet({
 				open={photoOpen}
 				onOpenChange={setPhotoOpen}
 				nested
-				title={storeName}
+				title={receiptName}
 				urls={photos.urls}
 				view={view}
 				error={photos.error}

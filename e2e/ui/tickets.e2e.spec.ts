@@ -156,7 +156,7 @@ test.describe('Receipt stores and item matching', () => {
     await card.getByRole('button', { name: 'Confirm' }).click()
 
     await expect(card).toHaveAttribute('data-state', 'confirmed', { timeout: 10000 })
-    await expect(page.getByRole('heading', { level: 1, name: 'Review receipt' })).toBeVisible()
+    await expect(page.getByRole('heading', { level: 1, name: 'No Frills Receipt' })).toBeVisible()
     await expect(page.getByTestId('ticket-store-card').getByRole('heading', { name: 'No Frills' })).toBeVisible()
   })
 
@@ -176,6 +176,25 @@ test.describe('Receipt stores and item matching', () => {
 
     await expect(card).toHaveAttribute('data-state', 'confirmed', { timeout: 10000 })
     await expect(card.getByRole('heading', { name: 'Fresh Co' })).toBeVisible()
+  })
+
+  test('names a receipt with no readable store after the store typed for it', async ({ page }) => {
+    const user = await createTestUser()
+    const { ticket } = await createReadReceipt(user.userId, { items: [{ name: 'MILK' }] })
+    await signIn(page, user.email, user.password)
+
+    await page.goto(`${BASE_URL}/tickets/${ticket.id}`)
+    await expect(page.getByRole('heading', { level: 1, name: 'Unnamed Receipt' })).toBeVisible()
+    const card = page.getByTestId('ticket-store-card')
+    await expect(card).toHaveAttribute('data-state', 'unrecognized')
+    await card.getByRole('button', { name: 'Choose Store' }).click()
+
+    const sheet = page.getByTestId('ticket-store-sheet')
+    await sheet.getByLabel('Store name').fill('Metro')
+    await sheet.getByRole('button', { name: 'Save Store' }).click()
+
+    await expect(page.getByRole('heading', { level: 1, name: 'Metro Receipt' })).toBeVisible({ timeout: 10000 })
+    await expect(card).toHaveAttribute('data-state', 'confirmed')
   })
 
   test('adds items without confirming the store', async ({ page }) => {
