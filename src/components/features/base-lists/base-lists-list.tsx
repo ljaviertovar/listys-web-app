@@ -24,7 +24,7 @@ interface BaseListsListProps {
 	storesByList?: Record<string, ListCardStore[]>
 }
 
-/** The lists screen: a grid of cards, or the first-use card with its own button. The count and "New List" live in the page header. */
+/** The lists screen: a grid of cards, or the first-use card with its own button. The page header owns the primary action. */
 export function BaseListsList({
 	baseLists,
 	activeSessionIds = {},

@@ -1,14 +1,10 @@
-import { PageContainer, PageHeader } from '@/components/app'
-import { StoresSkeleton } from '@/components/features/stores'
+import { PageContainer } from '@/components/app'
+import { StoresPageHeader, StoresSkeleton } from '@/components/features/stores'
 
 export default function StoresLoading() {
 	return (
 		<>
-			<PageHeader
-				back={{ href: '/tickets', label: 'Back to Receipts' }}
-				title='My Stores'
-				desc='The stores of your receipts. Rename a store, or merge two names for the same store.'
-			/>
+			<StoresPageHeader />
 			<PageContainer>
 				<StoresSkeleton />
 			</PageContainer>

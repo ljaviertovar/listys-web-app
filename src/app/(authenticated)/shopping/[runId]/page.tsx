@@ -252,12 +252,7 @@ export default async function ShoppingRunPage({
 				]}
 				facts={
 					isCompleted
-						? [
-								date ? { value: `Completed on ${formatTripDate(date)}` } : null,
-								amount == null
-									? null
-									: { kind: 'total', value: `${!receipts.length ? '≈ ' : ''}${formatCurrency(amount)}` },
-							]
+						? [date ? { value: `Completed on ${formatTripDate(date)}` } : null]
 						: run.store_id
 							? [{ value: `${progressTotal} of ${totalCount} items` }]
 							: undefined

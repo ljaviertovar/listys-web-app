@@ -46,6 +46,7 @@ export { ConfirmSheet } from "./sheet-dialog/confirm-sheet";
 export { SheetDialog } from "./sheet-dialog/sheet-dialog";
 
 export { RowIcon } from './row-icon'
+export { WarningAlert } from './warning-alert'
 export { LoadingState } from './loading-state'
 export { ItemContextRow } from './item-context-row'
 export { StatusCard } from './status-card'

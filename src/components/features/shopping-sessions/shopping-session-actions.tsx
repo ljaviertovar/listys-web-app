@@ -2,7 +2,15 @@
 
 import { useState } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Attachment01Icon, Cancel01Icon, CheckmarkCircle02Icon, PlusSignIcon, Share01Icon, ShoppingBag03Icon, Tick02Icon } from '@hugeicons/core-free-icons'
+import {
+	Attachment01Icon,
+	Cancel01Icon,
+	CheckmarkCircle02Icon,
+	PlusSignIcon,
+	Share01Icon,
+	ShoppingBag03Icon,
+	Tick02Icon,
+} from '@hugeicons/core-free-icons'
 
 import { AddItemSheet } from '@/components/features/list-items'
 import { ShareListDialog } from '@/components/features/sharing'
@@ -40,7 +48,16 @@ interface ShoppingSessionActionsProps {
 /**
  * Session actions stay in the floating phone menu and desktop header; item and sharing sheets open from the menu or desktop toolbar.
  */
-export function ShoppingSessionActions({ sessionId, checked, total, baseListId, listName, storeId, isOwner = false, canAttachReceipt = false }: ShoppingSessionActionsProps) {
+export function ShoppingSessionActions({
+	sessionId,
+	checked,
+	total,
+	baseListId,
+	listName,
+	storeId,
+	isOwner = false,
+	canAttachReceipt = false,
+}: ShoppingSessionActionsProps) {
 	const { state } = useTripSync(sessionId)
 	if (state.initialized) {
 		const items = itemsForSessionProgress(visibleTripItems(state), Boolean(storeId))
@@ -56,36 +73,38 @@ export function ShoppingSessionActions({ sessionId, checked, total, baseListId, 
 
 	return (
 		<>
-			{isOwner ? <div
-				data-testid='session-actions-inline'
-				className='hidden items-center gap-2 lg:flex'
-			>
-				<Button
-					size='lg'
-					variant='destructive'
-					onClick={() => setCancelOpen(true)}
+			{isOwner ? (
+				<div
+					data-testid='session-actions-inline'
+					className='hidden items-center gap-2 lg:flex'
 				>
-					<HugeiconsIcon
-						icon={Cancel01Icon}
-						strokeWidth={1.8}
-						aria-hidden='true'
-						className='size-4.5'
-					/>
-					Cancel Shopping
-				</Button>
-				<Button
-					size='lg'
-					onClick={() => setCompleteOpen(true)}
-				>
-					<HugeiconsIcon
-						icon={Tick02Icon}
-						strokeWidth={1.8}
-						aria-hidden='true'
-						className='size-4.5'
-					/>
-					Complete Shopping
-				</Button>
-			</div> : null}
+					<Button
+						size='lg'
+						variant='destructive'
+						onClick={() => setCancelOpen(true)}
+					>
+						<HugeiconsIcon
+							icon={Cancel01Icon}
+							strokeWidth={1.8}
+							aria-hidden='true'
+							className='size-4.5'
+						/>
+						Cancel Shopping
+					</Button>
+					<Button
+						size='lg'
+						onClick={() => setCompleteOpen(true)}
+					>
+						<HugeiconsIcon
+							icon={Tick02Icon}
+							strokeWidth={1.8}
+							aria-hidden='true'
+							className='size-4.5'
+						/>
+						Complete Shopping
+					</Button>
+				</div>
+			) : null}
 
 			<div
 				data-testid='session-actions-floating'
@@ -102,6 +121,7 @@ export function ShoppingSessionActions({ sessionId, checked, total, baseListId, 
 							aria-label='Actions'
 							variant='default'
 							size='icon-xl'
+							className='shadow-lg'
 						>
 							<HugeiconsIcon
 								icon={ShoppingBag03Icon}
@@ -117,70 +137,124 @@ export function ShoppingSessionActions({ sessionId, checked, total, baseListId, 
 						sideOffset={8}
 						className='w-58'
 					>
-						{isOwner && baseListId ? <DropdownMenuItem onSelect={() => setShareOpen(true)} size='touch'>
-							<HugeiconsIcon icon={Share01Icon} strokeWidth={1.8} aria-hidden='true' className='size-5' />
-							Share
-						</DropdownMenuItem> : null}
-						<DropdownMenuItem onSelect={() => setAddItemOpen(true)} size='touch'>
-							<HugeiconsIcon icon={PlusSignIcon} strokeWidth={1.8} aria-hidden='true' className='size-5' />
-							Add Item
-						</DropdownMenuItem>
-						{canAttachReceipt ? <DropdownMenuItem onSelect={() => setReceiptOpen(true)} size='touch'>
-							<HugeiconsIcon icon={Attachment01Icon} strokeWidth={1.8} aria-hidden='true' className='size-5' />
-							Attach Receipt
-						</DropdownMenuItem> : null}
-						{isOwner ? <>
-						<DropdownMenuSeparator />
+						{isOwner && baseListId ? (
+							<DropdownMenuItem
+								onSelect={() => setShareOpen(true)}
+								size='touch'
+							>
+								<HugeiconsIcon
+									icon={Share01Icon}
+									strokeWidth={1.8}
+									aria-hidden='true'
+									className='size-5'
+								/>
+								Share
+							</DropdownMenuItem>
+						) : null}
 						<DropdownMenuItem
-							onSelect={() => setCompleteOpen(true)}
+							onSelect={() => setAddItemOpen(true)}
 							size='touch'
 						>
 							<HugeiconsIcon
-								icon={CheckmarkCircle02Icon}
-								strokeWidth={1.6}
-								aria-hidden='true'
-								className='size-5'
-							/>
-							Complete Shopping
-						</DropdownMenuItem>
-						<DropdownMenuSeparator />
-						<DropdownMenuItem
-							onSelect={() => setCancelOpen(true)}
-							variant='destructive'
-							size='touch'
-						>
-							<HugeiconsIcon
-								icon={Cancel01Icon}
+								icon={PlusSignIcon}
 								strokeWidth={1.8}
 								aria-hidden='true'
 								className='size-5'
 							/>
-							Cancel Shopping
+							Add Item
 						</DropdownMenuItem>
-						</> : null}
+						{canAttachReceipt ? (
+							<DropdownMenuItem
+								onSelect={() => setReceiptOpen(true)}
+								size='touch'
+							>
+								<HugeiconsIcon
+									icon={Attachment01Icon}
+									strokeWidth={1.8}
+									aria-hidden='true'
+									className='size-5'
+								/>
+								Attach Receipt
+							</DropdownMenuItem>
+						) : null}
+						{isOwner ? (
+							<>
+								<DropdownMenuSeparator />
+								<DropdownMenuItem
+									onSelect={() => setCompleteOpen(true)}
+									size='touch'
+								>
+									<HugeiconsIcon
+										icon={CheckmarkCircle02Icon}
+										strokeWidth={1.6}
+										aria-hidden='true'
+										className='size-5'
+									/>
+									Complete Shopping
+								</DropdownMenuItem>
+								<DropdownMenuSeparator />
+								<DropdownMenuItem
+									onSelect={() => setCancelOpen(true)}
+									variant='destructive'
+									size='touch'
+								>
+									<HugeiconsIcon
+										icon={Cancel01Icon}
+										strokeWidth={1.8}
+										aria-hidden='true'
+										className='size-5'
+									/>
+									Cancel Shopping
+								</DropdownMenuItem>
+							</>
+						) : null}
 					</DropdownMenuContent>
 				</DropdownMenu>
 			</div>
-			{isOwner && baseListId ? <ShareListDialog baseListId={baseListId} listName={listName} isOwner={isOwner} trigger={null} open={shareOpen} onOpenChange={setShareOpen} /> : null}
-			<AddItemSheet target={{ context: 'shopping-session', sessionId }} trigger={null} open={addItemOpen} onOpenChange={setAddItemOpen} />
-			{canAttachReceipt ? <UploadTicketDialog trigger={null} open={receiptOpen} onOpenChange={setReceiptOpen} shoppingSessionId={sessionId} /> : null}
+			{isOwner && baseListId ? (
+				<ShareListDialog
+					baseListId={baseListId}
+					listName={listName}
+					isOwner={isOwner}
+					trigger={null}
+					open={shareOpen}
+					onOpenChange={setShareOpen}
+				/>
+			) : null}
+			<AddItemSheet
+				target={{ context: 'shopping-session', sessionId }}
+				trigger={null}
+				open={addItemOpen}
+				onOpenChange={setAddItemOpen}
+			/>
+			{canAttachReceipt ? (
+				<UploadTicketDialog
+					trigger={null}
+					open={receiptOpen}
+					onOpenChange={setReceiptOpen}
+					shoppingSessionId={sessionId}
+				/>
+			) : null}
 
-			{isOwner ? <><CompleteSessionSheet
-				sessionId={sessionId}
-				checked={checked}
-				total={total}
-				open={completeOpen}
-				onOpenChange={setCompleteOpen}
-			/>
-			<CancelSessionSheet
-				sessionId={sessionId}
-				listName={listName}
-				checked={checked}
-				total={total}
-				open={cancelOpen}
-				onOpenChange={setCancelOpen}
-			/>
-			</> : null}
+			{isOwner ? (
+				<>
+					<CompleteSessionSheet
+						sessionId={sessionId}
+						checked={checked}
+						total={total}
+						open={completeOpen}
+						onOpenChange={setCompleteOpen}
+					/>
+					<CancelSessionSheet
+						sessionId={sessionId}
+						listName={listName}
+						checked={checked}
+						total={total}
+						open={cancelOpen}
+						onOpenChange={setCancelOpen}
+					/>
+				</>
+			) : null}
 		</>
 	)
 }

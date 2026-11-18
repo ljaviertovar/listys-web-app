@@ -150,7 +150,7 @@ const DialogFooter = ({
     className={cn(
       "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
       variant === "inline" && "flex-row gap-3 sm:space-x-0",
-      variant === "sheet" && "gap-3 sm:grid sm:grid-cols-2 sm:space-x-0",
+      variant === "sheet" && "sticky bottom-0 z-10 mt-auto gap-3 bg-card sm:grid sm:grid-cols-2 sm:space-x-0",
       variant === "sheet-stack" && "gap-2",
       spacing === "section" && "mt-4",
       className,

@@ -30,7 +30,6 @@ describe('My Stores page', () => {
 		const page = text(await render())
 
 		expect(page).toContain('My Stores')
-		expect(page).toContain('3 stores')
 		expect(page).toContain('No Frills')
 		expect(page).toContain('3 receipts')
 		expect(page).toContain('1 receipt')

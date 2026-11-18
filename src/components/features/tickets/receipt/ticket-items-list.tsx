@@ -1,12 +1,12 @@
 'use client'
 
 import { useId, useMemo } from 'react'
-import { Alert02Icon, ListViewIcon } from '@hugeicons/core-free-icons'
+import { ListViewIcon } from '@hugeicons/core-free-icons'
 
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
-import { CategoryCollapseControl, CategorySection, LoadingState, RowIcon, useCategorySectionExpansion } from '@/components/commons'
+import { CategoryCollapseControl, CategorySection, LoadingState, RowIcon, useCategorySectionExpansion, WarningAlert } from '@/components/commons'
 import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList, useComboboxAnchor } from '@/components/ui/combobox'
 import { InputGroupAddon } from '@/components/ui/input-group'
 import { buildListDisplayNames } from '@/utils'
@@ -60,8 +60,7 @@ export function TicketItemsList({ items, selection, canSelect, triage }: TicketI
 	return (
 		<div data-testid='ticket-items-list'>
 			{triage?.status === 'failed' ? (
-				<Alert variant='warning' data-testid='receipt-triage-fallback' className='mt-3'>
-					<RowIcon icon={Alert02Icon} tone='warning' size='alert' testId='receipt-triage-fallback-icon' />
+				<WarningAlert testId='receipt-triage-fallback' iconTestId='receipt-triage-fallback-icon' className='mt-3'>
 					<AlertTitle>Couldn’t compare these lines</AlertTitle>
 					<AlertDescription>
 						<div className='flex flex-col items-start gap-2'>
@@ -69,7 +68,7 @@ export function TicketItemsList({ items, selection, canSelect, triage }: TicketI
 							<Button type='button' variant='destructive' size='lg' onClick={triage.retry}>Retry</Button>
 						</div>
 					</AlertDescription>
-				</Alert>
+				</WarningAlert>
 			) : null}
 			{activeTriage?.baseList ? <TargetListRow triage={activeTriage} baseList={activeTriage.baseList} /> : null}
 			{activeTriage?.status === 'loading' || activeTriage?.status === 'switching' ? (
