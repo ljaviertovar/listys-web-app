@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { StarIcon, UserGroupIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 
@@ -43,13 +43,7 @@ export default async function EditBaseListPage({
 	const { data: baseList, error } = await getBaseList(baseListId)
 
 	if (error || !baseList) {
-		return (
-			<div className='container mx-auto max-w-4xl space-y-6 p-6'>
-				<div className='rounded-xl bg-destructive/10 p-4 text-sm text-destructive'>
-					{error || 'Base list not found'}
-				</div>
-			</div>
-		)
+		notFound()
 	}
 
 	const isOwner = (baseList as { is_owner?: boolean }).is_owner !== false

@@ -21,7 +21,20 @@ export function classifyPhoto(file: PhotoLike): PhotoVerdict {
 	if (!supportedExtension || !supportedMime) return 'format'
 
 	if (file.size > MAX_BYTES) return 'size'
+	if (file.size === 0) return 'format'
 	return 'ok'
+}
+
+/** Rejects renamed text and truncated images before they are sent for OCR. */
+export async function isDecodablePhoto(file: File): Promise<boolean> {
+	if (typeof createImageBitmap !== 'function') return false
+	try {
+		const bitmap = await createImageBitmap(file)
+		bitmap.close()
+		return true
+	} catch {
+		return false
+	}
 }
 
 /** The size of a photo the way people read it ("2.1 MB"). */

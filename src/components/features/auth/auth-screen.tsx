@@ -15,7 +15,7 @@ export function AuthScreen({ mode }: { mode: AuthMode }) {
 	return (
 		<main
 			data-testid='auth-screen'
-			className='flex min-h-svh flex-col bg-slate-900 text-slate-900 lg:flex-row lg:gap-4 lg:bg-background lg:p-4'
+			className='flex min-h-svh flex-col bg-muted text-slate-900 dark:bg-sidebar lg:flex-row lg:gap-4 lg:p-4'
 		>
 			<AuthHero mode={mode} />
 			<section

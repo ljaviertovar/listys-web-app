@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 
 import { PageHeader, PageContainer } from '@/components/app'
 import { TicketReview, TicketStatusChip, TicketStoreCard, TicketSummaryCard, TicketUnreadableState, isReadWithoutItems, sumLineTotals, toTicketStatus } from '@/components/features/tickets'
@@ -34,7 +34,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 	const { data: ticket, error } = await getTicket<TicketRow>(ticketId)
 
 	if (error || !ticket) {
-		redirect('/tickets')
+		notFound()
 	}
 	if (ticket.uploaded_from_session_id) {
 		redirect(`/shopping/${ticket.uploaded_from_session_id}`)

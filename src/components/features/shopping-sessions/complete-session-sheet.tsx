@@ -24,6 +24,7 @@ const lastProgressBySession = new Map<string, number>()
 
 interface CompleteSessionSheetProps {
 	sessionId: string
+	listName: string
 	checked: number
 	total: number
 	open: boolean
@@ -35,7 +36,7 @@ interface CompleteSessionSheetProps {
  * ticked it offers to save the trip. Completing always saves the checked items to the history and the base list: there is
  * no option to skip it.
  */
-export function CompleteSessionSheet({ sessionId, checked, total, open, onOpenChange }: CompleteSessionSheetProps) {
+export function CompleteSessionSheet({ sessionId, listName, checked, total, open, onOpenChange }: CompleteSessionSheetProps) {
 	const { controller, barrier } = useTripSync(sessionId)
 	const [loading, setLoading] = useState(false)
 	const [saveError, setSaveError] = useState(false)
@@ -51,7 +52,16 @@ export function CompleteSessionSheet({ sessionId, checked, total, open, onOpenCh
 	useEffect(() => {
 		// A first visit that already shows 100% has no previous value, so it does not open by itself.
 		const previous = lastProgressBySession.get(sessionId) ?? progress
-		if (progress === 100 && previous < 100) onOpenChange(true)
+		let openedBefore = false
+		try {
+			openedBefore = window.localStorage.getItem(`listys:trip-complete-opened:${sessionId}`) === '1'
+		} catch {
+			openedBefore = previous === 100
+		}
+		if (progress === 100 && previous < 100 && !openedBefore) {
+			try { window.localStorage.setItem(`listys:trip-complete-opened:${sessionId}`, '1') } catch { /* Storage can be unavailable in private contexts. */ }
+			onOpenChange(true)
+		}
 		lastProgressBySession.set(sessionId, progress)
 	}, [sessionId, progress, onOpenChange])
 
@@ -87,7 +97,7 @@ export function CompleteSessionSheet({ sessionId, checked, total, open, onOpenCh
 		<Alert variant='info' role='note' data-testid={testId}>
 			<RowIcon icon={InformationCircleIcon} tone='primary' size='alert' />
 			<div>
-				<AlertTitle>Pantry learns from this trip</AlertTitle>
+			<AlertTitle>{listName} learns from this trip</AlertTitle>
 				<AlertDescription>{count === total
 					? `All ${count} items move up in your usual order.`
 					: `The ${count} items you collected move up in your usual order.`}</AlertDescription>

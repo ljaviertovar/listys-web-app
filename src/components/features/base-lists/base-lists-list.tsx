@@ -38,6 +38,9 @@ export function BaseListsList({
 }: BaseListsListProps) {
 	// Named against every list, the shopped one included, so a suffix never changes while a trip is running.
 	const displayNames = buildListDisplayNames(baseLists)
+	const orderedLists = defaultListId
+		? [...baseLists].sort((a, b) => Number(b.id === defaultListId) - Number(a.id === defaultListId))
+		: baseLists
 
 	if (baseLists.length === 0) {
 		return (
@@ -62,7 +65,7 @@ export function BaseListsList({
 				data-testid='base-lists-grid'
 				className='grid grid-cols-1 gap-3 sm:grid-cols-2 lg:gap-6 xl:grid-cols-3'
 			>
-				{baseLists.map(baseList => (
+				{orderedLists.map(baseList => (
 					<BaseListCard
 						key={baseList.id}
 						baseList={baseList}

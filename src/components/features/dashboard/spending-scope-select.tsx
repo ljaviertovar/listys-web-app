@@ -1,6 +1,13 @@
 'use client'
 
-import { Combobox, ComboboxContent, ComboboxInput, ComboboxItem, ComboboxList, useComboboxAnchor } from '@/components/ui/combobox'
+import {
+	Combobox,
+	ComboboxContent,
+	ComboboxInput,
+	ComboboxItem,
+	ComboboxList,
+	useComboboxAnchor,
+} from '@/components/ui/combobox'
 import type { SpendingScope } from './hooks/use-spending-summary'
 
 const SCOPES: SpendingScope[] = ['month', 'all']
@@ -25,13 +32,29 @@ export function SpendingScopeSelect({ value, onChange, testId }: SpendingScopeSe
 				if (next === 'month' || next === 'all') onChange(next)
 			}}
 		>
-			<div data-testid={testId} className='w-52' ref={anchor}>
-				<ComboboxInput size='lg' surface='form' aria-label='Spending period' data-testid={`${testId}-control`} />
+			<div
+				data-testid={testId}
+				className='w-52'
+				ref={anchor}
+			>
+				<ComboboxInput
+					size='default'
+					surface='form'
+					aria-label='Spending period'
+					data-testid={`${testId}-control`}
+				/>
 			</div>
-			<ComboboxContent anchor={anchor} placement='below'>
+			<ComboboxContent
+				anchor={anchor}
+				placement='below'
+			>
 				<ComboboxList>
 					{(scope: SpendingScope) => (
-						<ComboboxItem key={scope} value={scope} data-testid={`${testId}-option-${scope}`}>
+						<ComboboxItem
+							key={scope}
+							value={scope}
+							data-testid={`${testId}-option-${scope}`}
+						>
 							{SCOPE_LABELS[scope]}
 						</ComboboxItem>
 					)}

@@ -14,17 +14,21 @@ const buttonVariants = cva(
 			variant: {
 				default: 'bg-primary text-primary-foreground hover:bg-primary/80',
 				outline: SECONDARY_BUTTON_STYLE,
-				secondary: 'bg-secondary text-secondary-foreground hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground',
+				secondary:
+					'bg-secondary text-secondary-foreground hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground',
 				segment:
-					'text-muted-foreground hover:bg-background/60 aria-[current=page]:bg-white aria-[current=page]:text-primary aria-[current=page]:shadow-sm',
-				ghost: 'hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50',
-				destructive: 'bg-destructive/10 text-feedback-error hover:bg-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30',
+					'text-muted-foreground hover:bg-background/60 aria-[current=page]:bg-white aria-[current=page]:text-slate-900 aria-[current=page]:shadow-sm',
+				ghost:
+					'hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50',
+				destructive:
+					'bg-destructive/10 text-feedback-error hover:bg-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30',
 				inverse: 'bg-background text-foreground hover:bg-background/90',
 				link: 'text-foreground underline-offset-4 hover:underline',
 				// A quiet action over a dark photo (the "Back to Home" link of the phone auth header): white text, a faint wash on hover.
 				'on-dark': 'bg-white/12 text-white shadow-none hover:bg-white/20 disabled:opacity-40',
 				// Transparent text action over a dark photo, such as the auth hero link.
-				'on-dark-ghost': 'bg-transparent text-white shadow-none hover:bg-white/12 focus-visible:ring-white/60 disabled:opacity-40',
+				'on-dark-ghost':
+					'bg-transparent text-white shadow-none hover:bg-white/12 focus-visible:ring-white/60 disabled:opacity-40',
 				// The dark photo viewer: translucent white controls, the darker plate over a photo, and the round arrows.
 				viewer: 'bg-slate-900/80 text-white shadow-none hover:bg-slate-900 disabled:opacity-40',
 				overlay: 'bg-white/10 text-white shadow-none hover:bg-white/20 disabled:opacity-30',
@@ -41,10 +45,12 @@ const buttonVariants = cva(
 			},
 			size: {
 				// The visible 32px action keeps a 44px pointer target without changing row layout.
-				'quiet-touch': "relative h-8 gap-1 px-2 text-sm after:absolute after:content-[''] after:-inset-y-1.5 after:inset-x-0",
+				'quiet-touch':
+					"relative h-8 gap-1 px-2 text-sm after:absolute after:content-[''] after:-inset-y-1.5 after:inset-x-0",
 				xs: "h-6 gap-1 px-2.5 text-xs has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2 [&_svg:not([class*='size-'])]:size-3",
 				sm: 'h-8 gap-1 px-3 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2',
-				'alert-action': "relative h-8 gap-1 px-3 text-xs after:absolute after:content-[''] after:-inset-y-1.5 after:inset-x-0 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
+				'alert-action':
+					"relative h-8 gap-1 px-3 text-xs after:absolute after:content-[''] after:-inset-y-1.5 after:inset-x-0 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
 				default:
 					"relative h-9 gap-1.5 px-3 after:absolute after:content-[''] after:-inset-y-1 after:inset-x-0 has-data-[icon=inline-end]:pr-2.5 has-data-[icon=inline-start]:pl-2.5 md:after:hidden md:has-data-[icon=inline-end]:pr-3 md:has-data-[icon=inline-start]:pl-3",
 				lg: 'h-10 gap-1.5 px-4 has-data-[icon=inline-end]:pr-3 has-data-[icon=inline-start]:pl-3',
@@ -59,8 +65,9 @@ const buttonVariants = cva(
 				// A flush row action inside a padded card surface; the card owns the side inset.
 				row: 'h-auto min-h-14 justify-start gap-3 p-0 text-left whitespace-normal',
 				// Link actions follow the same compact mobile height while retaining their link-specific padding.
-				'link-action': "relative h-9 gap-1.5 px-3 after:absolute after:content-[''] after:-inset-y-1 after:inset-x-0 has-data-[icon=inline-end]:pr-2.5 has-data-[icon=inline-start]:pl-2.5 md:h-10 md:gap-1.5 md:px-3 md:after:hidden",
-					'mobile-action': 'h-11 min-w-0 gap-1 px-1.5 text-xs leading-tight whitespace-normal',
+				'link-action':
+					"relative h-9 gap-1.5 px-3 after:absolute after:content-[''] after:-inset-y-1 after:inset-x-0 has-data-[icon=inline-end]:pr-2.5 has-data-[icon=inline-start]:pl-2.5 md:h-10 md:gap-1.5 md:px-3 md:after:hidden",
+				'mobile-action': 'h-11 min-w-0 gap-1 px-1.5 text-xs leading-tight whitespace-normal',
 				'2xl': 'h-13 gap-2.5 px-7 text-base has-data-[icon=inline-end]:pr-5 has-data-[icon=inline-start]:pl-5',
 				// Content decides the height: a drop target or any block-shaped action that holds several lines.
 				block: 'h-auto min-h-11 flex-col gap-2 px-6 py-6 text-center whitespace-normal',

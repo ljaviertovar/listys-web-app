@@ -2,7 +2,7 @@
 import { AttachmentIcon, AttachmentOffIcon } from '@hugeicons/core-free-icons-v4'
 import { Store03Icon } from '@hugeicons/core-free-icons'
 import { getItemPurchaseStats } from '@/components/features/base-lists/items/helpers/item-purchase-stats'
-import { redirect } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { HugeiconsIcon } from '@hugeicons/react'
 
 import { ActiveShoppingBadge, BackLink, PageContainer, PageHeader, TripNavigationMarker } from '@/components/app'
@@ -30,7 +30,7 @@ import { buildItemStoreSummary } from '@/components/features/base-lists/items/he
 import { createClient } from '@/lib/supabase/server'
 import type { TicketSessionCandidate } from '@/lib/api/endpoints'
 import type { ShoppingSessionWithItems, TripReceipt } from '@/types'
-import { formatCurrency, formatTripDate } from '@/utils'
+import { formatTripDate } from '@/utils'
 
 type SearchParams = {
 	from?: string | string[]
@@ -57,7 +57,7 @@ export default async function ShoppingRunPage({
 	} = await supabase.auth.getUser()
 	if (!user) redirect('/auth/signin')
 	const { data: shoppingSession, error } = await getShoppingSession(runId)
-	if (error || !shoppingSession) redirect('/dashboard')
+	if (error || !shoppingSession) notFound()
 	const run = shoppingSession as ShoppingSessionWithItems & {
 		base_list?: { name?: string | null; user_id?: string | null } | null
 		store?: { id: string; name: string } | null
@@ -136,10 +136,6 @@ export default async function ShoppingRunPage({
 	const stores = getTripStores(run.store, receipts)
 	const when = run.completed_at ?? run.started_at
 	const date = when ? new Date(when) : null
-	const amount =
-		receipts.length && receipts.some(receipt => receipt.total_amount !== null)
-			? receipts.reduce((sum, receipt) => sum + (receipt.total_amount ?? 0), 0)
-			: (run.total_amount ?? priceEstimate?.total)
 	const attachedEntries = receipts.map(receipt => ({ ...receipt, attached: true }))
 	const activeEntries = [
 		...pending.map(receipt => ({
@@ -179,6 +175,7 @@ export default async function ShoppingRunPage({
 							itemCount={checkedCount}
 							listName={baseListName}
 							trip={trip}
+							openAddOnLoad={first(query.receipt) === 'add'}
 						/>
 					</div>
 				</PageContainer>

@@ -1,4 +1,5 @@
 import type { Store } from '@/types'
+import { storeNameKey } from '@/lib/validations/store'
 
 const comparable = (value: string) => value.replace(/\s+/g, ' ').trim().toLowerCase()
 
@@ -6,15 +7,7 @@ const comparable = (value: string) => value.replace(/\s+/g, ' ').trim().toLowerC
  * The key the database compares store names by (`normalize_store_name`): accents, case, spaces and punctuation ignored,
  * "#123" and a trailing number of 3+ digits dropped. Keep the two in step, or the picker offers names the server refuses.
  */
-export function storeNameKey(value: string): string {
-	return value
-		.normalize('NFD')
-		.replace(/\p{M}+/gu, '')
-		.toLowerCase()
-		.replace(/#\s*\d+/g, ' ')
-		.replace(/\s\d{3,}\s*$/, '')
-		.replace(/[^a-z0-9]+/g, '')
-}
+export { storeNameKey }
 
 /**
  * Stores whose name contains the search text, ignoring case and extra spaces, or whose key contains its key (so
