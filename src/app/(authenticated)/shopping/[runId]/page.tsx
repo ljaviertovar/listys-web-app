@@ -281,21 +281,25 @@ export default async function ShoppingRunPage({
 						/>
 					) : null}
 					{!isCompleted && totalCount > 0 ? (
-						<SessionSummaryCard
-							mode='active'
-							sessionId={runId}
-							activeItemScope={run.store_id ? 'current-store' : 'all'}
-							priceByItemId={Object.fromEntries(priceEstimate.priceByItemId)}
-							checked={checkedCount}
-							total={progressTotal}
-							estimate={priceEstimate.pricedCount > 0 ? checkedEstimate : undefined}
-						/>
+						<div className='-mt-4'>
+							<SessionSummaryCard
+								mode='active'
+								sessionId={runId}
+								activeItemScope={run.store_id ? 'current-store' : 'all'}
+								priceByItemId={Object.fromEntries(priceEstimate.priceByItemId)}
+								checked={checkedCount}
+								total={progressTotal}
+								estimate={priceEstimate.pricedCount > 0 ? checkedEstimate : undefined}
+							/>
+						</div>
 					) : null}
 					{isCompleted && priceEstimate && !receipts.length ? (
-						<SessionSummaryCard
-							mode='completed'
-							estimate={priceEstimate}
-						/>
+						<div className='-mt-4'>
+							<SessionSummaryCard
+								mode='completed'
+								estimate={priceEstimate}
+							/>
+						</div>
 					) : null}
 					{isCompleted && activeEntries.length ? (
 						<TripReceiptSummary

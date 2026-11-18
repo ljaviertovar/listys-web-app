@@ -1,7 +1,8 @@
 import { createAuthenticatedClient } from '@/lib/api/auth'
 import { ApiServiceError, ErrorCode } from '@/lib/api/http'
 import { parseSearchParams } from '@/lib/api/zod'
-import { spendingQuerySchema } from '@/lib/validations/api/spending'
+import { spendingQuerySchema, type SpendingQuery } from '@/lib/validations/api/spending'
+import { readAllRows, readAllRowsForIds } from './read-all-rows'
 
 export type SpendingStoreDto = { id: string; name: string; total: number }
 
@@ -24,10 +25,22 @@ export type SpendingSummaryDto = {
 	categories: Array<{ name: string; total: number }>
 	previous_receipt_total: number | null
 	change_percent: number | null
+	/** When the oldest receipt of the user was added, whatever the range: since when the app has been collecting. */
+	first_receipt_at: string | null
 }
 
 /** Stores listed in the breakdown: the rest of the spend is still in `total`. */
 const MAX_SPENDING_STORES = 5
+
+/** `scope=all` reads from before any receipt could exist up to a day ahead, so a receipt added this minute is inside it. */
+const ALL_TIME_FROM = '1970-01-01T00:00:00Z'
+const DAY_MS = 24 * 60 * 60 * 1000
+
+function resolveRange(query: SpendingQuery) {
+	if (query.scope === 'all') return { from: ALL_TIME_FROM, to: new Date(Date.now() + DAY_MS).toISOString(), compare_from: undefined, compare_to: undefined }
+	// The schema has already required both dates when the scope is not `all`.
+	return { from: query.from as string, to: query.to as string, compare_from: query.compare_from, compare_to: query.compare_to }
+}
 
 type StoreReference = { id: string; name: string }
 type AmountRow = { total_amount: number | null; store: StoreReference | StoreReference[] | null }
@@ -37,17 +50,15 @@ type ReceiptSourceRow = { id: string; total_amount: number | null; attached_tota
 
 async function getReceiptBackedSummary(supabase: Awaited<ReturnType<typeof createAuthenticatedClient>>['supabase'], userId: string, from: string, to: string) {
 	const [sessions, standalone] = await Promise.all([
-		supabase.from('shopping_sessions').select('id').eq('user_id', userId).eq('status', 'completed').gte('completed_at', from).lt('completed_at', to),
-		supabase.from('tickets').select('id, total_amount, attached_total_amount, store:stores(id, name)').eq('user_id', userId).is('shopping_session_id', null).gte('created_at', from).lt('created_at', to),
+		readAllRows((start, end) => supabase.from('shopping_sessions').select('id').eq('user_id', userId).eq('status', 'completed').gte('completed_at', from).lt('completed_at', to).order('id').range(start, end)),
+		readAllRows((start, end) => supabase.from('tickets').select('id, total_amount, attached_total_amount, store:stores(id, name)').eq('user_id', userId).is('shopping_session_id', null).gte('created_at', from).lt('created_at', to).order('id').range(start, end)),
 	])
 	if (sessions.error || standalone.error) {
 		console.error('[spending] could not load receipt-backed summary', { code: sessions.error?.code ?? standalone.error?.code })
 		throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'We couldn’t load your spending summary. Please try again.')
 	}
 	const tripIds = (sessions.data ?? []).map(session => session.id)
-	const attached = tripIds.length
-		? await supabase.from('tickets').select('id, total_amount, attached_total_amount, store:stores(id, name)').eq('user_id', userId).in('shopping_session_id', tripIds)
-		: { data: [], error: null }
+	const attached = await readAllRowsForIds(tripIds, (chunk, start, end) => supabase.from('tickets').select('id, total_amount, attached_total_amount, store:stores(id, name)').eq('user_id', userId).in('shopping_session_id', chunk).order('id').range(start, end))
 	if (attached.error) {
 		console.error('[spending] could not load attached receipts', { code: attached.error.code })
 		throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'We couldn’t load your spending summary. Please try again.')
@@ -58,9 +69,7 @@ async function getReceiptBackedSummary(supabase: Awaited<ReturnType<typeof creat
 		return typeof total === 'number' && Number.isFinite(total) && total >= 0 ? [{ total_amount: total, store: receipt.store }] : []
 	})
 	const ids = receipts.map(receipt => receipt.id)
-	const itemResult = ids.length
-		? await supabase.from('ticket_items').select('category, price, quantity').in('ticket_id', ids)
-		: { data: [], error: null }
+	const itemResult = await readAllRowsForIds(ids, (chunk, start, end) => supabase.from('ticket_items').select('category, price, quantity').in('ticket_id', chunk).order('id').range(start, end))
 	if (itemResult.error) console.error('[spending] could not load receipt categories', { code: itemResult.error.code })
 	const byCategory = new Map<string, number>()
 	for (const item of itemResult.data ?? []) {
@@ -79,6 +88,19 @@ async function getReceiptBackedSummary(supabase: Awaited<ReturnType<typeof creat
 	}
 }
 
+/**
+ * When the oldest receipt of the user was added: the start of what the dashboard has read so far. It is a detail of the summary, so
+ * when it cannot be read the summary still answers, without it.
+ */
+async function getFirstReceiptAt(supabase: Awaited<ReturnType<typeof createAuthenticatedClient>>['supabase'], userId: string): Promise<string | null> {
+	const { data, error } = await supabase.from('tickets').select('created_at').eq('user_id', userId).order('created_at', { ascending: true }).limit(1).maybeSingle()
+	if (error) {
+		console.error('[spending] could not read the first receipt', { code: error.code })
+		return null
+	}
+	return data?.created_at ?? null
+}
+
 /** Groups trips by attached receipt totals; trips without receipts use their selected store and trip total. */
 function sumByStore(rows: AmountRow[]): SpendingStoreDto[] {
 	const totals = new Map<string, SpendingStoreDto>()
@@ -95,27 +117,31 @@ function sumByStore(rows: AmountRow[]): SpendingStoreDto[] {
 }
 
 export async function getSpending(request: Request) {
-	const { from, to, compare_from, compare_to } = parseSearchParams(request, spendingQuerySchema)
+	const { from, to, compare_from, compare_to } = resolveRange(parseSearchParams(request, spendingQuerySchema))
 	const { supabase, user } = await createAuthenticatedClient()
-	const [{ data, error }, trips, receipts, receiptSummary, previousReceiptSummary] = await Promise.all([
+	const [{ data, error }, trips, receipts, receiptSummary, previousReceiptSummary, firstReceiptAt] = await Promise.all([
 		supabase.rpc('spending_summary', { p_from: from, p_to: to }),
-		supabase
+		readAllRows((start, end) => supabase
 			.from('shopping_sessions')
 			.select('id, total_amount, store:stores(id, name)')
 			.eq('user_id', user.id)
 			.eq('status', 'completed')
 			.gte('completed_at', from)
-			.lt('completed_at', to),
-			supabase
+			.lt('completed_at', to)
+			.order('id')
+			.range(start, end)),
+		readAllRows((start, end) => supabase
 			.from('tickets')
 			.select('id, total_amount, store:stores(id, name)')
 			.eq('user_id', user.id)
 			.is('shopping_session_id', null)
 			.gte('created_at', from)
 			.lt('created_at', to)
-			,
+			.order('id')
+			.range(start, end)),
 		getReceiptBackedSummary(supabase, user.id, from, to),
 		compare_from && compare_to ? getReceiptBackedSummary(supabase, user.id, compare_from, compare_to) : Promise.resolve(null),
+		getFirstReceiptAt(supabase, user.id),
 	])
 
 	if (error) {
@@ -126,11 +152,13 @@ export async function getSpending(request: Request) {
 	// The breakdown is a detail of the summary: if it cannot be read the total still shows, without the stores.
 	const tripRows = (trips.data ?? []) as TripAmountRow[]
 	const tripIds = tripRows.map(trip => trip.id)
-	const attachedReceipts = !trips.error && tripIds.length > 0
-		? await supabase.from('tickets')
+	const attachedReceipts = !trips.error
+		? await readAllRowsForIds(tripIds, (chunk, start, end) => supabase.from('tickets')
 			.select('shopping_session_id, attached_total_amount, total_amount, store:stores(id, name)')
 			.eq('user_id', user.id)
-			.in('shopping_session_id', tripIds)
+			.in('shopping_session_id', chunk)
+			.order('id')
+			.range(start, end))
 		: { data: [], error: trips.error }
 
 	const breakdownFailed = Boolean(trips.error || receipts.error || attachedReceipts.error)
@@ -166,5 +194,6 @@ export async function getSpending(request: Request) {
 		...receiptSummary,
 		previous_receipt_total: previousTotal,
 		change_percent: previousTotal && previousTotal > 0 ? Math.round(((receiptSummary.receipt_total - previousTotal) / previousTotal) * 100) : null,
+		first_receipt_at: firstReceiptAt,
 	}
 }

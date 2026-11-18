@@ -121,7 +121,6 @@ export function ShoppingSessionActions({
 							aria-label='Actions'
 							variant='default'
 							size='icon-xl'
-							className='shadow-lg'
 						>
 							<HugeiconsIcon
 								icon={ShoppingBag03Icon}

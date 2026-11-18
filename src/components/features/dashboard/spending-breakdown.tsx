@@ -45,62 +45,64 @@ export function SpendingBreakdown({ slices, total, receiptCount, testId }: Spend
 
 	return (
 		<div data-testid={testId} className='flex flex-col gap-3.5'>
-			<ChartContainer
-				id='month-spending'
-				config={config}
-				role='img'
-				aria-label={summary}
-				data-testid={`${testId}-chart`}
-				className='mx-auto aspect-square h-50'
-			>
-				<PieChart>
-					<ChartTooltip
-						cursor={false}
-						content={
-							<ChartTooltipContent
-								hideLabel
-								nameKey='key'
-								formatter={(value, _name, item) => {
-									const slice = slices.find(entry => entry.key === item.payload?.key)
+			<div className='mx-auto size-50'>
+				<ChartContainer
+					id='month-spending'
+					config={config}
+					role='img'
+					aria-label={summary}
+					data-testid={`${testId}-chart`}
+					className='aspect-square size-full'
+				>
+					<PieChart>
+						<ChartTooltip
+							cursor={false}
+							content={
+								<ChartTooltipContent
+									hideLabel
+									nameKey='key'
+									formatter={(value, _name, item) => {
+										const slice = slices.find(entry => entry.key === item.payload?.key)
+										return (
+											<>
+												<span aria-hidden='true' className={`size-2.5 shrink-0 rounded-[2px] ${slice ? SLICE_STYLES[slice.key].swatch : ''}`} />
+												<span className='flex-1 text-muted-foreground'>{slice ? otherLabel(slice) : ''}</span>
+												<span className='font-mono font-medium text-foreground tabular-nums'>{formatCurrency(Number(value))}</span>
+											</>
+										)
+									}}
+								/>
+							}
+						/>
+						<Pie
+							data={data}
+							dataKey='total'
+							nameKey='key'
+							innerRadius={66}
+							outerRadius={96}
+							stroke='var(--card)'
+							strokeWidth={2}
+							isAnimationActive={false}
+						>
+							<Label
+								content={({ viewBox }) => {
+									if (!viewBox || !('cx' in viewBox) || !('cy' in viewBox)) return null
 									return (
-										<>
-											<span aria-hidden='true' className={`size-2.5 shrink-0 rounded-[2px] ${slice ? SLICE_STYLES[slice.key].swatch : ''}`} />
-											<span className='flex-1 text-muted-foreground'>{slice ? otherLabel(slice) : ''}</span>
-											<span className='font-mono font-medium text-foreground tabular-nums'>{formatCurrency(Number(value))}</span>
-										</>
+										<text x={viewBox.cx} y={viewBox.cy} textAnchor='middle' dominantBaseline='middle'>
+											<tspan x={viewBox.cx} y={(viewBox.cy ?? 0) - 6} className='fill-foreground font-mono text-xl font-semibold tracking-tight'>
+												{formatCurrency(total)}
+											</tspan>
+											<tspan x={viewBox.cx} y={(viewBox.cy ?? 0) + 14} className='fill-muted-foreground text-xs'>
+												{receiptCount} {receiptCount === 1 ? 'receipt' : 'receipts'}
+											</tspan>
+										</text>
 									)
 								}}
 							/>
-						}
-					/>
-					<Pie
-						data={data}
-						dataKey='total'
-						nameKey='key'
-						innerRadius={66}
-						outerRadius={96}
-						stroke='var(--card)'
-						strokeWidth={2}
-						isAnimationActive={false}
-					>
-						<Label
-							content={({ viewBox }) => {
-								if (!viewBox || !('cx' in viewBox) || !('cy' in viewBox)) return null
-								return (
-									<text x={viewBox.cx} y={viewBox.cy} textAnchor='middle' dominantBaseline='middle'>
-										<tspan x={viewBox.cx} y={(viewBox.cy ?? 0) - 6} className='fill-foreground font-mono text-xl font-semibold tracking-tight'>
-											{formatCurrency(total)}
-										</tspan>
-										<tspan x={viewBox.cx} y={(viewBox.cy ?? 0) + 14} className='fill-muted-foreground text-xs'>
-											{receiptCount} {receiptCount === 1 ? 'receipt' : 'receipts'}
-										</tspan>
-									</text>
-								)
-							}}
-						/>
-					</Pie>
-				</PieChart>
-			</ChartContainer>
+						</Pie>
+					</PieChart>
+				</ChartContainer>
+			</div>
 			<ul className='flex flex-col gap-1.5'>
 				{slices.map(slice => (
 					<li key={slice.key} className='flex items-center gap-2 text-sm'>

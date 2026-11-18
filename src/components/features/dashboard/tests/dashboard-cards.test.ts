@@ -4,11 +4,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { LikelyNeededCard } from '../likely-needed-card'
 import { MonthSpendingCard } from '../month-spending-card'
-import { useMonthSpending } from '../hooks/use-month-spending'
+import { useSpendingSummary } from '../hooks/use-spending-summary'
 
-vi.mock('../hooks/use-month-spending', () => ({ useMonthSpending: vi.fn() }))
+vi.mock('../hooks/use-spending-summary', () => ({ useSpendingSummary: vi.fn() }))
 
-const mockSpending = vi.mocked(useMonthSpending)
+const mockSpending = vi.mocked(useSpendingSummary)
 
 function markup(...children: ReturnType<typeof createElement>[]) {
 	return renderToStaticMarkup(createElement('main', null, ...children))
@@ -31,6 +31,8 @@ describe('dashboard cards', () => {
 			summary: { from: '2026-10-01T00:00:00Z', to: '2026-11-01T00:00:00Z', total: 95, receipt_total: 95, receipt_count: 1, trips_count: 2, receipts_count: 1, trips_without_total: 1 },
 		})
 		const html = renderToStaticMarkup(createElement(MonthSpendingCard))
+		expect(mockSpending).toHaveBeenCalledWith('month')
+		expect(html).toContain('dashboard-month-spending-scope')
 		expect(html).toContain('$95.00')
 		expect(html).toContain('Trips without a receipt')
 		expect(html).toContain('counted.')

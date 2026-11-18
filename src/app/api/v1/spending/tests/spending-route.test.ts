@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { createSupabaseMock, sequentialFrom } from '@/test/helpers'
+import { createQueryBuilder, createSupabaseMock, sequentialFrom } from '@/test/helpers'
 import { ApiServiceError, ErrorCode } from '@/lib/api/http'
 
 vi.mock('@/lib/api/auth', () => ({ createAuthenticatedClient: vi.fn() }))
@@ -112,6 +112,62 @@ describe('GET /api/v1/spending store breakdown', () => {
 
 		expect(response.status).toBe(200)
 		expect((await response.json()).data).toMatchObject({ total: 125.75, stores: [] })
+	})
+})
+
+describe('GET /api/v1/spending all time', () => {
+	beforeEach(() => vi.clearAllMocks())
+
+	it('reads every receipt with no dates, so the 92-day bound does not apply', async () => {
+		const supabase = signIn()
+		const response = await GET(request('?scope=all'))
+
+		expect(response.status).toBe(200)
+		const [name, args] = supabase.rpc.mock.calls[0]
+		expect(name).toBe('spending_summary')
+		expect(Date.parse(args.p_from)).toBe(0)
+		expect(Date.parse(args.p_to)).toBeGreaterThan(Date.now())
+		expect((await response.json()).data.change_percent).toBeNull()
+	})
+
+	it('rejects a scope that comes with dates, or one that is not all', async () => {
+		signIn()
+		expect((await GET(request(`?scope=all&from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`))).status).toBe(422)
+		expect((await GET(request('?scope=week'))).status).toBe(422)
+	})
+})
+
+describe('GET /api/v1/spending first receipt', () => {
+	beforeEach(() => vi.clearAllMocks())
+
+	function signInWithFirstReceipt(first: { data?: unknown; error?: unknown }) {
+		const { supabase } = createSupabaseMock({ rpcResults: { spending_summary: { data: [{ receipts_count: 1, total: 10, trips_count: 0, trips_without_total: 0 }], error: null } } })
+		const tickets = createQueryBuilder({ data: [], error: null })
+		tickets.maybeSingle.mockResolvedValue(first)
+		supabase.from = vi.fn().mockImplementation((table: string) => (table === 'tickets' ? tickets : createQueryBuilder({ data: [], error: null })))
+		mockedAuth.mockResolvedValue({ supabase, user: { id: 'user-1' } } as never)
+		return tickets
+	}
+	const query = `?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`
+
+	it('reports when the oldest receipt of the user was added, whatever the range', async () => {
+		const tickets = signInWithFirstReceipt({ data: { created_at: '2026-03-04T10:00:00Z' }, error: null })
+
+		const { data } = await (await GET(request(query))).json()
+
+		expect(data.first_receipt_at).toBe('2026-03-04T10:00:00Z')
+		expect(tickets.order).toHaveBeenCalledWith('created_at', { ascending: true })
+	})
+
+	it('answers without it when there is no receipt or it cannot be read', async () => {
+		vi.spyOn(console, 'error').mockImplementation(() => {})
+		signInWithFirstReceipt({ data: null, error: null })
+		expect((await (await GET(request(query))).json()).data.first_receipt_at).toBeNull()
+
+		signInWithFirstReceipt({ data: null, error: { code: 'XX000', message: 'private' } })
+		const response = await GET(request(query))
+		expect(response.status).toBe(200)
+		expect((await response.json()).data.first_receipt_at).toBeNull()
 	})
 })
 

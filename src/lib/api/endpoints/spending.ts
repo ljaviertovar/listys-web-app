@@ -18,6 +18,8 @@ export type SpendingSummary = {
 	categories?: Array<{ name: string; total: number }>
 	previous_receipt_total?: number | null
 	change_percent?: number | null
+	/** When the oldest receipt of the user was added, whatever the range. */
+	first_receipt_at?: string | null
 }
 
 export async function getSpending(from: string, to: string, compareFrom?: string, compareTo?: string) {
@@ -27,4 +29,9 @@ export async function getSpending(from: string, to: string, compareFrom?: string
     query.set('compare_to', compareTo)
   }
 	return apiGet<SpendingSummary>(`/api/v1/spending?${query.toString()}`)
+}
+
+/** Every receipt of the user, with no dates: the same summary, read over all time (no comparison with a previous range). */
+export async function getAllTimeSpending() {
+	return apiGet<SpendingSummary>('/api/v1/spending?scope=all')
 }

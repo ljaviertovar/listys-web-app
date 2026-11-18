@@ -1,6 +1,7 @@
 import { Dollar01Icon, TradeDownIcon, TradeUpIcon } from '@hugeicons/core-free-icons'
+import { HugeiconsIcon } from '@hugeicons/react'
 
-import { StatTile } from '@/components/commons'
+import { StatTile, getCategoryIcon } from '@/components/commons'
 import { Separator } from '@/components/ui/separator'
 import type { SpendingSummary } from '@/lib/api/endpoints'
 import { formatCurrency } from '@/utils'
@@ -23,12 +24,6 @@ const CATEGORY_BAR_COLORS: Record<string, string> = {
 	Household: 'bg-indigo-700 dark:bg-indigo-400',
 }
 
-function getMonthLabel(date: string) {
-	return new Intl.DateTimeFormat('en', { month: 'short', year: 'numeric', timeZone: 'UTC' }).format(
-		new Date(`${date.slice(0, 10)}T00:00:00Z`),
-	)
-}
-
 function getPreviousMonthFullLabel(date: string) {
 	const previous = new Date(`${date.slice(0, 10)}T00:00:00Z`)
 	previous.setUTCMonth(previous.getUTCMonth() - 1)
@@ -45,8 +40,8 @@ interface MonthSpendingSummaryProps {
 }
 
 /**
- * The month's spend, each fact once: the total and the receipts in the donut's hole, the stores and their shares in the legend,
- * the change and the average in two tiles, then the categories as a share of the month.
+ * The spend of the period the card is set to (the month or all time), each fact once: the total and the receipts in the donut's hole, the stores and their shares in the legend,
+ * the change (only for a month, which has a month before it) and the average in two tiles, then the categories as a share of the period.
  */
 export function MonthSpendingSummary({ summary, receiptCount }: MonthSpendingSummaryProps) {
 	const receiptTotal = summary.receipt_total ?? summary.total
@@ -58,12 +53,8 @@ export function MonthSpendingSummary({ summary, receiptCount }: MonthSpendingSum
 
 	return (
 		<div data-testid='dashboard-month-spending-summary' className='flex flex-col gap-3.5'>
-			<div className='flex items-center justify-between gap-3'>
-				<h2 className='text-base font-semibold tracking-tight'>Spend This Month</h2>
-				<span className='shrink-0 font-mono text-xs text-muted-foreground'>{getMonthLabel(summary.from)}</span>
-			</div>
-
-			{slices.length > 0 ? (
+			{/* A donut with only "Other" would say nothing: without a named store the total stands alone. */}
+			{slices.some(slice => slice.key !== 'other') ? (
 				<SpendingBreakdown slices={slices} total={receiptTotal} receiptCount={receiptCount} testId='dashboard-month-spending-stores' />
 			) : (
 				<div className='flex flex-col gap-0.5'>
@@ -111,8 +102,11 @@ export function MonthSpendingSummary({ summary, receiptCount }: MonthSpendingSum
 								const width = largestCategory > 0 ? (category.total / largestCategory) * 100 : 0
 								const share = receiptTotal > 0 ? Math.round((category.total / receiptTotal) * 100) : 0
 								return (
-									<li key={category.name} className='grid grid-cols-[4.75rem_minmax(0,1fr)_2rem_5.25rem] items-center gap-2 text-sm'>
-										<span className='truncate'>{category.name}</span>
+									<li key={category.name} className='grid grid-cols-[6.25rem_minmax(0,1fr)_2rem_5.25rem] items-center gap-2 text-sm'>
+										<span className='flex min-w-0 items-center gap-2'>
+											<HugeiconsIcon icon={getCategoryIcon(category.name)} strokeWidth={1.5} aria-hidden='true' className='size-4 shrink-0 text-foreground' />
+											<span className='truncate'>{category.name}</span>
+										</span>
 										<span aria-hidden='true' className='h-2 overflow-hidden rounded-full bg-muted'>
 											<span className={`block h-full rounded-full ${getCategoryBarColor(category.name)}`} style={{ width: `${width}%` }} />
 										</span>

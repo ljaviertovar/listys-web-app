@@ -8,7 +8,7 @@ import { cn } from '@/utils'
 
 const progressVariants = cva('relative flex w-full items-center overflow-x-hidden rounded-4xl', {
 	variants: {
-		size: { default: 'h-3', md: 'h-2', sm: 'h-1.5' },
+		size: { default: 'h-3', md: 'h-2', sm: 'h-1' },
 		shape: { default: '', square: 'rounded-none' },
 		tone: {
 			default: 'bg-muted',
@@ -45,7 +45,7 @@ function Progress({
 			value={value}
 			data-size={size}
 			data-tone={tone}
-		className={cn(progressVariants({ size, shape, tone }), className)}
+			className={cn(progressVariants({ size, shape, tone }), className)}
 			{...props}
 		>
 			<ProgressPrimitive.Indicator
