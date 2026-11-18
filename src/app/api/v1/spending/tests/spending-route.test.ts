@@ -171,6 +171,41 @@ describe('GET /api/v1/spending first receipt', () => {
 	})
 })
 
+describe('GET /api/v1/spending last receipt', () => {
+	beforeEach(() => vi.clearAllMocks())
+
+	function signInWithEdges(first: { data?: unknown; error?: unknown }, last: { data?: unknown; error?: unknown }) {
+		const { supabase } = createSupabaseMock({ rpcResults: { spending_summary: { data: [{ receipts_count: 0, total: 0, trips_count: 0, trips_without_total: 0 }], error: null } } })
+		const tickets = createQueryBuilder({ data: [], error: null })
+		tickets.maybeSingle.mockResolvedValueOnce(first).mockResolvedValueOnce(last)
+		supabase.from = vi.fn().mockImplementation((table: string) => (table === 'tickets' ? tickets : createQueryBuilder({ data: [], error: null })))
+		mockedAuth.mockResolvedValue({ supabase, user: { id: 'user-1' } } as never)
+		return tickets
+	}
+	const query = `?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`
+
+	it('reports when the newest receipt was added, apart from the oldest', async () => {
+		const tickets = signInWithEdges({ data: { created_at: '2026-03-04T10:00:00Z' }, error: null }, { data: { created_at: '2026-10-28T10:00:00Z' }, error: null })
+
+		const { data } = await (await GET(request(query))).json()
+
+		expect(data.first_receipt_at).toBe('2026-03-04T10:00:00Z')
+		expect(data.last_receipt_at).toBe('2026-10-28T10:00:00Z')
+		expect(tickets.order).toHaveBeenCalledWith('created_at', { ascending: false })
+	})
+
+	it('answers without it when there is no receipt or it cannot be read', async () => {
+		vi.spyOn(console, 'error').mockImplementation(() => {})
+		signInWithEdges({ data: null, error: null }, { data: null, error: null })
+		expect((await (await GET(request(query))).json()).data.last_receipt_at).toBeNull()
+
+		signInWithEdges({ data: null, error: null }, { data: null, error: { code: 'XX000', message: 'private' } })
+		const response = await GET(request(query))
+		expect(response.status).toBe(200)
+		expect((await response.json()).data.last_receipt_at).toBeNull()
+	})
+})
+
 describe('GET /api/v1/spending other total', () => {
 	beforeEach(() => vi.clearAllMocks())
 

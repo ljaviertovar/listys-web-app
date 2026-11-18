@@ -219,7 +219,6 @@ export function TripReceiptSummary({
 					open
 					failed
 					shoppingSessionId={trip.id}
-					returnHref={`/shopping/${trip.id}?details=1`}
 					onOpenChange={open => {
 						if (!open) setFailedId(null)
 					}}

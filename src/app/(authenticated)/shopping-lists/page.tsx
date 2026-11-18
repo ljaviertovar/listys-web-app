@@ -5,6 +5,7 @@ import { PageContainer } from '@/components/app'
 import { RetryableError } from '@/components/commons'
 import { BaseListsList, BaseListsPageHeader, BaseListsSkeleton } from '@/components/features/base-lists'
 import { groupStoresByList, type ListItemStoreRow } from '@/components/features/base-lists/helpers/list-card-stores'
+import { shouldOfferPantrySetup } from '@/components/features/base-lists/helpers/should-offer-pantry-setup'
 
 import { createClient } from '@/lib/supabase/server'
 
@@ -84,6 +85,7 @@ async function BaseListsContent() {
 		sharedCountByList[collaborator.base_list_id] = (sharedCountByList[collaborator.base_list_id] ?? 0) + 1
 	}
 	const defaultListId = defaultListResult.data?.[0]?.id ?? null
+	const showPantrySetup = shouldOfferPantrySetup({ queryFailed: Boolean(defaultListResult.error), defaultListId })
 	const storesByList = groupStoresByList((itemStoresResult.data ?? []) as ListItemStoreRow[])
 
 	// Transform Supabase count result to our type
@@ -103,6 +105,7 @@ async function BaseListsContent() {
 			baseLists={baseListsWithCount}
 			activeSessionIds={Object.fromEntries((activeSessions ?? []).map(session => [session.base_list_id, session.id]))}
 			defaultListId={defaultListId}
+			showPantrySetup={showPantrySetup}
 			lastTripByList={lastTripByList}
 			sharedCountByList={sharedCountByList}
 			storesByList={storesByList}

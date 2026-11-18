@@ -10,10 +10,8 @@ import { TicketActions } from './ticket-actions'
 interface TicketUnreadableStateProps {
 	ticketId: string
 	testId?: string
-	returnHref?: string
 	shoppingSessionId?: string
 	onRetrySuccess?: () => void
-	onDeleted?: () => void
 	storeRecognized?: boolean
 	/** `failed` is an error (nothing could be read); `no-items` is a warning (the receipt was read but no item lines were found). */
 	kind: 'failed' | 'no-items'
@@ -36,7 +34,7 @@ const COPY = {
  * A receipt that gave nothing to review. Both cases share one structure (what happened, tips for a better photo, the same three
  * actions) and differ in tone: red for a read that failed, amber for a read that found no lines.
  */
-export function TicketUnreadableState({ ticketId, kind, testId = 'ticket-unreadable-state', returnHref, shoppingSessionId, onRetrySuccess, onDeleted, storeRecognized = true }: TicketUnreadableStateProps) {
+export function TicketUnreadableState({ ticketId, kind, testId = 'ticket-unreadable-state', shoppingSessionId, onRetrySuccess, storeRecognized = true }: TicketUnreadableStateProps) {
 	const copy = kind === 'no-items' && !storeRecognized
 		? { ...COPY[kind], help: 'We couldn’t identify a store or find item lines. A clearer photo may help.' }
 		: COPY[kind]
@@ -105,9 +103,7 @@ export function TicketUnreadableState({ ticketId, kind, testId = 'ticket-unreada
 					ticket={{ id: ticketId, ocr_status: failed ? 'failed' : 'completed' }}
 					allowRetry
 					retryLabel='Try Again'
-					returnHref={returnHref}
 					onRetrySuccess={onRetrySuccess}
-					onDeleted={onDeleted}
 				/>
 			</div>
 		</div>

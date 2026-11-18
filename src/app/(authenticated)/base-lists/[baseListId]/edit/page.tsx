@@ -89,6 +89,7 @@ export default async function EditBaseListPage({
 		<>
 			<PageHeader
 				layout='detail'
+				entity='list'
 				back={{ href: '/shopping-lists', label: 'Back to Lists' }}
 				title={baseListWithItems.name}
 				desc={baseListWithItems.notes ? <p className='line-clamp-2'>{baseListWithItems.notes}</p> : undefined}

@@ -27,6 +27,7 @@ export type SpendingSummaryDto = {
 	change_percent: number | null
 	/** When the oldest receipt of the user was added, whatever the range: since when the app has been collecting. */
 	first_receipt_at: string | null
+	last_receipt_at: string | null
 }
 
 /** Stores listed in the breakdown: the rest of the spend is still in `total`. */
@@ -89,13 +90,13 @@ async function getReceiptBackedSummary(supabase: Awaited<ReturnType<typeof creat
 }
 
 /**
- * When the oldest receipt of the user was added: the start of what the dashboard has read so far. It is a detail of the summary, so
- * when it cannot be read the summary still answers, without it.
+ * When the oldest (`first`) or the newest (`last`) receipt of the user was added: the start of what the dashboard has read so far, and
+ * the last time it read something. They are details of the summary, so when one cannot be read the summary still answers, without it.
  */
-async function getFirstReceiptAt(supabase: Awaited<ReturnType<typeof createAuthenticatedClient>>['supabase'], userId: string): Promise<string | null> {
-	const { data, error } = await supabase.from('tickets').select('created_at').eq('user_id', userId).order('created_at', { ascending: true }).limit(1).maybeSingle()
+async function getReceiptEdgeAt(supabase: Awaited<ReturnType<typeof createAuthenticatedClient>>['supabase'], userId: string, edge: 'first' | 'last'): Promise<string | null> {
+	const { data, error } = await supabase.from('tickets').select('created_at').eq('user_id', userId).order('created_at', { ascending: edge === 'first' }).limit(1).maybeSingle()
 	if (error) {
-		console.error('[spending] could not read the first receipt', { code: error.code })
+		console.error(`[spending] could not read the ${edge} receipt`, { code: error.code })
 		return null
 	}
 	return data?.created_at ?? null
@@ -119,7 +120,7 @@ function sumByStore(rows: AmountRow[]): SpendingStoreDto[] {
 export async function getSpending(request: Request) {
 	const { from, to, compare_from, compare_to } = resolveRange(parseSearchParams(request, spendingQuerySchema))
 	const { supabase, user } = await createAuthenticatedClient()
-	const [{ data, error }, trips, receipts, receiptSummary, previousReceiptSummary, firstReceiptAt] = await Promise.all([
+	const [{ data, error }, trips, receipts, receiptSummary, previousReceiptSummary, firstReceiptAt, lastReceiptAt] = await Promise.all([
 		supabase.rpc('spending_summary', { p_from: from, p_to: to }),
 		readAllRows((start, end) => supabase
 			.from('shopping_sessions')
@@ -141,7 +142,8 @@ export async function getSpending(request: Request) {
 			.range(start, end)),
 		getReceiptBackedSummary(supabase, user.id, from, to),
 		compare_from && compare_to ? getReceiptBackedSummary(supabase, user.id, compare_from, compare_to) : Promise.resolve(null),
-		getFirstReceiptAt(supabase, user.id),
+		getReceiptEdgeAt(supabase, user.id, 'first'),
+		getReceiptEdgeAt(supabase, user.id, 'last'),
 	])
 
 	if (error) {
@@ -195,5 +197,6 @@ export async function getSpending(request: Request) {
 		previous_receipt_total: previousTotal,
 		change_percent: previousTotal && previousTotal > 0 ? Math.round(((receiptSummary.receipt_total - previousTotal) / previousTotal) * 100) : null,
 		first_receipt_at: firstReceiptAt,
+		last_receipt_at: lastReceiptAt,
 	}
 }

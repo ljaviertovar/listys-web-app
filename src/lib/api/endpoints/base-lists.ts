@@ -47,3 +47,8 @@ export async function deleteBaseListItem(id: string) {
   const res = await apiDelete(`/api/v1/base-list-items/${id}`)
   return res.error ? res : { data: { success: true } }
 }
+
+/** Gives the account a default list: the one it has, an existing "Pantry" marked as default, or a new "Pantry". */
+export async function setUpDefaultPantry() {
+  return apiPost('/api/v1/base-lists/default-pantry')
+}

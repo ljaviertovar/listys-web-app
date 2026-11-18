@@ -86,7 +86,10 @@ export async function deleteBaseList(id: string) {
   const { error } = await supabase.from('base_lists').delete().eq('id', id).eq('user_id', user.id)
 
   if (error) {
-    throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, error.message)
+    if (error.code === 'P0001' && error.message === 'LIST_HAS_ACTIVE_TRIP') {
+      throw new ApiServiceError(409, ErrorCode.CONFLICT, 'This list has an active trip. Finish or cancel the trip before deleting the list.')
+    }
+    throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'Could not delete this list.')
   }
 
   return { success: true }

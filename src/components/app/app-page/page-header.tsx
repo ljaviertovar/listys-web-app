@@ -25,7 +25,7 @@ const ENTITY_TILES: Record<PageHeaderEntity, { icon: IconSvgElement; tone: RowIc
 export type PageHeaderFact = DataFact
 
 interface PageHeaderProps {
-	title: string
+	title: ReactNode
 	/** `index` is a list screen (one-line title); `detail` is an object screen (two-line title, aside aligned to the first line). */
 	layout?: 'index' | 'detail'
 	/** The link above the title. Its label is always "Back to {parent}". */

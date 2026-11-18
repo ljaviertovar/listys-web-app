@@ -21,7 +21,6 @@ interface TripReceiptDetailsSheetProps {
 	open: boolean
 	onOpenChange: (open: boolean) => void
 	failed?: boolean
-	returnHref?: string
 	shoppingSessionId?: string
 	testId?: string
 }
@@ -31,7 +30,6 @@ export function TripReceiptDetailsSheet({
 	open,
 	onOpenChange,
 	failed = false,
-	returnHref,
 	shoppingSessionId,
 	testId = 'trip-receipt-details-sheet',
 }: TripReceiptDetailsSheetProps) {
@@ -107,11 +105,9 @@ export function TripReceiptDetailsSheet({
 								ticketId={ticketId}
 								kind={noItems ? 'no-items' : 'failed'}
 								testId={`${testId}-unreadable`}
-								returnHref={returnHref}
 								shoppingSessionId={shoppingSessionId}
 								storeRecognized={hasStoreDetails}
 								onRetrySuccess={() => onOpenChange(false)}
-								onDeleted={() => onOpenChange(false)}
 								/>
 							</> : <><Card
 								size='tight'

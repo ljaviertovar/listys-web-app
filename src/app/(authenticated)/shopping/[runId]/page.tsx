@@ -193,6 +193,7 @@ export default async function ShoppingRunPage({
 			/>
 			<PageHeader
 				layout='detail'
+				entity='trip'
 				back={
 					backToSaved
 						? { href: resolveSessionBackLink('trips', first(query.list)).href, label: 'Back to Trips' }

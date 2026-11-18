@@ -24,3 +24,10 @@ it('keeps progress without an estimate when no prices are available', () => {
 	expect(html).toContain('Still to collect')
 	expect(html).not.toContain('$0.00')
 })
+
+it('names the active trip but leaves the completed estimate card without a title', () => {
+	const active = renderToStaticMarkup(createElement(SessionSummaryCard, { mode: 'active', checked: 1, total: 5 }))
+	const completed = renderToStaticMarkup(createElement(SessionSummaryCard, { mode: 'completed', estimate: { total: 9, itemCount: 3, pricedCount: 3 } }))
+	expect(active).toContain('Trip Progress')
+	expect(completed).not.toContain('Trip Progress')
+})

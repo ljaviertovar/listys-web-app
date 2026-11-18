@@ -92,7 +92,17 @@ describe('buildDashboardModel', () => {
 				{ id: 'l3', name: 'Monthly bulk', itemsCount: 0, isDefault: false, lastTrip: null },
 			],
 			hiddenCount: 0,
+			hasDefaultList: false,
 		})
+	})
+
+	it('knows whether the account has a default list, even when it is beyond the preview', () => {
+		const many = Array.from({ length: 7 }, (_, i) => ({ id: `x${i}`, name: `List ${i}`, is_default: i === 6, items: [{ count: 1 }] }))
+
+		expect(build({ baseLists: many }).lists.hasDefaultList).toBe(true)
+		expect(build({ baseLists: many }).lists.items.some(list => list.isDefault)).toBe(false)
+		expect(build({ baseLists: [{ ...many[0], is_default: false }] }).lists.hasDefaultList).toBe(false)
+		expect(build({ baseLists: [] }).lists.hasDefaultList).toBe(false)
 	})
 
 	it('names lists that share a name apart everywhere, oldest first', () => {
@@ -228,6 +238,47 @@ describe('buildDashboardModel', () => {
 			{ storeId: 's1', storeName: 'Metro', kind: 'trip', id: 'trip-1', dateLabel: '18 Feb', itemsCount: null, total: 84.2, href: '/trips' },
 			{ storeId: 's2', storeName: 'Costco', kind: 'receipt', id: 'ticket-1', dateLabel: '12 Feb', itemsCount: null, total: null, href: '/tickets/ticket-1' },
 		])
+	})
+})
+
+describe('buildDashboardModel get started', () => {
+	const trip = { id: 't1', name: 'Trip', base_list_id: 'l1', total_amount: 10, completed_at: '2026-02-10T10:00:00Z', base_list: { name: 'NO frills' } }
+	const receipt = { id: 'r1', store_name: null, ocr_status: 'completed' as const, total_items: 3, created_at: '2026-02-10T10:00:00Z', base_list_id: null }
+
+	it('starts a new account at the first step with nothing done', () => {
+		const { getStarted, hasReceipts } = build({ baseLists: [] })
+		expect(getStarted).toMatchObject({ completed: 0, current: 'list', receiptsCount: 0 })
+		expect(getStarted?.steps.map(step => step.done)).toEqual([false, false, false])
+		expect(hasReceipts).toBe(false)
+	})
+
+	it('ticks steps met out of order and keeps the first pending one as current', () => {
+		const { getStarted } = build({ baseLists: [], trips: [trip] })
+		expect(getStarted).toMatchObject({ completed: 1, current: 'list' })
+		expect(getStarted?.steps.map(step => step.done)).toEqual([false, true, false])
+	})
+
+	it('moves on to the receipts step with a list and a completed trip', () => {
+		expect(build({ trips: [trip], likelyNeededReceiptCount: 1 }).getStarted).toMatchObject({ completed: 2, current: 'receipts', receiptsCount: 1 })
+		expect(build({ trips: [trip], likelyNeededReceiptCount: 2 }).getStarted?.current).toBe('receipts')
+	})
+
+	it('ignores a trip that has no completion date', () => {
+		expect(build({ trips: [{ ...trip, completed_at: null }] }).getStarted?.current).toBe('trip')
+	})
+
+	it('is gone once the list, the trip and three receipts exist', () => {
+		expect(build({ trips: [trip], likelyNeededReceiptCount: 3 }).getStarted).toBeNull()
+	})
+
+	it('comes back when the only list is deleted', () => {
+		const withList = build({ baseLists: [noFrills], trips: [], likelyNeededReceiptCount: 0 })
+		expect(withList.getStarted?.current).toBe('trip')
+		expect(build({ baseLists: [], trips: [], likelyNeededReceiptCount: 0 }).getStarted?.current).toBe('list')
+	})
+
+	it('knows whether any receipt was uploaded, whatever its reading status', () => {
+		expect(build({ tickets: [{ ...receipt, ocr_status: 'failed' }] }).hasReceipts).toBe(true)
 	})
 })
 

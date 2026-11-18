@@ -49,7 +49,7 @@ Known limits: receipts merged or added to lists before this phase are not attach
 | Area | Observed behavior | Evidence |
 | --- | --- | --- |
 | Authentication | Email/password registration/sign-in, Google OAuth, callback exchange, sign-out and protected layouts. Password reset links to an unimplemented route. | [`auth/`](../../src/app/auth/), [`auth-form.tsx`](../../src/components/features/auth/auth-form.tsx), [`proxy.ts`](../../src/proxy.ts) |
-| Dashboard | Next-trip/active-session views, flat "Shopping Lists", likely-needed items, visitor-local month spending and last visit by store. Receipts/history remain in navigation; loading and server errors are explicit. | [`dashboard/page.tsx`](../../src/app/(authenticated)/dashboard/page.tsx), [`dashboard-view.tsx`](../../src/components/features/dashboard/dashboard-view.tsx), [`build-dashboard-model.ts`](../../src/components/features/dashboard/helpers/build-dashboard-model.ts) |
+| Dashboard | Next-trip/active-session views, flat "Shopping Lists", likely-needed items, visitor-local month spending and last visit by store. Receipts/history remain in navigation; loading and server errors are explicit. An account that has not met three steps (a list, a completed trip, three receipts) sees a "Get Started" card in place of the empty cards, and a card appears when it has data; spend with no receipts in the month but older ones offers "See All Time" (`last_receipt_at` on `GET /spending`). | [`dashboard/page.tsx`](../../src/app/(authenticated)/dashboard/page.tsx), [`dashboard-view.tsx`](../../src/components/features/dashboard/dashboard-view.tsx), [`build-dashboard-model.ts`](../../src/components/features/dashboard/helpers/build-dashboard-model.ts) |
 | Lists | CRUD on one flat lists screen (groups are not shown), notes, quantities/categories/order and reusable shopping templates. Names are unique per user across all lists, ignoring case; lists that already shared a name read "Weekly", "Weekly (2)" on screen. A user with no list gets a default "Pantry" list in an implicit "My Lists" group on the first dashboard visit, and every list created without a group goes to that group (created on first use). The `/groups*` API remains for existing clients. | [`groups.service.ts`](../../src/lib/server/services/groups.service.ts), [`base-lists.service.ts`](../../src/lib/server/services/base-lists.service.ts), [`default-pantry.service.ts`](../../src/lib/server/services/default-pantry.service.ts) |
 | Shopping | Owner starts a nonempty base list; items clone in purchase-count, recency, sort-order sequence. Check/edit/add/delete, complete with amount/notes (completion always applies the checked items to the base list, atomically), or cancel. The service checks for an existing active session. Base-list rows and the running session show average prices and an estimated total when known. | [`shopping-sessions.service.ts`](../../src/lib/server/services/shopping-sessions.service.ts), [`complete-session-rpc.ts`](../../src/lib/server/services/complete-session-rpc.ts), [`session-estimate.tsx`](../../src/components/features/shopping-sessions/session-estimate.tsx) |
 | Trips | Completed sessions on one screen at `/trips`, newest first, filtered by list (`?list=`), totals and detail navigation; each trip shows `Completed` and, separately, `Receipt attached` or `No receipt`, and a trip without a receipt highlights `Add Receipt` (upload a new receipt or choose an uploaded one, reviewed on the trip). `/shopping-history` redirects to it. No service/action for creating a list from a completed session was found. | [`trips/`](../../src/app/(authenticated)/trips/), [`session service`](../../src/lib/server/services/shopping-sessions.service.ts) |
@@ -174,7 +174,7 @@ Known limits introduced or exposed by this phase:
 - Creating a new list from a receipt does not copy the receipt prices into `average_price` (only merging a receipt into an
   existing list does), so a list created that way shows no prices until a receipt is merged into it. This predates Phase 1 and
   limits how soon FR-3 becomes visible; copying the prices on creation is a candidate follow-up.
-- Accounts that already had lists have no default group. Resolved in Phase 2: `ensure_default_group` creates it the first time a list is created without a group.
+- Accounts that already had lists have no default group. Resolved in Phase 2: `ensure_default_group` creates it the first time a list is created without a group. Their Pantry is available on demand since 2026-11-18 ([below](#default-pantry-on-demand-2026-11-18)).
 - The default group occupies one of the ten group slots ([limits](limits.md)).
 - Direct `GET /api/v1/shopping-sessions/{id}` still returns database rows; the estimate is computed by the page, not the API.
 
@@ -272,6 +272,20 @@ Known limits introduced by this phase:
 - The picker can only hide a "Create" row for names it can see; a name that is only another store's alias is still offered, and the server then reuses that store.
 - Branch numbers of 1–2 digits at the end of a name are kept ("Shop 24"), so such variants need an alias once.
 - The historical design reference has no store screens. Current visual guidance and open decisions are in the [Design System](../design/design-system.html).
+
+## Default Pantry on demand (2026-11-18)
+
+OpenSpec change `default-pantry-for-existing-accounts`. Accounts created before the first-visit Pantry, or that deleted theirs, can get a default list by hand.
+
+| Behavior | Observed | Evidence |
+| --- | --- | --- |
+| Setup action | An account with no `is_default` list sees "Set up Pantry" on the lists screen and in the dashboard lists card. Pressing it marks the account’s existing "Pantry" (any case; the oldest if several) as the default, or creates an empty "Pantry" in the implicit default group. It is not offered when the account has a default list or when that lookup failed. | [`set-up-pantry-callout.tsx`](../../src/components/features/base-lists/set-up-pantry-callout.tsx), [`should-offer-pantry-setup.ts`](../../src/components/features/base-lists/helpers/should-offer-pantry-setup.ts), [`build-dashboard-model.ts`](../../src/components/features/dashboard/helpers/build-dashboard-model.ts) |
+| API | `POST /api/v1/base-lists/default-pantry` answers `201` when it creates the list and `200` when it adopts one or the account already had a default. | [API reference](api-v1.md), [`route.ts`](../../src/app/api/v1/base-lists/default-pantry/route.ts), [`default-pantry.service.ts`](../../src/lib/server/services/default-pantry.service.ts) |
+| Database | `create_default_pantry` is additive (no column, index or policy), serialises calls per user with an advisory lock and relies on `uq_base_lists_one_default_per_user` as the last guard. Writing `is_default` on an existing list is the only update it can make. | [`migration`](../../supabase/migrations/20261118160000_create_default_pantry.sql), [`verification`](../../supabase/verification/create-default-pantry.sql) |
+
+Verification: the migration was applied on 2026-11-18, with the user’s approval, to the linked Supabase project (a test project) together with `20261118145302_protect_base_lists_with_active_trips`. The rollback-only script passed 21 of 21 checks (created, repeat, second default rejected, adopted with only the marker changed, oldest of several matches, deleted Pantry created again, another user’s list untouched, no session refused) and left no synthetic users. Not exercised: two truly simultaneous calls, and the screens against the hosted project.
+
+Unchanged: the automatic first-visit provisioning (`ensure_default_pantry`), and a deleted Pantry is still not recreated on its own.
 
 ## Audit findings and follow-up
 
