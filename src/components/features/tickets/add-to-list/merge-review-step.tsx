@@ -8,7 +8,13 @@ import { Button } from '@/components/ui/button'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { formatItemName } from '@/utils'
 
-import { resolvedItem, type LineDecision, type MatchedItem, type MergeReview, type ReviewLine } from './helpers/merge-review'
+import {
+	resolvedItem,
+	type LineDecision,
+	type MatchedItem,
+	type MergeReview,
+	type ReviewLine,
+} from './helpers/merge-review'
 import { LinkItemDialog } from './link-item-dialog'
 
 interface MergeReviewStepProps {
@@ -48,7 +54,9 @@ export function MergeReviewStep({ review, listItems, decisions, onDecide, disabl
 							suggestedItem={line.suggestedItem}
 							disabled={disabled}
 							onLink={() => setLinking(line)}
-							onLinkSuggestion={() => line.suggestedItem && onDecide(line.ticketItemId, { kind: 'link', item: line.suggestedItem })}
+							onLinkSuggestion={() =>
+								line.suggestedItem && onDecide(line.ticketItemId, { kind: 'link', item: line.suggestedItem })
+							}
 							onAddAsNew={() => onDecide(line.ticketItemId, null)}
 						/>
 					))}
@@ -105,7 +113,9 @@ export function MergeReviewStep({ review, listItems, decisions, onDecide, disabl
 					<CollapsibleTrigger variant='row'>
 						<span className='flex-1 text-sm font-semibold'>
 							Updates by name{' '}
-							<span className='font-mono text-xs font-medium text-muted-foreground tabular-nums dark:text-muted-foreground'>{review.byName.length}</span>
+							<span className='font-mono text-xs font-medium text-muted-foreground tabular-nums dark:text-muted-foreground'>
+								{review.byName.length}
+							</span>
 						</span>
 						<HugeiconsIcon
 							icon={ArrowDown01Icon}
@@ -161,7 +171,9 @@ function ReviewSection({ title, count, hint, testId, children }: ReviewSectionPr
 			<div className='flex flex-col gap-0.5'>
 				<h3 className='text-sm font-semibold'>
 					{title}{' '}
-					<span className='font-mono text-xs font-medium text-muted-foreground tabular-nums dark:text-muted-foreground'>{count}</span>
+					<span className='font-mono text-xs font-medium text-muted-foreground tabular-nums dark:text-muted-foreground'>
+						{count}
+					</span>
 				</h3>
 				<p className='text-xs leading-normal text-muted-foreground dark:text-muted-foreground'>{hint}</p>
 			</div>
@@ -181,13 +193,23 @@ interface ReviewRowProps {
 	onAddAsNew: () => void
 }
 
-function ReviewRow({ line, decision, remembered, suggestedItem, disabled, onLink, onLinkSuggestion, onAddAsNew }: ReviewRowProps) {
+function ReviewRow({
+	line,
+	decision,
+	remembered,
+	suggestedItem,
+	disabled,
+	onLink,
+	onLinkSuggestion,
+	onAddAsNew,
+}: ReviewRowProps) {
 	const target = resolvedItem(line, decision)
 	const name = formatItemName(line.name)
 
 	let outcome: string
 	if (!target) outcome = 'Will be added as a new item'
-	else if (remembered && decision === undefined) outcome = `Updates “${formatItemName(target.name)}” · remembered from an earlier receipt`
+	else if (remembered && decision === undefined)
+		outcome = `Updates “${formatItemName(target.name)}” · remembered from an earlier receipt`
 	else outcome = `Updates “${formatItemName(target.name)}”`
 
 	return (
@@ -214,7 +236,7 @@ function ReviewRow({ line, decision, remembered, suggestedItem, disabled, onLink
 				<Button
 					type='button'
 					variant='secondary'
-					size='lg'
+					size='default'
 					disabled={disabled}
 					onClick={onLink}
 					aria-label={`${target ? 'Change the item for' : 'Link'} ${name}`}
@@ -225,7 +247,7 @@ function ReviewRow({ line, decision, remembered, suggestedItem, disabled, onLink
 					<Button
 						type='button'
 						variant='ghost'
-						size='lg'
+						size='default'
 						disabled={disabled}
 						onClick={onAddAsNew}
 						aria-label={`Add ${name} as a new item`}

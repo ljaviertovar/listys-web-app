@@ -1,8 +1,9 @@
+import { Suspense } from 'react'
 import { redirect } from 'next/navigation'
 
-import { PageContainer, PageHeader } from '@/components/app'
+import { PageContainer } from '@/components/app'
 import { RetryableError } from '@/components/commons'
-import { BaseListsList, CreateBaseListDialog } from '@/components/features/base-lists'
+import { BaseListsList, BaseListsPageHeader, BaseListsSkeleton } from '@/components/features/base-lists'
 import { groupStoresByList, type ListItemStoreRow } from '@/components/features/base-lists/helpers/list-card-stores'
 
 import { createClient } from '@/lib/supabase/server'
@@ -14,7 +15,20 @@ import type { BaseListWithCount } from '@/types'
 /** A list as the API returns it: the item count comes nested as `items: [{ count }]`. */
 type BaseListRow = Omit<BaseListWithCount, 'items_count'> & { items?: Array<{ count?: number }> }
 
-export default async function ShoppingListsPage() {
+export default function ShoppingListsPage() {
+	return (
+		<>
+			<BaseListsPageHeader />
+			<PageContainer contentClassName='space-y-2 md:space-y-6'>
+				<Suspense fallback={<BaseListsSkeleton />}>
+					<BaseListsContent />
+				</Suspense>
+			</PageContainer>
+		</>
+	)
+}
+
+async function BaseListsContent() {
 	const supabase = await createClient()
 	const {
 		data: { user },
@@ -24,9 +38,7 @@ export default async function ShoppingListsPage() {
 		redirect('/auth/signin')
 	}
 
-	// What the cards say besides their name: the last completed trip, who a list is shared with, which one is the default and the stores
-	// its items are usually bought at.
-	// They run alongside the lists; none of them blocks the page, and a failed one only leaves its detail out.
+	// These details enrich the cards; the card skeleton stays visible until all parallel queries finish.
 	const cardDetails = Promise.all([
 		supabase
 			.from('shopping_sessions')
@@ -48,12 +60,12 @@ export default async function ShoppingListsPage() {
 
 	const [baseListsResult, activeSessionResult] = await Promise.all([
 		getBaseLists(),
-			supabase
+		supabase
 			.from('shopping_sessions')
 			.select('id, base_list_id')
 			.eq('status', 'active')
-				.order('started_at', { ascending: false })
-				.limit(100),
+			.order('started_at', { ascending: false })
+			.limit(100),
 	])
 
 	const { data: baseLists, error } = baseListsResult
@@ -80,35 +92,20 @@ export default async function ShoppingListsPage() {
 		items_count: Array.isArray(list.items) ? list.items[0]?.count || 0 : 0,
 	}))
 
-	return (
-		<>
-			<PageHeader
-				title='Lists'
-				entity='list'
-				desc='All your lists in one place. Start with the things you always buy.'
-				back={{ href: '/dashboard', label: 'Back to Dashboard' }}
-				aside={<CreateBaseListDialog size='lg' />}
-				count={error ? undefined : { value: baseListsWithCount.length, one: 'list', many: 'lists' }}
-			/>
-
-			<PageContainer contentClassName='space-y-2 md:space-y-6'>
-				{error ? (
-					<RetryableError
-						message='We couldn’t load your lists.'
-						href='/shopping-lists'
-						testId='base-lists-load-error'
-					/>
-				) : (
-					<BaseListsList
-						baseLists={baseListsWithCount}
-						activeSessionIds={Object.fromEntries((activeSessions ?? []).map(session => [session.base_list_id, session.id]))}
-							defaultListId={defaultListId}
-							lastTripByList={lastTripByList}
-							sharedCountByList={sharedCountByList}
-							storesByList={storesByList}
-					/>
-				)}
-			</PageContainer>
-		</>
+	return error ? (
+		<RetryableError
+			message='We couldnâ€™t load your lists.'
+			href='/shopping-lists'
+			testId='base-lists-load-error'
+		/>
+	) : (
+		<BaseListsList
+			baseLists={baseListsWithCount}
+			activeSessionIds={Object.fromEntries((activeSessions ?? []).map(session => [session.base_list_id, session.id]))}
+			defaultListId={defaultListId}
+			lastTripByList={lastTripByList}
+			sharedCountByList={sharedCountByList}
+			storesByList={storesByList}
+		/>
 	)
 }

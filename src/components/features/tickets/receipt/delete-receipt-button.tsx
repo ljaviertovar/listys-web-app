@@ -4,10 +4,10 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Alert02Icon, Delete02Icon, Loading03Icon } from '@hugeicons/core-free-icons'
+import { Delete02Icon, Loading03Icon } from '@hugeicons/core-free-icons'
 
-import { RowIcon, SheetDialog } from '@/components/commons'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { SheetDialog, WarningAlert } from '@/components/commons'
+import { AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { deleteTicket } from '@/lib/api/endpoints'
 
@@ -52,11 +52,10 @@ export function DeleteReceiptButton({ ticketId, returnHref = '/tickets', onDelet
 		</Button>
 		<SheetDialog open={open} onOpenChange={next => { if (!deleting) setOpen(next) }} title='Delete this receipt?' role='alertdialog' testId='delete-receipt-sheet' fit>
 			<div className='flex flex-col gap-4'>
-				<Alert variant='warning' role='note' data-testid='delete-warning'>
-					<RowIcon icon={Alert02Icon} tone='warning' size='alert' testId='delete-warning-icon' />
+				<WarningAlert role='note' testId='delete-warning' iconTestId='delete-warning-icon'>
 					<AlertTitle>{warningTitle}</AlertTitle>
 					{warningRest.length > 0 ? <AlertDescription>{warningRest.join(' ')}</AlertDescription> : null}
-				</Alert>
+				</WarningAlert>
 				<div className='flex flex-col gap-2'>
 					<Button type='button' variant='destructive' size='lg' disabled={deleting} onClick={() => void handleDelete()} data-testid='delete-receipt-confirm'>
 						{deleting

@@ -229,6 +229,45 @@
 
 }
 
+/* The receipt paper of the system pages (loading, error, not found). Keyframes cannot be written as utilities. */
+@theme {
+  /* One row (1.75rem) every 0.8s in steps, four rows per loop: the pattern repeats, so the loop has no seam. */
+  --animate-receipt-feed: receipt-feed 3.2s steps(4, jump-end) infinite;
+  /* Hidden for the first 200ms, so a load that finishes at once never shows the loading screen. */
+  --animate-system-reveal: system-reveal 150ms ease-out 200ms both;
+  /* After 10s the loading screen adds one honest line and a way out; hidden until then, and not focusable. */
+  --animate-system-slow: system-slow 300ms ease-out 10s both;
+
+  @keyframes receipt-feed {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(7rem);
+    }
+  }
+
+  @keyframes system-reveal {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes system-slow {
+    from {
+      opacity: 0;
+      visibility: hidden;
+    }
+    to {
+      opacity: 1;
+      visibility: visible;
+    }
+  }
+}
+
 /* Keyboard focus of links and rows that are not a library component: a 2px action-blue ring with a 2px offset. */
 @utility focus-ring {
   @apply focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:outline-none;

@@ -1,7 +1,5 @@
-import { Alert02Icon } from '@hugeicons/core-free-icons'
-
-import { RowIcon } from '@/components/commons'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { WarningAlert } from '@/components/commons'
+import { AlertDescription } from '@/components/ui/alert'
 import { Card } from '@/components/ui/card'
 import { formatCurrency } from '@/utils'
 import type { Ticket } from '@/types'
@@ -60,10 +58,9 @@ export function TicketSummaryCard({ ticket, itemsCount, pricedItemsCount, total 
 					</>
 				) : null}
 				{linesMissed ? (
-					<Alert variant='warning' role='note' data-testid='ticket-total-gap-note'>
-						<RowIcon icon={Alert02Icon} tone='warning' size='alert' testId='ticket-total-gap-icon' />
+					<WarningAlert role='note' testId='ticket-total-gap-note' iconTestId='ticket-total-gap-icon'>
 						<AlertDescription>The items we read add up to less than the receipt total. Some lines may be missing: check the photo.</AlertDescription>
-					</Alert>
+					</WarningAlert>
 				) : null}
 				{showTotals && !linesMissed && pricedItemsCount < itemsCount ? (
 					<p className='text-xs leading-normal text-muted-foreground dark:text-muted-foreground'>

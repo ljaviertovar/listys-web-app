@@ -2,10 +2,10 @@
 
 import type { ReactNode } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Alert02Icon, Delete02Icon, Edit02Icon, Loading03Icon, Store03Icon, Tick02Icon } from '@hugeicons/core-free-icons'
+import { Delete02Icon, Edit02Icon, Loading03Icon, Store03Icon, Tick02Icon } from '@hugeicons/core-free-icons'
 
-import { RowIcon, RowMenu } from '@/components/commons'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { RowIcon, RowMenu, WarningAlert } from '@/components/commons'
+import { AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -111,14 +111,13 @@ export function TicketStoreCard({ ticketId, store, storeSuggestion, storeName, i
 	const rawName = state.kind === 'unmatched' ? state.rawName : null
 	if (state.kind === 'unrecognized') {
 		return (
-			<Alert
-				variant='warning'
+			<WarningAlert
 				role='region'
-				data-testid='ticket-store-card'
+				testId='ticket-store-card'
+				iconTestId='ticket-store-icon'
 				data-state={state.kind}
 				aria-labelledby={`${ticketId}-store-title`}
 			>
-				<RowIcon icon={Alert02Icon} tone='warning' size='alert' testId='ticket-store-icon' />
 				<div className='flex min-w-0 flex-col gap-0.5'>
 					<AlertTitle id={`${ticketId}-store-title`}>Store not set</AlertTitle>
 					<AlertDescription>Prices and usual-store tags are not saved until you choose one.</AlertDescription>
@@ -150,7 +149,7 @@ export function TicketStoreCard({ ticketId, store, storeSuggestion, storeName, i
 					error={sheetOpen ? actions.error : null}
 					testId='ticket-store-sheet'
 				/>
-			</Alert>
+			</WarningAlert>
 		)
 	}
 

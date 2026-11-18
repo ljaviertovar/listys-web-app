@@ -9,7 +9,7 @@ import { Alert02Icon, Attachment01Icon, CheckmarkCircle02Icon, InformationCircle
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { DialogFooter } from '@/components/ui/dialog'
-import { ConfirmSheet, RowIcon, SheetDialog } from '@/components/commons'
+import { ConfirmSheet, RowIcon, SheetDialog, WarningAlert } from '@/components/commons'
 import { completeShoppingSession } from '@/lib/api/endpoints'
 import { useActiveSessionStore } from '@/stores/active-session'
 
@@ -150,13 +150,12 @@ export function CompleteSessionSheet({ sessionId, checked, total, open, onOpenCh
 		>
 			{saveError ? errorAlert : <>
 				{learningAlert(checked, 'complete-session-learning')}
-				{unchecked > 0 ? <Alert variant='warning' role='note' data-testid='complete-session-uncollected'>
-					<RowIcon icon={Alert02Icon} tone='warning' size='alert' />
+				{unchecked > 0 ? <WarningAlert testId='complete-session-uncollected' role='note'>
 					<div>
 						<AlertTitle>Uncollected items stay in Pantry</AlertTitle>
 						<AlertDescription>The {unchecked} {unchecked === 1 ? 'item you didn’t collect is' : 'items you didn’t collect are'} waiting for your next trip.</AlertDescription>
 					</div>
-				</Alert> : null}
+				</WarningAlert> : null}
 			</>}
 		</ConfirmSheet>
 	)

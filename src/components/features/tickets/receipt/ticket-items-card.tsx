@@ -2,11 +2,11 @@
 
 import type { ReactNode } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Loading03Icon, PackageSearchIcon, SpamIcon, Tick02Icon } from '@hugeicons/core-free-icons'
+import { Loading03Icon, PackageSearchIcon, Tick02Icon } from '@hugeicons/core-free-icons'
 
-import { EmptyState, RowIcon } from '@/components/commons'
+import { EmptyState, RowIcon, WarningAlert } from '@/components/commons'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { AlertDescription, AlertTitle } from '@/components/ui/alert'
 
 import { TicketItemsList, type TicketItemsTriage } from './ticket-items-list'
 import { TicketStatusListener } from './ticket-status-listener'
@@ -186,11 +186,7 @@ export function TicketProcessingError({ compact = false }: { compact?: boolean }
 			data-testid='ticket-processing-error'
 			className={compact ? 'pt-4 pb-3' : 'py-8'}
 		>
-			<Alert variant='warning'>
-				<HugeiconsIcon
-					icon={SpamIcon}
-					strokeWidth={2}
-				/>
+			<WarningAlert testId='ticket-processing-warning'>
 				<AlertTitle>{errorTitle}</AlertTitle>
 				<AlertDescription>
 					<p className='mb-2'>{errorMessage}</p>
@@ -204,7 +200,7 @@ export function TicketProcessingError({ compact = false }: { compact?: boolean }
 						</ul>
 					</div>
 				</AlertDescription>
-			</Alert>
+			</WarningAlert>
 		</div>
 	)
 }

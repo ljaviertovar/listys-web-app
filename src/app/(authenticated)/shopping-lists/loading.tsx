@@ -1,13 +1,10 @@
-import { PageContainer, PageHeader } from '@/components/app'
-import { BaseListsSkeleton } from '@/components/features/base-lists'
+import { PageContainer } from '@/components/app'
+import { BaseListsPageHeader, BaseListsSkeleton } from '@/components/features/base-lists'
 
 export default function ShoppingListsLoading() {
 	return (
 		<>
-			<PageHeader
-				title='Lists'
-				desc='All your lists in one place. Start with the things you always buy.'
-			/>
+			<BaseListsPageHeader />
 			<PageContainer>
 				<BaseListsSkeleton />
 			</PageContainer>

@@ -1,14 +1,12 @@
 import { redirect } from 'next/navigation'
 
-import { PageContainer, PageHeader } from '@/components/app'
+import { PageContainer } from '@/components/app'
 import { RetryableError } from '@/components/commons'
-import { StoresList } from '@/components/features/stores'
+import { StoresList, StoresPageHeader } from '@/components/features/stores'
 
 import { createClient } from '@/lib/supabase/server'
 
 import { getStores } from '@/lib/api/endpoints'
-
-const STORES_PAGE_DESCRIPTION = 'The stores of your receipts. Rename a store, or merge two names for the same store.'
 
 export default async function StoresPage() {
 	const supabase = await createClient()
@@ -24,13 +22,7 @@ export default async function StoresPage() {
 
 	return (
 		<>
-			<PageHeader
-				back={{ href: '/tickets', label: 'Back to Receipts' }}
-				title='My Stores'
-				entity='store'
-				desc={STORES_PAGE_DESCRIPTION}
-				count={error ? undefined : { value: stores?.length ?? 0, one: 'store', many: 'stores' }}
-			/>
+			<StoresPageHeader />
 
 			<PageContainer>
 				{error ? (

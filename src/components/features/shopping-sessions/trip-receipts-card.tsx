@@ -3,12 +3,12 @@
 import { useReducer } from 'react'
 import Link from 'next/link'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Alert02Icon, Attachment01Icon, CheckmarkCircle02Icon, Invoice01Icon, Loading03Icon, ShoppingBag03Icon, Upload06Icon } from '@hugeicons/core-free-icons'
+import { Alert02Icon, Attachment01Icon, CheckmarkCircle02Icon, Loading03Icon, ShoppingBag03Icon, Upload06Icon } from '@hugeicons/core-free-icons'
 
-import { RowIcon, StatusCard } from '@/components/commons'
+import { RowIcon, StatusCard, WarningAlert } from '@/components/commons'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { UploadTicketDialog } from '@/components/features/tickets'
 import type { TicketSessionCandidate } from '@/lib/api/endpoints'
 
@@ -56,16 +56,15 @@ export function TripReceiptsCard({ state, justSaved = false, itemCount, listName
 						<RowIcon icon={ShoppingBag03Icon} tone='success' size='saved' testId='trip-saved-icon' />
 						<h1 id={headingId} className='mt-[18px] font-display text-lg leading-[1.39] font-semibold tracking-tight'>{card.title}</h1>
 						<p className='mt-1.5 max-w-70 text-sm leading-normal text-muted-foreground dark:text-muted-foreground'>{card.message}</p>
-						<Alert variant='warning' className='mt-[18px]'><RowIcon icon={Invoice01Icon} tone='warning' size='alert' testId='trip-saved-no-receipt-icon' /><AlertTitle>No receipt yet</AlertTitle><AlertDescription>Having no receipt never leaves the trip incomplete.</AlertDescription></Alert>
+						<WarningAlert testId='trip-saved-no-receipt' iconTestId='trip-saved-no-receipt-icon' className='mt-[18px]'><AlertTitle>No receipt yet</AlertTitle><AlertDescription>Having no receipt never leaves the trip incomplete.</AlertDescription></WarningAlert>
 						<div className='mt-[18px] flex w-full flex-col gap-2'>{actions}</div>
 						<p className='mt-3.5 max-w-70 text-xs leading-[1.4] text-muted-foreground dark:text-muted-foreground'>You can add a receipt later from Trips, with no deadline.</p>
 					</div>
-				</Card> : state.kind === 'none' ? <Alert variant='warning' data-testid={`${testId}-state`}>
-					<RowIcon icon={Invoice01Icon} tone='warning' size='alert' testId='trip-no-receipt-icon' />
+				</Card> : state.kind === 'none' ? <WarningAlert testId={`${testId}-state`} iconTestId='trip-no-receipt-icon'>
 					<AlertTitle id={headingId} tabIndex={-1}>No receipt</AlertTitle>
 					<AlertDescription>{card.message}</AlertDescription>
 					{actions.length ? <div className='col-start-2 mt-2 flex gap-2'>{actions}</div> : null}
-				</Alert> : <StatusCard testId={`${testId}-state`} headingId={headingId}
+				</WarningAlert> : <StatusCard testId={`${testId}-state`} headingId={headingId}
 				tone={state.kind === 'reading' ? 'info' : state.kind === 'read' ? 'success' : state.kind === 'failed' ? 'danger' : 'default'}
 				icon={state.kind === 'reading' ? Loading03Icon : state.kind === 'read' ? CheckmarkCircle02Icon : state.kind === 'failed' ? Alert02Icon : undefined}
 				spinning={state.kind === 'reading'} title={card.title} description={card.message} actions={actions.length ? actions : undefined} />}

@@ -3,12 +3,13 @@
 import type { ReactNode } from 'react'
 import { useId } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Alert02Icon, AlertCircleIcon, Loading03Icon } from '@hugeicons/core-free-icons'
+import { AlertCircleIcon, Loading03Icon } from '@hugeicons/core-free-icons'
 
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { RowIcon } from '@/components/commons/row-icon'
 import { useDialogFocus } from '@/hooks'
+import { WarningAlert } from '../warning-alert'
 
 interface ConfirmSheetProps {
 	open: boolean
@@ -81,17 +82,16 @@ export function ConfirmSheet({
 						<AlertDialogDescription id={descriptionId}>{description}</AlertDialogDescription>
 					</div>
 				) : media ? media : null}
-				{consequence ? (
-					<Alert
-						id={consequenceId}
-						role='note'
-						variant={consequenceTone === 'danger' ? 'destructive' : 'warning'}
-					>
-						<RowIcon
-							icon={consequenceTone === 'warning' ? Alert02Icon : AlertCircleIcon}
-							tone={consequenceTone === 'warning' ? 'warning' : 'danger'}
-							size='alert'
-						/>
+				{consequence ? consequenceTone === 'warning' ? (
+					<WarningAlert id={consequenceId} role='note' testId={`${testId}-consequence-warning`}>
+						<div className='flex min-w-0 flex-col gap-0.5'>
+							{consequenceTitle ? <AlertTitle>{consequenceTitle}</AlertTitle> : null}
+							<AlertDescription>{consequence}</AlertDescription>
+						</div>
+					</WarningAlert>
+				) : (
+					<Alert id={consequenceId} role='note' variant='destructive'>
+						<RowIcon icon={AlertCircleIcon} tone='danger' size='alert' />
 						<div className='flex min-w-0 flex-col gap-0.5'>
 							{consequenceTitle ? <AlertTitle>{consequenceTitle}</AlertTitle> : null}
 							<AlertDescription>{consequence}</AlertDescription>

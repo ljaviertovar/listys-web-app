@@ -22,8 +22,14 @@ export function LogoMark({ className }: { className?: string }) {
 					y1='0%'
 					y2='100%'
 				>
-					<stop offset='0%' stopColor='#6eb1ff' />
-					<stop offset='100%' stopColor='#3882ec' />
+					<stop
+						offset='0%'
+						stopColor='#155dfb'
+					/>
+					<stop
+						offset='100%'
+						stopColor='#1447e6'
+					/>
 				</linearGradient>
 			</defs>
 			<path
