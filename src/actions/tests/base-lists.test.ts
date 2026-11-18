@@ -226,6 +226,28 @@ describe('deleteBaseList', () => {
     const result = await deleteBaseList(TEST_UUID)
     expect(result).toEqual({ success: true })
   })
+
+  it('returns a safe conflict when a database guard finds an active trip', async () => {
+    const supabase = setupMock()
+    supabase.from = sequentialFrom({
+      base_lists: [{ data: null, error: { code: 'P0001', message: 'LIST_HAS_ACTIVE_TRIP' } }],
+    })
+
+    const result = await deleteBaseList(TEST_UUID)
+    expect(result).toEqual({
+      error: 'This list has an active trip. Finish or cancel the trip before deleting the list.',
+      errorCode: 'CONFLICT',
+    })
+  })
+
+  it('leaves unrelated database errors as failures', async () => {
+    const supabase = setupMock()
+    supabase.from = sequentialFrom({
+      base_lists: [{ data: null, error: { code: 'XX000', message: 'database failure' } }],
+    })
+
+    expect(await deleteBaseList(TEST_UUID)).toEqual({ error: 'Could not delete this list.' })
+  })
 })
 
 // ────────────────────────────────────

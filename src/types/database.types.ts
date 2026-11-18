@@ -828,6 +828,10 @@ export type Database = {
           total_amount: number
         }[]
       }
+      create_default_pantry: {
+        Args: { p_group_name: string; p_list_name: string }
+        Returns: Json
+      }
       ensure_default_group: {
         Args: { p_group_name: string }
         Returns: string

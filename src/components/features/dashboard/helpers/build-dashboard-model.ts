@@ -128,12 +128,34 @@ export interface QuickStartList {
 	itemsCount: number
 }
 
+export type GetStartedStepId = 'list' | 'trip' | 'receipts'
+
+export interface GetStartedStep {
+	id: GetStartedStepId
+	done: boolean
+}
+
+/** The three-step path of an account that is still new. It is derived from the data, so it needs no stored state. */
+export interface GetStartedModel {
+	steps: GetStartedStep[]
+	completed: number
+	/** The first step not done: the only one that shows its action. */
+	current: GetStartedStepId
+	receiptsCount: number
+}
+
+export const GET_STARTED_RECEIPTS = 3
+
 export interface DashboardModel {
+	/** Null once every step is met: the card is gone for good. */
+	getStarted: GetStartedModel | null
+	/** The account has uploaded at least one receipt, whatever its reading status. */
+	hasReceipts: boolean
 	activeSession: ActiveSessionSummary | null
 	activeSessionIds: Record<string, string>
 	otherSessionCount: number
 	/** A few of the user's lists, flat: there is no group level any more. */
-	lists: { items: ListPreview[]; hiddenCount: number }
+	lists: { items: ListPreview[]; hiddenCount: number; hasDefaultList: boolean }
 	likelyNeeded: { hasHistory: boolean; receiptsCount?: number; items: LikelyNeededPreview[] }
 	storeVisits: StoreVisitPreview[]
 	upNext: UpNextItem[]
@@ -259,6 +281,8 @@ function buildLists(baseLists: DashboardBaseListInput[], trips: DashboardTripInp
 			lastTrip: lastTripByList.get(list.id) ?? null,
 		})),
 		hiddenCount: Math.max(baseLists.length - MAX_LISTS_PREVIEW, 0),
+		// Over every list, not just the preview: the default list may be beyond the first few.
+		hasDefaultList: baseLists.some(list => Boolean(list.is_default)),
 	}
 }
 
@@ -396,6 +420,17 @@ function buildUpNext(
 	return items.slice(0, MAX_UP_NEXT)
 }
 
+function buildGetStarted(hasList: boolean, hasTrip: boolean, receiptsCount: number): GetStartedModel | null {
+	const steps: GetStartedStep[] = [
+		{ id: 'list', done: hasList },
+		{ id: 'trip', done: hasTrip },
+		{ id: 'receipts', done: receiptsCount >= GET_STARTED_RECEIPTS },
+	]
+	const pending = steps.find(step => !step.done)
+	if (!pending) return null
+	return { steps, completed: steps.filter(step => step.done).length, current: pending.id, receiptsCount }
+}
+
 export function buildDashboardModel({
 	baseLists,
 	tickets,
@@ -429,6 +464,8 @@ export function buildDashboardModel({
 	const activeSessionIds = Object.fromEntries(sessions.map(session => [session.base_list_id, session.id]))
 
 	return {
+		getStarted: buildGetStarted(baseLists.length > 0, trips.some(trip => Boolean(trip.completed_at)), likelyNeededReceiptCount),
+		hasReceipts: tickets.length > 0,
 		activeSession: buildActiveSession(latestSession, listNames),
 		activeSessionIds,
 		otherSessionCount: Math.max(sessions.length - 1, 0),

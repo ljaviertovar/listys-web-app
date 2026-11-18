@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 
 import { ConfirmSheet } from '@/components/commons'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { cancelShoppingSession } from '@/lib/api/endpoints'
 import { useActiveSessionStore } from '@/stores/active-session'
 import { useTripSync } from './hooks/use-trip-sync'
@@ -21,12 +22,15 @@ interface CancelSessionSheetProps {
 /** "Cancel Shopping?": discards the running session. It never reaches the history and cannot be undone, and the sheet says so. */
 export function CancelSessionSheet({ sessionId, listName, checked, total, open, onOpenChange }: CancelSessionSheetProps) {
 	const [loading, setLoading] = useState(false)
+	const [cancelError, setCancelError] = useState<string | null>(null)
 	const { controller } = useTripSync(sessionId)
 	const router = useRouter()
 	const clearActiveSession = useActiveSessionStore(s => s.clearActiveSession)
 
 	const handleCancel = async () => {
+		if (loading) return
 		setLoading(true)
+		setCancelError(null)
 		try {
 			const { error } = await cancelShoppingSession(sessionId)
 			if (error) throw new Error(error)
@@ -36,16 +40,16 @@ export function CancelSessionSheet({ sessionId, listName, checked, total, open, 
 			router.push('/dashboard')
 		} catch (err) {
 			console.error('Failed to cancel session:', err)
-			toast.error('Failed to cancel the shopping session')
+			setCancelError('Could not cancel this trip. Check your connection and try again.')
+			toast.error('Failed to cancel the shopping session', { description: 'Check your connection and try again.' })
 			setLoading(false)
-			onOpenChange(false)
 		}
 	}
 
 	return (
 		<ConfirmSheet
 			open={open}
-			onOpenChange={onOpenChange}
+			onOpenChange={next => { if (!loading) { onOpenChange(next); if (!next) setCancelError(null) } }}
 			title='Cancel Shopping?'
 			description={`You have collected ${checked} of ${total} items. Checks are discarded.`}
 			consequenceTitle={`${listName} stays as it was`}
@@ -58,6 +62,8 @@ export function CancelSessionSheet({ sessionId, listName, checked, total, open, 
 			loading={loading}
 			onConfirm={handleCancel}
 			testId='cancel-session-sheet'
-		/>
+		>
+			{cancelError ? <Alert variant='destructive' data-testid='cancel-session-error'><AlertTitle>Cancellation failed</AlertTitle><AlertDescription>{cancelError}</AlertDescription></Alert> : null}
+		</ConfirmSheet>
 	)
 }

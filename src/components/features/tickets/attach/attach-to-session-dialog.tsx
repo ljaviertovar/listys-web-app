@@ -78,7 +78,7 @@ export function AttachToSessionDialog({ actions }: { actions: TripReview }) {
 								{actions.submitting ? 'Attaching…' : active ? 'Attach Receipt' : review.confirmLabel}
 							</Button>
 						</DialogFooter>
-						<DeleteReceiptButton ticketId={actions.receiptId} returnHref={`/shopping/${actions.trip.id}?details=1`} />
+						<DeleteReceiptButton ticketId={actions.receiptId} />
 					</> : null}
 				</div> : null}
 			</SheetDialog>

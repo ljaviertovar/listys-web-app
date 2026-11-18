@@ -1,7 +1,9 @@
 'use client'
 
 import type { ReactNode } from 'react'
+import { ShoppingCart02Icon } from '@hugeicons/core-free-icons'
 
+import { RowIcon } from '@/components/commons'
 import { Card } from '@/components/ui/card'
 import { formatCurrency } from '@/utils'
 import { TripProgressChart } from './trip-progress-chart'
@@ -19,9 +21,9 @@ type SessionSummaryCardProps = { testId?: string; sessionId?: string; priceByIte
 )
 
 /**
- * Shows shopping progress while active and only the estimate after completion. While shopping, each fact appears once: the count is
- * in the hole of the progress chart, so the left column holds the estimate and what it is based on (or what is still to collect
- * when no price is known yet).
+ * Shows shopping progress while active and only the estimate after completion. While shopping, the card opens with the trip's
+ * identity (its green cart icon and title) and each fact appears once: the count is in the hole of the progress chart, so the left
+ * column holds the estimate and what it is based on (or what is still to collect when no price is known yet).
  */
 export function SessionSummaryCard(props: SessionSummaryCardProps) {
 	const { state } = useTripSync(props.mode === 'active' ? props.sessionId : null)
@@ -56,23 +58,29 @@ export function SessionSummaryCard(props: SessionSummaryCardProps) {
 			size='receipt'
 		>
 			<div className='flex items-center gap-4'>
-				{estimate ? (
-					<EstimateFacts label='Estimated total' value={`≈ ${formatCurrency(estimate.total)}`} lines={describeEstimateBasis(estimate)} />
-				) : (
-					<EstimateFacts
-						label='Still to collect'
-						value={
-							remaining === 0 ? (
-								'Done'
-							) : (
-								<>
-									{remaining} <span className='font-sans text-sm font-medium tracking-normal'>{remaining === 1 ? 'item' : 'items'}</span>
-								</>
-							)
-						}
-						lines={remaining === 0 ? ['Everything is collected'] : ['No known prices for this list yet']}
-					/>
-				)}
+				<div className='flex min-w-0 flex-1 flex-col gap-3'>
+					<div className='flex items-center gap-2.5'>
+						<RowIcon icon={ShoppingCart02Icon} tone='success' size='sm' testId={`${testId}-icon`} />
+						<h2 className='text-base font-semibold tracking-tight'>Trip Progress</h2>
+					</div>
+					{estimate ? (
+						<EstimateFacts label='Estimated total' value={`≈ ${formatCurrency(estimate.total)}`} lines={describeEstimateBasis(estimate)} />
+					) : (
+						<EstimateFacts
+							label='Still to collect'
+							value={
+								remaining === 0 ? (
+									'Done'
+								) : (
+									<>
+										{remaining} <span className='font-sans text-sm font-medium tracking-normal'>{remaining === 1 ? 'item' : 'items'}</span>
+									</>
+								)
+							}
+							lines={remaining === 0 ? ['Everything is collected'] : ['No known prices for this list yet']}
+						/>
+					)}
+				</div>
 				<TripProgressChart
 					checked={checked}
 					total={total}
@@ -92,7 +100,7 @@ interface EstimateFactsProps {
 
 function EstimateFacts({ label, value, lines }: EstimateFactsProps) {
 	return (
-		<div className='flex min-w-0 flex-1 flex-col gap-0.5'>
+		<div className='flex min-w-0 flex-col gap-0.5'>
 			<span className='text-xs leading-4 text-muted-foreground dark:text-muted-foreground'>{label}</span>
 			<span className='font-mono text-2xl leading-7 font-semibold tracking-tight text-foreground tabular-nums'>{value}</span>
 			{lines.map(line => (

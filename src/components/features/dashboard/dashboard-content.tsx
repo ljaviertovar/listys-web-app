@@ -8,12 +8,6 @@ import { buildDashboardModel } from './helpers/build-dashboard-model'
 
 type DashboardInput = Parameters<typeof buildDashboardModel>[0]
 
-function firstNameOf(user: { email?: string; user_metadata?: Record<string, unknown> } | null) {
-	const metadata = user?.user_metadata
-	const fullName = (metadata?.name as string | undefined) || (metadata?.full_name as string | undefined)
-	return (fullName || user?.email?.split('@')[0] || 'there').trim().split(/\s+/)[0]
-}
-
 /**
  * Loads everything the dashboard shows. A user with no lists first gets the default Pantry, awaited before the reads so
  * the very first visit already includes it (the layout renders in parallel with the page, so it cannot do this). The
@@ -81,7 +75,6 @@ export async function DashboardContent() {
 	return (
 		<DashboardView
 			model={model}
-			firstName={firstNameOf(user)}
 			hasLists={baseLists.length > 0}
 			isGuest={!!user && !!activeSessionsResult.data?.[0] && activeSessionsResult.data[0].user_id !== user.id}
 		/>

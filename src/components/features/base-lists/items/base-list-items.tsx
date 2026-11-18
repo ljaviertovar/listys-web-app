@@ -59,7 +59,7 @@ export function BaseListItems({ baseListId, items, isLocked = false, isOwner = t
 				testId='base-list-empty-state'
 			>
 				{isLocked ? <BaseListLockedNotice /> : null}
-				<div className='flex w-full flex-row items-stretch gap-2'>
+				<div className='flex w-full flex-col items-stretch gap-2 sm:flex-row'>
 					<AddItemSheet
 						target={{ context: 'base-list', baseListId }}
 						label='Add Items'

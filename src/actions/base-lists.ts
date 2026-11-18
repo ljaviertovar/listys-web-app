@@ -127,7 +127,13 @@ export async function deleteBaseList(id: string) {
     .eq('user_id', user.id)
 
   if (error) {
-    return { error: error.message }
+    if (error.code === 'P0001' && error.message === 'LIST_HAS_ACTIVE_TRIP') {
+      return {
+        error: 'This list has an active trip. Finish or cancel the trip before deleting the list.',
+        errorCode: 'CONFLICT',
+      }
+    }
+    return { error: 'Could not delete this list.' }
   }
 
   revalidatePath('/shopping-lists')

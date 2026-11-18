@@ -17,12 +17,10 @@ interface Props {
 	allowRetry?: boolean
 	/** The retry button's label; "Read Receipt Again" unless the surface asks for something shorter. */
 	retryLabel?: string
-	returnHref?: string
 	onRetrySuccess?: () => void
-	onDeleted?: () => void
 }
 
-export function TicketActions({ ticket, allowRetry = false, retryLabel = 'Read Receipt Again', returnHref, onRetrySuccess, onDeleted }: Props) {
+export function TicketActions({ ticket, allowRetry = false, retryLabel = 'Read Receipt Again', onRetrySuccess }: Props) {
 	const [retrying, setRetrying] = useState(false)
 	const router = useRouter()
 
@@ -92,7 +90,7 @@ export function TicketActions({ ticket, allowRetry = false, retryLabel = 'Read R
 			)}
 
 			{/* Allow delete for failed/completed tickets, and stuck processing tickets */}
-			{(ticket.ocr_status !== 'processing' || isStuckProcessing) && <DeleteReceiptButton ticketId={ticket.id} returnHref={returnHref} onDeleted={onDeleted} warning={deleteWarningMessage} saved={!!ticket.base_list_id} />}
+			{(ticket.ocr_status !== 'processing' || isStuckProcessing) && <DeleteReceiptButton ticketId={ticket.id} warning={deleteWarningMessage} saved={!!ticket.base_list_id} />}
 		</div>
 	)
 }

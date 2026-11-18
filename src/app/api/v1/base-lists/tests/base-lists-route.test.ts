@@ -7,6 +7,7 @@ vi.mock('@/lib/api/auth', () => ({ createAuthenticatedClient: vi.fn() }))
 
 import { createAuthenticatedClient } from '@/lib/api/auth'
 import { GET, POST } from '../route'
+import { DELETE } from '../[baseListId]/route'
 
 const mockedAuth = vi.mocked(createAuthenticatedClient)
 
@@ -24,6 +25,47 @@ const post = (body: unknown) =>
       body: JSON.stringify(body),
     }),
   )
+
+describe('DELETE /api/v1/base-lists/{baseListId}', () => {
+  const remove = () => DELETE(
+    new Request(`http://localhost/api/v1/base-lists/${TEST_UUID}`, { method: 'DELETE' }),
+    { params: Promise.resolve({ baseListId: TEST_UUID }) },
+  )
+
+  it('returns 409 with a safe message when the database rejects deletion during an active trip', async () => {
+    const supabase = signIn()
+    const builder = sequentialFrom({
+      base_lists: [{ error: { code: 'P0001', message: 'LIST_HAS_ACTIVE_TRIP', details: 'private-trip-id' } }],
+    })('base_lists')
+    supabase.from = vi.fn().mockReturnValue(builder)
+
+    const response = await remove()
+    expect(response.status).toBe(409)
+    expect(await response.json()).toEqual({
+      error: {
+        code: ErrorCode.CONFLICT,
+        message: 'This list has an active trip. Finish or cancel the trip before deleting the list.',
+        request_id: expect.any(String),
+      },
+    })
+    expect(supabase.from).toHaveBeenCalledWith('base_lists')
+    expect(builder.delete).toHaveBeenCalledOnce()
+    expect(builder.eq.mock.calls).toEqual([['id', TEST_UUID], ['user_id', 'user-1']])
+  })
+
+  it('keeps unrelated database errors as generic 500 failures', async () => {
+    const supabase = signIn()
+    supabase.from = sequentialFrom({
+      base_lists: [{ error: { code: 'P0001', message: 'private database error' } }],
+    })
+
+    const response = await remove()
+    expect(response.status).toBe(500)
+    expect(await response.json()).toMatchObject({
+      error: { code: ErrorCode.INTERNAL_ERROR, message: 'Could not delete this list.' },
+    })
+  })
+})
 
 describe('POST /api/v1/base-lists', () => {
   let consoleError: ReturnType<typeof vi.spyOn>

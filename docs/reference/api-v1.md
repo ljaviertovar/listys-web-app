@@ -49,7 +49,8 @@ strings. The inventory maps directly to [`src/app/api/v1/`](../../src/app/api/v1
 | `/groups/{groupId}/base-lists` | GET | Lists in an owner group. |
 | `/groups/history` | GET | Groups with completed sessions; existing specialized read. |
 | `/base-lists` | GET, POST | List the owner's base lists (name, notes, group, creation date, item count; ordered by name, then creation) / create one; `group_id` is optional on create. |
-| `/base-lists/{baseListId}` | GET, PATCH, DELETE | Read/update/delete a list; each item includes its usual-store summary; shared reads are experimental. |
+| `/base-lists/default-pantry` | POST | Give the account a default list on request (no body): returns `{ id, outcome }`. |
+| `/base-lists/{baseListId}` | GET, PATCH, DELETE | Read, update, or delete a list. DELETE returns `409 CONFLICT` while the list has an active trip. Each item in a list read includes its usual-store summary. Shared reads are experimental. |
 | `/base-lists/{baseListId}/items` | POST | Create an item; list ID comes from the path. |
 | `/base-list-items` | GET | `?filter=likely_needed` reads up to 10 due items from the caller's own lists. |
 | `/spending` | GET | `?from=<ISO datetime with offset>&to=<ISO datetime with offset>` returns the caller's known spending totals for a range of at most 92 days. |
@@ -98,7 +99,7 @@ request returns `401`. The cadence and cutoff rules are listed in [reference lim
 
 ### Spending and store visits
 
-`GET /api/v1/spending?from=2026-10-01T00:00:00Z&to=2026-11-01T00:00:00Z` returns `{ "data": { "from", "to", "total", "trips_count", "receipts_count", "trips_without_total" } }`. Both endpoints are required ISO datetimes with a timezone offset; `to` must be after `from`, and the half-open range cannot exceed 92 days. Only known totals from the caller's completed trips and unattached receipts are summed. Invalid ranges return `422`, unauthenticated requests return `401`.
+`GET /api/v1/spending?from=2026-10-01T00:00:00Z&to=2026-11-01T00:00:00Z` returns `{ "data": { "from", "to", "total", "trips_count", "receipts_count", "trips_without_total" } }`. Both endpoints are required ISO datetimes with a timezone offset; `to` must be after `from`, and the half-open range cannot exceed 92 days. Only known totals from the caller's completed trips and unattached receipts are summed. Invalid ranges return `422`, unauthenticated requests return `401`. The summary also carries `first_receipt_at` and `last_receipt_at`: when the caller's oldest and newest receipts were added (ISO datetime), or `null` when there is no receipt or it could not be read. They do not depend on the range.
 
 Each store from `GET /api/v1/stores` adds `last_visit: { kind: "trip" | "receipt", id, at, total_amount } | null`. Attached receipts are represented by their trip. A trip visit links to the trips screen (`/trips`); a receipt visit links to its receipt. The value is null when the caller has no visits to that store.
 
@@ -161,6 +162,19 @@ Source: [`default-group.service.ts`](../../src/lib/server/services/default-group
 [`find-list-by-name.ts`](../../src/lib/server/services/find-list-by-name.ts),
 [`base-lists.service.ts`](../../src/lib/server/services/base-lists.service.ts) and the
 [migration](../../supabase/migrations/20261024000000_ensure_default_group.sql).
+
+Default Pantry on demand (2026-11-18). Compatible addition inside v1, no new major version and no deprecation headers:
+
+- `POST /api/v1/base-lists/default-pantry` takes no body and needs a session (`401` otherwise). `outcome` is `created` (`201`:
+  a new empty "Pantry" in the implicit default group, marked as the default), `adopted` (`200`: the account already had a list
+  named "Pantry", compared ignoring case, and only its default marker was set; with several, the oldest) or `existing`
+  (`200`: a default list already existed, nothing changed). It is safe to repeat and to send twice at once. A database
+  failure is a generic `500` ("We couldn’t set up your Pantry. Try again.").
+- Accounts created before the first-visit Pantry use it to get one; the automatic first-visit provisioning is unchanged.
+
+Source: [`default-pantry.service.ts`](../../src/lib/server/services/default-pantry.service.ts),
+[`route.ts`](../../src/app/api/v1/base-lists/default-pantry/route.ts) and the
+[migration](../../supabase/migrations/20261118160000_create_default_pantry.sql).
 
 Stores (PRD v3 Phase 3, 2026-10-25). Compatible changes inside v1, no new major version and no deprecation headers:
 

@@ -20,6 +20,7 @@ export type SpendingSummary = {
 	change_percent?: number | null
 	/** When the oldest receipt of the user was added, whatever the range. */
 	first_receipt_at?: string | null
+	last_receipt_at?: string | null
 }
 
 export async function getSpending(from: string, to: string, compareFrom?: string, compareTo?: string) {

@@ -13,15 +13,6 @@ export function DashboardSkeleton() {
 			className='flex flex-col gap-6 pt-1 md:gap-8 md:pt-0 lg:-mt-3 lg:gap-9'
 		>
 			<span className='sr-only'>Loading your dashboard</span>
-			<header className='flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between'>
-				<div className='flex flex-col gap-2'>
-					<Skeleton className='h-7 w-44' />
-					<Skeleton className='h-9 w-72 max-w-full' />
-					<Skeleton className='h-5 w-full max-w-md' />
-				</div>
-				<Skeleton className='hidden h-11 w-44 rounded-xl lg:block' />
-			</header>
-
 			<Card size='spending' className='mb-[-8px]'>
 				<MonthSpendingSkeleton testId='dashboard-month-spending-skeleton' />
 			</Card>
