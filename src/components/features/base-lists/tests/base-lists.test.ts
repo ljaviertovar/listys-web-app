@@ -41,6 +41,16 @@ describe('BaseListsList cards', () => {
 		expect(html).not.toContain('Start Shopping')
 	})
 
+	it('shows the default list first while preserving the order of the other lists', () => {
+		const html = render({
+			baseLists: [list({ id: 'l1' }), list({ id: 'l2', name: 'Weekly Groceries' }), list({ id: 'l3', name: 'Costco' })],
+			defaultListId: 'l3',
+		})
+
+		expect(html.indexOf('data-testid="list-card-l3-default"')).toBeLessThan(html.indexOf('data-testid="list-card-l1"'))
+		expect(html.indexOf('data-testid="list-card-l1"')).toBeLessThan(html.indexOf('data-testid="list-card-l2"'))
+	})
+
 	it('keeps the way back into a trip on the card of a list that is being shopped', () => {
 		const html = render({ activeSessionIds: { l1: 'session-1' } })
 

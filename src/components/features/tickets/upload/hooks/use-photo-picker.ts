@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
-import { classifyPhoto, type PhotoVerdict } from '../helpers/classify-photo'
+import { classifyPhoto, isDecodablePhoto, type PhotoVerdict } from '../helpers/classify-photo'
 
 export interface PhotoPreview {
 	id: string
@@ -38,7 +38,7 @@ export function usePhotoPicker(max: number) {
 	}, [])
 
 	const addFiles = useCallback(
-		(incoming: FileList | File[]) => {
+		async (incoming: FileList | File[]) => {
 			const files = Array.from(incoming)
 			const slots = max - previews.length
 
@@ -53,7 +53,8 @@ export function usePhotoPicker(max: number) {
 			const accepted: PhotoPreview[] = []
 			const refused: PhotoRejection[] = []
 			for (const file of files.slice(0, slots)) {
-				const verdict = classifyPhoto(file)
+				let verdict = classifyPhoto(file)
+				if (verdict === 'ok' && !(await isDecodablePhoto(file))) verdict = 'format'
 				if (verdict === 'ok') {
 					const url = URL.createObjectURL(file)
 					liveUrls.current.add(url)

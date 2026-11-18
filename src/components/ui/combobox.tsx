@@ -88,7 +88,7 @@ function ComboboxInput({
 			className={cn(
 				'w-auto',
 				surface === 'page' && 'bg-background',
-				surface === 'form' && 'h-11 rounded-3xl border-transparent bg-input/50 shadow-xs',
+				surface === 'form' && 'rounded-3xl border-transparent bg-input/50 shadow-xs',
 				size === 'lg' && cn('h-11', surface === 'form' ? 'rounded-3xl' : 'rounded-2xl'),
 				size === 'filter' && 'h-13 rounded-2xl px-1',
 				inset === 'card' && 'px-0.5',

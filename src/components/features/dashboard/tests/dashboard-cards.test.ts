@@ -7,6 +7,7 @@ import { MonthSpendingCard } from '../month-spending-card'
 import { useSpendingSummary } from '../hooks/use-spending-summary'
 
 vi.mock('../hooks/use-spending-summary', () => ({ useSpendingSummary: vi.fn() }))
+vi.mock('@/components/features/tickets', () => ({ UploadTicketDialog: () => createElement('button', null, 'Upload Receipt') }))
 
 const mockSpending = vi.mocked(useSpendingSummary)
 

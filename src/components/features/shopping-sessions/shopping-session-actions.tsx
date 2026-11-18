@@ -239,6 +239,7 @@ export function ShoppingSessionActions({
 				<>
 					<CompleteSessionSheet
 						sessionId={sessionId}
+						listName={listName}
 						checked={checked}
 						total={total}
 						open={completeOpen}

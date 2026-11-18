@@ -2,7 +2,7 @@ import { setUpDefaultPantry } from '@/lib/api/endpoints'
 
 export const PANTRY_SETUP_ERROR = 'We couldn’t set up your Pantry. Try again.'
 
-export type PantrySetupResult = { ok: true; message: string } | { ok: false; message: string }
+export type PantrySetupResult = { ok: true; listId: string; message: string } | { ok: false; message: string }
 
 const SUCCESS_MESSAGES: Record<string, string> = {
 	created: 'Pantry created',
@@ -19,8 +19,8 @@ export async function requestPantrySetup(): Promise<PantrySetupResult> {
 		const { data, error } = await setUpDefaultPantry()
 		const message = typeof data?.outcome === 'string' ? SUCCESS_MESSAGES[data.outcome] : undefined
 
-		if (error || !message) return { ok: false, message: PANTRY_SETUP_ERROR }
-		return { ok: true, message }
+		if (error || !data?.id || !message) return { ok: false, message: PANTRY_SETUP_ERROR }
+		return { ok: true, listId: data.id, message }
 	} catch {
 		return { ok: false, message: PANTRY_SETUP_ERROR }
 	}

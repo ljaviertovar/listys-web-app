@@ -75,6 +75,7 @@ describe('classifyPhoto', () => {
 		expect(classifyPhoto(file('notes.txt', 'text/plain'))).toBe('format')
 		expect(classifyPhoto(file('photo.jpg', 'text/plain'))).toBe('format')
 		expect(classifyPhoto(file('photo.txt', 'image/jpeg'))).toBe('format')
+		expect(classifyPhoto(file('empty.jpg', 'image/jpeg', 0))).toBe('format')
 	})
 
 	it('says which file failed and how to fix it', () => {

@@ -17,7 +17,7 @@ describe('requestPantrySetup', () => {
 	])('tells the user what happened when the outcome is %s', async (outcome, message) => {
 		mockedSetUp.mockResolvedValue({ data: { id: 'list-1', outcome } })
 
-		await expect(requestPantrySetup()).resolves.toEqual({ ok: true, message })
+		await expect(requestPantrySetup()).resolves.toEqual({ ok: true, listId: 'list-1', message })
 	})
 
 	it('answers with the fixed error when the server reports one, whatever its text', async () => {

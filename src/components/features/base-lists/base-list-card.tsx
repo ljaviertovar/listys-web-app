@@ -139,7 +139,7 @@ export function BaseListCard({
         title="Edit List"
         secondLabel="Notes"
         secondPlaceholder="Description or notes, eg. “Weekly groceries”, “Items for camping trip”"
-        secondMax={200}
+        secondMax={500}
         initial={{ name: baseList.name, second: baseList.notes ?? "" }}
         onSubmit={handleUpdate}
         onCancel={() => setEditing(false)}

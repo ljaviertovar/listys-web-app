@@ -56,10 +56,10 @@ describe('DashboardView with Get Started', () => {
 		expect(html).not.toContain('dashboard-likely-needed-card')
 	})
 
-	it('keeps the active trip above the path', () => {
+	it('keeps the active trip banner visible after the path card', () => {
 		const html = render({ baseLists: [list], activeSession })
 		expect(html).toContain('dashboard-active-session-banner')
-		expect(html.indexOf('dashboard-active-session-banner')).toBeLessThan(html.indexOf('dashboard-get-started'))
+		expect(html.indexOf('dashboard-get-started')).toBeLessThan(html.indexOf('dashboard-active-session-banner'))
 	})
 
 	it('keeps Up Next on its own, with no no-trip hero and no empty Store Visits, when a receipt waits', () => {
@@ -69,7 +69,7 @@ describe('DashboardView with Get Started', () => {
 		expect(html).toContain('dashboard-get-started')
 		expect(html).not.toContain('dashboard-no-session-banner')
 		expect(html).not.toContain('dashboard-store-visits-card')
-		expect(html).toContain('lg:col-span-5')
+		expect(html.indexOf('dashboard-get-started')).toBeLessThan(html.indexOf('dashboard-up-next'))
 	})
 
 	it('shows Likely Needed once three receipts exist, even with nothing due', () => {

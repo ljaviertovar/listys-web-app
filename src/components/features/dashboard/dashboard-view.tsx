@@ -62,8 +62,16 @@ export function DashboardView({ model, isGuest = false, hasLists }: Props) {
 				</header>
 			) : null}
 
-			{/* An established account keeps the summary first; while "Get Started" shows, the path comes before it. */}
-			{!getStarted && shouldShowSpending ? <MonthSpendingCard /> : null}
+			{getStarted ? (
+				<GetStartedCard
+					getStarted={getStarted}
+					startTarget={model.startTarget}
+					addItemsTarget={model.addItemsTarget}
+					tripInProgress={Boolean(model.activeSession)}
+				/>
+			) : null}
+
+			{shouldShowSpending ? <MonthSpendingCard /> : null}
 
 			{showActivityHero ? (
 				<div className='grid grid-cols-1 items-stretch gap-6 lg:grid-cols-5'>
@@ -86,24 +94,12 @@ export function DashboardView({ model, isGuest = false, hasLists }: Props) {
 							)}
 						</div>
 					) : null}
-					{hasUpNext ? (
+					{hasUpNext && !getStarted ? (
 						<div className={cn(showBanner ? 'lg:col-span-2' : 'lg:col-span-5')}>
 							<UpNextList items={model.upNext} />
 						</div>
 					) : null}
 				</div>
-			) : null}
-
-			{getStarted ? (
-				<>
-					<GetStartedCard
-						getStarted={getStarted}
-						startTarget={model.startTarget}
-						addItemsTarget={model.addItemsTarget}
-						tripInProgress={Boolean(model.activeSession)}
-					/>
-					{shouldShowSpending ? <MonthSpendingCard /> : null}
-				</>
 			) : null}
 
 			{showSections ? (
@@ -120,6 +116,8 @@ export function DashboardView({ model, isGuest = false, hasLists }: Props) {
 					) : null}
 				</div>
 			) : null}
+
+			{getStarted && hasUpNext ? <UpNextList items={model.upNext} /> : null}
 		</div>
 	)
 }

@@ -3,6 +3,8 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
+import { Loading03Icon } from '@hugeicons/core-free-icons'
+import { HugeiconsIcon } from '@hugeicons/react'
 
 import { Button } from '@/components/ui/button'
 
@@ -33,8 +35,7 @@ export function SetUpPantryAction({ testId }: SetUpPantryActionProps) {
 		}
 
 		toast.success(result.message)
-		startRefresh(() => router.refresh())
-		setIsSubmitting(false)
+		startRefresh(() => router.push(`/base-lists/${result.listId}/edit`))
 	}
 
 	return (
@@ -42,9 +43,11 @@ export function SetUpPantryAction({ testId }: SetUpPantryActionProps) {
 			size='lg'
 			className='w-full sm:w-auto'
 			disabled={pending}
+			aria-busy={pending}
 			onClick={handleSetUp}
 			data-testid={`${testId}-button`}
 		>
+			{pending ? <HugeiconsIcon icon={Loading03Icon} aria-hidden='true' className='size-4 animate-spin motion-reduce:animate-none' /> : null}
 			{pending ? 'Setting up…' : 'Set up Pantry'}
 		</Button>
 	)

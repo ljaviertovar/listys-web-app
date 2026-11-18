@@ -62,7 +62,7 @@ export function StartShoppingDialog({
 		try {
 			const { data, error, activeSessionId } = await createShoppingSession({
 				base_list_id: baseListId,
-				name: baseListName ? `${baseListName} trip` : 'Shopping trip',
+				name: baseListName ? `${baseListName.slice(0, 94)} trip` : 'Shopping trip',
 				store_id: selectedStore?.id ?? null,
 			})
 			if (error) {
@@ -173,7 +173,7 @@ export function StartShoppingDialog({
 					<div className='flex items-center gap-3'>
 						<RowIcon icon={ListViewIcon} tone='primary' size='dropzone' testId='start-shopping-list-icon' />
 						<div className='flex min-w-0 flex-col gap-0.5'>
-							<span className='text-sm font-semibold text-foreground'>{baseListName || 'Shopping list'}</span>
+							<span className='break-all text-sm font-semibold text-foreground'>{baseListName || 'Shopping list'}</span>
 							<span className='text-xs leading-normal text-muted-foreground'>{listItemCount} {listItemCount === 1 ? 'item' : 'items'} in this list</span>
 						</div>
 					</div>
@@ -202,7 +202,7 @@ export function StartShoppingDialog({
 					<RowIcon icon={Alert02Icon} tone='primary' size='alert' testId='start-shopping-guidance-icon' />
 					<div>
 						<AlertTitle>{selectedStore ? `Only ${selectedStore.name} items` : 'One trip at a time per list.'}</AlertTitle>
-						<AlertDescription>{selectedStore
+						<AlertDescription className='break-all'>{selectedStore
 							? `This starts a new shopping session with ${firstAtStoreCount === 1 ? 'the 1 item' : `the ${firstAtStoreCount} items`} in “${baseListName || 'this list'}” you usually buy at ${selectedStore.name}. The other ${Math.max(0, listItemCount - firstAtStoreCount)} stay on the list.`
 							: `This starts a new shopping session using all ${listItemCount} items in “${baseListName || 'this list'}”.`}</AlertDescription>
 					</div>

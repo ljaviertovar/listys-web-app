@@ -123,13 +123,13 @@ export function useTripReview({ ticketId, trip, ticket: providedTicket = null, o
 	const loadReview = useCallback(async (target: TicketSessionCandidate, known: TripReviewTicket | null) => {
 		setReviewLoading(true)
 		try {
-			const load = () => loadReviewData(target, known)
-			await barrier(load)
+			// Loading a review is read-only and must remain available after a trip ends, even if the device has stale sync data.
+			await loadReviewData(target, known)
 		} catch (error) {
 			setReviewError(error instanceof Error ? error.message : 'Save your trip changes and try again.')
 			setReviewLoading(false)
 		}
-	}, [barrier, loadReviewData])
+	}, [loadReviewData])
 
 	const setOpen = (next: boolean) => {
 		setOpenState(next)

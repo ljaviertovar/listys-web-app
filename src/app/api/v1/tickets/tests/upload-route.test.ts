@@ -30,7 +30,11 @@ function signIn({ ownTrip = true }: { ownTrip?: boolean } = {}) {
 
 function upload(fields: Record<string, string> = {}) {
   const form = new FormData()
-  form.append('files', new File(['photo'], 'receipt.jpg', { type: 'image/jpeg' }))
+  const png = Buffer.from(
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=',
+    'base64',
+  )
+  form.append('files', new File([png], 'receipt.png', { type: 'image/png' }))
   for (const [key, value] of Object.entries(fields)) form.append(key, value)
   return POST(new Request('http://localhost/api/v1/tickets', { method: 'POST', body: form }))
 }

@@ -11,6 +11,7 @@ import {
   uploadTicketFieldsSchema,
 } from '@/lib/validations/ticket'
 import { MAX_IMAGES_PER_TICKET, MAX_ITEMS_PER_BASE_LIST, MAX_TICKET_IMAGE_MB } from '@/lib/config/limits'
+import { getTicketImageMime } from '@/lib/validations/ticket-image'
 import { getOCRFunctionURL } from '@/lib/config/ocr'
 import { resolveListGroupId } from '@/lib/server/services/default-group.service'
 import { DUPLICATE_LIST_NAME_MESSAGE, findListByName } from '@/lib/server/services/find-list-by-name'
@@ -683,11 +684,13 @@ export async function uploadTicket(formData: FormData) {
   }
 
   for (const file of files) {
-    if (!file.type.startsWith('image/')) {
-      throw new ApiServiceError(400, ErrorCode.BAD_REQUEST, 'All files must be images')
-    }
+    if (file.size === 0) throw new ApiServiceError(400, ErrorCode.BAD_REQUEST, 'Choose a non-empty JPG or PNG image')
     if (file.size > MAX_TICKET_IMAGE_MB * 1024 * 1024) {
       throw new ApiServiceError(400, ErrorCode.BAD_REQUEST, `Each file must be less than ${MAX_TICKET_IMAGE_MB}MB`)
+    }
+    const imageMime = getTicketImageMime(new Uint8Array(await file.slice(0, 8).arrayBuffer()))
+    if (!imageMime || (file.type && file.type !== imageMime)) {
+      throw new ApiServiceError(400, ErrorCode.BAD_REQUEST, 'Choose a valid JPG or PNG image')
     }
   }
 
@@ -708,16 +711,8 @@ export async function uploadTicket(formData: FormData) {
 
   for (let i = 0; i < files.length; i++) {
     const file = files[i]
-    const name = (file.name || '').toString()
-    const parts = name.split('.')
-    let ext = parts.length > 1 ? parts.pop()!.toLowerCase() : ''
-
-    if (!ext) {
-      ext = (file.type || '').toString().split('/').pop() || ''
-    }
-
-    ext = (ext || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '')
-    if (!ext) ext = 'jpg'
+    const imageMime = getTicketImageMime(new Uint8Array(await file.slice(0, 8).arrayBuffer()))
+    const ext = imageMime === 'image/png' ? 'png' : 'jpg'
 
     const rand = Math.random().toString(36).slice(2, 8)
     let candidate = `${user.id}/${timestamp}_${i + 1}_${rand}.${ext}`
