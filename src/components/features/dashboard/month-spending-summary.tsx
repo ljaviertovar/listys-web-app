@@ -46,14 +46,13 @@ interface MonthSpendingSummaryProps {
 export function MonthSpendingSummary({ summary, receiptCount }: MonthSpendingSummaryProps) {
 	const receiptTotal = summary.receipt_total ?? summary.total
 	const changePercent = summary.change_percent ?? null
-	const slices = buildSpendingSlices(summary.receipt_stores ?? [], receiptTotal)
+	const slices = buildSpendingSlices(summary.receipt_stores ?? [], receiptTotal, summary.receipt_unknown_store_total)
 	const categories = (summary.categories ?? []).slice(0, 3)
 	const largestCategory = Math.max(0, ...categories.map(category => category.total))
 	const hasAverage = summary.average_receipt != null
 
 	return (
 		<div data-testid='dashboard-month-spending-summary' className='flex flex-col gap-3.5'>
-			{/* A donut with only "Other" would say nothing: without a named store the total stands alone. */}
 			{slices.some(slice => slice.key !== 'other') ? (
 				<SpendingBreakdown slices={slices} total={receiptTotal} receiptCount={receiptCount} testId='dashboard-month-spending-stores' />
 			) : (

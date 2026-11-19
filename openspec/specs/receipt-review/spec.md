@@ -7,6 +7,17 @@ en la lista, cuáles son nuevas y cuáles conviene comprobar, y permite aceptar 
 
 ## Requirements
 
+### Requirement: Receipt purchase and upload dates
+
+El escaneo SHALL extraer la fecha impresa de la compra en la misma lectura que usa para los artículos
+cuando la fecha se puede determinar. La metadata SHALL mostrar la fecha de carga y la fecha de compra.
+
+#### Scenario: Receipt without a readable purchase date
+
+- **WHEN** la fecha impresa no se puede determinar o un recibo histórico no tiene fecha extraída
+- **THEN** la metadata muestra la fecha de carga como fecha de compra con la aclaración "Based on upload date"
+
+
 ### Requirement: A read receipt is compared with a target list
 
 La pantalla de un recibo leído, con líneas y sin adjuntar a una compra, SHALL comparar sus líneas con una lista destino

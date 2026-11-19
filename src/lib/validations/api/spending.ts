@@ -1,7 +1,16 @@
 import { z } from 'zod'
 
-const isoDateTimeWithOffset = z.string().datetime({ offset: true })
+const isoDateTimeWithOffset = z.string().datetime({ offset: true }).refine(value => Number.isFinite(Date.parse(value)), 'Use a valid datetime with an offset')
 const MAX_RANGE_MS = 92 * 24 * 60 * 60 * 1000
+
+const timeZoneSchema = z.string().max(100).regex(/^[A-Za-z][A-Za-z0-9_+/-]*$/).refine(value => {
+	try {
+		new Intl.DateTimeFormat('en', { timeZone: value })
+		return true
+	} catch {
+		return false
+	}
+}, 'Use a valid IANA time zone').transform(value => new Intl.DateTimeFormat('en', { timeZone: value }).resolvedOptions().timeZone)
 
 /**
  * Either a bounded range (`from` and `to`, at most 92 days, with an optional range to compare it with) or `scope=all`, which reads every
@@ -14,6 +23,7 @@ export const spendingQuerySchema = z.object({
 	to: isoDateTimeWithOffset.optional(),
 	compare_from: isoDateTimeWithOffset.optional(),
 	compare_to: isoDateTimeWithOffset.optional(),
+	time_zone: timeZoneSchema.optional(),
 }).strict().superRefine(({ scope, from, to, compare_from: compareFrom, compare_to: compareTo }, context) => {
 	if (scope === 'all') {
 		if (from || to || compareFrom || compareTo) {

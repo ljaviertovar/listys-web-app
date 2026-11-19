@@ -15,17 +15,17 @@ import { UploadTicketDialog } from '@/components/features/tickets'
 
 /** "November": the month the card is on, for the sentence that says nothing was recorded in it. */
 function getMonthName(date: string) {
-	const month = new Date(`${date.slice(0, 10)}T00:00:00Z`)
+	const month = new Date(date)
 	return Number.isNaN(month.getTime())
 		? null
-		: new Intl.DateTimeFormat('en', { month: 'long', timeZone: 'UTC' }).format(month)
+		: new Intl.DateTimeFormat('en', { month: 'long' }).format(month)
 }
 
 function getMonthLabel(date: string) {
-	const month = new Date(`${date.slice(0, 10)}T00:00:00Z`)
+	const month = new Date(date)
 	return Number.isNaN(month.getTime())
 		? null
-		: new Intl.DateTimeFormat('en', { month: 'short', year: 'numeric', timeZone: 'UTC' }).format(month)
+		: new Intl.DateTimeFormat('en', { month: 'short', year: 'numeric' }).format(month)
 }
 
 /** `header` is off when the card draws its own title row (the scope choice) above the skeleton. */
@@ -85,14 +85,15 @@ export function MonthSpendingSkeleton({ testId, header = true }: { testId: strin
 export function MonthSpendingCard() {
 	const [scope, setScope] = useState<SpendingScope>('month')
 	const spending = useSpendingSummary(scope)
+	const firstPurchase = spending.status === 'ready'
+		? formatFirstReceipt(spending.summary.first_purchase_date ?? spending.summary.first_receipt_at)
+		: null
 	// The month names the range the card is on; all time says since when the receipts go.
 	const periodLabel =
 		spending.status === 'ready'
 			? scope === 'month'
 				? getMonthLabel(spending.summary.from)
-				: formatFirstReceipt(spending.summary.first_receipt_at)
-					? `since ${formatFirstReceipt(spending.summary.first_receipt_at)}`
-					: null
+				: firstPurchase ? `since ${firstPurchase}` : null
 			: null
 
 	return (
@@ -157,7 +158,7 @@ export function MonthSpendingCard() {
 							const { summary } = spending
 							const receiptCount = summary.receipt_count ?? summary.receipts_count ?? 0
 							if (receiptCount === 0) {
-								const lastReceipt = scope === 'month' ? formatLastReceipt(summary.last_receipt_at) : null
+								const lastReceipt = scope === 'month' ? formatLastReceipt(summary.last_purchase_date ?? summary.last_receipt_at) : null
 								const monthName = getMonthName(summary.from)
 								// A month with nothing in an account that has receipts is not an empty account: say so, and offer the rest.
 								if (lastReceipt && monthName) {

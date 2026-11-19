@@ -15,6 +15,10 @@ export async function updateTicketStore(ticketId: string, storeId: string | null
   return apiPatch<Ticket>(`/api/v1/tickets/${ticketId}`, { store_id: storeId })
 }
 
+export async function updateTicketSpending(ticketId: string, include: boolean) {
+  return apiPatch<Pick<Ticket, 'include_in_spending'>>(`/api/v1/tickets/${ticketId}`, { include_in_spending: include })
+}
+
 export type TicketItemMatch = {
   ticket_item_id: string
   match: 'name' | 'alias' | 'none'

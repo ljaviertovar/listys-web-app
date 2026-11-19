@@ -91,14 +91,20 @@ export const createBaseListFromTicketSchema = z.object({
 })
 
 // PATCH /tickets/{id}: assign or clear the receipt's store, and (unchanged) its group.
-export const updateTicketSchema = z
+const updateTicketFieldsSchema = z
   .object({
     group_id: z.string().uuid().nullable().optional(),
     store_id: z.string().uuid().nullable().optional(),
+    include_in_spending: z.never().optional(),
   })
   .refine(payload => payload.group_id !== undefined || payload.store_id !== undefined, {
     message: 'At least one field must be provided',
   })
+
+export const updateTicketSchema = z.union([
+  z.object({ include_in_spending: z.boolean() }).strict(),
+  updateTicketFieldsSchema,
+])
 
 const attachTicketLinkSchema = z.object({
   ticket_item_id: z.string().uuid(),

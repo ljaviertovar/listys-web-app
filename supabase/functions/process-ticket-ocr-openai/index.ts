@@ -2,7 +2,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { decideOcrOutcome, extractChatCompletionText, fetchWithRetry } from '../_shared/ocr-outcome.ts'
 import { RECEIPT_LINE_ITEM_INSTRUCTIONS } from '../_shared/receipt-items.ts'
-import { parseOcrPayload, STORE_AND_TOTAL_INSTRUCTIONS, STORE_NAME_INSTRUCTIONS, TOTAL_INSTRUCTIONS } from '../_shared/receipt-store.ts'
+import { agreeOnPurchaseDate, parseOcrPayload, receiptMetadataInstructions } from '../_shared/receipt-store.ts'
 
 const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY')!
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
@@ -26,6 +26,7 @@ interface ImageResult {
   items: ReceiptItem[]
   storeName: string | null
   total: number | null
+  purchaseDate: string | null
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -56,16 +57,6 @@ async function processImage(
        - The system only removes overlaps at photo boundaries; repeated product rows are preserved`
     : ''
 
-  // The store name comes from the same request as the items: only the first photo, which carries the header, asks for it.
-  const storeInstructions = totalImages === 1
-    ? STORE_AND_TOTAL_INSTRUCTIONS
-    : [imageIndex === 0 ? STORE_NAME_INSTRUCTIONS : '', imageIndex === totalImages - 1 ? TOTAL_INSTRUCTIONS : '']
-      .filter(Boolean)
-      .join('\n\n')
-  const responseShape = storeInstructions
-    ? 'Return a JSON object with an "items" array and the requested "store_name" and/or "total" fields.'
-    : 'Return a JSON array of item objects.'
-
   // NOTE: output schema MUST match ReceiptItem (name, quantity, unit, price, category)
   const prompt = `You are a receipt line-item extractor.
 
@@ -77,8 +68,8 @@ GOAL:
 Extract a COMPLETE list of purchased products from the image.
 Maximize recall, but DO NOT merge different products into one.
 
-Return ONLY valid JSON (no markdown). ${responseShape}
-Each item in "items" (or the top-level array) has this EXACT structure:
+Return ONLY valid JSON (no markdown).
+Each item in "items" has this EXACT structure:
 
 [
   {
@@ -138,7 +129,7 @@ FINAL CHECK:
 
 ${mergeInstructions}
 
-${storeInstructions}
+${receiptMetadataInstructions(imageIndex, totalImages)}
 `
 
 
@@ -184,7 +175,7 @@ ${storeInstructions}
   try {
     const cleanContent = content.replace(/```json\n?|\n?```/g, '').trim()
     // Accepts the item array or the first photo's { store_name, items } object.
-    const { items: parsed, storeName, total } = parseOcrPayload(cleanContent)
+    const { items: parsed, storeName, total, purchaseDate } = parseOcrPayload(cleanContent)
 
     // Defensive cleanup: only keep expected fields
     const items = parsed
@@ -202,9 +193,9 @@ ${storeInstructions}
       }))
       .filter((x: ReceiptItem) => x.name.trim().length > 0)
 
-    return { items, storeName, total }
-  } catch (parseError) {
-    console.error(`Failed to parse OCR response for image ${imageIndex + 1}:`, content)
+    return { items, storeName, total, purchaseDate }
+  } catch {
+    console.error(`Failed to parse OCR response for image ${imageIndex + 1}`)
     throw new Error('Failed to parse OCR response')
   }
 }
@@ -385,6 +376,7 @@ function toTitleCase(input: string | null): string | null {
 serve(async (req: Request) => {
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
   let ticketId: string | undefined
+  const purchaseDates: Array<string | null> = []
 
   try {
     const body: RequestBody = await req.json()
@@ -421,33 +413,26 @@ serve(async (req: Request) => {
 
     for (let i = 0; i < urls.length; i++) {
       console.log(`Processing image ${i + 1}/${urls.length}`)
-      const { items, storeName, total } = await processImage(urls[i], i, urls.length)
+      const { items, storeName, total, purchaseDate } = await processImage(urls[i], i, urls.length)
+      purchaseDates.push(purchaseDate)
       if (i === 0) storeNameFromHeader = storeName
       if (i === urls.length - 1) totalFromLastPhoto = total
       console.log(`Image ${i + 1}: Found ${items.length} items`)
-      try {
-        console.log(`Image ${i + 1} items: ${JSON.stringify(items, null, 2)}`)
-      } catch (_e) {
-        console.log(`Image ${i + 1} items: (failed to stringify)`)
-      }
       allItemsPerImage.push(items)
     }
 
     // Merge items from all images, removing border duplicates
     const mergedItems = mergeItems(allItemsPerImage)
     // A name the ticket already has (sent by a client or read earlier) is never overwritten.
+    const purchaseDate = agreeOnPurchaseDate(purchaseDates)
     const extractedStoreName = ticketRow?.store_name ? null : storeNameFromHeader
     console.log(`Total merged items: ${mergedItems.length}`)
-    try {
-      console.log(`Merged items: ${JSON.stringify(mergedItems, null, 2)}`)
-    } catch (_e) {
-      console.log('Merged items: (failed to stringify)')
-    }
 
     const outcome = decideOcrOutcome(allItemsPerImage.map(items => ({ itemCount: items.length, failure: null })), mergedItems.length)
     if (outcome.status === 'failed') {
       await supabase.from('tickets').update({
         ocr_status: 'failed', ocr_error: outcome.error, total_items: 0,
+        ...(purchaseDate ? { purchase_date: purchaseDate } : {}),
         processed_at: new Date().toISOString(),
       }).eq('id', ticketId)
       return new Response(JSON.stringify({ error: outcome.error }), { status: 422, headers: { 'Content-Type': 'application/json' } })
@@ -473,7 +458,7 @@ serve(async (req: Request) => {
     }
 
     // Update ticket status
-    await supabase
+    const { error: updateError } = await supabase
       .from('tickets')
       .update({
         ocr_status: 'completed',
@@ -481,9 +466,12 @@ serve(async (req: Request) => {
         total_items: mergedItems.length,
         total_amount: totalFromLastPhoto,
         ocr_error: null,
+        ...(purchaseDate ? { purchase_date: purchaseDate } : {}),
         ...(extractedStoreName ? { store_name: extractedStoreName } : {}),
       })
       .eq('id', ticketId)
+
+    if (updateError) throw updateError
 
     console.log('OCR completed', {
       ticketId,
@@ -505,11 +493,13 @@ serve(async (req: Request) => {
     const message = error instanceof Error ? error.message : String(error)
 
     if (ticketId) {
+      const purchaseDate = agreeOnPurchaseDate(purchaseDates)
       try {
         await supabase
           .from('tickets')
           .update({
             ocr_status: 'failed',
+            ...(purchaseDate ? { purchase_date: purchaseDate } : {}),
             ocr_error: (message || 'OCR processing failed').slice(0, 1000),
             processed_at: new Date().toISOString(),
           })
@@ -519,7 +509,7 @@ serve(async (req: Request) => {
       }
     }
 
-    return new Response(JSON.stringify({ error: error.message || 'OCR processing failed' }), {
+    return new Response(JSON.stringify({ error: 'OCR processing failed' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     })

@@ -465,6 +465,8 @@ export type Database = {
           id: string
           image_path: string
           image_paths: string[] | null
+          include_in_spending: boolean
+          purchase_date: string | null
           ocr_attempts: number
           ocr_error: string | null
           ocr_status: Database["public"]["Enums"]["ocr_status"] | null
@@ -485,6 +487,8 @@ export type Database = {
           id?: string
           image_path: string
           image_paths?: string[] | null
+          include_in_spending?: boolean
+          purchase_date?: string | null
           ocr_attempts?: number
           ocr_error?: string | null
           ocr_status?: Database["public"]["Enums"]["ocr_status"] | null
@@ -505,6 +509,8 @@ export type Database = {
           id?: string
           image_path?: string
           image_paths?: string[] | null
+          include_in_spending?: boolean
+          purchase_date?: string | null
           ocr_attempts?: number
           ocr_error?: string | null
           ocr_status?: Database["public"]["Enums"]["ocr_status"] | null
@@ -812,6 +818,23 @@ export type Database = {
       spending_summary: {
         Args: { p_from: string; p_to: string }
         Returns: {
+          receipts_count: number
+          total: number
+          trips_count: number
+          trips_without_total: number
+        }[]
+      }
+      spending_summary_by_purchase_date: {
+        Args: {
+          p_from: string
+          p_to: string
+          p_purchase_from: string | null
+          p_purchase_to: string | null
+          p_time_zone: string
+        }
+        Returns: {
+          first_purchase_date: string | null
+          last_purchase_date: string | null
           receipts_count: number
           total: number
           trips_count: number

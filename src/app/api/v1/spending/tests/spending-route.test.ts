@@ -14,7 +14,7 @@ const to = '2026-10-29T00:00:00Z'
 const request = (query: string) => new Request(`http://localhost/api/v1/spending${query}`)
 
 function signIn(rpc?: { data?: unknown; error?: unknown }, tables?: Parameters<typeof createSupabaseMock>[0] extends infer O ? (O extends { tables?: infer T } ? T : never) : never) {
-	const { supabase } = createSupabaseMock({ tables, rpcResults: { spending_summary: rpc ?? {
+	const { supabase } = createSupabaseMock({ tables, rpcResults: { spending_summary_by_purchase_date: rpc ?? {
 		data: [{ receipts_count: 2, total: 125.75, trips_count: 3, trips_without_total: 1 }], error: null,
 	} } })
 	mockedAuth.mockResolvedValue({ supabase, user: { id: 'user-1' } } as never)
@@ -30,7 +30,30 @@ describe('GET /api/v1/spending', () => {
 
 		expect(response.status).toBe(200)
 		expect(await response.json()).toMatchObject({ data: { from, to, receipts_count: 2, total: 125.75, trips_count: 3, trips_without_total: 1 } })
-		expect(supabase.rpc).toHaveBeenCalledWith('spending_summary', { p_from: from, p_to: to })
+		expect(supabase.rpc).toHaveBeenCalledWith('spending_summary_by_purchase_date', { p_from: from, p_to: to, p_purchase_from: '2026-10-01', p_purchase_to: '2026-10-29', p_time_zone: 'UTC' })
+	})
+
+	it('applies local purchase days and upload instants to current and comparison receipt queries', async () => {
+		const supabase = signIn(undefined, { shopping_sessions: { data: [{ id: 'trip' }] } })
+		const query = new URLSearchParams({
+			from: '2026-11-01T04:00:00Z',
+			to: '2026-12-01T05:00:00Z',
+			compare_from: '2026-10-01T04:00:00Z',
+			compare_to: '2026-11-01T04:00:00Z',
+			time_zone: 'America/Toronto',
+		})
+		const response = await GET(request(`?${query}`))
+		expect(response.status).toBe(200)
+		expect(supabase.rpc).toHaveBeenCalledWith('spending_summary_by_purchase_date', expect.objectContaining({
+			p_purchase_from: '2026-11-01',
+			p_purchase_to: '2026-12-01',
+			p_time_zone: 'America/Toronto',
+		}))
+		const tickets = supabase.from('tickets')
+		const filters = tickets.or.mock.calls.map(([filter]: [string]) => filter)
+		const current = 'and(purchase_date.gte.2026-11-01,purchase_date.lt.2026-12-01),and(purchase_date.is.null,created_at.gte.2026-11-01T04:00:00.000Z,created_at.lt.2026-12-01T05:00:00.000Z)'
+		const previous = 'and(purchase_date.gte.2026-10-01,purchase_date.lt.2026-11-01),and(purchase_date.is.null,created_at.gte.2026-10-01T04:00:00.000Z,created_at.lt.2026-11-01T04:00:00.000Z)'
+		expect(filters.sort()).toEqual([...Array(4).fill(current), ...Array(3).fill(previous)].sort())
 	})
 
 	it('returns 422 for missing values, datetimes without offsets, reversed dates, and ranges over 92 days', async () => {
@@ -38,8 +61,10 @@ describe('GET /api/v1/spending', () => {
 		const invalidQueries = [
 			'',
 			`?from=2026-10-01T00%3A00%3A00&to=${encodeURIComponent(to)}`,
+			`?from=${encodeURIComponent('2026-10-01T00:00:00+99:99')}&to=${encodeURIComponent(to)}`,
 			`?from=${encodeURIComponent(to)}&to=${encodeURIComponent(from)}`,
 			`?from=${encodeURIComponent(from)}&to=2027-01-02T00%3A00%3A00Z`,
+			`?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&time_zone=Mars%2FOlympus`,
 		]
 		for (const query of invalidQueries) expect((await GET(request(query))).status).toBe(422)
 	})
@@ -49,19 +74,85 @@ describe('GET /api/v1/spending', () => {
 		expect((await GET(request(`?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`))).status).toBe(401)
 	})
 
-	it('returns a safe 500 when the RPC fails', async () => {
-		signIn({ data: null, error: { code: 'XX000', message: 'private database detail' } })
+	it('keeps the receipt-backed chart available when the RPC and purchase-date column are unavailable', async () => {
+		vi.spyOn(console, 'error').mockImplementation(() => {})
+		const { supabase } = createSupabaseMock({
+			rpcResults: { spending_summary_by_purchase_date: { data: null, error: { code: '42883', message: 'private database detail' } } },
+			tables: { shopping_sessions: { data: [], error: null } },
+		})
+		const originalFrom = supabase.from
+		supabase.from = vi.fn().mockImplementation((table: string) => {
+			if (table !== 'tickets') return originalFrom(table)
+			const builder = createQueryBuilder({ data: [{ id: 'standalone', total_amount: 84.5, store: null }], error: null })
+			builder.or.mockImplementation((filter: string) => {
+				if (filter.includes('purchase_date')) builder._result = { data: null, error: { code: '42703', message: 'private database detail' } }
+				return builder
+			})
+			builder.then = vi.fn((resolve: (result: unknown) => unknown) => resolve(builder._result))
+			builder.maybeSingle.mockResolvedValue({ data: { created_at: from }, error: null })
+			return builder
+		})
+		mockedAuth.mockResolvedValue({ supabase, user: { id: 'user-1' } } as never)
 		const response = await GET(request(`?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`))
-		expect(response.status).toBe(500)
-		expect(await response.text()).not.toContain('private database detail')
+		expect(response.status).toBe(200)
+		expect(await response.json()).toMatchObject({
+			data: { total: 84.5, receipts_count: 1, receipt_total: 84.5, receipt_count: 1 },
+		})
 	})
 })
 
 describe('GET /api/v1/spending store breakdown', () => {
 	beforeEach(() => vi.clearAllMocks())
 
+	it.each([`?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`, '?scope=all'])(
+		'counts receipts from both trips before and after review in %s',
+		async query => {
+			const supabase = signIn()
+			const empty = { data: [], error: null }
+			supabase.from = sequentialFrom({
+				shopping_sessions: [empty, { data: [{ id: 'trip-1' }, { id: 'trip-2' }], error: null }],
+				tickets: [empty, empty, empty, {
+					data: [
+						{ id: 'standalone', total_amount: 10, store: null },
+						{ id: 'known', total_amount: 63, store: null },
+					],
+					error: null,
+				}, {
+					data: [
+						{ id: 'pending-1', total_amount: 15, store: null },
+						{ id: 'pending-2', total_amount: 25, store: null },
+						{ id: 'no-total', total_amount: null, store: null },
+						{ id: 'known', total_amount: 63, store: null },
+					],
+					error: null,
+				}, {
+					data: [
+						{ id: 'known', total_amount: 63, attached_total_amount: 60, store: { id: 's1', name: 'Metro' } },
+						{ id: 'second-trip-receipt', attached_total_amount: 40, store: null },
+					],
+					error: null,
+				}],
+				ticket_items: [{
+					data: [
+						{ ticket_id: 'known', price: 60, quantity: 1 },
+					],
+					error: null,
+				}],
+			})
+			const response = await GET(request(query))
+
+			expect(response.status).toBe(200)
+			expect((await response.json()).data).toMatchObject({
+				receipt_total: 150,
+				receipt_count: 5,
+				receipt_unknown_store_total: 90,
+				receipt_stores: [{ id: 's1', name: 'Metro', total: 60 }],
+			})
+		},
+	)
+
 	it('splits multi-store trip totals by attached receipt and includes trips without receipts', async () => {
-		const { supabase } = createSupabaseMock({ rpcResults: { spending_summary: {
+		const { supabase } = createSupabaseMock({ rpcResults: { spending_summary_by_purchase_date: {
 			data: [{ receipts_count: 2, total: 229.65, trips_count: 2, trips_without_total: 0 }], error: null,
 		} } })
 		supabase.from = sequentialFrom({
@@ -97,7 +188,7 @@ describe('GET /api/v1/spending store breakdown', () => {
 	it('still answers with the total when the breakdown cannot be read', async () => {
 		vi.spyOn(console, 'error').mockImplementation(() => {})
 		const { supabase } = createSupabaseMock({
-			rpcResults: { spending_summary: { data: [{ receipts_count: 2, total: 125.75, trips_count: 3, trips_without_total: 1 }], error: null } },
+			rpcResults: { spending_summary_by_purchase_date: { data: [{ receipts_count: 2, total: 125.75, trips_count: 3, trips_without_total: 1 }], error: null } },
 		})
 		supabase.from = sequentialFrom({
 			shopping_sessions: [
@@ -124,7 +215,9 @@ describe('GET /api/v1/spending all time', () => {
 
 		expect(response.status).toBe(200)
 		const [name, args] = supabase.rpc.mock.calls[0]
-		expect(name).toBe('spending_summary')
+		expect(name).toBe('spending_summary_by_purchase_date')
+		expect(args).toMatchObject({ p_purchase_from: null, p_purchase_to: null })
+		expect(supabase.from('tickets').or).not.toHaveBeenCalled()
 		expect(Date.parse(args.p_from)).toBe(0)
 		expect(Date.parse(args.p_to)).toBeGreaterThan(Date.now())
 		expect((await response.json()).data.change_percent).toBeNull()
@@ -141,7 +234,7 @@ describe('GET /api/v1/spending first receipt', () => {
 	beforeEach(() => vi.clearAllMocks())
 
 	function signInWithFirstReceipt(first: { data?: unknown; error?: unknown }) {
-		const { supabase } = createSupabaseMock({ rpcResults: { spending_summary: { data: [{ receipts_count: 1, total: 10, trips_count: 0, trips_without_total: 0 }], error: null } } })
+		const { supabase } = createSupabaseMock({ rpcResults: { spending_summary_by_purchase_date: { data: [{ receipts_count: 1, total: 10, trips_count: 0, trips_without_total: 0 }], error: null } } })
 		const tickets = createQueryBuilder({ data: [], error: null })
 		tickets.maybeSingle.mockResolvedValue(first)
 		supabase.from = vi.fn().mockImplementation((table: string) => (table === 'tickets' ? tickets : createQueryBuilder({ data: [], error: null })))
@@ -175,7 +268,7 @@ describe('GET /api/v1/spending last receipt', () => {
 	beforeEach(() => vi.clearAllMocks())
 
 	function signInWithEdges(first: { data?: unknown; error?: unknown }, last: { data?: unknown; error?: unknown }) {
-		const { supabase } = createSupabaseMock({ rpcResults: { spending_summary: { data: [{ receipts_count: 0, total: 0, trips_count: 0, trips_without_total: 0 }], error: null } } })
+		const { supabase } = createSupabaseMock({ rpcResults: { spending_summary_by_purchase_date: { data: [{ receipts_count: 0, total: 0, trips_count: 0, trips_without_total: 0 }], error: null } } })
 		const tickets = createQueryBuilder({ data: [], error: null })
 		tickets.maybeSingle.mockResolvedValueOnce(first).mockResolvedValueOnce(last)
 		supabase.from = vi.fn().mockImplementation((table: string) => (table === 'tickets' ? tickets : createQueryBuilder({ data: [], error: null })))

@@ -27,7 +27,9 @@ import { InputGroupAddon } from '@/components/ui/input-group'
 import { MAX_IMAGES_PER_TICKET, MAX_TICKET_IMAGE_MB } from '@/lib/config/limits'
 
 import { NoStoreBadge } from '../no-store-badge'
+import { ReceiptDateFacts } from '../receipt/receipt-date-facts'
 import { TicketStatusChip } from '../ticket-status-chip'
+import { TicketSpendingMarker } from '../ticket-spending-marker'
 import { toTicketChipStatus } from '../helpers/ticket-status'
 import { UploadAnotherTile } from '../upload/upload-another-tile'
 import { UploadTicketDialog } from '../upload/upload-ticket-dialog'
@@ -45,9 +47,11 @@ export function TicketCard({
 	status,
 	itemsCount,
 	photoCount,
-	uploadedLabel,
+	uploadedAt,
+	purchaseDate,
 	totalLabel,
 	storeConfirmed,
+	includedInSpending,
 }: TicketCardProps) {
 	const ticketStatus = toTicketChipStatus(status, itemsCount)
 	// Only a receipt that has finished (or failed) has details worth a labelled link.
@@ -73,8 +77,10 @@ export function TicketCard({
 				) : null}
 				<TicketDataLine
 					id={id}
+					includedInSpending={includedInSpending}
 					photoCount={photoCount}
-					uploadedLabel={uploadedLabel}
+					uploadedAt={uploadedAt}
+					purchaseDate={purchaseDate}
 					totalLabel={totalLabel}
 				/>
 			</ObjectCardBody>
@@ -87,7 +93,7 @@ export function TicketCard({
 						tone='track'
 						aria-label='Reading receipt'
 					/>
-					<p className='text-xs leading-normal text-muted-foreground'>Reading store and items…</p>
+					<p className='text-xs leading-normal text-muted-foreground'>Reading receipt…</p>
 				</ObjectCardFooter>
 			) : (
 				<ObjectCardFooter>
@@ -141,21 +147,27 @@ export function TicketCard({
 function TicketDataLine({
 	id,
 	photoCount,
-	uploadedLabel,
+	uploadedAt,
+	purchaseDate,
 	totalLabel,
-}: Pick<TicketCardProps, 'id' | 'photoCount' | 'uploadedLabel' | 'totalLabel'>) {
+	includedInSpending,
+}: Pick<TicketCardProps, 'id' | 'photoCount' | 'uploadedAt' | 'purchaseDate' | 'totalLabel' | 'includedInSpending'>) {
 	return (
 		<ObjectCardFigure>
 			{totalLabel ? (
-				<p>
-					<DataFigure emphasis='total'>{totalLabel}</DataFigure>
-				</p>
+				// The marker says whether this amount counts, so it stands on the amount's row, at the far end.
+				<div className='flex items-baseline justify-between gap-2'>
+					<p>
+						<DataFigure emphasis='total'>{totalLabel}</DataFigure>
+					</p>
+					{includedInSpending ? <TicketSpendingMarker testId={`ticket-card-spending-${id}`} /> : null}
+				</div>
 			) : null}
 			<DataFacts
 				testId={`ticket-data-${id}`}
 				facts={[
 					photoCount > 0 ? { kind: 'count', value: photoCount, unit: photoCount === 1 ? 'photo' : 'photos' } : null,
-					uploadedLabel ? { value: uploadedLabel } : null,
+					{ value: <ReceiptDateFacts uploadedAt={uploadedAt} purchaseDate={purchaseDate} testId={`ticket-dates-${id}`} /> },
 				]}
 			/>
 		</ObjectCardFigure>

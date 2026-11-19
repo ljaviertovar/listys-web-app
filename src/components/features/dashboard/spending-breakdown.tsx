@@ -11,6 +11,7 @@ const SLICE_STYLES: Record<string, { color: string | { light: string; dark: stri
 	'store-0': { color: { light: 'var(--chart-4)', dark: 'var(--chart-2)' }, swatch: 'bg-chart-4 dark:bg-chart-2' },
 	'store-1': { color: { light: 'var(--chart-2)', dark: 'var(--chart-3)' }, swatch: 'bg-chart-2 dark:bg-chart-3' },
 	'store-2': { color: { light: 'var(--chart-1)', dark: 'var(--chart-1)' }, swatch: 'bg-chart-1' },
+	'unknown-store': { color: 'var(--chart-5)', swatch: 'bg-chart-5' },
 	other: { color: 'color-mix(in oklch, var(--muted-foreground) 45%, transparent)', swatch: 'bg-muted-foreground/45' },
 }
 

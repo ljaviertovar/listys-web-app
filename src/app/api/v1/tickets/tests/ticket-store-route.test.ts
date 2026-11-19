@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-import { createSupabaseMock, TEST_UUID, TEST_UUID_2 } from '@/test/helpers'
+import { createQueryBuilder, createSupabaseMock, TEST_UUID, TEST_UUID_2 } from '@/test/helpers'
 import { ApiServiceError, ErrorCode } from '@/lib/api/http'
 
 vi.mock('@/lib/api/auth', () => ({ createAuthenticatedClient: vi.fn() }))
@@ -25,6 +25,34 @@ const patch = (body: unknown, ticketId = TEST_UUID) =>
     }),
     { params: Promise.resolve({ ticketId }) },
   )
+
+describe('PATCH ticket spending preference', () => {
+  it.each([true, false])('saves %s only for an owned standalone receipt', async include => {
+    const supabase = signIn({})
+    const query = createQueryBuilder({ data: { include_in_spending: include }, error: null })
+    supabase.from.mockReturnValue(query)
+
+    const response = await patch({ include_in_spending: include })
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toEqual({ data: { include_in_spending: include } })
+    expect(query.update).toHaveBeenCalledWith({ include_in_spending: include })
+    expect(query.eq).toHaveBeenCalledWith('id', TEST_UUID)
+    expect(query.eq).toHaveBeenCalledWith('user_id', 'user-1')
+    expect(query.is).toHaveBeenCalledWith('shopping_session_id', null)
+    expect(query.is).toHaveBeenCalledWith('uploaded_from_session_id', null)
+    if (include) expect(query.gte).toHaveBeenCalledWith('total_amount', 0)
+    else expect(query.gte).not.toHaveBeenCalled()
+  })
+
+  it('rejects invalid or mixed preferences and reports an invisible or ineligible receipt', async () => {
+    const supabase = signIn({})
+    expect((await patch({ include_in_spending: 'true' })).status).toBe(422)
+    expect((await patch({ include_in_spending: true, store_id: TEST_UUID_2 })).status).toBe(422)
+    expect(supabase.from).not.toHaveBeenCalled()
+    expect((await patch({ include_in_spending: true })).status).toBe(404)
+  })
+})
 
 describe('PATCH /api/v1/tickets/:ticketId with store_id', () => {
   beforeEach(() => vi.clearAllMocks())

@@ -500,6 +500,28 @@ export async function updateTicket(id: string, data: unknown) {
     throw new ApiServiceError(422, ErrorCode.VALIDATION_ERROR, validation.error.issues[0]?.message ?? 'Invalid payload')
   }
 
+  if (typeof validation.data.include_in_spending === 'boolean') {
+    const include = validation.data.include_in_spending
+    let query = supabase.from('tickets')
+      .update({ include_in_spending: include })
+      .eq('id', id)
+      .eq('user_id', user.id)
+      .is('shopping_session_id', null)
+      .is('uploaded_from_session_id', null)
+
+    if (include) query = query.gte('total_amount', 0)
+
+    const { data: updated, error } = await query.select('include_in_spending').maybeSingle()
+    if (error) {
+      console.error('[tickets] could not update spending preference', { code: error.code })
+      throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'Unable to save the spending preference.')
+    }
+    if (!updated) {
+      throw new ApiServiceError(404, ErrorCode.NOT_FOUND, 'This receipt is no longer eligible. Refresh and try again.')
+    }
+    return updated
+  }
+
   const { group_id, store_id } = validation.data
 
   if (group_id !== undefined && group_id !== null) {

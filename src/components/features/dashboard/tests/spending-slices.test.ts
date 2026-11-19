@@ -35,4 +35,21 @@ describe('buildSpendingSlices', () => {
 		expect(buildSpendingSlices([], 0)).toEqual([])
 		expect(buildSpendingSlices([store('a', 0)], 0)).toEqual([])
 	})
+
+	it('shows Unknown Store even when it accounts for all spending', () => {
+		expect(buildSpendingSlices([], 40, 40)).toEqual([
+			{ key: 'unknown-store', name: 'Unknown Store', total: 40, percent: 100, storeCount: 0 },
+		])
+	})
+
+	it('keeps Unknown Store separate from the remaining named stores', () => {
+		const slices = buildSpendingSlices([store('a', 40), store('b', 20), store('c', 15), store('d', 5)], 100, 20)
+		expect(slices.map(({ name, total, percent }) => [name, total, percent])).toEqual([
+			['A', 40, 40],
+			['B', 20, 20],
+			['C', 15, 15],
+			['Other', 5, 5],
+			['Unknown Store', 20, 20],
+		])
+	})
 })
