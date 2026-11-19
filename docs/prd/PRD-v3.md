@@ -199,8 +199,9 @@ returns the item to `auto`.
 **FR-12: Store-scoped session and session limits.**  
 Starting a session offers an optional store. A store-scoped session lists that store's items first and keeps the rest
 in a collapsed "other stores / untagged" section. The selected store is recorded on the session, so trips without a
-receipt still feed store statistics. The one-active-session-per-user rule becomes one active session per base list, so
-collaborators and multi-store trips are not blocked.  
+receipt still feed store statistics. Each account can have one active trip across all lists.
+Checking every item does not end a trip. Complete Trip saves the trip and unlocks another start, even when items remain unchecked.
+
 *Acceptance:* unchecked items stay in the base list for the next trip; the session records `store_id`; two users of a
 shared list never get two competing active sessions on that list.
 
@@ -274,7 +275,7 @@ defined in each phase's OpenSpec change.
 - **Existing users lose their mental model of groups** → flat view shows all lists; group names can be kept as part of
   the list name during the transition; no data removed.
 - **Trips without receipts** → store chosen at session start feeds the statistics.
-- **Shared-list contention** → active-session limit scoped per list (FR-12).
+- **Shared-list contention** → active-session limits per account and per shared list (FR-12).
 - **OCR cost** → store and total extraction use the existing OCR call; no extra provider request.
 
 ---

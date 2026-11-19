@@ -4,7 +4,7 @@ import { useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Alert02Icon, Loading03Icon, ListViewIcon, ShoppingCart02Icon, Store03Icon } from '@hugeicons/core-free-icons'
+import { Alert02Icon, InformationCircleIcon, Loading03Icon, ListViewIcon, ShoppingCart02Icon, Store03Icon } from '@hugeicons/core-free-icons'
 
 import { Button, type ButtonProps } from '@/components/ui/button'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
@@ -29,6 +29,7 @@ interface Props extends ButtonProps {
 	/** True only when this base list has an active session. */
 	sessionActive?: boolean
 	activeSessionId?: string | null
+	showBlockedNotice?: boolean
 }
 
 /**
@@ -43,10 +44,12 @@ export function StartShoppingDialog({
 	className,
 	sessionActive = false,
 	activeSessionId,
+	showBlockedNotice = false,
 	...buttonProps
 }: Props) {
 	const [open, setOpen] = useState(false)
 	const [loading, setLoading] = useState(false)
+	const [conflictingTripId, setConflictingTripId] = useState<string | null>(null)
 	const [storePickerOpen, setStorePickerOpen] = useState(false)
 	const [selectedStore, setSelectedStore] = useState<Store | null>(null)
 	const [storePending, setStorePending] = useState(false)
@@ -54,9 +57,11 @@ export function StartShoppingDialog({
 	const loadingRef = useRef(false)
 	const router = useRouter()
 	const setActiveSession = useActiveSessionStore(s => s.setActiveSession)
+	const ownedTripId = useActiveSessionStore(s => s.sessions.find(session => session.isOwned)?.id)
+	const resumeId = activeSessionId || ownedTripId || conflictingTripId
 
 	const handleConfirm = async () => {
-		if (loadingRef.current) return
+		if (loadingRef.current || resumeId) return
 		loadingRef.current = true
 		setLoading(true)
 		try {
@@ -67,7 +72,11 @@ export function StartShoppingDialog({
 			})
 			if (error) {
 				if (activeSessionId) {
-					router.push(`/shopping/${activeSessionId}`)
+					toast.error(error as string)
+					setConflictingTripId(activeSessionId)
+					setOpen(false)
+					setLoading(false)
+					loadingRef.current = false
 					return
 				}
 				throw new Error(error as string)
@@ -75,7 +84,7 @@ export function StartShoppingDialog({
 
 			if (data?.id) {
 				// Update store optimistically
-				setActiveSession({ id: data.id, name: data.name, store_id: data.store_id })
+				setActiveSession({ id: data.id, name: data.name, store_id: data.store_id, base_list_id: baseListId, isOwned: true })
 				router.push(startedSessionHref(data.id))
 				// Keep the sheet open with the spinner until navigation completes
 			} else {
@@ -123,6 +132,24 @@ export function StartShoppingDialog({
 	// The trip copies these items, so the list's own averages are what it would cost; nothing is shown without a known price.
 	const estimate = buildSessionPriceEstimate(selectedItems, items)
 
+	if (resumeId && !sessionActive) {
+		if (!showBlockedNotice) return null
+
+		return (
+			<Alert variant='info' role='note' data-testid={`blocked-start-shopping-${baseListId}`}>
+				<RowIcon icon={InformationCircleIcon} tone='primary' size='alert' />
+				<div>
+					<AlertTitle>Finish your current trip before starting another.</AlertTitle>
+					<div className='mt-2'>
+						<Button size='alert-action' variant='outline' onClick={() => router.push(`/shopping/${resumeId}`)}>
+							Resume Shopping
+						</Button>
+					</div>
+				</div>
+			</Alert>
+		)
+	}
+
 	if (shoppingActionMode(sessionActive) === 'resume') {
 		return (
 			<Button
@@ -133,7 +160,7 @@ export function StartShoppingDialog({
 				aria-label={baseListName ? `Resume shopping ${baseListName}` : 'Resume shopping'}
 				data-testid={`resume-shopping-${baseListId}`}
 			>
-				{children ?? 'Resume Shopping'}
+				Resume Shopping
 			</Button>
 		)
 	}
@@ -201,7 +228,7 @@ export function StartShoppingDialog({
 				{!isEmpty ? <Alert variant='info' role='note' data-testid='start-shopping-guidance'>
 					<RowIcon icon={Alert02Icon} tone='primary' size='alert' testId='start-shopping-guidance-icon' />
 					<div>
-						<AlertTitle>{selectedStore ? `Only ${selectedStore.name} items` : 'One trip at a time per list.'}</AlertTitle>
+						<AlertTitle>{selectedStore ? `Only ${selectedStore.name} items` : 'One trip at a time per account.'}</AlertTitle>
 						<AlertDescription className='break-all'>{selectedStore
 							? `This starts a new shopping session with ${firstAtStoreCount === 1 ? 'the 1 item' : `the ${firstAtStoreCount} items`} in “${baseListName || 'this list'}” you usually buy at ${selectedStore.name}. The other ${Math.max(0, listItemCount - firstAtStoreCount)} stay on the list.`
 							: `This starts a new shopping session using all ${listItemCount} items in “${baseListName || 'this list'}”.`}</AlertDescription>

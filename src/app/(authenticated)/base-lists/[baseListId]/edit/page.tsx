@@ -107,6 +107,7 @@ export default async function EditBaseListPage({
 							items={items}
 							sessionActive={!!activeSession}
 							activeSessionId={activeSession?.id}
+							showBlockedNotice
 							className='w-full'
 						/>
 

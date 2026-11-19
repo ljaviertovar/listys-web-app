@@ -92,12 +92,14 @@ export function mapStartShoppingSessionRpcError(error: RpcError): ApiServiceErro
     return new ApiServiceError(409, ErrorCode.CONFLICT, 'Cannot start a shopping session from an empty list.')
   }
 
-  if (code === '23505' && message === 'SESSION_ALREADY_ACTIVE') {
+  if ((code === '23505' && message === 'SESSION_ALREADY_ACTIVE') || (code === 'P0001' && message === 'ACCOUNT_TRIP_ALREADY_ACTIVE')) {
     const activeSessionId = error.details && UUID_PATTERN.test(error.details) ? error.details : undefined
     return new ApiServiceError(
       409,
       ErrorCode.CONFLICT,
-      'This list already has a shopping session in progress.',
+      message === 'ACCOUNT_TRIP_ALREADY_ACTIVE'
+        ? 'Finish your current trip before starting another.'
+        : 'This list already has a shopping session in progress.',
       activeSessionId ? { activeSessionId } : undefined,
     )
   }

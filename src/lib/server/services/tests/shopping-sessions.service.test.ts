@@ -48,11 +48,11 @@ describe('createShoppingSession', () => {
   })
 
   it('maps the active list conflict and preserves its id in details', async () => {
-    signIn({ data: null, error: { code: '23505', message: 'SESSION_ALREADY_ACTIVE', details: TEST_UUID } })
+    signIn({ data: null, error: { code: 'P0001', message: 'ACCOUNT_TRIP_ALREADY_ACTIVE', details: TEST_UUID } })
 
     await expect(createShoppingSession({ base_list_id: TEST_UUID, name: 'Trip' })).rejects.toMatchObject({
       status: 409,
-      message: 'This list already has a shopping session in progress.',
+      message: 'Finish your current trip before starting another.',
       details: { activeSessionId: TEST_UUID },
     })
   })

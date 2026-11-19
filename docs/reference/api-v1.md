@@ -110,7 +110,7 @@ Each store from `GET /api/v1/stores` adds `last_visit: { kind: "trip" | "receipt
 | Group create/update | `name` 1–100 characters, `description` up to 500; fields optional on PATCH. | [`group.ts`](../../src/lib/validations/group.ts) |
 | List create/update | Create requires `name` 1–100; `group_id` is an optional UUID (null is accepted): omitted, the list goes to the user's default group, created on first use; supplied, it must be a group of the caller (`404` otherwise, with no difference between a missing and a foreign group). `notes` nullable/optional up to 500. Names are unique per user, ignoring case, across all groups (`409` otherwise); saving a list under its own name, or changing only its case, is accepted. PATCH accepts name/notes. | [`base-list.ts`](../../src/lib/validations/base-list.ts) |
 | Item create/update | Name up to 200, quantity 0.1–99 in 0.1 steps, optional unit/notes/category. Path determines parent on nested POST. | [`base-list.ts`](../../src/lib/validations/base-list.ts), [`shopping-session.ts`](../../src/lib/validations/shopping-session.ts) |
-| Session create | UUID `base_list_id`, `name` 1–100, optional `store_id` (UUID or null). When supplied, the session includes only items usual at or previously purchased at that store; other items remain available in the session as `is_other_store`. A list with an active session returns `409 CONFLICT` and `details.activeSessionId`; an empty list returns `409 CONFLICT`; a missing list or store outside the caller's scope returns `404`. | [`shopping-session.ts`](../../src/lib/validations/shopping-session.ts), [`shopping-sessions.service.ts`](../../src/lib/server/services/shopping-sessions.service.ts) |
+| Session create | UUID `base_list_id`, `name` 1–100, optional `store_id` (UUID or null). When supplied, the session includes only items usual at or previously purchased at that store; other items remain available in the session as `is_other_store`. An account or requested list with an active session returns `409 CONFLICT` and `details.activeSessionId`; an empty list returns `409 CONFLICT`; a missing list or store outside the caller's scope returns `404`. | [`shopping-session.ts`](../../src/lib/validations/shopping-session.ts), [`shopping-sessions.service.ts`](../../src/lib/server/services/shopping-sessions.service.ts) |
 | Session reads | `GET /shopping-sessions/{sessionId}` adds `store: { id, name } \| null` and `is_other_store` on each session item; completed-session history adds `store: { id, name } \| null`. Whole-list sessions have `store: null` and `is_other_store: false`. | [`shopping-sessions.service.ts`](../../src/lib/server/services/shopping-sessions.service.ts) |
 | Base-list item usual store | `PATCH /base-list-items/{itemId}` accepts `usual_store_id` (UUID or null). This field must be the only field in the PATCH (`422` if combined); a store or item outside the caller's scope returns `404`. The response adds `usual_store: { id, name, source } \| null` and `other_stores: [{ id, name, purchase_count }]`, with the usual store omitted from `other_stores`. | [`base-list.ts`](../../src/lib/validations/base-list.ts), [`base-lists.service.ts`](../../src/lib/server/services/base-lists.service.ts) |
 | Base-list item store summary | `GET /base-lists/{baseListId}` adds `usual_store` and `other_stores` to each item. `other_stores` is ordered by purchase count descending, then most recent purchase; raw statistics rows are not returned. Collaborators may see `usual_store: null` and `other_stores: []` when RLS hides the store data. | [`base-lists.service.ts`](../../src/lib/server/services/base-lists.service.ts) |
@@ -196,15 +196,18 @@ Store tags and scoped sessions (PRD v3 Phase 3, 2026-10-27). Compatible addition
 no deprecation headers:
 
 - `POST /shopping-sessions` accepts optional `store_id`; omitting it or sending `null` preserves whole-list shopping.
-  A second active session for the same list returns `409 CONFLICT` with `details.activeSessionId` and the message
-  "This list already has a shopping session in progress." Clients should use the detail field to resume and ignore
+  A second active session for the same account returns `409 CONFLICT` with `details.activeSessionId` and the message
+  "Finish your current trip before starting another." Clients should use the detail field to resume and ignore
   unknown response fields.
 - Session reads and history add `store` and item `is_other_store`; list reads add each item's `usual_store` and
   `other_stores`. Clients must ignore these new fields. Store statistics are not exposed as raw rows.
 - `PATCH /base-list-items/{itemId}` accepts `usual_store_id` alone to set a manual tag or `null` to return the item to
   automatic selection. Existing item fields and their meanings are unchanged.
-- A list can have one active session at a time; different lists can be shopped concurrently. Existing active sessions
+- The limit also applies per list for collaboration. Existing active sessions
   and history are not backfilled or rewritten by the additive migration.
+- Apply the account guard migration before releasing the UI and API changes. Once all existing duplicate active
+  trips have been completed manually, promote `supabase/finalize-one-active-trip-per-account.sql` to a versioned migration.
+  The final migration aborts if any account still has duplicate active trips.
 
 Source: the [store-tags-and-scoped-sessions change](../../openspec/changes/store-tags-and-scoped-sessions/design.md),
 [`shopping-sessions.service.ts`](../../src/lib/server/services/shopping-sessions.service.ts),
