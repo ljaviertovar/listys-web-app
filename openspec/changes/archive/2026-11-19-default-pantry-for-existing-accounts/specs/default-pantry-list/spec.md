@@ -104,6 +104,25 @@ La acción SHALL requerir un usuario autenticado y actuar solo sobre sus propias
 - **WHEN** la base de datos rechaza la creación o la marca
 - **THEN** no queda una lista huérfana ni una marca parcial y la respuesta es un error genérico accionable
 
+### Requirement: New Pantry lists include the default note
+
+Toda lista nueva llamada "Pantry" SHALL incluir la nota predeterminada "What you usually keep at home. It fills itself from your receipts.". Esta nota se aplica al crear una Pantry, sin cambiar las notas de listas existentes que se adopten.
+
+#### Scenario: Note on a newly provisioned Pantry
+
+- **WHEN** se crea automáticamente la Pantry de una cuenta nueva
+- **THEN** la lista incluye la nota predeterminada junto con su nombre y estado por defecto
+
+#### Scenario: Note on a Pantry set up on demand
+
+- **WHEN** se crea la Pantry mediante la acción explícita de una cuenta existente
+- **THEN** la lista incluye la nota predeterminada
+
+#### Scenario: Adopted Pantry keeps its note
+
+- **WHEN** la acción adopta una lista existente llamada Pantry
+- **THEN** su nota no cambia
+
 ## MODIFIED Requirements
 
 ### Requirement: Existing users are not affected
