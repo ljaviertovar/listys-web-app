@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button'
 import { createBaseListItem, createShoppingSessionItem } from '@/lib/api/endpoints'
 import { broadcastListActivity, cn } from '@/utils'
 
+import { BaseListLockedNotice } from './base-list-locked-notice'
 import { itemFormSchema, type ItemFormValues } from './helpers/item-form-schema'
 import { ItemFields } from './item-fields'
 
@@ -63,14 +64,7 @@ export function AddItemForm({ target, isLocked = false, onCancel }: AddItemFormP
 			noValidate
 			className='flex flex-col gap-1 px-1 md:gap-5'
 		>
-			{isLocked ? (
-				<p
-					role='note'
-					className='rounded-2xl bg-slate-100 px-3.5 py-3 text-sm leading-normal text-foreground dark:bg-muted dark:text-foreground'
-				>
-					A shopping session is using this list. Make changes in that session, or finish it to edit this base list.
-				</p>
-			) : null}
+			{isLocked ? <BaseListLockedNotice testId='add-item-locked-notice' /> : null}
 			<ItemFields
 				form={form}
 				idPrefix={id}

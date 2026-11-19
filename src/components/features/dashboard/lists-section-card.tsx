@@ -34,17 +34,17 @@ export function ListsSectionCard({ lists, activeSessionIds }: Props) {
 						<li
 							key={list.id}
 							data-testid={`dashboard-list-${list.id}`}
-							className='flex items-center gap-2.5 rounded-[18px] bg-muted/70 p-2 transition-colors duration-150 hover:bg-background dark:bg-muted/50 dark:hover:bg-muted'
+							className='grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2.5 rounded-[18px] bg-muted/50 p-2 transition-colors duration-150 hover:bg-muted'
 						>
-							<RowIcon
-								icon={ListViewIcon}
-								tone='primary'
-								size='md'
-							/>
 							<Link
 								href={`/base-lists/${list.id}/edit`}
-								className='-my-2 flex min-h-14 min-w-0 flex-1 items-center rounded-md text-sm text-muted-foreground dark:text-foreground/80 focus-ring'
+								className='-my-2 flex min-h-14 min-w-0 items-center gap-2.5 rounded-md text-sm text-muted-foreground dark:text-foreground/80 focus-ring'
 							>
+								<RowIcon
+									icon={ListViewIcon}
+									tone='primary'
+									size='md'
+								/>
 								<span className='flex min-w-0 flex-col gap-1'>
 									<span className='flex min-w-0 flex-wrap items-center gap-1.5 font-semibold text-foreground'>
 										<span className='min-w-0 truncate'>{list.name}</span>
@@ -71,8 +71,8 @@ export function ListsSectionCard({ lists, activeSessionIds }: Props) {
 								itemsCount={list.itemsCount}
 								sessionActive={Boolean(activeSessionIds[list.id])}
 								activeSessionId={activeSessionIds[list.id]}
-								variant='secondary'
-								size='lg'
+								variant='outline'
+								size='sm'
 								className='w-auto'
 							>
 								Start

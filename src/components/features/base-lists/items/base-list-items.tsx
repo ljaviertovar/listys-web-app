@@ -9,7 +9,7 @@ import {
 	EmptyStateCard,
 	useCategorySectionExpansion,
 } from '@/components/commons'
-import { AddItemSheet } from '@/components/features/list-items'
+import { AddItemSheet, BaseListLockedNotice } from '@/components/features/list-items'
 import { UploadTicketDialog } from '@/components/features/tickets'
 import { Card } from '@/components/ui/card'
 import { groupByCategory } from '@/utils'
@@ -22,18 +22,6 @@ interface BaseListItemsProps {
 	items: BaseListItemWithStoreSummary[]
 	isLocked?: boolean
 	isOwner?: boolean
-}
-
-function BaseListLockedNotice() {
-	return (
-		<p
-			role='note'
-			data-testid='base-list-locked-notice'
-			className='mb-3 rounded-xl bg-muted px-3.5 py-3 text-sm leading-normal text-foreground'
-		>
-			A shopping session is using this list. Make changes in that session, or finish it to edit this base list.
-		</p>
-	)
 }
 
 /** The items of a base list in one card, a collapsible section per category; or the card that invites adding the first item. */
@@ -58,7 +46,7 @@ export function BaseListItems({ baseListId, items, isLocked = false, isOwner = t
 				}
 				testId='base-list-empty-state'
 			>
-				{isLocked ? <BaseListLockedNotice /> : null}
+				{isLocked ? <BaseListLockedNotice testId='base-list-locked-notice' className='mb-3' /> : null}
 				<div className='flex w-full flex-col items-stretch gap-2 sm:flex-row'>
 					<AddItemSheet
 						target={{ context: 'base-list', baseListId }}
@@ -84,7 +72,7 @@ export function BaseListItems({ baseListId, items, isLocked = false, isOwner = t
 			data-testid='base-list-items-card'
 			size='list'
 		>
-			{isLocked ? <BaseListLockedNotice /> : null}
+			{isLocked ? <BaseListLockedNotice testId='base-list-locked-notice' className='mb-3' /> : null}
 			<CategoryCollapseControl
 				allCollapsed={expansion.allCollapsed}
 				onToggle={expansion.toggleAll}

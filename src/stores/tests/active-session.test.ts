@@ -67,7 +67,8 @@ describe('useActiveSessionStore', () => {
 
 describe('initActiveSession', () => {
   it('sets session when active session exists', async () => {
-    const sessionData = [{ id: 'session-1', name: 'Shopping Trip', base_list_id: 'l1', started_at: '2026-01-02T00:00:00Z' }]
+    const session = { id: 'session-1', name: 'Shopping Trip', base_list_id: 'l1', started_at: '2026-01-02T00:00:00Z' }
+    const sessionData = [{ ...session, user_id: 'u1' }, { id: 'shared-trip', user_id: 'u2' }]
     const builder = createQueryBuilder({ data: sessionData, error: null })
 
     mockedCreateClient.mockReturnValue({
@@ -78,7 +79,8 @@ describe('initActiveSession', () => {
     await initActiveSession()
 
     const { activeSession, isLoaded } = useActiveSessionStore.getState()
-    expect(activeSession).toEqual(sessionData[0])
+    expect(activeSession).toEqual({ ...session, isOwned: true })
+    expect(useActiveSessionStore.getState().sessions[1]).toEqual({ id: 'shared-trip', isOwned: false })
     expect(isLoaded).toBe(true)
   })
 
