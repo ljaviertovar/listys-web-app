@@ -1,3 +1,4 @@
+import { after } from 'next/server'
 import { createAuthenticatedClient } from '@/lib/api/auth'
 import { isUsablePrice } from '@/utils/is-usable-price'
 import { ApiServiceError, ErrorCode } from '@/lib/api/http'
@@ -12,7 +13,8 @@ import {
 } from '@/lib/validations/ticket'
 import { MAX_IMAGES_PER_TICKET, MAX_ITEMS_PER_BASE_LIST, MAX_TICKET_IMAGE_MB } from '@/lib/config/limits'
 import { getTicketImageMime } from '@/lib/validations/ticket-image'
-import { getOCRFunctionURL } from '@/lib/config/ocr'
+import { safeOcrError, OCR_UNAVAILABLE_MESSAGE } from '@/lib/config/ocr-policy'
+import { expireTicketReads, requestTicketOcr } from './ticket-ocr'
 import { resolveListGroupId } from '@/lib/server/services/default-group.service'
 import { DUPLICATE_LIST_NAME_MESSAGE, findListByName } from '@/lib/server/services/find-list-by-name'
 import type { StoreRef } from '@/types/stores'
@@ -20,6 +22,7 @@ import type { Ticket } from '@/types/tickets'
 
 export async function getTickets(source?: 'direct') {
   const { supabase, user } = await createAuthenticatedClient()
+  await expireTicketReads(supabase, user.id)
 
   let query = supabase
     .from('tickets')
@@ -37,11 +40,12 @@ export async function getTickets(source?: 'direct') {
     throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, error.message)
   }
 
-  return tickets
+  return tickets?.map(ticket => ({ ...ticket, ocr_error: safeOcrError(ticket.ocr_error) }))
 }
 
 export async function getTicket(id: string) {
   const { supabase, user } = await createAuthenticatedClient()
+  await expireTicketReads(supabase, user.id, id)
 
   const { data: ticket, error: ticketError } = await supabase
     .from('tickets')
@@ -78,7 +82,7 @@ export async function getTicket(id: string) {
     shoppingSession = session
   }
 
-  return { ...ticket, shopping_session: shoppingSession, store_suggestion: storeSuggestion, items: items || [] }
+  return { ...ticket, ocr_error: safeOcrError(ticket.ocr_error), shopping_session: shoppingSession, store_suggestion: storeSuggestion, items: items || [] }
 }
 
 /**
@@ -109,6 +113,7 @@ async function suggestStore(
 
 export async function getTicketStatus(id: string) {
   const { supabase, user } = await createAuthenticatedClient()
+  await expireTicketReads(supabase, user.id, id)
   const { data: ticket, error } = await supabase
     .from('tickets')
     .select('id, ocr_status')
@@ -571,6 +576,7 @@ export async function updateTicket(id: string, data: unknown) {
 
 export async function retryTicketOCR(id: string) {
   const { supabase, user } = await createAuthenticatedClient()
+  await expireTicketReads(supabase, user.id, id)
 
   const { data: ticket, error: ticketError } = await supabase
     .from('tickets')
@@ -595,15 +601,30 @@ export async function retryTicketOCR(id: string) {
     throw new ApiServiceError(400, ErrorCode.BAD_REQUEST, 'No image paths found for this receipt.')
   }
 
-  await supabase.from('ticket_items').delete().eq('ticket_id', id)
+  if (ticket.ocr_status === 'pending' || ticket.ocr_status === 'processing') {
+    throw new ApiServiceError(409, ErrorCode.CONFLICT, 'This receipt is already being read. Please wait for it to finish.')
+  }
 
-  const { error: updateError } = await supabase
+  const attemptStartedAt = new Date().toISOString()
+  const { data: claimed, error: updateError } = await supabase
     .from('tickets')
-    .update({ ocr_status: 'pending', total_items: 0, total_amount: null, processed_at: null, ocr_error: null })
+    .update({ ocr_status: 'pending', total_items: 0, total_amount: null, processed_at: attemptStartedAt, ocr_error: null })
     .eq('id', id)
+    .eq('user_id', user.id)
+    .in('ocr_status', ['failed', 'completed'])
+    .select('id')
+    .maybeSingle()
 
   if (updateError) {
-    throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, updateError.message)
+    throw new ApiServiceError(503, ErrorCode.INTERNAL_ERROR, 'Unable to start reading this receipt. Please try again.')
+  }
+  if (!claimed) throw new ApiServiceError(409, ErrorCode.CONFLICT, 'This receipt is already being read. Please refresh its status.')
+
+  const { error: clearError } = await supabase.from('ticket_items').delete().eq('ticket_id', id)
+  if (clearError) {
+    await supabase.from('tickets').update({ ocr_status: 'failed', ocr_error: OCR_UNAVAILABLE_MESSAGE })
+      .eq('id', id).eq('user_id', user.id).eq('processed_at', attemptStartedAt).eq('ocr_status', 'pending')
+    throw new ApiServiceError(503, ErrorCode.INTERNAL_ERROR, 'Unable to prepare this receipt for reading. Please try again.')
   }
 
   const signedUrls: string[] = []
@@ -616,40 +637,13 @@ export async function retryTicketOCR(id: string) {
   if (signedUrls.length === 0) {
     await supabase
       .from('tickets')
-      .update({ ocr_status: 'failed', ocr_error: 'Failed to generate signed URLs for receipt images.' })
+      .update({ ocr_status: 'failed', ocr_error: OCR_UNAVAILABLE_MESSAGE })
       .eq('id', id)
 
     throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'Failed to generate image URL')
   }
 
-  let response: Response
-  try {
-    response = await fetch(getOCRFunctionURL(), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
-      },
-      body: JSON.stringify({ ticketId: id, imageUrls: signedUrls, imageUrl: signedUrls[0] }),
-    })
-  } catch {
-    await supabase
-      .from('tickets')
-      .update({ ocr_status: 'failed', ocr_error: 'Failed to connect to OCR service during retry.' })
-      .eq('id', id)
-
-    throw new ApiServiceError(503, ErrorCode.INTERNAL_ERROR, 'Failed to connect to OCR service. Please try again.')
-  }
-
-  if (!response.ok) {
-    console.error('[tickets] OCR function returned a non-success response', { status: response.status })
-    await supabase
-      .from('tickets')
-      .update({ ocr_status: 'failed', ocr_error: 'OCR processing failed during retry trigger.' })
-      .eq('id', id)
-
-    throw new ApiServiceError(502, ErrorCode.INTERNAL_ERROR, 'OCR processing failed. Please try again.')
-  }
+  await requestTicketOcr(supabase, user.id, id, signedUrls, attemptStartedAt)
 
   return { success: true }
 }
@@ -757,6 +751,7 @@ export async function uploadTicket(formData: FormData) {
     uploadedPaths.push(candidate)
   }
 
+  const attemptStartedAt = new Date().toISOString()
   const { data: ticket, error: ticketError } = await supabase
     .from('tickets')
     .insert({
@@ -767,6 +762,7 @@ export async function uploadTicket(formData: FormData) {
       store_name: storeName,
       uploaded_from_session_id: originSessionId,
       ocr_status: 'pending',
+      processed_at: attemptStartedAt,
     })
     .select()
     .single()
@@ -790,29 +786,21 @@ export async function uploadTicket(formData: FormData) {
   if (signedUrls.length === 0) {
     await supabase
       .from('tickets')
-      .update({ ocr_status: 'failed', ocr_error: 'Failed to create signed URLs for OCR processing.' })
+      .update({ ocr_status: 'failed', ocr_error: OCR_UNAVAILABLE_MESSAGE })
       .eq('id', ticket.id)
 
     return { ticketId: ticket.id }
   }
 
-  try {
-    fetch(getOCRFunctionURL(), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
-      },
-      body: JSON.stringify({ ticketId: ticket.id, imageUrls: signedUrls, imageUrl: signedUrls[0] }),
-    }).catch(async () => {
-      await supabase
-        .from('tickets')
-        .update({ ocr_status: 'failed', ocr_error: 'Failed to trigger OCR edge function.' })
-        .eq('id', ticket.id)
-    })
-  } catch {
-    // Non-blocking trigger path.
-  }
+  // Keep the bounded OCR request alive after the upload response on serverless hosts.
+  after(async () => {
+    try {
+      await requestTicketOcr(supabase, user.id, ticket.id, signedUrls, attemptStartedAt)
+    } catch {
+      // The request helper persists a safe failure; never log provider responses or credentials.
+      console.error('[tickets] Receipt reading did not complete')
+    }
+  })
 
   return { ticketId: ticket.id }
 }

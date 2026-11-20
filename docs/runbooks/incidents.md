@@ -23,6 +23,13 @@ The repository does not establish configured alerts, a maintenance-mode switch o
 | Deleted receipt still occupies storage | Deletion logs and exact affected object paths. | Inspect orphan reports without mutation, then prepare a scoped cleanup plan. |
 | Experimental invite/realtime failure | Link expiry/revocation/uses, membership, RLS and publication. | Validate with isolated accounts; link revocation differs from collaborator removal. |
 
+Receipt dispatch stops after 90 seconds; deployed OCR functions stop provider work after 75 seconds. Failed dispatch
+stores a safe explanation. Collection, detail and status reads recover only the authenticated user's active attempts
+older than three minutes. During an active attempt, `processed_at` holds its start time; terminal OCR writes replace it
+with the finish time. Historical attempts without that timestamp fall back to `created_at`. Retry resets the timestamp
+so old uploads are not immediately expired. Upload/retry hosting must support the configured 120-second maximum duration.
+Deploy both OCR functions alongside the web changes to cancel stalled provider requests too.
+
 Maintenance handlers can mark stuck tickets failed or remove orphaned images. These mutate state and may have broader
 scope than the request's user. Inspect the database function and affected records before authorizing execution. Do not
 run cleanup scripts, broad resets or destructive migrations during diagnosis. See

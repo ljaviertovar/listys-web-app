@@ -84,14 +84,14 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 					storeConfirmed={!!store}
 					receiptDate={uploadedAt ? formatDate(uploadedAt) : null}
 					attachedSession={ticket.shopping_session ?? null}
-					before={isStandaloneReceipt(ticket) ? (
+					before={!isUnreadable && isStandaloneReceipt(ticket) ? (
 						<TicketSpendingCard
 							ticketId={ticketId}
 							included={ticket.include_in_spending === true}
 							hasTotal={hasRecordedReceiptTotal(ticket.total_amount)}
 						/>
 					) : null}
-					unreadable={isUnreadable ? <TicketUnreadableState ticketId={ticketId} kind={readWithoutItems ? 'no-items' : 'failed'} storeRecognized={Boolean(store || storeSuggestion || ticket.store_name?.trim())} /> : null}
+					unreadable={isUnreadable ? <TicketUnreadableState ocrError={ocrError} ticketId={ticketId} kind={readWithoutItems ? 'no-items' : 'failed'} storeRecognized={Boolean(store || storeSuggestion || ticket.store_name?.trim())} /> : null}
 					top={
 						isReadReceipt || readWithoutItems ? (
 							<TicketStoreCard

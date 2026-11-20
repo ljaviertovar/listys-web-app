@@ -23,6 +23,15 @@ describe('isRetryableStatus', () => {
 
 describe('fetchWithRetry', () => {
 	const sleep = vi.fn(async () => {})
+	it('stops retries when the overall read deadline expires', async () => {
+		const controller = new AbortController()
+		const send = vi.fn(async () => {
+			controller.abort()
+			throw new DOMException('Timed out', 'AbortError')
+		})
+		await expect(fetchWithRetry(send, { signal: controller.signal, sleep })).rejects.toThrow('Timed out')
+		expect(send).toHaveBeenCalledTimes(1)
+	})
 
 	it('returns a good answer without retrying', async () => {
 		const send = vi.fn(async () => respond(200))

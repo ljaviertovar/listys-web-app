@@ -1,6 +1,7 @@
 'use client'
 
 import { useId, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Alert02Icon, Invoice01Icon, Loading03Icon, Store03Icon } from '@hugeicons/core-free-icons'
 
@@ -28,6 +29,7 @@ import { MAX_IMAGES_PER_TICKET, MAX_TICKET_IMAGE_MB } from '@/lib/config/limits'
 
 import { NoStoreBadge } from '../no-store-badge'
 import { ReceiptDateFacts } from '../receipt/receipt-date-facts'
+import { useTicketStatus } from '../receipt/hooks/use-ticket-status'
 import { TicketStatusChip } from '../ticket-status-chip'
 import { TicketSpendingMarker } from '../ticket-spending-marker'
 import { toTicketChipStatus } from '../helpers/ticket-status'
@@ -53,7 +55,12 @@ export function TicketCard({
 	storeConfirmed,
 	includedInSpending,
 }: TicketCardProps) {
-	const ticketStatus = toTicketChipStatus(status, itemsCount)
+	const router = useRouter()
+	const ticketStatus = useTicketStatus({
+		ticketId: id,
+		initialStatus: toTicketChipStatus(status, itemsCount),
+		onTerminal: () => router.refresh(),
+	})
 	// Only a receipt that has finished (or failed) has details worth a labelled link.
 	const showDetails = ticketStatus === 'completed' || ticketStatus === 'failed'
 	const needsStore = ticketStatus === 'completed' && !storeConfirmed

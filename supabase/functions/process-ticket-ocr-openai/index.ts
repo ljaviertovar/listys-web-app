@@ -3,6 +3,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { decideOcrOutcome, extractChatCompletionText, fetchWithRetry } from '../_shared/ocr-outcome.ts'
 import { RECEIPT_LINE_ITEM_INSTRUCTIONS } from '../_shared/receipt-items.ts'
 import { agreeOnPurchaseDate, parseOcrPayload, receiptMetadataInstructions } from '../_shared/receipt-store.ts'
+import { OCR_PROCESSING_TIMEOUT_MS, OCR_TIMEOUT_MESSAGE, OCR_UNAVAILABLE_MESSAGE } from '../_shared/ocr-policy.ts'
 
 const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY')!
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
@@ -37,7 +38,8 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 async function processImage(
   imageUrl: string,
   imageIndex: number,
-  totalImages: number
+  totalImages: number,
+  signal: AbortSignal
 ): Promise<ImageResult> {
   const isMultiImage = totalImages > 1
   const positionContext = isMultiImage
@@ -135,6 +137,7 @@ ${receiptMetadataInstructions(imageIndex, totalImages)}
 
   // A busy provider (429, 5xx) or a dropped connection is tried once more before the photo counts as failed.
   const ocrResponse = await fetchWithRetry(() => fetch('https://api.openai.com/v1/chat/completions', {
+    signal,
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -155,7 +158,7 @@ ${receiptMetadataInstructions(imageIndex, totalImages)}
       ],
       max_tokens: 5000,
     }),
-  }))
+  }), { signal })
 
   if (!ocrResponse.ok) {
     const error = await ocrResponse.text()
@@ -375,6 +378,7 @@ function toTitleCase(input: string | null): string | null {
 
 serve(async (req: Request) => {
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+  const signal = AbortSignal.timeout(OCR_PROCESSING_TIMEOUT_MS)
   let ticketId: string | undefined
   const purchaseDates: Array<string | null> = []
 
@@ -413,7 +417,7 @@ serve(async (req: Request) => {
 
     for (let i = 0; i < urls.length; i++) {
       console.log(`Processing image ${i + 1}/${urls.length}`)
-      const { items, storeName, total, purchaseDate } = await processImage(urls[i], i, urls.length)
+      const { items, storeName, total, purchaseDate } = await processImage(urls[i], i, urls.length, signal)
       purchaseDates.push(purchaseDate)
       if (i === 0) storeNameFromHeader = storeName
       if (i === urls.length - 1) totalFromLastPhoto = total
@@ -421,6 +425,7 @@ serve(async (req: Request) => {
       allItemsPerImage.push(items)
     }
 
+    signal.throwIfAborted()
     // Merge items from all images, removing border duplicates
     const mergedItems = mergeItems(allItemsPerImage)
     // A name the ticket already has (sent by a client or read earlier) is never overwritten.
@@ -490,7 +495,6 @@ serve(async (req: Request) => {
     )
   } catch (error: unknown) {
     console.error('OCR processing error:', error)
-    const message = error instanceof Error ? error.message : String(error)
 
     if (ticketId) {
       const purchaseDate = agreeOnPurchaseDate(purchaseDates)
@@ -500,7 +504,7 @@ serve(async (req: Request) => {
           .update({
             ocr_status: 'failed',
             ...(purchaseDate ? { purchase_date: purchaseDate } : {}),
-            ocr_error: (message || 'OCR processing failed').slice(0, 1000),
+            ocr_error: signal.aborted ? OCR_TIMEOUT_MESSAGE : OCR_UNAVAILABLE_MESSAGE,
             processed_at: new Date().toISOString(),
           })
           .eq('id', ticketId)
@@ -509,8 +513,8 @@ serve(async (req: Request) => {
       }
     }
 
-    return new Response(JSON.stringify({ error: 'OCR processing failed' }), {
-      status: 500,
+    return new Response(JSON.stringify({ error: signal.aborted ? OCR_TIMEOUT_MESSAGE : OCR_UNAVAILABLE_MESSAGE }), {
+      status: 503,
       headers: { 'Content-Type': 'application/json' },
     })
   }

@@ -24,6 +24,7 @@ export function isRetryableStatus(status: number): boolean {
 }
 
 interface RetryOptions {
+  signal?: AbortSignal
   retries?: number
   delayMs?: number
   sleep?: (ms: number) => Promise<void>
@@ -36,20 +37,22 @@ const wait = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms
  * times. A non-retryable answer is returned as it is; the last failure is returned or thrown, never swallowed.
  */
 export async function fetchWithRetry(send: () => Promise<Response>, options: RetryOptions = {}): Promise<Response> {
-  const { retries = 1, delayMs = 1500, sleep = wait } = options
+  const { retries = 1, delayMs = 1500, sleep = wait, signal } = options
 
   for (let attempt = 0; ; attempt++) {
+    signal?.throwIfAborted()
     const isLast = attempt >= retries
 
     let response: Response
     try {
       response = await send()
     } catch (error) {
-      if (isLast) throw error
+      if (isLast || signal?.aborted) throw error
       await sleep(delayMs * (attempt + 1))
       continue
     }
 
+    signal?.throwIfAborted()
     if (response.ok || isLast || !isRetryableStatus(response.status)) return response
     await sleep(delayMs * (attempt + 1))
   }

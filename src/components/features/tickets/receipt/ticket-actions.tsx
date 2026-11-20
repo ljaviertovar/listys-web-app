@@ -20,7 +20,12 @@ interface Props {
 	onRetrySuccess?: () => void
 }
 
-export function TicketActions({ ticket, allowRetry = false, retryLabel = 'Read Receipt Again', onRetrySuccess }: Props) {
+export function TicketActions({
+	ticket,
+	allowRetry = false,
+	retryLabel = 'Read Receipt Again',
+	onRetrySuccess,
+}: Props) {
 	const [retrying, setRetrying] = useState(false)
 	const router = useRouter()
 
@@ -66,8 +71,8 @@ export function TicketActions({ ticket, allowRetry = false, retryLabel = 'Read R
 		>
 			{showRetryButton && (
 				<Button
-					variant='secondary'
-					size='lg'
+					variant='ghost'
+					size='sm'
 					onClick={handleRetry}
 					disabled={retrying}
 					className='w-full'
@@ -90,7 +95,13 @@ export function TicketActions({ ticket, allowRetry = false, retryLabel = 'Read R
 			)}
 
 			{/* Allow delete for failed/completed tickets, and stuck processing tickets */}
-			{(ticket.ocr_status !== 'processing' || isStuckProcessing) && <DeleteReceiptButton ticketId={ticket.id} warning={deleteWarningMessage} saved={!!ticket.base_list_id} />}
+			{(ticket.ocr_status !== 'processing' || isStuckProcessing) && (
+				<DeleteReceiptButton
+					ticketId={ticket.id}
+					warning={deleteWarningMessage}
+					saved={!!ticket.base_list_id}
+				/>
+			)}
 		</div>
 	)
 }

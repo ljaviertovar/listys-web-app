@@ -4,6 +4,7 @@ import { encode as base64Encode } from 'https://deno.land/std@0.168.0/encoding/b
 import { decideOcrOutcome, extractGeminiText, fetchWithRetry } from '../_shared/ocr-outcome.ts'
 import { RECEIPT_LINE_ITEM_INSTRUCTIONS } from '../_shared/receipt-items.ts'
 import { agreeOnPurchaseDate, parseOcrPayload, receiptMetadataInstructions } from '../_shared/receipt-store.ts'
+import { OCR_PROCESSING_TIMEOUT_MS, OCR_TIMEOUT_MESSAGE, OCR_UNAVAILABLE_MESSAGE } from '../_shared/ocr-policy.ts'
 
 const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY')!
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
@@ -34,8 +35,8 @@ interface ImageResult {
 
 /* --- HELPERS --- */
 
-async function getBase64FromUrl(url: string): Promise<{ base64: string; mimeType: string }> {
-  const response = await fetch(url);
+async function getBase64FromUrl(url: string, signal: AbortSignal): Promise<{ base64: string; mimeType: string }> {
+  const response = await fetch(url, { signal });
   if (!response.ok) {
     console.error('[ERROR] Failed to fetch image:', response.status, response.statusText);
     throw new Error(`Failed to fetch image: ${response.status}`);
@@ -66,7 +67,8 @@ function toTitleCase(input: string | null): string | null {
 async function processImage(
   imageUrl: string,
   imageIndex: number,
-  totalImages: number
+  totalImages: number,
+  signal: AbortSignal
 ): Promise<ImageResult> {
   const positionContext = totalImages > 1
     ? `Image ${imageIndex + 1}/${totalImages}. Section: ${imageIndex === 0 ? 'START' : imageIndex === totalImages - 1 ? 'END' : 'MIDDLE'}.`
@@ -80,7 +82,7 @@ async function processImage(
   ${receiptMetadataInstructions(imageIndex, totalImages)}`;
 
   console.log(`[DEBUG] Processing image ${imageIndex + 1}/${totalImages}`);
-  const { base64, mimeType } = await getBase64FromUrl(imageUrl);
+  const { base64, mimeType } = await getBase64FromUrl(imageUrl, signal);
 
   console.log('[DEBUG] Sending request to Gemini API...');
   // A busy provider (429, 5xx) or a dropped connection is tried once more before the photo counts as failed.
@@ -88,6 +90,7 @@ async function processImage(
     `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${GEMINI_API_KEY}`,
     {
       method: 'POST',
+      signal,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [{
@@ -100,7 +103,7 @@ async function processImage(
         },
       }),
     }
-  ));
+  ), { signal });
 
   if (!ocrResponse.ok) {
     const errorText = await ocrResponse.text().catch(() => 'Unable to read error');
@@ -156,6 +159,7 @@ function mergeItems(allItems: ReceiptItem[][]): ReceiptItem[] {
 
 serve(async (req) => {
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+  const signal = AbortSignal.timeout(OCR_PROCESSING_TIMEOUT_MS);
   let ticketId: string | undefined;
 
   try {
@@ -213,12 +217,13 @@ serve(async (req) => {
     // PROCESAMIENTO EN PARALELO (Mucho más rápido)
     console.log('[INFO] Starting parallel image processing...');
     const allResults = await Promise.all(
-      urls.map((url, i) => processImage(url, i, urls.length).catch((e): ImageResult => {
+      urls.map((url, i) => processImage(url, i, urls.length, signal).catch((e): ImageResult => {
         console.error(`[ERROR] Error en imagen ${i + 1}/${urls.length}:`, e);
         return { items: [], storeName: null, total: null, purchaseDate: null, failure: e instanceof Error ? e.message : String(e) };
       }))
     );
 
+    signal.throwIfAborted();
     console.log('[DEBUG] All images processed. Results:', allResults.map(r => r.items.length));
     const mergedItems = mergeItems(allResults.map(r => r.items));
     // A name the ticket already has (sent by a client or read earlier) is never overwritten.
@@ -295,7 +300,7 @@ serve(async (req) => {
       console.log('[DEBUG] Updating ticket to failed state...');
       const { error: failError } = await supabase.from('tickets').update({
         ocr_status: 'failed',
-        ocr_error: message
+        ocr_error: signal.aborted ? OCR_TIMEOUT_MESSAGE : OCR_UNAVAILABLE_MESSAGE
       }).eq('id', ticketId);
 
       if (failError) {
@@ -304,6 +309,6 @@ serve(async (req) => {
         console.log('[DEBUG] Ticket marked as failed');
       }
     }
-    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+    return new Response(JSON.stringify({ error: signal.aborted ? OCR_TIMEOUT_MESSAGE : OCR_UNAVAILABLE_MESSAGE }), { status: 503 });
   }
 });

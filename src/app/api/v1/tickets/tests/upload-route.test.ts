@@ -3,6 +3,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { createQueryBuilder, createSupabaseMock } from '@/test/helpers'
 
 vi.mock('@/lib/api/auth', () => ({ createAuthenticatedClient: vi.fn() }))
+const background = vi.hoisted(() => ({ tasks: [] as Array<() => Promise<void>> }))
+vi.mock('next/server', async importOriginal => ({
+  ...await importOriginal<typeof import('next/server')>(),
+  after: (task: () => Promise<void>) => background.tasks.push(task),
+}))
 vi.mock('@/lib/config/ocr', () => ({ getOCRFunctionURL: () => 'https://functions.test/ocr' }))
 
 import { createAuthenticatedClient } from '@/lib/api/auth'
@@ -42,6 +47,7 @@ function upload(fields: Record<string, string> = {}) {
 describe('POST /api/v1/tickets (upload)', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    background.tasks = []
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('{}', { status: 200 })))
   })
 
@@ -52,6 +58,17 @@ describe('POST /api/v1/tickets (upload)', () => {
 
     expect(response.status).toBe(202)
     expect(tickets.insert).toHaveBeenCalledWith(expect.objectContaining({ store_name: null, ocr_status: 'pending' }))
+  })
+
+  it('keeps OCR running after the response and marks a rejected trigger as failed', async () => {
+    const { tickets } = signIn()
+    vi.mocked(fetch).mockResolvedValue(new Response('{}', { status: 503 }))
+    expect((await upload()).status).toBe(202)
+    expect(fetch).not.toHaveBeenCalled()
+    expect(background.tasks).toHaveLength(1)
+    await background.tasks[0]()
+    expect(tickets.update).toHaveBeenCalledWith(expect.objectContaining({ ocr_status: 'failed' }))
+    expect(tickets.in).toHaveBeenCalledWith('ocr_status', ['pending', 'processing'])
   })
 
   it('keeps a store name sent by an API client, cleaned up', async () => {
