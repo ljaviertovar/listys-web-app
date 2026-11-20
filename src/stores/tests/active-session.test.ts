@@ -17,26 +17,6 @@ beforeEach(() => {
 })
 
 describe('useActiveSessionStore', () => {
-  it('starts with null session and isLoaded false', () => {
-    const { activeSession, isLoaded } = useActiveSessionStore.getState()
-    expect(activeSession).toBeNull()
-    expect(isLoaded).toBe(false)
-  })
-
-  it('setActiveSession updates session and marks loaded', () => {
-    useActiveSessionStore.getState().setActiveSession({ id: 's-1', name: 'Trip' })
-    const { activeSession, isLoaded } = useActiveSessionStore.getState()
-    expect(activeSession).toMatchObject({ id: 's-1', name: 'Trip' })
-    expect(isLoaded).toBe(true)
-  })
-
-  it('setActiveSession with null marks loaded true', () => {
-    useActiveSessionStore.getState().setActiveSession(null)
-    const { activeSession, isLoaded } = useActiveSessionStore.getState()
-    expect(activeSession).toBeNull()
-    expect(isLoaded).toBe(true)
-  })
-
   it('derives the newest active session and counts the others', () => {
     useActiveSessionStore.getState().setSessions([
       { id: 'older', name: 'Older', started_at: '2026-01-01T00:00:00Z' },

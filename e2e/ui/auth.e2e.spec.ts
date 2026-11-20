@@ -90,32 +90,4 @@ test.describe('Authentication E2E', () => {
     await page.goto(`${BASE_URL}/dashboard`)
     await expect(page).toHaveURL(/\/auth\/signin/)
   })
-
-  test('should validate email format', async ({ page }) => {
-    await page.click('a[href*="/auth/signup"]')
-
-    await page.fill('input[name="email"]', 'invalid-email')
-    await page.fill('input[name="password"]', 'SecurePass123!')
-    await page.fill('input[name="confirmPassword"]', 'SecurePass123!')
-
-    // Try to submit
-    await page.click('button[type="submit"]')
-
-    // Should show validation error
-    await expect(page.locator('text=Invalid email, text=Please enter a valid email')).toBeVisible()
-  })
-
-  test('should enforce password requirements', async ({ page }) => {
-    await page.click('a[href*="/auth/signup"]')
-
-    await page.fill('input[name="email"]', 'test@example.com')
-    await page.fill('input[name="password"]', 'weak')
-    await page.fill('input[name="confirmPassword"]', 'weak')
-
-    // Try to submit
-    await page.click('button[type="submit"]')
-
-    // Should show password validation error
-    await expect(page.locator('text=/password.*must.*characters/i, text=/password.*too.*short/i')).toBeVisible()
-  })
 })

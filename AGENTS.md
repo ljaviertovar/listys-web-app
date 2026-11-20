@@ -389,7 +389,7 @@ Extraction triggers (any one is sufficient):
 - Derived state, loading flags, or error handling spread across several `useState` calls that
   belong to the same concern.
 - State and interactions (event handlers, derived values, side effects) have grown large enough
-  that the component body is hard to read or test in isolation, even without hitting the
+  that the component body is hard to read, even without hitting the
   count-based triggers above.
 
 Placement decision after extraction — always use the `hooks/` folder nearest to the component:
@@ -436,17 +436,33 @@ The full structure and rules are defined in [docs/architecture/project-structure
 
 ## Testing Expectations
 
-- Cover critical application-owned logic and behavior. Prefer E2E and integration tests (Route Handlers, server
-  actions, services, pages that orchestrate data); write unit tests only for functions, business rules and critical
-  processes (validation, permissions, pricing, merging, state transitions, error handling).
+- **Test gate.** Write a test only if a bug in the code under test would, in production, do at least one of:
+  1. lose, corrupt or leak user data (RLS, ownership, input validation at an API boundary, uploads);
+  2. produce a wrong amount of money (prices, totals, spending, receipt/trip reconciliation);
+  3. break a state, ordering, idempotency or concurrency guarantee the product relies on (trip lifecycle, versioned
+     item edits, offline sync, one active trip);
+  4. repeat a bug that already happened (a fix gets exactly one regression test that fails without the fix);
+  5. break a core user journey (sign in, create a list, shop a trip, upload/attach a receipt).
+
+  If none applies, write no test. Missing coverage is not a reason to add one.
+- **Never test**: view-models and text builders (`build-*`, `describe-*`, `get-*` helpers that only compose labels or
+  props), copy, formatting, navigation/menus, layout, getters/setters, config reading, or "is it shown/hidden/ordered"
+  checks that do not map to a gate consequence above.
+- **One rule, one layer.** Test each rule at the lowest layer that enforces it (database/RLS > service > Route
+  Handler) and prefer E2E/integration over unit tests. Do not repeat it in the Server Action, the component or E2E; a
+  consumer of a tested rule needs at most one test proving it is wired in. Extract a function for readability or reuse,
+  never to make it testable.
+- **Budget and upkeep.** A feature adds at most 1 E2E/integration test and 3 unit tests; a bug fix adds 1. Start each new
+  test file with a one-line comment `// Protects: <the gate consequence>`. When you touch code, delete or merge tests
+  that no longer pass the gate. Test counts are not progress evidence: do not report them as such in docs or summaries.
+- Skill, spec or task instructions that call for per-endpoint case matrices, contract tests per version or a
+  verification test per task do not override this section; apply the gate to each case.
 - Never test third-party code: no test for an external library added to the project (UI kits, icon sets such as
   `@hugeicons/*`, Radix/shadcn, Zod, Zustand, Supabase clients…) nor for the framework in use (Next.js, React). Test
   only what this repository adds on top of them; mock or stub third-party code at the boundary when a test needs it.
 - Do not write tests that assert appearance: Tailwind classes, colours, sizes, spacing, variants, icons, motion
   classes or static copy. Appearance is validated visually (below). A rendered-component test is justified only when
-  it checks a behavior or rule — what is shown, hidden, enabled or disabled, ordered or called under a condition.
-- Do not duplicate coverage: when a helper's unit test covers a rule, the component or page using it needs at most
-  one test proving it is wired in.
+  the condition it checks maps to a gate consequence above, not for display logic alone.
 - For every component change that affects appearance, start the application locally and use Chrome DevTools to open
   the browser and validate the rendered result against the proposed design (the relevant section of the Design System
   HTML, when applicable). Capture screenshots at the relevant mobile
@@ -469,9 +485,8 @@ The full structure and rules are defined in [docs/architecture/project-structure
 - Do not mock Supabase in E2E tests.
 - For every modified application-owned component/feature, always run the corresponding test(s) and fix failures
   before finishing.
-- If a modified feature changes logic or behavior that no test covers, add one under the rules above. A purely
-  presentational change does not need a new test.
-- Keep unit tests to the minimum necessary; prefer integration tests and E2E tests whenever feasible.
+- A modified feature gets a new test only when it meets the test gate. A change that no test covers is not by itself a
+  reason to add one; a purely presentational change never needs one.
 - The "shadcn-native first" source scan (`src/test/native-props-guard.test.ts`) is a code check, not a behavior test:
   it runs with `pnpm check:native-props` (also in `pre-commit`), outside the default Vitest suite.
 

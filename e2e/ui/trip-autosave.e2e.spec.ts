@@ -193,35 +193,3 @@ test('reports pending work when another device deletes the trip', async ({ page 
     await expect(page.getByText('Some changes on this device were not applied.')).toBeVisible()
   } finally { await page.context().setOffline(false); await fixture.cleanup() }
 })
-
-test('inspects synchronization feedback on mobile and desktop through Chrome DevTools', async ({ page }) => {
-  const fixture = await createCloseTheLoopFixture()
-  try {
-    await signIn(page, fixture)
-    const [milk] = await tripItems(fixture.sessionId)
-    await page.setViewportSize({ width: 390, height: 844 })
-    await page.screenshot({ path: test.info().outputPath('trip-saved-mobile.png'), fullPage: true })
-    await page.context().setOffline(true)
-    await checkbox(page, milk.id).click()
-    await expect(page.getByTestId('trip-sync-status')).toContainText('Not saved')
-    await page.screenshot({ path: test.info().outputPath('trip-error-mobile.png'), fullPage: true })
-    await createTestClient().from('shopping_session_items').update({ quantity: 2 }).eq('id', milk.id)
-    await page.context().setOffline(false)
-    await page.evaluate(() => window.dispatchEvent(new Event('online')))
-    await expect(page.getByTestId(`trip-item-conflict-${milk.id}`)).toBeVisible()
-    await page.screenshot({ path: test.info().outputPath('trip-conflict-mobile.png'), fullPage: true })
-    await page.setViewportSize({ width: 1440, height: 1000 })
-    await page.screenshot({ path: test.info().outputPath('trip-conflict-desktop.png'), fullPage: true })
-    const devtools = await page.context().newCDPSession(page)
-    await devtools.send('DOM.enable')
-    await devtools.send('CSS.enable')
-    const { root } = await devtools.send('DOM.getDocument')
-    const { nodeId } = await devtools.send('DOM.querySelector', { nodeId: root.nodeId, selector: '[data-testid="trip-sync-status"]' })
-    const [styles, box] = await Promise.all([
-      devtools.send('CSS.getComputedStyleForNode', { nodeId }),
-      devtools.send('DOM.getBoxModel', { nodeId }),
-    ])
-    await test.info().attach('synchronization-dom-and-computed-styles', { body: JSON.stringify({ styles, box }), contentType: 'application/json' })
-    await devtools.detach()
-  } finally { await page.context().setOffline(false); await fixture.cleanup() }
-})

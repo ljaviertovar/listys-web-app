@@ -9,24 +9,17 @@ schema: spec-driven
 #     Designs and tasks must cover Windows, macOS, and Linux
 #     Write all artifacts in Spanish
 
-# Per-artifact rules (optional)
-# Add custom rules for specific artifacts.
-# Example:
-#   rules:
-#     proposal:
-#       - Keep proposals under 500 words
-#       - Always state what is out of scope
-#     tasks:
-#       - Break tasks into chunks of max 2 hours
+rules:
+  tasks:
+    - Do not add a "verify ..." test per task. Add at most one verification task per capability, and name the AGENTS.md
+      test-gate consequence it protects (data loss/leak, wrong money, state/concurrency guarantee, repeated bug, core
+      user journey). Tasks with no such consequence get no test.
+  design:
+    - Test strategy follows the AGENTS.md "Testing Expectations" gate, one layer per rule; do not plan per-endpoint case
+      matrices or tests for view-models, copy, formatting or navigation.
 
-# Per-operation guidance (optional)
-# Add advisory guidance for how apply and archive work should be conducted.
-# This is separate from artifact rules above.
-# Example:
-#   operations:
-#     apply:
-#       guidance:
-#         - Keep test summaries concise
-#     archive:
-#       guidance:
-#         - Summarize the archive outcome before finishing
+operations:
+  apply:
+    guidance:
+      - Add tests only when they meet the AGENTS.md test gate and stay within its per-change budget.
+      - Do not report test counts as evidence of progress; report which gate consequence each new test protects.

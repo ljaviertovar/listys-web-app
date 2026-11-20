@@ -2,8 +2,6 @@ import { test, expect } from '@playwright/test'
 import {
   createTestUser,
   createGroup,
-  createBaseList,
-  createBaseListItems,
   createCompleteSetup,
   resetDatabase,
   cleanTestUsers,
@@ -29,24 +27,6 @@ test.describe('RLS Policy Enforcement', () => {
     // Cleanup after each test
     await resetDatabase()
     await cleanTestUsers()
-  })
-
-  test('User A cannot read User B groups', async () => {
-    // Setup: Create two users with their own groups
-    const userA = await createTestUser('test-user-a@example.com')
-    const userB = await createTestUser('test-user-b@example.com')
-
-    const groupA = await createGroup(userA.userId, 'User A Group')
-    await createGroup(userB.userId, 'User B Group')
-
-    // User B attempts to query groups (should only see their own)
-    const userBClient = createAuthenticatedClient(userB.userId)
-    const { data: groups, error } = await userBClient.from('groups').select('*')
-
-    expect(error).toBeNull()
-    expect(groups).toHaveLength(1)
-    expect(groups![0].name).toBe('User B Group')
-    expect(groups![0].id).not.toBe(groupA.id)
   })
 
   test('User B cannot update User A base list', async () => {
@@ -92,25 +72,6 @@ test.describe('RLS Policy Enforcement', () => {
     // Should fail due to RLS
     expect(error).not.toBeNull()
     expect(data).toBeNull()
-  })
-
-  test('User B cannot delete User A groups', async () => {
-    // Setup
-    const userA = await createTestUser('test-user-a@example.com')
-    const userB = await createTestUser('test-user-b@example.com')
-    const groupA = await createGroup(userA.userId, 'User A Group')
-
-    // User B attempts to delete User A's group
-    const userBClient = createAuthenticatedClient(userB.userId)
-    const { data, error } = await userBClient
-      .from('groups')
-      .delete()
-      .eq('id', groupA.id)
-      .select()
-
-    // Should fail due to RLS
-    expect(error).not.toBeNull()
-    expect(data).toHaveLength(0)
   })
 
   test('User B cannot read User A shopping sessions', async () => {

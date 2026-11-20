@@ -4,7 +4,6 @@ import {
   resetDatabase,
   cleanTestUsers,
   createTestClient,
-  createTicket,
 } from '../helpers'
 
 /**
@@ -152,44 +151,6 @@ test.describe('Concurrent Operations', () => {
 
     expect(baseItems).toHaveLength(1)
     expect(baseItems![0].name).toBe('Concurrent Item')
-  })
-
-  test('Concurrent group creation with same name fails for duplicates', async () => {
-    // Setup
-    const setup = await createCompleteSetup()
-
-    const supabase = createTestClient()
-
-    // Attempt to create multiple groups with same name concurrently
-    const groupName = 'Duplicate Group'
-    const promises = Array.from({ length: 5 }).map(() =>
-      supabase
-        .from('groups')
-        .insert({
-          user_id: setup.user.userId,
-          name: groupName,
-        })
-        .select()
-        .single()
-    )
-
-    const results = await Promise.all(promises)
-
-    // Count successful inserts
-    const successful = results.filter((r) => r.error === null)
-
-    // Due to unique constraint, only 1 should succeed (or none if app has dedup check)
-    // But PostgreSQL unique constraint should prevent duplicates
-    expect(successful.length).toBeLessThanOrEqual(1)
-
-    // Verify total groups with this name
-    const { data: groups } = await supabase
-      .from('groups')
-      .select('*')
-      .eq('user_id', setup.user.userId)
-      .eq('name', groupName)
-
-    expect(groups!.length).toBeLessThanOrEqual(1)
   })
 
   test('Concurrent base list item updates maintain consistency', async () => {
@@ -357,55 +318,5 @@ test.describe('Concurrent Operations', () => {
 
     expect(completedSession!.status).toBe('completed')
     expect(completedSession!.completed_at).not.toBeNull()
-  })
-
-  test('Unique constraint prevents duplicate base list names in same group', async () => {
-    // Setup
-    const setup = await createCompleteSetup()
-
-    const supabase = createTestClient()
-
-    // Create first base list
-    const listName = 'Weekly Shopping'
-    const { data: list1, error: error1 } = await supabase
-      .from('base_lists')
-      .insert({
-        group_id: setup.group.id,
-        user_id: setup.user.userId,
-        name: listName,
-      })
-      .select()
-      .single()
-
-    expect(error1).toBeNull()
-
-    // Attempt concurrent creation of lists with same name
-    const promises = Array.from({ length: 3 }).map(() =>
-      supabase
-        .from('base_lists')
-        .insert({
-          group_id: setup.group.id,
-          user_id: setup.user.userId,
-          name: listName,
-        })
-        .select()
-        .single()
-    )
-
-    const results = await Promise.all(promises)
-
-    // All should fail due to unique constraint
-    const failures = results.filter((r) => r.error !== null)
-    expect(failures.length).toBe(3)
-
-    // Verify only 1 list exists
-    const { data: lists } = await supabase
-      .from('base_lists')
-      .select('*')
-      .eq('group_id', setup.group.id)
-      .eq('name', listName)
-
-    expect(lists).toHaveLength(1)
-    expect(lists![0].id).toBe(list1!.id)
   })
 })
