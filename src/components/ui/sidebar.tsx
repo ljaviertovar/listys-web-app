@@ -127,7 +127,10 @@ function SidebarProvider({
 						...style,
 					} as React.CSSProperties
 				}
-				className={cn('group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex min-h-dvh w-full bg-background dark:bg-sidebar', className)}
+				className={cn(
+					'group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex min-h-dvh w-full bg-muted dark:bg-sidebar',
+					className,
+				)}
 				{...props}
 			>
 				{children}
@@ -351,10 +354,7 @@ function SidebarContent({ className, children, ...props }: React.ComponentProps<
 		<div
 			data-slot='sidebar-content'
 			data-sidebar='content'
-			className={cn(
-				'flex min-h-0 flex-1 flex-col group-data-[collapsible=icon]:overflow-hidden',
-				className,
-			)}
+			className={cn('flex min-h-0 flex-1 flex-col group-data-[collapsible=icon]:overflow-hidden', className)}
 			{...props}
 		>
 			<ScrollArea className='min-h-0 flex-1'>
@@ -454,7 +454,8 @@ const sidebarMenuButtonVariants = cva(
 		variants: {
 			variant: {
 				// A slate entry that takes the highlight of the menu items (accent surface, accent text) on hover and while it is the current page.
-				default: 'font-normal whitespace-nowrap text-muted-foreground transition-colors duration-150 hover:bg-accent hover:text-accent-foreground [&_svg]:size-4.5 [&_svg]:text-muted-foreground hover:[&_svg]:text-accent-foreground data-[active=true]:[&_svg]:text-accent-foreground dark:text-foreground/80 data-[active=true]:bg-accent data-[active=true]:font-semibold data-[active=true]:text-accent-foreground data-[active=true]:hover:bg-accent data-[active=true]:hover:text-accent-foreground',
+				default:
+					'font-normal whitespace-nowrap text-muted-foreground transition-colors duration-150 hover:bg-accent hover:text-accent-foreground [&_svg]:size-4.5 [&_svg]:text-muted-foreground hover:[&_svg]:text-accent-foreground data-[active=true]:[&_svg]:text-accent-foreground dark:text-foreground/80 data-[active=true]:bg-accent data-[active=true]:font-semibold data-[active=true]:text-accent-foreground data-[active=true]:hover:bg-accent data-[active=true]:hover:text-accent-foreground',
 				outline:
 					'bg-background hover:bg-sidebar-active hover:text-sidebar-active-foreground shadow-[0_0_0_1px_hsl(var(--sidebar-border))] hover:shadow-[0_0_0_1px_hsl(var(--sidebar-active))]',
 			},

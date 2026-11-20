@@ -1,13 +1,14 @@
 'use client'
 
-import { useEffect, useId, useRef, useState } from 'react'
+import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { toast } from 'sonner'
-import { Loading03Icon, Upload06Icon } from '@hugeicons/core-free-icons'
+import { Alert02Icon, Loading03Icon, Upload06Icon } from '@hugeicons/core-free-icons'
 
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { DialogClose } from '@/components/ui/dialog'
@@ -16,6 +17,7 @@ import { uploadTicketSchema, type UploadTicketInput } from '@/lib/validations/ti
 import { MAX_IMAGES_PER_TICKET } from '@/lib/config/limits'
 
 import { UploadTicketPhotos } from './upload-ticket-photos'
+import { ReceiptCameraScanner } from './scanner/receipt-camera-scanner'
 import { usePhotoPicker } from './hooks/use-photo-picker'
 import { buildUploadFormData } from './helpers/build-upload-form-data'
 import { getUploadSuccessOutcome } from './helpers/upload-success'
@@ -35,7 +37,19 @@ export function UploadTicketForm({ onSuccess, initialFiles, shoppingSessionId, o
 	const photosId = useId()
 	const photosDescriptionId = useId()
 	const [loading, setLoading] = useState(false)
+	const [scannerOpen, setScannerOpen] = useState(false)
+	const [scannerMessage, setScannerMessage] = useState<string | null>(null)
 	const { previews, rejections, addFiles, removePhoto, dismissRejection } = usePhotoPicker(MAX_IMAGES_PER_TICKET)
+	// The scanner's Photos button opens the device picker through this input, since the field's own input may be hidden.
+	const deviceInputRef = useRef<HTMLInputElement>(null)
+	const handleScannerExit = useCallback((message?: string) => {
+		setScannerOpen(false)
+		setScannerMessage(message ?? null)
+	}, [])
+	const handleChoosePhotos = useCallback(() => {
+		deviceInputRef.current?.click()
+		setScannerOpen(false)
+	}, [])
 
 	const {
 		handleSubmit,
@@ -72,8 +86,15 @@ export function UploadTicketForm({ onSuccess, initialFiles, shoppingSessionId, o
 	// One valid photo is enough: the store is read from the receipt itself, so there is nothing else to fill in.
 	const canSubmit = previews.length > 0 && !loading
 	// When a photo was left out the button says how many go up, so that is not a surprise.
-	const uploadLabel = rejections.length > 0 ? `Upload ${previews.length} ${previews.length === 1 ? 'Photo' : 'Photos'}` : 'Upload'
+	const uploadLabel =
+		rejections.length > 0
+			? `Upload ${previews.length} ${previews.length === 1 ? 'Photo' : 'Photos'}`
+			: previews.length > 1
+				? `Upload ${previews.length} Photos`
+				: 'Upload Receipt'
 	const asList = loading || rejections.length > 0
+	// Before the first photo the sheet is only a way in: no counter, no Upload and no Cancel (the X closes it).
+	const started = previews.length > 0 || rejections.length > 0 || loading
 
 	const onSubmit = async (data: UploadTicketInput) => {
 		setLoading(true)
@@ -114,7 +135,7 @@ export function UploadTicketForm({ onSuccess, initialFiles, shoppingSessionId, o
 			className='flex flex-col gap-4'
 		>
 			<div className='flex flex-col gap-2'>
-				{loading ? null : (
+				{loading || !started ? null : (
 					<div className={cn('flex items-center', rejections.length > 0 ? 'gap-1.5' : 'justify-between')}>
 						<Label htmlFor={photosId}>Photos</Label>
 						<span
@@ -126,6 +147,12 @@ export function UploadTicketForm({ onSuccess, initialFiles, shoppingSessionId, o
 					</div>
 				)}
 
+				{scannerMessage ? (
+					<Alert variant='warning'>
+						<HugeiconsIcon icon={Alert02Icon} strokeWidth={1.8} aria-hidden='true' />
+						<AlertDescription>{scannerMessage}</AlertDescription>
+					</Alert>
+				) : null}
 				<UploadTicketPhotos
 					inputId={photosId}
 					descriptionId={photosDescriptionId}
@@ -134,57 +161,89 @@ export function UploadTicketForm({ onSuccess, initialFiles, shoppingSessionId, o
 					rejections={rejections}
 					max={MAX_IMAGES_PER_TICKET}
 					uploading={loading}
+					cameraBlocked={Boolean(scannerMessage) && previews.length === 0}
 					onAdd={addFiles}
+					onScan={() => {
+						setScannerMessage(null)
+						setScannerOpen(true)
+					}}
 					onRemove={removePhoto}
 					onDismissRejection={dismissRejection}
+					/>
+				{scannerOpen ? (
+					<ReceiptCameraScanner
+						count={previews.length}
+						max={MAX_IMAGES_PER_TICKET}
+						lastPhotoUrl={previews.at(-1)?.url ?? null}
+						onAdd={file => {
+							void addFiles([file])
+						}}
+						onChoosePhotos={handleChoosePhotos}
+						onExit={handleScannerExit}
+					/>
+				) : null}
+				<input
+					ref={deviceInputRef}
+					type='file'
+					accept='image/png,image/jpeg'
+					multiple
+					tabIndex={-1}
+					aria-hidden='true'
+					className='sr-only'
+					onChange={event => {
+						if (event.target.files && event.target.files.length > 0) addFiles(event.target.files)
+						event.target.value = ''
+					}}
 				/>
 				{errors.files && <p id={`${photosId}-error`} role='alert' className='text-sm text-destructive'>{errors.files.message}</p>}
 			</div>
 
 			{/* On a phone the actions stack with Upload on top; from `sm` Cancel sits left and Upload right. */}
-			<div className='flex flex-col gap-2 sm:flex-row-reverse sm:justify-start sm:gap-3'>
-				<Button
-					type='submit'
-					size='lg'
-					disabled={!canSubmit}
-					className='w-full sm:w-auto'
-				>
-					{loading ? (
-						<>
-							<HugeiconsIcon
-								icon={Loading03Icon}
-								strokeWidth={1.5}
-								className='size-4.5 animate-spin motion-reduce:animate-none'
-							/>
-							Uploading {previews.length} {previews.length === 1 ? 'photo' : 'photos'}…
-						</>
-					) : (
-						<>
-							{rejections.length > 0 ? null : (
+			{started ? (
+				<div className='flex flex-col gap-2 sm:flex-row-reverse sm:justify-start sm:gap-3'>
+					<Button
+						type='submit'
+						size='lg'
+						disabled={!canSubmit}
+						className='w-full sm:w-auto'
+					>
+						{loading ? (
+							<>
 								<HugeiconsIcon
-									icon={Upload06Icon}
-									strokeWidth={1.8}
-									className='size-4.5'
+									icon={Loading03Icon}
+									strokeWidth={1.5}
+									className='size-4.5 animate-spin motion-reduce:animate-none'
 								/>
-							)}
-							{uploadLabel}
-						</>
+								Uploading {previews.length} {previews.length === 1 ? 'photo' : 'photos'}…
+							</>
+						) : (
+							<>
+								{rejections.length > 0 ? null : (
+									<HugeiconsIcon
+										icon={Upload06Icon}
+										strokeWidth={1.8}
+										className='size-4.5'
+									/>
+								)}
+								{uploadLabel}
+							</>
+						)}
+					</Button>
+					{asList ? null : (
+						<DialogClose asChild>
+							<Button
+								type='button'
+								variant='outline'
+								size='lg'
+								disabled={loading}
+								className='w-full sm:w-auto'
+							>
+								Cancel
+							</Button>
+						</DialogClose>
 					)}
-				</Button>
-				{asList ? null : (
-					<DialogClose asChild>
-						<Button
-							type='button'
-							variant='outline'
-							size='lg'
-							disabled={loading}
-							className='w-full sm:w-auto'
-						>
-							Cancel
-						</Button>
-					</DialogClose>
-				)}
-			</div>
+				</div>
+			) : null}
 			{rejections.length > 0 ? (
 				<p className='text-center text-xs leading-[1.4] text-muted-foreground dark:text-muted-foreground'>The photos that failed are left out; the rest still upload.</p>
 			) : null}

@@ -132,6 +132,66 @@ test.describe('Receipt stores and item matching', () => {
     await sheet.getByRole('button', { name: 'Add 1 Item' }).click()
   }
 
+  test('returns to the photo form and keeps the upload sheet closable when camera access is denied', async ({ page }) => {
+    const user = await createTestUser()
+    const scannerRequests: string[] = []
+    page.on('request', request => {
+      if (new URL(request.url()).pathname.startsWith('/vendor/receipt-scanner/')) {
+        scannerRequests.push(request.url())
+      }
+    })
+    await page.addInitScript(() => {
+      Object.defineProperty(navigator, 'mediaDevices', {
+        configurable: true,
+        value: { getUserMedia: () => Promise.reject(new DOMException('Permission denied', 'NotAllowedError')) },
+      })
+    })
+    await signIn(page, user.email, user.password)
+
+    await page.goto(`${BASE_URL}/dashboard`)
+    await page.getByRole('button', { name: 'Upload a receipt' }).click()
+
+    const sheet = page.getByTestId('upload-ticket-dialog')
+    // A phone shows the Scan Receipt card, a computer the Scan with Camera button.
+    await sheet.getByRole('button', { name: /^Scan (Receipt|with Camera)/ }).click()
+
+    await expect(sheet.getByRole('alert')).toContainText('The camera could not be opened.')
+    // Choose Photos leads and the camera stays as a quiet retry.
+    await expect(sheet.getByTestId('receipt-scan-entry')).toHaveText('Try the Camera Again')
+    const chooser = page.waitForEvent('filechooser')
+    await sheet.locator('input[type="file"]').first().click()
+    await chooser
+    await sheet.getByRole('button', { name: 'Close' }).click()
+    await expect(sheet).toBeHidden()
+    expect(scannerRequests).toEqual([])
+  })
+
+  test('returns to the photo form when the camera permission request remains pending', async ({ page }) => {
+    const user = await createTestUser()
+    await page.addInitScript(() => {
+      Object.defineProperty(navigator, 'mediaDevices', {
+        configurable: true,
+        value: { getUserMedia: () => new Promise<MediaStream>(() => {}) },
+      })
+    })
+    await signIn(page, user.email, user.password)
+
+    await page.goto(`${BASE_URL}/dashboard`)
+    await page.getByRole('button', { name: 'Upload a receipt' }).click()
+
+    const sheet = page.getByTestId('upload-ticket-dialog')
+    await page.clock.install()
+    await sheet.getByRole('button', { name: /^Scan (Receipt|with Camera)/ }).click()
+    // The scanner opens full screen, above the sheet.
+    await expect(page.getByTestId('receipt-camera-scanner')).toBeVisible()
+    await page.clock.fastForward(15_001)
+
+    await expect(sheet.getByRole('alert')).toContainText('The camera took too long to open.')
+    await expect(sheet.getByTestId('receipt-scan-entry')).toBeVisible()
+    await sheet.getByRole('button', { name: 'Close' }).click()
+    await expect(sheet).toBeHidden()
+  })
+
   test('the upload sheet asks for photos only', async ({ page }) => {
     const user = await createTestUser()
     await signIn(page, user.email, user.password)
