@@ -152,9 +152,14 @@ This turns lists from static CRUD into adaptive objects.
 
 ### FR‑1: Receipt Upload
 
-**Story:** As a user, I want to upload receipt photos so I can get extracted items.  
+**Story:** As a user, I want to scan a receipt with my camera or choose a photo so I can get extracted items.
 **ACE:**
 
+- The shared upload sheet presents camera scanning first and device-photo selection as an alternative.
+- Camera scanning requests permission after the user starts it, detects and marks the receipt, and lets the user capture and review the corrected image before adding it.
+- The user can retake the photo or use the original capture when detection or correction fails.
+- If camera access or the preview cannot start, the scanner returns to the photo form, explains the problem, and leaves the upload sheet ready to use or close.
+- The existing device-photo picker, drag and drop, and upload flow remain available. Device photos and accepted scans share the limit of 1–5 images, max 10MB each.
 - `POST /api/upload-ticket` accepts 1–5 images, max 10MB each.
 - Returns `202` (accepted) with `ticketId` (or `201` if synchronous insert is preferred).
 - `tickets.ocr_status = pending` after API returns.

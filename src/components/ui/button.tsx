@@ -32,6 +32,12 @@ const buttonVariants = cva(
 				// The dark photo viewer: translucent white controls, the darker plate over a photo, and the round arrows.
 				viewer: 'bg-slate-900/80 text-white shadow-none hover:bg-slate-900 disabled:opacity-40',
 				overlay: 'bg-white/10 text-white shadow-none hover:bg-white/20 disabled:opacity-30',
+				// The receipt scanner (canvas R2): one option of the dark Straightened / Full Photo switch, white when checked.
+				'segment-on-dark':
+					'text-white shadow-none hover:bg-white/10 focus-visible:ring-white/60 aria-checked:bg-white aria-checked:text-slate-950 aria-checked:hover:bg-white disabled:opacity-40',
+				// The scanner's shutter: a white ring around the white disc its child draws.
+				shutter:
+					'bg-transparent text-white shadow-none ring-4 ring-white ring-inset hover:bg-white/10 focus-visible:ring-blue-400 disabled:opacity-40 [&:active>span]:scale-95',
 				// A drop target that is also a button: the blue dashed invitation, on the muted wash.
 				dropzone:
 					'border-[1.5px] border-dashed border-primary bg-muted text-blue-700 shadow-none hover:bg-blue-50/60 focus-visible:border-blue-500 data-[dragging=true]:border-blue-500 data-[dragging=true]:bg-blue-50/70 dark:text-blue-400 dark:hover:bg-muted',
@@ -74,6 +80,15 @@ const buttonVariants = cva(
 				// The drop target of the upload sheet (148px) and its square "Add More" sibling (88px).
 				dropzone: 'h-auto min-h-37 flex-col gap-2.5 px-4 py-5 text-center whitespace-normal',
 				tile: 'size-22 flex-col gap-1 p-0 text-xs leading-none',
+				// The upload sheet's scan action on a phone: a card-sized button with a tile, two lines and a chevron.
+				hero: 'h-auto w-full justify-start gap-3.5 rounded-3xl p-4 text-left whitespace-normal',
+				// One option of a compact segmented switch (the scanner's Straightened / Full Photo).
+				'segment-sm':
+					"relative h-8 px-3.5 text-sm font-semibold after:absolute after:content-[''] after:-inset-y-1.5 after:inset-x-0",
+				// The scanner's shutter, 76px.
+				shutter: 'size-19 p-0',
+				// A side action of the scanner's camera bar (Photos, Done): an icon plate over a 12px label.
+				'camera-action': 'h-auto flex-col gap-1 p-0 text-xs',
 				icon: 'size-9',
 				'icon-xs': "size-6 [&_svg:not([class*='size-'])]:size-3",
 				'icon-sm': 'size-8',

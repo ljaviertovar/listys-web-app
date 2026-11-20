@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
+import { admitFiles } from '../helpers/admit-files'
 import { classifyPhoto, isDecodablePhoto, type PhotoVerdict } from '../helpers/classify-photo'
 
 export interface PhotoPreview {
@@ -39,20 +40,19 @@ export function usePhotoPicker(max: number) {
 
 	const addFiles = useCallback(
 		async (incoming: FileList | File[]) => {
-			const files = Array.from(incoming)
-			const slots = max - previews.length
+			const { slots, admitted, dropped } = admitFiles(Array.from(incoming), previews.length, max)
 
 			if (slots <= 0) {
 				toast.error(`Maximum ${max} images allowed`)
 				return
 			}
-			if (files.length > slots) {
+			if (dropped > 0) {
 				toast.warning(`Only ${slots} more image(s) can be added`)
 			}
 
 			const accepted: PhotoPreview[] = []
 			const refused: PhotoRejection[] = []
-			for (const file of files.slice(0, slots)) {
+			for (const file of admitted) {
 				let verdict = classifyPhoto(file)
 				if (verdict === 'ok' && !(await isDecodablePhoto(file))) verdict = 'format'
 				if (verdict === 'ok') {

@@ -72,7 +72,7 @@ export function UploadTicketDialog({
 			busy={busy}
 			testId='upload-ticket-dialog'
 			title='Upload Receipt'
-			description={<>Upload photos of your receipt. We read the <strong>store, date and total</strong>, and you confirm them before anything is saved.</>}
+			description={<>Scan the paper receipt or choose photos of it. We read the <strong>store, date and total</strong>, and you confirm them before anything is saved.</>}
 			trigger={trigger === null ? undefined : (
 				trigger ?? (
 					<Button
