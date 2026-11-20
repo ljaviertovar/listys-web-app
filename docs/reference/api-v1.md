@@ -103,6 +103,13 @@ request returns `401`. The cadence and cutoff rules are listed in [reference lim
 
 Each store from `GET /api/v1/stores` adds `last_visit: { kind: "trip" | "receipt", id, at, total_amount } | null`. Attached receipts are represented by their trip. A trip visit links to the trips screen (`/trips`); a receipt visit links to its receipt. The value is null when the caller has no visits to that store.
 
+Receipt reads expose `created_at` (upload timestamp) and `purchase_date` (printed calendar date as `YYYY-MM-DD`, or null).
+Spending uses the printed day when available and the upload timestamp otherwise. The optional IANA `time_zone`
+parameter defaults to UTC. It places printed calendar days within the requested range and determines the calendar day
+of fallback upload dates in `first_purchase_date` and `last_purchase_date`. These two fields describe all of the caller's
+receipts and are null when no date is available. `compare_from` and `compare_to` use the same date rules.
+`scope=all` includes eligible receipts across all purchase dates and accepts `time_zone` without a date range.
+
 ## Request boundaries
 
 | Operation | Shape and constraints | Runtime schema |
@@ -179,7 +186,8 @@ Source: [`default-pantry.service.ts`](../../src/lib/server/services/default-pant
 Stores (PRD v3 Phase 3, 2026-10-25). Compatible changes inside v1, no new major version and no deprecation headers:
 
 - New resources `/stores`, `/stores/{storeId}`, `/stores/{storeId}/merge` and the read `/tickets/{ticketId}/matches` (above).
-- `PATCH /tickets/{ticketId}` accepts `store_id`; `merge-to-base-list` accepts optional `links`. Without `links` a merge only
+- `PATCH /tickets/{ticketId}` accepts `store_id`. For Spending, send only `{ "include_in_spending": true }` or `false` in the same field. The response returns the saved boolean in `data.include_in_spending`. The preference defaults to false and applies to the caller's standalone receipts. Enabling requires a recorded total.
+- `merge-to-base-list` accepts optional `links`. Without `links` a merge only
   differs from before when the list has remembered aliases, and those exist only after the caller linked lines with the new
   field, so existing clients see no change.
 - Receipt reads add `store_id`, `store` and (single receipt) `store_suggestion`; clients must ignore unknown fields.

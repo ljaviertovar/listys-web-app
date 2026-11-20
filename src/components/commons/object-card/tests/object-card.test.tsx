@@ -60,7 +60,8 @@ describe('Object card', () => {
 				status: 'completed',
 				itemsCount: 54,
 				photoCount: 2,
-				uploadedLabel: 'Uploaded 15:26',
+				uploadedAt: '2026-11-15T15:26:00Z',
+				purchaseDate: null,
 				totalLabel: '$281.45',
 				storeName: null,
 				storeConfirmed: false,
@@ -71,5 +72,45 @@ describe('Object card', () => {
 		expect(html.indexOf('Store not confirmed')).toBeLessThan(html.indexOf('$281.45'))
 		expect(html).toContain('aria-label="View Details in Receipt · 10 Nov"')
 		expect(html).toContain('photos')
+	})
+
+	const receipt = (overrides: Record<string, unknown> = {}) =>
+		renderToStaticMarkup(
+			createElement(TicketCard, {
+				id: 't1',
+				title: 'QA Lark Market Receipt',
+				status: 'completed',
+				itemsCount: 3,
+				photoCount: 1,
+				uploadedAt: '2026-11-18T14:28:00Z',
+				purchaseDate: null,
+				totalLabel: '$9.20',
+				storeName: 'QA Lark Market',
+				storeConfirmed: true,
+				...overrides,
+			} as never),
+		)
+
+	it('marks a receipt that counts in spending beside its amount, not among the chips', () => {
+		const html = receipt({ includedInSpending: true, storeConfirmed: false })
+		expect(html).toContain('data-testid="ticket-card-spending-t1"')
+		expect(html).toContain('In spending')
+		expect(html).not.toContain('Include in spending')
+		// The warning keeps the chips row to itself; the marker comes with the amount, after it.
+		expect(html.indexOf('Store not confirmed')).toBeLessThan(html.indexOf('$9.20'))
+		expect(html.indexOf('$9.20')).toBeLessThan(html.indexOf('In spending'))
+	})
+
+	it('draws no chips row for a counted receipt whose store is confirmed', () => {
+		const html = receipt({ includedInSpending: true })
+		expect(html).toContain('In spending')
+		expect(html).not.toContain('Store not confirmed')
+		expect(html).not.toContain('data-testid="ticket-card-no-store-t1"')
+	})
+
+	it('says nothing about spending for a receipt left out of it', () => {
+		const html = receipt({ includedInSpending: false })
+		expect(html).not.toContain('In spending')
+		expect(html).not.toContain('ticket-card-spending-t1')
 	})
 })

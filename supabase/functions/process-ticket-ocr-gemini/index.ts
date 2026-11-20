@@ -3,7 +3,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { encode as base64Encode } from 'https://deno.land/std@0.168.0/encoding/base64.ts'
 import { decideOcrOutcome, extractGeminiText, fetchWithRetry } from '../_shared/ocr-outcome.ts'
 import { RECEIPT_LINE_ITEM_INSTRUCTIONS } from '../_shared/receipt-items.ts'
-import { parseOcrPayload, STORE_AND_TOTAL_INSTRUCTIONS, STORE_NAME_INSTRUCTIONS, TOTAL_INSTRUCTIONS } from '../_shared/receipt-store.ts'
+import { agreeOnPurchaseDate, parseOcrPayload, receiptMetadataInstructions } from '../_shared/receipt-store.ts'
 
 const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY')!
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
@@ -27,6 +27,7 @@ interface ImageResult {
   items: ReceiptItem[]
   storeName: string | null
   total: number | null
+  purchaseDate: string | null
   /** Why this photo could not be read; null when it was. A photo that failed is not a photo with no items. */
   failure: string | null
 }
@@ -34,7 +35,6 @@ interface ImageResult {
 /* --- HELPERS --- */
 
 async function getBase64FromUrl(url: string): Promise<{ base64: string; mimeType: string }> {
-  console.log('[DEBUG] Fetching image from URL:', url.slice(0, 100) + '...');
   const response = await fetch(url);
   if (!response.ok) {
     console.error('[ERROR] Failed to fetch image:', response.status, response.statusText);
@@ -72,23 +72,12 @@ async function processImage(
     ? `Image ${imageIndex + 1}/${totalImages}. Section: ${imageIndex === 0 ? 'START' : imageIndex === totalImages - 1 ? 'END' : 'MIDDLE'}.`
     : '';
 
-  // The store name comes from the same request as the items: only the first photo, which carries the header, asks for it.
-  const storeInstructions = totalImages === 1
-    ? STORE_AND_TOTAL_INSTRUCTIONS
-    : [imageIndex === 0 ? STORE_NAME_INSTRUCTIONS : '', imageIndex === totalImages - 1 ? TOTAL_INSTRUCTIONS : '']
-      .filter(Boolean)
-      .join('\n\n');
-  const responseShape = storeInstructions
-    ? 'Return a JSON object with an "items" array and the requested "store_name" and/or "total" fields.'
-    : 'Return a JSON array of item objects.';
-
   const prompt = `You are a strict receipt extractor. Extract every product into JSON.
   RULES: Never use null for quantity/unit (default to 1 and "unit").
   ${RECEIPT_LINE_ITEM_INSTRUCTIONS}
-  ${responseShape}
   ITEM SCHEMA: {"name": "string", "category": "string", "quantity": number, "unit": "string", "price": number|null}
   ${positionContext}
-  ${storeInstructions}`;
+  ${receiptMetadataInstructions(imageIndex, totalImages)}`;
 
   console.log(`[DEBUG] Processing image ${imageIndex + 1}/${totalImages}`);
   const { base64, mimeType } = await getBase64FromUrl(imageUrl);
@@ -120,7 +109,6 @@ async function processImage(
   }
 
   const ocrData = await ocrResponse.json();
-  console.log('[DEBUG] Gemini response received:', JSON.stringify(ocrData).slice(0, 500) + '...');
   // An answer with no text (blocked, cut off, only reasoning) is a failure, not an empty receipt.
   const answer = extractGeminiText(ocrData);
   if ('reason' in answer) {
@@ -128,10 +116,9 @@ async function processImage(
     throw new Error(answer.reason);
   }
   const content = answer.text;
-  console.log('[DEBUG] Extracted content length:', content.length, 'Preview:', content.slice(0, 200));
 
   try {
-    const { items: parsed, storeName, total } = parseOcrPayload(content);
+    const { items: parsed, storeName, total, purchaseDate } = parseOcrPayload(content);
     console.log('[DEBUG] JSON parsed successfully, items:', parsed.length, 'store name found:', storeName !== null);
     const mapped = (parsed as Array<Record<string, unknown> | null>).map(x => ({
       name: String(x?.name || 'Unknown'),
@@ -141,10 +128,10 @@ async function processImage(
       price: typeof x?.price === 'number' ? x.price : null,
     }));
     console.log(`[DEBUG] Mapped ${mapped.length} items from image ${imageIndex + 1}`);
-    return { items: mapped, storeName, total, failure: null };
-  } catch (parseError) {
-    console.error('[ERROR] JSON parse failed:', parseError, 'Content:', content.slice(0, 300));
-    return { items: [], storeName: null, total: null, failure: 'Gemini answer was not valid JSON' };
+    return { items: mapped, storeName, total, purchaseDate, failure: null };
+  } catch {
+    console.error('[ERROR] Gemini answer was not valid JSON');
+    return { items: [], storeName: null, total: null, purchaseDate: null, failure: 'Gemini answer was not valid JSON' };
   }
 }
 
@@ -228,13 +215,14 @@ serve(async (req) => {
     const allResults = await Promise.all(
       urls.map((url, i) => processImage(url, i, urls.length).catch((e): ImageResult => {
         console.error(`[ERROR] Error en imagen ${i + 1}/${urls.length}:`, e);
-        return { items: [], storeName: null, total: null, failure: e instanceof Error ? e.message : String(e) };
+        return { items: [], storeName: null, total: null, purchaseDate: null, failure: e instanceof Error ? e.message : String(e) };
       }))
     );
 
     console.log('[DEBUG] All images processed. Results:', allResults.map(r => r.items.length));
     const mergedItems = mergeItems(allResults.map(r => r.items));
     // A name the ticket already has (sent by a client or read earlier) is never overwritten.
+    const purchaseDate = agreeOnPurchaseDate(allResults.map(result => result.purchaseDate));
     const extractedStoreName = ticket?.store_name ? null : allResults[0]?.storeName ?? null;
     console.log('[INFO] Merged items count:', mergedItems.length);
 
@@ -245,6 +233,7 @@ serve(async (req) => {
       await supabase.from('tickets').update({
         ocr_status: 'failed',
         ocr_error: outcome.error,
+        ...(purchaseDate ? { purchase_date: purchaseDate } : {}),
         processed_at: new Date().toISOString(),
       }).eq('id', ticketId);
       return new Response(JSON.stringify({ error: outcome.error }), { status: 502, headers: { "Content-Type": "application/json" } });
@@ -279,6 +268,7 @@ serve(async (req) => {
       total_items: mergedItems.length,
       total_amount: allResults[allResults.length - 1]?.total ?? null,
       ocr_error: null,
+      ...(purchaseDate ? { purchase_date: purchaseDate } : {}),
       ...(extractedStoreName ? { store_name: extractedStoreName } : {}),
     }).eq('id', ticketId);
 

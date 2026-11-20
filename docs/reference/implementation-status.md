@@ -277,6 +277,8 @@ Known limits introduced by this phase:
 
 OpenSpec change `default-pantry-for-existing-accounts`. Accounts created before the first-visit Pantry, or that deleted theirs, can get a default list by hand.
 
+Newly created default Pantry lists receive the note “What you usually keep at home. It fills itself from your receipts.” through the migration [`default_pantry_note`](../../supabase/migrations/20261119230903_default_pantry_note.sql). Existing lists adopted as the default keep their notes.
+
 | Behavior | Observed | Evidence |
 | --- | --- | --- |
 | Setup action | An account with no `is_default` list sees "Set up Pantry" on the lists screen and in the dashboard lists card. Pressing it marks the account’s existing "Pantry" (any case; the oldest if several) as the default, or creates an empty "Pantry" in the implicit default group. It is not offered when the account has a default list or when that lookup failed. | [`set-up-pantry-callout.tsx`](../../src/components/features/base-lists/set-up-pantry-callout.tsx), [`should-offer-pantry-setup.ts`](../../src/components/features/base-lists/helpers/should-offer-pantry-setup.ts), [`build-dashboard-model.ts`](../../src/components/features/dashboard/helpers/build-dashboard-model.ts) |

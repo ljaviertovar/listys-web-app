@@ -42,7 +42,13 @@ describe('dashboard cards', () => {
 	it('tells an empty month from an empty account and offers the rest of the history', () => {
 		mockSpending.mockReturnValue({
 			status: 'ready', retry: vi.fn(),
-			summary: { from: '2026-11-01T00:00:00Z', to: '2026-12-01T00:00:00Z', total: 0, receipt_total: 0, receipt_count: 0, trips_count: 0, receipts_count: 0, trips_without_total: 0, first_receipt_at: '2026-03-04T10:00:00', last_receipt_at: `${new Date().getFullYear()}-10-28T12:00:00` },
+			summary: {
+				from: '2026-11-01T12:00:00Z', to: '2026-12-01T12:00:00Z',
+				total: 0, receipt_total: 0, receipt_count: 0, trips_count: 0, receipts_count: 0, trips_without_total: 0,
+				first_receipt_at: '2026-03-04T10:00:00',
+				last_receipt_at: `${new Date().getFullYear()}-11-03T12:00:00Z`,
+				last_purchase_date: `${new Date().getFullYear()}-10-28`,
+			},
 		})
 		const html = renderToStaticMarkup(createElement(MonthSpendingCard))
 		expect(html).toContain('No receipts in November yet')

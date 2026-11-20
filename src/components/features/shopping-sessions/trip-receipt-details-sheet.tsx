@@ -8,11 +8,12 @@ import { TicketPhotoRow } from '@/components/features/tickets/photo/ticket-photo
 import { TicketPhotoViewer } from '@/components/features/tickets/photo/ticket-photo-viewer'
 import { usePhotoView } from '@/components/features/tickets/photo/hooks/use-photo-view'
 import { useTicketImageUrls } from '@/components/features/tickets/photo/hooks/use-ticket-image-urls'
+import { ReceiptDateFacts } from '@/components/features/tickets/receipt/receipt-date-facts'
 import { TicketStoreCard } from '@/components/features/tickets/receipt/ticket-store-card'
 import { TicketUnreadableState } from '@/components/features/tickets/receipt/ticket-unreadable-state'
 import { TicketStatusChip } from '@/components/features/tickets/ticket-status-chip'
 import { Card } from '@/components/ui/card'
-import { formatCurrency, formatItemName, formatShortDate, formatTime, getReceiptName } from '@/utils'
+import { formatCurrency, formatItemName, getReceiptName } from '@/utils'
 
 import { useTripReceiptDetails } from './hooks/use-trip-receipt-details'
 
@@ -40,24 +41,18 @@ export function TripReceiptDetailsSheet({
 	const view = usePhotoView(photos.urls.length)
 	// The same name the receipt has on its own screen; "Receipt" alone only while it loads, before its store is known.
 	const receiptName = details ? getReceiptName(details) : 'Receipt'
-	const uploadedAt = details?.created_at ? new Date(details.created_at) : null
-	const validUploadedAt = uploadedAt && !Number.isNaN(uploadedAt.getTime()) ? uploadedAt : null
 	const unreadable = failed && Boolean(details)
 	const noItems = details?.ocr_status === 'completed' && details.items.length === 0
 	const hasStoreDetails = Boolean(details?.store || details?.store_suggestion || details?.store_name?.trim())
 	const photoCount = imagePaths.length
 	const itemCount = details ? details.total_items ?? details.items.length : 0
-	const facts: Array<DataFact> = failed && validUploadedAt
-		? [
-			{ kind: 'count', value: photoCount, unit: photoCount === 1 ? 'photo' : 'photos' },
-			{ kind: 'text', value: `Uploaded ${formatShortDate(validUploadedAt)} · ${formatTime(validUploadedAt)}` },
-		]
-		: details && !failed
-			? [
-				{ kind: 'count', value: itemCount, unit: itemCount === 1 ? 'item' : 'items' },
-				...(details.total_amount != null ? [{ kind: 'total' as const, value: formatCurrency(details.total_amount) }] : []),
-			]
-			: []
+	const count = failed ? photoCount : itemCount
+	const unit = failed ? 'photo' : 'item'
+	const facts: Array<DataFact> = details ? [
+		{ kind: 'count', value: count, unit: count === 1 ? unit : `${unit}s` },
+		{ value: <ReceiptDateFacts uploadedAt={details.created_at ?? null} purchaseDate={details.purchase_date ?? null} testId={`${testId}-dates`} /> },
+		...(!failed && details.total_amount != null ? [{ kind: 'total' as const, value: formatCurrency(details.total_amount) }] : []),
+	] : []
 
 	return (
 		<>

@@ -1,13 +1,15 @@
 import { notFound, redirect } from 'next/navigation'
 
 import { PageHeader, PageContainer } from '@/components/app'
-import { TicketReview, TicketStatusChip, TicketStoreCard, TicketSummaryCard, TicketUnreadableState, isReadWithoutItems, sumLineTotals, toTicketStatus } from '@/components/features/tickets'
+import { TicketReview, TicketSpendingCard, TicketStatusChip, TicketStoreCard, TicketSummaryCard, TicketUnreadableState, hasRecordedReceiptTotal, isReadWithoutItems, isStandaloneReceipt, sumLineTotals, toTicketStatus } from '@/components/features/tickets'
+
+import { ReceiptDateFacts } from '@/components/features/tickets/receipt/receipt-date-facts'
 
 import { getTicket } from '@/lib/api/endpoints'
 
 import { createClient } from '@/lib/supabase/server'
 
-import { formatCurrency, formatDate, formatShortDate, getReceiptName } from '@/utils'
+import { formatCurrency, formatDate, getReceiptName } from '@/utils'
 
 import type { Ticket, TicketItem, TicketStoreFields } from '@/types'
 
@@ -67,7 +69,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 					isReadReceipt || readWithoutItems
 						? { kind: 'count', value: readWithoutItems ? 0 : extractedItemsCount, unit: readWithoutItems || extractedItemsCount !== 1 ? 'items' : 'item' }
 						: isUnreadable ? { kind: 'count', value: imagePaths.length, unit: imagePaths.length === 1 ? 'photo' : 'photos' } : null,
-					uploadedAt ? { kind: 'time', value: formatShortDate(uploadedAt) } : { value: 'Upload date unknown' },
+					{ value: <ReceiptDateFacts uploadedAt={ticket.created_at} purchaseDate={ticket.purchase_date ?? null} testId='receipt-detail-dates' /> },
 					isReadReceipt && typeof ticket.total_amount === 'number' ? { kind: 'total', value: formatCurrency(ticket.total_amount) } : null,
 				]}
 			/>
@@ -82,6 +84,13 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 					storeConfirmed={!!store}
 					receiptDate={uploadedAt ? formatDate(uploadedAt) : null}
 					attachedSession={ticket.shopping_session ?? null}
+					before={isStandaloneReceipt(ticket) ? (
+						<TicketSpendingCard
+							ticketId={ticketId}
+							included={ticket.include_in_spending === true}
+							hasTotal={hasRecordedReceiptTotal(ticket.total_amount)}
+						/>
+					) : null}
 					unreadable={isUnreadable ? <TicketUnreadableState ticketId={ticketId} kind={readWithoutItems ? 'no-items' : 'failed'} storeRecognized={Boolean(store || storeSuggestion || ticket.store_name?.trim())} /> : null}
 					top={
 						isReadReceipt || readWithoutItems ? (

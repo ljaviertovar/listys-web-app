@@ -14,22 +14,22 @@ type Answer = { scope: SpendingScope; attempt: number; outcome: Outcome }
 export function useSpendingSummary(scope: SpendingScope) {
 	const [attempt, setAttempt] = useState(0)
 	const [answer, setAnswer] = useState<Answer | null>(null)
-	const { range, previousRange } = useMemo(() => {
+	const { range, previousRange, timeZone } = useMemo(() => {
 		const now = new Date()
 		const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
-		return { range: currentMonthRange(now, timeZone), previousRange: previousMonthRange(now, timeZone) }
+		return { range: currentMonthRange(now, timeZone), previousRange: previousMonthRange(now, timeZone), timeZone }
 	}, [])
 
 	useEffect(() => {
 		let active = true
-		const request = scope === 'all' ? getAllTimeSpending() : getSpending(range.from, range.to, previousRange.from, previousRange.to)
+		const request = scope === 'all' ? getAllTimeSpending(timeZone) : getSpending(range.from, range.to, previousRange.from, previousRange.to, timeZone)
 		request.then(result => {
 			if (!active) return
 			const outcome: Outcome = result.error || !result.data ? { status: 'error' } : { status: 'ready', summary: result.data }
 			setAnswer({ scope, attempt, outcome })
 		})
 		return () => { active = false }
-	}, [scope, attempt, range.from, range.to, previousRange.from, previousRange.to])
+	}, [scope, attempt, range.from, range.to, previousRange.from, previousRange.to, timeZone])
 
 	const retry = useCallback(() => setAttempt(value => value + 1), [])
 	const current = answer && answer.scope === scope && answer.attempt === attempt ? answer.outcome : null

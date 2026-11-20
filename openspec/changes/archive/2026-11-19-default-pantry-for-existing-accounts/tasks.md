@@ -25,4 +25,4 @@ Leer `docs/contributing/design-system-workflow.md` antes de empezar este grupo.
 
 - [x] 4.1 Actualizar `docs/reference/implementation-status.md` y `CHANGELOG.md`. Verificación: los enlaces de evidencia resuelven.
 - [ ] 4.2 Ejecutar `pnpm lint`, `pnpm typecheck`, `pnpm test` y `pnpm check:native-props`. Verificación: todo en verde.
-- [ ] 4.3 Recorrido manual con una cuenta sin lista por defecto: pulsar la acción en `/shopping-lists` y en el dashboard; el chip "Default" aparece y el aviso desaparece. Verificación: capturas del antes y el después.
+- [x] 4.3 Recorrido manual con una cuenta sin lista por defecto: pulsar la acción en `/shopping-lists` y en el dashboard; el chip "Default" aparece y el aviso desaparece. Verificación: capturas del antes y el después.
