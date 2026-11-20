@@ -22,7 +22,8 @@ Vitest uses the Node environment and includes `src/**/*.test.ts`; component-name
 browser coverage. Inspect their assertions before claiming UI validation. `pnpm check:native-props` runs the
 "shadcn-native first" source scan, which is kept out of the default suite.
 
-Run corresponding tests for modified features and add missing application-owned behavior coverage under AGENTS.md.
+Run corresponding tests for modified features. Add a test only when it meets the AGENTS.md test gate (data loss/leak,
+wrong money, state/concurrency guarantee, repeated bug, core user journey); missing coverage alone is not a reason.
 Third-party code (external libraries and the framework) is never tested, and appearance (classes, colours, sizes,
 icons, static copy) is not asserted in tests. Appearance changes also require local Chrome DevTools
 inspection and mobile/desktop screenshots against the relevant sections of the Design System HTML. Documentation-only

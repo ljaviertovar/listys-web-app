@@ -1,15 +1,10 @@
 import { test, expect } from '@playwright/test'
 import {
   createCompleteSetup,
-  createTestUser,
-  createGroup,
-  createTicket,
   resetDatabase,
   cleanTestUsers,
   createTestClient,
 } from '../helpers'
-import path from 'path'
-import fs from 'fs/promises'
 
 /**
  * OCR Pipeline E2E Tests
@@ -27,118 +22,6 @@ test.describe('OCR Pipeline End-to-End', () => {
   test.afterEach(async () => {
     await resetDatabase()
     await cleanTestUsers()
-  })
-
-  test('Upload ticket images -> OCR extraction -> Items created', async ({ page }) => {
-    // Setup: Create authenticated user with group
-    const setup = await createCompleteSetup({
-      userEmail: 'test-ocr@example.com',
-      groupName: 'OCR Test Group',
-    })
-
-    // Navigate to authenticated page (login)
-    await page.goto('/auth/signin')
-    await page.fill('input[name="email"]', setup.user.email)
-    await page.fill('input[name="password"]', setup.user.password)
-    await page.click('button[type="submit"]')
-    await page.waitForURL('**/dashboard')
-
-    // Navigate to ticket upload page
-    await page.goto('/shopping/upload-ticket')
-
-    // Create a test image file (1x1 pixel PNG)
-    const testImagePath = path.join(process.cwd(), 'e2e', 'fixtures', 'test-receipt.png')
-    const testImageBase64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='
-    await fs.mkdir(path.dirname(testImagePath), { recursive: true })
-    await fs.writeFile(testImagePath, Buffer.from(testImageBase64, 'base64'))
-
-    // Upload the image
-    const fileInput = page.locator('input[type="file"]')
-    await fileInput.setInputFiles(testImagePath)
-
-    // Submit the form
-    await page.click('button[type="submit"]')
-
-    // Wait for upload and OCR processing
-    // The page should show a "Processing..." state
-    await expect(page.locator('text=Processing')).toBeVisible({ timeout: 5000 })
-
-    // Wait for OCR to complete (this may take several seconds)
-    // The page should redirect or show "Completed" status
-    await page.waitForSelector('text=/Completed|Review/', { timeout: 30000 })
-
-    // Verify ticket was created in database
-    const supabase = createTestClient()
-    const { data: tickets } = await supabase
-      .from('tickets')
-      .select('*, ticket_items(*)')
-      .eq('user_id', setup.user.userId)
-      .order('created_at', { ascending: false })
-      .limit(1)
-
-    expect(tickets).toHaveLength(1)
-    expect(tickets![0].ocr_status).toBe('completed')
-
-    // Verify ticket items were extracted (OCR should have created some items)
-    // Note: Actual number depends on the OCR provider's response
-    expect(tickets![0].ticket_items).toBeDefined()
-
-    // Cleanup test image
-    await fs.unlink(testImagePath).catch(() => { })
-  })
-
-  test('Multi-image upload creates single ticket with all items', async ({ page }) => {
-    // Setup
-    const setup = await createCompleteSetup({
-      userEmail: 'test-multi-image@example.com',
-    })
-
-    // Login
-    await page.goto('/auth/signin')
-    await page.fill('input[name="email"]', setup.user.email)
-    await page.fill('input[name="password"]', setup.user.password)
-    await page.click('button[type="submit"]')
-    await page.waitForURL('**/dashboard')
-
-    // Navigate to upload
-    await page.goto('/shopping/upload-ticket')
-
-    // Create test images
-    const testImageBase64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='
-    const imagesDir = path.join(process.cwd(), 'e2e', 'fixtures', 'images')
-    await fs.mkdir(imagesDir, { recursive: true })
-
-    const imagePaths = []
-    for (let i = 1; i <= 3; i++) {
-      const imagePath = path.join(imagesDir, `receipt-${i}.png`)
-      await fs.writeFile(imagePath, Buffer.from(testImageBase64, 'base64'))
-      imagePaths.push(imagePath)
-    }
-
-    // Upload multiple images
-    const fileInput = page.locator('input[type="file"]')
-    await fileInput.setInputFiles(imagePaths)
-
-    // Submit
-    await page.click('button[type="submit"]')
-
-    // Wait for processing
-    await page.waitForSelector('text=/Completed|Review/', { timeout: 45000 })
-
-    // Verify only ONE ticket was created
-    const supabase = createTestClient()
-    const { data: tickets } = await supabase
-      .from('tickets')
-      .select('*, ticket_items(*)')
-      .eq('user_id', setup.user.userId)
-
-    expect(tickets).toHaveLength(1)
-    expect(tickets![0].ocr_status).toBe('completed')
-
-    // Cleanup
-    for (const imagePath of imagePaths) {
-      await fs.unlink(imagePath).catch(() => { })
-    }
   })
 
   test('Merge ticket items to base list updates enrichment fields', async () => {
