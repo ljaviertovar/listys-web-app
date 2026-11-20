@@ -22,6 +22,8 @@ const buttonVariants = cva(
 					'hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50',
 				destructive:
 					'bg-destructive/10 text-feedback-error hover:bg-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30',
+				destructiveGhost:
+					'hover:bg-muted text-feedback-error aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50',
 				inverse: 'bg-background text-foreground hover:bg-background/90',
 				link: 'text-foreground underline-offset-4 hover:underline',
 				// A quiet action over a dark photo (the "Back to Home" link of the phone auth header): white text, a faint wash on hover.

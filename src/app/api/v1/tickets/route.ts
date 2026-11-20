@@ -1,3 +1,5 @@
+export const maxDuration = 120
+
 import { withApiHandler, success } from '@/lib/api/http'
 import { parseSearchParams } from '@/lib/api/zod'
 import { ticketsQuerySchema } from '@/lib/validations/api/common'

@@ -97,6 +97,7 @@ export function TripReceiptDetailsSheet({
 									itemsFound={!noItems}
 								/> : null}
 								<TicketUnreadableState
+								ocrError={details.ocr_error}
 								ticketId={ticketId}
 								kind={noItems ? 'no-items' : 'failed'}
 								testId={`${testId}-unreadable`}

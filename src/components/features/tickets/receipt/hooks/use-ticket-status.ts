@@ -28,6 +28,7 @@ export function useTicketStatus({ ticketId, initialStatus, onTerminal }: UseTick
 		// If the server already sent a terminal status, no need to poll
 		if (initialStatus === 'completed' || initialStatus === 'failed') return
 		if (!ticketId) return
+		hasRefreshed.current = false
 
 		const supabase = createClient()
 
@@ -52,22 +53,34 @@ export function useTicketStatus({ ticketId, initialStatus, onTerminal }: UseTick
 			)
 			.subscribe()
 
+		let polling = false
+		let disposed = false
+		let pollController: AbortController | undefined
 		const interval = setInterval(async () => {
 			if (hasRefreshed.current) {
 				clearInterval(interval)
 				return
 			}
+			if (polling) return
+			polling = true
+			pollController = new AbortController()
+			const timer = setTimeout(() => pollController?.abort(), 10_000)
 			try {
-				const res = await fetch(`/api/tickets/${ticketId}/status`, { cache: 'no-store' })
+				const res = await fetch(`/api/v1/tickets/${ticketId}/status`, { signal: pollController.signal, cache: 'no-store' })
 				if (!res.ok) return
 				const json = await res.json()
-				handleStatusUpdate(json?.ocr_status ?? null)
-			} catch (e) {
-				console.debug('Polling error', e)
+				if (!disposed) handleStatusUpdate(json?.data?.ocr_status ?? null)
+			} catch {
+				// A later poll can recover a transient connection failure.
+			} finally {
+				clearTimeout(timer)
+				polling = false
 			}
 		}, 3000)
 
 		return () => {
+			disposed = true
+			pollController?.abort()
 			try {
 				supabase.removeChannel(channel)
 			} catch {

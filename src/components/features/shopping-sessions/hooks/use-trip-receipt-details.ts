@@ -9,6 +9,7 @@ export interface TripReceiptDetails extends TicketStoreFields {
 	created_at?: string | null
 	purchase_date?: string | null
 	ocr_status?: string | null
+	ocr_error?: string | null
 	image_path: string | null
 	image_paths?: string[] | null
 	items: TicketItem[]

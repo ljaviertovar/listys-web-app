@@ -1,5 +1,6 @@
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Alert02Icon, Tick02Icon } from '@hugeicons/core-free-icons'
+import { safeOcrError } from '@/lib/config/ocr-policy'
 
 import { RowIcon } from '@/components/commons'
 import { Card } from '@/components/ui/card'
@@ -8,6 +9,7 @@ import { UploadTicketDialog } from '../upload/upload-ticket-dialog'
 import { TicketActions } from './ticket-actions'
 
 interface TicketUnreadableStateProps {
+	ocrError?: string | null
 	ticketId: string
 	testId?: string
 	shoppingSessionId?: string
@@ -34,7 +36,7 @@ const COPY = {
  * A receipt that gave nothing to review. Both cases share one structure (what happened, tips for a better photo, the same three
  * actions) and differ in tone: red for a read that failed, amber for a read that found no lines.
  */
-export function TicketUnreadableState({ ticketId, kind, testId = 'ticket-unreadable-state', shoppingSessionId, onRetrySuccess, storeRecognized = true }: TicketUnreadableStateProps) {
+export function TicketUnreadableState({ ticketId, ocrError, kind, testId = 'ticket-unreadable-state', shoppingSessionId, onRetrySuccess, storeRecognized = true }: TicketUnreadableStateProps) {
 	const copy = kind === 'no-items' && !storeRecognized
 		? { ...COPY[kind], help: 'We couldn’t identify a store or find item lines. A clearer photo may help.' }
 		: COPY[kind]
@@ -66,7 +68,7 @@ export function TicketUnreadableState({ ticketId, kind, testId = 'ticket-unreada
 						>
 							{copy.title}
 						</h2>
-						<p className='text-xs leading-[1.4] text-muted-foreground dark:text-muted-foreground'>{copy.help}</p>
+						<p className='text-xs leading-[1.4] text-muted-foreground dark:text-muted-foreground'>{failed && ocrError ? safeOcrError(ocrError) : copy.help}</p>
 					</div>
 				</div>
 				<ul
