@@ -74,7 +74,7 @@ interface Props {
 	wordmarkClassName?: string
 }
 
-export default function Logo({ isCollapsed, testId, wordmarkClassName = 'font-display text-xl' }: Props) {
+export default function Logo({ isCollapsed, testId, wordmarkClassName = 'font-brand text-xl font-semibold' }: Props) {
 	return (
 		<Link
 			href='/'

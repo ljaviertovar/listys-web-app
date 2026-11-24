@@ -217,6 +217,7 @@
 
   --font-sans: var(--font-source-sans-3), system-ui, sans-serif;
   --font-display: var(--font-bricolage-grotesque), system-ui, sans-serif;
+  --font-brand: var(--font-bricolage-grotesque-brand), system-ui, sans-serif;
   --font-mono: var(--font-ibm-plex-mono), ui-monospace, monospace;
 
   --radius-sm: calc(var(--radius) - 4px);

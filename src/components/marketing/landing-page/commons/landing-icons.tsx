@@ -234,7 +234,7 @@ export function Brand() {
 	return (
 		<Link
 			data-testid='landing-brand-link'
-			className='flex items-center gap-[9px] font-display text-[18px] font-extrabold tracking-[-0.03em] text-slate-900 [&_svg]:size-6 [&_svg]:shrink-0'
+			className='flex items-center gap-[9px] font-brand text-[18px] font-semibold tracking-[-0.03em] text-slate-900 [&_svg]:size-6 [&_svg]:shrink-0'
 			href='/'
 		>
 			<LogoMark />

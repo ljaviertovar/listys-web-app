@@ -19,6 +19,14 @@ const bricolageGrotesque = localFont({
 	display: 'swap',
 })
 
+const bricolageGrotesqueBrand = localFont({
+	src: '../../public/fonts/bricolage-grotesque-semibold.woff2',
+	weight: '600',
+	variable: '--font-bricolage-grotesque-brand',
+	display: 'swap',
+	preload: false,
+})
+
 const ibmPlexMono = localFont({
 	src: [
 		{ path: '../../public/fonts/ibm-plex-mono-regular.woff2', weight: '400' },
@@ -101,7 +109,7 @@ export default function RootLayout({
 		<html
 			lang='en'
 			suppressHydrationWarning
-			className={`${sourceSans3.variable} ${bricolageGrotesque.variable} ${ibmPlexMono.variable}`}
+			className={`${sourceSans3.variable} ${bricolageGrotesque.variable} ${bricolageGrotesqueBrand.variable} ${ibmPlexMono.variable}`}
 		>
 			<body className='font-sans relative scroll-smooth focus:scroll-auto'>
 				<ThemeProvider
