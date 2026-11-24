@@ -15,6 +15,11 @@ export async function updateTicketStore(ticketId: string, storeId: string | null
   return apiPatch<Ticket>(`/api/v1/tickets/${ticketId}`, { store_id: storeId })
 }
 
+/** Sets the day the receipt was bought, as YYYY-MM-DD. From then on a new read of the receipt keeps it. */
+export async function updateTicketPurchaseDate(ticketId: string, purchaseDate: string) {
+  return apiPatch<Pick<Ticket, 'purchase_date' | 'purchase_date_by_user'>>(`/api/v1/tickets/${ticketId}`, { purchase_date: purchaseDate })
+}
+
 export async function updateTicketSpending(ticketId: string, include: boolean) {
   return apiPatch<Pick<Ticket, 'include_in_spending'>>(`/api/v1/tickets/${ticketId}`, { include_in_spending: include })
 }

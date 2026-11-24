@@ -139,7 +139,7 @@ const DialogFooter = ({
 }: React.HTMLAttributes<HTMLDivElement> & {
   /**
     * `inline` keeps the buttons on one row with a 12px gap at every width (a form footer). `sheet` stacks two actions with the primary
-    * on top below `sm` and puts them in two equal columns from `sm`; `sheet-stack` keeps three ordered actions stacked.
+    * at the bottom below `sm` and puts them in two equal columns from `sm`; `sheet-stack` keeps three ordered actions stacked.
    */
   variant?: "default" | "inline" | "sheet" | "sheet-stack";
   /** `section` separates a footer from a preceding alert or content block inside a shared scroll area. */
@@ -148,7 +148,7 @@ const DialogFooter = ({
   <div
     data-variant={variant}
     className={cn(
-      "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
+      "flex flex-col sm:flex-row sm:justify-end sm:space-x-2",
       variant === "inline" && "flex-row gap-3 sm:space-x-0",
       variant === "sheet" && "sticky bottom-0 z-10 mt-auto gap-3 bg-card sm:grid sm:grid-cols-2 sm:space-x-0",
       variant === "sheet-stack" && "gap-2",

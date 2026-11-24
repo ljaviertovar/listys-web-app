@@ -105,3 +105,32 @@ describe('PATCH /api/v1/tickets/:ticketId with store_id', () => {
     expect((await patch({ store_id: TEST_UUID_2 })).status).toBe(401)
   })
 })
+
+// Protects: a wrong purchase date moving a receipt's amount into the wrong month, and a date the person set being refused or mixed with other edits.
+describe('PATCH /api/v1/tickets/:ticketId with purchase_date', () => {
+  beforeEach(() => vi.clearAllMocks())
+
+  it('saves a day for the owner and marks it as set by the person', async () => {
+    const supabase = signIn({})
+    const query = createQueryBuilder({ data: { purchase_date: '2026-11-19', purchase_date_by_user: true }, error: null })
+    supabase.from.mockReturnValue(query)
+
+    const response = await patch({ purchase_date: '2026-11-19' })
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toEqual({ data: { purchase_date: '2026-11-19', purchase_date_by_user: true } })
+    expect(query.update).toHaveBeenCalledWith({ purchase_date: '2026-11-19', purchase_date_by_user: true })
+    expect(query.eq).toHaveBeenCalledWith('id', TEST_UUID)
+    expect(query.eq).toHaveBeenCalledWith('user_id', 'user-1')
+  })
+
+  it('refuses a day after today, a day that does not exist and a mixed payload before touching the database', async () => {
+    const supabase = signIn({})
+    const nextWeek = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
+
+    expect((await patch({ purchase_date: nextWeek })).status).toBe(422)
+    expect((await patch({ purchase_date: '2026-02-31' })).status).toBe(422)
+    expect((await patch({ purchase_date: '2026-11-19', store_id: TEST_UUID_2 })).status).toBe(422)
+    expect(supabase.from).not.toHaveBeenCalled()
+  })
+})

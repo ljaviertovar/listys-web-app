@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { agreeOnPurchaseDate, receiptMetadataInstructions, MAX_STORE_NAME_LENGTH, parseOcrPayload, sanitizeReceiptTotal, sanitizeStoreName } from '../receipt-store.ts'
+import { agreeOnPurchaseDate, receiptMetadataInstructions, MAX_STORE_NAME_LENGTH, parseOcrPayload, purchaseDateToStore, sanitizeReceiptTotal, sanitizeStoreName } from '../receipt-store.ts'
 
 describe('sanitizeStoreName', () => {
 	it('keeps a clean name', () => {
@@ -108,4 +108,13 @@ describe('sanitizeReceiptTotal', () => {
 			expect(sanitizeReceiptTotal(raw)).toBeNull()
 		},
 	)
+})
+
+// Protects: reading a receipt again overwriting the purchase date the person set.
+describe('purchaseDateToStore', () => {
+	it('keeps a date the person set and takes the read one otherwise', () => {
+		expect(purchaseDateToStore('2026-11-19', true)).toBeNull()
+		expect(purchaseDateToStore('2026-11-19', false)).toBe('2026-11-19')
+		expect(purchaseDateToStore(null, undefined)).toBeNull()
+	})
 })

@@ -100,6 +100,12 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 								storeSuggestion={storeSuggestion ?? null}
 								storeName={ticket.store_name}
 								itemsFound={ticketItems.length > 0}
+								purchaseDate={{
+									day: ticket.purchase_date ?? null,
+									byUser: ticket.purchase_date_by_user === true,
+									uploadedAt: ticket.created_at,
+									countsInSpending: ticket.include_in_spending === true && isStandaloneReceipt(ticket),
+								}}
 							/>
 						) : null
 					}

@@ -467,6 +467,7 @@ export type Database = {
           image_paths: string[] | null
           include_in_spending: boolean
           purchase_date: string | null
+          purchase_date_by_user: boolean
           ocr_attempts: number
           ocr_error: string | null
           ocr_status: Database["public"]["Enums"]["ocr_status"] | null
@@ -489,6 +490,7 @@ export type Database = {
           image_paths?: string[] | null
           include_in_spending?: boolean
           purchase_date?: string | null
+          purchase_date_by_user?: boolean
           ocr_attempts?: number
           ocr_error?: string | null
           ocr_status?: Database["public"]["Enums"]["ocr_status"] | null
@@ -511,6 +513,7 @@ export type Database = {
           image_paths?: string[] | null
           include_in_spending?: boolean
           purchase_date?: string | null
+          purchase_date_by_user?: boolean
           ocr_attempts?: number
           ocr_error?: string | null
           ocr_status?: Database["public"]["Enums"]["ocr_status"] | null

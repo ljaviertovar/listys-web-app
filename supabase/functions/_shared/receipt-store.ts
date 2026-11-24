@@ -21,6 +21,11 @@ export function agreeOnPurchaseDate(dates: Array<string | null>): string | null 
   return distinct.length === 1 ? distinct[0] : null
 }
 
+/** A date the person set on the receipt is never replaced by what a new read finds. */
+export function purchaseDateToStore(read: string | null, setByPerson: boolean | null | undefined): string | null {
+  return setByPerson ? null : read
+}
+
 /** A malformed or absent printed total must never make item extraction fail. */
 export function sanitizeReceiptTotal(raw: unknown): number | null {
   if (typeof raw !== 'number' && typeof raw !== 'string') return null

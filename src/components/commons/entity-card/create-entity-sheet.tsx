@@ -120,7 +120,7 @@ export function CreateEntitySheet({
 						rows={2}
 					/>
 				</FormField>
-				<div className='flex flex-col gap-3 sm:grid sm:grid-cols-2'>
+				<div className='flex flex-col-reverse gap-3 sm:grid sm:grid-cols-2'>
 					<Button
 						size='lg'
 						type='submit'

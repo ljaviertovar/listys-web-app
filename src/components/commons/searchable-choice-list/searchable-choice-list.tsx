@@ -71,13 +71,30 @@ export function SearchableChoiceList({
 	return (
 		<div
 			data-testid={testId}
-			className={fillAvailableHeight ? 'flex min-h-0 flex-1 flex-col gap-4 overflow-hidden' : variant === 'card' ? 'flex flex-col gap-4' : 'flex flex-col gap-3'}
+			className={
+				fillAvailableHeight
+					? 'flex min-h-0 flex-1 flex-col gap-4 overflow-hidden'
+					: variant === 'card'
+						? 'flex flex-col gap-4'
+						: 'flex flex-col gap-3'
+			}
 		>
 			{searchable ? (
 				<div className='flex flex-col gap-2'>
-					<Label htmlFor={searchId} className={variant === 'card' ? 'sr-only' : undefined}>{searchLabel}</Label>
+					<Label
+						htmlFor={searchId}
+						className={variant === 'card' ? 'sr-only' : undefined}
+					>
+						{searchLabel}
+					</Label>
 					<div className='relative'>
-						{showSearchIcon || variant === 'card' ? <HugeiconsIcon icon={Search01Icon} className='pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground' aria-hidden='true' /> : null}
+						{showSearchIcon || variant === 'card' ? (
+							<HugeiconsIcon
+								icon={Search01Icon}
+								className='pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground'
+								aria-hidden='true'
+							/>
+						) : null}
 						<Input
 							id={searchId}
 							type='search'
@@ -96,7 +113,11 @@ export function SearchableChoiceList({
 			<p
 				id={statusId}
 				aria-live='polite'
-				className={statusVisibility === 'visible' || (statusVisibility !== 'sr-only' && variant !== 'card') ? 'text-xs text-muted-foreground dark:text-muted-foreground' : 'sr-only'}
+				className={
+					statusVisibility === 'visible' || (statusVisibility !== 'sr-only' && variant !== 'card')
+						? 'text-xs text-muted-foreground dark:text-muted-foreground'
+						: 'sr-only'
+				}
 			>
 				{status}
 			</p>
@@ -135,18 +156,47 @@ interface ChoiceRowProps {
 }
 
 /** One radio row of a choice list; also used on its own by lists that do not need the search field. */
-export function ChoiceRow({ option, variant = 'default', selected = false, testId = `choice-${option.value}` }: ChoiceRowProps) {
+export function ChoiceRow({
+	option,
+	variant = 'default',
+	selected = false,
+	testId = `choice-${option.value}`,
+}: ChoiceRowProps) {
 	const id = useId()
-    return (
-        <FieldLabel htmlFor={id} variant={variant === 'card' ? 'card' : 'default'} data-testid={testId} data-selected={selected ? 'true' : undefined} data-disabled={option.disabled ? '' : undefined}>
-            <Field orientation='horizontal' align={variant === 'card' ? 'center' : 'default'} data-disabled={option.disabled} data-variant={variant}>
-                <RadioGroupItem id={id} value={option.value} size={variant === 'card' ? 'choice' : 'default'} disabled={option.disabled} />
-                <FieldContent size={variant === 'card' ? 'compact' : 'default'}>
-                    <FieldTitle size={variant === 'card' ? 'choice' : 'default'}>{option.label}</FieldTitle>
-                    {option.note ? <FieldDescription size={variant === 'card' ? 'choice' : 'default'}>{option.note}</FieldDescription> : null}
-                </FieldContent>
-				{option.detail ? <span className={`shrink-0 font-mono text-xs tabular-nums ${option.detailTone === 'muted' ? 'text-muted-foreground' : ''}`}>{option.detail}</span> : null}
-            </Field>
-        </FieldLabel>
-    )
+	return (
+		<FieldLabel
+			htmlFor={id}
+			variant={variant === 'card' ? 'card' : 'default'}
+			data-testid={testId}
+			data-selected={selected ? 'true' : undefined}
+			data-disabled={option.disabled ? '' : undefined}
+		>
+			<Field
+				orientation='horizontal'
+				align={variant === 'card' ? 'center' : 'default'}
+				data-disabled={option.disabled}
+				data-variant={variant}
+			>
+				<RadioGroupItem
+					id={id}
+					value={option.value}
+					size={variant === 'card' ? 'choice' : 'default'}
+					disabled={option.disabled}
+				/>
+				<FieldContent size={variant === 'card' ? 'compact' : 'default'}>
+					<FieldTitle size={variant === 'card' ? 'choice' : 'default'}>{option.label}</FieldTitle>
+					{option.note ? (
+						<FieldDescription size={variant === 'card' ? 'choice' : 'default'}>{option.note}</FieldDescription>
+					) : null}
+				</FieldContent>
+				{option.detail ? (
+					<span
+						className={`shrink-0 font-mono font-medium text-xs tabular-nums ${option.detailTone === 'muted' ? 'text-muted-foreground' : ''}`}
+					>
+						{option.detail}
+					</span>
+				) : null}
+			</Field>
+		</FieldLabel>
+	)
 }

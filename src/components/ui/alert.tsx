@@ -13,9 +13,9 @@ const alertVariants = cva(
 			},
 			variant: {
 				default: 'bg-card text-card-foreground',
-				destructive: 'text-feedback-error-strong bg-card *:[svg]:text-current',
-				info: 'rounded-2xl border-0 bg-feedback-info-subtle text-feedback-info-strong *:[svg]:text-current',
-				warning: 'rounded-2xl border-0 bg-feedback-warning-subtle text-feedback-warning-strong *:[svg]:text-current',
+				destructive: 'border-feedback-error/20 text-feedback-error-strong bg-card *:[svg]:text-current',
+				info: 'rounded-2xl border-feedback-info/20 bg-feedback-info-subtle text-feedback-info-strong *:[svg]:text-current',
+				warning: 'rounded-2xl border-feedback-warning/20 bg-feedback-warning-subtle text-feedback-warning-strong *:[svg]:text-current',
 				success: 'rounded-2xl border-0 bg-feedback-success-subtle text-feedback-success-strong *:[svg]:text-current',
 			},
 		},

@@ -71,7 +71,7 @@ export function AddItemForm({ target, isLocked = false, onCancel }: AddItemFormP
 				disabled={loading || isLocked}
 				withCategory
 			/>
-			<div className='mt-2 flex flex-col gap-1 sm:grid sm:grid-cols-2 md:mt-0'>
+			<div className='mt-2 flex flex-col-reverse gap-1 sm:grid sm:grid-cols-2 md:mt-0'>
 				<Button
 					size='lg'
 					type='submit'
