@@ -79,7 +79,7 @@ export function Pill({
 		<span
 			data-testid={testId ?? 'landing-pill'}
 			className={cn(
-				'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2 py-1 font-mono text-[9px] font-bold tracking-[.09em] uppercase',
+				'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2 py-1 font-mono text-[9px] font-medium tracking-[.09em] uppercase',
 				PILL_STYLES[kind],
 			)}
 		>
@@ -98,7 +98,7 @@ export function Avatars({ initials, testId }: { initials: string[]; testId?: str
 			{initials.map(initial => (
 				<span
 					key={initial}
-					className='-ml-[7px] flex size-[22px] items-center justify-center rounded-full border-2 border-white bg-violet-600 font-mono text-[8px] font-semibold text-white first:ml-0'
+					className='-ml-[7px] flex size-[22px] items-center justify-center rounded-full border-2 border-white bg-violet-600 font-mono text-[8px] font-medium text-white first:ml-0'
 				>
 					{initial}
 				</span>
@@ -139,7 +139,7 @@ export function Row({ chip, name, meta, by, checked, done, dated, live, aside, t
 		>
 			<span
 				className={cn(
-					'order-1 inline-flex h-[26px] min-w-[52px] shrink-0 items-center justify-center rounded-md bg-blue-100 px-[7px] font-mono text-[11px] font-semibold text-blue-700 tabular-nums',
+					'order-1 inline-flex h-[26px] min-w-[52px] shrink-0 items-center justify-center rounded-md bg-blue-100 px-[7px] font-mono text-[11px] font-medium text-blue-700 tabular-nums',
 					dated && '-order-2',
 				)}
 			>

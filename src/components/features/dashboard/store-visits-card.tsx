@@ -31,7 +31,7 @@ export function StoreVisitsCard({ visits }: Props) {
 							monoMeta
 							density='compact'
 							leading={<RowIcon icon={Store03Icon} tone='store' size='md' />}
-							trailing={visit.total !== null ? <span className='shrink-0 font-mono text-sm font-semibold tabular-nums'>{formatCurrency(visit.total)}</span> : undefined}
+							trailing={visit.total !== null ? <span className='shrink-0 font-mono text-sm font-medium tabular-nums'>{formatCurrency(visit.total)}</span> : undefined}
 							testId={`dashboard-store-visit-${visit.storeId}`}
 							variant='muted'
 						/>

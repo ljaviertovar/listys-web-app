@@ -102,7 +102,7 @@ function EstimateFacts({ label, value, lines }: EstimateFactsProps) {
 	return (
 		<div className='flex min-w-0 flex-col gap-0.5'>
 			<span className='text-xs leading-4 text-muted-foreground dark:text-muted-foreground'>{label}</span>
-			<span className='font-mono text-2xl leading-7 font-semibold tracking-tight text-foreground tabular-nums'>{value}</span>
+			<span className='font-mono text-2xl leading-7 font-medium tracking-tight text-foreground tabular-nums'>{value}</span>
 			{lines.map(line => (
 				<span key={line} className='text-xs leading-4 text-muted-foreground dark:text-muted-foreground'>{line}</span>
 			))}

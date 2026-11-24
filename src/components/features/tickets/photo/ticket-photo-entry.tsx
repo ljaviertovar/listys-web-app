@@ -51,7 +51,7 @@ export function TicketPhotoRow({ count, thumbnailUrl, onOpen, triggerRef }: Tick
 				<span className='flex min-w-0 flex-1 flex-col items-start gap-0.5 font-sans'>
 					<span className='font-display text-base leading-normal font-semibold'>Receipt Photo</span>
 					<span className='text-sm leading-[1.2] text-muted-foreground dark:text-muted-foreground'>
-						<b className='font-mono font-semibold text-foreground tabular-nums'>{count}</b> {plural} · Tap to enlarge
+						<b className='font-mono font-medium text-foreground tabular-nums'>{count}</b> {plural} · Tap to enlarge
 					</span>
 				</span>
 			</Button>

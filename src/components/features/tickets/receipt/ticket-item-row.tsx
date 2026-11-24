@@ -79,7 +79,7 @@ export function TicketItemRow({ item, canSelect = false, selected = false, onSel
 						</span>
 					) : null}
 				</span>
-				<span className='shrink-0 font-mono text-sm leading-5 font-semibold tabular-nums'>{item.price !== null ? formatCurrency(item.price) : '—'}</span>
+				<span className='shrink-0 font-mono text-sm leading-5 font-medium tabular-nums'>{item.price !== null ? formatCurrency(item.price) : '—'}</span>
 			</Field>
 			</FieldLabel>
 			{line && actions ? <ProposedMatch line={line} name={name} listName={listName} actions={actions} /> : null}

@@ -264,14 +264,14 @@ export function HeroSection() {
 						className='absolute w-[172px] rounded-t-[10px] bg-white px-3 pt-[11px] pb-4 font-mono text-[8px] leading-[1.7] text-slate-400 shadow-[0_18px_34px_-26px_rgba(15,23,42,0.55)]'
 						style={slip.style}
 					>
-						<b className='mb-[2px] block text-[9.5px] font-semibold text-slate-500'>{slip.shop}</b>
+						<b className='mb-[2px] block font-sans text-[9.5px] font-semibold text-slate-500'>{slip.shop}</b>
 						<div className='my-[5px] h-px bg-slate-200' />
 						{slip.lines.map(([item, price]) => (
 							<div
 								key={item}
 								className='flex justify-between gap-2'
 							>
-								<span className='min-w-0 truncate'>{item}</span>
+								<span className='min-w-0 truncate font-sans'>{item}</span>
 								<span>{price}</span>
 							</div>
 						))}
@@ -335,8 +335,8 @@ export function HeroSection() {
 										aria-hidden='true'
 									/>
 									<div className='mb-3 text-center'>
-										<div className='text-[15px] font-semibold tracking-[.06em] text-slate-900'>MARKET FRESH</div>
-										<div className='mt-[3px] text-[10px] tracking-[.02em] text-slate-500'>123 Green Avenue, CA</div>
+										<div className='font-sans text-[15px] font-semibold tracking-[.06em] text-slate-900'>MARKET FRESH</div>
+										<div className='mt-[3px] font-sans text-[10px] tracking-[.02em] text-slate-500'>123 Green Avenue, CA</div>
 										<div className='mt-[3px] text-[10px] tracking-[.02em] text-slate-500'>05/24/2024 · 14:22</div>
 									</div>
 									<div className='my-[10px] border-t border-dashed border-slate-300' />
@@ -351,7 +351,7 @@ export function HeroSection() {
 												key={item}
 												className='flex justify-between gap-3 tabular-nums'
 											>
-												<span className='min-w-0 truncate'>{item}</span>
+												<span className='min-w-0 truncate font-sans'>{item}</span>
 												<span>{price}</span>
 											</div>
 										))}
@@ -459,7 +459,7 @@ export function HeroSection() {
 																		row.done && 'border-primary bg-[#F7FAFF]',
 																	)}
 																>
-																	<span className='inline-flex h-[29px] min-w-[46px] shrink-0 items-center justify-center rounded-md bg-blue-100 px-[6px] font-mono text-[9px] font-semibold text-blue-700'>
+																	<span className='inline-flex h-[29px] min-w-[46px] shrink-0 items-center justify-center rounded-md bg-blue-100 px-[6px] font-mono text-[9px] font-medium text-blue-700'>
 																		{row.qty}
 																	</span>
 																	<span className='min-w-0 flex-1 truncate text-[11px] font-semibold text-slate-900'>

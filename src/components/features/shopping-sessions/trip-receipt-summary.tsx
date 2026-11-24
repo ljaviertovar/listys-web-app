@@ -161,7 +161,7 @@ export function TripReceiptSummary({
 							data-testid={`trip-receipt-data-${receipt.id}`}
 							className='text-sm leading-[1.2] text-muted-foreground dark:text-muted-foreground'
 						>
-							<b className='font-mono text-base font-bold text-foreground tabular-nums'>{receipt.items_count}</b>{' '}
+							<b className='font-mono text-base font-medium text-foreground tabular-nums'>{receipt.items_count}</b>{' '}
 							{receipt.items_count === 1 ? 'item' : 'items'} ·{' '}
 							{receipt.total_amount == null ? '—' : formatCurrency(receipt.total_amount)}
 						</p>
@@ -181,7 +181,7 @@ export function TripReceiptSummary({
 				<h2 className='font-sans text-xs leading-[1.3] font-normal text-muted-foreground dark:text-muted-foreground'>
 					{active ? 'Paid so far' : 'Paid'}
 				</h2>
-				<p className='font-mono text-2xl font-semibold tabular-nums tracking-tight'>{paid}</p>
+				<p className='font-mono text-2xl font-medium tabular-nums tracking-tight'>{paid}</p>
 			</div>
 			<div className='flex max-w-40 flex-col items-end gap-1 text-right text-xs leading-normal text-muted-foreground dark:text-muted-foreground'>
 				<p>{details}</p>

@@ -39,12 +39,12 @@ export function TicketSummaryCard({ ticket, itemsCount, pricedItemsCount, total 
 					<>
 						<div className='flex items-center justify-between gap-3 text-sm leading-[1.3] text-muted-foreground dark:text-muted-foreground'>
 							<span>Extracted items</span>
-							<b className='font-mono font-semibold whitespace-nowrap text-foreground tabular-nums'>{itemsCount}</b>
+							<b className='font-mono font-medium whitespace-nowrap text-foreground tabular-nums'>{itemsCount}</b>
 						</div>
 						<div className='border-t border-slate-100 dark:border-border' />
 						<div className='flex items-center justify-between gap-3 text-sm leading-[1.3] font-semibold'>
 							<span>Extracted Item Total</span>
-							<b className='font-mono text-base font-bold whitespace-nowrap tabular-nums'>{formatCurrency(total)}</b>
+							<b className='font-mono text-base font-medium whitespace-nowrap tabular-nums'>{formatCurrency(total)}</b>
 						</div>
 					</>
 				) : null}
@@ -53,7 +53,7 @@ export function TicketSummaryCard({ ticket, itemsCount, pricedItemsCount, total 
 						{showTotals ? <div className='border-t border-slate-100 dark:border-border' /> : null}
 						<div className='flex items-center justify-between gap-3 text-sm leading-[1.3] font-semibold'>
 							<span>Receipt Total</span>
-							<b className='font-mono text-base font-bold whitespace-nowrap tabular-nums'>{formatCurrency(receiptTotal)}</b>
+							<b className='font-mono text-base font-medium whitespace-nowrap tabular-nums'>{formatCurrency(receiptTotal)}</b>
 						</div>
 					</>
 				) : null}

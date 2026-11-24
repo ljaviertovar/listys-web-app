@@ -118,7 +118,7 @@ export function UploadTicketPhotos({
 								</div>
 								<span
 									aria-hidden='true'
-									className='absolute bottom-1.5 left-1.5 flex h-4.5 items-center rounded-full bg-inverse/80 px-1.5 font-mono text-xs leading-none font-semibold text-white tabular-nums'
+									className='absolute bottom-1.5 left-1.5 flex h-4.5 items-center rounded-full bg-inverse/80 px-1.5 font-mono text-xs leading-none font-medium text-white tabular-nums'
 								>
 									{index + 1}
 								</span>

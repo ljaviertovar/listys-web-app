@@ -56,7 +56,7 @@ export function ReceiptPaper({ variant, testId }: ReceiptPaperProps) {
 					<div className='flex h-7 items-center gap-2 px-3.5'>
 						<PaperCheckbox dashed />
 						<span className='h-1.5 w-[34%] rounded-full bg-muted-foreground/20' />
-						<span className='ml-auto font-mono text-sm leading-none font-semibold text-feedback-warning'>—</span>
+						<span className='ml-auto font-mono text-sm leading-none font-medium text-feedback-warning'>—</span>
 					</div>
 				</div>
 				<svg viewBox='0 0 200 8' className='block h-2 w-50' fill='none'>
@@ -78,7 +78,7 @@ export function ReceiptPaper({ variant, testId }: ReceiptPaperProps) {
 				<div className='flex h-7 items-center gap-2 px-3.5'>
 					<PaperCheckbox dashed />
 					<span className='h-2 w-[44%] rounded-sm border border-dashed border-slate-400' />
-					<span className='ml-auto font-mono text-sm leading-none font-semibold text-primary dark:text-blue-300'>404</span>
+					<span className='ml-auto font-mono text-sm leading-none font-medium text-primary dark:text-blue-300'>404</span>
 				</div>
 				<PaperRow checked name='w-[34%]' />
 			</div>

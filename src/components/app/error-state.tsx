@@ -84,7 +84,7 @@ function Reference({ digest, testId }: ReferenceProps) {
 	return (
 		<p data-testid={testId} className='mt-5 flex items-center gap-1.5 text-xs text-muted-foreground'>
 			Reference
-			<span className='font-mono font-semibold text-foreground'>{digest}</span>
+			<span className='font-mono font-medium text-foreground'>{digest}</span>
 			<Button variant='ghost' size='quiet-touch' onClick={copy} data-testid={`${testId}-copy`}>
 				<HugeiconsIcon icon={copied ? Tick02Icon : Copy01Icon} strokeWidth={1.8} data-icon='inline-start' className='size-3.5' />
 				{copied ? 'Copied' : 'Copy'}

@@ -209,7 +209,7 @@ export function StartShoppingDialog({
 							<span className='text-xs leading-[1.3] text-muted-foreground'>Estimated total</span>
 							<span className='text-xs leading-normal text-muted-foreground'>From {estimate.pricedCount} of {estimate.itemCount} {estimate.itemCount === 1 ? 'item' : 'items'}</span>
 						</div>
-						{estimate.pricedCount > 0 ? <span className='font-mono text-lg leading-none font-semibold text-foreground tabular-nums'>≈ {formatCurrency(estimate.total)}</span> : <span className='text-xs text-muted-foreground'>No known prices</span>}
+						{estimate.pricedCount > 0 ? <span className='font-mono text-lg leading-none font-medium text-foreground tabular-nums'>≈ {formatCurrency(estimate.total)}</span> : <span className='text-xs text-muted-foreground'>No known prices</span>}
 					</div> : null}
 				</div>
 				{isEmpty ? <p className='text-sm leading-normal text-muted-foreground dark:text-muted-foreground'>This base list has no items. Add items before starting a shopping session.</p> : null}

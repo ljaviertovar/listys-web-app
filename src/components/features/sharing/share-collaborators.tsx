@@ -46,7 +46,7 @@ export function ShareCollaborators({ collaborators, isOwner, isLoading, onRemove
 					Collaborators
 				</h3>
 				{isLoading ? <Skeleton aria-hidden='true' className='size-5.5 rounded-full' /> : (
-					<span className='inline-flex h-5.5 min-w-5.5 items-center justify-center rounded-full bg-slate-100 px-1.5 font-mono text-xs font-semibold text-foreground tabular-nums dark:bg-muted dark:text-foreground'>
+					<span className='inline-flex h-5.5 min-w-5.5 items-center justify-center rounded-full bg-slate-100 px-1.5 font-mono text-xs font-medium text-foreground tabular-nums dark:bg-muted dark:text-foreground'>
 						{collaborators.length}
 					</span>
 				)}

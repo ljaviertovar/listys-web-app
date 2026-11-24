@@ -120,7 +120,7 @@ export function ShoppingSessionItemRow({
 						item.price != null ? (
 							<span
 								data-testid={`session-item-${item.id}-receipt-price`}
-								className='font-mono text-sm leading-5 font-semibold tabular-nums'
+								className='font-mono text-sm leading-5 font-medium tabular-nums'
 							>
 								{formatCurrency(item.price)}
 							</span>
@@ -132,7 +132,7 @@ export function ShoppingSessionItemRow({
 							data-testid={`session-item-${item.id}-average-price`}
 							className='inline-flex items-baseline gap-1 whitespace-nowrap'
 						>
-							<span className='font-mono text-sm leading-5 font-semibold tabular-nums'>
+							<span className='font-mono text-sm leading-5 font-medium tabular-nums'>
 								{formatCurrency(averagePrice)}
 							</span>
 							<span className='text-xs font-medium text-muted-foreground'>avg</span>

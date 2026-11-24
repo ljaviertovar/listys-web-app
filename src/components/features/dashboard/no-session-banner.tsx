@@ -38,7 +38,7 @@ export function NoSessionBanner({ quickStart, startTarget, addItemsTarget = null
 			labelledBy='dashboard-no-session-title'
 			variant='expanded'
 		>
-			<div className='flex w-full max-w-xl flex-col gap-3.5 px-5.5 pt-40 pb-10 sm:gap-4 sm:p-8 md:gap-4.5 md:px-10 md:py-9'>
+			<div className='flex w-full max-w-xl flex-col gap-3.5 px-5.5 pt-64 pb-6 sm:gap-4 sm:p-8 md:gap-4.5 md:px-10 md:py-9'>
 				<span className='inline-flex w-fit items-center gap-2 rounded-full bg-white/15 px-2.5 py-1 text-xs font-semibold text-slate-100'>
 					<span
 						aria-hidden='true'
@@ -69,7 +69,7 @@ export function NoSessionBanner({ quickStart, startTarget, addItemsTarget = null
 
 				{hasLists && otherLists.length > 0 ? (
 					<div className='flex flex-col gap-2'>
-						<span className='font-mono text-xs leading-[1.2] font-semibold tracking-widest text-slate-400 uppercase'>
+						<span className='font-mono text-xs leading-[1.2] font-medium tracking-widest text-slate-400 uppercase'>
 							Quick start
 						</span>
 						<ul className='flex flex-col gap-2'>
@@ -102,7 +102,7 @@ export function NoSessionBanner({ quickStart, startTarget, addItemsTarget = null
 				{!hasLists ? (
 					<UploadTicketDialog
 						variant='default'
-					size='lg'
+						size='lg'
 						className='mt-1 w-full md:w-auto md:self-start'
 					/>
 				) : startTarget ? (
@@ -111,7 +111,7 @@ export function NoSessionBanner({ quickStart, startTarget, addItemsTarget = null
 						baseListName={startTarget.name}
 						itemsCount={startTarget.itemsCount}
 						variant='default'
-					size='lg'
+						size='lg'
 						className='mt-1 w-full md:w-auto md:self-start'
 					>
 						<HugeiconsIcon

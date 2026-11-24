@@ -3,19 +3,31 @@ import { ThemeProvider } from '@/providers/theme-provider'
 import { SonnerToaster } from '@/components/app/sonner-toaster'
 import { PwaRegister } from '@/components/features/pwa'
 
-import { IBM_Plex_Mono, Inter } from 'next/font/google'
+import localFont from 'next/font/local'
 
-const inter = Inter({
-	subsets: ['latin'],
-	variable: '--font-inter',
+const sourceSans3 = localFont({
+	src: '../../public/fonts/source-sans-3.woff2',
+	weight: '400 900',
+	variable: '--font-source-sans-3',
 	display: 'swap',
 })
 
-const ibmPlexMono = IBM_Plex_Mono({
-	subsets: ['latin'],
-	weight: ['500', '600'],
+const bricolageGrotesque = localFont({
+	src: '../../public/fonts/bricolage-grotesque.woff2',
+	weight: '700 800',
+	variable: '--font-bricolage-grotesque',
+	display: 'swap',
+})
+
+const ibmPlexMono = localFont({
+	src: [
+		{ path: '../../public/fonts/ibm-plex-mono-regular.woff2', weight: '400' },
+		{ path: '../../public/fonts/ibm-plex-mono-medium.woff2', weight: '500' },
+	],
 	variable: '--font-ibm-plex-mono',
 	display: 'swap',
+	preload: false,
+	adjustFontFallback: false,
 })
 
 import './globals.css'
@@ -89,7 +101,7 @@ export default function RootLayout({
 		<html
 			lang='en'
 			suppressHydrationWarning
-			className={`${inter.variable} ${ibmPlexMono.variable}`}
+			className={`${sourceSans3.variable} ${bricolageGrotesque.variable} ${ibmPlexMono.variable}`}
 		>
 			<body className='font-sans relative scroll-smooth focus:scroll-auto'>
 				<ThemeProvider

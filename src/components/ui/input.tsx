@@ -9,7 +9,7 @@ const inputVariants = cva(
 		variants: {
 			variant: {
 				default: '',
-				amount: 'text-right font-mono font-semibold tabular-nums',
+				amount: 'text-right font-mono font-medium tabular-nums',
 			},
 			size: {
 				default: 'h-11 md:h-9',
