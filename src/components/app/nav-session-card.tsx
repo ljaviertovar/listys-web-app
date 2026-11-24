@@ -32,7 +32,7 @@ export function NavSessionCard({ sessionId, name, progress, otherCount = 0, onNa
 					Shopping now
 				</span>
 				{progress ? (
-					<span className='font-mono text-xs font-semibold text-blue-700 tabular-nums dark:text-primary'>
+					<span className='font-mono text-xs font-medium text-blue-700 tabular-nums dark:text-primary'>
 						{progress.checked}/{progress.total}
 					</span>
 				) : null}

@@ -55,7 +55,7 @@ export function TripReviewLineRow({ line, onChange }: { line: AttachReviewLine; 
 				</ItemContent>
 				<span
 					className={cn(
-						'shrink-0 pl-2 font-mono text-sm leading-5 font-semibold tabular-nums',
+						'shrink-0 pl-2 font-mono text-sm leading-5 font-medium tabular-nums',
 						leftOut && 'text-muted-foreground line-through',
 					)}
 				>

@@ -222,7 +222,7 @@ export function TicketCompareDialog({ open, onOpenChange, title, urls, view, ite
 									Extracted Items
 								</h2>
 								<span className='text-xs leading-[1.3] text-muted-foreground'>
-									<b className='font-mono font-semibold text-foreground tabular-nums'>{items.length}</b> items found
+									<b className='font-mono font-medium text-foreground tabular-nums'>{items.length}</b> items found
 								</span>
 							</div>
 							<TicketItemsList

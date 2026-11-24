@@ -33,7 +33,7 @@ export function HeroSurface({ testId, labelledBy, variant = 'default', children 
 			</picture>
 			<div
 				aria-hidden='true'
-				className='absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(8,13,26,.72)_0%,rgba(8,13,26,.58)_45%,rgba(8,13,26,.9)_100%)] md:bg-[linear-gradient(90deg,rgba(8,13,26,.78)_0%,rgba(8,13,26,.68)_46%,rgba(8,13,26,.12)_100%)]'
+				className='absolute inset-0 -z-10 bg-[linear-gradient(180deg,transparent_0%,rgba(8,13,26,.08)_38%,rgba(8,13,26,.52)_61%,rgba(8,13,26,.94)_100%)] md:bg-[linear-gradient(90deg,rgba(8,13,26,.78)_0%,rgba(8,13,26,.68)_46%,rgba(8,13,26,.12)_100%)]'
 			/>
 			{children}
 		</section>

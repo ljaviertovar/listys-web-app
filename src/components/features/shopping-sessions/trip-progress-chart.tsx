@@ -47,7 +47,7 @@ export function TripProgressChart({ checked, total, label, testId = 'trip-progre
 									if (!viewBox || !('cx' in viewBox) || !('cy' in viewBox)) return null
 									return (
 										<text x={viewBox.cx} y={viewBox.cy} textAnchor='middle' dominantBaseline='middle'>
-											<tspan x={viewBox.cx} y={(viewBox.cy ?? 0) - 4} className='fill-foreground font-mono text-[22px] font-semibold tracking-tight'>
+											<tspan x={viewBox.cx} y={(viewBox.cy ?? 0) - 4} className='fill-foreground font-mono text-[22px] font-medium tracking-tight'>
 												{checked}
 											</tspan>
 											<tspan x={viewBox.cx} y={(viewBox.cy ?? 0) + 14} className='fill-muted-foreground text-[11px]'>

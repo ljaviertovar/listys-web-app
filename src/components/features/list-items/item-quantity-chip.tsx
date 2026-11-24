@@ -19,7 +19,7 @@ export function ItemQuantityChip({ quantity, unit, muted = false, testId = 'item
 			data-testid={testId}
 			className='inline-block shrink-0 text-left text-sm leading-5 whitespace-nowrap'
 		>
-			<span className={cn('font-mono font-semibold tabular-nums', muted ? 'text-muted-foreground dark:text-muted-foreground' : 'text-secondary-foreground dark:text-secondary-foreground')}>{quantity ?? 1}</span>{' '}
+			<span className={cn('font-mono font-medium tabular-nums', muted ? 'text-muted-foreground dark:text-muted-foreground' : 'text-secondary-foreground dark:text-secondary-foreground')}>{quantity ?? 1}</span>{' '}
 			<span className='font-mono text-xs font-normal text-muted-foreground dark:text-muted-foreground'>{unit || 'unit'}</span>
 		</span>
 	)

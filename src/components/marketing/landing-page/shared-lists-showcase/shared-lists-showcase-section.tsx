@@ -99,7 +99,7 @@ export function SharedListsShowcaseSection() {
 								role='listitem'
 								className='flex min-h-[48px] min-w-0 items-center gap-3 rounded-xl border border-slate-200 bg-white px-3.5 py-[10px] text-[13px] text-slate-700 shadow-sm'
 							>
-								<span className='flex size-6 shrink-0 items-center justify-center rounded-full bg-violet-600 font-mono text-[8.5px] font-semibold text-white'>
+								<span className='flex size-6 shrink-0 items-center justify-center rounded-full bg-violet-600 font-mono text-[8.5px] font-medium text-white'>
 									{entry.initials}
 								</span>
 								<span className='min-w-0 flex-1 truncate'>

@@ -90,7 +90,7 @@ export function SpendingBreakdown({ slices, total, receiptCount, testId }: Spend
 									if (!viewBox || !('cx' in viewBox) || !('cy' in viewBox)) return null
 									return (
 										<text x={viewBox.cx} y={viewBox.cy} textAnchor='middle' dominantBaseline='middle'>
-											<tspan x={viewBox.cx} y={(viewBox.cy ?? 0) - 6} className='fill-foreground font-mono text-xl font-semibold tracking-tight'>
+											<tspan x={viewBox.cx} y={(viewBox.cy ?? 0) - 6} className='fill-foreground font-mono text-xl font-medium tracking-tight'>
 												{formatCurrency(total)}
 											</tspan>
 											<tspan x={viewBox.cx} y={(viewBox.cy ?? 0) + 14} className='fill-muted-foreground text-xs'>
@@ -119,7 +119,7 @@ export function SpendingBreakdown({ slices, total, receiptCount, testId }: Spend
 							)}
 						</span>
 						<span className='w-9 shrink-0 text-right font-mono text-xs tabular-nums text-muted-foreground'>{slice.percent}%</span>
-						<span className='w-[5.25rem] shrink-0 text-right font-mono font-semibold tabular-nums'>{formatCurrency(slice.total)}</span>
+						<span className='w-[5.25rem] shrink-0 text-right font-mono font-medium tabular-nums'>{formatCurrency(slice.total)}</span>
 					</li>
 				))}
 			</ul>

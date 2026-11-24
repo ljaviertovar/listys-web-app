@@ -68,7 +68,7 @@ function DropdownMenuGroup({ ...props }: React.ComponentProps<typeof DropdownMen
 /** `touch` is a 44px action row; `row` a 52px link row with an icon tile; `action` a filled secondary row (Sign Out). */
 const dropdownMenuItemSizes = {
 	default: '',
-	touch: 'min-h-11 cursor-pointer font-display font-semibold',
+	touch: 'min-h-11 cursor-pointer font-semibold',
 	row: 'min-h-13 gap-3 rounded-2xl px-2.5 py-2',
 	action: 'mx-0.5 mb-0.5 min-h-11 justify-center gap-2 rounded-2xl bg-secondary font-medium',
 }

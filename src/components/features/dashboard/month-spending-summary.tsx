@@ -57,7 +57,7 @@ export function MonthSpendingSummary({ summary, receiptCount }: MonthSpendingSum
 				<SpendingBreakdown slices={slices} total={receiptTotal} receiptCount={receiptCount} testId='dashboard-month-spending-stores' />
 			) : (
 				<div className='flex flex-col gap-0.5'>
-					<p className='font-mono text-[30px] leading-none font-semibold tracking-tight tabular-nums'>{formatCurrency(receiptTotal)}</p>
+					<p className='font-mono text-[30px] leading-none font-medium tracking-tight tabular-nums'>{formatCurrency(receiptTotal)}</p>
 					<p className='text-xs text-muted-foreground'>
 						{receiptCount} {receiptCount === 1 ? 'receipt' : 'receipts'}
 					</p>
@@ -110,7 +110,7 @@ export function MonthSpendingSummary({ summary, receiptCount }: MonthSpendingSum
 											<span className={`block h-full rounded-full ${getCategoryBarColor(category.name)}`} style={{ width: `${width}%` }} />
 										</span>
 										<span className='text-right font-mono text-xs tabular-nums text-muted-foreground'>{share}%</span>
-										<span className='text-right font-mono text-sm font-semibold tabular-nums'>{formatCurrency(category.total)}</span>
+										<span className='text-right font-mono text-sm font-medium tabular-nums'>{formatCurrency(category.total)}</span>
 									</li>
 								)
 							})}

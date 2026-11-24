@@ -5,7 +5,7 @@ import { AuthForm } from './auth-form'
 import { AuthHero } from './auth-hero'
 import type { AuthMode } from './helpers/auth-copy'
 
-const WORDMARK_CLASS_NAME = 'font-display text-[22px] leading-none font-extrabold tracking-[-0.02em]'
+const WORDMARK_CLASS_NAME = 'font-brand text-[22px] leading-none font-semibold tracking-[-0.02em]'
 
 /**
  * A whole sign-in or sign-up screen. Phone: the photo header with the form on a white sheet that rises over it. From `lg`:

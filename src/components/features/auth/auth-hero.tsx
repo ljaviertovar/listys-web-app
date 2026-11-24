@@ -9,7 +9,7 @@ import Logo from '@/components/commons/logo'
 import { AuthBackLink } from './auth-back-link'
 import { AUTH_COPY, type AuthMode } from './helpers/auth-copy'
 
-const WORDMARK_CLASS_NAME = 'font-display text-xl leading-none font-extrabold tracking-[-0.02em]'
+const WORDMARK_CLASS_NAME = 'font-brand text-xl leading-none font-semibold tracking-[-0.02em]'
 
 /**
  * The photo of the auth screens. On a phone it is the header above the form sheet (logo, back link, title); from `lg` it is

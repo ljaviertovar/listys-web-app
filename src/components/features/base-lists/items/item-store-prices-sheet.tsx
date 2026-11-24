@@ -171,7 +171,7 @@ export function ItemStorePricesSheet({
 												</span>
 								<p className='text-xs leading-[1.4] text-muted-foreground dark:text-muted-foreground'>
 													{entry.last_price_at ? `Last ${shortDate(entry.last_price_at)}` : 'No price yet'} ·{' '}
-													<b className='font-mono font-semibold text-foreground'>{entry.purchase_count}</b>{' '}
+													<b className='font-mono font-medium text-foreground'>{entry.purchase_count}</b>{' '}
 													{entry.purchase_count === 1 ? 'time' : 'times'}
 												</p>
 												{hasContext ? (
@@ -181,7 +181,7 @@ export function ItemStorePricesSheet({
 												) : null}
 											</div>
 											<div className='flex shrink-0 flex-col items-end gap-1 text-right'>
-												<p className='font-mono text-sm font-semibold tabular-nums'>
+												<p className='font-mono text-sm font-medium tabular-nums'>
 													{entry.last_price == null ? '—' : formatCurrency(entry.last_price)}
 												</p>
 												{hasContext && quantity && entry.last_price != null ? (

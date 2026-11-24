@@ -112,7 +112,7 @@ export function TripReceiptDetailsSheet({
 								<div className='flex min-w-0 flex-col gap-0.5 px-0.5'>
 									<h2 className='font-display text-base leading-normal font-semibold'>Receipt items</h2>
 									<span className='text-xs leading-4 text-muted-foreground'>
-										<b className='font-mono font-semibold text-foreground tabular-nums'>{details.items.length}</b>{' '}
+										<b className='font-mono font-medium text-foreground tabular-nums'>{details.items.length}</b>{' '}
 										{details.items.length === 1 ? 'item' : 'items'} found
 									</span>
 								</div>
@@ -131,7 +131,7 @@ export function TripReceiptDetailsSheet({
 												<span
 													className={
 														item.price != null
-															? 'shrink-0 text-right font-mono text-sm font-semibold tabular-nums'
+															? 'shrink-0 text-right font-mono text-sm font-medium tabular-nums'
 															: 'shrink-0 text-right text-xs text-muted-foreground'
 													}
 												>

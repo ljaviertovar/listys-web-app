@@ -39,7 +39,7 @@ export function TicketPhotoControls({ view, className }: TicketPhotoControlsProp
 				<span
 					role='status'
 					aria-label='Zoom level'
-					className='min-w-16 text-center font-mono text-sm font-semibold text-white tabular-nums'
+					className='min-w-16 text-center font-mono text-sm font-medium text-white tabular-nums'
 				>
 					{formatZoom(view.zoom)}
 				</span>

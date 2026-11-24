@@ -364,7 +364,7 @@ export function ReceiptCameraScanner({ count, max, lastPhotoUrl, onAdd, onChoose
 											// eslint-disable-next-line @next/next/no-img-element -- a local object URL preview
 											<img src={lastPhotoUrl} alt='' className='size-full rounded-xl object-cover' />
 										) : null}
-										<span className='absolute -top-1.5 -right-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 font-mono text-xs font-semibold text-primary-foreground tabular-nums'>
+										<span className='absolute -top-1.5 -right-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 font-mono text-xs font-medium text-primary-foreground tabular-nums'>
 											{count}
 										</span>
 									</span>

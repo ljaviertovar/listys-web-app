@@ -98,7 +98,7 @@ export function HowItWorksSection() {
 						className='grid items-center gap-[34px] min-[980px]:grid-cols-[minmax(0,1fr)_minmax(0,1.12fr)] min-[980px]:gap-[76px]'
 					>
 						<div className={cn('min-[980px]:order-1', step.flip && 'min-[980px]:order-2')}>
-							<span className='mb-4 inline-block font-mono text-[11px] leading-[1.2] font-semibold tracking-[0.1em] text-primary'>
+							<span className='mb-4 inline-block font-mono text-[11px] leading-[1.2] font-medium tracking-[0.1em] text-primary'>
 								{step.num}
 							</span>
 							<h3 className='text-2xl leading-[1.25] font-bold tracking-[-0.02em] text-slate-900 text-balance'>

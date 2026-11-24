@@ -81,8 +81,8 @@ export function MergeToBaseListDialog({ open, defaultBaseListId, onOpenChange, t
 			description={reviewing
 				? `Check how these items are added to “${listName}”. Nothing is added until you confirm.`
 				: mode === 'new'
-					? <>Create a new list with the <span className='font-mono font-semibold text-foreground'>{selectedItemIds.length}</span> selected item{selectedItemIds.length !== 1 ? 's' : ''}.</>
-					: <><span className='font-mono font-semibold text-foreground'>{selectedItemIds.length}</span> selected item{selectedItemIds.length !== 1 ? 's' : ''}. New products are added to the list; products already on it are updated.</>}
+					? <>Create a new list with the <span className='font-mono font-medium text-foreground'>{selectedItemIds.length}</span> selected item{selectedItemIds.length !== 1 ? 's' : ''}.</>
+					: <><span className='font-mono font-medium text-foreground'>{selectedItemIds.length}</span> selected item{selectedItemIds.length !== 1 ? 's' : ''}. New products are added to the list; products already on it are updated.</>}
 			className='sm:max-w-125'
 		>
 					<div className='px-0.5 py-1'>

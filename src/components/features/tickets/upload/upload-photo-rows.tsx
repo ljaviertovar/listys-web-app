@@ -62,7 +62,7 @@ export function UploadPhotoRows({ previews, rejections, uploading, onDismissReje
 				>
 					<PhotoThumb url={photo.url} />
 					<span className='flex min-w-0 flex-1 flex-col gap-1.5'>
-						<span className='truncate font-mono text-xs leading-[1.3] font-semibold text-foreground'>{photo.file.name}</span>
+						<span className='truncate font-mono text-xs leading-[1.3] font-medium text-foreground'>{photo.file.name}</span>
 						{uploading ? (
 							<Progress
 								indeterminate
@@ -97,7 +97,7 @@ export function UploadPhotoRows({ previews, rejections, uploading, onDismissReje
 						<span className='flex items-center gap-3'>
 							<PaperThumb />
 							<span className='flex min-w-0 flex-1 flex-col gap-1'>
-								<span className='truncate font-mono text-xs leading-[1.3] font-semibold text-foreground'>{rejection.name}</span>
+								<span className='truncate font-mono text-xs leading-[1.3] font-medium text-foreground'>{rejection.name}</span>
 								<span className='text-xs leading-[1.4] text-red-700 dark:text-red-300'>
 									{formatPhotoSize(rejection.size)} · {rejectionReason(rejection.reason)}
 								</span>

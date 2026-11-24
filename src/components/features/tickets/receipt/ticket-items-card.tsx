@@ -98,7 +98,7 @@ export function TicketItemsCard({
 							</h2>
 							{status === 'completed' ? (
 								<span className='text-xs leading-[1.3] text-muted-foreground dark:text-muted-foreground'>
-									<b className='font-mono font-semibold text-foreground tabular-nums'>{items.length}</b>{' '}
+									<b className='font-mono font-medium text-foreground tabular-nums'>{items.length}</b>{' '}
 									{items.length === 1 ? 'item' : 'items'} found
 								</span>
 							) : null}

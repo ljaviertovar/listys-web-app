@@ -92,7 +92,7 @@ export function CompleteSessionSheet({ sessionId, listName, checked, total, open
 		}
 	}
 
-	const description = <>You collected <b className='font-mono font-semibold text-foreground'>{checked}</b> of <b className='font-mono font-semibold text-foreground'>{total}</b> items.</>
+	const description = <>You collected <b className='font-mono font-medium text-foreground'>{checked}</b> of <b className='font-mono font-medium text-foreground'>{total}</b> items.</>
 	const learningAlert = (count: number, testId: string) => (
 		<Alert variant='info' role='note' data-testid={testId}>
 			<RowIcon icon={InformationCircleIcon} tone='primary' size='alert' />
@@ -127,7 +127,7 @@ export function CompleteSessionSheet({ sessionId, listName, checked, total, open
 					<div className='flex flex-col items-center text-center'>
 						<RowIcon icon={CheckmarkCircle02Icon} tone='success' size='saved' testId='complete-session-success-icon' />
 						<h2 className='mt-3 font-display text-lg leading-normal font-semibold tracking-tight text-foreground'>Trip Complete</h2>
-						<p className='mt-1 text-sm leading-normal text-muted-foreground'>You collected all <b className='font-mono font-semibold text-foreground'>{total}</b> items. Nothing is left on this trip.</p>
+						<p className='mt-1 text-sm leading-normal text-muted-foreground'>You collected all <b className='font-mono font-medium text-foreground'>{total}</b> items. Nothing is left on this trip.</p>
 					</div>
 					{saveError ? errorAlert : learningAlert(total, 'complete-session-learning')}
 				</div>

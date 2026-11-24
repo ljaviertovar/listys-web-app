@@ -215,8 +215,9 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  --font-sans: var(--font-inter), sans-serif;
-  --font-display: var(--font-inter), sans-serif;
+  --font-sans: var(--font-source-sans-3), system-ui, sans-serif;
+  --font-display: var(--font-bricolage-grotesque), system-ui, sans-serif;
+  --font-brand: var(--font-bricolage-grotesque-brand), system-ui, sans-serif;
   --font-mono: var(--font-ibm-plex-mono), ui-monospace, monospace;
 
   --radius-sm: calc(var(--radius) - 4px);
@@ -296,13 +297,14 @@
   h4,
   h5,
   h6 {
-    font-family: var(--font-inter), sans-serif;
+    @apply font-display;
+    font-optical-sizing: auto;
     text-wrap: balance;
   }
 
   button,
   [role='button'] {
-    font-family: var(--font-inter), sans-serif;
+    @apply font-sans;
   }
 
   /* Eliminate 300ms tap delay on touch devices */

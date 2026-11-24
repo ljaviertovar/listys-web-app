@@ -210,7 +210,7 @@ function Stat({ icon, tone, value, label, testId, className }: {
 		<Card size='stat' variant='stat' data-testid={testId} className={className}>
 			<div className='flex items-center justify-between gap-3'>
 				<RowIcon icon={icon} tone={tone} size='stat' testId={`${testId}-icon`} />
-				<b className='font-mono text-xl leading-none font-bold tabular-nums'>{value}</b>
+				<b className='font-mono text-xl leading-none font-medium tabular-nums'>{value}</b>
 			</div>
 			<span className='text-xs leading-[1.3] text-muted-foreground'>{label}</span>
 		</Card>

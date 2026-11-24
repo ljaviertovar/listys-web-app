@@ -38,7 +38,7 @@ export function ReceiptDateFacts({
 			{uploadedDate && uploadedTime && uploadedAt ? (
 				<span className='whitespace-nowrap'>
 					Uploaded{' '}
-					<time dateTime={uploadedAt}>
+					<time className='font-mono' dateTime={uploadedAt}>
 						{uploadedDate}, {uploadedTime}
 					</time>
 				</span>
@@ -49,9 +49,13 @@ export function ReceiptDateFacts({
 			<span className='whitespace-nowrap'>
 				Purchase date{' '}
 				{purchaseDate ? (
-					<time dateTime={purchaseDate}>{printedDateFormat.format(new Date(`${purchaseDate}T00:00:00Z`))}</time>
+					<time className='font-mono' dateTime={purchaseDate}>
+						{printedDateFormat.format(new Date(`${purchaseDate}T00:00:00Z`))}
+					</time>
+				) : uploadedDate ? (
+					<span className='font-mono'>{uploadedDate}</span>
 				) : (
-					(uploadedDate ?? 'unknown')
+					'unknown'
 				)}
 			</span>
 		</span>

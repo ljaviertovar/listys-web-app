@@ -63,7 +63,7 @@ export function TicketSelectionBar({
 					aria-live='polite'
 					className='text-sm leading-[1.2] font-medium'
 				>
-					<b className='font-mono font-semibold tabular-nums'>{count}</b> included
+					<b className='font-mono font-medium tabular-nums'>{count}</b> included
 				</span>
 				<span className='text-xs leading-[1.2] text-slate-300'>
 					{breakdown ? (

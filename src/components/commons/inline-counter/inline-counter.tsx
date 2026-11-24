@@ -17,7 +17,7 @@ export function InlineCounter({ count, one, many, size = 'default', testId = 'in
 			data-size={size}
 			className='inline-flex items-baseline gap-1.5 text-sm leading-none text-muted-foreground dark:text-muted-foreground'
 		>
-			<b className={size === 'compact' ? 'font-mono text-sm font-semibold text-foreground tabular-nums' : 'font-mono text-base font-semibold text-foreground tabular-nums'}>{count}</b>
+			<b className={size === 'compact' ? 'font-mono text-sm font-medium text-foreground tabular-nums' : 'font-mono text-base font-medium text-foreground tabular-nums'}>{count}</b>
 			{` ${count === 1 ? one : many}`}
 		</span>
 	)

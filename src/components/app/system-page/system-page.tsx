@@ -50,7 +50,7 @@ export function SystemPage({
 						className='flex flex-col items-center gap-3'
 					>
 						<LogoMark className='size-10' />
-						<span className='text-xl leading-7 font-bold tracking-tight'>Listys</span>
+						<span className='font-brand text-xl leading-7 font-semibold tracking-tight'>Listys</span>
 					</div>
 				) : null}
 				<div className={cn(fullScreen && 'mt-5.5')}>{paper}</div>
