@@ -90,19 +90,38 @@ export const createBaseListFromTicketSchema = z.object({
     .max(MAX_TICKET_ITEMS_MERGE, `Cannot add more than ${MAX_TICKET_ITEMS_MERGE} items at once`),
 })
 
+const ONE_DAY_MS = 24 * 60 * 60 * 1000
+const EARLIEST_PURCHASE_DATE = '1900-01-01'
+
+/**
+ * A calendar day as YYYY-MM-DD, not in the future. A phone can be a day ahead of the server's UTC date, so "today" gets
+ * one day of slack instead of rejecting a person's own correct today.
+ */
+export const purchaseDateSchema = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, 'Use a date as YYYY-MM-DD')
+  .refine(value => {
+    const day = new Date(`${value}T00:00:00Z`)
+    return Number.isFinite(day.getTime()) && day.toISOString().slice(0, 10) === value && value >= EARLIEST_PURCHASE_DATE
+  }, 'Use a real date')
+  .refine(value => new Date(`${value}T00:00:00Z`).getTime() <= Date.now() + ONE_DAY_MS, 'The purchase date can’t be after today')
+
 // PATCH /tickets/{id}: assign or clear the receipt's store, and (unchanged) its group.
 const updateTicketFieldsSchema = z
   .object({
     group_id: z.string().uuid().nullable().optional(),
     store_id: z.string().uuid().nullable().optional(),
     include_in_spending: z.never().optional(),
+    purchase_date: z.never().optional(),
   })
   .refine(payload => payload.group_id !== undefined || payload.store_id !== undefined, {
     message: 'At least one field must be provided',
   })
 
 export const updateTicketSchema = z.union([
-  z.object({ include_in_spending: z.boolean() }).strict(),
+  z.object({ include_in_spending: z.boolean(), purchase_date: z.never().optional() }).strict(),
+  // The day the person says the receipt was bought; it is theirs from then on (see purchase_date_by_user).
+  z.object({ purchase_date: purchaseDateSchema, include_in_spending: z.never().optional() }).strict(),
   updateTicketFieldsSchema,
 ])
 

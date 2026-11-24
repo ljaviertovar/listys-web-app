@@ -2,17 +2,19 @@
 
 import type { ReactNode } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Delete02Icon, Edit02Icon, Loading03Icon, Store03Icon, Tick02Icon } from '@hugeicons/core-free-icons'
+import { Alert02Icon, Delete02Icon, Edit02Icon, Loading03Icon, Store03Icon, Tick02Icon } from '@hugeicons/core-free-icons'
 
 import { RowIcon, RowMenu, WarningAlert } from '@/components/commons'
 import { AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { Separator } from '@/components/ui/separator'
 import type { StoreRef } from '@/types'
 
 import { getTicketStoreState } from './helpers/ticket-store-actions'
 import { useTicketStore } from './hooks/use-ticket-store'
+import { PurchaseDateField, type PurchaseDateInfo } from './purchase-date-field'
 import { TicketStoreSheet } from './ticket-store-sheet'
 
 interface Props {
@@ -22,13 +24,16 @@ interface Props {
 	storeSuggestion: StoreRef | null
 	storeName: string | null
 	itemsFound?: boolean
+	/** When given, the card also holds the receipt's purchase date, editable under the store. */
+	purchaseDate?: PurchaseDateInfo
 }
 
 /**
- * Where the receipt was bought, under the photo and beside the items: a store to confirm with one tap, a raw name to
- * save as a new store, or a store to choose. Optional: nothing else on the receipt waits for it.
+ * Where and when the receipt was bought, under the photo and beside the items: a store to confirm with one tap, a raw name
+ * to save as a new store, or a store to choose, and the purchase date to check or correct. Optional: nothing else on the
+ * receipt waits for either.
  */
-export function TicketStoreCard({ ticketId, store, storeSuggestion, storeName, itemsFound = true }: Props) {
+export function TicketStoreCard({ ticketId, store, storeSuggestion, storeName, itemsFound = true, purchaseDate }: Props) {
 	const state = getTicketStoreState({ store, store_suggestion: storeSuggestion, store_name: storeName })
 	const actions = useTicketStore(ticketId)
 	const busy = actions.pending !== null
@@ -109,7 +114,8 @@ export function TicketStoreCard({ ticketId, store, storeSuggestion, storeName, i
 
 	// "Where was this?" is for a name that matches none of the user's stores; both of its buttons open it.
 	const rawName = state.kind === 'unmatched' ? state.rawName : null
-	if (state.kind === 'unrecognized') {
+	// With a date to show, the missing store stays a row of the card, so the date is not inside a warning.
+	if (state.kind === 'unrecognized' && !purchaseDate) {
 		return (
 			<WarningAlert
 				role='region'
@@ -164,8 +170,8 @@ export function TicketStoreCard({ ticketId, store, storeSuggestion, storeName, i
 			<div className='flex flex-col gap-2'>
 				<div className='flex items-center gap-3'>
 					<RowIcon
-						icon={Store03Icon}
-						tone='store'
+						icon={state.kind === 'unrecognized' ? Alert02Icon : Store03Icon}
+						tone={state.kind === 'unrecognized' ? 'warning' : 'store'}
 						size='lg'
 					/>
 					<div className={state.kind === 'confirmed' ? 'flex min-w-0 flex-1 flex-col gap-0.5' : 'flex min-w-0 flex-1 flex-col gap-1'}>
@@ -213,10 +219,18 @@ export function TicketStoreCard({ ticketId, store, storeSuggestion, storeName, i
 
 				{!storeActionsMenu ? <div className='grid grid-cols-2 gap-2'>{actionsRow}</div> : null}
 
+				{purchaseDate ? (
+					<>
+						<Separator />
+						<PurchaseDateField ticketId={ticketId} {...purchaseDate} />
+					</>
+				) : null}
+
 				<TicketStoreSheet
 					open={sheetOpen}
 					onOpenChange={open => (open ? actions.openPicker() : actions.closeDialogs())}
 					rawName={rawName}
+					allowNew={state.kind === 'unrecognized'}
 					excludeStoreId={state.kind === 'confirmed' ? state.store.id : null}
 					initialStoreId={state.kind === 'suggested' ? state.store.id : null}
 					onPick={actions.pick}

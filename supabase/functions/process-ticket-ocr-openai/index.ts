@@ -2,7 +2,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { decideOcrOutcome, extractChatCompletionText, fetchWithRetry } from '../_shared/ocr-outcome.ts'
 import { RECEIPT_LINE_ITEM_INSTRUCTIONS } from '../_shared/receipt-items.ts'
-import { agreeOnPurchaseDate, parseOcrPayload, receiptMetadataInstructions } from '../_shared/receipt-store.ts'
+import { agreeOnPurchaseDate, parseOcrPayload, purchaseDateToStore, receiptMetadataInstructions } from '../_shared/receipt-store.ts'
 import { OCR_PROCESSING_TIMEOUT_MS, OCR_TIMEOUT_MESSAGE, OCR_UNAVAILABLE_MESSAGE } from '../_shared/ocr-policy.ts'
 
 const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY')!
@@ -381,6 +381,8 @@ serve(async (req: Request) => {
   const signal = AbortSignal.timeout(OCR_PROCESSING_TIMEOUT_MS)
   let ticketId: string | undefined
   const purchaseDates: Array<string | null> = []
+  // Set when the person chose the purchase date: reading the receipt again keeps it.
+  let purchaseDateByUser = false
 
   try {
     const body: RequestBody = await req.json()
@@ -399,7 +401,8 @@ serve(async (req: Request) => {
 
     const startedAt = Date.now()
 
-    const { data: ticketRow } = await supabase.from('tickets').select('ocr_attempts, store_name').eq('id', ticketId).single()
+    const { data: ticketRow } = await supabase.from('tickets').select('ocr_attempts, store_name, purchase_date_by_user').eq('id', ticketId).single()
+    purchaseDateByUser = ticketRow?.purchase_date_by_user === true
     const nextAttempts = Number(ticketRow?.ocr_attempts ?? 0) + 1
 
     // Update ticket status to processing and increment attempt counter.
@@ -429,7 +432,7 @@ serve(async (req: Request) => {
     // Merge items from all images, removing border duplicates
     const mergedItems = mergeItems(allItemsPerImage)
     // A name the ticket already has (sent by a client or read earlier) is never overwritten.
-    const purchaseDate = agreeOnPurchaseDate(purchaseDates)
+    const purchaseDate = purchaseDateToStore(agreeOnPurchaseDate(purchaseDates), purchaseDateByUser)
     const extractedStoreName = ticketRow?.store_name ? null : storeNameFromHeader
     console.log(`Total merged items: ${mergedItems.length}`)
 
@@ -497,7 +500,7 @@ serve(async (req: Request) => {
     console.error('OCR processing error:', error)
 
     if (ticketId) {
-      const purchaseDate = agreeOnPurchaseDate(purchaseDates)
+      const purchaseDate = purchaseDateToStore(agreeOnPurchaseDate(purchaseDates), purchaseDateByUser)
       try {
         await supabase
           .from('tickets')

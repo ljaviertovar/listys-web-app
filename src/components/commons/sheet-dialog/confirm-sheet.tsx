@@ -104,7 +104,7 @@ export function ConfirmSheet({
 				<AlertDialogCancel
 					size='lg'
 					type='button'
-					variant='secondary'
+					variant='outline'
 					disabled={loading}
 				>
 					{cancelLabel}

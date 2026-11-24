@@ -527,6 +527,22 @@ export async function updateTicket(id: string, data: unknown) {
     return updated
   }
 
+  if (typeof validation.data.purchase_date === 'string') {
+    // The flag keeps a new read of the receipt from replacing a date the person chose.
+    const { data: updated, error } = await supabase.from('tickets')
+      .update({ purchase_date: validation.data.purchase_date, purchase_date_by_user: true })
+      .eq('id', id)
+      .eq('user_id', user.id)
+      .select('purchase_date, purchase_date_by_user')
+      .maybeSingle()
+    if (error) {
+      console.error('[tickets] could not update purchase date', { code: error.code })
+      throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'Unable to save the purchase date.')
+    }
+    if (!updated) throw new ApiServiceError(404, ErrorCode.NOT_FOUND, 'Ticket not found')
+    return updated
+  }
+
   const { group_id, store_id } = validation.data
 
   if (group_id !== undefined && group_id !== null) {

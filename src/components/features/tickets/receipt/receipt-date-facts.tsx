@@ -1,10 +1,7 @@
 'use client'
 
-import { useSyncExternalStore } from 'react'
+import { useBrowserTimeZone } from './hooks/use-browser-time-zone'
 
-const subscribe = () => () => {}
-const browserTimeZone = () => Intl.DateTimeFormat().resolvedOptions().timeZone
-const serverTimeZone = () => 'UTC'
 const dayAndMonth = { month: 'short', day: 'numeric' } as const
 const withYear = { ...dayAndMonth, year: 'numeric' } as const
 const printedDay = new Intl.DateTimeFormat('en-GB', { ...dayAndMonth, timeZone: 'UTC' })
@@ -19,7 +16,7 @@ export function ReceiptDateFacts({
 	purchaseDate: string | null
 	testId: string
 }) {
-	const timeZone = useSyncExternalStore(subscribe, browserTimeZone, serverTimeZone)
+	const timeZone = useBrowserTimeZone()
 	const upload = uploadedAt ? new Date(uploadedAt) : null
 	const validUpload = upload && Number.isFinite(upload.getTime()) ? upload : null
 	const year = new Intl.DateTimeFormat('en', { year: 'numeric', timeZone })
@@ -53,7 +50,9 @@ export function ReceiptDateFacts({
 						{printedDateFormat.format(new Date(`${purchaseDate}T00:00:00Z`))}
 					</time>
 				) : uploadedDate ? (
-					<span className='font-mono'>{uploadedDate}</span>
+					<>
+						<span className='font-mono'>{uploadedDate}</span> (upload date)
+					</>
 				) : (
 					'unknown'
 				)}

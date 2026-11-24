@@ -14,6 +14,8 @@ const buttonVariants = cva(
 			variant: {
 				default: 'bg-primary text-primary-foreground hover:bg-primary/80',
 				outline: SECONDARY_BUTTON_STYLE,
+				// A form control that opens a picker: outline surface, left-aligned value, muted until a day is chosen (data-empty).
+				field: `${SECONDARY_BUTTON_STYLE} justify-start text-left font-normal data-[empty=true]:text-muted-foreground`,
 				secondary:
 					'bg-secondary text-secondary-foreground hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground',
 				segment:

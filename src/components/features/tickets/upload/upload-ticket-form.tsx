@@ -198,9 +198,9 @@ export function UploadTicketForm({ onSuccess, initialFiles, shoppingSessionId, o
 				{errors.files && <p id={`${photosId}-error`} role='alert' className='text-sm text-destructive'>{errors.files.message}</p>}
 			</div>
 
-			{/* On a phone the actions stack with Upload on top; from `sm` Cancel sits left and Upload right. */}
+			{/* On phones Cancel sits above Upload; from `sm` Cancel sits left and Upload right. */}
 			{started ? (
-				<div className='flex flex-col gap-2 sm:flex-row-reverse sm:justify-start sm:gap-3'>
+				<div className='flex flex-col-reverse gap-2 sm:flex-row-reverse sm:justify-start sm:gap-3'>
 					<Button
 						type='submit'
 						size='lg'

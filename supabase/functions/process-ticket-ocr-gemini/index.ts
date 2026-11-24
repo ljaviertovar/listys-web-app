@@ -3,7 +3,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { encode as base64Encode } from 'https://deno.land/std@0.168.0/encoding/base64.ts'
 import { decideOcrOutcome, extractGeminiText, fetchWithRetry } from '../_shared/ocr-outcome.ts'
 import { RECEIPT_LINE_ITEM_INSTRUCTIONS } from '../_shared/receipt-items.ts'
-import { agreeOnPurchaseDate, parseOcrPayload, receiptMetadataInstructions } from '../_shared/receipt-store.ts'
+import { agreeOnPurchaseDate, parseOcrPayload, purchaseDateToStore, receiptMetadataInstructions } from '../_shared/receipt-store.ts'
 import { OCR_PROCESSING_TIMEOUT_MS, OCR_TIMEOUT_MESSAGE, OCR_UNAVAILABLE_MESSAGE } from '../_shared/ocr-policy.ts'
 
 const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY')!
@@ -178,7 +178,7 @@ serve(async (req) => {
 
     // Check current OCR attempts and enforce max limit
     console.log('[DEBUG] Fetching current ticket state...');
-    const { data: ticket } = await supabase.from('tickets').select('ocr_attempts, store_name').eq('id', ticketId).single();
+    const { data: ticket } = await supabase.from('tickets').select('ocr_attempts, store_name, purchase_date_by_user').eq('id', ticketId).single();
     const currentAttempts = ticket?.ocr_attempts || 0;
     const MAX_OCR_ATTEMPTS = 3;
 
@@ -227,7 +227,8 @@ serve(async (req) => {
     console.log('[DEBUG] All images processed. Results:', allResults.map(r => r.items.length));
     const mergedItems = mergeItems(allResults.map(r => r.items));
     // A name the ticket already has (sent by a client or read earlier) is never overwritten.
-    const purchaseDate = agreeOnPurchaseDate(allResults.map(result => result.purchaseDate));
+    // A date the person set stays; a new read only fills a missing or read one.
+    const purchaseDate = purchaseDateToStore(agreeOnPurchaseDate(allResults.map(result => result.purchaseDate)), ticket?.purchase_date_by_user === true);
     const extractedStoreName = ticket?.store_name ? null : allResults[0]?.storeName ?? null;
     console.log('[INFO] Merged items count:', mergedItems.length);
 

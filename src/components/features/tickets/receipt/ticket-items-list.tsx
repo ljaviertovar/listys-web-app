@@ -141,19 +141,19 @@ function TargetListRow({ triage, baseList }: TargetListRowProps) {
 				onValueChange={id => typeof id === 'string' && triage.changeList(id)}
 			>
 				<div className='w-full' ref={listAnchor}>
-				<ComboboxInput size='lg' surface='form' aria-labelledby={labelId} data-testid='receipt-target-list-select'>
+				<ComboboxInput size='filter' surface='page' inset='card' aria-labelledby={labelId} data-testid='receipt-target-list-select'>
 					<InputGroupAddon align='inline-start'>
 						<RowIcon icon={ListViewIcon} tone='primary' size='stat' testId='receipt-target-list-input-icon' />
 					</InputGroupAddon>
 				</ComboboxInput>
 				</div>
-				<ComboboxContent anchor={listAnchor}>
+				<ComboboxContent size='filter' placement='below' anchor={listAnchor}>
 					<ComboboxList>
 						{(id: string) => {
 							const list = triage.baseLists.find(candidate => candidate.id === id)
 							if (!list) return null
 							return (
-								<ComboboxItem key={list.id} value={list.id}>
+								<ComboboxItem key={list.id} value={list.id} size='filter'>
 									<RowIcon icon={ListViewIcon} tone='primary' size='stat' testId='receipt-target-list-option-icon' />
 									{listLabels.get(list.id) ?? list.name}
 								</ComboboxItem>
