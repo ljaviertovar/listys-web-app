@@ -9,7 +9,7 @@ provider, target project, CI deployment or release owner.
 1. Select the reviewed commit; confirm target and release owner. Preserve unrelated local changes.
 2. Install from `pnpm-lock.yaml` with `pnpm install --frozen-lockfile`.
 3. Run `pnpm lint`, `pnpm typecheck`, `pnpm test:ci`, `pnpm verify:limits-reference` and `pnpm build`. Record actual
-   results. Do not run Playwright until the [E2E blocker](../contributing/CONTRIBUTING.md#playwright-boundary) is resolved.
+   results. Select browser suites according to the [Playwright boundary](../contributing/CONTRIBUTING.md#playwright-boundary).
 4. Verify web configuration against the [setup guide](../../README.md). Check presence and target identity without
    logging values. Confirm Auth site/redirect URLs; set `NEXT_PUBLIC_SITE_URL` when testing experimental invitations.
 5. Verify the selected OCR Edge Function is deployed to the same Supabase target with its provider secret in that
@@ -28,6 +28,15 @@ collaboration additionally needs the shared-list, realtime-publication and colla
 presence in the repository does not prove deployment.
 
 ## Publish and check
+
+### Receipt purchase-date release
+
+Review the additive [manual purchase-date migration](../../supabase/migrations/20261124120000_add_purchase_date_by_user.sql)
+with the [purchase-date schema](../../supabase/migrations/20261119180000_add_receipt_purchase_date.sql). Apply the schema
+before deploying the web app and its compatible OCR functions. Both configured provider implementations preserve dates
+set by the owner. On the approved test target, verify with a synthetic receipt that a saved date survives an OCR retry
+and moves an eligible receipt into the expected spending month. Track rollout and mobile verification in the
+[change tasks](../../openspec/changes/edit-receipt-purchase-date/tasks.md).
 
 ### Conditional trip item editing release
 

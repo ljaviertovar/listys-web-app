@@ -303,7 +303,7 @@ new and redesigned interfaces. This document is its written specification and co
 rules, implementation details, and gaps without redefining the target around accidental implementation details. The
 current product is partially aligned; section 11.4 records the migration work. When the HTML and this document disagree,
 the HTML wins for the target look and this document is updated in the same change. See the development rule in
-[`AGENTS.md`](../../AGENTS.md#design-system-v2-source-for-new-components).
+[`AGENTS.md`](../../AGENTS.md#design-system-source-of-truth-for-ui).
 
 **Visual source:** [`listys-design-system.html`](listys-design-system.html), with four navigable sections covering
 foundations and typography, buttons/chips/forms/cards, feedback/navigation/data, and product patterns/mobile A1. Inspect

@@ -2,7 +2,7 @@
 
 ## One Pantry, Many Stores
 
-**Status:** Draft for review — direction approved, phases to be specified in `openspec/` before implementation  
+**Status:** Product direction approved. See the [implementation reference](../reference/implementation-status.md) for repository evidence and pending verification.
 **Supersedes:** the parts of [PRD-v2](PRD-v2.md) listed in §2. Everything in PRD-v2 not listed there still applies.  
 **Scope:** Household shoppers on mobile web (PWA). Shared lists remain supported.
 
@@ -39,13 +39,13 @@ v3 therefore:
 | Area | PRD-v2 | PRD-v3 |
 | --- | --- | --- |
 | Structure | Groups contain base lists; group required to create/merge | Flat lists; groups hidden (one implicit default group per user) |
-| First run | Empty state; user creates group, then list | A "Pantry" base list exists on sign-up |
+| First run | Empty state; user creates group, then list | An account without owned lists gets "Pantry" on its first dashboard visit |
 | Sync on completion | Optional `sync_to_base` toggle | Always on; no toggle |
 | Store | Free-text `store_name`, typed manually, required | Extracted by OCR, matched to a normalized **store**, confirmed in review |
 | Item ↔ store | Not modeled | Per-item store statistics + usual-store tag (auto or manual) |
 | Session scope | Whole list | Whole list, or filtered to one store |
 | Active sessions | One per user | One per base list (see §8, FR-12) |
-| Receipt ↔ session | Unrelated flows | Receipt can complete the active/recent session |
+| Receipt ↔ session | Unrelated flows | Receipt can be attached to an eligible active or completed trip |
 | Price memory | `average_price` stored, not shown | Shown as a list-wide average per item; store-specific price comparison is a later product direction, not part of the store-tags-and-scoped-sessions change |
 | Terminology | receipt, base list, shopping session, **group**, item | receipt, base list, shopping session, **store**, item |
 
@@ -143,7 +143,9 @@ Completing a session always applies checked items to the base list (enrichment, 
 `last_purchased_at` for checked items; existing history is untouched.
 
 **FR-2: Default Pantry list.**  
-On first sign-in, the user has a base list named "Pantry" (localized) inside an implicit default group.  
+On the first dashboard visit, an account without owned lists gets a "Pantry" list in its implicit default group.
+An account without a default list can also use **Set up Pantry** to adopt an existing Pantry or create one.
+
 *Acceptance:* creation is idempotent (no duplicates on repeated sign-ins or races); existing users with lists are
 not affected.
 
@@ -207,12 +209,15 @@ shared list never get two competing active sessions on that list.
 
 ### Phase 5 — Close the loop
 
-**FR-13: Receipt completes the session.**  
-Uploading a receipt while a session is active, or shortly after one was completed, offers to attach it to that
-session. After OCR and review, the receipt fills the session total, real prices and store; receipt lines that match no
-checked item can be added as purchased.  
-*Acceptance:* attaching is always confirmed by the user; a receipt attaches to at most one session; reconciliation is
-transactional and idempotent.
+**FR-13: A receipt can be attached to a trip.**
+
+Owners can review and attach a read receipt to an eligible active or completed trip. A receipt uploaded from a trip
+belongs to that trip. Standalone receipts can be reviewed for eligible completed trips without an age cutoff. During
+an active trip, the owner can attach and keep shopping or attach and complete the trip. Owners can link receipt lines
+to trip items and add selected lines as purchases.
+
+*Acceptance.* Attachment requires explicit confirmation and is transactional and idempotent. A receipt attaches to at
+most one trip. A trip can have one receipt per confirmed store.
 
 Receipts uploaded directly from the Receipts section remain there after store confirmation or list updates, and their
 items remain selectable for creating or updating other lists. Receipts uploaded from a trip stay out of the Receipts
@@ -230,7 +235,16 @@ Review highlights new or uncertain lines; lines that confidently match existing 
 Review remains mandatory.
 
 **FR-16: Useful dashboard.**  
-Replace activity counts with: likely-needed items, spend this month, and last trip per store.
+Show likely-needed items, receipt-backed spending and the last visit per store. The spending card uses the visitor’s
+calendar month and offers an all-time view. Eligible totals come from receipts attached to a trip, receipts uploaded
+from an active or completed trip and pending review, and standalone receipts explicitly included by the owner.
+Group spending by purchase day, using the upload date as a fallback.
+
+**FR-17. Capture and date a receipt.**
+Users can choose existing photos or capture a receipt using the in-app camera. Before upload, they can review and
+adjust the crop or use the original photo. On a read receipt, the owner can enter or correct the purchase date.
+Subsequent OCR preserves the manually set date. See the [capture specification](../../openspec/specs/receipt-scanning/spec.md)
+and [receipt-date acceptance criteria](../../openspec/changes/edit-receipt-purchase-date/specs/receipt-review/spec.md).
 
 ---
 

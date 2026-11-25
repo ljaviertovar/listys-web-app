@@ -38,7 +38,9 @@ lists.
 
 ## Spending summary
 
-`GET /api/v1/spending` requires ISO datetimes with offsets in `from` and `to`. The end must be after the start and the half-open range is limited to 92 days. The dashboard requests the visitor's current calendar month; its boundaries are computed in the visitor's time zone. Totals include completed trips with a known total and unattached receipts with a known total. Completed trips without a total are counted separately; attached receipts are not counted again.
+Bounded requests to `GET /api/v1/spending` use ISO datetimes with offsets in `from` and `to`. The end must follow
+the start and the half-open range is limited to 92 days. The dashboard uses the visitor’s local calendar month or
+requests all time with `scope=all`. See [spending eligibility and response fields](api-v1.md#spending-and-store-visits).
 
 The Gemini function enforces its own three-attempt cap. The OpenAI function increments attempts but does not currently
 apply that cap; the web retry service also does not enforce it. See the

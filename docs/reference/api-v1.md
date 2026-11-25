@@ -1,6 +1,6 @@
 # API v1 repository reference
 
-Snapshot of Route Handlers on 2026-10-27. This inventory describes current behavior; it is not a complete OpenAPI
+Route Handler reference updated on 2026-11-24. This inventory describes current behavior; it is not a complete OpenAPI
 contract or proof of policy compliance. [AGENTS.md](../../AGENTS.md) defines the API baseline, and the `nextjs-saas-rest-api` skill it names holds the detailed rules.
 
 ## Authentication and responses
@@ -99,16 +99,26 @@ request returns `401`. The cadence and cutoff rules are listed in [reference lim
 
 ### Spending and store visits
 
-`GET /api/v1/spending?from=2026-10-01T00:00:00Z&to=2026-11-01T00:00:00Z` returns `{ "data": { "from", "to", "total", "trips_count", "receipts_count", "trips_without_total" } }`. Both endpoints are required ISO datetimes with a timezone offset; `to` must be after `from`, and the half-open range cannot exceed 92 days. Only known totals from the caller's completed trips and unattached receipts are summed. Invalid ranges return `422`, unauthenticated requests return `401`. The summary also carries `first_receipt_at` and `last_receipt_at`: when the caller's oldest and newest receipts were added (ISO datetime), or `null` when there is no receipt or it could not be read. They do not depend on the range.
+`GET /api/v1/spending?from=2026-10-01T00:00:00Z&to=2026-11-01T00:00:00Z` returns `{ "data": { "from", "to", "total", "trips_count", "receipts_count", "trips_without_total" } }`. For a bounded query, both endpoints are ISO datetimes with a timezone offset. The end must follow the start and the half-open range cannot exceed 92 days. Invalid queries return `422` and unauthenticated requests return `401`.
+
+The legacy `total`, `trips_count`, `receipts_count` and `trips_without_total` fields summarize completed trips by completion timestamp and unattached receipts by purchase date or upload timestamp. The dashboard uses `receipt_total` and `receipt_count`. These count each eligible receipt once: attached receipts, receipts pending review from an owned active or completed trip, and standalone receipts with `include_in_spending = true`. A receipt needs a known nonnegative total. A confirmed attachment amount takes precedence over the printed total. The response also includes `average_receipt`, `receipt_stores`, `receipt_unknown_store_total`, `categories`, `previous_receipt_total` and `change_percent`. Category totals use extracted prices and quantities. The oldest and newest upload timestamps (`first_receipt_at` and `last_receipt_at`) are independent of the range. See the [spending service](../../src/lib/server/services/spending.service.ts).
 
 Each store from `GET /api/v1/stores` adds `last_visit: { kind: "trip" | "receipt", id, at, total_amount } | null`. Attached receipts are represented by their trip. A trip visit links to the trips screen (`/trips`); a receipt visit links to its receipt. The value is null when the caller has no visits to that store.
 
-Receipt reads expose `created_at` (upload timestamp) and `purchase_date` (printed calendar date as `YYYY-MM-DD`, or null).
-Spending uses the printed day when available and the upload timestamp otherwise. The optional IANA `time_zone`
-parameter defaults to UTC. It places printed calendar days within the requested range and determines the calendar day
+Receipt reads expose `created_at` (upload timestamp), `purchase_date` (calendar day as `YYYY-MM-DD`, or null) and `purchase_date_by_user` (whether the owner set the date).
+Spending uses the stored purchase day when available and the upload timestamp otherwise. The optional IANA `time_zone`
+parameter defaults to UTC. It places purchase calendar days within the requested range and determines the calendar day
 of fallback upload dates in `first_purchase_date` and `last_purchase_date`. These two fields describe all of the caller's
 receipts and are null when no date is available. `compare_from` and `compare_to` use the same date rules.
 `scope=all` includes eligible receipts across all purchase dates and accepts `time_zone` without a date range.
+
+### Edit the receipt purchase date
+
+Send `{ "purchase_date": "2026-11-24" }` by itself to `PATCH /api/v1/tickets/{ticketId}`. The owner receives
+`{ "data": { "purchase_date": "2026-11-24", "purchase_date_by_user": true } }`. Invalid or mixed payloads return
+`422`. The date must be a real calendar day from `1900-01-01`. The server allows one day of UTC tolerance for local time zones.
+Absent or foreign receipts return `404`. OCR runs started after the edit preserve the manual date. See the
+[request schema](../../src/lib/validations/ticket.ts) and [ticket service](../../src/lib/server/services/tickets.service.ts).
 
 ## Request boundaries
 
@@ -117,7 +127,7 @@ receipts and are null when no date is available. `compare_from` and `compare_to`
 | Group create/update | `name` 1–100 characters, `description` up to 500; fields optional on PATCH. | [`group.ts`](../../src/lib/validations/group.ts) |
 | List create/update | Create requires `name` 1–100; `group_id` is an optional UUID (null is accepted): omitted, the list goes to the user's default group, created on first use; supplied, it must be a group of the caller (`404` otherwise, with no difference between a missing and a foreign group). `notes` nullable/optional up to 500. Names are unique per user, ignoring case, across all groups (`409` otherwise); saving a list under its own name, or changing only its case, is accepted. PATCH accepts name/notes. | [`base-list.ts`](../../src/lib/validations/base-list.ts) |
 | Item create/update | Name up to 200, quantity 0.1–99 in 0.1 steps, optional unit/notes/category. Path determines parent on nested POST. | [`base-list.ts`](../../src/lib/validations/base-list.ts), [`shopping-session.ts`](../../src/lib/validations/shopping-session.ts) |
-| Session create | UUID `base_list_id`, `name` 1–100, optional `store_id` (UUID or null). When supplied, the session includes only items usual at or previously purchased at that store; other items remain available in the session as `is_other_store`. An account or requested list with an active session returns `409 CONFLICT` and `details.activeSessionId`; an empty list returns `409 CONFLICT`; a missing list or store outside the caller's scope returns `404`. | [`shopping-session.ts`](../../src/lib/validations/shopping-session.ts), [`shopping-sessions.service.ts`](../../src/lib/server/services/shopping-sessions.service.ts) |
+| Session create | UUID `base_list_id`, `name` 1–100, optional `store_id` (UUID or null). When supplied, the session includes only items usual at or previously purchased at that store; other items remain available in the session as `is_other_store`. A requested list with an active session returns `409 CONFLICT` and `details.activeSessionId`; an empty list returns `409 CONFLICT`; a missing list or store outside the caller's scope returns `404`. | [`shopping-session.ts`](../../src/lib/validations/shopping-session.ts), [`shopping-sessions.service.ts`](../../src/lib/server/services/shopping-sessions.service.ts) |
 | Session reads | `GET /shopping-sessions/{sessionId}` adds `store: { id, name } \| null` and `is_other_store` on each session item; completed-session history adds `store: { id, name } \| null`. Whole-list sessions have `store: null` and `is_other_store: false`. | [`shopping-sessions.service.ts`](../../src/lib/server/services/shopping-sessions.service.ts) |
 | Base-list item usual store | `PATCH /base-list-items/{itemId}` accepts `usual_store_id` (UUID or null). This field must be the only field in the PATCH (`422` if combined); a store or item outside the caller's scope returns `404`. The response adds `usual_store: { id, name, source } \| null` and `other_stores: [{ id, name, purchase_count }]`, with the usual store omitted from `other_stores`. | [`base-list.ts`](../../src/lib/validations/base-list.ts), [`base-lists.service.ts`](../../src/lib/server/services/base-lists.service.ts) |
 | Base-list item store summary | `GET /base-lists/{baseListId}` adds `usual_store` and `other_stores` to each item. `other_stores` is ordered by purchase count descending, then most recent purchase; raw statistics rows are not returned. Collaborators may see `usual_store: null` and `other_stores: []` when RLS hides the store data. | [`base-lists.service.ts`](../../src/lib/server/services/base-lists.service.ts) |
@@ -217,7 +227,7 @@ no deprecation headers:
   trips have been completed manually, promote `supabase/finalize-one-active-trip-per-account.sql` to a versioned migration.
   The final migration aborts if any account still has duplicate active trips.
 
-Source: the [store-tags-and-scoped-sessions change](../../openspec/changes/store-tags-and-scoped-sessions/design.md),
+Source: the [store-tags-and-scoped-sessions change](../../openspec/changes/archive/2026-10-27-store-tags-and-scoped-sessions/design.md),
 [`shopping-sessions.service.ts`](../../src/lib/server/services/shopping-sessions.service.ts),
 [`base-lists.service.ts`](../../src/lib/server/services/base-lists.service.ts) and the
 [migration](../../supabase/migrations/20261027000000_store_tags_and_scoped_sessions.sql). The migration has not been
