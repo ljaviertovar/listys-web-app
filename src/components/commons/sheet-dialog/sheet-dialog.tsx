@@ -1,19 +1,18 @@
 'use client'
 
-import { Fragment, useRef, type ComponentProps, type ReactNode } from 'react'
+import { Fragment, useId, useRef, type ComponentProps, type ReactNode } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Cancel01Icon } from '@hugeicons/core-free-icons'
 
 import {
-	Dialog,
-	DialogClose,
-	DialogContent,
-	DialogDescription,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
+	AlertDialog,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
+import { DialogHeader } from '@/components/ui/dialog'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { DataFacts, type DataFact } from '../data-line/data-line'
 import { useDialogFocus } from '@/hooks'
@@ -44,7 +43,7 @@ interface SheetDialogProps {
 	autoFocus?: boolean
 	descriptionId?: string
 	ariaDescribedBy?: string
-	nested?: ComponentProps<typeof DialogContent>['nested']
+	nested?: ComponentProps<typeof AlertDialogContent>['nested']
 	/** The body takes the height of its content (up to the usual limit), so a short sheet leaves no blank gap. Pass `false` to hold the fixed height. */
 	fit?: boolean
 	/** While saving or uploading the close control rests and the sheet cannot be dismissed. */
@@ -52,8 +51,7 @@ interface SheetDialogProps {
 }
 
 /**
- * The form surface: a bottom sheet on phones and a centred dialog from `sm`. Every create, edit, share and confirm flow of the app
- * opens in this one shell, and its header is one component whose slots a sheet fills and never restyles: title and aside make up
+ * The form surface: a bottom sheet on phones and a centred dialog from `sm`. Its title and aside make up
  * the identity row, the description sits under it, and chips and the data line close the header. An empty slot renders nothing.
  */
 export function SheetDialog({
@@ -76,25 +74,27 @@ export function SheetDialog({
 	fit = true,
 	busy = false,
 }: SheetDialogProps) {
+	const generatedDescriptionId = useId()
+	const resolvedDescriptionId = descriptionId ?? generatedDescriptionId
 	const titleRef = useRef<HTMLHeadingElement>(null)
 	const { onOpenAutoFocus, onCloseAutoFocus } = useDialogFocus(titleRef, { autoFocus })
 	const visibleChips = (chips ?? []).filter(Boolean)
 	const visibleFacts = (facts ?? []).filter(Boolean)
 	const hasMeta = visibleChips.length > 0 || visibleFacts.length > 0
 	return (
-		<Dialog
+		<AlertDialog
 			open={open}
 			onOpenChange={next => {
 				if (!busy) onOpenChange?.(next)
 			}}
 		>
-			{trigger ? <DialogTrigger asChild>{trigger}</DialogTrigger> : null}
-			<DialogContent
-				hideClose
+			{trigger ? <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger> : null}
+			<AlertDialogContent
+				sheetLayout='form'
 				sheetOnPhones
 				nested={nested}
 				role={role}
-				aria-describedby={ariaDescribedBy}
+				aria-describedby={ariaDescribedBy ?? (description ? resolvedDescriptionId : undefined)}
 				data-testid={testId}
 				onOpenAutoFocus={onOpenAutoFocus}
 				onCloseAutoFocus={onCloseAutoFocus}
@@ -104,21 +104,20 @@ export function SheetDialog({
 						event.preventDefault()
 					}
 				}}
-				variant='sheet'
-				className={cn('sm:max-w-[520px]', className)}
+				className={className}
 			>
 				<DialogHeader variant='sheet' className='shrink-0'>
 					<div className='flex items-start justify-between gap-3'>
-						<DialogTitle ref={titleRef} tabIndex={-1} variant='sheet'>
+						<AlertDialogTitle ref={titleRef} tabIndex={-1} variant='sheet'>
 							{title}
-						</DialogTitle>
+						</AlertDialogTitle>
 						{/* A sibling of the title, so assistive tech reads the title without the status; mt-1 centres a 20px chip on the first 28px line. */}
 						{aside ? <div className='mt-1 shrink-0'>{aside}</div> : null}
 					</div>
 					{description ? (
-						<DialogDescription id={descriptionId} variant='sheet'>
+						<AlertDialogDescription id={resolvedDescriptionId} variant='sheet'>
 							{description}
-						</DialogDescription>
+						</AlertDialogDescription>
 					) : null}
 					{hasMeta ? (
 						<div
@@ -136,24 +135,22 @@ export function SheetDialog({
 							{visibleFacts.length > 0 ? <DataFacts facts={visibleFacts} testId={`${testId}-data`} /> : null}
 						</div>
 					) : null}
-					<DialogClose asChild>
-						<Button
-							aria-label='Close'
-							variant='ghost'
-							size='icon-xl'
-							disabled={busy}
-							className='absolute -top-2 -right-2'
-						>
-							<HugeiconsIcon
-								icon={Cancel01Icon}
-								strokeWidth={1.8}
-								className='size-5'
-							/>
-						</Button>
-					</DialogClose>
+					<AlertDialogCancel
+						aria-label='Close'
+						variant='ghost'
+						size='icon-xl'
+						disabled={busy}
+						className='absolute -top-2 -right-2'
+					>
+						<HugeiconsIcon
+							icon={Cancel01Icon}
+							strokeWidth={1.8}
+							className='size-5'
+						/>
+					</AlertDialogCancel>
 				</DialogHeader>
 				<ScrollArea size={fit ? 'sheet-fit' : 'sheet'} scrollHint className='min-h-0 flex-none'>{children}</ScrollArea>
-			</DialogContent>
-		</Dialog>
+			</AlertDialogContent>
+		</AlertDialog>
 	)
 }

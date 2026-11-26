@@ -9,7 +9,15 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ChoiceRow, LoadingState, RowIcon, SheetDialog } from '@/components/commons'
 import { RadioGroup } from '@/components/ui/radio-group'
-import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList, useComboboxAnchor } from '@/components/ui/combobox'
+import {
+	Combobox,
+	ComboboxContent,
+	ComboboxEmpty,
+	ComboboxInput,
+	ComboboxItem,
+	ComboboxList,
+	useComboboxAnchor,
+} from '@/components/ui/combobox'
 import { InputGroupAddon } from '@/components/ui/input-group'
 import { useMergeToBaseList } from './hooks/use-merge-to-base-list'
 import { MergeReviewStep } from './merge-review-step'
@@ -39,7 +47,21 @@ interface Props {
 	receipt: { name: string; date: string | null }
 }
 
-export function MergeToBaseListDialog({ open, defaultBaseListId, onOpenChange, ticketId, selectedItemIds, lines, initialDecisions, storeConfirmed, breakdown = null, onSuccess, onReceiptAttached, onSavingChange, receipt }: Props) {
+export function MergeToBaseListDialog({
+	open,
+	defaultBaseListId,
+	onOpenChange,
+	ticketId,
+	selectedItemIds,
+	lines,
+	initialDecisions,
+	storeConfirmed,
+	breakdown = null,
+	onSuccess,
+	onReceiptAttached,
+	onSavingChange,
+	receipt,
+}: Props) {
 	const fieldId = useId()
 	const listAnchor = useComboboxAnchor()
 	const {
@@ -64,190 +86,280 @@ export function MergeToBaseListDialog({ open, defaultBaseListId, onOpenChange, t
 		outcome,
 		dismissOutcome,
 		retry,
-	} = useMergeToBaseList({ open, defaultBaseListId, ticketId, selectedItemIds, lines, initialDecisions, onOpenChange, onSuccess, onReceiptAttached, onSavingChange })
+	} = useMergeToBaseList({
+		open,
+		defaultBaseListId,
+		ticketId,
+		selectedItemIds,
+		lines,
+		initialDecisions,
+		onOpenChange,
+		onSuccess,
+		onReceiptAttached,
+		onSavingChange,
+	})
 
 	const hasLists = baseLists.length > 0
 	const reviewing = step === 'review' && review.state.status === 'ready'
-	const listName = listLabels.get(selectedBaseListId) ?? baseLists.find(list => list.id === selectedBaseListId)?.name ?? ''
+	const listName =
+		listLabels.get(selectedBaseListId) ?? baseLists.find(list => list.id === selectedBaseListId)?.name ?? ''
 	const itemsLabel = `${selectedItemIds.length} ${selectedItemIds.length === 1 ? 'Item' : 'Items'}`
 
 	return (
 		<>
-		<SheetDialog
-			open={open}
-			onOpenChange={isOpen => !loading && onOpenChange(isOpen)}
-			testId='merge-to-base-list-dialog'
-			title={reviewing ? 'Review Matches' : 'Add or Update Items'}
-			description={reviewing
-				? `Check how these items are added to “${listName}”. Nothing is added until you confirm.`
-				: mode === 'new'
-					? <>Create a new list with the <span className='font-mono font-medium text-foreground'>{selectedItemIds.length}</span> selected item{selectedItemIds.length !== 1 ? 's' : ''}.</>
-					: <><span className='font-mono font-medium text-foreground'>{selectedItemIds.length}</span> selected item{selectedItemIds.length !== 1 ? 's' : ''}. New products are added to the list; products already on it are updated.</>}
-			className='sm:max-w-125'
-		>
-					<div className='px-0.5 py-1'>
-						{loadingData ? (
-							<LoadingState testId='merge-to-base-list-loading' label='Loading lists…' />
-						) : loadFailed ? (
-							<div data-testid='merge-to-base-list-error' className='flex flex-col items-center gap-4 py-8 text-center'>
-								<p role='alert' className='text-sm text-destructive'>{error}</p>
-								<Button type='button' size='lg' variant='secondary' onClick={loadData}>
-									Try Again
-								</Button>
-							</div>
-						) : (
-							<form
-								onSubmit={handleSubmit}
-								noValidate
-								className={reviewing ? 'space-y-8' : 'space-y-4'}
+			<SheetDialog
+				open={open}
+				onOpenChange={isOpen => !loading && onOpenChange(isOpen)}
+				testId='merge-to-base-list-dialog'
+				title={reviewing ? 'Review Matches' : 'Add or Update Items'}
+				description={
+					reviewing ? (
+						`Check how these items are added to “${listName}”. Nothing is added until you confirm.`
+					) : mode === 'new' ? (
+						<>
+							Create a new list with the{' '}
+							<span className='font-mono font-medium text-foreground'>{selectedItemIds.length}</span> selected item
+							{selectedItemIds.length !== 1 ? 's' : ''}.
+						</>
+					) : (
+						<>
+							<span className='font-mono font-medium text-foreground'>{selectedItemIds.length}</span> selected item
+							{selectedItemIds.length !== 1 ? 's' : ''}. New products are added to the list; products already on it are
+							updated.
+						</>
+					)
+				}
+				className='sm:max-w-125'
+			>
+				<div className='px-0.5 py-1'>
+					{loadingData ? (
+						<LoadingState
+							testId='merge-to-base-list-loading'
+							label='Loading lists…'
+						/>
+					) : loadFailed ? (
+						<div
+							data-testid='merge-to-base-list-error'
+							className='flex flex-col items-center gap-4 py-8 text-center'
+						>
+							<p
+								role='alert'
+								className='text-sm text-destructive'
 							>
-								{review.state.status === 'ready' && reviewing ? (
-									<MergeReviewStep
-										review={review.state.review}
-										listItems={review.state.listItems}
-										decisions={review.decisions}
-										onDecide={review.decide}
-										disabled={loading}
-									/>
-								) : null}
-
-								{reviewing ? null : hasLists ? (
-									<RadioGroup
-										aria-label='Destination'
-										spacing='snug'
-										value={mode}
-										onValueChange={(value: 'existing' | 'new') => {
-											setMode(value)
-											setError(null)
-										}}
-									>
-										<ChoiceRow
-											variant='card'
-											testId='merge-mode-existing'
-							selected={mode === 'existing'}
-											option={{ value: 'existing', label: 'Add to existing list', note: breakdown ? `${breakdown.added} new · ${breakdown.updated} updated` : undefined }}
-										/>
-										<ChoiceRow
-											variant='card'
-											testId='merge-mode-new'
-							selected={mode === 'new'}
-											option={{ value: 'new', label: 'Create new list', note: `All ${selectedItemIds.length} ${selectedItemIds.length === 1 ? 'item is' : 'items are'} added as new` }}
-										/>
-									</RadioGroup>
-								) : (
-									<p data-testid='merge-to-base-list-no-lists' className='text-sm text-muted-foreground'>
-										You have no lists yet. Name one and these items will start it.
-									</p>
-						)}
-						{shouldShowReceiptStoreUnconfirmedNote(storeConfirmed, reviewing) ? (
-							<p data-testid='receipt-store-unconfirmed-note' className='text-sm text-muted-foreground'>
-								This receipt has no confirmed store. You can still add its items to your list.
+								{error}
 							</p>
-						) : null}
+							<Button
+								type='button'
+								size='lg'
+								variant='secondary'
+								onClick={loadData}
+							>
+								Try Again
+							</Button>
+						</div>
+					) : (
+						<form
+							onSubmit={handleSubmit}
+							noValidate
+							className={reviewing ? 'space-y-8' : 'space-y-4'}
+						>
+							{review.state.status === 'ready' && reviewing ? (
+								<MergeReviewStep
+									review={review.state.review}
+									listItems={review.state.listItems}
+									decisions={review.decisions}
+									onDecide={review.decide}
+									disabled={loading}
+								/>
+							) : null}
 
-						{reviewing ? null : mode === 'existing' && hasLists ? (
-							<div className='space-y-2'>
-								<Label id={`${fieldId}-list-label`} htmlFor={`${fieldId}-list`}>List</Label>
-								<Combobox
-									items={baseLists.map(list => list.id)}
-									itemToStringLabel={id => listLabels.get(id) ?? baseLists.find(list => list.id === id)?.name ?? ''}
-									value={selectedBaseListId}
-									onValueChange={value => {
-										if (typeof value !== 'string') return
-										setSelectedBaseListId(value)
+							{reviewing ? null : hasLists ? (
+								<RadioGroup
+									aria-label='Destination'
+									spacing='snug'
+									value={mode}
+									onValueChange={(value: 'existing' | 'new') => {
+										setMode(value)
 										setError(null)
 									}}
 								>
-									<div className='w-full' ref={listAnchor}>
-									<ComboboxInput
-										id={`${fieldId}-list`}
-										surface='form'
-										inset='default'
-										aria-labelledby={`${fieldId}-list-label`}
-										aria-required='true'
-										aria-invalid={error?.toLowerCase().includes('list') ? true : undefined}
-										aria-describedby={error?.toLowerCase().includes('list') ? `${fieldId}-error` : undefined}
-										size='lg'
-										placeholder='Select a shopping list'
-										showTrigger
+									<ChoiceRow
+										variant='card'
+										testId='merge-mode-existing'
+										selected={mode === 'existing'}
+										option={{
+											value: 'existing',
+											label: 'Add to existing list',
+											note: breakdown ? `${breakdown.added} new · ${breakdown.updated} updated` : undefined,
+										}}
+									/>
+									<ChoiceRow
+										variant='card'
+										testId='merge-mode-new'
+										selected={mode === 'new'}
+										option={{
+											value: 'new',
+											label: 'Create new list',
+											note: `All ${selectedItemIds.length} ${selectedItemIds.length === 1 ? 'item is' : 'items are'} added as new`,
+										}}
+									/>
+								</RadioGroup>
+							) : (
+								<p
+									data-testid='merge-to-base-list-no-lists'
+									className='text-sm text-muted-foreground'
+								>
+									You have no lists yet. Name one and these items will start it.
+								</p>
+							)}
+							{shouldShowReceiptStoreUnconfirmedNote(storeConfirmed, reviewing) ? (
+								<p
+									data-testid='receipt-store-unconfirmed-note'
+									className='text-sm text-muted-foreground'
+								>
+									This receipt has no confirmed store. You can still add its items to your list.
+								</p>
+							) : null}
+
+							{reviewing ? null : mode === 'existing' && hasLists ? (
+								<div className='space-y-2'>
+									<Label
+										id={`${fieldId}-list-label`}
+										htmlFor={`${fieldId}-list`}
 									>
-										<InputGroupAddon align='inline-start'>
-											<RowIcon icon={ListViewIcon} tone='primary' size='stat' testId='merge-list-filter-icon' />
-										</InputGroupAddon>
-									</ComboboxInput>
-									</div>
-									<ComboboxContent anchor={listAnchor}>
-										<ComboboxList>
-											{(id: string) => {
-												const list = baseLists.find(candidate => candidate.id === id)
-												if (!list) return null
-												return (
-												<ComboboxItem key={list.id} value={list.id}>
-												<RowIcon icon={ListViewIcon} tone='primary' size='stat' testId='merge-list-option-icon' />
-												{listLabels.get(list.id) ?? list.name}
-													</ComboboxItem>
-												)
-											}}
-										</ComboboxList>
-										<ComboboxEmpty>No shopping lists available.</ComboboxEmpty>
-									</ComboboxContent>
-								</Combobox>
-							</div>
-						) : (
-							<div className='space-y-2'>
-								<Label htmlFor={`${fieldId}-name`}>List Name</Label>
-								<Input
-									id={`${fieldId}-name`}
-									required
-									aria-required='true'
-									aria-invalid={error?.toLowerCase().includes('name') ? true : undefined}
-									aria-describedby={error?.toLowerCase().includes('name') ? `${fieldId}-error` : undefined}
-									value={newListName}
-									onChange={e => {
-										setNewListName(e.target.value)
-										if (error?.toLowerCase().includes('name')) setError(null)
-									}}
-									placeholder='e.g., Weekly Groceries'
-								/>
-							</div>
-						)}
+										List
+									</Label>
+									<Combobox
+										items={baseLists.map(list => list.id)}
+										itemToStringLabel={id => listLabels.get(id) ?? baseLists.find(list => list.id === id)?.name ?? ''}
+										value={selectedBaseListId}
+										onValueChange={value => {
+											if (typeof value !== 'string') return
+											setSelectedBaseListId(value)
+											setError(null)
+										}}
+									>
+										<div
+											className='w-full'
+											ref={listAnchor}
+										>
+											<ComboboxInput
+												id={`${fieldId}-list`}
+												surface='form'
+												inset='default'
+												aria-labelledby={`${fieldId}-list-label`}
+												aria-required='true'
+												aria-invalid={error?.toLowerCase().includes('list') ? true : undefined}
+												aria-describedby={error?.toLowerCase().includes('list') ? `${fieldId}-error` : undefined}
+												size='lg'
+												placeholder='Select a shopping list'
+												showTrigger
+											>
+												<InputGroupAddon align='inline-start'>
+													<RowIcon
+														icon={ListViewIcon}
+														tone='primary'
+														size='stat'
+														testId='merge-list-filter-icon'
+													/>
+												</InputGroupAddon>
+											</ComboboxInput>
+										</div>
+										<ComboboxContent anchor={listAnchor}>
+											<ComboboxList>
+												{(id: string) => {
+													const list = baseLists.find(candidate => candidate.id === id)
+													if (!list) return null
+													return (
+														<ComboboxItem
+															key={list.id}
+															value={list.id}
+														>
+															<RowIcon
+																icon={ListViewIcon}
+																tone='primary'
+																size='stat'
+																testId='merge-list-option-icon'
+															/>
+															{listLabels.get(list.id) ?? list.name}
+														</ComboboxItem>
+													)
+												}}
+											</ComboboxList>
+											<ComboboxEmpty>No shopping lists available.</ComboboxEmpty>
+										</ComboboxContent>
+									</Combobox>
+								</div>
+							) : (
+								<div className='space-y-2'>
+									<Label htmlFor={`${fieldId}-name`}>List Name</Label>
+									<Input
+										id={`${fieldId}-name`}
+										required
+										aria-required='true'
+										aria-invalid={error?.toLowerCase().includes('name') ? true : undefined}
+										aria-describedby={error?.toLowerCase().includes('name') ? `${fieldId}-error` : undefined}
+										value={newListName}
+										onChange={e => {
+											setNewListName(e.target.value)
+											if (error?.toLowerCase().includes('name')) setError(null)
+										}}
+										placeholder='e.g., Weekly Groceries'
+									/>
+								</div>
+							)}
 
-						{error && <p id={`${fieldId}-error`} role='alert' className='text-sm text-destructive'>{error}</p>}
+							{error && (
+								<p
+									id={`${fieldId}-error`}
+									role='alert'
+									className='text-sm text-destructive'
+								>
+									{error}
+								</p>
+							)}
 
-						<div className='flex w-full flex-col-reverse gap-2 sm:grid sm:grid-cols-2'>
-							<Button
-								type='button'
-								variant={reviewing ? 'ghost' : 'outline'}
-								size='lg'
-								disabled={loading}
-								onClick={() => (reviewing ? backToChoose() : onOpenChange(false))}
-							>
-								{reviewing ? 'Back' : 'Cancel'}
-							</Button>
-							<Button
-								type='submit'
-								size='lg'
-								disabled={loading || (mode === 'existing' ? !selectedBaseListId : !newListName.trim())}
-							>
-								{loading ? (
-									<>
-										<HugeiconsIcon
-											icon={Loading03Icon}
-											strokeWidth={2}
-											className='mr-2 h-4 w-4 animate-spin motion-reduce:animate-none'
-										/>
-										{mode === 'existing' && !reviewing ? 'Checking…' : 'Adding…'}
-									</>
-								) : (
-									mode === 'new' ? `Create List with ${itemsLabel}` : `Add ${itemsLabel}`
-								)}
-							</Button>
-						</div>
-					</form>
-						)}
-					</div>
-		</SheetDialog>
-		<MergeResultSheet outcome={outcome} receipt={receipt} onRetry={retry} onClose={dismissOutcome} />
+							<div className='mt-8 flex w-full flex-col-reverse gap-2 sm:grid sm:grid-cols-2'>
+								<Button
+									type='submit'
+									size='lg'
+									disabled={loading || (mode === 'existing' ? !selectedBaseListId : !newListName.trim())}
+								>
+									{loading ? (
+										<>
+											<HugeiconsIcon
+												icon={Loading03Icon}
+												strokeWidth={2}
+												className='mr-2 h-4 w-4 animate-spin motion-reduce:animate-none'
+											/>
+											{mode === 'existing' && !reviewing ? 'Checking…' : 'Adding…'}
+										</>
+									) : mode === 'new' ? (
+										`Create List with ${itemsLabel}`
+									) : (
+										`Add ${itemsLabel}`
+									)}
+								</Button>
+								<Button
+									type='button'
+									variant={'outline'}
+									size='lg'
+									disabled={loading}
+									onClick={() => (reviewing ? backToChoose() : onOpenChange(false))}
+								>
+									{reviewing ? 'Back' : 'Cancel'}
+								</Button>
+							</div>
+						</form>
+					)}
+				</div>
+			</SheetDialog>
+			<MergeResultSheet
+				outcome={outcome}
+				receipt={receipt}
+				onRetry={retry}
+				onClose={dismissOutcome}
+			/>
 		</>
 	)
 }

@@ -23,7 +23,15 @@ interface LinkItemDialogProps {
 }
 
 /** Chooses the item of the list that a receipt line is the same product as. */
-export function LinkItemDialog({ lineName, listName, currentItemId, items, onClose, onLink, onAddAsNew }: LinkItemDialogProps) {
+export function LinkItemDialog({
+	lineName,
+	listName,
+	currentItemId,
+	items,
+	onClose,
+	onLink,
+	onAddAsNew,
+}: LinkItemDialogProps) {
 	const open = lineName !== null
 	const list = listName || 'list'
 	return (
@@ -89,7 +97,10 @@ function LinkItemForm({ listName, lineName, currentItemId, items, onCancel, onLi
 			noValidate
 			className='flex h-[min(60dvh,34rem)] min-h-0 flex-col gap-4 overflow-hidden px-0.5 py-1'
 		>
-			<ItemContextRow name={formatItemName(lineName)} testId='link-item-receipt-line' />
+			<ItemContextRow
+				name={formatItemName(lineName)}
+				testId='link-item-receipt-line'
+			/>
 			<SearchableChoiceList
 				variant='card'
 				fillAvailableHeight
@@ -103,19 +114,19 @@ function LinkItemForm({ listName, lineName, currentItemId, items, onCancel, onLi
 				status={status}
 				testId='link-item-list'
 			/>
-			<div className='flex shrink-0 flex-col gap-2'>
-				<Button
-					type='submit'
-					disabled={!selected}
-				>
-					Match to Selected
-				</Button>
+			<div className='mt-8 flex shrink-0 flex-col gap-2'>
 				<Button
 					type='button'
 					variant={onAddAsNew ? 'secondary' : 'outline'}
 					onClick={onAddAsNew ?? onCancel}
 				>
 					{onAddAsNew ? 'Add as New Item' : 'Cancel'}
+				</Button>
+				<Button
+					type='submit'
+					disabled={!selected}
+				>
+					Match to Selected
 				</Button>
 			</div>
 		</form>

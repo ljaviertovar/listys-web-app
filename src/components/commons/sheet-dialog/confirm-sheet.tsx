@@ -5,7 +5,16 @@ import { useId } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { AlertCircleIcon, Loading03Icon } from '@hugeicons/core-free-icons'
 
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog'
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { RowIcon } from '@/components/commons/row-icon'
 import { useDialogFocus } from '@/hooks'
@@ -64,74 +73,95 @@ export function ConfirmSheet({
 			open={open}
 			onOpenChange={next => !loading && onOpenChange(next)}
 		>
-		<AlertDialogContent sheetOnPhones data-testid={testId} onOpenAutoFocus={onOpenAutoFocus} onCloseAutoFocus={onCloseAutoFocus} aria-describedby={[
-				description ? descriptionId : null,
-				consequence ? consequenceId : null,
-			].filter(Boolean).join(' ') || undefined}
-		>
-			<AlertDialogHeader variant='sheet'>
-				<AlertDialogTitle>{title}</AlertDialogTitle>
-				{description && !media ? (
-					<AlertDialogDescription id={descriptionId}>{description}</AlertDialogDescription>
-				) : null}
-			</AlertDialogHeader>
-			<div className='flex flex-col gap-4'>
-				{description && media ? (
-					<div className='flex items-center gap-3.5'>
-						{media}
+			<AlertDialogContent
+				sheetOnPhones
+				data-testid={testId}
+				onOpenAutoFocus={onOpenAutoFocus}
+				onCloseAutoFocus={onCloseAutoFocus}
+				aria-describedby={
+					[description ? descriptionId : null, consequence ? consequenceId : null].filter(Boolean).join(' ') ||
+					undefined
+				}
+			>
+				<AlertDialogHeader variant='sheet'>
+					<AlertDialogTitle>{title}</AlertDialogTitle>
+					{description && !media ? (
 						<AlertDialogDescription id={descriptionId}>{description}</AlertDialogDescription>
-					</div>
-				) : media ? media : null}
-				{consequence ? consequenceTone === 'warning' ? (
-					<WarningAlert id={consequenceId} role='note' testId={`${testId}-consequence-warning`}>
-						<div className='flex min-w-0 flex-col gap-0.5'>
-							{consequenceTitle ? <AlertTitle>{consequenceTitle}</AlertTitle> : null}
-							<AlertDescription>{consequence}</AlertDescription>
-						</div>
-					</WarningAlert>
-				) : (
-					<Alert id={consequenceId} role='note' variant='destructive'>
-						<RowIcon icon={AlertCircleIcon} tone='danger' size='alert' />
-						<div className='flex min-w-0 flex-col gap-0.5'>
-							{consequenceTitle ? <AlertTitle>{consequenceTitle}</AlertTitle> : null}
-							<AlertDescription>{consequence}</AlertDescription>
-						</div>
-					</Alert>
-				) : null}
-				{children}
-			</div>
-			<AlertDialogFooter className='mt-4'>
-				<AlertDialogCancel
-					size='lg'
-					type='button'
-					variant='outline'
-					disabled={loading}
-				>
-					{cancelLabel}
-				</AlertDialogCancel>
-				<AlertDialogAction
-					type='button'
-					size='lg'
-					variant={tone === 'danger' ? 'destructive' : 'default'}
-					disabled={loading}
-					onClick={event => {
-						event.preventDefault()
-						if (!loading) onConfirm()
-					}}
-					data-testid={`${testId}-confirm`}
-				>
-					{loading ? (
-						<HugeiconsIcon
-							icon={Loading03Icon}
-							strokeWidth={2}
-							aria-hidden='true'
-							className='size-4 animate-spin motion-reduce:animate-none'
-						/>
 					) : null}
-					{loading ? (loadingLabel ?? confirmLabel) : confirmLabel}
-				</AlertDialogAction>
-			</AlertDialogFooter>
-		</AlertDialogContent>
+				</AlertDialogHeader>
+				<div className='flex flex-col gap-4'>
+					{description && media ? (
+						<div className='flex items-center gap-3.5'>
+							{media}
+							<AlertDialogDescription id={descriptionId}>{description}</AlertDialogDescription>
+						</div>
+					) : media ? (
+						media
+					) : null}
+					{consequence ? (
+						consequenceTone === 'warning' ? (
+							<WarningAlert
+								id={consequenceId}
+								role='note'
+								testId={`${testId}-consequence-warning`}
+							>
+								<div className='flex min-w-0 flex-col gap-0.5'>
+									{consequenceTitle ? <AlertTitle>{consequenceTitle}</AlertTitle> : null}
+									<AlertDescription>{consequence}</AlertDescription>
+								</div>
+							</WarningAlert>
+						) : (
+							<Alert
+								id={consequenceId}
+								role='note'
+								variant='destructive'
+							>
+								<RowIcon
+									icon={AlertCircleIcon}
+									tone='danger'
+									size='alert'
+								/>
+								<div className='flex min-w-0 flex-col gap-0.5'>
+									{consequenceTitle ? <AlertTitle>{consequenceTitle}</AlertTitle> : null}
+									<AlertDescription>{consequence}</AlertDescription>
+								</div>
+							</Alert>
+						)
+					) : null}
+					{children}
+				</div>
+				<AlertDialogFooter className='mt-8'>
+					<AlertDialogCancel
+						size='lg'
+						type='button'
+						variant='outline'
+						disabled={loading}
+					>
+						{cancelLabel}
+					</AlertDialogCancel>
+					<AlertDialogAction
+						type='button'
+						size='lg'
+						variant={tone === 'danger' ? 'destructive' : 'default'}
+						disabled={loading}
+						onClick={event => {
+							event.preventDefault()
+							if (!loading) onConfirm()
+						}}
+						data-testid={`${testId}-confirm`}
+					>
+						{loading ? (
+							<HugeiconsIcon
+								icon={Loading03Icon}
+								strokeWidth={2}
+								aria-hidden='true'
+								className='size-4 animate-spin motion-reduce:animate-none'
+							/>
+						) : null}
+						{loading ? (loadingLabel ?? confirmLabel) : confirmLabel}
+					</AlertDialogAction>
+				</AlertDialogFooter>
+			</AlertDialogContent>
 		</AlertDialog>
 	)
 }

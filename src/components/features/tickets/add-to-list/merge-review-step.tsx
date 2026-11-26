@@ -215,13 +215,13 @@ function ReviewRow({
 	return (
 		<li
 			data-testid='merge-review-row'
-			className='grid min-w-0 grid-cols-1 gap-2 rounded-2xl bg-muted px-3 py-2.5 sm:grid-cols-[minmax(0,1fr)_14rem] sm:items-center'
+			className='grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-2xl bg-muted px-3 py-2.5'
 		>
 			<div className='flex min-w-0 flex-1 flex-col'>
 				<span className='break-words text-sm font-medium'>{name}</span>
 				<span className='text-xs leading-normal text-muted-foreground dark:text-muted-foreground'>{outcome}</span>
 			</div>
-			<div className='flex min-w-0 flex-wrap justify-start gap-2'>
+			<div className='flex min-w-0 flex-wrap justify-end gap-2'>
 				{suggestedItem ? (
 					<Button
 						type='button'

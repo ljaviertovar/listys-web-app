@@ -5,7 +5,7 @@ import { AlertDialog as AlertDialogPrimitive } from "radix-ui";
 
 import { cn } from "@/utils";
 import { Button } from "@/components/ui/button";
-import { SHEET_ON_PHONES, dialogContentVariants } from "@/components/ui/dialog";
+import { SHEET_ON_PHONES, dialogContentVariants, dialogDescriptionVariants, dialogTitleVariants } from "@/components/ui/dialog";
 
 function AlertDialog({
   ...props
@@ -51,25 +51,37 @@ function AlertDialogContent({
   className,
   size = "default",
   sheetOnPhones = false,
+  sheetLayout = "confirmation",
+  nested = false,
+  children,
   ...props
 }: React.ComponentProps<typeof AlertDialogPrimitive.Content> & {
   size?: "default" | "sm";
   /** Approved Listys extension: a bottom sheet on phones, centered from sm. */
   sheetOnPhones?: boolean;
+  sheetLayout?: "confirmation" | "form";
+  nested?: boolean;
 }) {
   return (
     <AlertDialogPortal>
-      <AlertDialogOverlay sheetOnPhones={sheetOnPhones} />
+      <AlertDialogOverlay
+        sheetOnPhones={sheetOnPhones}
+        className={cn(sheetLayout === "form" && "supports-backdrop-filter:backdrop-blur-none", nested && "bg-transparent")}
+      />
       <AlertDialogPrimitive.Content
         data-slot="alert-dialog-content"
         data-size={size}
         className={cn(
           "data-open:animate-in data-closed:animate-out motion-reduce:data-open:animate-none motion-reduce:data-closed:animate-none transition-[opacity,transform] motion-reduce:transition-none data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 bg-card ring-foreground/5 gap-6 rounded-3xl p-6 shadow-xl ring-1 duration-100 motion-reduce:animate-none motion-reduce:duration-0 data-[size=default]:max-w-xs data-[size=sm]:max-w-xs data-[size=default]:sm:max-w-md group/alert-dialog-content fixed top-1/2 left-1/2 z-50 grid w-full -translate-x-1/2 -translate-y-1/2 outline-none overscroll-contain",
           sheetOnPhones && cn(dialogContentVariants({ variant: 'sheet' }), SHEET_ON_PHONES, "flex flex-col overflow-y-auto data-[size=default]:max-w-none data-[size=default]:sm:max-w-lg"),
+          sheetOnPhones && sheetLayout === "form" && "overflow-hidden p-4 md:p-6 ring-0 data-[size=default]:sm:max-w-[520px]",
           className,
         )}
         {...props}
-      />
+      >
+        {sheetOnPhones && sheetLayout === "form" ? <span aria-hidden="true" className="absolute top-2 left-1/2 h-1 w-9 -translate-x-1/2 rounded-full bg-slate-300 dark:bg-slate-600 sm:hidden" /> : null}
+        {children}
+      </AlertDialogPrimitive.Content>
     </AlertDialogPortal>
   );
 }
@@ -133,7 +145,7 @@ function AlertDialogTitle({
   variant = "default",
   ...props
 }: React.ComponentProps<typeof AlertDialogPrimitive.Title> & {
-  variant?: "default" | "strong";
+  variant?: "default" | "strong" | "sheet";
 }) {
   return (
     <AlertDialogPrimitive.Title
@@ -142,6 +154,7 @@ function AlertDialogTitle({
       className={cn(
         "font-display text-2xl leading-8 font-semibold text-foreground sm:group-data-[size=default]/alert-dialog-content:group-has-data-[slot=alert-dialog-media]/alert-dialog-content:col-start-2",
         variant === "strong" && "font-bold tracking-tight text-foreground",
+        variant === "sheet" && dialogTitleVariants({ variant }),
         className,
       )}
       {...props}
@@ -151,13 +164,14 @@ function AlertDialogTitle({
 
 function AlertDialogDescription({
   className,
+  variant = "default",
   ...props
-}: React.ComponentProps<typeof AlertDialogPrimitive.Description>) {
+}: React.ComponentProps<typeof AlertDialogPrimitive.Description> & { variant?: "default" | "sheet" }) {
   return (
     <AlertDialogPrimitive.Description
       data-slot="alert-dialog-description"
       className={cn(
-        "text-muted-foreground *:[a]:hover:text-foreground text-base leading-6 text-balance md:text-pretty *:[a]:underline *:[a]:underline-offset-3",
+        variant === "sheet" ? dialogDescriptionVariants({ variant }) : "text-muted-foreground *:[a]:hover:text-foreground text-base leading-6 text-balance md:text-pretty *:[a]:underline *:[a]:underline-offset-3",
         className,
       )}
       {...props}

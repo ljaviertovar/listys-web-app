@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 
 import type { ItemFormValues } from '@/components/features/list-items'
-import { createBaseListItem, deleteBaseListItem, updateBaseListItem } from '@/lib/api/endpoints'
+import { createBaseListItem, deleteBaseListItem, setBaseListItemsNeeded, updateBaseListItem } from '@/lib/api/endpoints'
 import { createStore } from '@/lib/api/endpoints/stores'
 import type { StorePick } from '@/components/features/stores'
 import { broadcastListActivity } from '@/utils'
@@ -39,10 +39,15 @@ export function useBaseListItemActions(item: BaseListItem) {
 	}
 
 	const restore = async () => {
-		const { error } = await createBaseListItem(toRestorePayload(item) as { base_list_id: string } & Record<string, unknown>)
+		const { data, error } = await createBaseListItem(toRestorePayload(item) as { base_list_id: string } & Record<string, unknown>)
 		if (error) {
 			toast.error('Could not undo', { description: error })
 			return
+		}
+		// The new row starts unchecked, so a deleted item that was checked gets its check back.
+		if (item.needed_at && data?.id) {
+			const checked = await setBaseListItemsNeeded(item.base_list_id, { needed: true, item_ids: [data.id] })
+			if (checked.error) toast.error('Restored without its check', { description: checked.error })
 		}
 		refresh()
 	}

@@ -6,12 +6,9 @@ import { createClient } from '@/lib/supabase/server'
 
 import { PageContainer, PageHeader } from '@/components/app'
 import {
-	BaseListItems,
 	BaseListRealtimeListener,
-	StartShoppingDialog,
-	UsualStoreFilter,
+	BaseListShopping,
 	buildStoreFilterOptions,
-	filterItemsByUsualStore,
 	resolveStoreFilter,
 } from '@/components/features/base-lists'
 import { AddItemSheet } from '@/components/features/list-items'
@@ -49,10 +46,8 @@ export default async function EditBaseListPage({
 	const isOwner = (baseList as { is_owner?: boolean }).is_owner !== false
 	const baseListWithItems = baseList as BaseListWithItems & { is_default?: boolean; collaborators?: Array<{ id: string }> }
 	const items = baseListWithItems.items ?? []
-	// "Show items from": only the screen narrows; starting a trip still takes the whole list.
 	const storeOptions = buildStoreFilterOptions(items)
 	const storeFilter = resolveStoreFilter(items, [requestedStore].flat()[0])
-	const shownItems = filterItemsByUsualStore(items, storeFilter)
 
 	// RLS includes collaborator sessions; the per-list constraint guarantees at most one active result.
 	const activeSessionResult = await supabase
@@ -98,54 +93,33 @@ export default async function EditBaseListPage({
 			/>
 
 			<PageContainer>
-				<div className='flex w-full max-w-3xl flex-col gap-4'>
-					{items.length > 0 ? <div className='flex flex-col gap-2'>
-						<StartShoppingDialog
-							baseListId={baseListId}
-							baseListName={baseListWithItems.name}
-							itemsCount={items.length}
-							items={items}
-							sessionActive={!!activeSession}
-							activeSessionId={activeSession?.id}
-							showBlockedNotice
-							className='w-full'
-						/>
-
-						<div className='grid grid-cols-2 gap-3' data-testid='base-list-actions'>
-							{isOwner && (
-								<ShareListDialog
-									baseListId={baseListId}
-									listName={baseListWithItems.name}
-									isOwner={isOwner}
-									size='default'
-									className={isOwner ? 'w-full' : 'col-span-2 w-full'}
-								/>
-							)}
-							<AddItemSheet
-								target={{ context: 'base-list', baseListId }}
-								isLocked={isLocked}
+				<BaseListShopping
+					baseListId={baseListId}
+					baseListName={baseListWithItems.name}
+					items={items}
+					storeOptions={storeOptions}
+					storeFilter={storeFilter}
+					isOwner={isOwner}
+					activeSessionId={activeSession?.id}
+				>
+					<div className='grid grid-cols-2 gap-3' data-testid='base-list-actions'>
+						{isOwner && (
+							<ShareListDialog
+								baseListId={baseListId}
+								listName={baseListWithItems.name}
+								isOwner={isOwner}
 								size='default'
 								className={isOwner ? 'w-full' : 'col-span-2 w-full'}
 							/>
-						</div>
-					</div> : null}
-
-					{items.length > 0 ? (
-							<UsualStoreFilter
-								options={storeOptions}
-								value={storeFilter}
-								totalCount={items.length}
-							/>
-						) : null}
-
-						<BaseListItems
-						baseListId={baseListId}
-						listName={baseListWithItems.name}
-						items={shownItems}
-						isLocked={isLocked}
-						isOwner={isOwner}
-					/>
-				</div>
+						)}
+						<AddItemSheet
+							target={{ context: 'base-list', baseListId }}
+							isLocked={isLocked}
+							size='default'
+							className={isOwner ? 'w-full' : 'col-span-2 w-full'}
+						/>
+					</div>
+				</BaseListShopping>
 			</PageContainer>
 
 			<BaseListRealtimeListener baseListId={baseListId} />

@@ -144,6 +144,7 @@ export type Database = {
           usual_store_source: string
           name: string
           notes: string | null
+          needed_at: string | null
           normalized_name: string
           purchase_count: number
           quantity: number | null
@@ -163,6 +164,7 @@ export type Database = {
           usual_store_source?: string
           name: string
           notes?: string | null
+          needed_at?: string | null
           normalized_name?: string
           purchase_count?: number
           quantity?: number | null
@@ -182,6 +184,7 @@ export type Database = {
           usual_store_source?: string
           name?: string
           notes?: string | null
+          needed_at?: string | null
           normalized_name?: string
           purchase_count?: number
           quantity?: number | null
@@ -811,7 +814,7 @@ export type Database = {
         }[]
       }
       start_shopping_session: {
-        Args: { p_base_list_id: string; p_name: string; p_store_id?: string | null }
+        Args: { p_base_list_id: string; p_name: string; p_store_id?: string | null; p_only_needed?: boolean }
         Returns: Database["public"]["Tables"]["shopping_sessions"]["Row"]
       }
       set_item_usual_store: {

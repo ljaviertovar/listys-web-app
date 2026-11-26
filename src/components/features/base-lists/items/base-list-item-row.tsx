@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react'
 import { Delete02Icon, Edit02Icon, Store03Icon, Tag01Icon } from '@hugeicons/core-free-icons'
 
+import { Checkbox } from '@/components/ui/checkbox'
 import { Item } from '@/components/ui/item'
 
 import { EntityLabel, RowMenu } from '@/components/commons'
@@ -19,6 +20,8 @@ import { ItemStorePricesSheet } from './item-store-prices-sheet'
 
 interface BaseListItemRowProps {
 	item: BaseListItemWithStoreSummary
+	/** Checks or unchecks the item as needed for the next trip. */
+	onNeededChange: (needed: boolean) => void
 	/** A list that is being shopped cannot be changed until the session ends. */
 	isLocked?: boolean
 	isOwner?: boolean
@@ -28,7 +31,7 @@ interface BaseListItemRowProps {
  * One item of a base list: the quantity and the name on the first line, the note and the store line under them, and a "⋯" menu
  * centred on that first line. A list row shows no price. Editing swaps the row for the form in place.
  */
-export function BaseListItemRow({ item, isLocked = false, isOwner = true }: BaseListItemRowProps) {
+export function BaseListItemRow({ item, onNeededChange, isLocked = false, isOwner = true }: BaseListItemRowProps) {
 	const menuTriggerRef = useRef<HTMLButtonElement>(null)
 	const shouldReturnFocus = useRef(false)
 	const { save, remove, setUsualStore, editing, setEditing, storePickerOpen, setStorePickerOpen,
@@ -67,6 +70,16 @@ export function BaseListItemRow({ item, isLocked = false, isOwner = true }: Base
 			className='min-h-14 items-start'
 			data-testid={`base-list-item-${item.id}`}
 		>
+			{/* Here a tick means "to buy", so the row is never struck through; that stays the mark of a bought item in a trip. */}
+			<label className='-mt-3 -ml-2.5 -mr-2 flex size-11 shrink-0 cursor-pointer items-center justify-center has-disabled:cursor-not-allowed'>
+				<Checkbox
+					size='lg'
+					checked={Boolean(item.needed_at)}
+					onCheckedChange={checked => onNeededChange(checked === true)}
+					disabled={isLocked}
+					aria-label={`Add ${name} to next trip`}
+				/>
+			</label>
 			<div className='flex min-w-0 flex-1 flex-col'>
 				<div className='flex items-start gap-2'>
 					<ItemQuantityChip quantity={item.quantity} unit={item.unit} testId={`base-list-item-${item.id}-quantity`} />

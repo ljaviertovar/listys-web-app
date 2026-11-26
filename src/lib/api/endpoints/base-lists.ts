@@ -39,6 +39,10 @@ export async function createBaseListItem(data: { base_list_id: string } & Record
   return apiPost(`/api/v1/base-lists/${base_list_id}/items`, payload)
 }
 
+export async function setBaseListItemsNeeded(baseListId: string, data: { needed: boolean; item_ids: string[] }) {
+  return apiPatch<{ updated: number }>(`/api/v1/base-lists/${baseListId}/items`, data)
+}
+
 export async function updateBaseListItem(id: string, data: unknown) {
   return apiPatch(`/api/v1/base-list-items/${id}`, data)
 }

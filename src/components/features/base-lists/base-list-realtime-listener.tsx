@@ -27,7 +27,7 @@ export function BaseListRealtimeListener({ baseListId }: Props) {
 				router.refresh()
 			})
 			.on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'base_list_items', filter: `base_list_id=eq.${baseListId}` }, () => {
-				if (!isOwnRecentActivity()) toast.info('List updated')
+				if (!isOwnRecentActivity()) toast.info('List updated', { id: 'base-list-updated' })
 				router.refresh()
 			})
 			.on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'base_list_items', filter: `base_list_id=eq.${baseListId}` }, () => {
