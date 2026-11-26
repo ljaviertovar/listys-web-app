@@ -20,6 +20,7 @@ import type { BaseListItemWithStoreSummary, Store } from '@/types'
 
 import { describeTripStart } from './helpers/describe-trip-start'
 import { useDialogItems } from './hooks/use-dialog-items'
+import { getNeededSync } from './items/sync/needed-sync-registry'
 import { shoppingActionMode, summarizeItemsByStore } from './items/helpers/store-session-summary'
 
 /** The trigger is a regular `Button`: `size`, `variant`, `className`… go straight to it. `children` replaces the cart icon and "Start Shopping" label. */
@@ -29,8 +30,6 @@ interface Props extends ButtonProps {
 	itemsCount?: number
 	/** Every item of the list. Omit it where the screen does not have them: the sheet reads them when it opens. */
 	items?: BaseListItemWithStoreSummary[]
-	/** Checks are still being saved, so the trip waits for them. */
-	savingChecks?: boolean
 	/** Tells apart a second trigger for the same list. */
 	triggerTestId?: string
 	/** True only when this base list has an active session. */
@@ -47,7 +46,6 @@ export function StartShoppingDialog({
 	baseListName,
 	itemsCount,
 	items: providedItems,
-	savingChecks = false,
 	triggerTestId,
 	children,
 	className,
@@ -79,10 +77,12 @@ export function StartShoppingDialog({
 	}
 
 	const handleConfirm = async () => {
-		if (loadingRef.current || resumeId || !itemsReady || savingChecks) return
+		if (loadingRef.current || resumeId || !itemsReady) return
 		loadingRef.current = true
 		setLoading(true)
 		try {
+			// The server builds the trip from the saved checks, so the ones still waiting go first.
+			await getNeededSync(baseListId).flush()
 			const { data, error, activeSessionId } = await createShoppingSession({
 				base_list_id: baseListId,
 				name: baseListName ? `${baseListName.slice(0, 94)} trip` : 'Shopping trip',
@@ -188,7 +188,8 @@ export function StartShoppingDialog({
 			open={open && !storePickerOpen}
 			onOpenChange={next => {
 				if (storePickerOpen || loading) return
-				if (next && !open) void loadItems()
+				// A screen without the items reads them after any check still waiting to be saved.
+				if (next && !open && !providedItems) void getNeededSync(baseListId).flush().catch(() => {}).then(loadItems)
 				setOpen(next)
 			}}
 			trigger={
@@ -282,7 +283,7 @@ export function StartShoppingDialog({
 					size='lg'
 					type='button'
 					onClick={handleConfirm}
-					disabled={loading || isEmpty || !itemsReady || savingChecks}
+					disabled={loading || isEmpty || !itemsReady}
 					data-testid='confirm-start-shopping'
 				>
 					<HugeiconsIcon
@@ -291,7 +292,7 @@ export function StartShoppingDialog({
 						aria-hidden='true'
 						className={cn('size-4.5', loading && 'animate-spin motion-reduce:animate-none')}
 					/>
-					{loading ? 'Starting…' : savingChecks ? 'Saving checks…' : trip.buttonLabel}
+					{loading ? 'Starting…' : trip.buttonLabel}
 				</Button>
 			</DialogFooter>
 		</SheetDialog>

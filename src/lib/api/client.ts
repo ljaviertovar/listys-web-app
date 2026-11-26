@@ -118,8 +118,9 @@ export async function apiPost<T = any>(path: string, body?: unknown | FormData) 
   })
 }
 
-export async function apiPatch<T = any>(path: string, body?: unknown, signal?: AbortSignal) {
+export async function apiPatch<T = any>(path: string, body?: unknown, signal?: AbortSignal, options?: Pick<RequestInit, 'keepalive'>) {
   return request<T>(path, {
+    ...options,
     method: 'PATCH',
     signal,
     body: body !== undefined ? JSON.stringify(body) : undefined,

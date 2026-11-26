@@ -18,6 +18,11 @@ import { DataFacts, type DataFact } from '../data-line/data-line'
 import { useDialogFocus } from '@/hooks'
 import { cn } from '@/utils'
 
+/** The paper of every app sheet (`--background`) with its fields on the card white (`--card`), so a field reads as a field
+ * without a dark outline. Scoped to the sheet, so the same inputs on the page keep their own fill. */
+const SHEET_SURFACE =
+	'bg-background [&_[data-slot=input]]:border-border [&_[data-slot=input]]:bg-card [&_[data-slot=textarea]]:border-border [&_[data-slot=textarea]]:bg-card [&_[data-slot=select-trigger]]:border-border [&_[data-slot=select-trigger]]:bg-card [&_[data-slot=input-group]]:border-border [&_[data-slot=input-group]]:bg-card [&_form]:gap-4'
+
 interface SheetDialogProps {
 	open?: boolean
 	onOpenChange?: (open: boolean) => void
@@ -92,6 +97,7 @@ export function SheetDialog({
 			<AlertDialogContent
 				sheetLayout='form'
 				sheetOnPhones
+				surface={SHEET_SURFACE}
 				nested={nested}
 				role={role}
 				aria-describedby={ariaDescribedBy ?? (description ? resolvedDescriptionId : undefined)}

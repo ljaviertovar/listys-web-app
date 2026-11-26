@@ -1,4 +1,5 @@
 import { apiDelete, apiGet, apiPatch, apiPost } from '@/lib/api/client'
+import type { SetBaseListItemsNeededInput } from '@/lib/validations/base-list'
 
 export async function createBaseList(data: unknown) {
   return apiPost('/api/v1/base-lists', data)
@@ -39,8 +40,9 @@ export async function createBaseListItem(data: { base_list_id: string } & Record
   return apiPost(`/api/v1/base-lists/${base_list_id}/items`, payload)
 }
 
-export async function setBaseListItemsNeeded(baseListId: string, data: { needed: boolean; item_ids: string[] }) {
-  return apiPatch<{ updated: number }>(`/api/v1/base-lists/${baseListId}/items`, data)
+export async function setBaseListItemsNeeded(baseListId: string, data: SetBaseListItemsNeededInput) {
+  // `keepalive` lets a save sent while the tab closes or reloads reach the server.
+  return apiPatch<{ updated: number }>(`/api/v1/base-lists/${baseListId}/items`, data, undefined, { keepalive: true })
 }
 
 export async function updateBaseListItem(id: string, data: unknown) {

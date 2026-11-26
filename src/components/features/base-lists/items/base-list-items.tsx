@@ -10,7 +10,6 @@ import {
 } from '@/components/commons'
 import { AddItemSheet, BaseListLockedNotice } from '@/components/features/list-items'
 import { UploadTicketDialog } from '@/components/features/tickets'
-import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Card } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { groupByCategory } from '@/utils'
@@ -34,7 +33,16 @@ interface BaseListItemsProps {
 }
 
 /** The items of a base list in one card, a collapsible section per category; or the card that invites adding the first item. */
-export function BaseListItems({ baseListId, listName = 'Items', items, hasChecks, onSetNeeded, footer, isLocked = false, isOwner = true }: BaseListItemsProps) {
+export function BaseListItems({
+	baseListId,
+	listName = 'Items',
+	items,
+	hasChecks,
+	onSetNeeded,
+	footer,
+	isLocked = false,
+	isOwner = true,
+}: BaseListItemsProps) {
 	const groups = useMemo(
 		() => groupByCategory([...items].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))),
 		[items],
@@ -58,7 +66,12 @@ export function BaseListItems({ baseListId, listName = 'Items', items, hasChecks
 				}
 				testId='base-list-empty-state'
 			>
-				{isLocked ? <BaseListLockedNotice testId='base-list-locked-notice' className='mb-3' /> : null}
+				{isLocked ? (
+					<BaseListLockedNotice
+						testId='base-list-locked-notice'
+						className='mb-3'
+					/>
+				) : null}
 				<div className='flex w-full flex-col items-stretch gap-2'>
 					<AddItemSheet
 						target={{ context: 'base-list', baseListId }}
@@ -87,7 +100,12 @@ export function BaseListItems({ baseListId, listName = 'Items', items, hasChecks
 				data-testid='base-list-items-card'
 				size='list'
 			>
-				{isLocked ? <BaseListLockedNotice testId='base-list-locked-notice' className='mb-3' /> : null}
+				{isLocked ? (
+					<BaseListLockedNotice
+						testId='base-list-locked-notice'
+						className='mb-3'
+					/>
+				) : null}
 				<div className='grid grid-cols-2 items-center'>
 					<label className='flex min-h-11 w-full cursor-pointer items-center font-display text-sm leading-none font-semibold has-disabled:cursor-not-allowed has-disabled:opacity-50'>
 						<span className='flex size-11 shrink-0 items-center justify-center'>
@@ -107,11 +125,6 @@ export function BaseListItems({ baseListId, listName = 'Items', items, hasChecks
 						testId='base-list-category-collapse-control'
 					/>
 				</div>
-				{!hasChecks && !isLocked ? (
-					<Alert variant='info' role='note' data-testid='base-list-check-hint' className='mb-2'>
-						<AlertDescription>Check what you need. It stays checked until you buy it.</AlertDescription>
-					</Alert>
-				) : null}
 				<div className='-mt-4'>
 					{groups.map((group, index) => {
 						const id = `base-list-category-${group.key}`

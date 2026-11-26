@@ -2,6 +2,7 @@
 
 import type { ReactNode } from 'react'
 
+import { SyncStatusLine } from '@/components/commons'
 import { cn } from '@/utils'
 import type { BaseListItemWithStoreSummary } from '@/types'
 
@@ -38,7 +39,7 @@ export function BaseListShopping({
 	activeSessionId,
 	children,
 }: BaseListShoppingProps) {
-	const { items, setNeeded, isSaving } = useNeededItems(baseListId, serverItems)
+	const { items, setNeeded, isSaving, saveFailed, retry } = useNeededItems(baseListId, serverItems)
 	// "Show items from" narrows the screen only; a trip is still decided over the whole list.
 	const shownItems = filterItemsByUsualStore(items, storeFilter)
 	// A list that is being shopped is locked, checks included.
@@ -47,6 +48,16 @@ export function BaseListShopping({
 
 	return (
 		<div className={cn('flex w-full max-w-3xl flex-col gap-4', hasBar && 'max-lg:pb-24')}>
+			{/* A locked list takes no checks, so it only reports the ones still on their way. */}
+			{(items.length > 0 && !isLocked) || isSaving ? (
+				<div className='-mt-4' data-testid='needed-sync-status'>
+					<SyncStatusLine
+						message={saveFailed ? 'Not saved' : isSaving ? 'Saving…' : 'Saved'}
+						icon={saveFailed ? undefined : isSaving ? 'saving' : 'saved'}
+						onRetry={saveFailed ? retry : undefined}
+					/>
+				</div>
+			) : null}
 			{items.length > 0 ? (
 				<>
 					<div className='flex flex-col gap-2'>
@@ -55,7 +66,6 @@ export function BaseListShopping({
 							baseListName={baseListName}
 							itemsCount={items.length}
 							items={items}
-							savingChecks={isSaving}
 							sessionActive={isLocked}
 							activeSessionId={activeSessionId}
 							showBlockedNotice
@@ -82,7 +92,7 @@ export function BaseListShopping({
 							baseListName={baseListName}
 							items={items}
 							shownItems={shownItems}
-							isSaving={isSaving}
+							saveFailed={saveFailed}
 							onClear={() => setNeeded(items, false)}
 						/>
 					) : null

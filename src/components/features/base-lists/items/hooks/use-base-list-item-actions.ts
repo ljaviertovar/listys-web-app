@@ -46,7 +46,7 @@ export function useBaseListItemActions(item: BaseListItem) {
 		}
 		// The new row starts unchecked, so a deleted item that was checked gets its check back.
 		if (item.needed_at && data?.id) {
-			const checked = await setBaseListItemsNeeded(item.base_list_id, { needed: true, item_ids: [data.id] })
+			const checked = await setBaseListItemsNeeded(item.base_list_id, { changes: [{ item_id: data.id, needed: true }] })
 			if (checked.error) toast.error('Restored without its check', { description: checked.error })
 		}
 		refresh()

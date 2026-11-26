@@ -53,6 +53,7 @@ function AlertDialogContent({
   sheetOnPhones = false,
   sheetLayout = "confirmation",
   nested = false,
+  surface,
   children,
   ...props
 }: React.ComponentProps<typeof AlertDialogPrimitive.Content> & {
@@ -61,6 +62,7 @@ function AlertDialogContent({
   sheetOnPhones?: boolean;
   sheetLayout?: "confirmation" | "form";
   nested?: boolean;
+  surface?: string;
 }) {
   return (
     <AlertDialogPortal>
@@ -74,7 +76,7 @@ function AlertDialogContent({
         className={cn(
           "data-open:animate-in data-closed:animate-out motion-reduce:data-open:animate-none motion-reduce:data-closed:animate-none transition-[opacity,transform] motion-reduce:transition-none data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 bg-card ring-foreground/5 gap-6 rounded-3xl p-6 shadow-xl ring-1 duration-100 motion-reduce:animate-none motion-reduce:duration-0 data-[size=default]:max-w-xs data-[size=sm]:max-w-xs data-[size=default]:sm:max-w-md group/alert-dialog-content fixed top-1/2 left-1/2 z-50 grid w-full -translate-x-1/2 -translate-y-1/2 outline-none overscroll-contain",
           sheetOnPhones && cn(dialogContentVariants({ variant: 'sheet' }), SHEET_ON_PHONES, "flex flex-col overflow-y-auto data-[size=default]:max-w-none data-[size=default]:sm:max-w-lg"),
-          sheetOnPhones && sheetLayout === "form" && "overflow-hidden p-4 md:p-6 ring-0 data-[size=default]:sm:max-w-[520px]",
+          sheetOnPhones && sheetLayout === "form" && cn("overflow-hidden p-4 md:p-6 data-[size=default]:sm:max-w-[520px]", surface),
           className,
         )}
         {...props}

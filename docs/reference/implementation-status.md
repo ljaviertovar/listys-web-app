@@ -28,6 +28,38 @@ See the [verification record](../../openspec/changes/archive/2026-11-08-reliable
 The sections below include historical verification against the approved development Supabase project. This document owns observed behavior and implementation gaps;
 [PRD v2](../prd/PRD-v2.md) remains the MVP baseline. Code presence does not establish deployment or E2E validation.
 
+## Next-trip checks (2026-11-26)
+
+Items on a list can be checked for the next trip. A trip can take only those, buying an item clears its check, and the
+checks [save in the background](../architecture/architecture.md#next-trip-check-synchronization) as grouped requests.
+Evidence: [specification](../../openspec/specs/needed-items/spec.md),
+[sync module](../../src/components/features/base-lists/items/sync/),
+[API contract](api-v1.md#next-trip-checks) and
+[migration](../../supabase/migrations/20261126000000_checked_items_next_trip.sql).
+
+On 2026-11-26, at the user's request, the migration was applied to the project's linked hosted Supabase database. The
+background save was verified in a working tree; this record does not establish that it is committed or deployed.
+
+Local verification: TypeScript passed and the full Vitest run passed (709 tests in 71 files). Lint of the touched
+folders reported one warning, the unused `hasChecks` prop in `base-list-items.tsx`. In a signed-in development
+session with a 15-item list:
+
+| Scenario | `PATCH` requests | Page reads |
+| --- | --- | --- |
+| 10 taps, 250 ms apart | 1 | 0 |
+| 10 taps, 900 ms apart | 1 | 0 |
+| 60 taps, 90 ms apart | 1 | 0 |
+| 5 mixed check and uncheck taps, 1.2 s apart, four runs | 1 in three runs, 2 in one | 0 |
+
+The first three were observed for 20 s after the last tap and the mixed runs for 6 s. The gaps of the run with two
+requests were not measured. A reload 150 ms after a tap kept the check.
+
+Not verified: Start Shopping with checks still pending, a network failure in the browser, shared lists with two
+people, a desktop viewport, a production build and E2E.
+
+Open: on this screen a `router.refresh()` remounted the whole page on the development server. Saving checks no longer
+triggers one, but other refreshes still can. The cause is unknown.
+
 ## Receipt review v4 corrective audit (2026-11-06)
 
 The approved corrections in trip-receipt-review-redesign are implemented in the working tree: zero-line OCR is unreadable in both providers; historical empty receipts cannot enter review or attachment; duplicate-store conflicts offer recovery rather than Retry; shared sheets, Change Line, trip summaries and receipt origin hierarchy follow the revised v4 reference. Mobile trip navigation uses the status already loaded by the page. DESIGN.md, the canonical HTML section 8 and the delta specs reflect the same decisions.
