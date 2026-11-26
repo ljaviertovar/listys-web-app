@@ -19,7 +19,7 @@ export function LearnList({ entries, testId, className }: LearnListProps) {
 	return (
 		<ul
 			data-testid={testId}
-			className={cn('border-t-[1.5px] border-paper-ink', className)}
+			className={className}
 		>
 			{entries.map(entry => (
 				<li

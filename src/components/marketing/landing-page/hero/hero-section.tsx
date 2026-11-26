@@ -1,7 +1,5 @@
 import { ArrowRight02Icon, ArrowDown01Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
-import Link from 'next/link'
-
 import { ButtonLink, MonoLabel, Shell } from '../commons'
 import { HeroPhone, ReceiptPaper } from '../mockups'
 
@@ -25,7 +23,8 @@ const TALLY_COMPACT: TallyLine[] = [
 ]
 
 // Load choreography: the copy rises in order, then the receipt and the phone slide in.
-const RISE = 'animate-in fade-in slide-in-from-bottom-4 fill-mode-both duration-900 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:animate-none'
+const RISE =
+	'animate-in fade-in slide-in-from-bottom-4 fill-mode-both duration-900 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:animate-none'
 
 /** The first screen: the promise, the call to action, the tally of what it costs, and a receipt turning into a running trip. */
 export function HeroSection() {
@@ -66,17 +65,17 @@ export function HeroSection() {
 					</h1>
 					<p
 						className={cn(
-							'mt-4 max-w-[31em] text-[16.5px] leading-[1.55] text-paper-text md:mt-7 md:text-[clamp(18px,1.7vw,21px)]',
+							'mt-3 max-w-[31em] text-[16.5px] leading-[1.55] text-paper-text md:mt-5 md:text-[clamp(18px,1.7vw,21px)]',
 							RISE,
 							'delay-250',
 						)}
 					>
-						Photograph a receipt you already have. Listys reads the items so you can review them and choose what to add to a
-						reusable list.
+						Photograph a receipt you already have. Listys reads the items so you can review them and choose what to add
+						to a reusable list.
 					</p>
 					<div
 						className={cn(
-							'mt-[22px] flex flex-col items-stretch gap-1 md:mt-8 md:flex-row md:flex-wrap md:items-center md:gap-x-[26px] md:gap-y-3',
+							'mt-8 flex flex-col items-stretch gap-2 md:mt-10 md:flex-row md:flex-wrap md:items-center md:gap-x-[26px] md:gap-y-3',
 							RISE,
 							'delay-350',
 						)}
@@ -94,10 +93,12 @@ export function HeroSection() {
 								data-icon='inline-end'
 							/>
 						</ButtonLink>
-						<Link
+						<ButtonLink
 							href='#how-it-works'
+							variant='ghost'
+							size='xl'
 							data-testid='landing-hero-how-link'
-							className='focus-ring flex min-h-11 items-center justify-center gap-2 rounded-md border-b-[1.5px] border-transparent pt-0.5 font-semibold text-paper-ink transition-colors hover:border-paper-ink md:min-h-12'
+							className='w-full md:w-auto'
 						>
 							See how it works
 							<HugeiconsIcon
@@ -105,12 +106,16 @@ export function HeroSection() {
 								strokeWidth={2}
 								className='size-3.5'
 							/>
-						</Link>
+						</ButtonLink>
 					</div>
 
 					<dl
 						data-testid='landing-hero-tally'
-						className={cn('mt-10 hidden max-w-[460px] font-mono text-[13px] text-paper-text md:block', RISE, 'delay-450')}
+						className={cn(
+							'mt-10 hidden max-w-[460px] font-mono text-[13px] text-paper-text md:block',
+							RISE,
+							'delay-450',
+						)}
 					>
 						{TALLY.map(line => (
 							<TallyRow
@@ -125,7 +130,7 @@ export function HeroSection() {
 					</dl>
 					<dl
 						data-testid='landing-hero-tally-compact'
-						className={cn('mt-3.5 grid grid-cols-2 border-y-[1.5px] border-paper-ink md:hidden', RISE, 'delay-450')}
+						className={cn('mt-6 grid grid-cols-2 border-y-[1.5px] border-paper-ink md:hidden', RISE, 'delay-450')}
 					>
 						{TALLY_COMPACT.map((line, index) => (
 							<div
@@ -166,10 +171,7 @@ type TallyRowProps = {
 function TallyRow({ line, total = false }: TallyRowProps) {
 	return (
 		<div
-			className={cn(
-				'flex items-baseline gap-2.5 py-[7px]',
-				total && 'mt-1.5 border-t-[1.5px] border-paper-ink pt-3',
-			)}
+			className={cn('flex items-baseline gap-2.5 py-[7px]', total && 'mt-1.5 border-t-[1.5px] border-paper-ink pt-3')}
 		>
 			<dt className='tracking-[0.06em] uppercase'>{line.term}</dt>
 			<i
@@ -191,15 +193,6 @@ function HeroStage() {
 			data-testid='landing-hero-stage'
 			className='relative -mx-5 h-[330px] overflow-hidden mask-[linear-gradient(#000_62%,transparent)] md:mx-0 md:flex md:h-auto md:min-h-[700px] md:justify-center md:overflow-visible md:mask-none'
 		>
-			<p className='absolute top-0 left-5 z-30 flex items-center gap-2 md:hidden'>
-				<span className='size-[7px] rounded-full bg-sky-400 ring-3 ring-sky-400/25' />
-				<MonoLabel
-					size='sm'
-					tone='accent'
-				>
-					Read from Market Fresh · 12 items
-				</MonoLabel>
-			</p>
 			<p className='sr-only'>
 				A phone showing the twelve items from that receipt as a shopping trip in progress, three of twelve collected.
 			</p>

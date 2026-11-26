@@ -2,15 +2,15 @@ import { TornPaper } from '@/components/commons/torn-paper'
 
 const LINES: [string, string][] = [
 	['ORGANIC STRAWBERRIES', '5.99'],
-	['ALMOND MILK 1L', '4.50'],
-	['SOURDOUGH BREAD', '5.25'],
+	['ALMND MLK 1L', '4.50'],
+	['SRDGH BRD', '5.25'],
 	['AVOCADOS (3)', '4.99'],
 	['GREEK YOGURT 500G', '6.50'],
-	['CHERRY TOM 1KG', '3.75'],
+	['CHRY TMTO 1KG', '3.75'],
 	['BABY SPINACH 200G', '2.40'],
-	['FR RANGE EGGS 12', '4.80'],
+	['EGG FR RNG 12C', '4.80'],
 	['PARMESAN 250G', '6.20'],
-	['CHKN BREAST 1KG', '12.30'],
+	['CHK BRST BNL 1KG', '12.30'],
 	['OLIVE OIL 750ML', '9.10'],
 	['SPARK WATER 6PK', '4.80'],
 ]

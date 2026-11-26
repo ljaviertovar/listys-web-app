@@ -10,43 +10,50 @@ type Pair = { raw: string; rawPrice: string; row: TripRowMockData }
 
 const PAIRS: Pair[] = [
 	{
-		raw: 'LECHE 2% 4L',
+		raw: 'LCH 2PCT 4.0L',
 		rawPrice: '6.29',
 		row: {
 			quantity: 4,
 			unit: 'L',
-			name: '2% milk',
-			note: 'Get the lactose-free one if they have it, the usual is fine',
+			name: '2% Milk',
+			note: 'Lactose-free preferred; regular is fine',
 			store: 'Market Fresh',
 			alsoAt: 'also at No Frills',
 			price: 6.29,
 		},
 	},
 	{
-		raw: 'CHERRY TOM 1KG',
+		raw: 'CHRY TMTO 1KG',
 		rawPrice: '3.75',
-		row: { quantity: 1, unit: 'kg', name: 'Cherry tomatoes', store: 'Market Fresh', price: 3.75 },
+		row: {
+			quantity: 1,
+			unit: 'kg',
+			name: 'Cherry Tomatoes',
+			note: 'Ripe ones for salads and lunches',
+			store: 'Market Fresh',
+			price: 3.75,
+		},
 	},
 	{
-		raw: 'FR RANGE EGGS 12',
+		raw: 'EGG FR RNG 12C',
 		rawPrice: '4.80',
 		row: {
-			quantity: 12,
-			unit: 'unit',
-			name: 'Free-range eggs',
-			note: 'Brown, not the white ones. Last time they were cracked',
+			quantity: 1,
+			unit: 'dozen',
+			name: 'Free-Range Eggs',
+			note: 'Brown eggs; check the shells are intact',
 			store: 'Market Fresh',
 			alsoAt: 'also at No Frills',
 			price: 4.8,
 		},
 	},
 	{
-		raw: 'CHKN BREAST 1KG',
+		raw: 'CHK BRST BNL 1KG',
 		rawPrice: '12.30',
 		row: {
 			quantity: 1,
 			unit: 'kg',
-			name: 'Chicken breast',
+			name: 'Boneless Chicken Breast',
 			note: 'Skinless, it’s for Sunday’s stir-fry',
 			store: 'Market Fresh',
 			price: 12.3,
@@ -63,8 +70,9 @@ export function ReceiptBandSection() {
 			testId='landing-receipt-band'
 			surface='night'
 			rhythm='band'
+			className="relative isolate overflow-hidden bg-[url('/images/landing/receipts-are-written-mobile.webp')] bg-cover bg-top before:absolute before:inset-0 before:z-0 before:content-[''] md:bg-none md:before:bg-[url('/images/landing/receipts-are-written.webp')] md:before:bg-cover md:before:bg-center"
 		>
-			<div className='grid gap-[26px] md:gap-11 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.3fr)] lg:items-center lg:gap-18 [&>*]:min-w-0'>
+			<div className='relative z-10 grid gap-[26px] md:gap-11 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.3fr)] lg:items-center lg:gap-18 [&>*]:min-w-0'>
 				<div data-reveal>
 					<h2 className='text-[34px] leading-[0.98] font-extrabold tracking-[-0.045em] text-white md:text-[clamp(34px,4.4vw,58px)]'>
 						Receipts are written for the till. <em className='text-inverse-action not-italic'>Your list is written for you.</em>
