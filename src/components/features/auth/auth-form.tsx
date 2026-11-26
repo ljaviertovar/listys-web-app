@@ -12,8 +12,7 @@ import { signInSchema, signUpSchema, MIN_PASSWORD_LENGTH, type SignInInput } fro
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Separator } from '@/components/ui/separator'
-import { FormField } from '@/components/commons'
+import { FormField, Perforation } from '@/components/commons'
 
 import { AuthModeSwitch } from './auth-mode-switch'
 import { AuthPasswordInput } from './auth-password-input'
@@ -76,8 +75,10 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
 
 			{/* On a phone the title lives in the photo header above the sheet. */}
 			<div className='hidden lg:block'>
-				<h1 className='font-display text-4xl leading-[1.11] font-bold tracking-[-0.03em] text-balance'>{copy.title}</h1>
-				<p className='mt-2 text-base leading-normal text-muted-foreground'>{copy.lead}</p>
+				<h1 className='font-display text-5xl leading-[0.98] font-extrabold tracking-[-0.04em] text-balance text-paper-ink dark:text-foreground'>
+					{copy.title}
+				</h1>
+				<p className='mt-3 text-base leading-normal text-paper-text dark:text-muted-foreground'>{copy.lead}</p>
 			</div>
 
 			{serverError ? (
@@ -102,10 +103,18 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
 				onError={() => setServerError('We couldn’t open Google sign-in. Try again.')}
 			/>
 
-			<div className='flex items-center gap-3'>
-				<Separator className='flex-1' />
-				<span className='text-xs leading-tight text-muted-foreground'>{copy.dividerLabel}</span>
-				<Separator className='flex-1' />
+			<div className='flex items-center gap-2.5'>
+				<Perforation
+					testId='auth-divider-start'
+					className='flex-1'
+				/>
+				<span className='font-mono text-[11px] leading-tight tracking-[0.1em] text-paper-muted uppercase dark:text-muted-foreground'>
+					{copy.dividerLabel}
+				</span>
+				<Perforation
+					testId='auth-divider-end'
+					className='flex-1'
+				/>
 			</div>
 
 			<div className='grid gap-4'>
@@ -114,6 +123,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
 					label='Email address'
 					error={errors.email?.message}
 					testId='auth-email-field'
+					labelStyle='mono'
 				>
 					<Input
 						{...register('email')}
@@ -122,6 +132,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
 						autoComplete='email'
 						placeholder='name@example.com'
 						size='lg'
+						variant='on-paper'
 						disabled={isSubmitting}
 						aria-invalid={errors.email ? true : undefined}
 						aria-describedby={errors.email ? 'email-error' : undefined}
@@ -133,6 +144,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
 					hint={isSignUp ? `Must be at least ${MIN_PASSWORD_LENGTH} characters long` : undefined}
 					error={errors.password?.message}
 					testId='auth-password-field'
+					labelStyle='mono'
 				>
 					<AuthPasswordInput
 						{...register('password')}
@@ -148,7 +160,8 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
 
 			<Button
 				type='submit'
-				size='lg'
+				variant='cta'
+				size='xl'
 				disabled={isSubmitting}
 				className='w-full'
 			>

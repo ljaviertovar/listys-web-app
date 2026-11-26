@@ -1,7 +1,6 @@
 'use client'
 
 import { useMemo } from 'react'
-import { ListViewIcon } from '@hugeicons/core-free-icons'
 
 import {
 	CategoryCollapseControl,
@@ -19,13 +18,15 @@ import { BaseListItemRow } from './base-list-item-row'
 
 interface BaseListItemsProps {
 	baseListId: string
+	/** The list's name, printed on the empty ticket. */
+	listName?: string
 	items: BaseListItemWithStoreSummary[]
 	isLocked?: boolean
 	isOwner?: boolean
 }
 
 /** The items of a base list in one card, a collapsible section per category; or the card that invites adding the first item. */
-export function BaseListItems({ baseListId, items, isLocked = false, isOwner = true }: BaseListItemsProps) {
+export function BaseListItems({ baseListId, listName = 'Items', items, isLocked = false, isOwner = true }: BaseListItemsProps) {
 	const groups = useMemo(
 		() => groupByCategory([...items].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))),
 		[items],
@@ -36,8 +37,8 @@ export function BaseListItems({ baseListId, items, isLocked = false, isOwner = t
 	if (items.length === 0) {
 		return (
 			<EmptyStateCard
-				icon={ListViewIcon}
-				tone='blue'
+				stub={{ label: listName, count: '0 items' }}
+				ghost='items'
 				title='No items yet'
 				description={
 					isLocked
@@ -47,17 +48,19 @@ export function BaseListItems({ baseListId, items, isLocked = false, isOwner = t
 				testId='base-list-empty-state'
 			>
 				{isLocked ? <BaseListLockedNotice testId='base-list-locked-notice' className='mb-3' /> : null}
-				<div className='flex w-full flex-col items-stretch gap-2 sm:flex-row'>
+				<div className='flex w-full flex-col items-stretch gap-2'>
 					<AddItemSheet
 						target={{ context: 'base-list', baseListId }}
 						label='Add Items'
 						isLocked={isLocked}
 						variant='secondary'
+						size='xl'
 						className='w-full'
 					/>
 					{isLocked ? null : (
 						<UploadTicketDialog
 							variant='default'
+							size='xl'
 							className='w-full'
 						/>
 					)}

@@ -13,6 +13,8 @@ const labelVariants = cva(
       size: {
         default: 'text-sm',
         compact: 'text-xs leading-3',
+        // The printed field label of the paper skin.
+        mono: 'font-mono text-[11px] font-medium tracking-[0.1em] text-paper-text uppercase dark:text-foreground',
       },
     },
     defaultVariants: { size: 'default' },

@@ -6,25 +6,26 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Warm neutrals (DS v3.0.0): greys with a trace of paper. Entity, feedback and primary colours are unchanged. */
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
+  --background: #F6F6F4;
+  --foreground: #15171B;
+  --card: #FEFEFC;
+  --card-foreground: #15171B;
+  --popover: #FEFEFC;
+  --popover-foreground: #15171B;
   --primary: oklch(0.488 0.243 264.376);
   --primary-foreground: oklch(0.97 0.014 254.604);
-  --secondary: oklch(0.967 0.001 286.375);
-  --secondary-foreground: oklch(0.21 0.006 285.885);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --secondary: #F2F2EF;
+  --secondary-foreground: #15171B;
+  --muted: #F6F6F4;
+  --muted-foreground: #6A6A67;
+  --accent: #F2F2EF;
+  --accent-foreground: #15171B;
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(1 0 0);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
+  --border: #E6E6E3;
+  --input: #D5D5D1;
   --ring: oklch(0.708 0 0);
   --chart-1: oklch(0.809 0.105 251.813);
   --chart-2: oklch(0.623 0.214 259.815);
@@ -32,16 +33,16 @@
   --chart-4: oklch(0.488 0.243 264.376);
   --chart-5: oklch(0.424 0.199 265.638);
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar: #FAFAF9;
+  --sidebar-foreground: #15171B;
   --sidebar-primary: oklch(0.546 0.245 262.881);
   --sidebar-primary-foreground: oklch(0.97 0.014 254.604);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-accent: #F2F2EF;
+  --sidebar-accent-foreground: #15171B;
+  --sidebar-border: #E6E6E3;
   --sidebar-ring: oklch(0.708 0 0);
-  --inverse: #0F172A;
-  --inverse-muted: #CBD5E1;
+  --inverse: #15171B;
+  --inverse-muted: #D5D5D1;
   --inverse-action: #93C5FD;
   --feedback-success: #15803D;
   --feedback-success-subtle: #F0FDF4;
@@ -90,40 +91,40 @@
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
+  --background: #15171B;
+  --foreground: #F5F5F2;
+  --card: #1E1D1B;
+  --card-foreground: #F5F5F2;
+  --popover: #1E1D1B;
+  --popover-foreground: #F5F5F2;
   --primary: oklch(0.424 0.199 265.638);
   --primary-foreground: oklch(0.97 0.014 254.604);
-  --secondary: oklch(0.274 0.006 286.033);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+  --secondary: #2A2927;
+  --secondary-foreground: #F5F5F2;
+  --muted: #2A2927;
+  --muted-foreground: #A3A29F;
+  --accent: #2A2927;
+  --accent-foreground: #F5F5F2;
   --destructive: oklch(0.704 0.191 22.216);
   --destructive-foreground: oklch(0.145 0 0);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
+  --border: rgb(245 245 242 / 10%);
+  --input: rgb(245 245 242 / 15%);
   --ring: oklch(0.556 0 0);
   --chart-1: oklch(0.809 0.105 251.813);
   --chart-2: oklch(0.623 0.214 259.815);
   --chart-3: oklch(0.546 0.245 262.881);
   --chart-4: oklch(0.488 0.243 264.376);
   --chart-5: oklch(0.424 0.199 265.638);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar: #1E1D1B;
+  --sidebar-foreground: #F5F5F2;
   --sidebar-primary: oklch(0.623 0.214 259.815);
   --sidebar-primary-foreground: oklch(0.97 0.014 254.604);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-accent: #2A2927;
+  --sidebar-accent-foreground: #F5F5F2;
+  --sidebar-border: rgb(245 245 242 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
-  --inverse: #1E293B;
-  --inverse-muted: #CBD5E1;
+  --inverse: #26272B;
+  --inverse-muted: #D5D5D1;
   --inverse-action: #93C5FD;
   --feedback-success: #86EFAC;
   --feedback-success-subtle: #0D2A1B;
@@ -261,6 +262,27 @@
   --animate-system-reveal: system-reveal 150ms ease-out 200ms both;
   /* After 10s the loading screen adds one honest line and a way out; hidden until then, and not focusable. */
   --animate-system-slow: system-slow 300ms ease-out 10s both;
+  /* The scan line that sweeps the ghost receipt of an empty ticket. */
+  --animate-scan-sweep: scan-sweep 3.4s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+
+  @keyframes scan-sweep {
+    0% {
+      top: 8%;
+      opacity: 0;
+    }
+    15% {
+      opacity: 1;
+    }
+    75% {
+      top: 86%;
+      opacity: 1;
+    }
+    90%,
+    100% {
+      top: 88%;
+      opacity: 0;
+    }
+  }
 
   @keyframes receipt-feed {
     from {
@@ -290,6 +312,33 @@
       visibility: visible;
     }
   }
+}
+
+/* The slate utilities already spread through the app take the same warm neutrals, so no component has to change; white is the card paper. */
+@theme {
+  --color-white: #FEFEFC;
+  --color-slate-50: #FAFAF9;
+  --color-slate-100: #F2F2EF;
+  --color-slate-200: #E6E6E3;
+  --color-slate-300: #D5D5D1;
+  --color-slate-400: #A3A29F;
+  --color-slate-500: #6A6A67;
+  --color-slate-600: #4D4D4B;
+  --color-slate-700: #3A3C40;
+  --color-slate-800: #26282C;
+  --color-slate-900: #15171B;
+  --color-slate-950: #0E0F12;
+}
+
+/* Thermal-paper grain of the landing and the auth screens: an inline SVG noise filter, which no built-in utility can express. */
+@utility paper-grain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .26  0 0 0 0 .26  0 0 0 0 .24  0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* The torn bottom edge of a receipt or ticket: a two-layer mask (body + zigzag teeth) has no utility. */
+@utility receipt-torn {
+  -webkit-mask: linear-gradient(#000 0 0) top / 100% calc(100% - 10px) no-repeat, conic-gradient(from -45deg at 50% 100%, #000 0 90deg, transparent 0) bottom / 16px 10px round no-repeat;
+  mask: linear-gradient(#000 0 0) top / 100% calc(100% - 10px) no-repeat, conic-gradient(from -45deg at 50% 100%, #000 0 90deg, transparent 0) bottom / 16px 10px round no-repeat;
 }
 
 /* Keyboard focus of links and rows that are not a library component: a 2px action-blue ring with a 2px offset. */

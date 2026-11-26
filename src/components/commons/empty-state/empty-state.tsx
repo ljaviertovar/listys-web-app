@@ -8,15 +8,19 @@ interface EmptyStateProps {
 	title: ReactNode
 	description: ReactNode
 	children?: ReactNode
+	variant?: 'default' | 'ticket'
 }
 
 /** Shared empty-state anatomy; the containing feature owns its surface and actions. */
-export function EmptyState({ testId, media, title, description, children }: EmptyStateProps) {
+export function EmptyState({ testId, media, title, description, children, variant = 'default' }: EmptyStateProps) {
 	return (
-		<Empty data-testid={testId}>
+		<Empty
+			data-testid={testId}
+			variant={variant}
+		>
 			<EmptyHeader>
 				{media ? <EmptyMedia>{media}</EmptyMedia> : null}
-				<EmptyTitle><h2>{title}</h2></EmptyTitle>
+				<EmptyTitle variant={variant}><h2>{title}</h2></EmptyTitle>
 				<EmptyDescription>{description}</EmptyDescription>
 			</EmptyHeader>
 			{children ? <EmptyContent>{children}</EmptyContent> : null}

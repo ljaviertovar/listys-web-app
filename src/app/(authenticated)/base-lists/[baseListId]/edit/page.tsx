@@ -140,6 +140,7 @@ export default async function EditBaseListPage({
 
 						<BaseListItems
 						baseListId={baseListId}
+						listName={baseListWithItems.name}
 						items={shownItems}
 						isLocked={isLocked}
 						isOwner={isOwner}

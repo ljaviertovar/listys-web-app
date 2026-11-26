@@ -6,7 +6,8 @@ import { Card } from '@/components/ui/card'
 import { SessionSummaryCard } from '@/components/features/shopping-sessions'
 import { cn } from '@/utils'
 
-import { MonoLabel, SectionHead, SectionWrapper, TornPaper } from '../commons'
+import { TornPaper } from '@/components/commons/torn-paper'
+import { MonoLabel, SectionHead, SectionWrapper } from '../commons'
 
 import { ReviewFragment } from './review-fragment'
 

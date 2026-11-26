@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useMemo } from 'react'
-import { TaskAdd01Icon } from '@hugeicons/core-free-icons'
 
 import { CategoryCollapseControl, CategorySection, EmptyStateCard, useCategorySectionExpansion } from '@/components/commons'
 import { groupByCategory } from '@/utils'
@@ -64,8 +63,7 @@ export function ShoppingSessionItems({ items: initialItems, sessionId, isComplet
 	if (items.length === 0) {
 		return (
 			<EmptyStateCard
-				icon={TaskAdd01Icon}
-				tone='amber'
+				stub={{ label: 'Trip', count: '0 items' }}
 				title={isCompleted ? 'No purchased items' : 'No items yet'}
 				description={
 					isCompleted

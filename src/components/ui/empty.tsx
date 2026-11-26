@@ -1,12 +1,17 @@
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/utils"
 
-function Empty({ className, ...props }: React.ComponentProps<"div">) {
+function Empty({ className, variant = "default", ...props }: React.ComponentProps<"div"> & {
+  /** `ticket` drops the inner padding: the torn paper around it owns it. */
+  variant?: "default" | "ticket"
+}) {
   return (
     <div
       data-slot="empty"
+      data-variant={variant}
       className={cn(
         "flex w-full min-w-0 flex-1 flex-col items-center justify-center gap-4 rounded-lg border-dashed p-12 text-center text-balance",
+        variant === "ticket" && "p-0 pt-4",
         className
       )}
       {...props}
@@ -54,12 +59,16 @@ function EmptyMedia({
   )
 }
 
-function EmptyTitle({ className, ...props }: React.ComponentProps<"div">) {
+function EmptyTitle({ className, variant = "default", ...props }: React.ComponentProps<"div"> & {
+  /** `ticket` is the tight display title printed on a torn ticket. */
+  variant?: "default" | "ticket"
+}) {
   return (
     <div
       data-slot="empty-title"
       className={cn(
         "font-display text-lg font-medium tracking-tight",
+        variant === "ticket" && "text-2xl leading-none font-extrabold tracking-[-0.035em]",
         className
       )}
       {...props}

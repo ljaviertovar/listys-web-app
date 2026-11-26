@@ -82,12 +82,12 @@ function Reference({ digest, testId }: ReferenceProps) {
 	}
 
 	return (
-		<p data-testid={testId} className='mt-5 flex items-center gap-1.5 text-xs text-muted-foreground'>
+		<p data-testid={testId} className='mt-5 flex items-center gap-1.5 font-mono text-[11px] tracking-[0.06em] text-paper-muted uppercase dark:text-muted-foreground'>
 			Reference
-			<span className='font-mono font-medium text-foreground'>{digest}</span>
+			<span className='font-medium tracking-[0.02em] text-paper-ink dark:text-foreground'>{digest}</span>
 			<Button variant='ghost' size='quiet-touch' onClick={copy} data-testid={`${testId}-copy`}>
 				<HugeiconsIcon icon={copied ? Tick02Icon : Copy01Icon} strokeWidth={1.8} data-icon='inline-start' className='size-3.5' />
-				{copied ? 'Copied' : 'Copy'}
+				<span className='font-mono text-[11px] tracking-[0.06em] text-paper-ink uppercase underline decoration-dotted underline-offset-4 dark:text-foreground'>{copied ? 'Copied' : 'Copy'}</span>
 			</Button>
 		</p>
 	)

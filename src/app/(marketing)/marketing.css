@@ -4,21 +4,6 @@
  * need an SVG filter, a mask, a pseudo-element animation or a state selector that utilities cannot express.
  */
 
-/* Thermal-paper grain: an inline SVG noise filter tiled over the page; a multi-part SVG data URI is not a utility. */
-.paper-grain {
-	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .26  0 0 0 0 .26  0 0 0 0 .24  0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-
-/* The torn bottom edge of a receipt or ticket: a two-layer mask (body + zigzag teeth) has no utility. */
-.receipt-torn {
-	-webkit-mask:
-		linear-gradient(#000 0 0) top / 100% calc(100% - 10px) no-repeat,
-		conic-gradient(from -45deg at 50% 100%, #000 0 90deg, transparent 0) bottom / 16px 10px round no-repeat;
-	mask:
-		linear-gradient(#000 0 0) top / 100% calc(100% - 10px) no-repeat,
-		conic-gradient(from -45deg at 50% 100%, #000 0 90deg, transparent 0) bottom / 16px 10px round no-repeat;
-}
-
 /* The receipt's barcode: a repeating gradient of bars, not a real barcode. */
 .receipt-barcode {
 	background: repeating-linear-gradient(

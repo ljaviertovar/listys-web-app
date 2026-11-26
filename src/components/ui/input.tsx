@@ -10,6 +10,8 @@ const inputVariants = cva(
 			variant: {
 				default: '',
 				amount: 'text-right font-mono font-medium tabular-nums',
+				// A field on the auth screens' paper: warm white fill; border, radius and states are the default ones.
+				'on-paper': 'bg-card dark:bg-input/50',
 			},
 			size: {
 				default: 'h-11 md:h-9',

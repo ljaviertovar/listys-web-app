@@ -6,12 +6,12 @@ import {
 	MemorySection,
 	MobileCtaDock,
 	MoneySection,
-	Perforation,
 	ReceiptBandSection,
 	RevealObserver,
 	SharedListsShowcaseSection,
 	Shell,
 } from '@/components/marketing/landing-page'
+import { Perforation } from '@/components/commons/perforation'
 
 /** The receipt perforation between two sections, inset to the content width. */
 function SectionBreak({ testId }: { testId: string }) {

@@ -53,7 +53,7 @@ export default function GoogleButtonSignin({ typeSubmit, callbackUrl, disabled =
 		<Button
 			type='button'
 			disabled={isLoading || disabled}
-			variant='outline'
+			variant='paper-outline'
 			size='lg'
 			data-testid={testId}
 			aria-busy={isLoading}

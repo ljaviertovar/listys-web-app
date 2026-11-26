@@ -18,14 +18,19 @@ interface FormFieldProps {
 	/** Identifies the field in tests; the caller says which one it is. */
 	testId: string
 	className?: string
+	/** `mono` prints the label as on a receipt (the paper skin of the auth screens). */
+	labelStyle?: 'default' | 'mono'
 	/** Legacy callers share Field's native spacing. */
 	density?: 'default' | 'compact'
 }
 
 /** A labelled control of an A1 form with its validation message under it: a red alert icon and the text, never colour alone. */
-export function FormField({ htmlFor, label, labelAction, hint, required = false, error, children, testId, className }: FormFieldProps) {
+export function FormField({ htmlFor, label, labelAction, hint, required = false, error, children, testId, className, labelStyle = 'default' }: FormFieldProps) {
 	const labelNode = (
-			<FieldLabel htmlFor={htmlFor}>
+			<FieldLabel
+				htmlFor={htmlFor}
+				size={labelStyle}
+			>
 			{label}
 			{required ? (
 				<span

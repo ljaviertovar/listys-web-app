@@ -1,6 +1,7 @@
 import Link from 'next/link'
 
-import { Brand, Perforation, Shell } from './landing-page'
+import { Perforation } from '@/components/commons/perforation'
+import { Brand, Shell } from './landing-page'
 
 import { MARKETING_SECTION_LINKS } from '@/data/constants'
 

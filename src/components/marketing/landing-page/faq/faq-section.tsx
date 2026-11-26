@@ -1,4 +1,5 @@
-import { MonoLabel, SectionHead, SectionWrapper, TornPaper } from '../commons'
+import { TornPaper } from '@/components/commons/torn-paper'
+import { MonoLabel, SectionHead, SectionWrapper } from '../commons'
 
 // Only what no section above already answers: the receipts that work, life without receipts, and where the photos go.
 const FAQS = [

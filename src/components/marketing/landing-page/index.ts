@@ -1,4 +1,4 @@
-export { Brand, ButtonLink, Perforation, RevealObserver, SectionWrapper, Shell } from './commons'
+export { Brand, ButtonLink, RevealObserver, SectionWrapper, Shell } from './commons'
 export { HeroSection } from './hero'
 export { ReceiptBandSection } from './receipt-band'
 export { MoneySection } from './money'

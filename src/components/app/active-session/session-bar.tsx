@@ -33,7 +33,7 @@ export function SessionBar({ id, name, progress, otherCount = 0 }: SessionBarPro
 				<Link
 					href={`/shopping/${id}`}
 					className={cn(
-						'flex min-w-0 flex-1 items-center gap-2 rounded-full bg-slate-900 py-2.5 pr-2.5 pl-4 text-white shadow-[0_16px_32px_-12px_rgba(15,23,42,0.5)]',
+						'flex min-w-0 flex-1 items-center gap-2 rounded-full bg-slate-900 py-2.5 pr-2.5 pl-4 text-white shadow-[0_16px_32px_-12px_rgba(21,23,27,0.5)]',
 						'focus-ring',
 					)}
 				>

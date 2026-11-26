@@ -7,7 +7,7 @@ import { ViewIcon, ViewOffIcon } from '@hugeicons/core-free-icons'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
-type Props = Omit<ComponentProps<typeof Input>, 'type' | 'size' | 'adornment'>
+type Props = Omit<ComponentProps<typeof Input>, 'type' | 'size' | 'adornment' | 'variant'>
 
 /** The password field of the auth forms: the 44px field with a show/hide toggle laid over its end. */
 export function AuthPasswordInput({ disabled, ...props }: Props) {
@@ -22,6 +22,7 @@ export function AuthPasswordInput({ disabled, ...props }: Props) {
 				{...props}
 				type={visible ? 'text' : 'password'}
 				size='lg'
+				variant='on-paper'
 				adornment='end'
 				disabled={disabled}
 			/>

@@ -23,7 +23,7 @@ export function AuthHero({ mode }: { mode: AuthMode }) {
 		<section
 			data-testid='auth-hero'
 			aria-label='Why create a Listys account'
-			className='relative isolate flex min-h-37.5 flex-1 flex-col justify-between overflow-hidden bg-slate-900 px-5 pt-3 pb-12 text-white lg:order-last lg:min-h-0 lg:min-w-0 lg:shrink lg:grow lg:basis-140 lg:justify-end lg:rounded-3xl lg:p-12 lg:shadow-sm'
+			className='relative isolate flex min-h-37.5 flex-1 flex-col justify-between overflow-hidden bg-paper-ink px-5 pt-3 pb-12 text-white lg:order-last lg:min-h-0 lg:min-w-0 lg:shrink lg:grow lg:basis-140 lg:justify-end lg:rounded-3xl lg:p-12 lg:shadow-sm'
 		>
 			<Image
 				src={banner}
@@ -35,7 +35,7 @@ export function AuthHero({ mode }: { mode: AuthMode }) {
 			/>
 			<div
 				aria-hidden='true'
-				className='absolute inset-0 -z-10 bg-linear-to-b from-slate-900/55 via-slate-900/38 via-40% to-slate-900/90 lg:from-slate-900/18'
+				className='absolute inset-0 -z-10 bg-linear-to-b from-paper-ink/50 via-paper-ink/28 via-38% to-paper-ink/92 lg:from-paper-ink/18'
 			/>
 
 			<div className='relative flex min-h-11 items-center justify-between lg:hidden'>
@@ -43,12 +43,12 @@ export function AuthHero({ mode }: { mode: AuthMode }) {
 				<AuthBackLink tone='dark-surface' />
 			</div>
 			<div className='relative lg:hidden'>
-				<h1 className='font-display text-2xl leading-[1.17] font-bold tracking-tight text-balance'>{copy.title}</h1>
+				<h1 className='font-display text-3xl leading-[0.98] font-extrabold tracking-[-0.04em] text-balance'>{copy.title}</h1>
 				<p className='mt-1.5 text-sm leading-normal text-slate-300'>{copy.lead}</p>
 			</div>
 
 			<div className='relative hidden max-w-135 gap-5 lg:grid'>
-				<h2 className='font-display text-4xl leading-[1.11] font-bold tracking-[-0.03em] text-balance'>{copy.hero.headline}</h2>
+				<h2 className='font-display text-5xl leading-[0.98] font-extrabold tracking-[-0.04em] text-balance'>{copy.hero.headline}</h2>
 				<p className='text-base leading-normal text-pretty text-white/90'>{copy.hero.body}</p>
 				{copy.hero.benefits ? (
 					<ul className='grid gap-3'>

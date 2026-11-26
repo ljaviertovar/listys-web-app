@@ -1,4 +1,4 @@
-import { TornPaper } from '../commons'
+import { TornPaper } from '@/components/commons/torn-paper'
 
 const LINES: [string, string][] = [
 	['ORGANIC STRAWBERRIES', '5.99'],
