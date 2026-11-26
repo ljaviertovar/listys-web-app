@@ -110,7 +110,7 @@ export function MobileTabBar() {
 		<nav
 			aria-label='Main'
 			data-testid='mobile-tab-bar'
-			className='fixed inset-x-0 bottom-0 z-40 grid shrink-0 grid-cols-5 items-start bg-card px-2 pt-1 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-[0_-1px_0_rgba(15,23,42,0.06),0_-12px_24px_-22px_rgba(15,23,42,0.4)] lg:hidden'
+			className='fixed inset-x-0 bottom-0 z-40 grid shrink-0 grid-cols-5 items-start bg-card px-2 pt-1 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-[0_-1px_0_rgba(21,23,27,0.06),0_-12px_24px_-22px_rgba(21,23,27,0.4)] lg:hidden'
 		>
 			{tab(dashboard)}
 			{tab(lists)}

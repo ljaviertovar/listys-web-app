@@ -1,132 +1,192 @@
-import type { ReactNode } from 'react'
 import Image from 'next/image'
+import type { ReactNode } from 'react'
 
-import { Icon } from '../commons'
-
+import { Badge } from '@/components/ui/badge'
+import { Card } from '@/components/ui/card'
+import { SessionSummaryCard } from '@/components/features/shopping-sessions'
 import { cn } from '@/utils'
 
+import { TornPaper } from '@/components/commons/torn-paper'
+import { MonoLabel, SectionHead, SectionWrapper } from '../commons'
+
+import { ReviewFragment } from './review-fragment'
+
 type Step = {
-	num: string
+	number: string
+	verb: string
 	title: string
-	lede: string
-	points: string[]
-	flip?: boolean
-	visual: ReactNode
+	text: string
+	footTerm: string
+	footValue: string
+	image: { src: string; alt: string }
+	fragment: ReactNode
 }
 
 const STEPS: Step[] = [
 	{
-		num: '01',
+		number: '01',
+		verb: 'Read',
 		title: 'Photograph the receipt',
-		lede: 'Up to five images in one upload — the one in your pocket, the one that has been in a drawer for a month. Listys reads them in the background, so you can put the phone down.',
-		points: [
-			'Up to five photos in a single upload',
-			'Extraction runs while you do something else',
-			'Review extracted items before adding them to a base list',
-		],
-		flip: true,
-		visual: (
-			<Image
-				src='/images/landing/step-01.webp'
-				alt='A shopper photographing a grocery receipt beside a cart of groceries.'
-				width={724}
-				height={543}
-				className='h-auto w-full rounded-[14px] shadow'
-			/>
-		),
+		text: 'Up to five photos in one upload. Listys reads them in the background, and the store name comes from the receipt itself.',
+		footTerm: 'Photos',
+		footValue: '1–5 / upload',
+		image: {
+			src: '/images/landing/step-01.webp',
+			alt: 'A shopper photographing a grocery receipt with the Listys upload screen open on their phone.',
+		},
+		fragment: <UploadFragment />,
 	},
 	{
-		num: '02',
-		title: 'Keep it as a list you reuse',
-		lede: 'Review the extracted items, then choose what to add to a base list. Repeated items merge by name so they don’t create duplicate rows.',
-		points: [
-			'Compare extracted items with your receipt before adding them',
-			'Repeats merge by name instead of stacking up',
-			'Choose which items to add to a new or existing list',
-		],
-		visual: (
-			<Image
-				src='/images/landing/step-02.webp'
-				alt='A shopper checking groceries off a reusable Listys shopping list on their phone.'
-				width={724}
-				height={543}
-				className='h-auto w-full rounded-[14px] shadow'
-			/>
-		),
+		number: '02',
+		verb: 'Review',
+		title: 'Confirm each match, then keep it',
+		text: 'Listys compares every line with your list and suggests a match. Confirm it, choose another item, or add the line as new. Nothing joins the list until you tap Add or Update.',
+		footTerm: 'Saved unreviewed',
+		footValue: '0 lines',
+		image: {
+			src: '/images/landing/step-02.webp',
+			alt: 'A shopper reviewing the items Listys read from a receipt, next to the paper receipt on a kitchen counter.',
+		},
+		fragment: <ReviewFragment />,
 	},
 	{
-		num: '03',
-		title: 'Shop it, and it gets better',
-		lede: 'Starting a trip clones the list, so the original survives whatever happens in the store. Check items off one-handed, finish, and the trip feeds back into the list.',
-		points: [
-			'The trip is a clone — your base list is untouched',
-			'Items arrive ordered by what you buy most',
-			'Sync the trip back when you are done',
-		],
-		flip: true,
-		visual: (
-			<Image
-				src='/images/landing/step-03.webp'
-				alt='A shopper using Listys to find groceries while pushing a full cart through the store.'
-				width={724}
-				height={543}
-				className='h-auto w-full rounded-[14px] shadow'
+		number: '03',
+		verb: 'Shop',
+		title: 'Shop it, and the list learns',
+		text: 'A trip is a copy of the list, so the original stays intact. Finishing the trip saves what you checked back into the list.',
+		footTerm: 'Every finished trip',
+		footValue: 'Updates the list',
+		image: {
+			src: '/images/landing/step-03.webp',
+			alt: 'A shopper checking items off a Listys shopping trip while pushing a cart through the store.',
+		},
+		fragment: (
+			<SessionSummaryCard
+				mode='active'
+				checked={11}
+				total={12}
+				estimate={{ total: 48.1, pricedCount: 9, itemCount: 11 }}
+				testId='landing-step-03-progress'
 			/>
 		),
 	},
 ]
 
+/** 03 — How it works: three receipt tickets, one per step, each with the app screen that step happens on. */
 export function HowItWorksSection() {
 	return (
-		<div
-			data-testid='landing-how-it-works'
-			className='w-full'
+		<SectionWrapper
+			id='how-it-works'
+			testId='landing-how-it-works'
+			contained={false}
 		>
-			<div className='mb-[34px] grid gap-4 min-[900px]:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] min-[900px]:items-start min-[900px]:gap-[60px]'>
-				<h2 className='text-[clamp(32px,4vw,48px)] leading-[1.1] font-[750] tracking-[-0.035em] text-slate-900 text-balance'>
-					Photograph a receipt. Shop from the list. Repeat.
-				</h2>
-				<p className='max-w-[34em] text-lg leading-[1.65] font-[450] text-slate-600 min-[900px]:pt-[7px]'>
-					The receipt is how the list gets fed. The list is what you actually use — and it starts closer to done after
-					every trip.
-				</p>
+			<div className='mx-auto max-w-[1200px] px-5 md:px-8'>
+				<div data-reveal>
+					<SectionHead
+						number='03 — How'
+						title='Three steps the first time. After that, mostly the third.'
+						description='The receipt is how the list gets fed. The list is what you actually use in the store.'
+						testId='landing-how-head'
+					/>
+				</div>
 			</div>
-			<div className='mt-14 flex flex-col gap-[88px] min-[980px]:mt-[84px] min-[980px]:gap-[136px]'>
-				{STEPS.map(step => (
-					<article
-						key={step.num}
-						className='grid items-center gap-[34px] min-[980px]:grid-cols-[minmax(0,1fr)_minmax(0,1.12fr)] min-[980px]:gap-[76px]'
+			<ol
+				data-testid='landing-how-steps'
+				className='mx-auto flex max-w-[1200px] snap-x snap-mandatory scroll-px-5 gap-3.5 overflow-x-auto px-5 pt-1 pb-[26px] [scrollbar-width:none] md:px-8 lg:grid lg:snap-none lg:grid-cols-3 lg:items-start lg:gap-7 lg:overflow-visible lg:pb-0 [&::-webkit-scrollbar]:hidden'
+			>
+				{STEPS.map((step, index) => (
+					<li
+						key={step.number}
+						data-reveal
+						className={cn(
+							'shrink-0 basis-[84%] snap-start sm:basis-[60%] lg:basis-auto',
+							index === 1 && 'lg:mt-14',
+							index === 2 && 'lg:mt-28',
+						)}
 					>
-						<div className={cn('min-[980px]:order-1', step.flip && 'min-[980px]:order-2')}>
-							<span className='mb-4 inline-block font-mono text-[11px] leading-[1.2] font-medium tracking-[0.1em] text-primary'>
-								{step.num}
-							</span>
-							<h3 className='text-2xl leading-[1.25] font-bold tracking-[-0.02em] text-slate-900 text-balance'>
-								{step.title}
-							</h3>
-							<p className='mt-4 max-w-[40em] text-base leading-[1.75] text-slate-600'>{step.lede}</p>
-							<ul className='mt-[26px] flex flex-col gap-[13px]'>
-								{step.points.map(point => (
-									<li
-										key={point}
-										className='flex items-start gap-3 text-base leading-[1.5] text-slate-700'
-									>
-										<i className='mt-px flex size-[21px] shrink-0 items-center justify-center rounded-[7px] bg-blue-100 text-blue-700 [&_svg]:size-[11px]'>
-											<Icon id='tick' />
-										</i>
-										<span>{point}</span>
-									</li>
-								))}
-							</ul>
-						</div>
-						<div className={cn('min-[980px]:order-2', step.flip && 'min-[980px]:order-1')}>
-							<div className='overflow-hidden rounded-[20px] border border-slate-200 bg-[linear-gradient(180deg,#F4F8FF_0%,#fff_100%)] p-[22px] min-[980px]:p-[30px]'>
-								{step.visual}
-							</div>
-						</div>
-					</article>
+						<StepTicket step={step} />
+					</li>
 				))}
+			</ol>
+			<MonoLabel
+				as='p'
+				className='px-5 text-right lg:hidden'
+			>
+				Swipe →
+			</MonoLabel>
+		</SectionWrapper>
+	)
+}
+
+/** One step as a torn ticket: its number, the photo, the app fragment overlapping the photo, the text and a printed footer line. */
+function StepTicket({ step }: { step: Step }) {
+	return (
+		<TornPaper
+			lift
+			testId={`landing-step-${step.number}`}
+		>
+			<div className='mb-3 flex justify-between gap-2.5 border-b-[1.5px] border-dashed border-paper-line px-1 pt-1 pb-3'>
+				<MonoLabel>
+					Step <b className='font-semibold text-primary'>{step.number}</b>
+				</MonoLabel>
+				<MonoLabel>{step.verb}</MonoLabel>
 			</div>
-		</div>
+			<div className='relative aspect-4/3 overflow-hidden rounded-[10px]'>
+				<Image
+					src={step.image.src}
+					alt={step.image.alt}
+					fill
+					sizes='(min-width: 1024px) 360px, 84vw'
+					className='object-cover'
+				/>
+			</div>
+			<div
+				aria-hidden='true'
+				inert
+				className='relative z-10 mx-2 -mt-[46px] text-sm md:mx-2.5 md:-mt-[58px]'
+			>
+				{step.fragment}
+			</div>
+			<div className='px-1.5 pt-4 md:pt-[22px]'>
+				<h3 className='text-[23px] leading-[1.05] font-extrabold tracking-[-0.035em] text-paper-ink md:text-[clamp(24px,2.3vw,30px)]'>
+					{step.title}
+				</h3>
+				<p className='mt-2 text-[15px] leading-relaxed md:mt-2.5 md:text-base'>{step.text}</p>
+				<div className='mt-3.5 flex justify-between gap-3 border-t-[1.5px] border-dashed border-paper-line pt-2.5 md:mt-5 md:pt-3'>
+					<MonoLabel tone='ink'>{step.footTerm}</MonoLabel>
+					<MonoLabel tone='accent'>{step.footValue}</MonoLabel>
+				</div>
+			</div>
+		</TornPaper>
+	)
+}
+
+/** Step 01: a receipt photo in the Receipts list while Listys reads it. */
+function UploadFragment() {
+	return (
+		<Card size='tight'>
+			<div className='flex items-center gap-3'>
+				<span className='relative flex h-14 w-11 shrink-0 flex-col gap-1 overflow-hidden rounded-lg bg-card px-1.5 py-[7px] ring-1 ring-border'>
+					{[100, 70, 100, 55, 100].map((width, index) => (
+						<i
+							key={index}
+							className='block h-0.5 rounded-[1px] bg-slate-300'
+							style={{ width: `${width}%` }}
+						/>
+					))}
+					<span className='absolute inset-x-0 top-[55%] h-0.5 bg-linear-to-r from-transparent via-sky-400 to-transparent shadow-sm shadow-sky-400/40' />
+				</span>
+				<div className='min-w-0 flex-1'>
+					<div className='text-sm font-semibold'>Market Fresh</div>
+					<div className='text-[12.5px] text-muted-foreground'>1 photo · 24 May</div>
+				</div>
+				<Badge
+					variant='processing'
+					dot
+				>
+					Reading
+				</Badge>
+			</div>
+		</Card>
 	)
 }

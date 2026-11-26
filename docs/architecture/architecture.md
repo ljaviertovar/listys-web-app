@@ -31,9 +31,10 @@ OCR Edge Functions.
 ## Architectural Boundaries
 
 The dashboard combines server-side reads of owned lists, receipts, completed sessions, likely-needed items, and stores.
-Likely-needed items and spending are exposed through versioned v1 Route Handlers backed by owner-scoped Postgres RPCs;
-store reads include the latest owned trip or unattached receipt visit. The month-spending card fetches its own bounded
-summary using calendar boundaries from the visitor's time zone, so a failure there does not replace the rest of the page.
+The likely-needed-items handler uses an owner-scoped Postgres RPC. The spending handler reads owner-scoped
+receipt data for the dashboard and uses a separate RPC for compatibility fields. The spending card fetches its own
+summary using the visitor’s time zone and supports month and all-time views. Store reads include the latest owned visit.
+See the [spending contract](../reference/api-v1.md#spending-and-store-visits).
 
 The application is organized around ownership boundaries rather than technical layers alone:
 
@@ -286,13 +287,15 @@ the [implementation reference](../reference/implementation-status.md) qualify wh
 
 ### Receipt OCR flow
 
-1. The client submits one to five images to `POST /api/v1/tickets`.
+1. The user picks photos or captures them in the browser. The camera scanner detects corners and corrects perspective
+   locally. The user chooses which image to keep. The client submits one to five images to `POST /api/v1/tickets`.
 2. The API validates the multipart form, uploads images to the protected `tickets` bucket, and creates a ticket with
    `ocr_status = pending`.
 3. A non-awaited fetch dispatch invokes the configured OCR function; no durable queue is established by this code.
    The function marks the ticket `processing`, sends images to the provider (the first image's request also reads the
    store name from the header), deduplicates extracted items, and writes `ticket_items` and, when the ticket has none,
-   the raw `store_name`.
+   the raw `store_name`. OCR can also read the printed total and purchase day. The owner can correct the purchase day
+   through a dedicated PATCH payload, and both OCR providers honor a manually set date when a new run starts.
 4. The function marks the ticket `completed` with `total_items`, or `failed` with `ocr_error`.
 5. The UI reads status from `GET /api/v1/tickets/{ticketId}/status` and may invoke `retry-ocr` after a failure.
 6. The receipt read proposes the store the raw name resolves to; the user may confirm it, save a new store or choose
@@ -301,12 +304,11 @@ the [implementation reference](../reference/implementation-status.md) qualify wh
    endpoints. Before merging into an existing list, `GET /api/v1/tickets/{ticketId}/matches` shows how each line matches
    (same name, remembered alias, or new); the user's links travel with the merge, which applies them and remembers them in
    one transaction.
-8. A read receipt can instead be attached to an eligible active or recently completed trip. The versioned candidates and
-   matches routes expose owner-scoped choices; `attach_receipt_to_session` validates them and links the receipt in one
-   database transaction. Attaching to an active trip marks matched items, adds selected unmatched lines, records the
-   receipt total and completes the trip. Attaching to a completed trip refines already-counted prices and counts only
-   newly added lines as purchases. A trip can have one receipt, and the attachment cannot be detached. The trip's
-   composite foreign key clears the optional link if its owner deletes the trip.
+8. A read receipt can be attached to an eligible active or completed trip. Versioned candidate and match routes expose
+   owner-scoped choices. `attach_receipt_to_session` links the receipt and reconciles its lines in one transaction.
+   In an active trip, the owner chooses whether to keep shopping or complete during attachment. For a completed trip,
+   reconciliation refines prices and counts newly added lines as purchases. A trip accepts one receipt per confirmed
+   store. A receipt uploaded from a trip is restricted to that trip. See the [attachment contract](../reference/api-v1.md#request-boundaries).
 9. Owners can read their last receipt price by store for each base-list item; comparison is shown only when at least two
    prices have comparable units. It does not query current or external prices. Collaborators do not receive the owner's
    store-price statistics.

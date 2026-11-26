@@ -39,7 +39,7 @@ export function SystemPage({
 			{...rest}
 			className={cn(
 				'flex items-center justify-center px-4 py-8',
-				fullScreen ? 'min-h-dvh bg-muted dark:bg-sidebar' : 'min-h-full',
+				fullScreen ? 'min-h-dvh bg-paper dark:bg-sidebar' : 'min-h-full',
 				className,
 			)}
 		>
@@ -58,12 +58,12 @@ export function SystemPage({
 					<h1
 						ref={titleRef}
 						tabIndex={titleRef ? -1 : undefined}
-						className='mt-8 text-2xl leading-8 font-bold tracking-tight outline-none'
+						className='mt-8 text-2xl leading-8 font-bold tracking-tight text-paper-ink outline-none dark:text-foreground'
 					>
 						{title}
 					</h1>
 				) : null}
-				{description ? <p className='mt-2 max-w-75 text-base text-muted-foreground'>{description}</p> : null}
+				{description ? <p className='mt-2 max-w-75 text-base text-paper-text dark:text-muted-foreground'>{description}</p> : null}
 				{actions ? <div className='mt-6 flex w-full flex-col gap-3'>{actions}</div> : null}
 				{children}
 			</div>

@@ -3,7 +3,7 @@
 import { useId, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Alert02Icon, Invoice01Icon, Loading03Icon, Store03Icon } from '@hugeicons/core-free-icons'
+import { Alert02Icon, Loading03Icon, Store03Icon } from '@hugeicons/core-free-icons'
 
 import {
 	ActionLink,
@@ -185,7 +185,7 @@ function TicketDataLine({
 export function TicketsEmptyState() {
     return (
         <EmptyStateCard
-            icon={Invoice01Icon}
+            stub={{ label: 'Receipts', count: '0 receipts' }}
             title='No receipts yet'
             description='Upload your first receipt to get started.'
             testId='tickets-empty-state'

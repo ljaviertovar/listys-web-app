@@ -11,12 +11,13 @@ the implementation reference describes repository evidence. Neither establishes 
 | ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Set up the web app and find commands                         | [Root README](../README.md)                                                                                                                                                                                                      |
 | Understand MVP users, journeys, and acceptance criteria      | [PRD v2](prd/PRD-v2.md)                                                                                                                                                                                                          |
-| Read the product direction after the MVP and its phased plan | [PRD v3](prd/PRD-v3.md) — draft; it supersedes only the parts of PRD v2 it lists. Phase 1 is specified in the OpenSpec change `pantry-defaults-and-price-memory` (archived) and Phase 2 (flat lists) in `flat-lists-hide-groups` |
+| Understand the current product scope | [PRD v4](prd/PRD-v4.md) |
+| Read the previous product direction | [PRD v3](prd/PRD-v3.md) |
 | Read the earlier product definition                          | [PRD v1](prd/PRD-v1.md) — historical                                                                                                                                                                                             |
 | See implemented features and unresolved gaps                 | [Implementation status](reference/implementation-status.md)                                                                                                                                                                      |
 | Understand runtime boundaries, data flows, and security      | [Architecture](architecture/architecture.md)                                                                                                                                                                                     |
 | Find code and decide where new files belong                  | [Project structure](architecture/project-structure.md)                                                                                                                                                                           |
-| Find REST routes, schemas, and compatibility behavior        | [API v1 reference](reference/api-v1.md)                                                                                                                                                                                          |
+| Find REST routes, schemas, and compatibility behavior | [API v1 reference](reference/api-v1.md) and [conditional trip item edits in API v2](reference/api-v2.md) |
 | Check business limits                                        | [Limits reference](reference/limits.md), derived from `src/lib/config/limits.ts`                                                                                                                                                 |
 | Design or visually validate a component                      | [Design System](design/design-system.html), the only source of truth; gate, audit and DS rules in the [Design System workflow](contributing/design-system-workflow.md). Older design files are historical references. |
 | Understand account, receipt, sharing and browser data        | [Privacy and data handling](privacy/taste-profile.md)                                                                                                                                                                            |
@@ -28,17 +29,10 @@ the implementation reference describes repository evidence. Neither establishes 
 
 ## Scope and maintenance
 
-Conditional trip item edits and the immediate retirement of their v1 PATCH are documented in the [API v2 reference](reference/api-v2.md).
-
 - **MVP:** receipt capture/OCR, reusable lists and enrichment, shopping sessions, and history, governed by PRD v2.
-- **Direction:** PRD v3 refines the MVP in phases. Phase 1 (always sync on completion, a default "Pantry" list, visible
-  average price and estimated total), Phase 2 (flat lists: groups hidden from the interface, history filtered by list) and
-  Phase 3 includes the stores foundation (store read from receipts, normalized "My Stores", rename/merge, and receipt
-  lines linked to existing items), Phase 4 adds usual-store tags and store-scoped sessions, and Phase 5 adds printed
-  receipt totals, receipt-to-trip reconciliation, and owner-only comparison of latest recorded prices by store. The current
-  OpenSpec change adds dashboard summaries from purchase history and receipt totals; likely-needed items use recorded
-  intervals and are not alerts or predictions. Prices are from the user's own receipt history, not live or external price feeds. A trip supports one receipt,
-  and an attached receipt cannot be detached.
+- **Current scope:** [PRD v4](prd/PRD-v4.md) covers lists, store-scoped shopping, receipt capture and reconciliation,
+  purchase dates, and receipt-backed spending. The [implementation reference](reference/implementation-status.md)
+  records repository evidence and verification by feature.
 - **Experimental:** shared lists, invitations, collaborators, and collaborative realtime shopping. The product owner
   confirmed on 2026-10-17 that these remain outside the MVP.
 - **Planning:** `openspec/` holds specifications and planned changes; its local configuration uses `spec-driven`.
@@ -49,6 +43,5 @@ Conditional trip item edits and the immediate retirement of their v1 PATCH are d
 Keep one owner per topic. Update its document when behavior changes and link to it elsewhere instead of duplicating
 inventories. Preserve PRD history; create a new version only for a product revision, not technical reconciliation.
 
-The 2026-10-17 audit compared repository source, configuration, tests, and migrations. It did not inspect deployed
-Supabase state, production telemetry, hosting configuration, or the visual canvas. See the
-[audit findings](reference/implementation-status.md#audit-findings-and-follow-up) for remaining work.
+The November 2026 review used repository evidence. See the [audit findings](reference/implementation-status.md#audit-findings-and-follow-up)
+for remaining work and verification scope.

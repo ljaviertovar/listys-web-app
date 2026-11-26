@@ -18,8 +18,9 @@ const buttonVariants = cva(
 				field: `${SECONDARY_BUTTON_STYLE} justify-start text-left font-normal data-[empty=true]:text-muted-foreground`,
 				secondary:
 					'bg-secondary text-secondary-foreground hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground',
+				// One option of a segmented switch: a page link marks itself with aria-current, a radio option with aria-checked.
 				segment:
-					'text-muted-foreground hover:bg-background/60 aria-[current=page]:bg-white aria-[current=page]:text-slate-900 aria-[current=page]:shadow-sm',
+					'text-muted-foreground hover:bg-background/60 aria-[current=page]:bg-white aria-[current=page]:text-slate-900 aria-[current=page]:shadow-sm aria-checked:bg-white aria-checked:text-slate-900 aria-checked:shadow-sm',
 				ghost:
 					'hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50',
 				destructive:
@@ -28,6 +29,20 @@ const buttonVariants = cva(
 					'hover:bg-muted text-feedback-error aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50',
 				inverse: 'bg-background text-foreground hover:bg-background/90',
 				link: 'text-foreground underline-offset-4 hover:underline',
+				// The "thermal paper" skin of the auth screens (DS Marketing surfaces): an ink-ruled secondary action,
+				'paper-outline':
+					'border-[1.5px] border-paper-ink bg-transparent text-paper-ink shadow-none hover:bg-paper-ink/5 dark:border-foreground/60 dark:text-foreground dark:hover:bg-foreground/10',
+				// one option of the printed segmented switch (mono capitals, the current one raised on card paper),
+				'paper-segment':
+					'font-mono text-[11px] tracking-[0.1em] text-paper-muted uppercase hover:bg-card/60 aria-[current=page]:bg-card aria-[current=page]:font-semibold aria-[current=page]:text-paper-ink aria-[current=page]:shadow-sm dark:text-muted-foreground dark:aria-[current=page]:text-foreground',
+				// a printed quiet link on the paper panel,
+				'paper-link':
+					'font-mono text-[11px] tracking-[0.1em] text-paper-ink uppercase hover:bg-paper-sunken dark:text-foreground dark:hover:bg-muted',
+				// the same printed link stamped over a photo,
+				'photo-stamp':
+					'border-white/22 bg-paper-ink/45 font-mono text-[10px] tracking-[0.1em] text-white uppercase shadow-none hover:bg-paper-ink/65',
+				// and the call to action of the landing and auth: primary with its blue drop.
+				cta: 'bg-primary text-primary-foreground shadow-lg shadow-primary/35 hover:bg-primary/85',
 				// A quiet action over a dark photo (the "Back to Home" link of the phone auth header): white text, a faint wash on hover.
 				'on-dark': 'bg-white/12 text-white shadow-none hover:bg-white/20 disabled:opacity-40',
 				// Transparent text action over a dark photo, such as the auth hero link.

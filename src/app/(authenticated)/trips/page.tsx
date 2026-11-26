@@ -1,13 +1,10 @@
 import type { ComponentProps } from 'react'
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
 
-import { HugeiconsIcon } from '@hugeicons/react'
-import { ShoppingBag03Icon } from '@hugeicons/core-free-icons'
-
-import { Card } from '@/components/ui/card'
-
 import { PageHeader, PageContainer } from '@/components/app'
-import { RetryableError } from '@/components/commons'
+import { Button } from '@/components/ui/button'
+import { EmptyStateCard, RetryableError } from '@/components/commons'
 import { HistoryListFilter, HistorySessionCard, buildHistoryView } from '@/components/features/shopping-sessions'
 
 import { getBaseLists, getShoppingHistory } from '@/lib/api/endpoints'
@@ -54,26 +51,26 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
 						testId='history-load-error'
 					/>
 				) : view.options.length === 0 && view.trips.length === 0 ? (
-					<Card size='tight'>
-						<div className='flex min-h-[152px] flex-col items-center justify-center gap-3 text-center'>
-							<span
-								className='flex size-14 shrink-0 items-center justify-center rounded-2xl bg-green-100 text-green-700'
-								aria-hidden='true'
+					<EmptyStateCard
+						stub={{ label: 'Trips', count: '0 completed' }}
+						ghost='trip'
+						title='No trips yet'
+						description='Your trips will appear here once you complete your first shopping session.'
+						testId='history-empty-state'
+					>
+						<Button
+							asChild
+							variant='outline'
+							size='xl'
+						>
+							<Link
+								href='/shopping-lists'
+								data-testid='history-empty-lists-link'
 							>
-								<HugeiconsIcon
-									icon={ShoppingBag03Icon}
-									strokeWidth={1.5}
-									className='size-6.5'
-								/>
-							</span>
-							<div className='flex flex-col gap-1.5'>
-								<h3 className='text-base font-semibold tracking-tight'>No trips yet</h3>
-								<p className='mx-auto max-w-[280px] text-sm leading-[1.55] text-muted-foreground'>
-									Your trips will appear here once you complete your first shopping session.
-								</p>
-							</div>
-						</div>
-					</Card>
+								Go to Lists
+							</Link>
+						</Button>
+					</EmptyStateCard>
 				) : (
 					<div className='flex flex-col gap-4'>
 						<HistoryListFilter

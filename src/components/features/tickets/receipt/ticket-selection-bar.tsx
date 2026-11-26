@@ -50,7 +50,7 @@ export function TicketSelectionBar({
 			aria-label={saving ? 'Saving to your list' : 'Selection actions'}
 			aria-busy={saving || undefined}
 			className={cn(
-				'fixed inset-x-3 z-40 flex min-h-14 items-center gap-2 rounded-full bg-slate-900 py-2 pr-2 pl-4 text-white shadow-[0_16px_32px_-12px_rgba(15,23,42,0.5)]',
+				'fixed inset-x-3 z-40 flex min-h-14 items-center gap-2 rounded-full bg-slate-900 py-2 pr-2 pl-4 text-white shadow-[0_16px_32px_-12px_rgba(21,23,27,0.5)]',
 				hasSessionBar ? ABOVE_MOBILE_ACTION_BAR_WITH_SESSION : ABOVE_MOBILE_ACTION_BAR,
 				'lg:z-10 lg:rounded-t-none lg:px-5 lg:py-3 lg:shadow-none',
 				placement === 'card'

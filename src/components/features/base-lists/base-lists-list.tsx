@@ -1,6 +1,5 @@
 'use client'
 
-import { ListViewIcon } from '@hugeicons/core-free-icons'
 
 import { EmptyStateCard, EntityCardSkeleton } from '@/components/commons'
 import { buildListDisplayNames } from '@/utils'
@@ -47,12 +46,14 @@ export function BaseListsList({
 			<>
 				{showPantrySetup ? <SetUpPantryCallout testId='lists-page-pantry-setup' /> : null}
 				<EmptyStateCard
-					icon={ListViewIcon}
+					stub={{ label: 'Lists', count: '0 lists' }}
+					ghost='list'
 					title='No lists yet'
 					description='A base list is a template you reuse every time you shop. Start with the things you always buy.'
 					testId='base-lists-empty-state'
 				>
 					<CreateBaseListDialog />
+					<p className='font-mono text-xs text-muted-foreground'>Or fill one from a receipt</p>
 				</EmptyStateCard>
 			</>
 		)

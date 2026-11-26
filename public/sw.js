@@ -1,4 +1,4 @@
-const SW_VERSION = 'v1'
+const SW_VERSION = 'v2'
 const SHELL_CACHE = `listys-shell-${SW_VERSION}`
 const ASSET_CACHE = `listys-assets-${SW_VERSION}`
 const PRECACHE_URLS = ['/', '/offline.html']

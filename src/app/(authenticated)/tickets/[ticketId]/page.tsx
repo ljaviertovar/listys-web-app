@@ -1,7 +1,7 @@
 import { notFound, redirect } from 'next/navigation'
 
-import { PageHeader, PageContainer } from '@/components/app'
-import { TicketReview, TicketSpendingCard, TicketStatusChip, TicketStoreCard, TicketSummaryCard, TicketUnreadableState, hasRecordedReceiptTotal, isReadWithoutItems, isStandaloneReceipt, sumLineTotals, toTicketStatus } from '@/components/features/tickets'
+import { PageContainer } from '@/components/app'
+import { ReceiptTicketHeader, TicketReview, TicketSpendingCard, TicketStatusChip, TicketStoreCard, TicketSummaryCard, TicketUnreadableState, hasRecordedReceiptTotal, isReadWithoutItems, isStandaloneReceipt, sumLineTotals, toTicketStatus } from '@/components/features/tickets'
 
 import { ReceiptDateFacts } from '@/components/features/tickets/receipt/receipt-date-facts'
 
@@ -56,22 +56,26 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ t
 	// A read that failed and a read that found no lines share one screen: the receipt gave nothing to review.
 	const isUnreadable = receiptStatus === 'failed'
 	const readWithoutItems = isReadWithoutItems(ticket.ocr_status, ticketItems.length)
+	const itemsRead = readWithoutItems ? 0 : extractedItemsCount
+	const categoriesRead = new Set(ticketItems.map(item => item.category?.trim() || 'Other')).size
+	const headerFacts = isReadReceipt || readWithoutItems
+		? [
+				`${itemsRead} ${itemsRead === 1 ? 'item' : 'items'}`,
+				...(itemsRead > 0 && categoriesRead > 0 ? [`${categoriesRead} ${categoriesRead === 1 ? 'category' : 'categories'}`] : []),
+			]
+		: isUnreadable
+			? [`${imagePaths.length} ${imagePaths.length === 1 ? 'photo' : 'photos'}`]
+			: []
 
 	return (
 		<>
-			<PageHeader
-				layout='detail'
-				back={{ href: '/tickets', label: 'Receipts' }}
-				entity='receipt'
+			<ReceiptTicketHeader
 				title={receiptName}
-				aside={<TicketStatusChip status={receiptStatus} />}
-				facts={[
-					isReadReceipt || readWithoutItems
-						? { kind: 'count', value: readWithoutItems ? 0 : extractedItemsCount, unit: readWithoutItems || extractedItemsCount !== 1 ? 'items' : 'item' }
-						: isUnreadable ? { kind: 'count', value: imagePaths.length, unit: imagePaths.length === 1 ? 'photo' : 'photos' } : null,
-					{ value: <ReceiptDateFacts uploadedAt={ticket.created_at} purchaseDate={ticket.purchase_date ?? null} testId='receipt-detail-dates' /> },
-					isReadReceipt && typeof ticket.total_amount === 'number' ? { kind: 'total', value: formatCurrency(ticket.total_amount) } : null,
-				]}
+				back={{ href: '/tickets', label: 'Receipts' }}
+				status={<TicketStatusChip status={receiptStatus} />}
+				dates={<ReceiptDateFacts uploadedAt={ticket.created_at} purchaseDate={ticket.purchase_date ?? null} testId='receipt-detail-dates' />}
+				facts={headerFacts}
+				total={isReadReceipt && typeof ticket.total_amount === 'number' ? formatCurrency(ticket.total_amount) : null}
 			/>
 			<PageContainer>
 				<TicketReview

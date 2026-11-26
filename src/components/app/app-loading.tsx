@@ -17,10 +17,10 @@ export default function AppLoading() {
 			paper={<ReceiptPaper variant='feed' testId='app-loading-paper' />}
 		>
 			<div className='relative mt-2.5 w-full'>
-				<p className='text-sm font-medium text-muted-foreground'>Loading…</p>
+				<p className='font-mono text-xs font-medium tracking-[0.08em] text-paper-muted uppercase dark:text-muted-foreground'>Loading…</p>
 				{/* Out of the flow, so the hidden line and button take no room before the ten seconds are up. */}
 				<div data-testid='app-loading-slow' className='absolute inset-x-0 top-full mt-1 flex flex-col items-center gap-3 animate-system-slow'>
-					<p className='text-xs text-muted-foreground'>This is taking longer than usual.</p>
+					<p className='text-xs text-paper-text dark:text-muted-foreground'>This is taking longer than usual.</p>
 					<ReloadButton testId='app-loading-reload' />
 				</div>
 			</div>

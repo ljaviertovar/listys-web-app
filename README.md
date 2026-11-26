@@ -1,8 +1,8 @@
 # Listys Web App
 
-Listys turns receipt photos into reusable shopping lists, supports shopping sessions, and keeps purchase history.
-The MVP requirements are in [PRD v2](docs/prd/PRD-v2.md). Shared lists and collaborative shopping are experimental
-and remain outside the MVP.
+Listys turns scanned or uploaded receipts into reusable shopping lists. Use them to shop by store, reconcile purchases
+with trip receipts, and review receipt-backed spending. [PRD v2](docs/prd/PRD-v2.md) defines the MVP baseline, and
+[PRD v4](docs/prd/PRD-v4.md) defines the current product scope. Shared lists and collaborative shopping are experimental.
 
 ## Stack and requirements
 
@@ -48,8 +48,8 @@ pnpm build
 ```
 
 `pnpm test` starts Vitest watch mode; `pnpm test:critical` runs the critical server/shared-logic subset.
-Playwright infrastructure exists, but its current reset and credential handling conflict with repository policy.
-Review the [contribution guide](docs/contributing/CONTRIBUTING.md) before E2E execution.
+Playwright uses an isolated local Supabase. Legacy suites still use table-wide reset helpers. Follow the
+[E2E execution boundary](docs/contributing/CONTRIBUTING.md#playwright-boundary) when selecting a suite.
 
 ## Documentation
 

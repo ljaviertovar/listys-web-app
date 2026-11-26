@@ -114,9 +114,10 @@ function FieldLabel({
 	variant = 'default',
 	size = 'default',
 	...props
-}: React.ComponentProps<typeof Label> & { variant?: 'default' | 'card' | 'plain'; size?: 'default' | 'compact' }) {
+}: React.ComponentProps<typeof Label> & { variant?: 'default' | 'card' | 'plain'; size?: 'default' | 'compact' | 'mono' }) {
 	return (
 		<Label
+			size={size === 'mono' ? 'mono' : 'default'}
 			data-slot='field-label'
 			data-variant={variant}
 			className={cn(

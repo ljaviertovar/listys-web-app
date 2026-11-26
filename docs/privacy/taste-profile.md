@@ -9,13 +9,14 @@ privacy notice or a legal-compliance claim.
 | --- | --- | --- |
 | Identity and provider metadata | Supabase Auth identity/session; account/profile display email, provider and verification metadata. | [`Auth clients`](../../src/lib/supabase/), [`settings`](../../src/app/(authenticated)/settings/) |
 | Lists, quantities, notes and categories | Planning and shopping snapshots in Postgres. | [`base-list service`](../../src/lib/server/services/base-lists.service.ts), [`session service`](../../src/lib/server/services/shopping-sessions.service.ts) |
-| Receipt photos and purchases | User-prefixed Storage paths; ticket metadata/items in Postgres; signed URLs for OCR/viewing. | [`ticket service`](../../src/lib/server/services/tickets.service.ts) |
+| Receipt photos and purchases | User-prefixed Storage paths; Ticket metadata and items in Postgres include the purchase day, whether the owner set it and the optional standalone spending preference. Signed URLs support OCR and viewing. | [`ticket service`](../../src/lib/server/services/tickets.service.ts) |
 | Purchase memory | Normalized names, purchase counts, first/last timestamps and average prices enrich items. | [`enrichment migration`](../../supabase/migrations/20260214000000_prd_v2_enrichment_and_transactions.sql) |
 | Experimental sharing | Invite tokens, optional expiry/use limits, collaborator roles and participation. | [`sharing service`](../../src/lib/server/services/sharing.service.ts) |
 
 ## External processing and consent
 
-Receipt content is processed through Gemini or OpenAI according to the configured OCR function. The functions send
+The camera scanner detects and adjusts the receipt image in the browser before upload. The user chooses the photo to upload.
+Receipt content is then processed through Gemini or OpenAI according to the configured OCR function. The functions send
 image content to their provider APIs. See [`functions/`](../../supabase/functions/) and
 [`provider configuration`](../../src/lib/config/ocr.ts).
 
