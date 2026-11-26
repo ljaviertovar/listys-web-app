@@ -17,11 +17,18 @@ export function SharedListsShowcaseSection() {
 		>
 			<div className='relative aspect-4/5 overflow-hidden md:aspect-auto md:h-[clamp(380px,48vw,620px)]'>
 				<Image
-					src='/images/landing/shared-lists.webp'
-					alt='Two shoppers, one at a kitchen counter and one in a grocery aisle, both looking at their phones.'
+					src='/images/landing/shared-lists-mobile.webp'
+					alt='Two shoppers checking their phones while sharing a grocery list.'
 					fill
 					sizes='100vw'
-					className='object-cover object-[62%_30%] md:object-[center_30%]'
+					className='object-cover object-center md:hidden'
+				/>
+				<Image
+					src='/images/landing/shared-lists-desktop.webp'
+					alt='Two shoppers checking their phones while sharing a grocery list.'
+					fill
+					sizes='100vw'
+					className='hidden object-cover object-top md:block'
 				/>
 				<div className='absolute inset-0 bg-linear-to-b from-night/10 via-transparent via-35% to-night/88 max-md:from-transparent max-md:via-40%' />
 				<Shell
@@ -60,8 +67,8 @@ export function SharedListsShowcaseSection() {
 						className='pt-[22px] md:pt-[132px]'
 					>
 						<p className='text-base leading-relaxed text-paper-text md:text-[17px]'>
-							Share a list with the people you shop for. Everyone on it sees the same trip, and a check on one phone shows up on
-							the others.
+							Share a list with the people you shop for. Everyone on it sees the same trip, and a check on one phone
+							shows up on the others.
 						</p>
 						<div className='mt-3.5 rounded-[14px] border-[1.5px] border-dashed border-paper-line px-3.5 py-3 text-[15px] leading-normal md:mt-[18px] md:px-4 md:py-3.5'>
 							<MonoLabel
@@ -98,9 +105,7 @@ function Device({ who, overPhoto = false, testId, className }: DeviceProps) {
 		>
 			<p className='mb-2 ml-1 flex items-center gap-2 md:mb-2.5 md:ml-0'>
 				<span className='size-[7px] rounded-full bg-feedback-success md:ring-2 md:ring-white/80' />
-				<MonoLabel tone={overPhoto ? 'on-photo' : 'on-photo-from-md'}>
-					{who}
-				</MonoLabel>
+				<MonoLabel tone={overPhoto ? 'on-photo' : 'on-photo-from-md'}>{who}</MonoLabel>
 			</p>
 			<div
 				aria-hidden='true'

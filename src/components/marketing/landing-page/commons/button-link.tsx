@@ -22,7 +22,7 @@ export function ButtonLink({
 	'data-testid': dataTestId,
 	...props
 }: ButtonLinkProps) {
-	const buttonVariant = variant === 'ghost' ? 'outline' : 'default'
+	const buttonVariant = variant === 'ghost' ? 'ghost' : 'default'
 
 	return (
 		<Button

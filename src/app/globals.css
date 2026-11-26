@@ -8,7 +8,7 @@
 
 /* Warm neutrals (DS v3.0.0): greys with a trace of paper. Entity, feedback and primary colours are unchanged. */
 :root {
-  --background: #F6F6F4;
+  --background: #F3F3F0;
   --foreground: #15171B;
   --card: #FEFEFC;
   --card-foreground: #15171B;
@@ -18,7 +18,7 @@
   --primary-foreground: oklch(0.97 0.014 254.604);
   --secondary: #F2F2EF;
   --secondary-foreground: #15171B;
-  --muted: #F6F6F4;
+  --muted: #F3F3F0;
   --muted-foreground: #6A6A67;
   --accent: #F2F2EF;
   --accent-foreground: #15171B;

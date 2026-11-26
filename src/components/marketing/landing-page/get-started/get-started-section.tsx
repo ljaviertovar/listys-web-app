@@ -62,8 +62,8 @@ export function GetStartedSection() {
 					className='relative aspect-4/3 overflow-hidden rounded-2xl shadow-2xl md:aspect-16/10 min-[62.5rem]:aspect-4/5 min-[62.5rem]:rounded-[18px]'
 				>
 					<Image
-						src='/images/landing/close-bg.jpg'
-						alt='A shopping cart with groceries in a store aisle.'
+						src='/images/landing/cta-create-acc.webp'
+						alt='A shopper tucking a grocery receipt into a pocket.'
 						fill
 						sizes='(min-width: 1000px) 480px, 100vw'
 						className='object-cover object-[72%_center]'

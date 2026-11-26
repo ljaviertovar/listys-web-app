@@ -10,7 +10,7 @@ export default function manifest(): MetadataRoute.Manifest {
     display: 'standalone',
     orientation: 'portrait',
     // The page ground (bg-muted), so the splash the system draws and AppLoading share one colour instead of flashing white to grey.
-    background_color: '#f6f6f4',
+    background_color: '#f3f3f0',
     theme_color: '#15171b',
     lang: 'en-US',
     icons: [
