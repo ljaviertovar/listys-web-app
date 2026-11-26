@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+import { MAX_ITEMS_PER_BASE_LIST } from '@/lib/config/limits'
+
 export const createBaseListSchema = z.object({
   // Optional since groups left the interface: without it the list goes to the user's default group.
   group_id: z.string().uuid().nullish(),
@@ -50,6 +52,16 @@ export const updateBaseListItemSchema = z.object({
   }
 })
 
+/** Checks or unchecks items as needed for the next trip: one row, "Select All" over what is shown, or "Clear". */
+export const setBaseListItemsNeededSchema = z.strictObject({
+  changes: z
+    .array(z.strictObject({ item_id: z.string().uuid(), needed: z.boolean() }))
+    .min(1, 'Choose at least one item')
+    .max(MAX_ITEMS_PER_BASE_LIST)
+    .refine(changes => new Set(changes.map(change => change.item_id)).size === changes.length, 'Each item can appear only once'),
+})
+
+export type SetBaseListItemsNeededInput = z.infer<typeof setBaseListItemsNeededSchema>
 export type CreateBaseListInput = z.infer<typeof createBaseListSchema>
 export type UpdateBaseListInput = z.infer<typeof updateBaseListSchema>
 export type CreateBaseListItemInput = z.infer<typeof createBaseListItemSchema>

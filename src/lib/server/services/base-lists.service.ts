@@ -5,6 +5,7 @@ import {
   updateBaseListSchema,
   createBaseListItemSchema,
   updateBaseListItemSchema,
+  setBaseListItemsNeededSchema,
 } from '@/lib/validations/base-list'
 import { MAX_ITEMS_PER_BASE_LIST } from '@/lib/config/limits'
 import { resolveListGroupId } from '@/lib/server/services/default-group.service'
@@ -306,6 +307,45 @@ export async function updateBaseListItem(id: string, data: unknown) {
   }
 
   return item
+}
+
+export async function setBaseListItemsNeeded(baseListId: string, data: unknown) {
+  const { supabase } = await createAuthenticatedClient()
+
+  const validation = setBaseListItemsNeededSchema.safeParse(data)
+  if (!validation.success) {
+    throw new ApiServiceError(422, ErrorCode.VALIDATION_ERROR, validation.error.issues[0]?.message ?? 'Invalid payload')
+  }
+  const { changes } = validation.data
+
+  // RLS decides who sees the list (owner or collaborator); a list the caller cannot see does not exist for them.
+  const { data: list, error: listError } = await supabase.from('base_lists').select('id').eq('id', baseListId).maybeSingle()
+  if (listError) {
+    console.error('[setBaseListItemsNeeded] list lookup failed', { code: listError.code ?? 'unknown' })
+    throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'Could not save your checks. Please try again.')
+  }
+  if (!list) throw new ApiServiceError(404, ErrorCode.NOT_FOUND, 'Not found')
+
+  // One statement per value. Each skips the rows already in that state, so checking twice keeps the first date, and
+  // sending the same changes again after either statement failed ends the same way.
+  const results = await Promise.all([true, false].map(async needed => {
+    const ids = changes.filter(change => change.needed === needed).map(change => change.item_id)
+    if (ids.length === 0) return { data: [], error: null }
+    const update = supabase
+      .from('base_list_items')
+      .update({ needed_at: needed ? new Date().toISOString() : null })
+      .eq('base_list_id', baseListId)
+      .in('id', ids)
+    return await (needed ? update.is('needed_at', null) : update.not('needed_at', 'is', null)).select('id')
+  }))
+
+  const error = results.find(result => result.error)?.error
+  if (error) {
+    console.error('[setBaseListItemsNeeded] update failed', { code: error.code ?? 'unknown' })
+    throw new ApiServiceError(500, ErrorCode.INTERNAL_ERROR, 'Could not save your checks. Please try again.')
+  }
+
+  return { updated: results.reduce((total, result) => total + (result.data?.length ?? 0), 0) }
 }
 
 export async function deleteBaseListItem(id: string) {

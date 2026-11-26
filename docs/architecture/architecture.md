@@ -242,6 +242,31 @@ retained conflict resolves that intention without a new write.
 Completion and receipt RPCs share the session lock; a late manual save receives `SESSION_NOT_ACTIVE`. An offline queue on another phone
 cannot be included in that barrier. See the [v2 contract](../reference/api-v2.md) for compatibility and error handling.
 
+#### Next-trip check synchronization
+
+`base_list_items.needed_at` holds the checks for the next trip. The base-list feature's `items/sync/` module keeps one
+in-memory controller per list for as long as the tab lives. It is separate from the active-trip outbox above.
+
+| Concern | Behavior |
+| --- | --- |
+| Grouping | A tap shows at once. The controller sends after 1.5 s without taps, or 10 s after the first waiting one when transport is idle. One `PATCH` carries the latest value of every unsaved item, with one request in flight per list. |
+| Confirmation | A local sequence per entry keeps a response from confirming a later tap. A saved entry covers the page data until a read agrees with it. |
+| Page reads | A successful save does not refresh the page. A read that disagrees with a saved entry asks for one more read; if that one still disagrees, the server value wins. |
+| Realtime | `UPDATE` events that repeat a value this tab sent in the last 10 s are ignored. Other events are grouped into one refresh after 800 ms, which waits while checks are unsaved unless the save is failing. |
+| Failures | Network errors, `408`, `429` and `5xx` keep the checks and retry with backoff up to 30 s; reconnecting or changing tab visibility sends early. Any other `4xx` drops them, shows an error and reads the page again. |
+| Trip start | Start Shopping calls `flush()` and creates no trip if a check cannot be saved. |
+| Tab close | The request uses `fetch` `keepalive`. |
+
+Known boundaries:
+
+- Pending checks are not persisted on the device. They can be lost if the tab closes while offline or while later taps
+  wait behind a request in flight.
+- Another person's edit to a row this tab sent in the last 10 s, with the same checked value, is treated as an echo and
+  appears on the next read.
+- There is no version check on checks; the last write wins.
+- Never request `router.refresh()` from a mount effect on the list screen without a condition that ends it. On the
+  development server, a refresh there remounted the page, and such an effect looped. The cause of the remount is unknown.
+
 ### 7. Verification layer
 
 Unit/integration tests live with their owning domain module's `tests/` folder or the established local test folder.

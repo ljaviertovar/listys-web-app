@@ -49,7 +49,7 @@ export function ItemFields({ form, idPrefix, disabled = false, withCategory = fa
 		<div
 			ref={setFieldsRoot}
 			data-testid={`${idPrefix}-fields`}
-			className='flex flex-col gap-1'
+			className='flex flex-col gap-4'
 		>
 			<FormField
 				htmlFor={`${idPrefix}-name`}

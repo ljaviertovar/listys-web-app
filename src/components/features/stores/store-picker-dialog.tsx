@@ -53,7 +53,13 @@ interface StorePickerDialogProps {
 	itemName?: string
 	currentUsualStore?: { id: string; name: string; source: 'auto' | 'manual'; note: string }
 	/** Adds a whole-list choice and receipt-store item counts for a shopping session. */
-	wholeListChoice?: { itemCount: number; storeItemCounts: Record<string, number>; unassignedCount: number }
+	wholeListChoice?: {
+		itemCount: number
+		storeItemCounts: Record<string, number>
+		unassignedCount: number
+		/** Present when the list has checked items: each choice then says how many of them it would take. */
+		checked?: { total: number; byStore: Record<string, number> }
+	}
 	onPickWholeList?: () => void
 }
 
@@ -167,9 +173,11 @@ function StorePickerBody({
 			? [
 					{
 						value: WHOLE_LIST_VALUE,
-						label: 'Whole list',
-						note: `All ${allStores.filter(store => (wholeListChoice.storeItemCounts[store.id] ?? 0) > 0).length} stores · ${wholeListChoice.unassignedCount} ${wholeListChoice.unassignedCount === 1 ? 'item has' : 'items have'} no store yet`,
-						detail: `${wholeListChoice.itemCount} items`,
+						label: 'All stores',
+						note: wholeListChoice.checked
+							? `${wholeListChoice.itemCount} items on this list`
+							: `All ${allStores.filter(store => (wholeListChoice.storeItemCounts[store.id] ?? 0) > 0).length} stores · ${wholeListChoice.unassignedCount} ${wholeListChoice.unassignedCount === 1 ? 'item has' : 'items have'} no store yet`,
+						detail: wholeListChoice.checked ? `${wholeListChoice.checked.total} checked` : `${wholeListChoice.itemCount} items`,
 					},
 				]
 			: []),
@@ -191,8 +199,12 @@ function StorePickerBody({
 			label: store.name,
 			...(wholeListChoice
 				? {
-						note: 'Items you usually buy there',
-						detail: `${wholeListChoice.storeItemCounts[store.id]} ${wholeListChoice.storeItemCounts[store.id] === 1 ? 'item' : 'items'}`,
+						note: wholeListChoice.checked
+							? `${wholeListChoice.storeItemCounts[store.id]} ${wholeListChoice.storeItemCounts[store.id] === 1 ? 'item' : 'items'} on this list`
+							: 'Items you usually buy there',
+						detail: wholeListChoice.checked
+							? `${wholeListChoice.checked.byStore[store.id] ?? 0} checked`
+							: `${wholeListChoice.storeItemCounts[store.id]} ${wholeListChoice.storeItemCounts[store.id] === 1 ? 'item' : 'items'}`,
 					}
 				: itemName
 					? { note: storeDetails?.[store.id] ?? 'Not bought there yet' }

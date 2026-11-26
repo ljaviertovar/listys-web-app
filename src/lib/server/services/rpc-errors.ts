@@ -92,6 +92,10 @@ export function mapStartShoppingSessionRpcError(error: RpcError): ApiServiceErro
     return new ApiServiceError(409, ErrorCode.CONFLICT, 'Cannot start a shopping session from an empty list.')
   }
 
+  if (code === 'P0001' && message === 'NO_NEEDED_ITEMS') {
+    return new ApiServiceError(409, ErrorCode.CONFLICT, 'Your checked items changed. Review them and start again.')
+  }
+
   if ((code === '23505' && message === 'SESSION_ALREADY_ACTIVE') || (code === 'P0001' && message === 'ACCOUNT_TRIP_ALREADY_ACTIVE')) {
     const activeSessionId = error.details && UUID_PATTERN.test(error.details) ? error.details : undefined
     return new ApiServiceError(

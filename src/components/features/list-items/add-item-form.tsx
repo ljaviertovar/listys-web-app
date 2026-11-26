@@ -16,7 +16,9 @@ import { BaseListLockedNotice } from './base-list-locked-notice'
 import { itemFormSchema, type ItemFormValues } from './helpers/item-form-schema'
 import { ItemFields } from './item-fields'
 
-export type AddItemTarget = { context: 'base-list'; baseListId: string } | { context: 'shopping-session'; sessionId: string }
+export type AddItemTarget =
+	| { context: 'base-list'; baseListId: string }
+	| { context: 'shopping-session'; sessionId: string }
 
 interface AddItemFormProps {
 	target: AddItemTarget
@@ -62,7 +64,7 @@ export function AddItemForm({ target, isLocked = false, onCancel }: AddItemFormP
 			data-testid='add-item-form'
 			onSubmit={form.handleSubmit(submit)}
 			noValidate
-			className='flex flex-col gap-1 px-1 md:gap-5'
+			className='flex flex-col gap-4 px-1'
 		>
 			{isLocked ? <BaseListLockedNotice testId='add-item-locked-notice' /> : null}
 			<ItemFields
@@ -71,7 +73,7 @@ export function AddItemForm({ target, isLocked = false, onCancel }: AddItemFormP
 				disabled={loading || isLocked}
 				withCategory
 			/>
-			<div className='mt-2 flex flex-col-reverse gap-1 sm:grid sm:grid-cols-2 md:mt-0'>
+			<div className='mt-1.5 flex flex-col-reverse gap-3.5 sm:grid sm:grid-cols-2 md:mt-0'>
 				<Button
 					size='lg'
 					type='submit'

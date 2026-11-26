@@ -101,24 +101,27 @@ export function ShoppingSessionItems({ items: initialItems, sessionId, isComplet
 							prefix='session-store-category'
 						/>
 					</section>
-					<CategorySection
-						category='other-stores'
-						title='Other Stores and Untagged'
-						count={String(sections.otherItems.length)}
-						open={expansion.isOpen('session-other-stores-section', sections.storeItems.length === 0)}
-						onOpenChange={open => expansion.onOpenChange('session-other-stores-section', open)}
-						testId='session-other-stores-section'
-					>
-						<SessionCategoryGroups
-							groups={otherGroups}
-							isCompleted={isCompleted}
-							priceByItemId={priceByItemId}
-							storeInfoByItemId={storeInfoByItemId}
-							defaultOpen={!startCollapsed}
-							expansion={expansion}
-							prefix='session-other-category'
-						/>
-					</CategorySection>
+					{/* A trip of only checked store items has nothing from elsewhere. */}
+					{sections.otherItems.length > 0 ? (
+						<CategorySection
+							category='other-stores'
+							title='Other Stores and Untagged'
+							count={String(sections.otherItems.length)}
+							open={expansion.isOpen('session-other-stores-section', sections.storeItems.length === 0)}
+							onOpenChange={open => expansion.onOpenChange('session-other-stores-section', open)}
+							testId='session-other-stores-section'
+						>
+							<SessionCategoryGroups
+								groups={otherGroups}
+								isCompleted={isCompleted}
+								priceByItemId={priceByItemId}
+								storeInfoByItemId={storeInfoByItemId}
+								defaultOpen={!startCollapsed}
+								expansion={expansion}
+								prefix='session-other-category'
+							/>
+						</CategorySection>
+					) : null}
 				</>
 			) : (
 				<SessionCategoryGroups

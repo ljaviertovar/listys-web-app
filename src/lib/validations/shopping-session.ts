@@ -4,6 +4,8 @@ export const createShoppingSessionSchema = z.object({
   base_list_id: z.string().uuid(),
   name: z.string().min(1, 'Name is required').max(100),
   store_id: z.string().uuid().nullable().optional(),
+  // The trip takes only the items checked on the list (narrowed to the store, when one is chosen).
+  only_needed: z.boolean().optional(),
 })
 
 export const COMPLETE_SESSION_ONLY_MESSAGE = 'A shopping session can only be completed with the complete operation.'

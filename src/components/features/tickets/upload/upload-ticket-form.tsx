@@ -11,7 +11,7 @@ import { Alert02Icon, Loading03Icon, Upload06Icon } from '@hugeicons/core-free-i
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
-import { DialogClose } from '@/components/ui/dialog'
+import { AlertDialogCancel } from '@/components/ui/alert-dialog'
 import { cn } from '@/utils'
 import { uploadTicketSchema, type UploadTicketInput } from '@/lib/validations/ticket'
 import { MAX_IMAGES_PER_TICKET } from '@/lib/config/limits'
@@ -230,17 +230,9 @@ export function UploadTicketForm({ onSuccess, initialFiles, shoppingSessionId, o
 						)}
 					</Button>
 					{asList ? null : (
-						<DialogClose asChild>
-							<Button
-								type='button'
-								variant='outline'
-								size='lg'
-								disabled={loading}
-								className='w-full sm:w-auto'
-							>
-								Cancel
-							</Button>
-						</DialogClose>
+						<AlertDialogCancel type='button' disabled={loading} className='w-full sm:w-auto'>
+							Cancel
+						</AlertDialogCancel>
 					)}
 				</div>
 			) : null}

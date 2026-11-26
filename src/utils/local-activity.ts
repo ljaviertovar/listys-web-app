@@ -10,7 +10,7 @@ export function markLocalMutation(now: number = Date.now()): void {
 
 /**
  * True when a realtime event is most likely the echo of this person's own edit, so it should refresh the page without a
- * "List updated" toast. A collaborator's edit inside the same few seconds is refreshed too, only without the notice.
+ * realtime toast. A collaborator's edit inside the same few seconds is refreshed too, only without the notice.
  */
 export function isOwnRecentActivity(now: number = Date.now()): boolean {
 	return now - lastLocalMutationAt < OWN_ACTIVITY_WINDOW_MS

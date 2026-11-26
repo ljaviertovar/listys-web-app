@@ -35,7 +35,8 @@ elección. Una tienda ajena o inexistente MUST rechazarse con `404` sin crear la
 
 ### Requirement: A store-scoped session lists that store's items first
 
-Una sesión con tienda SHALL contener todos los artículos de la lista. Los que tienen esa tienda como habitual o se
+Una sesión con tienda SHALL contener todos los artículos de la lista, salvo que empiece con artículos marcados de esa
+tienda (ver `needed-items`): entonces contiene solo esos y no muestra la sección de otras tiendas. Los que tienen esa tienda como habitual o se
 compraron alguna vez allí SHALL formar una sección propia al principio; el resto, de otras tiendas o sin tienda, SHALL ir
 en una sección plegada por defecto que el usuario puede abrir y en la que también puede marcar ítems.
 

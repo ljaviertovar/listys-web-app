@@ -2,7 +2,8 @@
 
 **Status:** Current scope, 2026-11-24. The product owner confirmed that the repository's implemented features are in
 production. The requirements below reflect repository evidence. Production configuration and metrics were outside
-this review.
+this review. Next-trip checks (FR-10) were added on 2026-11-26; that confirmation does not cover them, and their
+verification is recorded in [implementation status](../reference/implementation-status.md#next-trip-checks-2026-11-26).
 
 **Previous versions:** [PRD v3](PRD-v3.md) records the previous product direction. [PRD v2](PRD-v2.md) records the MVP baseline.
 
@@ -18,6 +19,7 @@ reviewing actual spending.
 | --- | --- |
 | Pantry and onboarding | Provision Pantry on the first eligible dashboard visit. Existing accounts without a default can set up Pantry on demand. Get Started tracks the first list, first completed trip and first three receipts. |
 | Receipt capture | Use device photos or the in-app document scanner. Review the crop before upload and enter or correct the purchase day on a read receipt. |
+| Next-trip checks | Check items on a list as they run out, then start a trip with only those. |
 | Active shopping | Keep one active trip per list, with concurrent trips on different lists. Save edits during the trip and surface cross-device conflicts. Estimate the running amount from checked items with known prices. |
 | Trip reconciliation | Attach multiple receipts with one per confirmed store. An active trip can continue or complete after attachment. Eligible completed trips accept receipts without an age cutoff. |
 | Spending | Show eligible receipt totals by purchase day, with an upload-date fallback and opt-in for standalone receipts. Offer current-month and all-time views. |
@@ -50,7 +52,8 @@ Shoppers who buy for several purposes can maintain separate lists within the sam
 ## 6. Core user journeys
 
 1. **Set up a list.** Sign in, use Pantry or create a list, then add items manually or from a reviewed receipt.
-2. **Shop and save a trip.** Start from a list, optionally select a store, check or edit items, then complete the trip.
+2. **Shop and save a trip.** Check what is running out on a list, if wanted. Start from the list, optionally select a
+   store, check or edit items, then complete the trip.
    The app updates purchase memory and keeps the trip in history.
 3. **Capture and reconcile a receipt.** Scan or select photos, wait for OCR, confirm the store and review the extracted
    items. Apply selected items to a list or reconcile the receipt with an eligible trip.
@@ -70,6 +73,7 @@ Shoppers who buy for several purposes can maintain separate lists within the sam
 | FR-07 | **Trip receipts.** Keep trip-origin uploads with their trip. Owners can review eligible receipts, confirm line matches, choose additional purchases and attach to an active or completed trip. Active trips can continue or complete after attachment. A receipt can attach once. A trip allows one receipt per confirmed store. Pending receipts do not contribute to the trip's paid total. [Trip receipts](../../openspec/specs/trip-receipts/spec.md) · [Receipt reconciliation](../../openspec/specs/receipt-session-reconciliation/spec.md) |
 | FR-08 | **History and dashboard.** Show completed trips, filter them by list and expose receipt status. Show active trips, likely-needed items based on purchase intervals, and recent visits by store. Get Started guides users to their first list, first completed trip and three receipts. [History](../../openspec/specs/shopping-history-by-list/spec.md) · [Dashboard](../../openspec/specs/dashboard-overview/spec.md) · [Get Started](../../openspec/specs/dashboard-get-started/spec.md) |
 | FR-09 | **Receipt-backed spending.** Count eligible receipts once: receipts attached to a trip, receipts from an active or completed trip pending review, and standalone receipts the owner opted in with a recorded total. Use the confirmed attachment amount when available. Use the visitor's local calendar month or all time and show spending by store and category. [Spending contract](../reference/api-v1.md#spending-and-store-visits) |
+| FR-10 | **Next-trip checks.** Keep list checks on the server until the item is bought. Show each tap at once, save grouped changes in the background and show whether they are saved. With checked items, a trip takes only those, limited to the chosen store; with none, or none for that store, it takes the whole list. Say what the trip includes before it starts. Completing a trip clears the checks of bought items; cancelling keeps them. [Needed items](../../openspec/specs/needed-items/spec.md) |
 
 ## 8. Non-functional requirements
 

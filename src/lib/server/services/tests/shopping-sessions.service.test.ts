@@ -36,6 +36,23 @@ describe('createShoppingSession', () => {
     })
   })
 
+  it('asks for only the checked items when told to', async () => {
+    const supabase = signIn({ data: { id: 'session-1' }, error: null })
+
+    await createShoppingSession({ base_list_id: TEST_UUID, name: 'Trip', only_needed: true })
+
+    expect(supabase.rpc).toHaveBeenCalledWith('start_shopping_session', expect.objectContaining({ p_only_needed: true }))
+  })
+
+  it('refuses a checked-items trip whose checks are gone', async () => {
+    signIn({ data: null, error: { code: 'P0001', message: 'NO_NEEDED_ITEMS' } })
+
+    await expect(createShoppingSession({ base_list_id: TEST_UUID, name: 'Trip', only_needed: true })).rejects.toMatchObject({
+      status: 409,
+      message: 'Your checked items changed. Review them and start again.',
+    })
+  })
+
   it('maps list ownership and empty-list errors without exposing database details', async () => {
     signIn({ data: null, error: { code: 'P0002', message: 'private ownership detail' } })
     await expect(createShoppingSession({ base_list_id: TEST_UUID, name: 'Trip' })).rejects.toMatchObject({ status: 404, message: 'Not found' })

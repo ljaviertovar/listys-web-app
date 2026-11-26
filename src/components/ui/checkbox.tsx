@@ -14,8 +14,9 @@ const checkboxVariants = cva(
 		variants: {
 			size: {
 				default: 'h-4 w-4 rounded-sm border-primary',
-				// The 22px touch box of the lists: a white square with a slate border that fills with the primary when ticked.
-				lg: 'size-5.5 rounded-md border-slate-400 bg-white dark:bg-transparent',
+				// The 22px touch box of the lists: a white square that fills with the primary when ticked. Its boundary uses the muted
+				// text colour so the unticked box keeps 3:1 against the surface (WCAG 1.4.11).
+				lg: 'size-5.5 rounded-md border-muted-foreground bg-white data-[state=checked]:border-primary data-[state=indeterminate]:border-primary dark:bg-transparent',
 			},
 		},
 		defaultVariants: { size: 'default' },

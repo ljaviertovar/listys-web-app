@@ -25,6 +25,8 @@ export async function createShoppingSession(data: unknown) {
     p_base_list_id: validation.data.base_list_id,
     p_name: validation.data.name,
     p_store_id: validation.data.store_id ?? null,
+    // Sent only when asked for, so a whole-list trip keeps the function's default.
+    ...(validation.data.only_needed ? { p_only_needed: true } : {}),
   })
 
   if (error) throw mapStartShoppingSessionRpcError(error)

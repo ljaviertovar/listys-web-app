@@ -52,6 +52,7 @@ strings. The inventory maps directly to [`src/app/api/v1/`](../../src/app/api/v1
 | `/base-lists/default-pantry` | POST | Give the account a default list on request (no body): returns `{ id, outcome }`. |
 | `/base-lists/{baseListId}` | GET, PATCH, DELETE | Read, update, or delete a list. DELETE returns `409 CONFLICT` while the list has an active trip. Each item in a list read includes its usual-store summary. Shared reads are experimental. |
 | `/base-lists/{baseListId}/items` | POST | Create an item; list ID comes from the path. |
+| `/base-lists/{baseListId}/items` | PATCH | Check or uncheck items for the next trip in one request: strict body `{ "changes": [{ "item_id", "needed" }] }`, 1–250 entries, each item once. Returns `{ "data": { "updated" } }`, the rows that changed; sending the same body again is safe. See [next-trip checks](#next-trip-checks). |
 | `/base-list-items` | GET | `?filter=likely_needed` reads up to 10 due items from the caller's own lists. |
 | `/spending` | GET | `?from=<ISO datetime with offset>&to=<ISO datetime with offset>` returns the caller's known spending totals for a range of at most 92 days. |
 | `/base-list-items/{itemId}` | PATCH, DELETE | Update/delete an item; PATCH can set or clear its usual store. |
@@ -88,6 +89,25 @@ strings. The inventory maps directly to [`src/app/api/v1/`](../../src/app/api/v1
 
 Maintenance handlers are not safe diagnostics by default: inspect database function authorization and affected scope
 before invoking them. This audit did not execute them.
+
+### Next-trip checks
+
+`PATCH /api/v1/base-lists/{baseListId}/items` sets or clears `needed_at` for the owner or a collaborator of the list.
+For example, `{ "changes": [{ "item_id": "<uuid>", "needed": true }, { "item_id": "<uuid>", "needed": false }] }`
+returns `200` with `{ "data": { "updated": 2 } }` when both rows change.
+
+- The server sets the date. Checking an already checked item keeps its first date.
+- `updated` counts only rows that changed. Item ids that do not belong to the path list change nothing and are not counted.
+- The body is strict: unknown fields, a repeated `item_id`, an empty array or more than `MAX_ITEMS_PER_BASE_LIST`
+  entries return `422`. A missing session returns `401`; a list the caller cannot see returns `404`.
+- Checked and unchecked rows are written by two separate statements, so the request is not atomic. A `500` can leave
+  one of the two applied; sending the same body again reaches the requested state.
+- No `Idempotency-Key` is used, because each change states an absolute value. Concurrent writers are not detected: the
+  last write wins.
+
+The web client groups taps before calling this operation; see
+[client synchronization](../architecture/architecture.md#next-trip-check-synchronization). To start a trip with the
+checked items, `POST /shopping-sessions` accepts `only_needed` (see [request boundaries](#request-boundaries)).
 
 ### Likely-needed items
 
@@ -127,7 +147,7 @@ Absent or foreign receipts return `404`. OCR runs started after the edit preserv
 | Group create/update | `name` 1–100 characters, `description` up to 500; fields optional on PATCH. | [`group.ts`](../../src/lib/validations/group.ts) |
 | List create/update | Create requires `name` 1–100; `group_id` is an optional UUID (null is accepted): omitted, the list goes to the user's default group, created on first use; supplied, it must be a group of the caller (`404` otherwise, with no difference between a missing and a foreign group). `notes` nullable/optional up to 500. Names are unique per user, ignoring case, across all groups (`409` otherwise); saving a list under its own name, or changing only its case, is accepted. PATCH accepts name/notes. | [`base-list.ts`](../../src/lib/validations/base-list.ts) |
 | Item create/update | Name up to 200, quantity 0.1–99 in 0.1 steps, optional unit/notes/category. Path determines parent on nested POST. | [`base-list.ts`](../../src/lib/validations/base-list.ts), [`shopping-session.ts`](../../src/lib/validations/shopping-session.ts) |
-| Session create | UUID `base_list_id`, `name` 1–100, optional `store_id` (UUID or null). When supplied, the session includes only items usual at or previously purchased at that store; other items remain available in the session as `is_other_store`. A requested list with an active session returns `409 CONFLICT` and `details.activeSessionId`; an empty list returns `409 CONFLICT`; a missing list or store outside the caller's scope returns `404`. | [`shopping-session.ts`](../../src/lib/validations/shopping-session.ts), [`shopping-sessions.service.ts`](../../src/lib/server/services/shopping-sessions.service.ts) |
+| Session create | UUID `base_list_id`, `name` 1–100, optional `store_id` (UUID or null) and boolean `only_needed`. With `only_needed: true` the trip takes only checked items, limited to those of the store when `store_id` is set; if none match, it returns `409 CONFLICT` and creates nothing. Without it the trip takes the whole list, and a supplied store marks as `is_other_store` the items that are neither usual at nor previously purchased there. A requested list with an active session returns `409 CONFLICT` and `details.activeSessionId`; an empty list returns `409 CONFLICT`; a missing list or store outside the caller's scope returns `404`. | [`shopping-session.ts`](../../src/lib/validations/shopping-session.ts), [`shopping-sessions.service.ts`](../../src/lib/server/services/shopping-sessions.service.ts) |
 | Session reads | `GET /shopping-sessions/{sessionId}` adds `store: { id, name } \| null` and `is_other_store` on each session item; completed-session history adds `store: { id, name } \| null`. Whole-list sessions have `store: null` and `is_other_store: false`. | [`shopping-sessions.service.ts`](../../src/lib/server/services/shopping-sessions.service.ts) |
 | Base-list item usual store | `PATCH /base-list-items/{itemId}` accepts `usual_store_id` (UUID or null). This field must be the only field in the PATCH (`422` if combined); a store or item outside the caller's scope returns `404`. The response adds `usual_store: { id, name, source } \| null` and `other_stores: [{ id, name, purchase_count }]`, with the usual store omitted from `other_stores`. | [`base-list.ts`](../../src/lib/validations/base-list.ts), [`base-lists.service.ts`](../../src/lib/server/services/base-lists.service.ts) |
 | Base-list item store summary | `GET /base-lists/{baseListId}` adds `usual_store` and `other_stores` to each item. `other_stores` is ordered by purchase count descending, then most recent purchase; raw statistics rows are not returned. Collaborators may see `usual_store: null` and `other_stores: []` when RLS hides the store data. | [`base-lists.service.ts`](../../src/lib/server/services/base-lists.service.ts) |
