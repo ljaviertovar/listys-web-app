@@ -18,8 +18,9 @@ const buttonVariants = cva(
 				field: `${SECONDARY_BUTTON_STYLE} justify-start text-left font-normal data-[empty=true]:text-muted-foreground`,
 				secondary:
 					'bg-secondary text-secondary-foreground hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground',
+				// One option of a segmented switch: a page link marks itself with aria-current, a radio option with aria-checked.
 				segment:
-					'text-muted-foreground hover:bg-background/60 aria-[current=page]:bg-white aria-[current=page]:text-slate-900 aria-[current=page]:shadow-sm',
+					'text-muted-foreground hover:bg-background/60 aria-[current=page]:bg-white aria-[current=page]:text-slate-900 aria-[current=page]:shadow-sm aria-checked:bg-white aria-checked:text-slate-900 aria-checked:shadow-sm',
 				ghost:
 					'hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50',
 				destructive:

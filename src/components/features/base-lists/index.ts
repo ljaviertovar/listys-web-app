@@ -2,6 +2,7 @@
 export { BaseListCard } from './base-list-card'
 export { BaseListItemRow } from './items/base-list-item-row'
 export { ItemStorePricesSheet } from './items/item-store-prices-sheet'
+export { ItemStorePrices } from './items/item-store-prices'
 export { BaseListItems } from './items/base-list-items'
 export { UsualStoreFilter } from './items/usual-store-filter'
 export { buildStoreFilterOptions, filterItemsByUsualStore, resolveStoreFilter } from './items/helpers/filter-items-by-store'

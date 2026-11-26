@@ -4,38 +4,53 @@ import { cn } from '@/utils'
 
 import { Shell } from './shell'
 
+const SURFACES = {
+	/** The page's thermal paper (transparent over the grain). */
+	paper: '',
+	/** The darker paper of the memory section. */
+	sunken: 'bg-paper-sunken',
+	/** Clean white paper (the money section and the close). */
+	white: 'bg-white',
+	/** The dark band. */
+	night: 'bg-night text-night-text',
+} as const
+
+const RHYTHM = {
+	default: 'py-[52px] md:py-[88px] lg:py-32',
+	band: 'py-[52px] md:py-[84px] lg:py-30',
+	none: '',
+} as const
+
 type Props = {
 	/** Anchor id used by in-page navigation links. */
 	id?: string
 	testId: string
-	/** `contained` centers the section in the landing max-width; `full` leaves the width to the section. */
-	width?: 'contained' | 'full'
-	/** Band styling for the section: background, overflow, padding overrides. */
+	surface?: keyof typeof SURFACES
+	rhythm?: keyof typeof RHYTHM
+	/** `false` when the section draws its own full-bleed content (the shared-lists photo). */
+	contained?: boolean
+	/** External layout only (overflow, placement). */
 	className?: string
 	children: ReactNode
 }
 
-/** Owns the width, anchor and vertical rhythm of a landing section so the section itself stays width-agnostic. */
-export function SectionWrapper({ id, testId, width = 'contained', className, children }: Props) {
-	if (width === 'full') {
-		return (
-			<div
-				id={id}
-				data-testid={testId}
-				className={cn('relative w-full', className)}
-			>
-				{children}
-			</div>
-		)
-	}
-
+/** Owns the surface, anchor and vertical rhythm of a landing section so the section itself stays width-agnostic. */
+export function SectionWrapper({
+	id,
+	testId,
+	surface = 'paper',
+	rhythm = 'default',
+	contained = true,
+	className,
+	children,
+}: Props) {
 	return (
 		<section
 			id={id}
 			data-testid={testId}
-			className={cn('section-divider scroll-mt-16 py-[72px] min-[900px]:py-[104px]', className)}
+			className={cn('scroll-mt-16', SURFACES[surface], RHYTHM[rhythm], className)}
 		>
-			<Shell testId={`${testId}-shell`}>{children}</Shell>
+			{contained ? <Shell testId={`${testId}-shell`}>{children}</Shell> : children}
 		</section>
 	)
 }

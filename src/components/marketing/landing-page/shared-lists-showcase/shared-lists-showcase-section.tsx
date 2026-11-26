@@ -1,115 +1,112 @@
-import { Avatars, Icon } from '../commons'
-import { DeviceCard, type Device } from './device-card'
-import { SharedListsBanner } from './shared-lists-banner'
+import { CheckmarkCircle02Icon } from '@hugeicons/core-free-icons'
+import { HugeiconsIcon } from '@hugeicons/react'
+import Image from 'next/image'
 
-const POINTS = [
-	'A check lands for everyone the moment it happens, mid-aisle',
-	'One shared source of truth, so nobody comes home with two of anything',
-	'Every item shows who added it and who picked it up',
-]
+import { MonoLabel, SectionWrapper, Shell } from '../commons'
+import { SharedTripMock } from '../mockups'
 
-const FEED = [
-	{
-		initials: 'NH',
-		who: 'Noah',
-		what: 'checked off almond milk',
-		when: 'just now',
-	},
-	{
-		initials: 'AV',
-		who: 'Ava',
-		what: 'added lemons · 4 unit',
-		when: '2 min ago',
-	},
-	{
-		initials: 'MY',
-		who: 'Maya',
-		what: 'checked off greek yogurt',
-		when: '6 min ago',
-	},
-]
-
-const DEVICES: Device[] = [
-	{
-		initials: 'NO',
-		label: 'Noah · in the aisle',
-		pill: { kind: 'live', text: 'Shopping' },
-		liveBy: 'Noah',
-		liveAside: 'tapped',
-	},
-	{
-		initials: 'MA',
-		label: 'Maya · at home',
-		pill: { kind: 'collab', text: 'Noah is shopping' },
-		liveAside: 'Noah · now',
-	},
-]
-
+/** 04 — Shared lists: a full-bleed photo with the headline, then two phones of the same household showing the same trip. */
 export function SharedListsShowcaseSection() {
 	return (
-		<div
-			data-testid='landing-shared-lists'
-			className='w-full'
+		<SectionWrapper
+			id='shared-lists'
+			testId='landing-shared-lists'
+			rhythm='none'
+			contained={false}
+			className='pb-11 md:pb-[72px] lg:pb-22'
 		>
-			<SharedListsBanner />
-
-			<div className='mt-5 grid min-w-0 grid-cols-1 gap-6 min-[900px]:mt-8 min-[900px]:gap-8 min-[1040px]:grid-cols-[minmax(0,300px)_minmax(0,1fr)] min-[1040px]:items-center min-[1040px]:gap-14'>
-				<div className='min-w-0'>
-					<div className='flex flex-col gap-[10px] min-[900px]:gap-[14px]'>
-						{POINTS.map(point => (
-							<div
-								key={point}
-								className='flex items-start gap-[9px] text-sm leading-[1.5] text-slate-700 min-[900px]:gap-3 min-[900px]:text-base min-[900px]:leading-[1.55]'
-							>
-								<i className='mt-[2px] flex size-[21px] shrink-0 items-center justify-center rounded-full bg-violet-50 text-violet-600 [&_svg]:size-3'>
-									<Icon id='tick' />
-								</i>
-								<span>{point}</span>
-							</div>
-						))}
-					</div>
-					<div className='mt-4 flex items-center gap-[9px] text-xs text-slate-600 min-[900px]:mt-[26px] min-[900px]:gap-3 min-[900px]:text-sm'>
-						<Avatars initials={['MY', 'NH', 'AV']} />
-						<span>Maya, Noah and Ava share this list</span>
-					</div>
-				</div>
-
-				<div className='min-w-0'>
-					<div className='grid min-w-0 grid-cols-1 items-start gap-[18px] min-[700px]:grid-cols-[minmax(0,1fr)_112px_minmax(0,1fr)] min-[700px]:gap-0'>
-						<DeviceCard device={DEVICES[0]} />
-						<div className='dashed-link relative flex items-center justify-center py-[10px] min-[700px]:self-center min-[700px]:py-0'>
-							<span className='relative z-[2] flex items-center gap-[7px] rounded-full border border-violet-600/[0.35] bg-violet-50 px-[13px] py-[7px] font-mono text-[11px] tracking-[.1em] whitespace-nowrap text-violet-600 uppercase'>
-								<i className='block size-[5px] rounded-full bg-violet-600' />
-								Synced
-							</span>
-						</div>
-						<DeviceCard device={DEVICES[1]} />
-					</div>
-
+			<div className='relative aspect-4/5 overflow-hidden md:aspect-auto md:h-[clamp(380px,48vw,620px)]'>
+				<Image
+					src='/images/landing/shared-lists.webp'
+					alt='Two shoppers, one at a kitchen counter and one in a grocery aisle, both looking at their phones.'
+					fill
+					sizes='100vw'
+					className='object-cover object-[62%_30%] md:object-[center_30%]'
+				/>
+				<div className='absolute inset-0 bg-linear-to-b from-night/10 via-transparent via-35% to-night/88 max-md:from-transparent max-md:via-40%' />
+				<Shell
+					testId='landing-shared-lists-caption'
+					className='absolute inset-x-0 bottom-0 z-10 pb-[58px] md:pb-[132px]'
+				>
+					<MonoLabel tone='on-photo'>04 — Shared lists</MonoLabel>
+					<h2 className='mt-2.5 max-w-[13ch] text-4xl leading-[0.96] font-extrabold tracking-[-0.045em] text-white md:mt-3 md:text-[clamp(36px,5vw,68px)]'>
+						Two of you, one list, at the same time.
+					</h2>
+				</Shell>
+			</div>
+			<Shell testId='landing-shared-lists-shell'>
+				<div className='relative z-10 -mt-[30px] grid gap-0 md:-mt-24 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,0.9fr)] md:items-start md:gap-[22px] [&>*]:min-w-0'>
+					<Device
+						who='Noah · in the aisle'
+						overPhoto
+						testId='landing-shared-noah'
+					/>
+					<p className='my-3 ml-[18px] flex min-h-11 items-center gap-2.5 border-l-2 border-dashed border-paper-line pl-4 text-sm text-paper-text md:hidden'>
+						<HugeiconsIcon
+							icon={CheckmarkCircle02Icon}
+							strokeWidth={1.8}
+							aria-hidden='true'
+							className='size-[18px] shrink-0 text-feedback-success'
+						/>
+						Almond milk checked by Noah shows on Maya’s phone
+					</p>
+					<Device
+						who='Maya · at home'
+						testId='landing-shared-maya'
+						className='ml-7 md:mt-10 md:ml-0'
+					/>
 					<div
-						aria-label='Recent list activity'
-						data-testid='activity-toast-stack'
-						role='list'
-						className='mx-auto mt-[18px] grid w-full min-w-0 max-w-full gap-2'
+						data-reveal
+						className='pt-[22px] md:pt-[132px]'
 					>
-						{FEED.map(entry => (
-							<div
-								key={entry.who}
-								data-testid={`activity-toast-${entry.initials.toLowerCase()}`}
-								role='listitem'
-								className='flex min-h-[48px] min-w-0 items-center gap-3 rounded-xl border border-slate-200 bg-white px-3.5 py-[10px] text-[13px] text-slate-700 shadow-sm'
+						<p className='text-base leading-relaxed text-paper-text md:text-[17px]'>
+							Share a list with the people you shop for. Everyone on it sees the same trip, and a check on one phone shows up on
+							the others.
+						</p>
+						<div className='mt-3.5 rounded-[14px] border-[1.5px] border-dashed border-paper-line px-3.5 py-3 text-[15px] leading-normal md:mt-[18px] md:px-4 md:py-3.5'>
+							<MonoLabel
+								as='p'
+								tone='ink'
+								className='mb-1'
 							>
-								<span className='flex size-6 shrink-0 items-center justify-center rounded-full bg-violet-600 font-mono text-[8.5px] font-medium text-white'>
-									{entry.initials}
-								</span>
-								<span className='min-w-0 flex-1 truncate'>
-									<b className='font-bold text-slate-900'>{entry.who}</b> {entry.what}
-								</span>
-								<span className='font-mono text-[11px] whitespace-nowrap text-slate-500'>{entry.when}</span>
-							</div>
-						))}
+								Signal drops in the store?
+							</MonoLabel>
+							Your checks wait on the phone and save when it reconnects.
+						</div>
 					</div>
 				</div>
+			</Shell>
+		</SectionWrapper>
+	)
+}
+
+type DeviceProps = {
+	who: string
+	/** The first phone starts over the photo on a phone and on desktop, so its caption is white. */
+	overPhoto?: boolean
+	testId: string
+	/** External layout only (offsets). */
+	className?: string
+}
+
+/** One person's phone: who and where, then their view of the shared trip. */
+function Device({ who, overPhoto = false, testId, className }: DeviceProps) {
+	return (
+		<div
+			data-reveal
+			className={className}
+		>
+			<p className='mb-2 ml-1 flex items-center gap-2 md:mb-2.5 md:ml-0'>
+				<span className='size-[7px] rounded-full bg-feedback-success md:ring-2 md:ring-white/80' />
+				<MonoLabel tone={overPhoto ? 'on-photo' : 'on-photo-from-md'}>
+					{who}
+				</MonoLabel>
+			</p>
+			<div
+				aria-hidden='true'
+				inert
+			>
+				<SharedTripMock testId={testId} />
 			</div>
 		</div>
 	)

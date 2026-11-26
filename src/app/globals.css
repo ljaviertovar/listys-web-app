@@ -73,6 +73,18 @@
   --collab-subtle: #F5F3FF;
   --scan-strong: #0369A1;
   --scan-subtle: #E0F2FE;
+  /* Landing "thermal paper" (DS v2.9.0, Marketing surfaces). The landing keeps one look in both themes, so .dark does not redefine these. */
+  --paper: #F5F5F2;
+  --paper-sunken: #EBEAE6;
+  --paper-line: #D9D8D3;
+  --paper-ink: #15171B;
+  --paper-text: #3B4048;
+  --paper-muted: #62666D;
+  --night: #14161A;
+  --night-raised: #1E2127;
+  --night-line: #33373F;
+  --night-text: #C9CDD4;
+  --night-muted: #8C929C;
   --tracking-normal: 0em;
   --spacing: 0.25rem;
 }
@@ -195,6 +207,17 @@
   --color-collab-subtle: var(--collab-subtle);
   --color-scan-strong: var(--scan-strong);
   --color-scan-subtle: var(--scan-subtle);
+  --color-paper: var(--paper);
+  --color-paper-sunken: var(--paper-sunken);
+  --color-paper-line: var(--paper-line);
+  --color-paper-ink: var(--paper-ink);
+  --color-paper-text: var(--paper-text);
+  --color-paper-muted: var(--paper-muted);
+  --color-night: var(--night);
+  --color-night-raised: var(--night-raised);
+  --color-night-line: var(--night-line);
+  --color-night-text: var(--night-text);
+  --color-night-muted: var(--night-muted);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);

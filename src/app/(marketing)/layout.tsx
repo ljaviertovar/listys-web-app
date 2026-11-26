@@ -1,16 +1,20 @@
-import { Footer, Header, LandingSprite } from '@/components/marketing'
+import { Footer, Header } from '@/components/marketing'
 
 import './marketing.css'
 
+/** The landing's thermal paper: a warm off-white page with a fine grain, ink text, and Listys blue as the only accent. */
 export default function MainLayout({ children }: { children: React.ReactNode }) {
 	return (
-		<div className='marketing flex min-h-screen flex-col bg-[radial-gradient(ellipse_75%_52%_at_50%_0%,#FFFFFF_0%,rgba(255,255,255,0.5)_42%,transparent_78%),linear-gradient(180deg,rgba(248,251,255,0)_0%,rgba(227,240,255,0.85)_100%),linear-gradient(90deg,#EDF3FE_0%,#F4F8FF_28%,#F4F8FF_72%,#EFF4FE_100%)] bg-fixed text-slate-600 selection:bg-blue-900 selection:text-white'>
-			<LandingSprite />
+		<div
+			data-testid='marketing-root'
+			className='paper-grain flex min-h-screen flex-col overflow-x-clip bg-paper font-sans text-base leading-normal text-paper-text selection:bg-primary selection:text-primary-foreground'
+		>
 			<Header />
 
 			<main
 				id='main-container'
 				data-testid='main-container'
+				className='flex-1'
 			>
 				{children}
 			</main>

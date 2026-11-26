@@ -11,6 +11,7 @@ export { getTripReceiptState, type TripReceiptState } from './helpers/get-trip-r
 export { buildSessionPriceEstimate } from './helpers/build-session-price-estimate'
 export { ShoppingSessionActions } from './shopping-session-actions'
 export { ShoppingSessionItemRow } from './shopping-session-item-row'
+export { ShoppingSessionItemRowView } from './shopping-session-item-row-view'
 export { ShoppingSessionItems } from './shopping-session-items'
 export { TripSyncProvider } from './trip-sync-provider'
 export { TripSyncStatus } from './trip-sync-status'

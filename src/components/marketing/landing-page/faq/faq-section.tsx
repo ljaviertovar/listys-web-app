@@ -1,69 +1,87 @@
+import { MonoLabel, SectionHead, SectionWrapper, TornPaper } from '../commons'
+
+// Only what no section above already answers: the receipts that work, life without receipts, and where the photos go.
 const FAQS = [
 	{
-		question: 'Do I have to retype my list every week?',
+		question: 'Which receipts work?',
 		answer:
-			'No. Review the items from a receipt and choose what to add to a reusable base list. Start your next shopping session from that list.',
+			'Printed receipts from any store. Upload one to five photos at a time; a flat, well-lit photo reads best. The store name is read from the receipt itself.',
 	},
 	{
-		question: 'What happens when the scan gets something wrong?',
+		question: 'Can I use it without receipts?',
 		answer:
-			'You can compare the extracted items with your receipt, then choose what to add to a base list.',
+			'Yes. Type items into a list and shop from it like any list. Prices, the cheapest store and your spending come only from receipts, so those fill in once you add some.',
 	},
 	{
-		question: 'What is a shopping session?',
+		question: 'What happens to my receipt photos?',
 		answer:
-			"A copy of a list, made for one trip. Check items off as you walk the aisles — your original list stays untouched no matter what you do in the store. When you finish, you decide whether the trip's changes go back into it.",
-	},
-	{
-		question: 'Can my household share a list?',
-		answer:
-			'Yes. Share a base list using its invite link. The link gives access to that list and the shopping session started from it.',
-	},
-	{
-		question: 'What does it cost?',
-		answer: 'Nothing. One free account, with everything on this page in it. No paid tier and no card at sign-up.',
+			'They are kept in private storage tied to your account and opened only through short-lived links. Deleting a receipt deletes its photos.',
 	},
 ]
 
+/** 05 — Questions, printed as a receipt: one numbered line per question, the answer under it. */
 export function FaqSection() {
 	return (
-		<div
-			data-testid='landing-faq'
-			className='w-full'
+		<SectionWrapper
+			id='faq'
+			testId='landing-faq'
 		>
-			<div className='mt-2 grid grid-cols-1 gap-7 min-[920px]:grid-cols-[minmax(0,1.32fr)_minmax(0,1fr)] min-[920px]:items-start min-[920px]:gap-16'>
-				<div className='min-[920px]:sticky min-[920px]:top-[96px] min-[920px]:order-2'>
-					<h2 className='text-[clamp(32px,4vw,48px)] leading-[1.1] font-[750] tracking-[-0.035em] text-slate-900 text-balance'>
-						Before you create an account
-					</h2>
-					<p className='mt-[14px] max-w-[30em] text-lg leading-[1.65] font-[450] text-slate-600'>
-						Five things worth knowing before you hand over an email address.
-					</p>
+			<div className='grid items-start gap-6 md:gap-10 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:gap-16 [&>*]:min-w-0'>
+				<div
+					data-reveal
+					className='lg:sticky lg:top-24'
+				>
+					<SectionHead
+						layout='stack'
+						titleSize='faq'
+						number='05 — Questions'
+						title='Before you create an account'
+						description='The things worth knowing before you hand over an email address.'
+						testId='landing-faq-head'
+					/>
 				</div>
-				<div className='overflow-hidden rounded-2xl border border-slate-200 bg-white min-[920px]:order-1'>
-					{FAQS.map((faq, index) => (
-						<details
-							key={faq.question}
-							open={index === 0}
-							className='group border-t border-slate-200 open:bg-[linear-gradient(180deg,rgba(37,99,235,.035),transparent_60%)] first-of-type:border-t-0'
-						>
-							<summary className='flex cursor-pointer list-none items-center justify-between gap-[22px] px-[22px] py-5 text-base font-semibold tracking-[-0.005em] text-slate-900 transition-colors hover:text-blue-700 [&::-webkit-details-marker]:hidden min-[920px]:px-[26px] min-[920px]:py-[22px] min-[920px]:text-lg'>
-								{faq.question}
-								<span
-									className='relative size-4 shrink-0 text-slate-500 group-open:text-primary'
-									aria-hidden='true'
-								>
-									<span className='absolute top-[7.25px] right-0 left-0 h-[1.5px] rounded-[1px] bg-current' />
-									<span className='absolute top-0 bottom-0 left-[7.25px] w-[1.5px] rounded-[1px] bg-current transition-[transform,opacity] duration-[180ms] group-open:scale-y-0 group-open:opacity-0' />
-								</span>
-							</summary>
-							<p className='max-w-[48em] px-[22px] pb-[22px] text-sm leading-[1.6] text-slate-600 min-[920px]:px-[26px] min-[920px]:pb-[26px] min-[920px]:text-base min-[920px]:leading-[1.75]'>
-								{faq.answer}
-							</p>
-						</details>
-					))}
+				<div data-reveal>
+					<TornPaper
+						padding='sheet'
+						testId='landing-faq-sheet'
+					>
+						<div className='flex justify-between gap-3 border-b-[1.5px] border-dashed border-paper-line pb-2.5 md:pb-3.5'>
+							<MonoLabel>Questions</MonoLabel>
+							<MonoLabel>{FAQS.length} items</MonoLabel>
+						</div>
+						{FAQS.map((faq, index) => (
+							<details
+								key={faq.question}
+								open={index === 0}
+								className='group border-b-[1.5px] border-dashed border-paper-line'
+							>
+								<summary className='focus-ring grid min-h-13 cursor-pointer list-none grid-cols-[30px_minmax(0,1fr)_16px] items-baseline gap-2 rounded-md py-3.5 text-base leading-snug font-bold tracking-[-0.01em] text-paper-ink transition-colors hover:text-primary md:min-h-15 md:grid-cols-[40px_minmax(0,1fr)_20px] md:gap-2.5 md:py-[18px] md:text-[17.5px] [&::-webkit-details-marker]:hidden'>
+									<span className='font-mono text-[11px] font-medium tracking-[0.1em] text-paper-muted group-open:text-primary md:text-xs'>
+										Q{index + 1}
+									</span>
+									<span>{faq.question}</span>
+									<span
+										aria-hidden='true'
+										className='relative size-3.5 self-center'
+									>
+										<span className='absolute inset-x-0 top-1.5 h-0.5 rounded-xs bg-paper-ink' />
+										<span className='absolute inset-x-0 top-1.5 h-0.5 rotate-90 rounded-xs bg-paper-ink transition-transform duration-200 group-open:rotate-0 motion-reduce:transition-none' />
+									</span>
+								</summary>
+								<p className='max-w-[44em] pr-1 pb-4 pl-[38px] text-[15px] leading-relaxed md:pr-[30px] md:pb-[22px] md:pl-[50px] md:text-base md:leading-[1.65]'>
+									{faq.answer}
+								</p>
+							</details>
+						))}
+						<div className='flex justify-between pt-3 md:pt-4'>
+							<MonoLabel tone='ink'>Answered</MonoLabel>
+							<MonoLabel tone='ink'>
+								{FAQS.length} / {FAQS.length}
+							</MonoLabel>
+						</div>
+					</TornPaper>
 				</div>
 			</div>
-		</div>
+		</SectionWrapper>
 	)
 }

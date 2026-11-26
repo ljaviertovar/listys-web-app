@@ -20,9 +20,10 @@ export const NAV_ITEMS: NavItemO[] = [
 ]
 
 export const MARKETING_SECTION_LINKS = [
-	{ label: 'How It Works', href: '/#how-it-works' },
-	{ label: 'Features', href: '/#features' },
-	{ label: 'Shared Lists', href: '/#shared-lists' },
+	{ label: 'Prices', href: '/#prices' },
+	{ label: 'What it remembers', href: '/#what-it-remembers' },
+	{ label: 'How it works', href: '/#how-it-works' },
+	{ label: 'Shared lists', href: '/#shared-lists' },
 	{ label: 'FAQ', href: '/#faq' },
 ]
 
