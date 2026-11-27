@@ -67,6 +67,7 @@ export function ItemEditForm({ item, onSubmit, onCancel }: ItemEditFormProps) {
 			<ItemFields
 				form={form}
 				idPrefix={`${id}-edit`}
+				surface='paper'
 				disabled={loading}
 			/>
 			<div className='mt-3 grid grid-cols-2 gap-2'>

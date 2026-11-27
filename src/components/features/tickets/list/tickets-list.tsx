@@ -256,7 +256,7 @@ function TicketsContent({ tickets }: TicketsListProps) {
 						<ComboboxInput
 							id={storeLabelId}
 							size='filter'
-							surface='page'
+							surface='paper'
 							inset='card'
 							aria-label='Filter by store'
 							showClear={false}

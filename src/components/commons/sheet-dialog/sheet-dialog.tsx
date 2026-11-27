@@ -18,10 +18,9 @@ import { DataFacts, type DataFact } from '../data-line/data-line'
 import { useDialogFocus } from '@/hooks'
 import { cn } from '@/utils'
 
-/** The paper of every app sheet (`--background`) with its fields on the card white (`--card`), so a field reads as a field
- * without a dark outline. Scoped to the sheet, so the same inputs on the page keep their own fill. */
+/** All app sheets use the card surface; inputs keep that same surface with a border to distinguish them. */
 const SHEET_SURFACE =
-	'bg-background [&_[data-slot=input]]:border-border [&_[data-slot=input]]:bg-card [&_[data-slot=textarea]]:border-border [&_[data-slot=textarea]]:bg-card [&_[data-slot=select-trigger]]:border-border [&_[data-slot=select-trigger]]:bg-card [&_[data-slot=input-group]]:border-border [&_[data-slot=input-group]]:bg-card [&_form]:gap-4'
+	'bg-card [&_[data-slot=input]]:border-border [&_[data-slot=textarea]]:border-border [&_[data-slot=select-trigger]]:border-border [&_[data-slot=input-group]]:border-border [&_form]:gap-4'
 
 interface SheetDialogProps {
 	open?: boolean
@@ -155,7 +154,7 @@ export function SheetDialog({
 						/>
 					</AlertDialogCancel>
 				</DialogHeader>
-				<ScrollArea size={fit ? 'sheet-fit' : 'sheet'} scrollHint className='min-h-0 flex-none'>{children}</ScrollArea>
+				<ScrollArea size={fit ? 'sheet-fit' : 'sheet'} className='min-h-0 flex-none'>{children}</ScrollArea>
 			</AlertDialogContent>
 		</AlertDialog>
 	)

@@ -58,12 +58,6 @@ export function MemorySection() {
 						testId='landing-memory-learns-compact'
 						className='mt-[22px] lg:hidden'
 					/>
-					<MonoLabel
-						as='p'
-						className='mt-3 text-right md:mt-[22px]'
-					>
-						Illustrative data
-					</MonoLabel>
 				</div>
 			</div>
 		</SectionWrapper>

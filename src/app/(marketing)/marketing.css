@@ -4,6 +4,11 @@
  * need an SVG filter, a mask, a pseudo-element animation or a state selector that utilities cannot express.
  */
 
+/* Native anchor navigation should ease between landing sections without affecting the rest of the app. */
+html:has([data-testid='marketing-root']) {
+	scroll-behavior: smooth;
+}
+
 /* The receipt's barcode: a repeating gradient of bars, not a real barcode. */
 .receipt-barcode {
 	background: repeating-linear-gradient(
@@ -99,6 +104,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+	html:has([data-testid='marketing-root']) {
+		scroll-behavior: auto;
+	}
+
 	.hero-strike {
 		animation: none;
 		color: color-mix(in oklch, var(--paper-muted) 75%, var(--paper));

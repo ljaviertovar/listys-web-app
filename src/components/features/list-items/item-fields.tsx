@@ -28,10 +28,12 @@ interface ItemFieldsProps {
 	disabled?: boolean
 	/** The category only matters when an item is added; editing keeps the one it has. */
 	withCategory?: boolean
+	/** `paper` when the form sits on the paper panel of a row: the fields take the card-white fill. */
+	surface?: 'card' | 'paper'
 }
 
 /** The fields shared by every item form: name, quantity with its unit, an optional category and notes. */
-export function ItemFields({ form, idPrefix, disabled = false, withCategory = false }: ItemFieldsProps) {
+export function ItemFields({ form, idPrefix, disabled = false, withCategory = false, surface = 'card' }: ItemFieldsProps) {
 	const unitAnchor = useComboboxAnchor()
 	const categoryAnchor = useComboboxAnchor()
 	const [popupContainer, setPopupContainer] = useState<HTMLElement | null>(null)
@@ -62,6 +64,7 @@ export function ItemFields({ form, idPrefix, disabled = false, withCategory = fa
 				<Input
 					id={`${idPrefix}-name`}
 					{...register('name')}
+					variant={surface === 'paper' ? 'on-paper' : undefined}
 					placeholder='e.g. Orange Juice'
 					disabled={disabled}
 					aria-invalid={!!errors.name}
@@ -87,6 +90,7 @@ export function ItemFields({ form, idPrefix, disabled = false, withCategory = fa
 						min='0.1'
 						max='99'
 						{...register('quantity', { valueAsNumber: true })}
+						variant={surface === 'paper' ? 'on-paper' : undefined}
 						disabled={disabled}
 						aria-invalid={!!errors.quantity}
 						aria-describedby={errors.quantity ? `${idPrefix}-quantity-error` : undefined}
@@ -116,7 +120,7 @@ export function ItemFields({ form, idPrefix, disabled = false, withCategory = fa
 									id={`${idPrefix}-unit`}
 									aria-invalid={!!errors.unit}
 									size='lg'
-									surface='form'
+									surface={surface === 'paper' ? 'form-paper' : 'form'}
 									placeholder='Unit'
 									showTrigger
 								/>
@@ -166,7 +170,7 @@ export function ItemFields({ form, idPrefix, disabled = false, withCategory = fa
 									id={`${idPrefix}-category`}
 									aria-invalid={!!errors.category}
 									size='lg'
-									surface='form'
+									surface={surface === 'paper' ? 'form-paper' : 'form'}
 									placeholder='Choose a category'
 									showTrigger
 								>
@@ -208,6 +212,7 @@ export function ItemFields({ form, idPrefix, disabled = false, withCategory = fa
 				<Textarea
 					id={`${idPrefix}-notes`}
 					{...register('notes')}
+					surface={surface}
 					placeholder={withCategory ? 'Brand, size…' : 'Notes, eg. specific brand, flavor, etc.'}
 					disabled={disabled}
 					aria-invalid={!!errors.notes}

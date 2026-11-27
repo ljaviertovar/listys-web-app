@@ -107,12 +107,6 @@ export function MoneySection() {
 					<p className='mt-5 text-[15.5px] leading-[1.55] text-paper-text'>
 						Nothing is scraped or guessed: the more receipts you keep, the sharper it gets.
 					</p>
-					<MonoLabel
-						as='p'
-						className='mt-[22px]'
-					>
-						Illustrative data
-					</MonoLabel>
 				</div>
 			</div>
 		</SectionWrapper>

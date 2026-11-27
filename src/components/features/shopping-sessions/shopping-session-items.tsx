@@ -27,12 +27,9 @@ interface ShoppingSessionItemsProps {
 	storeName?: string | null
 }
 
-/** Unticked items first inside a category, so what is left to buy stays at the top; each group keeps the list's own order. */
+/** Keeps each item at its position in the list; checking an item only changes its state, never where it sits. */
 function sortForShopping(items: ShoppingSessionItem[]) {
-	return [...items].sort((a, b) => {
-		if (a.checked !== b.checked) return a.checked ? 1 : -1
-		return (a.sort_order || 0) - (b.sort_order || 0)
-	})
+	return [...items].sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
 }
 
 /** The items of a session in one card, a collapsible category each with how many are in the cart ("1/2"). */

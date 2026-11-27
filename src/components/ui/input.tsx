@@ -4,14 +4,14 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/utils'
 
 const inputVariants = cva(
-	'flex w-full min-w-0 rounded-3xl border border-transparent bg-input/50 px-3 text-base shadow-xs transition-[color,box-shadow] file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm',
+	'flex w-full min-w-0 rounded-3xl border border-border bg-muted px-3 text-base shadow-xs transition-[color,box-shadow] file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm',
 	{
 		variants: {
 			variant: {
 				default: '',
 				amount: 'text-right font-mono font-medium tabular-nums',
-				// A field on the auth screens' paper: warm white fill; border, radius and states are the default ones.
-				'on-paper': 'bg-card dark:bg-input/50',
+				// On the paper ground the field is the card-white surface, so it stands out from the page (DS: Input on-paper).
+				'on-paper': 'bg-card',
 			},
 			size: {
 				default: 'h-11 md:h-9',

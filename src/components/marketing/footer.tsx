@@ -5,12 +5,10 @@ import { Brand, Shell } from './landing-page'
 
 import { MARKETING_SECTION_LINKS } from '@/data/constants'
 
-const SOCIAL = [
-	{ label: 'GitHub', href: 'https://github.com/ljaviertovar' },
-	{ label: 'X (Twitter)', href: 'https://x.com/ljaviertovar' },
-]
+const SOCIAL: { label: string; href: string }[] = []
 
-const LINK = 'focus-ring flex min-h-11 items-center rounded-lg px-2.5 font-mono text-[11.5px] tracking-[0.1em] uppercase transition-colors hover:text-white md:text-[12.5px] md:tracking-[0.08em]'
+const LINK =
+	'focus-ring flex min-h-11 items-center rounded-lg px-2.5 font-mono text-[11.5px] tracking-[0.1em] uppercase transition-colors hover:text-white md:text-[12.5px] md:tracking-[0.08em]'
 
 /** The dark foot of the receipt: brand, the section links, social links and the printed sign-off. */
 export default function Footer() {
@@ -54,9 +52,22 @@ export default function Footer() {
 						</Link>
 					))}
 				</span>
-				<p className='flex basis-full flex-wrap justify-between gap-3 border-t border-dashed border-night-line pt-3.5 font-mono text-[11px] leading-[1.7] tracking-[0.06em] md:text-xs'>
+				<p className='flex basis-full flex-wrap justify-between gap-3 border-t border-dashed border-night-line pt-3.5 font-mono text-xs leading-[1.7] tracking-[0.06em]'>
 					<span>© {new Date().getFullYear()} Listys</span>
 					<span>Turn a receipt into a list your household will actually reuse.</span>
+				</p>
+				<p className='flex basis-full flex-wrap justify-center gap-3 border-t border-dashed border-night-line pt-3.5 font-mono text-xs leading-[1.7] tracking-[0.06em]'>
+					<span className='flex min-h-11 items-center'>
+						Build by{' '}
+						<a
+							href='https://www.ljaviertovar.dev/'
+							target='_blank'
+							rel='noopener noreferrer'
+							className='focus-ring inline-flex min-h-11 items-center underline underline-offset-4 transition-colors hover:text-white'
+						>
+							ljaviertovar.dev
+						</a>
+					</span>
 				</p>
 			</Shell>
 		</footer>

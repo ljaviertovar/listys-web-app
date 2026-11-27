@@ -82,7 +82,7 @@ function ComboboxInput({
 	...props
 }: Omit<ComboboxPrimitive.Input.Props, 'size'> & {
 	size?: 'default' | 'lg' | 'filter'
-	surface?: 'default' | 'page' | 'form'
+	surface?: 'default' | 'page' | 'paper' | 'form' | 'form-paper'
 	inset?: 'default' | 'card'
 	showTrigger?: boolean
 	showClear?: boolean
@@ -92,9 +92,12 @@ function ComboboxInput({
 		<InputGroup
 			className={cn(
 				'w-auto',
-				surface === 'page' && 'bg-background',
-				surface === 'form' && 'rounded-3xl border-transparent bg-input/50 shadow-xs',
-				size === 'lg' && cn('h-11', surface === 'form' ? 'rounded-3xl' : 'rounded-2xl'),
+				surface === 'page' && 'bg-muted',
+				// A filter on the paper ground takes the card-white fill, so it stands out from the page (DS: Input on-paper).
+				surface === 'paper' && 'bg-card',
+				surface === 'form' && 'rounded-3xl border-border bg-muted shadow-xs',
+				surface === 'form-paper' && 'rounded-3xl border-border bg-card shadow-xs',
+				size === 'lg' && cn('h-11', surface === 'form' || surface === 'form-paper' ? 'rounded-3xl' : 'rounded-2xl'),
 				size === 'filter' && 'h-13 rounded-4xl px-1',
 				inset === 'card' && 'px-0.5',
 				className,
@@ -169,7 +172,7 @@ function ComboboxContent({
 					data-slot='combobox-content'
 					data-chips={!!anchor}
 					className={cn(
-						'bg-background text-popover-foreground data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 ring-foreground/5 *:data-[slot=input-group]:bg-background max-h-72 min-w-36 overflow-hidden rounded-3xl shadow-lg ring-1 duration-100 *:data-[slot=input-group]:m-1 *:data-[slot=input-group]:mb-0 *:data-[slot=input-group]:h-9 *:data-[slot=input-group]:border-none *:data-[slot=input-group]:shadow-none group/combobox-content relative max-h-(--available-height) w-(--anchor-width) max-w-(--available-width) min-w-(--anchor-width) origin-(--transform-origin) data-[chips=true]:min-w-(--anchor-width)',
+						'bg-card text-popover-foreground data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 ring-foreground/5 *:data-[slot=input-group]:bg-card max-h-72 min-w-36 overflow-hidden rounded-3xl shadow-lg ring-1 duration-100 *:data-[slot=input-group]:m-1 *:data-[slot=input-group]:mb-0 *:data-[slot=input-group]:h-9 *:data-[slot=input-group]:border-none *:data-[slot=input-group]:shadow-none group/combobox-content relative max-h-(--available-height) w-(--anchor-width) max-w-(--available-width) min-w-(--anchor-width) origin-(--transform-origin) data-[chips=true]:min-w-(--anchor-width)',
 						size === 'filter' && 'rounded-4xl p-1.5',
 						className,
 					)}
@@ -205,9 +208,9 @@ function ComboboxItem({
 		<ComboboxPrimitive.Item
 			data-slot='combobox-item'
 			className={cn(
-				"data-highlighted:bg-accent data-highlighted:text-accent-foreground not-data-[variant=destructive]:data-highlighted:**:text-accent-foreground gap-2.5 rounded-lg py-2 pr-8 pl-3 text-sm [&_svg:not([class*='size-'])]:size-4 relative flex w-full cursor-default items-center outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+				"data-highlighted:bg-accent data-highlighted:text-accent-foreground not-data-[variant=destructive]:data-highlighted:**:text-accent-foreground gap-2.5 rounded-3xl py-2 pr-8 pl-3 text-sm [&_svg:not([class*='size-'])]:size-4 relative flex w-full cursor-default items-center outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
 				size === 'filter' &&
-					'data-selected:bg-accent data-selected:text-accent-foreground min-h-12 gap-2.5 rounded-2xl py-0 pr-9 pl-2 font-semibold',
+					'data-selected:bg-accent data-selected:text-accent-foreground min-h-12 gap-2.5 rounded-4xl py-0 pr-9 pl-2 font-semibold',
 				className,
 			)}
 			{...props}
@@ -286,7 +289,7 @@ function ComboboxChips({
 		<ComboboxPrimitive.Chips
 			data-slot='combobox-chips'
 			className={cn(
-				'bg-input/30 border-input focus-within:border-ring focus-within:ring-ring/50 has-aria-invalid:ring-destructive/20 dark:has-aria-invalid:ring-destructive/40 has-aria-invalid:border-destructive dark:has-aria-invalid:border-destructive/50 flex min-h-9 flex-wrap items-center gap-1.5 rounded-lg border bg-clip-padding px-2.5 py-1.5 text-sm transition-colors focus-within:ring-[3px] has-aria-invalid:ring-[3px] has-data-[slot=combobox-chip]:px-1.5',
+				'bg-muted border-input focus-within:border-ring focus-within:ring-ring/50 has-aria-invalid:ring-destructive/20 dark:has-aria-invalid:ring-destructive/40 has-aria-invalid:border-destructive dark:has-aria-invalid:border-destructive/50 flex min-h-9 flex-wrap items-center gap-1.5 rounded-lg border bg-clip-padding px-2.5 py-1.5 text-sm transition-colors focus-within:ring-[3px] has-aria-invalid:ring-[3px] has-data-[slot=combobox-chip]:px-1.5',
 				className,
 			)}
 			{...props}

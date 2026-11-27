@@ -154,6 +154,7 @@ export function StoreDetailView({ store }: StoreDetailProps) {
 				description={`Pick the store that will keep the receipts of “${store.name}”. “${store.name}” will be removed.`}
 				confirmLabel='Continue'
 				allowCreate={false}
+				searchable={false}
 				optionVariant='card'
 				excludeStoreId={store.id}
 				onPick={handlePickStore}

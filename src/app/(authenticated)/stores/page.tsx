@@ -22,7 +22,7 @@ export default async function StoresPage() {
 
 	return (
 		<>
-			<StoresPageHeader />
+			<StoresPageHeader count={stores?.length ?? 0} />
 
 			<PageContainer>
 				{error ? (
