@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Upload06Icon } from '@hugeicons/core-free-icons'
+import { ScanTextIcon } from '@hugeicons/core-free-icons-v4'
 import { HugeiconsIcon } from '@hugeicons/react'
 
 import { Button } from '@/components/ui/button'
@@ -121,13 +121,13 @@ export function MobileTabBar() {
 							variant='default'
 							ring={tripRunning ? 'surface' : 'none'}
 							size='icon-2xl'
-							aria-label='Upload a receipt'
-							data-testid='mobile-tab-upload'
+							aria-label='Scan a receipt'
+							data-testid='mobile-tab-scan'
 							// The ring in the bar colour makes the overlap with the session bar read as a cut-out, only while a trip runs.
 							className='-mt-5'
 						>
 							<HugeiconsIcon
-								icon={Upload06Icon}
+								icon={ScanTextIcon}
 								strokeWidth={1.8}
 								aria-hidden='true'
 								className='size-5.5'
@@ -137,7 +137,7 @@ export function MobileTabBar() {
 				/>
 				{/* On the same baseline as the labels of the other four tabs. */}
 				<span className='mt-2 text-xs leading-none font-medium text-muted-foreground dark:text-entity-list-on'>
-					Upload
+					Scan
 				</span>
 			</div>
 			{tab(receipts)}

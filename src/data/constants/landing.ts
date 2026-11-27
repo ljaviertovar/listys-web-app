@@ -88,7 +88,6 @@ export const LANDING_MEMORY = {
 		estimate: 'est. $32.03',
 		estimateNote: 'covers 6 of 6 items',
 	},
-	illustrative: 'Illustrative data',
 	facts: [
 		'Every list on one screen',
 		'Every trip kept in history',

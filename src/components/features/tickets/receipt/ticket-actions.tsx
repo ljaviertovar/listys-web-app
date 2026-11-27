@@ -17,6 +17,8 @@ interface Props {
 	allowRetry?: boolean
 	/** The retry button's label; "Read Receipt Again" unless the surface asks for something shorter. */
 	retryLabel?: string
+	/** The retry button's variant; a notice that already has a primary action asks for the quieter outline. */
+	retryVariant?: 'ghost' | 'outline'
 	onRetrySuccess?: () => void
 }
 
@@ -24,6 +26,7 @@ export function TicketActions({
 	ticket,
 	allowRetry = false,
 	retryLabel = 'Read Receipt Again',
+	retryVariant = 'ghost',
 	onRetrySuccess,
 }: Props) {
 	const [retrying, setRetrying] = useState(false)
@@ -71,7 +74,7 @@ export function TicketActions({
 		>
 			{showRetryButton && (
 				<Button
-					variant='ghost'
+					variant={retryVariant}
 					size='sm'
 					onClick={handleRetry}
 					disabled={retrying}

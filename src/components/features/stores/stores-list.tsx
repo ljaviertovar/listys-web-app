@@ -121,6 +121,7 @@ export function StoresList({ stores }: StoresListProps) {
 				}
 				confirmLabel='Continue'
 				allowCreate={false}
+				searchable={false}
 				optionVariant='card'
 				excludeStoreId={flow.kind === 'pick-target' ? flow.source.id : null}
 				initialSelectedStoreId={flow.kind === 'pick-target' ? stores.find(store => store.id !== flow.source.id)?.id : undefined}

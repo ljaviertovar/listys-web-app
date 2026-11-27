@@ -87,7 +87,6 @@ export default async function EditBaseListPage({
 					collaboratorCount > 0 ? <Badge key='shared' variant='outline'><HugeiconsIcon icon={UserGroupIcon} strokeWidth={1.8} aria-hidden='true' />Shared · {collaboratorCount}</Badge> : null,
 				]}
 				facts={[
-					{ kind: 'count', value: items.length, unit: items.length === 1 ? 'item' : 'items' },
 					lastTrip?.completed_at ? { value: `Last trip ${lastTripLabel}` } : null,
 				]}
 			/>

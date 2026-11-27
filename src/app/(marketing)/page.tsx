@@ -4,7 +4,6 @@ import {
 	HeroSection,
 	HowItWorksSection,
 	MemorySection,
-	MobileCtaDock,
 	MoneySection,
 	ReceiptBandSection,
 	RevealObserver,
@@ -45,7 +44,6 @@ export default function Page() {
 				<SharedListsShowcaseSection />
 				<SectionBreak testId='home-page-break-faq' />
 				<FaqSection />
-				<MobileCtaDock />
 			</div>
 			<SectionBreak testId='home-page-break-close' />
 			<GetStartedSection />

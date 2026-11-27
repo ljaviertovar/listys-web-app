@@ -27,6 +27,8 @@ interface StorePickerDialogProps {
 	confirmLabel: string
 	/** Offers "Create “…”" for a name no store has. Off when only an existing store makes sense (merging). */
 	allowCreate?: boolean
+	/** Hides search when the full list is the intended way to choose a store, such as during a merge. */
+	searchable?: boolean
 	/** Renders selectable stores as full-width cards, as in the merge destination sheet. */
 	optionVariant?: 'default' | 'card'
 	/** A store that cannot be picked, such as the one being merged. */
@@ -102,6 +104,7 @@ type StorePickerBodyProps = Omit<
 function StorePickerBody({
 	confirmLabel,
 	allowCreate = true,
+	searchable = true,
 	optionVariant = 'default',
 	excludeStoreId,
 	initialSelectedStoreId,
@@ -142,7 +145,10 @@ function StorePickerBody({
 				defaultStoreId ??
 				(wholeListChoice ? WHOLE_LIST_VALUE : ''))
 	const selectedValue = selected || initialSelection
-	const matches = useMemo(() => filterStores(allStores, query, excludeStoreId), [allStores, query, excludeStoreId])
+	const matches = useMemo(
+		() => filterStores(allStores, searchable ? query : '', excludeStoreId),
+		[allStores, excludeStoreId, query, searchable],
+	)
 	const offerCreate = allowCreate && stores.status === 'ready' && canCreateStore(allStores, query)
 	const newName = query.replace(/\s+/g, ' ').trim()
 	const choice = selectedValue === NEW_STORE_VALUE && !offerCreate ? '' : selectedValue
@@ -280,7 +286,7 @@ function StorePickerBody({
 						onValueChange={setSelected}
 						status={visibleStatus}
 						disabled={pending}
-						searchable={!itemName && !wholeListChoice}
+						searchable={searchable && !itemName && !wholeListChoice}
 						fillAvailableHeight={Boolean(itemName)}
 						variant={itemName || wholeListChoice ? 'card' : optionVariant}
 						statusVisibility={wholeListChoice || optionVariant === 'card' ? 'visible' : undefined}

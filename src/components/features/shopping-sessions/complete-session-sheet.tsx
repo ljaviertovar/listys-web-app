@@ -36,7 +36,14 @@ interface CompleteSessionSheetProps {
  * ticked it offers to save the trip. Completing always saves the checked items to the history and the base list: there is
  * no option to skip it.
  */
-export function CompleteSessionSheet({ sessionId, listName, checked, total, open, onOpenChange }: CompleteSessionSheetProps) {
+export function CompleteSessionSheet({
+	sessionId,
+	listName,
+	checked,
+	total,
+	open,
+	onOpenChange,
+}: CompleteSessionSheetProps) {
 	const { controller, barrier } = useTripSync(sessionId)
 	const [loading, setLoading] = useState(false)
 	const [saveError, setSaveError] = useState(false)
@@ -59,7 +66,11 @@ export function CompleteSessionSheet({ sessionId, listName, checked, total, open
 			openedBefore = previous === 100
 		}
 		if (progress === 100 && previous < 100 && !openedBefore) {
-			try { window.localStorage.setItem(`listys:trip-complete-opened:${sessionId}`, '1') } catch { /* Storage can be unavailable in private contexts. */ }
+			try {
+				window.localStorage.setItem(`listys:trip-complete-opened:${sessionId}`, '1')
+			} catch {
+				/* Storage can be unavailable in private contexts. */
+			}
 			onOpenChange(true)
 		}
 		lastProgressBySession.set(sessionId, progress)
@@ -92,21 +103,44 @@ export function CompleteSessionSheet({ sessionId, listName, checked, total, open
 		}
 	}
 
-	const description = <>You collected <b className='font-mono font-medium text-foreground'>{checked}</b> of <b className='font-mono font-medium text-foreground'>{total}</b> items.</>
+	const description = (
+		<>
+			You collected <b className='font-mono font-medium text-foreground'>{checked}</b> of{' '}
+			<b className='font-mono font-medium text-foreground'>{total}</b> items.
+		</>
+	)
 	const learningAlert = (count: number, testId: string) => (
-		<Alert variant='info' role='note' data-testid={testId}>
-			<RowIcon icon={InformationCircleIcon} tone='primary' size='alert' />
+		<Alert
+			variant='info'
+			role='note'
+			data-testid={testId}
+		>
+			<RowIcon
+				icon={InformationCircleIcon}
+				tone='primary'
+				size='alert'
+			/>
 			<div>
-			<AlertTitle>{listName} learns from this trip</AlertTitle>
-				<AlertDescription>{count === total
-					? `All ${count} items move up in your usual order.`
-					: `The ${count} items you collected move up in your usual order.`}</AlertDescription>
+				<AlertTitle>{listName} learns from this trip</AlertTitle>
+				<AlertDescription>
+					{count === total
+						? `All ${count} items move up in your usual order.`
+						: `The ${count} items you collected move up in your usual order.`}
+				</AlertDescription>
 			</div>
 		</Alert>
 	)
 	const errorAlert = (
-		<Alert variant='destructive' role='alert' data-testid='complete-session-error'>
-			<RowIcon icon={Alert02Icon} tone='danger' size='alert' />
+		<Alert
+			variant='destructive'
+			role='alert'
+			data-testid='complete-session-error'
+		>
+			<RowIcon
+				icon={Alert02Icon}
+				tone='danger'
+				size='alert'
+			/>
 			<div>
 				<AlertTitle>Couldn&apos;t save the trip</AlertTitle>
 				<AlertDescription>You&apos;re offline. Your checks are kept on this device.</AlertDescription>
@@ -125,21 +159,75 @@ export function CompleteSessionSheet({ sessionId, listName, checked, total, open
 			>
 				<div className='flex flex-col gap-4'>
 					<div className='flex flex-col items-center text-center'>
-						<RowIcon icon={CheckmarkCircle02Icon} tone='success' size='saved' testId='complete-session-success-icon' />
-						<h2 className='mt-3 font-display text-lg leading-normal font-semibold tracking-tight text-foreground'>Trip Complete</h2>
-						<p className='mt-1 text-sm leading-normal text-muted-foreground'>You collected all <b className='font-mono font-medium text-foreground'>{total}</b> items. Nothing is left on this trip.</p>
+						<RowIcon
+							icon={CheckmarkCircle02Icon}
+							tone='success'
+							size='saved'
+							testId='complete-session-success-icon'
+						/>
+						<h2 className='mt-3 font-display text-lg leading-normal font-semibold tracking-tight text-foreground'>
+							Trip Complete
+						</h2>
+						<p className='mt-1 text-sm leading-normal text-muted-foreground'>
+							You collected all <b className='font-mono font-medium text-foreground'>{total}</b> items. Nothing is left
+							on this trip.
+						</p>
 					</div>
 					{saveError ? errorAlert : learningAlert(total, 'complete-session-learning')}
 				</div>
-				<DialogFooter variant='sheet-stack' className='mt-4'>
-					<Button type='button' size='lg' variant='outline' onClick={() => onOpenChange(false)} disabled={loading}>Keep Shopping</Button>
-					{saveError ? <Button type='button' size='lg' variant='default' onClick={() => handleComplete(false)} disabled={loading} data-testid='complete-session-confirm'>Try Again</Button> : <>
-						<Button type='button' size='lg' variant='secondary' onClick={() => handleComplete(false)} disabled={loading}>Save Trip</Button>
-						<Button type='button' size='lg' variant='default' onClick={() => handleComplete(true)} disabled={loading} data-testid='complete-session-confirm'>
-							<HugeiconsIcon icon={Attachment01Icon} strokeWidth={1.8} className='size-4' aria-hidden='true' />
-							{loading ? 'Saving…' : 'Save and Upload Receipt'}
+				<DialogFooter
+					variant='sheet-stack'
+					className='mt-4'
+				>
+					<Button
+						type='button'
+						size='lg'
+						variant='outline'
+						onClick={() => onOpenChange(false)}
+						disabled={loading}
+					>
+						Keep Shopping
+					</Button>
+					{saveError ? (
+						<Button
+							type='button'
+							size='lg'
+							variant='default'
+							onClick={() => handleComplete(false)}
+							disabled={loading}
+							data-testid='complete-session-confirm'
+						>
+							Try Again
 						</Button>
-					</>}
+					) : (
+						<>
+							<Button
+								type='button'
+								size='lg'
+								variant='secondary'
+								onClick={() => handleComplete(false)}
+								disabled={loading}
+							>
+								Save Trip
+							</Button>
+							<Button
+								type='button'
+								size='lg'
+								variant='default'
+								onClick={() => handleComplete(true)}
+								disabled={loading}
+								data-testid='complete-session-confirm'
+							>
+								<HugeiconsIcon
+									icon={Attachment01Icon}
+									strokeWidth={1.8}
+									className='size-4'
+									aria-hidden='true'
+								/>
+								{loading ? 'Saving…' : 'Save and Scan Receipt'}
+							</Button>
+						</>
+					)}
 				</DialogFooter>
 			</SheetDialog>
 		)
@@ -158,15 +246,27 @@ export function CompleteSessionSheet({ sessionId, listName, checked, total, open
 			onConfirm={() => handleComplete(false)}
 			testId='complete-session-sheet'
 		>
-			{saveError ? errorAlert : <>
-				{learningAlert(checked, 'complete-session-learning')}
-				{unchecked > 0 ? <WarningAlert testId='complete-session-uncollected' role='note'>
-					<div>
-						<AlertTitle>Uncollected items stay in Pantry</AlertTitle>
-						<AlertDescription>The {unchecked} {unchecked === 1 ? 'item you didn’t collect is' : 'items you didn’t collect are'} waiting for your next trip.</AlertDescription>
-					</div>
-				</WarningAlert> : null}
-			</>}
+			{saveError ? (
+				errorAlert
+			) : (
+				<>
+					{learningAlert(checked, 'complete-session-learning')}
+					{unchecked > 0 ? (
+						<WarningAlert
+							testId='complete-session-uncollected'
+							role='note'
+						>
+							<div>
+								<AlertTitle>Uncollected items stay in Pantry</AlertTitle>
+								<AlertDescription>
+									The {unchecked} {unchecked === 1 ? 'item you didn’t collect is' : 'items you didn’t collect are'}{' '}
+									waiting for your next trip.
+								</AlertDescription>
+							</div>
+						</WarningAlert>
+					) : null}
+				</>
+			)}
 		</ConfirmSheet>
 	)
 }

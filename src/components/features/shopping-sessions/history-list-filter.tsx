@@ -47,7 +47,7 @@ export function HistoryListFilter({ options, selectedListId, testId = 'history-l
 				<ComboboxInput
 					id={fieldId}
 					size='filter'
-					surface='page'
+					surface='paper'
 					inset='card'
 					aria-label='Show trips from'
 				>

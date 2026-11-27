@@ -18,7 +18,7 @@ const PAIRS: Pair[] = [
 			name: '2% Milk',
 			note: 'Lactose-free preferred; regular is fine',
 			store: 'Market Fresh',
-			alsoAt: 'also at No Frills',
+			alsoAt: 'also at Walmart',
 			price: 6.29,
 		},
 	},
@@ -29,7 +29,7 @@ const PAIRS: Pair[] = [
 			quantity: 1,
 			unit: 'kg',
 			name: 'Cherry Tomatoes',
-			note: 'Ripe ones for salads and lunches',
+			note: '',
 			store: 'Market Fresh',
 			price: 3.75,
 		},
@@ -75,10 +75,12 @@ export function ReceiptBandSection() {
 			<div className='relative z-10 grid gap-[26px] md:gap-11 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.3fr)] lg:items-center lg:gap-18 [&>*]:min-w-0'>
 				<div data-reveal>
 					<h2 className='text-[34px] leading-[0.98] font-extrabold tracking-[-0.045em] text-white md:text-[clamp(34px,4.4vw,58px)]'>
-						Receipts are written for the till. <em className='text-inverse-action not-italic'>Your list is written for you.</em>
+						Receipts are written for the till.{' '}
+						<em className='text-inverse-action not-italic'>Your list is written for you.</em>
 					</h2>
 					<p className='mt-4 max-w-[30em] text-base leading-relaxed md:mt-[22px] md:text-lg'>
-						Listys reads each printed line into a name, a quantity and a price, and matches it to what is already on your list.
+						Listys reads each printed line into a name, a quantity and a price, and matches it to what is already on
+						your list.
 					</p>
 				</div>
 				<div data-reveal>

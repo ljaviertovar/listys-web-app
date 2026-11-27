@@ -31,7 +31,9 @@ export function SectionHead({ number, title, description, layout = 'row', titleS
 	if (layout === 'stack') {
 		return (
 			<div data-testid={testId}>
-				<MonoLabel>{number}</MonoLabel>
+				<div className='border-t-2 border-paper-ink pt-3'>
+					<MonoLabel>{number}</MonoLabel>
+				</div>
 				<div className='mt-[18px]'>{heading}</div>
 				<p className='mt-6 max-w-[28em] text-lg leading-relaxed'>{description}</p>
 			</div>
@@ -43,7 +45,9 @@ export function SectionHead({ number, title, description, layout = 'row', titleS
 			data-testid={testId}
 			className='mb-11 grid gap-[18px] md:mb-14 lg:grid-cols-[120px_minmax(0,1fr)_minmax(0,0.75fr)] lg:items-end lg:gap-8'
 		>
-			<MonoLabel className='self-start border-t-[1.5px] border-paper-ink pt-3'>{number}</MonoLabel>
+			<div className='w-fit self-start border-t-2 border-paper-ink pt-3'>
+				<MonoLabel>{number}</MonoLabel>
+			</div>
 			{heading}
 			<p className='max-w-[30em] text-base leading-relaxed md:text-[17.5px]'>{description}</p>
 		</div>

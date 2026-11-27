@@ -62,7 +62,7 @@ export function UsualStoreFilter({ options, value, totalCount }: UsualStoreFilte
 					<ComboboxInput
 						id={labelId}
 						size='filter'
-						surface='page'
+						surface='paper'
 						inset='card'
 						aria-label='Show items from'
 						data-testid='usual-store-filter-control'

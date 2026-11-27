@@ -2,7 +2,7 @@
 
 import type { ReactNode } from 'react'
 
-import { SyncStatusLine } from '@/components/commons'
+import { InlineCounter, SyncStatusLine } from '@/components/commons'
 import { cn } from '@/utils'
 import type { BaseListItemWithStoreSummary } from '@/types'
 
@@ -45,17 +45,26 @@ export function BaseListShopping({
 	// A list that is being shopped is locked, checks included.
 	const isLocked = Boolean(activeSessionId)
 	const hasBar = !isLocked && items.some(item => item.needed_at)
+	const showSyncStatus = (items.length > 0 && !isLocked) || isSaving
 
 	return (
 		<div className={cn('flex w-full max-w-3xl flex-col gap-4', hasBar && 'max-lg:pb-24')}>
-			{/* A locked list takes no checks, so it only reports the ones still on their way. */}
-			{(items.length > 0 && !isLocked) || isSaving ? (
-				<div className='-mt-4' data-testid='needed-sync-status'>
-					<SyncStatusLine
-						message={saveFailed ? 'Not saved' : isSaving ? 'Saving…' : 'Saved'}
-						icon={saveFailed ? undefined : isSaving ? 'saving' : 'saved'}
-						onRetry={saveFailed ? retry : undefined}
-					/>
+			{items.length > 0 || showSyncStatus ? (
+				<div className='-mt-4 flex w-full items-center justify-between gap-3' data-testid='base-list-count-sync-row'>
+					{items.length > 0 ? (
+						<InlineCounter count={items.length} one='item' many='items' testId='base-list-item-count' />
+					) : (
+						<span aria-hidden='true' />
+					)}
+					{showSyncStatus ? (
+						<div data-testid='needed-sync-status'>
+							<SyncStatusLine
+								message={saveFailed ? 'Not saved' : isSaving ? 'Saving…' : 'Saved'}
+								icon={saveFailed ? undefined : isSaving ? 'saving' : 'saved'}
+								onRetry={saveFailed ? retry : undefined}
+							/>
+						</div>
+					) : null}
 				</div>
 			) : null}
 			{items.length > 0 ? (

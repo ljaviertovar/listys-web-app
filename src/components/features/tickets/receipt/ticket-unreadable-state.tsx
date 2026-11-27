@@ -64,29 +64,27 @@ export function TicketUnreadableState({ ticketId, ocrError, kind, testId = 'tick
 					<div className='flex min-w-0 flex-1 flex-col gap-1'>
 						<h2
 							id={titleId}
-							className='font-display text-base leading-[1.33] font-semibold tracking-[-0.015em]'
+							className='font-display text-base leading-snug font-semibold tracking-tight'
 						>
 							{copy.title}
 						</h2>
-						<p className='text-xs leading-[1.4] text-muted-foreground dark:text-muted-foreground'>{failed && ocrError ? safeOcrError(ocrError) : copy.help}</p>
+						<p className='text-xs leading-4 text-muted-foreground dark:text-muted-foreground'>{failed && ocrError ? safeOcrError(ocrError) : copy.help}</p>
 					</div>
 				</div>
 				<ul
 					aria-label='Tips for a clearer photo'
-					className='flex flex-col gap-2.5 rounded-2xl bg-muted p-3'
+					className='flex flex-col'
 				>
 					{copy.tips.map(tip => (
 						<li
 							key={tip}
-							className='flex items-start gap-2.5 text-sm leading-[1.4] text-muted-foreground dark:text-foreground/80'
+							className='flex items-center gap-2 border-t border-dashed border-border py-1.5 text-sm leading-5 text-muted-foreground first:border-t-0 dark:text-foreground/80'
 						>
-							<span className='mt-px flex size-5 shrink-0 items-center justify-center rounded-full bg-secondary text-blue-700 dark:bg-muted dark:text-blue-300'>
-								<HugeiconsIcon
-									icon={Tick02Icon}
-									strokeWidth={2}
-									className='size-3.5'
-								/>
-							</span>
+							<HugeiconsIcon
+								icon={Tick02Icon}
+								strokeWidth={2.6}
+								className='size-3 shrink-0 text-primary'
+							/>
 							{tip}
 						</li>
 					))}
@@ -105,6 +103,7 @@ export function TicketUnreadableState({ ticketId, ocrError, kind, testId = 'tick
 					ticket={{ id: ticketId, ocr_status: failed ? 'failed' : 'completed' }}
 					allowRetry
 					retryLabel='Try Again'
+					retryVariant='outline'
 					onRetrySuccess={onRetrySuccess}
 				/>
 			</div>

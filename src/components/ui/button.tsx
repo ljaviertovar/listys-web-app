@@ -7,17 +7,22 @@ import { cn } from '@/utils'
 const SECONDARY_BUTTON_STYLE =
 	'border-border bg-background shadow-none hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:bg-transparent dark:hover:bg-input/30'
 
+// Outline: no fill, the border is what draws it, so it takes the surface it sits on (DS: Button outline, proposal 13).
+const OUTLINE_BUTTON_STYLE =
+	'border-input bg-transparent shadow-none hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:bg-transparent dark:hover:bg-input/30'
+
 const buttonVariants = cva(
 	"group/button inline-flex shrink-0 items-center justify-center rounded-4xl border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-colors outline-none select-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
 	{
 		variants: {
 			variant: {
 				default: 'bg-primary text-primary-foreground hover:bg-primary/80',
-				outline: SECONDARY_BUTTON_STYLE,
+				outline: OUTLINE_BUTTON_STYLE,
 				// A form control that opens a picker: outline surface, left-aligned value, muted until a day is chosen (data-empty).
 				field: `${SECONDARY_BUTTON_STYLE} justify-start text-left font-normal data-[empty=true]:text-muted-foreground`,
 				secondary:
-					'bg-secondary text-secondary-foreground hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground',
+					// Light: a blue tint with no border, so it reads as a button on card and on paper; dark keeps the neutral secondary.
+						'bg-[#DCE6FC] text-[#1E40AF] hover:bg-[#CFDDFA] aria-expanded:bg-[#DCE6FC] aria-expanded:text-[#1E40AF] dark:bg-secondary dark:text-secondary-foreground dark:hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)]',
 				// One option of a segmented switch: a page link marks itself with aria-current, a radio option with aria-checked.
 				segment:
 					'text-muted-foreground hover:bg-background/60 aria-[current=page]:bg-white aria-[current=page]:text-slate-900 aria-[current=page]:shadow-sm aria-checked:bg-white aria-checked:text-slate-900 aria-checked:shadow-sm',
